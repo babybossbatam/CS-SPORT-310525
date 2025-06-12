@@ -41,6 +41,7 @@ import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
+import MyCircularFlag from "../common/MyCircularFlag";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -1723,50 +1724,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     match.teams.home,
                                     leagueData.league,
                                   ) ? (
-                                    <div className="flag-circle popular-leagues-size">
-                                      <LazyImage
-                                        src={(() => {
-                                          // Use Circle Flags as primary source for national teams
-                                          const teamName =
-                                            match.teams.home.name;
-                                          // Special handling for Turkey/Türkiye
-                                          if (
-                                            teamName
-                                              .toLowerCase()
-                                              .includes("turkey") ||
-                                            teamName
-                                              .toLowerCase()
-                                              .includes("türkiye")
-                                          ) {
-                                            return `https://hatscripts.github.io/circle-flags/flags/tr.svg`;
-                                          }
-                                          const countryCode =
-                                            getCountryCode(teamName);
-
-                                          if (countryCode) {
-                                            return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-                                          }
-
-                                          // Fallback to original API if no country code mapping
-                                          return match.teams.home.id
-                                            ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                            : "/assets/fallback-logo.svg";
-                                        })()}
-                                        alt={match.teams.home.name}
-                                        title={match.teams.home.name}
-                                        className="team-logo national-team"
-                                        style={{
-                                          filter:
-                                            "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                        }}
-                                        fallbackSrc={
-                                          match.teams.home.id
-                                            ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                            : "/assets/fallback-logo.svg"
-                                        }
-                                      />
-                                      <div className="gloss"></div>
-                                    </div>
+                                    <MyCircularFlag
+                                      teamName={match.teams.home.name}
+                                      fallbackUrl={match.teams.home.logo}
+                                      alt={match.teams.home.name}
+                                      size="34px"
+                                      className="popular-leagues-size"
+                                    />
                                   ) : (
                                     <LazyImage
                                       src={
@@ -1783,8 +1747,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       }}
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
-                                  )}
-                                </div>
+                                  )}</div>
 
                                 {/* Score/Time Center - Fixed width and centered */}
                                 <div className="match-score-container">
@@ -1915,39 +1878,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     match.teams.away,
                                     leagueData.league,
                                   ) ? (
-                                    <div className="flag-circle popular-leagues-size">
-                                      <LazyImage
-                                        src={(() => {
-                                          // Use Circle Flags as primary source for national teams
-                                          const teamName =
-                                            match.teams.away.name;
-                                          const countryCode =
-                                            getCountryCode(teamName);
-
-                                          if (countryCode) {
-                                            return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-                                          }
-
-                                          // Fallback to original API if no country code mapping
-                                          return match.teams.away.id
-                                            ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                            : "/assets/fallback-logo.svg";
-                                        })()}
-                                        alt={match.teams.away.name}
-                                        title={match.teams.away.name}
-                                        className="team-logo national-team"
-                                        style={{
-                                          filter:
-                                            "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                        }}
-                                        fallbackSrc={
-                                          match.teams.away.id
-                                            ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                            : "/assets/fallback-logo.svg"
-                                        }
-                                      />
-                                      <div className="gloss"></div>
-                                    </div>
+                                    <MyCircularFlag
+                                      teamName={match.teams.away.name}
+                                      fallbackUrl={match.teams.away.logo}
+                                      alt={match.teams.away.name}
+                                      size="34px"
+                                      className="popular-leagues-size"
+                                    />
                                   ) : (
                                     <LazyImage
                                       src={
@@ -1964,14 +1901,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       }}
                                       fallbackSrc="/assets/fallback-logo.svg"
                                     />
-                                  )}
-                                </div>
+                                  )}</div>
 
                                 {/* Away Team Name - positioned further right */}
                                 <div
                                   className={`away-team-name ${
                                     match.goals.home !== null &&
                                     match.goals.away !== null &&
+                               ```
                                     match.goals.away > match.goals.home
                                       ? "winner"
                                       : ""
