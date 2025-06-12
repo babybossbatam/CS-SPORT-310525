@@ -707,22 +707,50 @@ const LeagueStandingsFilter = () => {
                                         opponent.team.id !== standing.team.id &&
                                         opponent.rank > standing.rank,
                                     ) && (
-                                      <img
-                                        src={
-                                          group.find(
-                                            (opponent) =>
-                                              opponent.team.id !==
-                                                standing.team.id &&
-                                              opponent.rank > standing.rank,
-                                          )?.team.logo
-                                        }
-                                        alt={`Next opponent`}
-                                        className="w-5 h-5 rounded-full object-contain hover:scale-110 transition-transform"
-                                        onError={(e) => {
-                                          (e.target as HTMLImageElement).src =
-                                            "/assets/fallback-logo.svg";
-                                        }}
-                                      />
+                                      <>
+                                        {isNationalTeam ? (
+                                          <div className="hover:scale-110 transition-transform">
+                                            <MyCircularFlag
+                                              teamName={
+                                                group.find(
+                                                  (opponent) =>
+                                                    opponent.team.id !==
+                                                      standing.team.id &&
+                                                    opponent.rank > standing.rank,
+                                                )?.team.name || ""
+                                              }
+                                              fallbackUrl={
+                                                group.find(
+                                                  (opponent) =>
+                                                    opponent.team.id !==
+                                                      standing.team.id &&
+                                                    opponent.rank > standing.rank,
+                                                )?.team.logo
+                                              }
+                                              alt={`Next opponent`}
+                                              size="20px"
+                                              className="popular-leagues-size"
+                                            />
+                                          </div>
+                                        ) : (
+                                          <img
+                                            src={
+                                              group.find(
+                                                (opponent) =>
+                                                  opponent.team.id !==
+                                                    standing.team.id &&
+                                                  opponent.rank > standing.rank,
+                                              )?.team.logo
+                                            }
+                                            alt={`Next opponent`}
+                                            className="w-5 h-5 rounded-full object-contain hover:scale-110 transition-transform"
+                                            onError={(e) => {
+                                              (e.target as HTMLImageElement).src =
+                                                "/assets/fallback-logo.svg";
+                                            }}
+                                          />
+                                        )}
+                                      </>
                                     )}
                                   </div>
                                 </TableCell>
