@@ -110,10 +110,13 @@ const LeagueStandingsFilter = () => {
             (leagueName.includes("african cup of nations") &&
               currentYear !== 2025) ||
             (leagueName.includes("asian cup") && currentYear !== 2025) ||
-            // Old qualification rounds that are completed
+            // Old qualification rounds that are completed (but keep World Cup qualifications)
             (leagueName.includes("qualification") &&
               !leagueName.includes("champions league") &&
               !leagueName.includes("europa") &&
+              !leagueName.includes("world cup") &&
+              !leagueName.includes("wc qual") &&
+              !leagueName.includes("uefa wc qualification") &&
               currentMonth > 11) || // Most qualifications end by November
             // Women's leagues if specifically excluded
             leagueName.includes("women") ||
@@ -149,8 +152,12 @@ const LeagueStandingsFilter = () => {
             country.includes("egypt") ||
             country.includes("colombia") ||
             country.includes("united states") ||
-            // Current ongoing competitions
-            (leagueName.includes("qualification") && currentMonth <= 11) ||
+            // Current ongoing competitions (including World Cup qualifications)
+            (leagueName.includes("qualification") && 
+              (currentMonth <= 11 || 
+               leagueName.includes("world cup") || 
+               leagueName.includes("wc qual") || 
+               leagueName.includes("uefa wc qualification"))) ||
             // Current cup competitions
             (leagueName.includes("cup") &&
               !leagueName.includes("world cup") &&
@@ -237,6 +244,36 @@ const LeagueStandingsFilter = () => {
           {
             id: 38,
             name: "UEFA WC Qualification - Group G",
+            logo: "",
+            country: "Europe",
+          },
+          {
+            id: 40,
+            name: "UEFA WC Qualification - Group H",
+            logo: "",
+            country: "Europe",
+          },
+          {
+            id: 41,
+            name: "UEFA WC Qualification - Group I",
+            logo: "",
+            country: "Europe",
+          },
+          {
+            id: 42,
+            name: "UEFA WC Qualification - Group J",
+            logo: "",
+            country: "Europe",
+          },
+          {
+            id: 43,
+            name: "UEFA WC Qualification - Group K",
+            logo: "",
+            country: "Europe",
+          },
+          {
+            id: 44,
+            name: "UEFA WC Qualification - Group L",
             logo: "",
             country: "Europe",
           },
