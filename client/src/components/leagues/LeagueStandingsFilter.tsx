@@ -406,7 +406,7 @@ const LeagueStandingsFilter = () => {
 
   return (
     <Card>
-      <CardHeader className=" flex-row items-center justify-between h-10 column">
+      <CardHeader className=" flex-row items-center justify-between h-10 column px-0">
         <Select
           value={selectedLeague}
           onValueChange={(value) => {
@@ -419,7 +419,7 @@ const LeagueStandingsFilter = () => {
             }
           }}
         >
-          <SelectTrigger className="w-full px-0 border-2 border-gray-800 rounded-lg">
+          <SelectTrigger className=" w-full ">
             <SelectValue>
               <div className="flex items-center gap-2">
                 <img
@@ -429,7 +429,7 @@ const LeagueStandingsFilter = () => {
                     )?.logo || "/assets/fallback-logo.svg"
                   }
                   alt={selectedLeagueName}
-                  className="h-5 w-5 object-contain"
+                  className="h-6 w-6 object-contain"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src =
                       "/assets/fallback-logo.svg";
