@@ -94,31 +94,39 @@ const LeagueStandingsFilter = () => {
           const country = league.country?.toLowerCase() || "";
 
           // Always exclude clearly historical tournaments that are not running now
-          const isHistoricalTournament = 
+          const isHistoricalTournament =
             // Past major tournaments (these run on specific cycles)
-            (leagueName.includes("euro championship") && currentYear !== 2024) ||
+            (leagueName.includes("euro championship") &&
+              currentYear !== 2024) ||
             (leagueName.includes("copa america") && currentYear !== 2024) ||
-            (leagueName.includes("world cup") && !leagueName.includes("qualification") && currentYear !== 2026) ||
-            (leagueName.includes("fifa club world cup") && currentYear < 2025) ||
+            (leagueName.includes("world cup") &&
+              !leagueName.includes("qualification") &&
+              currentYear !== 2026) ||
+            (leagueName.includes("fifa club world cup") &&
+              currentYear < 2025) ||
             // Friendlies are usually not league standings
             leagueName.includes("friendlies") ||
             // Completed tournaments
-            leagueName.includes("african cup of nations") && currentYear !== 2025 ||
-            leagueName.includes("asian cup") && currentYear !== 2025 ||
+            (leagueName.includes("african cup of nations") &&
+              currentYear !== 2025) ||
+            (leagueName.includes("asian cup") && currentYear !== 2025) ||
             // Old qualification rounds that are completed
-            (leagueName.includes("qualification") && 
-             !leagueName.includes("champions league") && 
-             !leagueName.includes("europa") &&
-             currentMonth > 11) || // Most qualifications end by November
+            (leagueName.includes("qualification") &&
+              !leagueName.includes("champions league") &&
+              !leagueName.includes("europa") &&
+              currentMonth > 11) || // Most qualifications end by November
             // Women's leagues if specifically excluded
             leagueName.includes("women") ||
             // Youth leagues
-            leagueName.includes("u21") || leagueName.includes("under 21") ||
-            leagueName.includes("u19") || leagueName.includes("under 19") ||
-            leagueName.includes("u17") || leagueName.includes("under 17");
+            leagueName.includes("u21") ||
+            leagueName.includes("under 21") ||
+            leagueName.includes("u19") ||
+            leagueName.includes("under 19") ||
+            leagueName.includes("u17") ||
+            leagueName.includes("under 17");
 
           // Keep current ongoing leagues
-          const isCurrentLeague = 
+          const isCurrentLeague =
             // Major European leagues (run most of the year)
             leagueName.includes("premier league") ||
             leagueName.includes("la liga") ||
@@ -141,8 +149,11 @@ const LeagueStandingsFilter = () => {
             // Current ongoing competitions
             (leagueName.includes("qualification") && currentMonth <= 11) ||
             // Current cup competitions
-            (leagueName.includes("cup") && !leagueName.includes("world cup") && !leagueName.includes("euro")) ||
-            (leagueName.includes("copa") && !leagueName.includes("copa america"));
+            (leagueName.includes("cup") &&
+              !leagueName.includes("world cup") &&
+              !leagueName.includes("euro")) ||
+            (leagueName.includes("copa") &&
+              !leagueName.includes("copa america"));
 
           return !isHistoricalTournament && isCurrentLeague;
         });
@@ -432,12 +443,12 @@ const LeagueStandingsFilter = () => {
                                         onError={(e) => {
                                           (e.target as HTMLImageElement).src =
                                             "/assets/fallback-logo.svg";
+                                          <span className="text-[0.9em]">
+                                            {standing.team.name}
+                                          </span>;
                                         }}
                                       />
                                     )}
-                                    <span className="text-[0.9em]">
-                                      {standing.team.name}
-                                    </span>
                                   </div>
                                 </TableCell>
                                 <TableCell className="text-center text-[0.9em]">
@@ -719,18 +730,22 @@ const LeagueStandingsFilter = () => {
                         </TableRow>
                       );
                     })}
-                    {standings.league.standings[0]
+                  {standings.league.standings[0]
                     ?.slice(0, 7)
                     .map((standing: Standing) => {
-                      return (
-                        standing.description ? (
-                          <TableRow key={`${standing.team.id}-description`} className="border-b border-gray-100">
-                            <TableCell colSpan={11} className="text-[0.75em] text-gray-500 italic">
-                              {standing.description}
-                            </TableCell>
-                          </TableRow>
-                        ) : null
-                      );
+                      return standing.description ? (
+                        <TableRow
+                          key={`${standing.team.id}-description`}
+                          className="border-b border-gray-100"
+                        >
+                          <TableCell
+                            colSpan={11}
+                            className="text-[0.75em] text-gray-500 italic"
+                          >
+                            {standing.description}
+                          </TableCell>
+                        </TableRow>
+                      ) : null;
                     })}
                 </TableBody>
               </Table>
