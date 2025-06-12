@@ -106,6 +106,13 @@ body {
   max-width: 400px !important;
   transform-origin: var(--radix-select-content-transform-origin);
   will-change: transform !important;
+  overflow: hidden !important;
+}
+
+/* Hide dropdown scroll arrows */
+[data-radix-select-scroll-up-button],
+[data-radix-select-scroll-down-button] {
+  display: none !important;
 }
 
 /* Ensure select trigger doesn't overflow */
@@ -130,6 +137,22 @@ main {
 [data-radix-select-viewport] {
   max-width: 400px !important;
   overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* Hide horizontal scrollbars globally */
+* {
+  scrollbar-width: none !important;
+}
+
+*::-webkit-scrollbar:horizontal {
+  display: none !important;
+}
+
+/* Only show vertical scrollbars when needed */
+*::-webkit-scrollbar {
+  width: 0px !important;
+  background: transparent !important;
 }
 
 /* Ensure the entire app container doesn't shift */
