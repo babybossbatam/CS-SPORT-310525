@@ -648,7 +648,7 @@ const LeagueStandingsFilter = () => {
                                 key={standing.team.id}
                                 className="border-b  border-gray-100"
                               >
-                                <TableCell className="font-medium text-[0.9dem] text-center px-4 py-0">
+                                <TableCell className="font-medium text-[0.9dem] text-center px-4 py-0 mx-0">
                                   {standing.rank}
                                 </TableCell>
                                 <TableCell className="flex flex-col font-normal pl-2 ">
@@ -674,33 +674,33 @@ const LeagueStandingsFilter = () => {
                                         }}
                                       />
                                     )}
-                                    <span className="text-[0.9em] px-1">
+                                    <span className="text-[0.9em] px-1 mx-0">
                                       {standing.team.name}
                                     </span>
                                   </div>
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1">
+                                <TableCell className="text-center text-[0.9em] px-1 mx-0">
                                   {stats.played}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1">
+                                <TableCell className="text-center text-[0.9em] px-1 mx-0">
                                   {stats.goals.for}:{stats.goals.against}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1">
+                                <TableCell className="text-center text-[0.9em] px-1 mx-0">
                                   {standing.goalsDiff}
                                 </TableCell>
-                                <TableCell className="text-center font-bold text-[0.9em] px-1">
+                                <TableCell className="text-center font-bold text-[0.9em] px-1 mx-0">
                                   {standing.points}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1">
+                                <TableCell className="text-center text-[0.9em] px-1 mx-0">
                                   {stats.win}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1">
+                                <TableCell className="text-center text-[0.9em] px-1 mx-0">
                                   {stats.draw}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.9em] px-1">
+                                <TableCell className="text-center text-[0.9em] px-1 mx-0">
                                   {stats.lose}
                                 </TableCell>
-                                <TableCell className="px-1 py-1">
+                                <TableCell className="px-1 py-1 mx-0">
                                   <div className="flex items-center justify-center">
                                     {group.find(
                                       (opponent) =>
@@ -716,7 +716,8 @@ const LeagueStandingsFilter = () => {
                                                   (opponent) =>
                                                     opponent.team.id !==
                                                       standing.team.id &&
-                                                    opponent.rank > standing.rank,
+                                                    opponent.rank >
+                                                      standing.rank,
                                                 )?.team.name || ""
                                               }
                                               fallbackUrl={
@@ -724,11 +725,12 @@ const LeagueStandingsFilter = () => {
                                                   (opponent) =>
                                                     opponent.team.id !==
                                                       standing.team.id &&
-                                                    opponent.rank > standing.rank,
+                                                    opponent.rank >
+                                                      standing.rank,
                                                 )?.team.logo
                                               }
                                               alt={`Next opponent`}
-                                              size="20px"
+                                              size="24px"
                                               className="popular-leagues-size"
                                             />
                                           </div>
@@ -745,7 +747,9 @@ const LeagueStandingsFilter = () => {
                                             alt={`Next opponent`}
                                             className="w-5 h-5 rounded-full object-contain hover:scale-110 transition-transform"
                                             onError={(e) => {
-                                              (e.target as HTMLImageElement).src =
+                                              (
+                                                e.target as HTMLImageElement
+                                              ).src =
                                                 "/assets/fallback-logo.svg";
                                             }}
                                           />
