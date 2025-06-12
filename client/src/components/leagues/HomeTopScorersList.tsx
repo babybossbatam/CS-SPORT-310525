@@ -152,7 +152,10 @@ const HomeTopScorersList = () => {
                           <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <div className="font-semibold text-sm">{scorer.player.name} <span className="font-normal text-gray-500">{playerStats.games.position}</span></div>
+                          <div className="font-semibold text-sm">
+                            {scorer.player.name} 
+                            <span className="font-normal text-gray-500 ml-1">{playerStats.games.position}</span>
+                          </div>
                           <div className="text-sm text-gray-500">{playerStats.team.name}</div>
                         </div>
                       </div>
