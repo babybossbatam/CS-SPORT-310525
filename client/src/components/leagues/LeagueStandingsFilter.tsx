@@ -84,25 +84,8 @@ const LeagueStandingsFilter = () => {
         setLeaguesLoading(true);
         const leagues = await getPopularLeagues();
 
-        // Filter to show only current/active leagues (exclude historical tournaments)
-        const currentLeagues = leagues.filter((league) => {
-          const leagueName = league.name?.toLowerCase() || "";
-          
-          // Exclude historical/completed tournaments
-          const isHistoricalTournament = 
-            leagueName.includes("euro championship") ||
-            leagueName.includes("copa america") ||
-            leagueName.includes("world cup") ||
-            leagueName.includes("fifa club world cup") ||
-            leagueName.includes("conmebol sudamericana") ||
-            leagueName.includes("friendlies") ||
-            (leagueName.includes("qualification") && !leagueName.includes("champions league"));
-          
-          return !isHistoricalTournament;
-        });
-
         // Process leagues to ensure we have proper names and logos
-        const processedLeagues = currentLeagues.map((league) => ({
+        const processedLeagues = leagues.map((league) => ({
           ...league,
           // Ensure we have a proper name, fallback to a meaningful default
           name: league.name || `${league.country} League`,
