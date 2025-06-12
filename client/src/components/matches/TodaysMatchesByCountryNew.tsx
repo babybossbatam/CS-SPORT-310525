@@ -1414,44 +1414,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         {isNationalTeam(match.teams.home, {
                                           name: leagueData.league.name,
                                           country: leagueData.league.country,
-                                        }) ? (
-                                          <div className="flag-circle popular-leagues-size">
-                                            <LazyImage
-                                              src={(() => {
-                                                // Use Circle Flags as primary source for national teams
-                                                const teamName = match.teams.home.name;
-                                                // Special handling for Turkey/Türkiye
-                                                if (
-                                                  teamName.toLowerCase().includes("turkey") ||
-                                                  teamName.toLowerCase().includes("türkiye")
-                                                ) {
-                                                  return `https://hatscripts.github.io/circle-flags/flags/tr.svg`;
-                                                }
-                                                const countryCode = getCountryCode(teamName);
-
-                                                if (countryCode) {
-                                                  return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-                                                }
-
-                                                // Fallback to original API if no country code mapping
-                                                return match.teams.home.id
-                                                  ? `/api/team-logo/square/${match.teams.home.id}?size=36`
-                                                  : "/assets/fallback-logo.svg";
-                                              })()}
-                                              alt={match.teams.home.name}
-                                              title={match.teams.home.name}
-                                              className="team-logo national-team"
-                                              style={{
-                                                filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                              }}
-                                              fallbackSrc={
-                                                match.teams.home.id
-                                                  ? `/api/team-logo/square/${match.teams.home.id}?size=36`
-                                                  : "/assets/fallback-logo.svg"
-                                              }
-                                            />
-                                            <div className="gloss"></div>
-                                          </div>
+                                        }) || match.teams.home.name?.includes("U20") || match.teams.home.name?.includes("U21") ? (
+                                          <MyCircularFlag
+                                            teamName={match.teams.home.name || ""}
+                                            fallbackUrl={
+                                              match.teams.home.id
+                                                ? `/api/team-logo/square/${match.teams.home.id}?size=36`
+                                                : "/assets/fallback-logo.svg"
+                                            }
+                                            alt={match.teams.home.name}
+                                            size="36px"
+                                            className="popular-leagues-size"
+                                          />
                                         ) : (
                                           <LazyImage
                                             src={
@@ -1674,44 +1648,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         {isNationalTeam(match.teams.away, {
                                           name: leagueData.league.name,
                                           country: leagueData.league.country,
-                                        }) ? (
-                                          <div className="flag-circle popular-leagues-size">
-                                            <LazyImage
-                                              src={(() => {
-                                                // Use Circle Flags as primary source for national teams
-                                                const teamName = match.teams.away.name;
-                                                // Special handling for Turkey/Türkiye
-                                                if (
-                                                  teamName.toLowerCase().includes("turkey") ||
-                                                  teamName.toLowerCase().includes("türkiye")
-                                                ) {
-                                                  return `https://hatscripts.github.io/circle-flags/flags/tr.svg`;
-                                                }
-                                                const countryCode = getCountryCode(teamName);
-
-                                                if (countryCode) {
-                                                  return `https://hatscripts.github.io/circle-flags/flags/${countryCode.toLowerCase()}.svg`;
-                                                }
-
-                                                // Fallback to original API if no country code mapping
-                                                return match.teams.away.id
-                                                  ? `/api/team-logo/square/${match.teams.away.id}?size=36`
-                                                  : "/assets/fallback-logo.svg";
-                                              })()}
-                                              alt={match.teams.away.name}
-                                              title={match.teams.away.name}
-                                              className="team-logo national-team"
-                                              style={{
-                                                filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                              }}
-                                              fallbackSrc={
-                                                match.teams.away.id
-                                                  ? `/api/team-logo/square/${match.teams.away.id}?size=36`
-                                                  : "/assets/fallback-logo.svg"
-                                              }
-                                            />
-                                            <div className="gloss"></div>
-                                          </div>
+                                        }) || match.teams.away.name?.includes("U20") || match.teams.away.name?.includes("U21") ? (
+                                          <MyCircularFlag
+                                            teamName={match.teams.away.name || ""}
+                                            fallbackUrl={
+                                              match.teams.away.id
+                                                ? `/api/team-logo/square/${match.teams.away.id}?size=36`
+                                                : "/assets/fallback-logo.svg"
+                                            }
+                                            alt={match.teams.away.name}
+                                            size="36px"
+                                            className="popular-leagues-size"
+                                          />
                                         ) : (
                                           <LazyImage
                                             src={
