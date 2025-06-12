@@ -562,15 +562,33 @@ const LeagueStandingsFilter = () => {
                             </TableCell>
                             <TableCell className="py-2 px-3">
                               <div className="flex items-center">
-                                <img
-                                  src={standing.team.logo}
-                                  alt={standing.team.name}
-                                  className="mr-3 h-6 w-6 rounded-md flex-shrink-0 object-contain"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src =
-                                      "/assets/fallback-logo.svg";
-                                  }}
-                                />
+                                {isNationalTeam ? (
+                                  <div className="mr-3 flex-shrink-0">
+                                    <MyCircularFlag
+                                      teamName={standing.team.name}
+                                      fallbackUrl={standing.team.logo}
+                                      alt={standing.team.name}
+                                      size="24px"
+                                      className=""
+                                      leagueContext={{
+                                        name: selectedLeagueName,
+                                        country: ""
+                                      }}
+                                    />
+                                  </div>
+                                ) : (
+                                  <img
+                                    src={standing.team.id 
+                                      ? `/api/team-logo/square/${standing.team.id}?size=24`
+                                      : "/assets/fallback-logo.svg"}
+                                    alt={standing.team.name}
+                                    className="mr-3 h-6 w-6 rounded-sm flex-shrink-0 object-contain"
+                                    onError={(e) => {
+                                      (e.target as HTMLImageElement).src =
+                                        "/assets/fallback-logo.svg";
+                                    }}
+                                  />
+                                )}
                                 <div className="flex flex-col min-w-0 flex-1">
                                   <span className="text-sm font-medium text-gray-900 truncate">
                                     {standing.team.name}
