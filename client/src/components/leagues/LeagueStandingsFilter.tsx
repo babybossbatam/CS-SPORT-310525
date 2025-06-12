@@ -192,6 +192,12 @@ const LeagueStandingsFilter = () => {
           l.name?.toLowerCase().includes("uefa wc qualification")
         );
         console.log(`🌍 World Cup qualification leagues found: ${wcQualLeagues.length}`, wcQualLeagues.map(l => l.name));
+        
+        // If no WC qualification leagues found, force use of fallback
+        if (wcQualLeagues.length === 0) {
+          console.log("⚠️ No WC qualification leagues found in API response, using fallback");
+          throw new Error("No WC qualification leagues found");
+        }
 
         setPopularLeagues(processedLeagues);
 

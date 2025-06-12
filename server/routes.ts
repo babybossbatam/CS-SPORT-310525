@@ -486,7 +486,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 5, priority: 4 }, // UEFA Nations League
         { id: 4, priority: 5 }, // Euro Championship
         { id: 15, priority: 6 }, // FIFA World Cup
-        { id: 32, priority: 7 }, // UEFA WC Qualification
+        { id: 32, priority: 7 }, // UEFA WC Qualification - Group A
+        { id: 33, priority: 7.1 }, // UEFA WC Qualification - Group B
+        { id: 34, priority: 7.2 }, // UEFA WC Qualification - Group C
+        { id: 35, priority: 7.3 }, // UEFA WC Qualification - Group D
+        { id: 36, priority: 7.4 }, // UEFA WC Qualification - Group E
+        { id: 37, priority: 7.5 }, // UEFA WC Qualification - Group F
+        { id: 38, priority: 7.6 }, // UEFA WC Qualification - Group G
+        { id: 40, priority: 7.7 }, // UEFA WC Qualification - Group H
+        { id: 41, priority: 7.8 }, // UEFA WC Qualification - Group I
+        { id: 42, priority: 7.9 }, // UEFA WC Qualification - Group J
+        { id: 43, priority: 8.0 }, // UEFA WC Qualification - Group K
+        { id: 44, priority: 8.1 }, // UEFA WC Qualification - Group L
         { id: 39, priority: 8 }, // Premier League
         { id: 140, priority: 9 }, // La Liga
         { id: 135, priority: 10 }, // Serie A
