@@ -443,22 +443,12 @@ const LeagueStandingsFilter = () => {
                                         onError={(e) => {
                                           (e.target as HTMLImageElement).src =
                                             "/assets/fallback-logo.svg";
+                                          <span className="text-[0.9em]">
+                                            {standing.team.name}
+                                          </span>;
                                         }}
                                       />
                                     )}
-                                    <div className="flex flex-col">
-                                      <span className="text-[0.9em]">
-                                        {standing.team.name}
-                                        {standing.rank === 1 && (
-                                          <span className="ml-2">👑</span>
-                                        )}
-                                      </span>
-                                      {standing.description && (
-                                        <span className="text-[0.75em] text-gray-500 italic">
-                                          {standing.description}
-                                        </span>
-                                      )}
-                                    </div>
                                   </div>
                                 </TableCell>
                                 <TableCell className="text-center text-[0.9em]">
@@ -593,19 +583,12 @@ const LeagueStandingsFilter = () => {
                                   }}
                                 />
                               )}
-                              <div className="flex flex-col">
-                                <span className="text-[0.9em]">
-                                  {standing.team.name}
-                                  {standing.rank === 1 && (
-                                    <span className="ml-2">👑</span>
-                                  )}
-                                </span>
-                                {standing.description && (
-                                  <span className="text-[0.75em] text-gray-500 italic">
-                                    {standing.description}
-                                  </span>
-                                )}
-                              </div>
+                              <span className="text-[0.9em]">
+                                {standing.team.name}
+                              </span>
+                              {standing.rank === 1 && (
+                                <span className="ml-2">👑</span>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell className="text-center text-[0.9em]">
@@ -746,6 +729,23 @@ const LeagueStandingsFilter = () => {
                           </TableCell>
                         </TableRow>
                       );
+                    })}
+                  {standings.league.standings[0]
+                    ?.slice(0, 7)
+                    .map((standing: Standing) => {
+                      return standing.description ? (
+                        <TableRow
+                          key={`${standing.team.id}-description`}
+                          className="border-b border-gray-100"
+                        >
+                          <TableCell
+                            colSpan={11}
+                            className="text-[0.75em] text-gray-500 italic"
+                          >
+                            {standing.description}
+                          </TableCell>
+                        </TableRow>
+                      ) : null;
                     })}
                 </TableBody>
               </Table>
