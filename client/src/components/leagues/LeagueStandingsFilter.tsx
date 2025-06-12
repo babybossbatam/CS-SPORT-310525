@@ -845,7 +845,7 @@ const LeagueStandingsFilter = () => {
                                   }}
                                 />
                                 <div className="flex flex-col min-w-0 flex-1">
-                                  <span className="text-xs font-medium text-gray-900 truncate">
+                                  <span className="text-xs font-medium text-gray-900 truncate hover:underline cursor-pointer">
                                     {standing.team.name}
                                   </span>
                                   {standing.rank <= 3 && (
