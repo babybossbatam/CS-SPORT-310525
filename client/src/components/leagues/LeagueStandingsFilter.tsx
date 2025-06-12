@@ -706,20 +706,21 @@ const LeagueStandingsFilter = () => {
                                   <span className="text-xs font-medium text-gray-900 truncate">
                                     {standing.team.name}
                                   </span>
-                                  {standing.description && (
-                                    <span 
-                                      className="text-[0.65rem] font-medium truncate"
-                                      style={{
-                                        color: standing.rank === 1 ? '#FFD700' : 
-                                               standing.rank <= 4 && standing.description?.toLowerCase().includes('champions') ? '#4A90E2' :
-                                               standing.description?.toLowerCase().includes('europa') ? '#4A90E2' :
-                                               standing.description?.toLowerCase().includes('conference') ? '#4A90E2' :
-                                               '#6B7280'
-                                      }}
-                                    >
-                                      {getChampionshipTitle(standing.rank, standing.description)}
-                                    </span>
-                                  )}
+                                  <span 
+                                    className="text-[0.65rem] font-medium truncate"
+                                    style={{
+                                      color: standing.rank === 1 ? '#FFD700' : 
+                                             standing.description?.toLowerCase().includes('champions league elite') ? '#4A90E2' :
+                                             standing.description?.toLowerCase().includes('champions league') ? '#4A90E2' :
+                                             standing.description?.toLowerCase().includes('europa') ? '#17A2B8' :
+                                             standing.description?.toLowerCase().includes('conference') ? '#6F42C1' :
+                                             standing.description?.toLowerCase().includes('promotion') ? '#28A745' :
+                                             standing.description?.toLowerCase().includes('relegation') ? '#DC3545' :
+                                             '#6B7280'
+                                    }}
+                                  >
+                                    {getChampionshipTitle(standing.rank, standing.description)}
+                                  </span>
                                 </div>
                               </div>
                             </TableCell>
