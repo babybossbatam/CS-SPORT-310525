@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
+import { teamColorMap } from "@/lib/colorExtractor";
 
 interface Standing {
   rank: number;
@@ -386,6 +387,23 @@ const LeagueStandingsFilter = () => {
   });
 
   const isLoading = standingsLoading || fixturesLoading || leaguesLoading;
+
+  // Function to get team color from logo or team name
+  const getTeamColor = (teamName: string, rank: number): string => {
+    const normalizedName = teamName.toLowerCase();
+    
+    // Check if team exists in our color map
+    for (const [key, colors] of Object.entries(teamColorMap)) {
+      if (normalizedName.includes(key)) {
+        return colors.accent;
+      }
+    }
+    
+    // Fallback colors based on rank
+    if (rank === 1) return '#B8860B'; // Dark gold for champions
+    if (rank === 2) return '#C0C0C0'; // Silver for runner-up
+    return '#CD7F32'; // Bronze for 3rd place
+  };
 
   if (isLoading) {
     return (
@@ -762,7 +780,7 @@ const LeagueStandingsFilter = () => {
                                   <div
                                     className="w-1 h-8 rounded-r-sm mr-2"
                                     style={{
-                                      backgroundColor: standing.rank === 1 ? '#B8860B' : 
+                                      backgroundColor: standing.rank <= 2 ? getTeamColor(standing.team.name, standing.rank) :
                                                      standing.rank <= 4 && standing.description?.toLowerCase().includes('champions') ? '#4A90E2' :
                                                      standing.description?.toLowerCase().includes('europa') ? '#4A90E2' :
                                                      standing.description?.toLowerCase().includes('conference') ? '#4A90E2' :
@@ -794,7 +812,7 @@ const LeagueStandingsFilter = () => {
                                     <span 
                                       className="text-[0.65rem] font-medium truncate"
                                       style={{
-                                        color: standing.rank === 1 ? '#B8860B' : 
+                                        color: standing.rank <= 2 ? getTeamColor(standing.team.name, standing.rank) :
                                                standing.description?.toLowerCase().includes('champions league elite') ? '#4A90E2' :
                                                standing.description?.toLowerCase().includes('champions league') ? '#4A90E2' :
                                                standing.description?.toLowerCase().includes('europa') ? '#17A2B8' :
