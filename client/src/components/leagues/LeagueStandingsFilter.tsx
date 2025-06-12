@@ -648,13 +648,13 @@ const LeagueStandingsFilter = () => {
                                 key={standing.team.id}
                                 className="border-b  border-gray-100"
                               >
-                                <TableCell className="font-medium text-[0.9rem] text-center px-2 py-1 mx-0">
+                                <TableCell className="font-medium text-[0.8rem] text-center px-1 py-2 ">
                                   {standing.rank}
                                 </TableCell>
-                                <TableCell className="flex flex-col font-normal pl-1 py-1">
+                                <TableCell className="flex flex-col font-normal px-1 py-3">
                                   <div className="flex items-center">
                                     {isNationalTeam ? (
-                                      <div className="mr-1">
+                                      <div className="mr-4">
                                         <MyCircularFlag
                                           teamName={standing.team.name}
                                           fallbackUrl={standing.team.logo}
@@ -679,25 +679,25 @@ const LeagueStandingsFilter = () => {
                                     </span>
                                   </div>
                                 </TableCell>
-                                <TableCell className="text-center text-[0.85rem] px-1 py-1 mx-0">
+                                <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0">
                                   {stats.played}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.85rem] px-1 py-1 mx-0 font-regular">
+                                <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0 font-regular">
                                   {stats.goals.for}:{stats.goals.against}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.85rem] px-1 py-1 mx-0 font-regular">
+                                <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0 font-regular">
                                   {standing.goalsDiff}
                                 </TableCell>
-                                <TableCell className="text-center font-regular text-[0.85rem] px-1 py-1 mx-0">
+                                <TableCell className="text-center font-regular text-[0.8rem] px-1 py-1 mx-0">
                                   {standing.points}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.85rem] px-1 py-1 mx-0">
+                                <TableCell className="text-center text-[0.8rem] px-1 py-1 mx-0">
                                   {stats.win}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.85rem] font-regular px-1 py-1 mx-0">
+                                <TableCell className="text-center text-[0.8rem] font-regular px-1 py-1 mx-0">
                                   {stats.draw}
                                 </TableCell>
-                                <TableCell className="text-center text-[0.85rem] font-regular px-1 py-1 mx-0">
+                                <TableCell className="text-center text-[0.8rem] font-regular px-1 py-1 mx-0">
                                   {stats.lose}
                                 </TableCell>
                                 <TableCell className="px-1 py-1 mx-0 font-regular">
