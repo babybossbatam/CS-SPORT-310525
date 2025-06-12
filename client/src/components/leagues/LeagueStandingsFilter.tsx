@@ -762,7 +762,7 @@ const LeagueStandingsFilter = () => {
                                   <div
                                     className="w-1 h-8 rounded-r-sm mr-2"
                                     style={{
-                                      backgroundColor: standing.rank === 1 ? '#FFD700' : 
+                                      backgroundColor: standing.rank === 1 ? '#B8860B' : 
                                                      standing.rank <= 4 && standing.description?.toLowerCase().includes('champions') ? '#4A90E2' :
                                                      standing.description?.toLowerCase().includes('europa') ? '#4A90E2' :
                                                      standing.description?.toLowerCase().includes('conference') ? '#4A90E2' :
@@ -794,7 +794,7 @@ const LeagueStandingsFilter = () => {
                                     <span 
                                       className="text-[0.65rem] font-medium truncate"
                                       style={{
-                                        color: standing.rank === 1 ? '#FFD700' : 
+                                        color: standing.rank === 1 ? '#B8860B' : 
                                                standing.description?.toLowerCase().includes('champions league elite') ? '#4A90E2' :
                                                standing.description?.toLowerCase().includes('champions league') ? '#4A90E2' :
                                                standing.description?.toLowerCase().includes('europa') ? '#17A2B8' :
