@@ -140,10 +140,16 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
       <CardHeader className="pb-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img 
-              src={data.league.logo} 
+            <img
+              src={data.league.logo}
               alt={data.league.name}
-              className="h-8 w-8 object-contain"
+              className="team-logo"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                if (!target.src.includes("/assets/fallback-logo.svg")) {
+                  target.src = "/assets/fallback-logo.svg";
+                }
+              }}
             />
             <CardTitle>{data.league.name}</CardTitle>
           </div>
@@ -214,10 +220,16 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                       </TableCell>
                       <TableCell className="min-w-[180px] pl-2">
                         <div className="flex items-center gap-2">
-                          <img 
-                            src={standing.team.logo} 
+                          <img
+                            src={standing.team.logo}
                             alt={standing.team.name}
-                            className="h-5 w-5 object-contain"
+                            className="team-logo"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              if (!target.src.includes("/assets/fallback-logo.svg")) {
+                                target.src = "/assets/fallback-logo.svg";
+                              }
+                            }}
                           />
                           <div className="flex flex-col">
                             <span className="font-medium text-sm">{standing.team.name}</span>
@@ -259,10 +271,16 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                       </TableCell>
                       <TableCell className="text-center">
                         {standing.team.nextMatch && (
-                          <img 
-                            src={standing.team.nextMatch.logo} 
+                          <img
+                            src={standing.team.nextMatch.logo}
                             alt={standing.team.nextMatch.name}
-                            className="w-6 h-6 inline-block"
+                            className="team-logo"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              if (!target.src.includes("/assets/fallback-logo.svg")) {
+                                target.src = "/assets/fallback-logo.svg";
+                              }
+                            }}
                           />
                         )}
                       </TableCell>
