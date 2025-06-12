@@ -138,9 +138,6 @@ const LeagueStandingsFilter = () => {
             leagueName.includes("europa league") ||
             leagueName.includes("conference league") ||
             leagueName.includes("nations league") ||
-            // Specific major leagues from other regions
-            leagueName.includes("saudi pro league") ||
-            leagueName.includes("egyptian premier league") ||
             // Major leagues from other regions
             country.includes("brazil") ||
             country.includes("argentina") ||
