@@ -425,7 +425,7 @@ const LeagueStandingsFilter = () => {
                                 key={standing.team.id}
                                 className="border-b border-gray-100"
                               >
-                                <TableCell className="font-medium text-[0.9em] text-center">
+                                <TableCell className="font-medium text-[0.9em] text-center pl-0">
                                   {standing.rank}
                                 </TableCell>
                                 <TableCell className="flex flex-col font-normal pl-2 ">
@@ -562,7 +562,7 @@ const LeagueStandingsFilter = () => {
                           key={standing.team.id}
                           className="border-b border-gray-100"
                         >
-                          <TableCell className="font-medium text-[0.9em] text-center">
+                          <TableCell className="font-medium text-[0.9em] text-center pl-0">
                             {standing.rank}
                           </TableCell>
                           <TableCell className="flex flex-col font-normal pl-4">
