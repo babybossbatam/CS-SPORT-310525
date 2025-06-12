@@ -404,17 +404,44 @@ const LeagueStandingsFilter = () => {
     );
   }
 
-  // Helper function to determine championship title based on rank and description
   const getChampionshipTitle = (rank: number, description?: string): string => {
     if (!description) return "";
 
-    // For rank 1, extract the title from description or default to "Champions"
+    // For rank 1, generate an actual championship title instead of promotion description
     if (rank === 1) {
-      // Try to extract meaningful title from description
-      if (description.toLowerCase().includes('champions')) {
-        return description;
+      // Don't show promotion/qualification descriptions for champions
+      if (description.toLowerCase().includes('promotion') || 
+          description.toLowerCase().includes('play offs') ||
+          description.toLowerCase().includes('qualification')) {
+        // Generate a proper championship title based on league name
+        if (selectedLeagueName.toLowerCase().includes('premier league')) {
+          return "Won the Premier League";
+        } else if (selectedLeagueName.toLowerCase().includes('la liga')) {
+          return "Won La Liga";
+        } else if (selectedLeagueName.toLowerCase().includes('serie a')) {
+          return "Won Serie A";
+        } else if (selectedLeagueName.toLowerCase().includes('bundesliga')) {
+          return "Won the Bundesliga";
+        } else if (selectedLeagueName.toLowerCase().includes('ligue 1')) {
+          return "Won Ligue 1";
+        } else if (selectedLeagueName.toLowerCase().includes('champions league')) {
+          return "UEFA Champions League Winners";
+        } else if (selectedLeagueName.toLowerCase().includes('europa league')) {
+          return "UEFA Europa League Winners";
+        } else if (selectedLeagueName.toLowerCase().includes('conference league')) {
+          return "UEFA Conference League Winners";
+        } else if (selectedLeagueName.toLowerCase().includes('world cup')) {
+          return "World Cup Winners";
+        } else if (selectedLeagueName.toLowerCase().includes('nations league')) {
+          return "Nations League Winners";
+        } else {
+          // Generic championship title
+          return `${selectedLeagueName} Champions`;
+        }
       }
-      return "Champions";
+
+      // If it's already a proper title (not promotion), show it
+      return description;
     }
 
     // For other ranks, return the description as is (qualification/relegation info)
