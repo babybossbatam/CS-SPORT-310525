@@ -406,22 +406,19 @@ const LeagueStandingsFilter = () => {
 
   // Helper function to determine championship title based on rank and description
   const getChampionshipTitle = (rank: number, description?: string): string => {
+    if (!description) return "";
+
+    // For rank 1, extract the title from description or default to "Champions"
     if (rank === 1) {
-      return "Won the";
-    } else if (description?.toLowerCase().includes('champions league elite')) {
-      return "AFC Champions League Elite";
-    } else if (description?.toLowerCase().includes('champions league')) {
-      return "Champions League";
-    } else if (description?.toLowerCase().includes('europa league')) {
-      return "Europa League";
-    } else if (description?.toLowerCase().includes('conference league')) {
-      return "Conference League";
-    } else if (description?.toLowerCase().includes('promotion')) {
-      return "Promotion";
-    } else if (description?.toLowerCase().includes('relegation')) {
-      return "Relegation";
+      // Try to extract meaningful title from description
+      if (description.toLowerCase().includes('champions')) {
+        return description;
+      }
+      return "Champions";
     }
-    return description || "";
+
+    // For other ranks, return the description as is (qualification/relegation info)
+    return description;
   };
 
   return (
