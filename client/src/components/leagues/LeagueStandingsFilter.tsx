@@ -1036,7 +1036,7 @@ const LeagueStandingsFilter = () => {
                       <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
                         L
                       </TableHead>
-                      <TableHead className="text-center text-xs font-semi-bold text-gray-600 mt-0 mb-0 py-0 px-1 w-[100px]">
+                      <TableHead className="text-center text-xs font-semi-bold text-gray-600 mt-0 mb-0 py-0 px-1 w-[100px] mr-12">
                         Form
                       </TableHead>
                     </TableRow>
@@ -1220,15 +1220,15 @@ const LeagueStandingsFilter = () => {
                             <TableCell className="text-center py-2 px-1 text-xs text-gray-600">
                               {stats.lose}
                             </TableCell>
-                            <TableCell className="text-center py-2 px-1">
-                              <div className="flex gap-1 justify-center">
+                            <TableCell className="text-center py-2 px-1 ">
+                              <div className="flex gap-1 justify-center mr-12">
                                 {standing.form
                                   ?.split("")
                                   .slice(-5)
                                   .map((result, i) => (
                                     <span
                                       key={i}
-                                      className={`w-6 h-6 rounded-sm flex items-center justify-center text-xs font-semi-bold  ${
+                                      className={`w-6 h-6 rounded-sm flex items-center justify-center text-xs font-semi-bold ${
                                         result === "W"
                                           ? "border border-gray-500 text-green-800"
                                           : result === "D"
@@ -1251,7 +1251,7 @@ const LeagueStandingsFilter = () => {
               </div>
             )
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 mr-4">
               No standings data available
             </div>
           )}
