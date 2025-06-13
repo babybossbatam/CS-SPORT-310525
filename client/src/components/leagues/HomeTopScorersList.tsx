@@ -109,35 +109,25 @@ const HomeTopScorersList = () => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    const leagueIndex = POPULAR_LEAGUES.findIndex(league => league.id === leagueId);
-    if (leagueIndex === -1) return;
-
     // Find the tab trigger element for the selected league
     const tabTrigger = container.querySelector(`[value="${leagueId}"]`) as HTMLElement;
     if (!tabTrigger) return;
 
-    // Get container and tab dimensions
-    const containerRect = container.getBoundingClientRect();
-    const tabRect = tabTrigger.getBoundingClientRect();
-    
-    // Calculate the current scroll position
-    const currentScrollLeft = container.scrollLeft;
-    
-    // Calculate tab position relative to container
+    // Get container width and tab position
+    const containerWidth = container.clientWidth;
     const tabOffsetLeft = tabTrigger.offsetLeft;
-    const tabWidth = tabRect.width;
-    const containerWidth = containerRect.width;
+    const tabWidth = tabTrigger.offsetWidth;
     
-    // Calculate the ideal scroll position to center the tab
-    const idealScrollLeft = tabOffsetLeft - (containerWidth / 2) + (tabWidth / 2);
+    // Calculate the scroll position to center the tab
+    const targetScrollLeft = tabOffsetLeft - (containerWidth / 2) + (tabWidth / 2);
     
     // Ensure we don't scroll beyond the boundaries
     const maxScrollLeft = container.scrollWidth - containerWidth;
-    const targetScrollLeft = Math.max(0, Math.min(idealScrollLeft, maxScrollLeft));
+    const finalScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScrollLeft));
     
     // Smooth scroll to the calculated position
     container.scrollTo({
-      left: targetScrollLeft,
+      left: finalScrollLeft,
       behavior: 'smooth'
     });
   };
