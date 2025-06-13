@@ -112,7 +112,10 @@ export const shouldExcludeFeaturedMatch = (
       !league.includes("u17") &&
       !league.includes("u18") &&
       !league.includes("u19") &&
-      (!league.includes("u21") || league.includes("uefa u21 championship"))) ||
+      (!league.includes("u21") || 
+       league.includes("uefa u21 championship") || 
+       league.includes("uefa european under-21 championship") ||
+       league === "uefa u21 championship")) ||
     (league.includes("world cup") &&
       !league.includes("women") &&
       !league.includes("youth") &&
