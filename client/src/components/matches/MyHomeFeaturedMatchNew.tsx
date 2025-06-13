@@ -276,7 +276,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const leagueName = fixture.league?.name?.toLowerCase() || "";
 
         // Apply exclusion check - but NEVER exclude World country leagues
-        const country = fixture.league?.country?.toLowerCase() || "";
         if (country !== "world" && 
           shouldExcludeFromPopularLeagues(
             fixture.league.name,
