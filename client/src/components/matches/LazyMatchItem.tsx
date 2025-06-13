@@ -53,6 +53,17 @@ const LazyMatchItem: React.FC<LazyMatchItemProps> = ({ match, onMatchClick }) =>
     return "";
   };
 
+  // Add null checking to prevent runtime errors
+  if (!match?.teams?.home || !match?.teams?.away) {
+    return (
+      <Card className="league-card-spacing">
+        <CardContent className="p-4 text-center text-gray-500">
+          Invalid match data
+        </CardContent>
+      </Card>
+    );
+  }
+
   const homeIsNational = isNationalTeam(match.teams.home.name);
   const awayIsNational = isNationalTeam(match.teams.away.name);
 
