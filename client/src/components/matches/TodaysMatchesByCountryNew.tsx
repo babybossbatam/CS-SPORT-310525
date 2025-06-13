@@ -201,99 +201,127 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     1836, 1837, 1838, 1839, 1840, 1841, 1842, 1843, 1844, 1845, 1846, 1847,
   ];
 
-  // Major competitions mapping
-  const MAJOR_COMPETITIONS = {
-    "Euro Championship": [4],
-    "World Cup": [1],
-    "UEFA Champions League": [2],
-    "FIFA Club World Cup": [15],
-    "Olympics Men": [480],
-    "UEFA Europa League": [3],
-    "Africa Cup of Nations": [6],
-    "Copa America": [9],
-    "CONCACAF Champions League": [26],
-    "AFC Champions League": [1],
-    "Friendlies": [], // Special handling
-    "UEFA Nations League": [5],
-    "CONMEBOL Sudamericana": [13],
-    "CAF Champions League": [12],
-    "CONMEBOL Libertadores": [11],
-    "UEFA Europa Conference League": [848]
-  };
-
   // Always call hooks in the same order - validate after hooks
-  const initialValidFixtures = useMemo(() => {
-    if (!fixtures || !Array.isArray(fixtures)) {
-      console.warn("⚠️ [TodaysMatchesByCountryNew] Invalid fixtures data:", fixtures);
-      return [];
-    }
-    return fixtures;
-  }, [fixtures]);
+  // Fetch all fixtures for the selected date with comprehensive caching
+  const { data: fixtures = [], isLoading } = useQuery({
+    queryKey: ["all-fixtures-by-date", selectedDate],
+    queryFn: async () => {
+      console.log(
+        `🔍 [TodaysMatchesByCountryNew] Checking cache for date: ${selectedDate}`,
+      );
 
-  // Detect major competitions with matches from the available fixtures
-  const majorCompetitions = useMemo(() => {
-    if (!initialValidFixtures.length) return [];
+      // Check our custom cache first
+      const cachedFixtures = getCachedFixturesForDate(selectedDate);
+      if (cachedFixtures) {
+        console.log(
+          `✅ [TodaysMatchesByCountryNew] Using cached fixtures: ${cachedFixtures.length} matches`,
+        );
 
-    const competitions: any = {};
+        // Detailed API data analysis
+        const apiAnalysis = {
+          totalFixtures: cachedFixtures.length,
+          countries: [
+            ...new Set(
+              cachedFixtures.map((f) => f.league?.country).filter(Boolean),
+            ),
+          ].length,
+          leagues: [
+            ...new Set(
+              cachedFixtures.map((f) => f.league?.name).filter(Boolean),
+            ),
+          ].length,
+          statuses: [
+            ...new Set(
+              cachedFixtures
+                .map((f) => f.fixture?.status?.short)
+                .filter(Boolean),
+            ),
+          ],
+          dateRange: {
+            earliest: cachedFixtures.reduce(
+              (min, f) => (f.fixture?.date < min ? f.fixture.date : min),
+              cachedFixtures[0]?.fixture?.date || "",
+            ),
+            latest: cachedFixtures.reduce(
+              (max, f) => (f.fixture?.date > max ? f.fixture.date : max),
+              cachedFixtures[0]?.fixture?.date || "",
+            ),
+          },
+          sampleFixtures: cachedFixtures.slice(0, 5).map((f) => ({
+            id: f.fixture?.id,
+            date: f.fixture?.date,
+            status: f.fixture?.status?.short,
+            league: f.league?.name,
+            country: f.league?.country,
+            teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
+          })),
+        };
 
-    initialValidFixtures.forEach((fixture: any) => {
-      if (!fixture?.league || !fixture?.teams) return;
+        console.log(`📊 [DEBUG] API Data Analysis:`, apiAnalysis);
+        return cachedFixtures;
+      }
 
-      const leagueName = fixture.league.name?.toLowerCase() || "";
-      const leagueId = fixture.league.id;
-      const country = fixture.league.country?.toLowerCase() || "";
+      console.log(
+        `📡 [TodaysMatchesByCountryNew] Fetching fresh data for date: ${selectedDate}`,
+      );
+      const response = await apiRequest(
+        "GET",
+        `/api/fixtures/date/${selectedDate}?all=true`,
+      );
+      const data = await response.json();
 
-      // Check each major competition
-      Object.entries(MAJOR_COMPETITIONS).forEach(([competitionName, leagueIds]) => {
-        let isMatch = false;
+      // Cache the fetched data
+      if (data && Array.isArray(data)) {
+        cacheFixturesForDate(selectedDate, data, "api");
+        console.log(
+          `💾 [TodaysMatchesByCountryNew] Cached ${data.length} fixtures for ${selectedDate}`,
+        );
 
-        if (competitionName === "Friendlies") {
-          // Special handling for friendlies
-          isMatch = leagueName.includes("friendlies") && 
-                   !leagueName.includes("women") &&
-                   (country === "world" || country === "international");
-        } else {
-          // Check by league ID or name matching
-          isMatch = leagueIds.includes(leagueId) || 
-                   leagueName.includes(competitionName.toLowerCase().replace(/[^a-z ]/g, ""));
-        }
+        // Detailed API data analysis for fresh data
+        const apiAnalysis = {
+          totalFixtures: data.length,
+          countries: [
+            ...new Set(data.map((f) => f.league?.country).filter(Boolean)),
+          ].length,
+          leagues: [...new Set(data.map((f) => f.league?.name).filter(Boolean))]
+            .length,
+          statuses: [
+            ...new Set(
+              data.map((f) => f.fixture?.status?.short).filter(Boolean),
+            ),
+          ],
+          dateRange: {
+            earliest: data.reduce(
+              (min, f) => (f.fixture?.date < min ? f.fixture.date : min),
+              data[0]?.fixture?.date || "",
+            ),
+            latest: data.reduce(
+              (max, f) => (f.fixture?.date > max ? f.fixture.date : max),
+              data[0]?.fixture?.date || "",
+            ),
+          },
+          sampleFixtures: data.slice(0, 5).map((f) => ({
+            id: f.fixture?.id,
+            date: f.fixture?.date,
+            status: f.fixture?.status?.short,
+            league: f.league?.name,
+            country: f.league?.country,
+            teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
+          })),
+        };
 
-        if (isMatch) {
-          // Apply smart time filtering
-          if (fixture.fixture.date && fixture.fixture.status?.short) {
-            const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-              fixture.fixture.date,
-              fixture.fixture.status.short,
-              selectedDate + "T12:00:00Z"
-            );
+        console.log(`📊 [DEBUG] Fresh API Data Analysis:`, apiAnalysis);
+      }
 
-            const today = getCurrentUTCDateString();
-            const tomorrow = format(new Date(new Date().getTime() + 24 * 60 * 60 * 1000), "yyyy-MM-dd");
-            const yesterday = format(new Date(new Date().getTime() - 24 * 60 * 60 * 1000), "yyyy-MM-dd");
-
-            const shouldInclude = (() => {
-              if (selectedDate === tomorrow && smartResult.label === "tomorrow") return true;
-              if (selectedDate === today && smartResult.label === "today") return true;
-              if (selectedDate === yesterday && smartResult.label === "yesterday") return true;
-              if (selectedDate !== today && selectedDate !== tomorrow && selectedDate !== yesterday) {
-                return smartResult.label === "custom" && smartResult.isWithinTimeRange;
-              }
-              return false;
-            })();
-
-            if (shouldInclude) {
-              if (!competitions[competitionName]) {
-                competitions[competitionName] = 0;
-              }
-              competitions[competitionName]++;
-            }
-          }
-        }
-      });
-    });
-
-    return competitions;
-  }, [initialValidFixtures, selectedDate]);
+      return data;
+    },
+    staleTime: 2 * 60 * 1000, // 2 minutes for live data
+    gcTime: 30 * 60 * 1000, // 30 minutes garbage collection time
+    enabled: !!selectedDate && enableFetching,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
 
   // Now validate after all hooks are called
   if (!selectedDate) {
@@ -1061,20 +1089,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       </CardHeader>
       <CardContent className="p-0">
         <div>
-          {Object.keys(majorCompetitions).length > 0 && (
-            <div className="mt-2 p-3">
-              <p className="text-sm font-semibold text-yellow-600 mb-1">🔥 MAJOR COMPETITIONS WITH MATCHES:</p>
-              <div className="space-y-1">
-                {Object.entries(majorCompetitions)
-                  .sort(([, a], [, b]) => (b as number) - (a as number))
-                  .map(([comp, count]) => (
-                    <p key={comp} className="text-xs text-gray-700">
-                      🏆 {comp} - {count as number} match{(count as number) !== 1 ? "es" : ""}
-                    </p>
-                  ))}
-              </div>
-            </div>
-          )}
           {/* Use sortedCountries directly */}
           {sortedCountries.map((countryData: any) => {
             const isExpanded = expandedCountries.has(countryData.country);
