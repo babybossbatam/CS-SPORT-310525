@@ -221,31 +221,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     "UEFA Europa Conference League": [848], // UEFA Europa Conference League ID
   };
 
-  // Calculate major competitions with matches
-  const majorCompetitionsWithMatches = useMemo(() => {
-    const competitions: { [key: string]: number } = {};
-
-    validFixtures.forEach((fixture: any) => {
-      if (!fixture?.league?.id) return;
-
-      const leagueId = fixture.league.id;
-      const leagueName = fixture.league.name?.toLowerCase() || "";
-
-      // Check each major competition
-      Object.entries(MAJOR_COMPETITIONS).forEach(([competitionName, ids]) => {
-        if (ids.includes(leagueId)) {
-          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
-        }
-        // Also check by league name for additional matches
-        else if (competitionName === "Friendlies" && leagueName.includes("friendlies") && !leagueName.includes("women")) {
-          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
-        }
-      });
-    });
-
-    return competitions;
-  }, [validFixtures]);
-
   // Always call hooks in the same order - validate after hooks
   // Fetch all fixtures for the selected date with comprehensive caching
   const { data: fixtures = [], isLoading } = useQuery({
@@ -482,7 +457,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   };
 
   // Apply smart time filtering directly
-  const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
+  const { validFixtures, rejectedFixtures, stats, majorCompetitionsWithMatches } = useMemo(() => {
     if (!fixtures?.length) {
       return {
         validFixtures: [],
@@ -537,6 +512,26 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return acc;
     }, {} as Record<string, number>);
 
+    // Calculate major competitions with matches
+    const competitions: { [key: string]: number } = {};
+    filtered.forEach((fixture: any) => {
+      if (!fixture?.league?.id) return;
+
+      const leagueId = fixture.league.id;
+      const leagueName = fixture.league.name?.toLowerCase() || "";
+
+      // Check each major competition
+      Object.entries(MAJOR_COMPETITIONS).forEach(([competitionName, ids]) => {
+        if (ids.includes(leagueId)) {
+          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
+        }
+        // Also check by league name for additional matches
+        else if (competitionName === "Friendlies" && leagueName.includes("friendlies") && !leagueName.includes("women")) {
+          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
+        }
+      });
+    });
+
     return {
       validFixtures: filtered,
       rejectedFixtures: rejectedFixtures.map(f => ({ fixture: f, reason: 'Date mismatch' })),
@@ -548,7 +543,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           'smart-time-filter': filtered.length,
           ...labelCounts
         }
-      }
+      },
+      majorCompetitionsWithMatches: competitions
     };
   }, [fixtures, selectedDate]);
 
