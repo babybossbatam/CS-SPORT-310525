@@ -228,8 +228,25 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   // Use only the live fixtures data
   const allFixtures = fixtures;
 
-  // Apply smart time filtering first
+  // Apply smart time filtering first - but be more permissive for live matches
   const filteredFixtures = fixtures.filter((fixture: any) => {
+    // Basic validation
+    if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+      return false;
+    }
+
+    // For live fixtures, we primarily care about the match status rather than strict time filtering
+    const status = fixture.fixture.status?.short;
+    const isCurrentlyLive = [
+      "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
+    ].includes(status);
+
+    // Always include currently live matches
+    if (isCurrentlyLive) {
+      return true;
+    }
+
+    // For non-live matches, apply time filtering
     if (fixture.fixture.date && fixture.fixture.status?.short) {
       const today = new Date();
       const todayString = format(today, 'yyyy-MM-dd');
@@ -237,24 +254,16 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       const smartResult = MySmartTimeFilter.getSmartTimeLabel(
         fixture.fixture.date,
         fixture.fixture.status.short,
-        todayString + 'T12:00:00Z' // Use today as context for live matches
+        todayString + 'T12:00:00Z'
       );
 
-      // For live matches, we want to show matches that are live or recently finished today
+      // Include matches that are within today's time range
       if (smartResult.label === 'today' && smartResult.isWithinTimeRange) {
         return true;
       }
-
-      console.log(`❌ [LIVE FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-        fixtureDate: fixture.fixture.date,
-        status: fixture.fixture.status.short,
-        reason: smartResult.reason,
-        label: smartResult.label,
-        isWithinTimeRange: smartResult.isWithinTimeRange
-      });
-      return false;
     }
-    return true;
+
+    return false;
   });
 
   // Group fixtures by country
@@ -280,6 +289,23 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       return acc;
     }
 
+    // Apply exclusion filtering consistent with popular leagues
+    const leagueName = league.name?.toLowerCase() || "";
+    const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
+    const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
+
+    // Apply exclusion check using the same logic as TodayPopularFootballLeaguesNew
+    if (
+      shouldExcludeFromPopularLeagues(
+        league.name,
+        fixture.teams.home.name,
+        fixture.teams.away.name,
+        league.country,
+      )
+    ) {
+      return acc;
+    }
+
     const country = league.country;
 
     // Skip fixtures without a valid country, but keep World and Europe competitions
@@ -291,6 +317,80 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       country.trim() === "" ||
       country.toLowerCase() === "unknown"
     ) {
+      // Allow World competitions, UEFA, and FIFA competitions to pass through
+      if (league.name && (
+          league.name.toLowerCase().includes('world') || 
+          league.name.toLowerCase().includes('europe') ||
+          league.name.toLowerCase().includes('uefa') ||
+          league.name.toLowerCase().includes('fifa') ||
+          league.name.toLowerCase().includes('champions') ||
+          league.name.toLowerCase().includes('conference') ||
+          league.name.toLowerCase().includes('nations league') ||
+          (league.name.toLowerCase().includes('friendlies') &&
+            !league.name.toLowerCase().includes('women')) ||
+          league.name.toLowerCase().includes('conmebol') ||
+          league.name.toLowerCase().includes('copa america') ||
+          league.name.toLowerCase().includes('copa libertadores') ||
+          league.name.toLowerCase().includes('copa sudamericana'))) {
+        
+        // Determine the appropriate country key
+        let countryKey = "World";
+        if (
+          league.name.toLowerCase().includes("fifa club world cup") ||
+          league.name.toLowerCase().includes("club world cup")
+        ) {
+          countryKey = "International";
+        } else if (
+          league.name.toLowerCase().includes("conmebol") ||
+          league.name.toLowerCase().includes("copa america") ||
+          league.name.toLowerCase().includes("copa libertadores") ||
+          league.name.toLowerCase().includes("copa sudamericana")
+        ) {
+          countryKey = "South America";
+        } else if (
+          league.name.toLowerCase().includes("uefa") ||
+          league.name.toLowerCase().includes("europe") ||
+          league.name.toLowerCase().includes("champions") ||
+          league.name.toLowerCase().includes("conference") ||
+          league.name.toLowerCase().includes("nations league")
+        ) {
+          countryKey = "Europe";
+        }
+
+        if (!acc[countryKey]) {
+          acc[countryKey] = {
+            country: countryKey,
+            flag: getCountryFlag(countryKey, league.flag),
+            leagues: {},
+            hasPopularLeague: true,
+          };
+        }
+        
+        const leagueId = league.id;
+        if (!acc[countryKey].leagues[leagueId]) {
+          acc[countryKey].leagues[leagueId] = {
+            league: { ...league, country: countryKey },
+            matches: [],
+            isPopular: POPULAR_LEAGUES.includes(leagueId) || true, // International competitions are considered popular
+          };
+        }
+        
+        acc[countryKey].leagues[leagueId].matches.push({
+          ...fixture,
+          teams: {
+            home: {
+              ...fixture.teams.home,
+              logo: getTeamLogoUrl(fixture.teams.home, league),
+            },
+            away: {
+              ...fixture.teams.away,
+              logo: getTeamLogoUrl(fixture.teams.away, league),
+            },
+          },
+        });
+        return acc;
+      }
+
       console.warn(
         "Skipping fixture with invalid/unknown country:",
         country,
