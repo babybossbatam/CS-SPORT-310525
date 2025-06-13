@@ -146,7 +146,34 @@ export function shouldExcludeFromPopularLeagues(
   awayTeamName: string,
   country?: string | null,
 ): boolean {
-  // Exclude fixtures with null, undefined, or invalid country values
+  // Convert inputs to lowercase with safe handling
+  const league = safeSubstring(leagueName, 0).toLowerCase();
+  const homeTeam = safeSubstring(homeTeamName, 0).toLowerCase();
+  const awayTeam = safeSubstring(awayTeamName, 0).toLowerCase();
+  const countryLower = safeSubstring(country || "", 0).toLowerCase();
+
+  // SPECIAL HANDLING FOR WORLD COUNTRY - Add debugging
+  if (countryLower === "world") {
+    console.log(`🌍 [WORLD DEBUG] Checking World league: "${leagueName}" | ${homeTeamName} vs ${awayTeamName} | Country: ${country}`);
+    
+    // For World country, only exclude if it contains explicit exclusion terms
+    const hasExclusionTerms = popularLeagueExclusionTerms.some(
+      (term) =>
+        league.includes(term) ||
+        homeTeam.includes(term) ||
+        awayTeam.includes(term),
+    );
+
+    if (hasExclusionTerms) {
+      console.log(`❌ [WORLD DEBUG] Excluding World league due to exclusion terms: "${leagueName}"`);
+      return true;
+    }
+
+    console.log(`✅ [WORLD DEBUG] Allowing World league: "${leagueName}"`);
+    return false; // Allow all other World leagues
+  }
+
+  // Exclude fixtures with null, undefined, or invalid country values (but not World)
   if (
     country !== undefined &&
     (!country ||
@@ -156,11 +183,6 @@ export function shouldExcludeFromPopularLeagues(
   ) {
     return true;
   }
-
-  // Convert inputs to lowercase with safe handling
-  const league = safeSubstring(leagueName, 0).toLowerCase();
-  const homeTeam = safeSubstring(homeTeamName, 0).toLowerCase();
-  const awayTeam = safeSubstring(awayTeamName, 0).toLowerCase();
 
   // FIRST: Check for UEFA Nations League Women specifically - always exclude
   if (

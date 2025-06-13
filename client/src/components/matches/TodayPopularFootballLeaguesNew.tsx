@@ -439,6 +439,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
 
     const finalFiltered = filtered.filter((fixture) => {
+      // Debug World country processing
+      const country = fixture.league?.country?.toLowerCase() || "";
+      if (country === "world") {
+        console.log(`🌍 [POPULAR DEBUG] Processing World league: ${fixture.league.name} | ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+      }
+
       // Apply popular league exclusion filters
       if (
         shouldExcludeFromPopularLeagues(
@@ -448,6 +454,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
           fixture.league.country,
         )
       ) {
+        if (country === "world") {
+          console.log(`❌ [POPULAR DEBUG] World league excluded: ${fixture.league.name}`);
+        }
         return false;
       }
 
