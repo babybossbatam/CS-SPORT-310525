@@ -288,7 +288,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         // PRIORITY 1: Only the most elite leagues
-        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5];
+        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 15]; // Added 15 for FIFA Club World Cup
         if (eliteLeagues.includes(leagueId)) {
           return true;
         }
@@ -301,7 +301,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             leagueName.includes("qualification") &&
             (leagueName.includes("europe") ||
               leagueName.includes("south america"))) ||
-          leagueName.includes("fifa club world cup");
+          leagueName.includes("fifa club world cup") ||
+          (leagueName.includes("uefa u21 championship") &&
+            !leagueName.includes("women")) ||
+          (leagueName.includes("uefa european under-21 championship") &&
+            !leagueName.includes("women"));
 
         if (isTopInternationalCompetition) {
           return true;
@@ -331,7 +335,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const sortByPriority = (matches: any[]) => {
       return matches.sort((a, b) => {
         // 1. Elite League Priority
-        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5];
+        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 15]; // Added 15 for FIFA Club World Cup
         const aEliteIndex = eliteLeagues.indexOf(a.league.id);
         const bEliteIndex = eliteLeagues.indexOf(b.league.id);
 
@@ -431,6 +435,62 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         return true;
       }
       return false;
+    };
+
+    // Helper function to group matches by league cards (similar to TodayPopularFootballLeaguesNew)
+    const groupMatchesByLeagueCards = (matches: any[]) => {
+      const leagueCards: any[] = [];
+      
+      matches.forEach((match) => {
+        const country = match.league.country;
+        const leagueId = match.league.id;
+        
+        // Find existing league card for this league
+        let existingCard = leagueCards.find(card => card.leagueId === leagueId);
+        
+        if (!existingCard) {
+          // Create new league card
+          existingCard = {
+            leagueId: leagueId,
+            leagueName: match.league.name,
+            country: country,
+            matches: [],
+            popularCountryMatches: [],
+            allMatches: []
+          };
+          leagueCards.push(existingCard);
+        }
+        
+        existingCard.allMatches.push(match);
+        
+        // Check if this match is from a popular country
+        const isPopularCountry = POPULAR_COUNTRIES_ORDER.some(
+          (popularCountry) => country?.toLowerCase().includes(popularCountry.toLowerCase())
+        );
+        
+        if (isPopularCountry) {
+          existingCard.popularCountryMatches.push(match);
+        }
+        
+        existingCard.matches.push(match);
+      });
+      
+      // Sort league cards by priority (elite leagues first)
+      leagueCards.sort((a, b) => {
+        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 15];
+        const aEliteIndex = eliteLeagues.indexOf(a.leagueId);
+        const bEliteIndex = eliteLeagues.indexOf(b.leagueId);
+        
+        if (aEliteIndex !== -1 && bEliteIndex !== -1) {
+          return aEliteIndex - bEliteIndex;
+        }
+        if (aEliteIndex !== -1 && bEliteIndex === -1) return -1;
+        if (aEliteIndex === -1 && bEliteIndex !== -1) return 1;
+        
+        return (a.leagueName || "").localeCompare(b.leagueName || "");
+      });
+      
+      return leagueCards;
     };
 
     // Check if we have any elite matches at all
@@ -556,61 +616,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       dayAfterUpcoming,
     );
 
-    // Helper function to group matches by league cards (similar to TodayPopularFootballLeaguesNew)
-    const groupMatchesByLeagueCards = (matches: any[]) => {
-      const leagueCards: any[] = [];
-      
-      matches.forEach((match) => {
-        const country = match.league.country;
-        const leagueId = match.league.id;
-        
-        // Find existing league card for this league
-        let existingCard = leagueCards.find(card => card.leagueId === leagueId);
-        
-        if (!existingCard) {
-          // Create new league card
-          existingCard = {
-            leagueId: leagueId,
-            leagueName: match.league.name,
-            country: country,
-            matches: [],
-            popularCountryMatches: [],
-            allMatches: []
-          };
-          leagueCards.push(existingCard);
-        }
-        
-        existingCard.allMatches.push(match);
-        
-        // Check if this match is from a popular country
-        const isPopularCountry = POPULAR_COUNTRIES_ORDER.some(
-          (popularCountry) => country?.toLowerCase().includes(popularCountry.toLowerCase())
-        );
-        
-        if (isPopularCountry) {
-          existingCard.popularCountryMatches.push(match);
-        }
-        
-        existingCard.matches.push(match);
-      });
-      
-      // Sort league cards by priority (elite leagues first)
-      leagueCards.sort((a, b) => {
-        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5];
-        const aEliteIndex = eliteLeagues.indexOf(a.leagueId);
-        const bEliteIndex = eliteLeagues.indexOf(b.leagueId);
-        
-        if (aEliteIndex !== -1 && bEliteIndex !== -1) {
-          return aEliteIndex - bEliteIndex;
-        }
-        if (aEliteIndex !== -1 && bEliteIndex === -1) return -1;
-        if (aEliteIndex === -1 && bEliteIndex !== -1) return 1;
-        
-        return (a.leagueName || "").localeCompare(b.leagueName || "");
-      });
-      
-      return leagueCards;
-    };
+    
 
     // NEW SLIDE DISTRIBUTION SYSTEM WITH LEAGUE CARD PRIORITIZATION:
     // TODAY - Slides 1-3 (prioritized by league cards and popular countries)
