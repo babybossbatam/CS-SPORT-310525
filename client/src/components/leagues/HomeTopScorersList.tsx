@@ -102,32 +102,32 @@ const HomeTopScorersList = () => {
 
     if (!targetButton) return;
 
-    // Get container and button dimensions
+    // Get container dimensions
     const containerWidth = container.clientWidth;
     const containerScrollLeft = container.scrollLeft;
 
-    // Get button position relative to the scrollable content
+    // Get button position and dimensions
+    const buttonRect = targetButton.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    
+    // Calculate button's position relative to the container's scrollable content
     const buttonLeft = targetButton.offsetLeft;
     const buttonWidth = targetButton.offsetWidth;
     const buttonCenter = buttonLeft + (buttonWidth / 2);
 
-    // Calculate where we want the button center to be (center of visible area)
-    const targetCenter = containerWidth / 2;
+    // Calculate the ideal scroll position to center the button
+    const containerCenter = containerWidth / 2;
+    const idealScrollLeft = buttonCenter - containerCenter;
 
-    // Calculate the required scroll position
-    const targetScrollLeft = buttonCenter - targetCenter;
-
-    // Ensure we don't scroll beyond the boundaries
+    // Clamp the scroll position to valid bounds
     const maxScrollLeft = container.scrollWidth - containerWidth;
-    const finalScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScrollLeft));
+    const finalScrollLeft = Math.max(0, Math.min(idealScrollLeft, maxScrollLeft));
 
-    // Only scroll if there's a significant difference
-    if (Math.abs(finalScrollLeft - containerScrollLeft) > 5) {
-      container.scrollTo({
-        left: finalScrollLeft,
-        behavior: 'smooth'
-      });
-    }
+    // Scroll to center the selected league
+    container.scrollTo({
+      left: finalScrollLeft,
+      behavior: 'smooth'
+    });
   };
 
   const scrollLeft = () => {
