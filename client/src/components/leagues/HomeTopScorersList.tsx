@@ -210,7 +210,7 @@ const HomeTopScorersList = () => {
               const playerStats = scorer.statistics[0];
               const goals = playerStats?.goals?.total || 0;
               const position = playerStats?.games?.position || '';
-              const country = playerStats?.league?.country || playerStats?.team?.name || '';
+              const country = playerStats?.team?.name || playerStats?.league?.country || '';
 
               return (
                 <div key={scorer.player.id} className="flex items-center gap-3">
