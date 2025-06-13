@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import LeagueStatsPanel from "./LeagueStatsPanel";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -172,11 +171,6 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
 
   return (
     <Card className="w-full h-full">
-      <LeagueStatsPanel
-        leagueId={leagueId}
-        season={season}
-        className="border-b rounded-t-lg rounded-b-none"
-      />
       <CardContent className="pt-6">
         <Tabs
           defaultValue="overall"
