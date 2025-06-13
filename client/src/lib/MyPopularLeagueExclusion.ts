@@ -78,6 +78,11 @@ export const popularLeagueExclusionTerms = [
   "paraense b1",
   "copa do nordeste",
 
+  // Brazilian youth leagues to exclude
+  "brasileiro u20 a",
+  "brasiliense u20",
+  "alagoano u20",
+
   // Women's leagues (additional exclusions)
   "liga femenina",
 
