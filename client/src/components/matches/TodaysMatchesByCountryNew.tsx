@@ -525,12 +525,44 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         if (ids.includes(leagueId)) {
           competitions[competitionName] = (competitions[competitionName] || 0) + 1;
         }
-        // Also check by league name for additional matches
-        else if (competitionName === "Friendlies" && leagueName.includes("friendlies") && !leagueName.includes("women")) {
+        // Enhanced name-based matching for additional competitions
+        else if (competitionName === "Friendlies" && 
+                 (leagueName.includes("friendlies") || leagueName.includes("international")) && 
+                 !leagueName.includes("women")) {
+          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
+        }
+        else if (competitionName === "Euro Championship" && 
+                 (leagueName.includes("euro") || leagueName.includes("european") || 
+                  leagueName.includes("u21") || leagueName.includes("u-21"))) {
+          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
+        }
+        else if (competitionName === "World Cup" && 
+                 (leagueName.includes("world cup") || leagueName.includes("fifa"))) {
+          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
+        }
+        else if (competitionName === "UEFA Champions League" && 
+                 leagueName.includes("champions")) {
+          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
+        }
+        else if (competitionName === "UEFA Europa League" && 
+                 leagueName.includes("europa") && !leagueName.includes("conference")) {
+          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
+        }
+        else if (competitionName === "UEFA Europa Conference League" && 
+                 leagueName.includes("conference")) {
           competitions[competitionName] = (competitions[competitionName] || 0) + 1;
         }
       });
     });
+
+    // Debug logging for major competitions
+    console.log('🏆 [MAJOR COMPETITIONS DEBUG] Detected competitions:', competitions);
+    console.log('🏆 [MAJOR COMPETITIONS DEBUG] Sample fixtures:', filtered.slice(0, 5).map(f => ({
+      id: f.fixture.id,
+      leagueId: f.league.id,
+      leagueName: f.league.name,
+      country: f.league.country
+    })));
 
     return {
       validFixtures: filtered,
@@ -1130,7 +1162,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       </CardHeader>
 
       {/* Major Competitions Section */}
-      {Object.keys(majorCompetitionsWithMatches).length > 0 && (
+      {(Object.keys(majorCompetitionsWithMatches).length > 0 || validFixtures.length > 0) && (
         <div className="border-b border-stone-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-lg">🔥</span>
@@ -1139,19 +1171,25 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             </h4>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {Object.entries(majorCompetitionsWithMatches)
-              .sort(([,a], [,b]) => b - a) // Sort by match count descending
-              .map(([competition, count]) => (
-                <div key={competition} className="flex items-center gap-2 text-sm">
-                  <span className="text-base">🏆</span>
-                  <span className="font-medium text-gray-700" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '12.5px' }}>
-                    {competition}
-                  </span>
-                  <span className="text-blue-600 font-semibold" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '12.5px' }}>
-                    - {count} match{count !== 1 ? '(es)' : ''}
-                  </span>
-                </div>
-              ))}
+            {Object.entries(majorCompetitionsWithMatches).length > 0 ? (
+              Object.entries(majorCompetitionsWithMatches)
+                .sort(([,a], [,b]) => b - a) // Sort by match count descending
+                .map(([competition, count]) => (
+                  <div key={competition} className="flex items-center gap-2 text-sm">
+                    <span className="text-base">🏆</span>
+                    <span className="font-medium text-gray-700" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '12.5px' }}>
+                      {competition}
+                    </span>
+                    <span className="text-blue-600 font-semibold" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '12.5px' }}>
+                      - {count} match{count !== 1 ? '(es)' : ''}
+                    </span>
+                  </div>
+                ))
+            ) : (
+              <div className="text-sm text-gray-600">
+                🔍 Scanning {validFixtures.length} matches for major competitions...
+              </div>
+            )}
           </div>
         </div>
       )}
