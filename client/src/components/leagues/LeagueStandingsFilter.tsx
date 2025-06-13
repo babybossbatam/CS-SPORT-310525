@@ -832,7 +832,7 @@ const LeagueStandingsFilter = () => {
                                           teamName={standing.team.name}
                                           fallbackUrl={standing.team.logo}
                                           alt={standing.team.name}
-                                          size="24px"
+                                          size="28px"
                                           className="popular-leagues-size"
                                         />
                                       </div>
@@ -909,35 +909,67 @@ const LeagueStandingsFilter = () => {
                                               nextMatchInfo={(() => {
                                                 const nextOpponent = group.find(
                                                   (opponent) =>
-                                                    opponent.team.id !== standing.team.id &&
-                                                    opponent.rank > standing.rank,
+                                                    opponent.team.id !==
+                                                      standing.team.id &&
+                                                    opponent.rank >
+                                                      standing.rank,
                                                 );
-                                                
-                                                if (!nextOpponent || !fixtures?.response) return undefined;
-                                                
+
+                                                if (
+                                                  !nextOpponent ||
+                                                  !fixtures?.response
+                                                )
+                                                  return undefined;
+
                                                 // Find the actual next match between these two teams
-                                                const nextMatch = fixtures.response.find((fixture: any) => {
-                                                  const isMatchBetweenTeams = 
-                                                    (fixture.teams.home.id === standing.team.id && fixture.teams.away.id === nextOpponent.team.id) ||
-                                                    (fixture.teams.home.id === nextOpponent.team.id && fixture.teams.away.id === standing.team.id);
-                                                  
-                                                  const isUpcoming = new Date(fixture.fixture.date) > new Date();
-                                                  
-                                                  return isMatchBetweenTeams && isUpcoming;
-                                                });
-                                                
+                                                const nextMatch =
+                                                  fixtures.response.find(
+                                                    (fixture: any) => {
+                                                      const isMatchBetweenTeams =
+                                                        (fixture.teams.home
+                                                          .id ===
+                                                          standing.team.id &&
+                                                          fixture.teams.away
+                                                            .id ===
+                                                            nextOpponent.team
+                                                              .id) ||
+                                                        (fixture.teams.home
+                                                          .id ===
+                                                          nextOpponent.team
+                                                            .id &&
+                                                          fixture.teams.away
+                                                            .id ===
+                                                            standing.team.id);
+
+                                                      const isUpcoming =
+                                                        new Date(
+                                                          fixture.fixture.date,
+                                                        ) > new Date();
+
+                                                      return (
+                                                        isMatchBetweenTeams &&
+                                                        isUpcoming
+                                                      );
+                                                    },
+                                                  );
+
                                                 if (nextMatch) {
                                                   // Format teams properly for tooltip display
-                                                  const homeTeam = nextMatch.teams.home.name;
-                                                  const awayTeam = nextMatch.teams.away.name;
-                                                  
+                                                  const homeTeam =
+                                                    nextMatch.teams.home.name;
+                                                  const awayTeam =
+                                                    nextMatch.teams.away.name;
+
                                                   return {
                                                     opponent: `${homeTeam} - ${awayTeam}`,
-                                                    date: nextMatch.fixture.date,
-                                                    venue: nextMatch.fixture.venue?.name || "TBD"
+                                                    date: nextMatch.fixture
+                                                      .date,
+                                                    venue:
+                                                      nextMatch.fixture.venue
+                                                        ?.name || "TBD",
                                                   };
                                                 }
-                                                
+
                                                 return undefined;
                                               })()}
                                             />
