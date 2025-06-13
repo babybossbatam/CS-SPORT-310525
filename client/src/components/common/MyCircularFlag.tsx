@@ -141,6 +141,15 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         src={getCircleFlagUrl(teamName, fallbackUrl)}
         alt={alt || teamName}
         className="team-logo"
+        style={{
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          borderRadius: "50%",
+          position: "relative",
+          zIndex: 1,
+          filter: "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
+        }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
           if (!target.src.includes("/assets/fallback-logo.svg")) {
@@ -153,17 +162,17 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       {/* Next Match Overlay */}
       {isHovered && nextMatch && (
         <div 
-          className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-80 rounded-full text-white text-xs font-medium z-10"
+          className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-90 rounded-full text-white font-medium z-10 transition-opacity duration-200"
           style={{
-            fontSize: parseInt(size) > 40 ? "10px" : "8px",
-            padding: "2px",
+            fontSize: parseInt(size) > 40 ? "9px" : "7px",
+            padding: "4px",
           }}
         >
-          <div className="text-center leading-tight">
-            <div className="font-semibold truncate">
+          <div className="text-center leading-tight max-w-full">
+            <div className="font-bold truncate text-white">
               vs {nextMatch.opponent}
             </div>
-            <div className="text-[10px] opacity-90">
+            <div className="text-gray-200 opacity-95 mt-0.5" style={{ fontSize: parseInt(size) > 40 ? "8px" : "6px" }}>
               {formatDate(nextMatch.date)}
             </div>
           </div>
