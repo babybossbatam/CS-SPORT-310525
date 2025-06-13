@@ -212,6 +212,26 @@ main {
   background: transparent !important;
 }
 
+/* Custom scrollbar for fixed layout containers */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px !important;
+  background: transparent !important;
+}
+
+.scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
+  background-color: #d1d5db !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-track-gray-100::-webkit-scrollbar-track {
+  background-color: #f3f4f6 !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af !important;
+}
+
 /* Ensure the entire app container doesn't shift */
 #root {
   overflow-x: hidden !important;

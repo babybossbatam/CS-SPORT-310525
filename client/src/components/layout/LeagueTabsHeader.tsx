@@ -39,8 +39,8 @@ const LeagueTabsHeader = ({
             </div>
           </div>
           
-          {/* Use the existing LeagueStandings component */}
-          <div className="mt-4">
+          {/* Use the existing LeagueStandings component with scrollable container */}
+          <div className="mt-4 h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 border border-gray-200 rounded-lg">
             <LeagueStandings leagueId={leagueId} season={2025} />
           </div>
         </div>
