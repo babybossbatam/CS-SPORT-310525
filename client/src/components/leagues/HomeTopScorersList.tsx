@@ -232,7 +232,7 @@ const HomeTopScorersList = () => {
                       </h4>
                       {position && (
                         <span className="text-xs text-gray-500 font-medium">
-                          {position}
+                          {position.charAt(0).toUpperCase() + position.slice(1)}
                         </span>
                       )}
                     </div>
