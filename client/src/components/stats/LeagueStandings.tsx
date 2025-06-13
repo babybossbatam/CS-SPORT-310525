@@ -117,7 +117,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
     );
   }
 
-  if (!data?.league?.standings?.[0]) {
+  if (!data?.league?.standings || data.league.standings.length === 0) {
     return (
       <Card className="w-full h-full">
         <CardHeader>
@@ -132,7 +132,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
     );
   }
 
-  const standings = data.league.standings[0];
+  const allStandings = data.league.standings;
 
   return (
     <Card className="w-full h-full">
@@ -167,128 +167,138 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
             <TabsTrigger value="away" className="flex-1">Away</TabsTrigger>
           </TabsList>
 
-          <div className="w-full max-w-full">
-            <Table className="w-full -ml-6">
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[60px] text-center">Pos</TableHead>
-                  <TableHead className="pl-8">Team</TableHead>
-                  <TableHead className="text-center">P</TableHead>
-                  <TableHead className="text-center">F/A</TableHead>
-                  <TableHead className="text-center">+/-</TableHead>
-                  <TableHead className="text-center">PTS</TableHead>
-                  <TableHead className="text-center">W</TableHead>
-                  <TableHead className="text-center">D</TableHead>
-                  <TableHead className="text-center">L</TableHead>
-                  <TableHead className="text-center">Form</TableHead>
-                  <TableHead className="text-center">Next</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {standings.map((standing) => {
-                  const stats = view === 'overall' ? standing.all : 
-                              view === 'home' ? standing.home : 
-                              view === 'away' ? standing.away : null;
+          <div className="w-full max-w-full space-y-6">
+            {allStandings.map((standings, groupIndex) => (
+              <div key={groupIndex}>
+                {allStandings.length > 1 && (
+                  <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                    {standings[0]?.group || `Group ${String.fromCharCode(65 + groupIndex)}`}
+                  </h3>
+                )}
+                
+                <Table className="w-full -ml-6">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[60px] text-center">Pos</TableHead>
+                      <TableHead className="pl-8">Team</TableHead>
+                      <TableHead className="text-center">P</TableHead>
+                      <TableHead className="text-center">F/A</TableHead>
+                      <TableHead className="text-center">+/-</TableHead>
+                      <TableHead className="text-center">PTS</TableHead>
+                      <TableHead className="text-center">W</TableHead>
+                      <TableHead className="text-center">D</TableHead>
+                      <TableHead className="text-center">L</TableHead>
+                      <TableHead className="text-center">Form</TableHead>
+                      <TableHead className="text-center">Next</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {standings.map((standing) => {
+                      const stats = view === 'overall' ? standing.all : 
+                                  view === 'home' ? standing.home : 
+                                  view === 'away' ? standing.away : null;
 
-                  return (
-                    <TableRow 
-                      key={standing.team.id}
-                      className="hover:bg-gray-50/50 transition-colors relative cursor-pointer"
-                      onClick={() => navigate(`/team/${standing.team.id}`)}
-                    >
-                      <TableCell 
-                        className="relative pl-3 font-medium"
-                      >
-                        <span
-                          className="absolute left-0 top-0 bottom-0 w-1.5"
-                          style={{
-                            backgroundColor: 
-                              standing.rank <= 3 ? '#4CAF50' :
-                              standing.rank <= 7 ? '#9C27B0' :
-                              '#9E9E9E'
-                          }}
-                        />
-                        <span
-                          style={{
-                            color: standing.rank <= 3 ? '#4CAF50' :
+                      return (
+                        <TableRow 
+                          key={`${groupIndex}-${standing.team.id}`}
+                          className="hover:bg-gray-50/50 transition-colors relative cursor-pointer"
+                          onClick={() => navigate(`/team/${standing.team.id}`)}
+                        >
+                          <TableCell 
+                            className="relative pl-3 font-medium"
+                          >
+                            <span
+                              className="absolute left-0 top-0 bottom-0 w-1.5"
+                              style={{
+                                backgroundColor: 
+                                  standing.rank <= 3 ? '#4CAF50' :
                                   standing.rank <= 7 ? '#9C27B0' :
                                   '#9E9E9E'
-                          }}
-                        >
-                          {standing.rank}
-                        </span>
-                      </TableCell>
-                      <TableCell className="min-w-[180px] pl-2">
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={standing.team.logo}
-                            alt={standing.team.name}
-                            className="team-logo"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              if (!target.src.includes("/assets/fallback-logo.svg")) {
-                                target.src = "/assets/fallback-logo.svg";
-                              }
-                            }}
-                          />
-                          <div className="flex flex-col">
-                            <span className="font-medium text-sm">{standing.team.name}</span>
-                            {standing.rank <= 7 && standing.description && (
-                            <span 
-                              className="text-xs"
+                              }}
+                            />
+                            <span
                               style={{
-                                color: standing.rank <= 3 ? '#4CAF50' : '#9C27B0'
+                                color: standing.rank <= 3 ? '#4CAF50' :
+                                      standing.rank <= 7 ? '#9C27B0' :
+                                      '#9E9E9E'
                               }}
                             >
-                              {standing.description}
+                              {standing.rank}
                             </span>
-                          )}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">{stats.played}</TableCell>
-                      <TableCell className="text-center">{stats.goals.for}/{stats.goals.against}</TableCell>
-                      <TableCell className="text-center">{standing.goalsDiff}</TableCell>
-                      <TableCell className="text-center font-bold">{standing.points}</TableCell>
-                      <TableCell className="text-center">{stats.win}</TableCell>
-                      <TableCell className="text-center">{stats.draw}</TableCell>
-                      <TableCell className="text-center">{stats.lose}</TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex gap-1 justify-center">
-                          {standing.form?.split('').map((result, i) => (
-                            <span
-                              key={i}
-                              className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-white ${
-                                result === 'W' ? 'bg-green-500' :
-                                result === 'D' ? 'bg-gray-500' :
-                                'bg-red-500'
-                              }`}
-                            >
-                              {result}
-                            </span>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {standing.team.nextMatch && (
-                          <img
-                            src={standing.team.nextMatch.logo}
-                            alt={standing.team.nextMatch.name}
-                            className="team-logo"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              if (!target.src.includes("/assets/fallback-logo.svg")) {
-                                target.src = "/assets/fallback-logo.svg";
-                              }
-                            }}
-                          />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                          </TableCell>
+                          <TableCell className="min-w-[180px] pl-2">
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={standing.team.logo}
+                                alt={standing.team.name}
+                                className="team-logo"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  if (!target.src.includes("/assets/fallback-logo.svg")) {
+                                    target.src = "/assets/fallback-logo.svg";
+                                  }
+                                }}
+                              />
+                              <div className="flex flex-col">
+                                <span className="font-medium text-sm">{standing.team.name}</span>
+                                {standing.rank <= 7 && standing.description && (
+                                <span 
+                                  className="text-xs"
+                                  style={{
+                                    color: standing.rank <= 3 ? '#4CAF50' : '#9C27B0'
+                                  }}
+                                >
+                                  {standing.description}
+                                </span>
+                              )}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">{stats.played}</TableCell>
+                          <TableCell className="text-center">{stats.goals.for}/{stats.goals.against}</TableCell>
+                          <TableCell className="text-center">{standing.goalsDiff}</TableCell>
+                          <TableCell className="text-center font-bold">{standing.points}</TableCell>
+                          <TableCell className="text-center">{stats.win}</TableCell>
+                          <TableCell className="text-center">{stats.draw}</TableCell>
+                          <TableCell className="text-center">{stats.lose}</TableCell>
+                          <TableCell className="text-center">
+                            <div className="flex gap-1 justify-center">
+                              {standing.form?.split('').map((result, i) => (
+                                <span
+                                  key={i}
+                                  className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-white ${
+                                    result === 'W' ? 'bg-green-500' :
+                                    result === 'D' ? 'bg-gray-500' :
+                                    'bg-red-500'
+                                  }`}
+                                >
+                                  {result}
+                                </span>
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {standing.team.nextMatch && (
+                              <img
+                                src={standing.team.nextMatch.logo}
+                                alt={standing.team.nextMatch.name}
+                                className="team-logo"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  if (!target.src.includes("/assets/fallback-logo.svg")) {
+                                    target.src = "/assets/fallback-logo.svg";
+                                  }
+                                }}
+                              />
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            ))}
           </div>
         </Tabs>
       </CardContent>
