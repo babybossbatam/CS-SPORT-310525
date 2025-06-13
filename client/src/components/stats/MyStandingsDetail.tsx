@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -118,17 +117,7 @@ const MyStandingsDetail: React.FC<MyStandingsDetailProps> = ({ leagueId, season 
     }
     if (rank <= 2) return '#4CAF50'; // Green for top 2
     if (rank <= 6) return '#2196F3'; // Blue for European spots
-    return 'transparent';
-  };
-
-  const getPositionIcon = (rank: number, description?: string) => {
-    if (description?.toLowerCase().includes('world cup') || description?.toLowerCase().includes('promotion')) {
-      return '↗️';
-    }
-    if (description?.toLowerCase().includes('playoff')) {
-      return '⚪';
-    }
-    return '';
+    return '#E0E0E0';
   };
 
   if (isLoading) {
@@ -140,7 +129,7 @@ const MyStandingsDetail: React.FC<MyStandingsDetailProps> = ({ leagueId, season 
         <CardContent>
           <div className="space-y-2">
             {Array.from({ length: 10 }).map((_, i) => (
-              <Skeleton key={i} className="h-16 w-full" />
+              <Skeleton key={i} className="h-12 w-full" />
             ))}
           </div>
         </CardContent>
@@ -166,20 +155,7 @@ const MyStandingsDetail: React.FC<MyStandingsDetailProps> = ({ leagueId, season 
   const allStandings = data.league.standings;
 
   return (
-    <div className="w-full max-w-6xl mx-auto bg-white">
-      {/* League Header */}
-      <div className="flex items-center gap-4 p-6 border-b bg-gray-50">
-        <img 
-          src={data.league.logo} 
-          alt={data.league.name}
-          className="w-12 h-12 object-contain"
-        />
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">{data.league.name}</h1>
-          <p className="text-sm text-gray-600">{data.league.country} • Season {data.league.season}</p>
-        </div>
-      </div>
-
+    <div className="w-full bg-white">
       {/* View Tabs */}
       <div className="border-b">
         <Tabs value={view} onValueChange={(v) => setView(v as any)} className="w-full">
@@ -188,7 +164,7 @@ const MyStandingsDetail: React.FC<MyStandingsDetailProps> = ({ leagueId, season 
               value="overall" 
               className="flex-1 bg-transparent border-0 rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-blue-500 data-[state=active]:text-blue-600"
             >
-              All
+              Overall
             </TabsTrigger>
             <TabsTrigger 
               value="home" 
@@ -207,119 +183,104 @@ const MyStandingsDetail: React.FC<MyStandingsDetailProps> = ({ leagueId, season 
       </div>
 
       {/* Groups Container */}
-      <div className="space-y-8">
+      <div className="space-y-6">
         {allStandings.map((standings, groupIndex) => {
           if (!standings || standings.length === 0) return null;
-          
+
           return (
             <div key={groupIndex} className="bg-white">
               {/* Group Header */}
               {allStandings.length > 1 && (
-                <div className="px-6 py-4 bg-gray-50 border-b">
-                  <h2 className="text-lg font-semibold text-gray-800">
+                <div className="px-4 py-3 bg-gray-50 border-b">
+                  <h3 className="text-base font-medium text-gray-800">
                     {standings[0]?.group || `Group ${String.fromCharCode(65 + groupIndex)}`}
-                  </h2>
+                  </h3>
                 </div>
               )}
-              
+
               {/* Standings Table */}
               <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b bg-gray-50/50">
-                      <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                <Table className="w-full">
+                  <TableHeader>
+                    <TableRow className="border-b bg-gray-50/50">
+                      <TableHead className="text-center py-2 px-2 text-xs font-medium text-gray-500 w-8">
                         Pos
-                      </th>
-                      <th className="text-left py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
+                      </TableHead>
+                      <TableHead className="text-left py-2 px-3 text-xs font-medium text-gray-500 min-w-[140px]">
                         Team
-                      </th>
-                      <th className="text-center py-3 px-2 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
+                      </TableHead>
+                      <TableHead className="text-center py-2 px-2 text-xs font-medium text-gray-500 w-8">
                         P
-                      </th>
-                      <th className="text-center py-3 px-2 text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
+                      </TableHead>
+                      <TableHead className="text-center py-2 px-2 text-xs font-medium text-gray-500 w-12">
                         F/A
-                      </th>
-                      <th className="text-center py-3 px-2 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
+                      </TableHead>
+                      <TableHead className="text-center py-2 px-2 text-xs font-medium text-gray-500 w-10">
                         +/-
-                      </th>
-                      <th className="text-center py-3 px-2 text-xs font-medium text-gray-900 uppercase tracking-wider w-16 font-bold">
+                      </TableHead>
+                      <TableHead className="text-center py-2 px-2 text-xs font-medium text-gray-900 w-12 font-bold">
                         PTS
-                      </th>
-                      <th className="text-center py-3 px-2 text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                      </TableHead>
+                      <TableHead className="text-center py-2 px-2 text-xs font-medium text-gray-500 w-8">
                         W
-                      </th>
-                      <th className="text-center py-3 px-2 text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                      </TableHead>
+                      <TableHead className="text-center py-2 px-2 text-xs font-medium text-gray-500 w-8">
                         D
-                      </th>
-                      <th className="text-center py-3 px-2 text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
+                      </TableHead>
+                      <TableHead className="text-center py-2 px-2 text-xs font-medium text-gray-500 w-8">
                         L
-                      </th>
-                      <th className="text-center py-3 px-2 text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                        Form
-                      </th>
-                      <th className="text-center py-3 px-2 text-xs font-medium text-gray-500 uppercase tracking-wider w-16">
+                      </TableHead>
+                      <TableHead className="text-center py-2 px-2 text-xs font-medium text-gray-500 w-16">
                         Next
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-100">
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {standings.map((standing) => {
                       const stats = view === 'overall' ? standing.all : 
                                   view === 'home' ? standing.home : 
                                   view === 'away' ? standing.away : standing.all;
 
                       return (
-                        <tr 
+                        <TableRow 
                           key={`${groupIndex}-${standing.team.id}`}
-                          className="hover:bg-gray-50/50 transition-colors group cursor-pointer"
+                          className="hover:bg-gray-50/50 transition-colors group cursor-pointer border-b border-gray-100"
                         >
-                          {/* Position */}
-                          <td className="py-4 px-4 relative">
-                            <div className="flex items-center gap-2">
-                              {/* Qualification indicator */}
-                              <div 
-                                className="w-1 h-8 rounded-r"
-                                style={{ 
-                                  backgroundColor: getQualificationColor(standing.rank, standing.description)
-                                }}
-                              />
-                              <span 
-                                className="font-semibold text-sm"
-                                style={{
-                                  color: getQualificationColor(standing.rank, standing.description) !== 'transparent' 
-                                    ? getQualificationColor(standing.rank, standing.description) 
-                                    : '#374151'
-                                }}
-                              >
-                                {standing.rank}
-                              </span>
-                              <span className="text-xs">
-                                {getPositionIcon(standing.rank, standing.description)}
-                              </span>
-                            </div>
-                          </td>
+                          {/* Position with qualification indicator */}
+                          <TableCell className="py-3 px-2 text-center relative">
+                            <div 
+                              className="absolute left-0 top-0 bottom-0 w-1"
+                              style={{ 
+                                backgroundColor: getQualificationColor(standing.rank, standing.description)
+                              }}
+                            />
+                            <span 
+                              className="font-medium text-sm"
+                              style={{
+                                color: getQualificationColor(standing.rank, standing.description) !== '#E0E0E0' 
+                                  ? getQualificationColor(standing.rank, standing.description) 
+                                  : '#374151'
+                              }}
+                            >
+                              {standing.rank}
+                            </span>
+                          </TableCell>
 
                           {/* Team */}
-                          <td className="py-4 px-4">
-                            <div className="flex items-center gap-3">
+                          <TableCell className="py-3 px-3">
+                            <div className="flex items-center gap-2">
                               {isNationalTeam(standing.team.name) ? (
                                 <MyCircularFlag
                                   teamName={standing.team.name}
                                   fallbackUrl={standing.team.logo}
-                                  size="32px"
+                                  size="20px"
                                   className="flex-shrink-0"
-                                  showNextMatchOverlay={!!standing.team.nextMatch}
-                                  nextMatchInfo={standing.team.nextMatch ? {
-                                    opponent: standing.team.nextMatch.name,
-                                    date: standing.team.nextMatch.date,
-                                    venue: standing.team.nextMatch.venue
-                                  } : undefined}
                                 />
                               ) : (
                                 <img
                                   src={standing.team.logo}
                                   alt={standing.team.name}
-                                  className="w-8 h-8 object-contain rounded flex-shrink-0"
+                                  className="w-5 h-5 object-contain rounded flex-shrink-0"
                                   onError={(e) => {
                                     const target = e.target as HTMLImageElement;
                                     if (!target.src.includes("/assets/fallback-logo.svg")) {
@@ -329,7 +290,7 @@ const MyStandingsDetail: React.FC<MyStandingsDetailProps> = ({ leagueId, season 
                                 />
                               )}
                               <div className="min-w-0">
-                                <div className="font-medium text-gray-900 text-sm truncate">
+                                <div className="font-normal text-gray-900 text-sm truncate">
                                   {standing.team.name}
                                 </div>
                                 {standing.description && (
@@ -344,61 +305,43 @@ const MyStandingsDetail: React.FC<MyStandingsDetailProps> = ({ leagueId, season 
                                 )}
                               </div>
                             </div>
-                          </td>
+                          </TableCell>
 
                           {/* Stats */}
-                          <td className="py-4 px-2 text-center text-sm text-gray-900">{stats.played}</td>
-                          <td className="py-4 px-2 text-center text-sm text-gray-900">
+                          <TableCell className="py-3 px-2 text-center text-sm text-gray-900">{stats.played}</TableCell>
+                          <TableCell className="py-3 px-2 text-center text-sm text-gray-900">
                             {stats.goals.for}:{stats.goals.against}
-                          </td>
-                          <td className="py-4 px-2 text-center text-sm">
+                          </TableCell>
+                          <TableCell className="py-3 px-2 text-center text-sm">
                             <span className={`${standing.goalsDiff >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                               {standing.goalsDiff >= 0 ? '+' : ''}{standing.goalsDiff}
                             </span>
-                          </td>
-                          <td className="py-4 px-2 text-center">
+                          </TableCell>
+                          <TableCell className="py-3 px-2 text-center">
                             <span className="font-bold text-sm text-gray-900">
                               {standing.points}
                             </span>
-                          </td>
-                          <td className="py-4 px-2 text-center text-sm text-gray-900">{stats.win}</td>
-                          <td className="py-4 px-2 text-center text-sm text-gray-900">{stats.draw}</td>
-                          <td className="py-4 px-2 text-center text-sm text-gray-900">{stats.lose}</td>
-
-                          {/* Form */}
-                          <td className="py-4 px-2">
-                            <div className="flex gap-0.5 justify-center">
-                              {standing.form?.split('').slice(0, 5).map((result, i) => (
-                                <div
-                                  key={i}
-                                  className={`w-4 h-4 rounded-sm flex items-center justify-center text-xs font-bold text-white ${
-                                    result === 'W' ? 'bg-green-500' :
-                                    result === 'D' ? 'bg-gray-400' :
-                                    'bg-red-500'
-                                  }`}
-                                >
-                                  {result}
-                                </div>
-                              ))}
-                            </div>
-                          </td>
+                          </TableCell>
+                          <TableCell className="py-3 px-2 text-center text-sm text-gray-900">{stats.win}</TableCell>
+                          <TableCell className="py-3 px-2 text-center text-sm text-gray-900">{stats.draw}</TableCell>
+                          <TableCell className="py-3 px-2 text-center text-sm text-gray-900">{stats.lose}</TableCell>
 
                           {/* Next Match */}
-                          <td className="py-4 px-2 text-center">
+                          <TableCell className="py-3 px-2 text-center">
                             {standing.team.nextMatch && (
                               <div className="flex justify-center">
                                 {isNationalTeam(standing.team.nextMatch.name) ? (
                                   <MyCircularFlag
                                     teamName={standing.team.nextMatch.name}
                                     fallbackUrl={standing.team.nextMatch.logo}
-                                    size="24px"
+                                    size="20px"
                                     className="flex-shrink-0"
                                   />
                                 ) : (
                                   <img
                                     src={standing.team.nextMatch.logo}
                                     alt={standing.team.nextMatch.name}
-                                    className="w-6 h-6 object-contain rounded flex-shrink-0"
+                                    className="w-5 h-5 object-contain rounded flex-shrink-0"
                                     onError={(e) => {
                                       const target = e.target as HTMLImageElement;
                                       if (!target.src.includes("/assets/fallback-logo.svg")) {
@@ -409,34 +352,16 @@ const MyStandingsDetail: React.FC<MyStandingsDetailProps> = ({ leagueId, season 
                                 )}
                               </div>
                             )}
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       );
                     })}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
             </div>
           );
         })}
-      </div>
-
-      {/* Legend */}
-      <div className="p-6 bg-gray-50 border-t">
-        <div className="flex flex-wrap gap-4 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-500 rounded"></div>
-            <span className="text-gray-600">World Cup Qualification</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-purple-500 rounded"></div>
-            <span className="text-gray-600">Playoff</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-blue-500 rounded"></div>
-            <span className="text-gray-600">European Competition</span>
-          </div>
-        </div>
       </div>
     </div>
   );
