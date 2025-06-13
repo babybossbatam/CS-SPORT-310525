@@ -134,14 +134,25 @@ const HomeTopScorersList = () => {
     // Calculate the center position of the visible area
     const visibleCenter = containerWidth / 2;
     
-    // Calculate the ideal scroll position to center the button
-    const idealScrollLeft = buttonCenter - visibleCenter;
+    // For leagues in the beginning or end, adjust positioning
+    let idealScrollLeft;
+    
+    if (leagueIndex <= 2) {
+      // If it's one of the first 3 leagues, position it more to the left
+      idealScrollLeft = buttonLeft - (containerWidth * 0.2);
+    } else if (leagueIndex >= POPULAR_LEAGUES.length - 3) {
+      // If it's one of the last 3 leagues, position it more to the right
+      idealScrollLeft = buttonCenter - (containerWidth * 0.8);
+    } else {
+      // For middle leagues, center them
+      idealScrollLeft = buttonCenter - visibleCenter;
+    }
 
     // Clamp the scroll position to valid bounds
     const maxScrollLeft = container.scrollWidth - containerWidth;
     const finalScrollLeft = Math.max(0, Math.min(idealScrollLeft, maxScrollLeft));
 
-    // Scroll smoothly to center the selected league
+    // Scroll smoothly to position the selected league
     container.scrollTo({
       left: finalScrollLeft,
       behavior: 'smooth'
@@ -156,7 +167,8 @@ const HomeTopScorersList = () => {
     if (currentIndex > 0) {
       const newLeagueId = POPULAR_LEAGUES[currentIndex - 1].id;
       setSelectedLeague(newLeagueId);
-      setTimeout(() => scrollToLeague(newLeagueId), 50);
+      // Immediate scroll for better responsiveness
+      setTimeout(() => scrollToLeague(newLeagueId), 10);
     }
   };
 
@@ -165,7 +177,8 @@ const HomeTopScorersList = () => {
     if (currentIndex < POPULAR_LEAGUES.length - 1) {
       const newLeagueId = POPULAR_LEAGUES[currentIndex + 1].id;
       setSelectedLeague(newLeagueId);
-      setTimeout(() => scrollToLeague(newLeagueId), 50);
+      // Immediate scroll for better responsiveness
+      setTimeout(() => scrollToLeague(newLeagueId), 10);
     }
   };
 
