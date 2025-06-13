@@ -1256,8 +1256,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         if (!a.isPopular && b.isPopular) return 1;
                         return a.league.name.localeCompare(b.league.name);
                       })
-                      .map((leagueData: any) => {
-                        const isLeagueExpanded = expandedLeagues.has(`${countryData.country}-${leagueData.league.id}`);
+                      .map((leagueData: any, leagueIndex: number) => {
+                        const leagueKey = `${countryData.country}-${leagueData.league.id}`;
+                        const totalLeaguesInCountry = Object.values(countryData.leagues).length;
+                        const isFirstLeague = leagueIndex === 0;
+
+                        // Auto-expand first league only if it's the only league in the country
+                        const shouldAutoExpand = isFirstLeague && totalLeaguesInCountry === 1;
+                        const isLeagueExpanded = shouldAutoExpand || expandedLeagues.has(leagueKey);
 
                         return (
                         <div
@@ -1433,8 +1439,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   priority={matchIndex < 3 ? 'high' : 'normal'}
                                   onPrefetch={() => prefetchMatchData(match.fixture.id)}
                                   rootMargin="150px"
-                                  prefetchMargin="400px"
-                                >
+                                  prefetchMargin="400px"                                >
                                   <div
                                     className="match-card-container group"
                                   >
