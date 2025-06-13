@@ -150,7 +150,9 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           borderRadius: "50%",
           position: "relative",
           zIndex: 1,
-          filter: "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
+          filter: "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
+          transition: "none",
+          transform: "none"
         }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
