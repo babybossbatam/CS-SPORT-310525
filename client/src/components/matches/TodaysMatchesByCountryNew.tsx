@@ -1258,11 +1258,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                       })
                       .map((leagueData: any, leagueIndex: number) => {
                         const leagueKey = `${countryData.country}-${leagueData.league.id}`;
-                        const totalLeaguesInCountry = Object.values(countryData.leagues).length;
                         const isFirstLeague = leagueIndex === 0;
 
-                        // Auto-expand first league only if it's the only league in the country
-                        const shouldAutoExpand = isFirstLeague && totalLeaguesInCountry === 1;
+                        // Always auto-expand the first league in each country
+                        const shouldAutoExpand = isFirstLeague;
                         const isLeagueExpanded = shouldAutoExpand || expandedLeagues.has(leagueKey);
 
                         return (
