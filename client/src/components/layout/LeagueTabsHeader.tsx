@@ -21,7 +21,7 @@ const LeagueTabsHeader = ({
     queryKey: ['league-standings', leagueId],
     queryFn: async () => {
       if (!leagueId) return null;
-      const response = await fetch(`/api/standings?league=${leagueId}&season=2025`);
+      const response = await fetch(`/api/leagues/${leagueId}/standings`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }

@@ -92,7 +92,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
     queryKey: ['league-standings', leagueId, season],
     queryFn: async () => {
       try {
-        const response = await fetch(`/api/standings?league=${leagueId}&season=${season}`);
+        const response = await fetch(`/api/leagues/${leagueId}/standings`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
