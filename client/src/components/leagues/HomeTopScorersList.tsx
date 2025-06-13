@@ -110,34 +110,40 @@ const HomeTopScorersList = () => {
     if (!container) return;
 
     // Find the button for the selected league
-    const buttons = container.querySelectorAll('button');
-    let targetButton: HTMLElement | null = null;
-    
-    buttons.forEach((button, index) => {
-      if (POPULAR_LEAGUES[index]?.id === leagueId) {
-        targetButton = button;
-      }
-    });
+    const leagueIndex = POPULAR_LEAGUES.findIndex(league => league.id === leagueId);
+    if (leagueIndex === -1) return;
 
+    const buttons = container.querySelectorAll('button');
+    const targetButton = buttons[leagueIndex] as HTMLElement;
+    
     if (!targetButton) return;
 
-    // Get container width and button position
+    // Get container and button dimensions
     const containerWidth = container.clientWidth;
-    const buttonOffsetLeft = targetButton.offsetLeft;
-    const buttonWidth = targetButton.offsetWidth;
+    const containerScrollLeft = container.scrollLeft;
     
-    // Calculate the scroll position to center the button
-    const targetScrollLeft = buttonOffsetLeft - (containerWidth / 2) + (buttonWidth / 2);
+    // Get button position relative to the scrollable content
+    const buttonLeft = targetButton.offsetLeft;
+    const buttonWidth = targetButton.offsetWidth;
+    const buttonCenter = buttonLeft + (buttonWidth / 2);
+    
+    // Calculate where we want the button center to be (center of visible area)
+    const targetCenter = containerWidth / 2;
+    
+    // Calculate the required scroll position
+    const targetScrollLeft = buttonCenter - targetCenter;
     
     // Ensure we don't scroll beyond the boundaries
     const maxScrollLeft = container.scrollWidth - containerWidth;
     const finalScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScrollLeft));
     
-    // Smooth scroll to the calculated position
-    container.scrollTo({
-      left: finalScrollLeft,
-      behavior: 'smooth'
-    });
+    // Only scroll if there's a significant difference
+    if (Math.abs(finalScrollLeft - containerScrollLeft) > 5) {
+      container.scrollTo({
+        left: finalScrollLeft,
+        behavior: 'smooth'
+      });
+    }
   };
 
   const scrollLeft = () => {
