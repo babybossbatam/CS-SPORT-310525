@@ -33,7 +33,6 @@ import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
-import MyCircularFlag from "../common/MyCircularFlag";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -960,17 +959,23 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
                           match.teams.home,
                           match.leagueInfo,
                         ) ? (
-                          <MyCircularFlag
-                            teamName={match.teams.home.name}
-                            fallbackUrl={
-                              match.teams.home.id
-                                ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                : "/assets/fallback-logo.svg"
-                            }
-                            alt={match.teams.home.name}
-                            size="32px"
-                            className="team-logo"
-                          />
+                          <div className="flag-circle">
+                            <LazyImage
+                              src={
+                                match.teams.home.id
+                                  ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                  : "/assets/fallback-logo.svg"
+                              }
+                              alt={match.teams.home.name}
+                              title={match.teams.home.name}
+                              className="team-logo"
+                              style={{ 
+                                filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                              }}
+                              fallbackSrc="/assets/fallback-logo.svg"
+                            />
+                            <div className="gloss"></div>
+                          </div>
                         ) : (
                           <LazyImage
                             src={
@@ -1185,17 +1190,23 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
                           match.teams.away,
                           match.leagueInfo,
                         ) ? (
-                          <MyCircularFlag
-                            teamName={match.teams.away.name}
-                            fallbackUrl={
-                              match.teams.away.id
-                                ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                : "/assets/fallback-logo.svg"
-                            }
-                            alt={match.teams.away.name}
-                            size="32px"
-                            className="team-logo"
-                          />
+                          <div className="flag-circle">
+                            <LazyImage
+                              src={
+                                match.teams.away.id
+                                  ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                  : "/assets/fallback-logo.svg"
+                              }
+                              alt={match.teams.away.name}
+                              title={match.teams.away.name}
+                              className="team-logo"
+                              style={{ 
+                                filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                              }}
+                              fallbackSrc="/assets/fallback-logo.svg"
+                            />
+                            <div className="gloss"></div>
+                          </div>
                         ) : (
                           <LazyImage
                             src={

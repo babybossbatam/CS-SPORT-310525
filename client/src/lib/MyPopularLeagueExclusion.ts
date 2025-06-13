@@ -140,102 +140,96 @@ function safeSubstring(value: any, start: number, end?: number): string {
  * @param country Optional country name to check for null/invalid values
  * @returns true if fixture should be excluded, false if it should be kept
  */
-export const shouldExcludeFromPopularLeagues = (
+export function shouldExcludeFromPopularLeagues(
   leagueName: string,
   homeTeamName: string,
   awayTeamName: string,
-  country?: string
-): boolean => {
-  if (!leagueName || !homeTeamName || !awayTeamName) {
-    return true; // Exclude invalid data
+  country?: string | null,
+): boolean {
+  // Exclude fixtures with null, undefined, or invalid country values
+  if (
+    country !== undefined &&
+    (!country ||
+      country === null ||
+      country.trim() === "" ||
+      country.toLowerCase() === "unknown")
+  ) {
+    return true;
   }
 
-  const lowerLeagueName = leagueName.toLowerCase();
-  const lowerHomeTeam = homeTeamName.toLowerCase();
-  const lowerAwayTeam = awayTeamName.toLowerCase();
-  const lowerCountry = country?.toLowerCase() || "";
+  // Convert inputs to lowercase with safe handling
+  const league = safeSubstring(leagueName, 0).toLowerCase();
+  const homeTeam = safeSubstring(homeTeamName, 0).toLowerCase();
+  const awayTeam = safeSubstring(awayTeamName, 0).toLowerCase();
 
-  // Debug logging for target leagues
-  if (lowerLeagueName.includes("u21") || lowerLeagueName.includes("fifa club world cup")) {
-    console.log(`🎯 [EXCLUSION DEBUG] Checking ${leagueName}: ${homeTeamName} vs ${awayTeamName} (Country: ${country})`);
+  // FIRST: Check for UEFA Nations League Women specifically - always exclude
+  if (
+    league.includes("uefa nations league") &&
+    (league.includes("women") || league.includes("womens"))
+  ) {
+    return true; // Exclude UEFA Nations League Women
   }
 
-  // First check for exclusion patterns
+  // SECOND: Check for CONCACAF competitions - always exclude
+  if (league.includes("concacaf")) {
+    return true; // Exclude all CONCACAF competitions
+  }
+
+  // THIRD: Check for Asia competitions - always exclude
+  if (league.includes("asia")) {
+    return true; // Exclude all Asia competitions
+  }
 
   // Check if this is a major international competition that should NEVER be excluded
   const isMajorInternationalCompetition =
     // UEFA competitions (but women's already excluded above)
-    leagueName.toLowerCase().includes("uefa") ||
-    leagueName.toLowerCase().includes("champions league") ||
-    leagueName.toLowerCase().includes("europa league") ||
-    leagueName.toLowerCase().includes("conference league") ||
-    leagueName.toLowerCase().includes("euro") ||
-    leagueName.toLowerCase().includes("european championship") ||
+    league.includes("uefa") ||
+    league.includes("champions league") ||
+    league.includes("europa league") ||
+    league.includes("conference league") ||
+    league.includes("euro") ||
+    league.includes("european championship") ||
     // FIFA competitions
-    leagueName.toLowerCase().includes("fifa") ||
-    leagueName.toLowerCase().includes("world cup") ||
-    leagueName.toLowerCase().includes("fifa club world cup") ||
+    league.includes("fifa") ||
+    league.includes("world cup") ||
+    league.includes("fifa club world cup") ||
     // CONMEBOL competitions
-    leagueName.toLowerCase().includes("conmebol") ||
-    leagueName.toLowerCase().includes("copa america") ||
-    leagueName.toLowerCase().includes("copa libertadores") ||
-    leagueName.toLowerCase().includes("copa sudamericana") ||
-    leagueName.toLowerCase().includes("libertadores") ||
-    leagueName.toLowerCase().includes("sudamericana") ||
+    league.includes("conmebol") ||
+    league.includes("copa america") ||
+    league.includes("copa libertadores") ||
+    league.includes("copa sudamericana") ||
+    league.includes("libertadores") ||
+    league.includes("sudamericana") ||
     // Youth international tournaments (but exclude women's)
-    leagueName.toLowerCase().includes("tournoi maurice revello") ||
-    leagueName.toLowerCase().includes("maurice revello") ||
+    league.includes("tournoi maurice revello") ||
+    league.includes("maurice revello") ||
     // International competitions (but exclude women's and Asia/CONCACAF qualifications)
-    (leagueName.toLowerCase().includes("nations league") && !leagueName.toLowerCase().includes("women")) ||
-    (leagueName.toLowerCase().includes("uefa nations league") && !leagueName.toLowerCase().includes("women")) ||
-    (leagueName.toLowerCase().includes("confederation") && !leagueName.toLowerCase().includes("women")) ||
-    (leagueName.toLowerCase().includes("qualifying") &&
-      (leagueName.toLowerCase().includes("world cup") || leagueName.toLowerCase().includes("euro")) &&
-      !leagueName.toLowerCase().includes("women") &&
-      !leagueName.toLowerCase().includes("asia") &&
-      !leagueName.toLowerCase().includes("concacaf")) ||
-    (leagueName.toLowerCase().includes("international") &&
-      (leagueName.toLowerCase().includes("cup") || leagueName.toLowerCase().includes("championship")) &&
-      !leagueName.toLowerCase().includes("women")) ||
+    (league.includes("nations league") && !league.includes("women")) ||
+    (league.includes("uefa nations league") && !league.includes("women")) ||
+    (league.includes("confederation") && !league.includes("women")) ||
+    (league.includes("qualifying") &&
+      (league.includes("world cup") || league.includes("euro")) &&
+      !league.includes("women") &&
+      !league.includes("asia") &&
+      !league.includes("concacaf")) ||
+    (league.includes("international") &&
+      (league.includes("cup") || league.includes("championship")) &&
+      !league.includes("women")) ||
     // Men's International Friendlies (excludes women's)
-    (leagueName.toLowerCase().includes("friendlies") && !leagueName.toLowerCase().includes("women"));
+    (league.includes("friendlies") && !league.includes("women"));
 
   // If it's a major international competition, never exclude it
   if (isMajorInternationalCompetition) {
     return false;
   }
-    // Define exclusion terms array
-    const exclusionTerms = popularLeagueExclusionTerms;
 
-  // PRIORITY: Never exclude UEFA U21 Championship or FIFA Club World Cup
-  if (
-    lowerLeagueName.includes("uefa u21") ||
-    lowerLeagueName.includes("uefa european under-21") ||
-    lowerLeagueName.includes("fifa club world cup")
-  ) {
-    console.log(`✅ [EXCLUSION DEBUG] Allowing priority league: ${leagueName}`);
-    return false; // Never exclude these leagues
-  }
-
-  // Check for general exclusion terms
-  for (const term of exclusionTerms) {
-    if (
-      lowerLeagueName.includes(term) ||
-      lowerHomeTeam.includes(term) ||
-      lowerAwayTeam.includes(term)
-    ) {
-      // Double-check to ensure we don't exclude our priority leagues
-      if (
-        lowerLeagueName.includes("uefa u21") ||
-        lowerLeagueName.includes("uefa european under-21") ||
-        lowerLeagueName.includes("fifa club world cup")
-      ) {
-        console.log(`⚠️ [EXCLUSION DEBUG] Almost excluded priority league ${leagueName} due to term: ${term}`);
-        return false;
-      }
-      return true;
-    }
-  }
+  // Check if any exclusion term exists in league or team names
+  return popularLeagueExclusionTerms.some(
+    (term) =>
+      league.includes(term) ||
+      homeTeam.includes(term) ||
+      awayTeam.includes(term),
+  );
 }
 
 /**
