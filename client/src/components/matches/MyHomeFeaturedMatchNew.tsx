@@ -261,6 +261,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     // Filter matches by elite leagues and competitions
     const getEliteMatches = (matchesArray: any[]) => {
+      console.log(`🔍 [getEliteMatches] Processing ${matchesArray.length} matches`);
+      
       return matchesArray.filter((fixture) => {
         // Basic validation
         if (
@@ -275,6 +277,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const country = fixture.league?.country?.toLowerCase() || "";
         const leagueName = fixture.league?.name?.toLowerCase() || "";
 
+        // Log all leagues being processed for debugging
+        if (leagueId === 15 || leagueId === 38) {
+          console.log(`🎯 [TARGET LEAGUE] Found target league: ${fixture.league.name} (ID: ${leagueId}) - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+        }
+
         // Apply exclusion check
         if (
           shouldExcludeFromPopularLeagues(
@@ -284,12 +291,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             fixture.league.country,
           )
         ) {
+          console.log(`❌ [EXCLUDED] Match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.league.name})`);
           return false;
         }
 
         // PRIORITY 1: Only the most elite leagues
         const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 15, 38]; // Added FIFA Club World Cup (15) and UEFA U21 Championship (38)
         if (eliteLeagues.includes(leagueId)) {
+          console.log(`✅ [ELITE MATCH] Found elite league match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${leagueName}, ID: ${leagueId})`);
           return true;
         }
 
@@ -301,9 +310,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             leagueName.includes("qualification") &&
             (leagueName.includes("europe") ||
               leagueName.includes("south america"))) ||
-          leagueName.includes("fifa club world cup");
+          leagueName.includes("fifa club world cup") ||
+          leagueName.includes("uefa u21") ||
+          leagueName.includes("uefa european under-21");
 
         if (isTopInternationalCompetition) {
+          console.log(`✅ [INTERNATIONAL MATCH] Found international competition match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${leagueName})`);
           return true;
         }
 
@@ -324,6 +336,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         return false;
+      }).map(match => {
+        // Log each elite match found
+        if (match.league.id === 15 || match.league.id === 38) {
+          console.log(`✅ [ELITE RESULT] Including ${match.league.name}: ${match.teams.home.name} vs ${match.teams.away.name}`);
+        }
+        return match;
       });
     };
 
@@ -385,10 +403,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     });
 
     // Process each day's matches
+    console.log(`📅 [DATE BREAKDOWN] Today: ${todayMatches.length}, Tomorrow: ${tomorrowMatches.length}, Day+2: ${dayAfterTomorrowMatches.length}, Day+3: ${twoDaysAfterMatches.length}`);
+    
     const todayElite = getEliteMatches(todayMatches);
     const tomorrowElite = getEliteMatches(tomorrowMatches);
     const dayAfterElite = getEliteMatches(dayAfterTomorrowMatches);
     const twoDaysAfterElite = getEliteMatches(twoDaysAfterMatches);
+    
+    console.log(`🏆 [ELITE BREAKDOWN] Today: ${todayElite.length}, Tomorrow: ${tomorrowElite.length}, Day+2: ${dayAfterElite.length}, Day+3: ${twoDaysAfterElite.length}`);
 
     // Sort each day's matches
     const todaySorted = sortByPriority(todayElite);
