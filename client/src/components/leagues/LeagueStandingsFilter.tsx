@@ -879,27 +879,38 @@ const LeagueStandingsFilter = () => {
                                 <TableCell className="px-1 py-1 mx-0 font-regular">
                                   <div className="flex items-center justify-center">
                                     {(() => {
-                                      if (!fixtures?.response) {
+                                      if (!fixtures?.response || fixtures.response.length === 0) {
                                         console.log("No fixtures data available for league", selectedLeague);
                                         return (
                                           <span className="text-xs text-gray-400">-</span>
                                         );
                                       }
 
-                                      // Filter fixtures for this specific league
-                                      const leagueFixtures = fixtures.response.filter((fixture: any) => 
+                                      // Filter fixtures for this specific league or related leagues
+                                      let leagueFixtures = fixtures.response.filter((fixture: any) => 
                                         fixture.league.id === parseInt(selectedLeague)
                                       );
 
-                                      console.log(`Found ${leagueFixtures.length} fixtures for league ${selectedLeague}`);
+                                      // If no fixtures found for exact league ID, try broader search for group competitions
+                                      if (leagueFixtures.length === 0 && standings.league.standings.length > 1) {
+                                        leagueFixtures = fixtures.response.filter((fixture: any) => 
+                                          fixture.league.name?.toLowerCase().includes(selectedLeagueName.toLowerCase().split(' - ')[0]) ||
+                                          fixture.league.name?.toLowerCase().includes('world cup') ||
+                                          fixture.league.name?.toLowerCase().includes('qualification')
+                                        );
+                                      }
 
-                                      // Find the next upcoming match for this team within the league
+                                      console.log(`Found ${leagueFixtures.length} fixtures for team ${standing.team.name} in league ${selectedLeague}`);
+
+                                      // Find the next upcoming match for this team
                                       const nextMatch = leagueFixtures
                                         .filter((fixture: any) => {
                                           const isTeamInMatch = fixture.teams.home.id === standing.team.id || 
                                                                fixture.teams.away.id === standing.team.id;
                                           const isUpcoming = new Date(fixture.fixture.date) > new Date();
 
+                                          console.log(`Checking fixture ${fixture.fixture.id}: ${fixture.teams.home.name} vs ${fixture.teams.away.name}, isTeamInMatch: ${isTeamInMatch}, isUpcoming: ${isUpcoming}`);
+                                          
                                           return isTeamInMatch && isUpcoming;
                                         })
                                         .sort((a: any, b: any) =>
@@ -907,7 +918,7 @@ const LeagueStandingsFilter = () => {
                                         )[0];
 
                                       if (!nextMatch) {
-                                        console.log(`No next match found for team: ${standing.team.name} in league ${selectedLeague}`);
+                                        console.log(`No next match found for team: ${standing.team.name} (ID: ${standing.team.id}) in league ${selectedLeague}`);
                                         return (
                                           <span className="text-xs text-gray-400">-</span>
                                         );
@@ -919,7 +930,7 @@ const LeagueStandingsFilter = () => {
                                           ? nextMatch.teams.away
                                           : nextMatch.teams.home;
 
-                                      console.log(`Next opponent for ${standing.team.name}: ${opponent.name} on ${nextMatch.fixture.date}`);
+                                      console.log(`Next opponent for ${standing.team.name}: ${opponent.name} (Logo: ${opponent.logo}) on ${nextMatch.fixture.date}`);
 
                                       return (
                                         <div className="flex items-center justify-center min-w-[24px]" title={`vs ${opponent.name} - ${new Date(nextMatch.fixture.date).toLocaleDateString()}`}>
@@ -942,9 +953,10 @@ const LeagueStandingsFilter = () => {
                                               src={opponent.logo || "/assets/fallback-logo.svg"}
                                               alt={`Next opponent: ${opponent.name}`}
                                               className="w-6 h-6 rounded-full object-contain"
+                                              style={{ minWidth: '24px', minHeight: '24px' }}
                                               onError={(e) => {
-                                                (e.target as HTMLImageElement).src =
-                                                  "/assets/fallback-logo.svg";
+                                                console.log(`Logo failed to load for ${opponent.name}, using fallback`);
+                                                (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
                                               }}
                                             />
                                           )}
