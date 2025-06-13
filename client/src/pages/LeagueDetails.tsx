@@ -12,6 +12,7 @@ import {
 const headerHeight = "h-[216px]"; // 180px increased by 20%
 const leagueTabsPosition = "mt-[236px]"; // 180px increased to accommodate new header height
 import { LeagueStandings } from "@/components/stats/LeagueStandings";
+import MyStandingsDetail from "@/components/stats/MyStandingsDetail";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import TeamLogo from "@/components/matches/TeamLogo";
@@ -235,7 +236,7 @@ const LeagueDetails = () => {
                   <TabsContent value="standings" className="mt-2">
                     <Card>
                       {league && league.league && league.league.id && (
-                        <LeagueStandings
+                        <MyStandingsDetail
                           leagueId={league.league.id}
                         />
                       )}
