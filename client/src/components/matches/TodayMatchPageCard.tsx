@@ -11,6 +11,7 @@ import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
+import MyNewPopularLeague from "./MyNewPopularLeague";
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { format, parseISO, addDays, subDays } from "date-fns";
 import {
@@ -357,6 +358,7 @@ export const TodayMatchPageCard = ({
       ) : (
         // Neither filter active - show default view
         <>
+          <MyNewPopularLeague selectedDate={selectedDate} />
           <TodayPopularFootballLeaguesNew
             selectedDate={selectedDate}
             timeFilterActive={timeFilterActive}
