@@ -1326,11 +1326,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                             </div>
                           </button>
 
-                          {/* Matches - Only show when league is expanded */}
-                          {expandedLeagues.has(`${countryData.country}-${leagueData.league.id}`) && (
+                          {/* Matches - Show when league is expanded OR when it's the first league */}
+                          {(isLeagueExpanded || shouldAutoExpand) && (
                             <div className="space-y-0 league-matches-container"
                               style={{
-                                animation: expandedLeagues.has(`${countryData.country}-${leagueData.league.id}`) 
+                                animation: (isLeagueExpanded || shouldAutoExpand)
                                   ? 'slideDown 0.3s ease-out' 
                                   : 'slideUp 0.3s ease-out'
                               }}
