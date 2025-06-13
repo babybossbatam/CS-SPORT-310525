@@ -181,7 +181,7 @@ const HomeTopScorersList = () => {
     <>
       <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           <button 
             onClick={scrollLeft}
             disabled={POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague) === 0}
@@ -191,10 +191,10 @@ const HomeTopScorersList = () => {
           </button>
           <div 
             ref={scrollContainerRef}
-            className="overflow-x-auto overflow-y-hidden scrollbar-hide flex-1"
+            className="overflow-x-auto overflow-y-hidden scrollbar-hide flex-1 max-w-md mx-auto"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            <div className="flex items-center gap-2 w-max">
+            <div className="flex items-center justify-center gap-2 w-max min-w-full">
               {POPULAR_LEAGUES.map((league) => (
                 <button
                   key={league.id}
