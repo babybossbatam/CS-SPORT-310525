@@ -20,24 +20,24 @@ const scrollbarHideStyle = `
 
 // Comprehensive leagues for top scorers - matches LeagueStandingsFilter dropdown
 const POPULAR_LEAGUES = [
-  { id: 2, name: 'Champions League', logo: 'https://media.api-sports.io/football/leagues/2.png' },
-  { id: 3, name: 'Europa League', logo: 'https://media.api-sports.io/football/leagues/3.png' },
-  { id: 848, name: 'Conference League', logo: 'https://media.api-sports.io/football/leagues/848.png' },
-  { id: 5, name: 'Nations League', logo: 'https://media.api-sports.io/football/leagues/5.png' },
-  { id: 15, name: 'Club World Cup', logo: 'https://media.api-sports.io/football/leagues/15.png' },
-  { id: 32, name: 'WC Qual Europe', logo: 'https://media.api-sports.io/football/leagues/32.png' },
-  { id: 33, name: 'WC Qual Oceania', logo: 'https://media.api-sports.io/football/leagues/33.png' },
-  { id: 34, name: 'WC Qual S.America', logo: 'https://media.api-sports.io/football/leagues/34.png' },
-  { id: 35, name: 'Asian Cup Qual', logo: 'https://media.api-sports.io/football/leagues/35.png' },
-  { id: 36, name: 'AFCON Qual', logo: 'https://media.api-sports.io/football/leagues/36.png' },
-  { id: 37, name: 'WC Intercontinental', logo: 'https://media.api-sports.io/football/leagues/37.png' },
+  { id: 2, name: 'UEFA Champions League', logo: 'https://media.api-sports.io/football/leagues/2.png' },
+  { id: 3, name: 'UEFA Europa League', logo: 'https://media.api-sports.io/football/leagues/3.png' },
+  { id: 848, name: 'UEFA Europa Conference League', logo: 'https://media.api-sports.io/football/leagues/848.png' },
+  { id: 5, name: 'UEFA Nations League', logo: 'https://media.api-sports.io/football/leagues/5.png' },
+  { id: 15, name: 'FIFA Club World Cup', logo: 'https://media.api-sports.io/football/leagues/15.png' },
+  { id: 32, name: 'World Cup - Qualification Europe', logo: 'https://media.api-sports.io/football/leagues/32.png' },
+  { id: 33, name: 'World Cup - Qualification Oceania', logo: 'https://media.api-sports.io/football/leagues/33.png' },
+  { id: 34, name: 'World Cup - Qualification South America', logo: 'https://media.api-sports.io/football/leagues/34.png' },
+  { id: 35, name: 'Asian Cup - Qualification', logo: 'https://media.api-sports.io/football/leagues/35.png' },
+  { id: 36, name: 'Africa Cup of Nations - Qualification', logo: 'https://media.api-sports.io/football/leagues/36.png' },
+  { id: 37, name: 'World Cup - Intercontinental Play-offs', logo: 'https://media.api-sports.io/football/leagues/37.png' },
   { id: 39, name: 'Premier League', logo: 'https://media.api-sports.io/football/leagues/39.png' },
   { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png' },
   { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png' },
   { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png' },
   { id: 61, name: 'Ligue 1', logo: 'https://media.api-sports.io/football/leagues/61.png' },
   { id: 45, name: 'FA Cup', logo: 'https://media.api-sports.io/football/leagues/45.png' },
-  { id: 48, name: 'League Cup', logo: 'https://media.api-sports.io/football/leagues/48.png' },
+  { id: 48, name: 'EFL Cup', logo: 'https://media.api-sports.io/football/leagues/48.png' },
 ];
 
 interface Player {
