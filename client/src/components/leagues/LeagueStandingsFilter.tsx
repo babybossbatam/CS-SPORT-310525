@@ -878,127 +878,63 @@ const LeagueStandingsFilter = () => {
                                 </TableCell>
                                 <TableCell className="px-1 py-1 mx-0 font-regular">
                                   <div className="flex items-center justify-center">
-                                    {group.find(
-                                      (opponent) =>
-                                        opponent.team.id !== standing.team.id &&
-                                        opponent.rank > standing.rank,
-                                    ) && (
-                                      <>
-                                        {isNationalTeam ? (
-                                          <div className="">
-                                            <MyCircularFlag
-                                              showNextMatchOverlay={true}
-                                              teamName={
-                                                group.find(
-                                                  (opponent) =>
-                                                    opponent.team.id !==
-                                                      standing.team.id &&
-                                                    opponent.rank >
-                                                      standing.rank,
-                                                )?.team.name || ""
-                                              }
-                                              fallbackUrl={
-                                                group.find(
-                                                  (opponent) =>
-                                                    opponent.team.id !==
-                                                      standing.team.id &&
-                                                    opponent.rank >
-                                                      standing.rank,
-                                                )?.team.logo
-                                              }
-                                              alt={`Next opponent`}
-                                              size="24px"
-                                              className="popular-leagues-size"
-                                              nextMatchInfo={(() => {
-                                                const nextOpponent = group.find(
-                                                  (opponent) =>
-                                                    opponent.team.id !==
-                                                      standing.team.id &&
-                                                    opponent.rank >
-                                                      standing.rank,
-                                                );
+                                    {(() => {
+                                      if (!fixtures?.response) return null;
 
-                                                if (
-                                                  !nextOpponent ||
-                                                  !fixtures?.response
-                                                )
-                                                  return undefined;
+                                      // Find the actual next match for this team
+                                      const nextMatch = fixtures.response.find(
+                                        (fixture: any) => {
+                                          const isTeamInMatch =
+                                            fixture.teams.home.id === standing.team.id ||
+                                            fixture.teams.away.id === standing.team.id;
 
-                                                // Find the actual next match between these two teams
-                                                const nextMatch =
-                                                  fixtures.response.find(
-                                                    (fixture: any) => {
-                                                      const isMatchBetweenTeams =
-                                                        (fixture.teams.home
-                                                          .id ===
-                                                          standing.team.id &&
-                                                          fixture.teams.away
-                                                            .id ===
-                                                            nextOpponent.team
-                                                              .id) ||
-                                                        (fixture.teams.home
-                                                          .id ===
-                                                          nextOpponent.team
-                                                            .id &&
-                                                          fixture.teams.away
-                                                            .id ===
-                                                            standing.team.id);
+                                          const isUpcoming =
+                                            new Date(fixture.fixture.date) > new Date();
 
-                                                      const isUpcoming =
-                                                        new Date(
-                                                          fixture.fixture.date,
-                                                        ) > new Date();
+                                          return isTeamInMatch && isUpcoming;
+                                        }
+                                      );
 
-                                                      return (
-                                                        isMatchBetweenTeams &&
-                                                        isUpcoming
-                                                      );
-                                                    },
-                                                  );
+                                      if (!nextMatch) return null;
 
-                                                if (nextMatch) {
-                                                  // Format teams properly for tooltip display
-                                                  const homeTeam =
-                                                    nextMatch.teams.home.name;
-                                                  const awayTeam =
-                                                    nextMatch.teams.away.name;
+                                      // Determine the opponent
+                                      const opponent = 
+                                        nextMatch.teams.home.id === standing.team.id
+                                          ? nextMatch.teams.away
+                                          : nextMatch.teams.home;
 
-                                                  return {
-                                                    opponent: `${homeTeam} - ${awayTeam}`,
-                                                    date: nextMatch.fixture
-                                                      .date,
-                                                    venue:
-                                                      nextMatch.fixture.venue
-                                                        ?.name || "TBD",
-                                                  };
-                                                }
-
-                                                return undefined;
-                                              })()}
+                                      return (
+                                        <>
+                                          {isNationalTeam ? (
+                                            <div className="">
+                                              <MyCircularFlag
+                                                showNextMatchOverlay={true}
+                                                teamName={opponent.name}
+                                                fallbackUrl={opponent.logo}
+                                                alt={`Next opponent: ${opponent.name}`}
+                                                size="24px"
+                                                className="popular-leagues-size"
+                                                nextMatchInfo={{
+                                                  opponent: `vs ${opponent.name}`,
+                                                  date: nextMatch.fixture.date,
+                                                  venue: nextMatch.fixture.venue?.name || "TBD",
+                                                }}
+                                              />
+                                            </div>
+                                          ) : (
+                                            <img
+                                              src={opponent.logo}
+                                              alt={`Next opponent: ${opponent.name}`}
+                                              className="w-5 h-5 rounded-full object-contain"
+                                              onError={(e) => {
+                                                (e.target as HTMLImageElement).src =
+                                                  "/assets/fallback-logo.svg";
+                                              }}
                                             />
-                                          </div>
-                                        ) : (
-                                          <img
-                                            src={
-                                              group.find(
-                                                (opponent) =>
-                                                  opponent.team.id !==
-                                                    standing.team.id &&
-                                                  opponent.rank > standing.rank,
-                                              )?.team.logo
-                                            }
-                                            alt={`Next opponent`}
-                                            className="w-5 h-5 rounded-full object-contain"
-                                            onError={(e) => {
-                                              (
-                                                e.target as HTMLImageElement
-                                              ).src =
-                                                "/assets/fallback-logo.svg";
-                                            }}
-                                          />
-                                        )}
-                                      </>
-                                    )}
+                                          )}
+                                        </>
+                                      );
+                                    })()}
                                   </div>
                                 </TableCell>
                               </TableRow>
