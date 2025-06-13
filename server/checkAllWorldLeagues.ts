@@ -1,0 +1,165 @@
+
+import { rapidApiService } from "./services/rapidApi";
+
+async function checkAllWorldLeagues() {
+  console.log("=== Checking All World Country Leagues (Excluding Women's Leagues) ===\n");
+
+  try {
+    // Get all available leagues
+    console.log("🔍 Fetching all leagues from API...");
+    const allLeagues = await rapidApiService.getLeagues();
+    console.log(`📊 Total leagues available: ${allLeagues.length}\n`);
+
+    // Filter for World country leagues (excluding women's leagues)
+    const worldLeagues = allLeagues.filter(leagueResponse => {
+      const country = leagueResponse.country?.name || '';
+      const leagueName = leagueResponse.league?.name?.toLowerCase() || '';
+      
+      // Include World, Europe, and International leagues
+      const isWorldCountry = country === "World" || 
+                            country === "Europe" || 
+                            country === "International";
+      
+      // Exclude women's leagues
+      const isWomensLeague = leagueName.includes('women') || 
+                            leagueName.includes('female') || 
+                            leagueName.includes('ladies');
+      
+      return isWorldCountry && !isWomensLeague;
+    });
+
+    console.log(`🌍 Found ${worldLeagues.length} World country leagues (excluding women's leagues):\n`);
+
+    // Group by league type for better organization
+    const uefaLeagues = [];
+    const fifaLeagues = [];
+    const youthLeagues = [];
+    const otherLeagues = [];
+
+    worldLeagues.forEach(leagueResponse => {
+      const leagueName = leagueResponse.league.name.toLowerCase();
+      
+      if (leagueName.includes("uefa") || leagueName.includes("euro")) {
+        if (leagueName.includes("u21") || leagueName.includes("u19") || 
+            leagueName.includes("u17") || leagueName.includes("youth") ||
+            leagueName.includes("u23") || leagueName.includes("u20") ||
+            leagueName.includes("u18") || leagueName.includes("u16")) {
+          youthLeagues.push(leagueResponse);
+        } else {
+          uefaLeagues.push(leagueResponse);
+        }
+      } else if (leagueName.includes("fifa") || leagueName.includes("world cup")) {
+        fifaLeagues.push(leagueResponse);
+      } else {
+        otherLeagues.push(leagueResponse);
+      }
+    });
+
+    // Display UEFA Major Leagues
+    console.log("🏆 UEFA MAJOR LEAGUES:");
+    console.log("=" + "=".repeat(60));
+    if (uefaLeagues.length > 0) {
+      uefaLeagues.forEach((leagueResponse, index) => {
+        console.log(`\n${index + 1}. League ID: ${leagueResponse.league.id}`);
+        console.log(`   Name: ${leagueResponse.league.name}`);
+        console.log(`   Country: ${leagueResponse.country.name}`);
+        console.log(`   Type: ${leagueResponse.league.type}`);
+        console.log(`   Logo: ${leagueResponse.league.logo}`);
+        if (leagueResponse.seasons && leagueResponse.seasons.length > 0) {
+          const currentSeason = leagueResponse.seasons.find(s => s.current) || leagueResponse.seasons[0];
+          console.log(`   Current Season: ${currentSeason.year} (${currentSeason.start} to ${currentSeason.end})`);
+        }
+      });
+    } else {
+      console.log("❌ No UEFA major leagues found");
+    }
+
+    // Display FIFA Leagues
+    console.log("\n🌍 FIFA LEAGUES:");
+    console.log("=" + "=".repeat(60));
+    if (fifaLeagues.length > 0) {
+      fifaLeagues.forEach((leagueResponse, index) => {
+        console.log(`\n${index + 1}. League ID: ${leagueResponse.league.id}`);
+        console.log(`   Name: ${leagueResponse.league.name}`);
+        console.log(`   Country: ${leagueResponse.country.name}`);
+        console.log(`   Type: ${leagueResponse.league.type}`);
+        console.log(`   Logo: ${leagueResponse.league.logo}`);
+        if (leagueResponse.seasons && leagueResponse.seasons.length > 0) {
+          const currentSeason = leagueResponse.seasons.find(s => s.current) || leagueResponse.seasons[0];
+          console.log(`   Current Season: ${currentSeason.year} (${currentSeason.start} to ${currentSeason.end})`);
+        }
+      });
+    } else {
+      console.log("❌ No FIFA leagues found");
+    }
+
+    // Display UEFA Youth Leagues
+    console.log("\n🏅 UEFA YOUTH LEAGUES:");
+    console.log("=" + "=".repeat(60));
+    if (youthLeagues.length > 0) {
+      youthLeagues.forEach((leagueResponse, index) => {
+        console.log(`\n${index + 1}. League ID: ${leagueResponse.league.id}`);
+        console.log(`   Name: ${leagueResponse.league.name}`);
+        console.log(`   Country: ${leagueResponse.country.name}`);
+        console.log(`   Type: ${leagueResponse.league.type}`);
+        console.log(`   Logo: ${leagueResponse.league.logo}`);
+        if (leagueResponse.seasons && leagueResponse.seasons.length > 0) {
+          const currentSeason = leagueResponse.seasons.find(s => s.current) || leagueResponse.seasons[0];
+          console.log(`   Current Season: ${currentSeason.year} (${currentSeason.start} to ${currentSeason.end})`);
+        }
+      });
+    } else {
+      console.log("❌ No UEFA youth leagues found");
+    }
+
+    // Display Other International Leagues
+    console.log("\n🌐 OTHER INTERNATIONAL LEAGUES:");
+    console.log("=" + "=".repeat(60));
+    if (otherLeagues.length > 0) {
+      otherLeagues.forEach((leagueResponse, index) => {
+        console.log(`\n${index + 1}. League ID: ${leagueResponse.league.id}`);
+        console.log(`   Name: ${leagueResponse.league.name}`);
+        console.log(`   Country: ${leagueResponse.country.name}`);
+        console.log(`   Type: ${leagueResponse.league.type}`);
+        console.log(`   Logo: ${leagueResponse.league.logo}`);
+        if (leagueResponse.seasons && leagueResponse.seasons.length > 0) {
+          const currentSeason = leagueResponse.seasons.find(s => s.current) || leagueResponse.seasons[0];
+          console.log(`   Current Season: ${currentSeason.year} (${currentSeason.start} to ${currentSeason.end})`);
+        }
+      });
+    } else {
+      console.log("❌ No other international leagues found");
+    }
+
+    // Summary
+    console.log("\n📊 SUMMARY:");
+    console.log("=" + "=".repeat(60));
+    console.log(`Total World country leagues (excluding women's): ${worldLeagues.length}`);
+    console.log(`UEFA Major Leagues: ${uefaLeagues.length}`);
+    console.log(`FIFA Leagues: ${fifaLeagues.length}`);
+    console.log(`UEFA Youth Leagues: ${youthLeagues.length}`);
+    console.log(`Other International Leagues: ${otherLeagues.length}`);
+
+    // List all league IDs for easy reference
+    console.log("\n🔢 ALL WORLD LEAGUE IDs (for reference):");
+    console.log("=" + "=".repeat(60));
+    const allWorldLeagueIds = worldLeagues.map(l => `${l.league.id} (${l.league.name})`);
+    allWorldLeagueIds.forEach((leagueInfo, index) => {
+      console.log(`${index + 1}. ${leagueInfo}`);
+    });
+
+  } catch (error) {
+    console.error("❌ Error checking World leagues:", error);
+  }
+
+  console.log("\n✅ World Leagues Check Complete!");
+}
+
+// Run the check
+checkAllWorldLeagues().then(() => {
+  console.log("\n🏁 Script completed successfully!");
+  process.exit(0);
+}).catch((error) => {
+  console.error("💥 Script failed:", error);
+  process.exit(1);
+});
