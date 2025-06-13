@@ -201,15 +201,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     1836, 1837, 1838, 1839, 1840, 1841, 1842, 1843, 1844, 1845, 1846, 1847,
   ];
 
-  // Always call hooks in the same order - validate after hooks
-  const validFixtures = useMemo(() => {
-    if (!fixtures || !Array.isArray(fixtures)) {
-      console.warn("⚠️ [TodaysMatchesByCountryNew] Invalid fixtures data:", fixtures);
-      return [];
-    }
-    return fixtures;
-  }, [fixtures]);
-
   // Major competitions mapping
   const MAJOR_COMPETITIONS = {
     "Euro Championship": [4],
@@ -230,13 +221,22 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     "UEFA Europa Conference League": [848]
   };
 
+  // Always call hooks in the same order - validate after hooks
+  const initialValidFixtures = useMemo(() => {
+    if (!fixtures || !Array.isArray(fixtures)) {
+      console.warn("⚠️ [TodaysMatchesByCountryNew] Invalid fixtures data:", fixtures);
+      return [];
+    }
+    return fixtures;
+  }, [fixtures]);
+
   // Detect major competitions with matches from the available fixtures
   const majorCompetitions = useMemo(() => {
-    if (!validFixtures.length) return [];
+    if (!initialValidFixtures.length) return [];
 
     const competitions: any = {};
 
-    validFixtures.forEach((fixture: any) => {
+    initialValidFixtures.forEach((fixture: any) => {
       if (!fixture?.league || !fixture?.teams) return;
 
       const leagueName = fixture.league.name?.toLowerCase() || "";
@@ -293,7 +293,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
 
     return competitions;
-  }, [validFixtures, selectedDate]);
+  }, [initialValidFixtures, selectedDate]);
 
   // Now validate after all hooks are called
   if (!selectedDate) {
