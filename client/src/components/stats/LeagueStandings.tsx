@@ -88,15 +88,25 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
   const [, navigate] = useLocation();
   const [view, setView] = useState<'overall' | 'home' | 'away'>('overall');
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['league-standings', leagueId, season],
     queryFn: async () => {
-      const response = await fetch(`/api/standings?league=${leagueId}&season=${season}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      try {
+        const response = await fetch(`/api/standings?league=${leagueId}&season=${season}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        return result;
+      } catch (err) {
+        console.error('Error fetching standings:', err);
+        throw err;
       }
-      return await response.json();
     },
+    retry: 1,
+    retryDelay: 1000,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !!leagueId,
   });
 
   if (isLoading) {
@@ -111,6 +121,27 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
             {Array.from({ length: 10 }).map((_, i) => (
               <Skeleton key={i} className="h-12 w-full" />
             ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="w-full h-full">
+        <CardHeader>
+          <CardTitle>League Standings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center p-4 text-red-500">
+            <p>Error loading standings data.</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Try Again
+            </button>
           </div>
         </CardContent>
       </Card>
@@ -168,15 +199,24 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
           </TabsList>
 
           <div className="w-full max-w-full space-y-6">
-            {allStandings.map((standings, groupIndex) => (
-              <div key={groupIndex}>
-                {allStandings.length > 1 && (
-                  <h3 className="text-lg font-semibold mb-3 text-gray-800">
-                    {standings[0]?.group || `Group ${String.fromCharCode(65 + groupIndex)}`}
-                  </h3>
-                )}
-                
-                <Table className="w-full -ml-6">
+            {allStandings.map((standings, groupIndex) => {
+              if (!standings || standings.length === 0) {
+                return (
+                  <div key={groupIndex} className="text-center p-4 text-gray-500">
+                    <p>No standings data available for this group.</p>
+                  </div>
+                );
+              }
+              
+              return (
+                <div key={groupIndex}>
+                  {allStandings.length > 1 && (
+                    <h3 className="text-lg font-semibold mb-3 text-gray-800">
+                      {standings[0]?.group || `Group ${String.fromCharCode(65 + groupIndex)}`}
+                    </h3>
+                  )}
+                  
+                  <Table className="w-full -ml-6">
                   <TableHeader>
                     <TableRow>
                       <TableHead className="w-[60px] text-center">Pos</TableHead>
@@ -296,9 +336,10 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                       );
                     })}
                   </TableBody>
-                </Table>
-              </div>
-            ))}
+                  </Table>
+                </div>
+              );
+            })}
           </div>
         </Tabs>
       </CardContent>
