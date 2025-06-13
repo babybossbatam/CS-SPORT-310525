@@ -116,19 +116,28 @@ const HomeTopScorersList = () => {
     const tabTrigger = container.querySelector(`[value="${leagueId}"]`) as HTMLElement;
     if (!tabTrigger) return;
 
-    // Calculate the scroll position to center the selected tab
+    // Get container and tab dimensions
     const containerRect = container.getBoundingClientRect();
     const tabRect = tabTrigger.getBoundingClientRect();
     
-    const scrollLeft = container.scrollLeft;
-    const tabCenter = tabRect.left - containerRect.left + scrollLeft + (tabRect.width / 2);
-    const containerCenter = containerRect.width / 2;
+    // Calculate the current scroll position
+    const currentScrollLeft = container.scrollLeft;
     
-    const targetScrollLeft = tabCenter - containerCenter;
+    // Calculate tab position relative to container
+    const tabOffsetLeft = tabTrigger.offsetLeft;
+    const tabWidth = tabRect.width;
+    const containerWidth = containerRect.width;
+    
+    // Calculate the ideal scroll position to center the tab
+    const idealScrollLeft = tabOffsetLeft - (containerWidth / 2) + (tabWidth / 2);
+    
+    // Ensure we don't scroll beyond the boundaries
+    const maxScrollLeft = container.scrollWidth - containerWidth;
+    const targetScrollLeft = Math.max(0, Math.min(idealScrollLeft, maxScrollLeft));
     
     // Smooth scroll to the calculated position
     container.scrollTo({
-      left: Math.max(0, targetScrollLeft),
+      left: targetScrollLeft,
       behavior: 'smooth'
     });
   };
@@ -138,8 +147,8 @@ const HomeTopScorersList = () => {
     if (currentIndex > 0) {
       const newLeagueId = POPULAR_LEAGUES[currentIndex - 1].id;
       setSelectedLeague(newLeagueId);
-      // Small delay to ensure state update, then scroll
-      setTimeout(() => scrollToLeague(newLeagueId), 100);
+      // Use requestAnimationFrame for smooth immediate scrolling
+      requestAnimationFrame(() => scrollToLeague(newLeagueId));
     }
   };
 
@@ -148,8 +157,8 @@ const HomeTopScorersList = () => {
     if (currentIndex < POPULAR_LEAGUES.length - 1) {
       const newLeagueId = POPULAR_LEAGUES[currentIndex + 1].id;
       setSelectedLeague(newLeagueId);
-      // Small delay to ensure state update, then scroll
-      setTimeout(() => scrollToLeague(newLeagueId), 100);
+      // Use requestAnimationFrame for smooth immediate scrolling
+      requestAnimationFrame(() => scrollToLeague(newLeagueId));
     }
   };
 
@@ -160,8 +169,8 @@ const HomeTopScorersList = () => {
       <Tabs value={selectedLeague.toString()} onValueChange={(value) => {
         const newLeagueId = Number(value);
         setSelectedLeague(newLeagueId);
-        // Small delay to ensure state update, then scroll
-        setTimeout(() => scrollToLeague(newLeagueId), 100);
+        // Use requestAnimationFrame for smooth immediate scrolling
+        requestAnimationFrame(() => scrollToLeague(newLeagueId));
       }}>
         <div className="flex items-center gap-2">
           <button 
