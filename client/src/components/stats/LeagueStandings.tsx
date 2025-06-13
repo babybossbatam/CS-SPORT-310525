@@ -177,7 +177,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({
             season={season}
             className="border-b rounded-t-lg rounded-b-none"
       />
-      <CardContent className="pt-6"
+      <CardContent className="pt-6">
         <Tabs
           defaultValue="overall"
           className="w-full"
