@@ -81,8 +81,12 @@ export const popularLeagueExclusionTerms = [
 
   // Brazilian youth leagues to exclude
   "brasileiro u20 a",
+  "brasileiro u20 b",
   "brasiliense u20",
   "alagoano u20",
+  "paulista - u20",
+  "cearense u20",
+  "estadual junior u20",
 
   // Women's leagues (additional exclusions)
   "liga femenina",
