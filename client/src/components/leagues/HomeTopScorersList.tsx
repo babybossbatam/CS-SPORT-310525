@@ -241,7 +241,7 @@ const HomeTopScorersList = () => {
                     </p>
                   </div>
 
-                  <div className="text-right flex-shrink-0">
+                  <div className="text-center flex-shrink-0">
                     <div className="text-lg font-bold text-gray-900">
                       {goals}
                     </div>
