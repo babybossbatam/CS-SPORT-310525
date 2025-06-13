@@ -13,6 +13,66 @@
   overflow: hidden;
 }
 
+/* Three-grid layout container - EXACTLY like MyLogoPositioning */
+.country-matches-container .match-three-grid-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 80px;
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* Top grid for match status - EXACTLY like MyLogoPositioning */
+.country-matches-container .match-status-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 24px;
+  height: 24px;
+  padding: 0.25rem;
+}
+
+/* Main match content container - Grid-based like MyLogoPositioning */
+.country-matches-container .match-content-container {
+  display: grid;
+  grid-template-columns: 1fr 32px 80px 32px 1fr;
+  grid-template-areas: "home-team-name home-team-logo score away-team-logo away-team-name";
+  grid-template-rows: 42px;
+  align-items: center;
+  justify-items: center;
+  align-content: center;
+  width: 100%;
+  padding: 0 8px;
+}
+
+/* Bottom grid for penalty results - EXACTLY like MyLogoPositioning */
+.country-matches-container .match-penalty-bottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 20px;
+}
+
+/* Penalty result display - EXACTLY like MyLogoPositioning */
+.country-matches-container .penalty-result-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.country-matches-container .penalty-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: #dc2626;
+}
+
+.country-matches-container .penalty-winner {
+  font-size: 10px;
+  color: #6b7280;
+  text-align: center;
+}
+
 .country-matches-container .match-card-container:hover {
   background-color: rgb(243 244 246);
 }
@@ -278,12 +338,22 @@
 }
 
 /* Flag positioning - EXACTLY like MyLogoPositioning */
+/* 3D Glossy Ball Effect for National Team Logos - EXACTLY like MyLogoPositioning */
 .country-matches-container .flag-circle {
   width: 34px !important;
   height: 34px !important;
   position: relative;
   left: 0 !important;
   flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(0, 0, 0, 0.1) 100%);
+  transform: translateZ(0);
+  transition: all 0.3s ease;
 }
 
 .country-matches-container .flag-circle img {
@@ -291,6 +361,41 @@
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
+  position: relative;
+  z-index: 1;
+  filter: contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg);
+}
+
+.country-matches-container .flag-circle .gloss {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(55deg,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 0.3) 25%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0.05) 75%,
+      rgba(0, 0, 0, 0.1) 100%);
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: plus-darker;
+}
+
+.country-matches-container .flag-circle::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  width: 30%;
+  height: 30%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.2) 60%, transparent 100%);
+  border-radius: 50%;
+  z-index: 3;
+  pointer-events: none;
+  filter: blur(1px);
 }
 
 /* Responsive adjustments - EXACTLY like MyLogoPositioning */
@@ -343,6 +448,64 @@
   50% {
     opacity: 0.7;
   }
+}
+
+/* Keyframe animations for league expand/collapse - EXACTLY like MyLogoPositioning */
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    max-height: 1000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    max-height: 1000px;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* League content slide animation - EXACTLY like MyLogoPositioning */
+.country-matches-container .league-content {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
+}
+
+.country-matches-container .league-content.collapsed {
+  transform: scaleY(0);
+  opacity: 0;
+}
+
+.country-matches-container .league-content.expanded {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+/* League matches container animation - EXACTLY like MyLogoPositioning */
+.country-matches-container .league-matches-container {
+  overflow: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Chevron icon rotation animation - EXACTLY like MyLogoPositioning */
+.country-matches-container .chevron-icon {
+  transition: transform 0.3s ease-in-out;
+}
+
+.country-matches-container .chevron-icon.rotated {
+  transform: rotate(180deg);
 }
 
 /* Penalty result display styles - EXACTLY like TodayPopularFootballLeaguesNew */
