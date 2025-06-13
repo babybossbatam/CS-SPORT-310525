@@ -213,9 +213,11 @@ const LeagueStandingsFilter = () => {
           const preferredLeague = processedLeagues.find(
             (league) => league && league.id === 32 && league.name,
           );
-          const defaultLeague = preferredLeague || processedLeagues.find(
-            (league) => league && league.id && league.name,
-          );
+          const defaultLeague =
+            preferredLeague ||
+            processedLeagues.find(
+              (league) => league && league.id && league.name,
+            );
           if (defaultLeague) {
             setSelectedLeague(defaultLeague.id.toString());
             setSelectedLeagueName(defaultLeague.name);
@@ -238,46 +240,201 @@ const LeagueStandingsFilter = () => {
           { id: 4, name: "Euro Championship", logo: "", country: "Europe" },
           { id: 15, name: "FIFA World Cup", logo: "", country: "World" },
           // World Cup Qualifications
-          { id: 32, name: "World Cup Qualification - Europe", logo: "", country: "World" },
-          { id: 33, name: "World Cup Qualification - Oceania", logo: "", country: "World" },
-          { id: 34, name: "World Cup Qualification - South America", logo: "", country: "World" },
-          { id: 35, name: "Asian Cup - Qualification", logo: "", country: "World" },
-          { id: 36, name: "Africa Cup of Nations - Qualification", logo: "", country: "World" },
-          { id: 37, name: "World Cup Qualification - Intercontinental Play-offs", logo: "", country: "World" },
+          {
+            id: 32,
+            name: "World Cup Qualification - Europe",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 33,
+            name: "World Cup Qualification - Oceania",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 34,
+            name: "World Cup Qualification - South America",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 35,
+            name: "Asian Cup - Qualification",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 36,
+            name: "Africa Cup of Nations - Qualification",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 37,
+            name: "World Cup Qualification - Intercontinental Play-offs",
+            logo: "",
+            country: "World",
+          },
           // Youth and U-League Championships (32 World Country Leagues)
           { id: 38, name: "UEFA U21 Championship", logo: "", country: "World" },
-          { id: 480, name: "Olympic Football Tournament", logo: "", country: "World" },
-          { id: 875, name: "UEFA U19 Championship", logo: "", country: "World" },
-          { id: 876, name: "UEFA U17 Championship", logo: "", country: "World" },
+          {
+            id: 480,
+            name: "Olympic Football Tournament",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 875,
+            name: "UEFA U19 Championship",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 876,
+            name: "UEFA U17 Championship",
+            logo: "",
+            country: "World",
+          },
           { id: 877, name: "FIFA U20 World Cup", logo: "", country: "World" },
           { id: 878, name: "FIFA U17 World Cup", logo: "", country: "World" },
-          { id: 879, name: "CONMEBOL Copa America U20", logo: "", country: "World" },
+          {
+            id: 879,
+            name: "CONMEBOL Copa America U20",
+            logo: "",
+            country: "World",
+          },
           { id: 880, name: "AFC U23 Championship", logo: "", country: "World" },
-          { id: 881, name: "CAF U23 Cup of Nations", logo: "", country: "World" },
-          { id: 882, name: "CONCACAF U20 Championship", logo: "", country: "World" },
+          {
+            id: 881,
+            name: "CAF U23 Cup of Nations",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 882,
+            name: "CONCACAF U20 Championship",
+            logo: "",
+            country: "World",
+          },
           { id: 883, name: "OFC U20 Championship", logo: "", country: "World" },
-          { id: 884, name: "FIFA U19 Women World Cup", logo: "", country: "World" },
-          { id: 885, name: "FIFA U17 Women World Cup", logo: "", country: "World" },
-          { id: 886, name: "UEFA Women U19 Championship", logo: "", country: "World" },
-          { id: 887, name: "UEFA Women U17 Championship", logo: "", country: "World" },
-          { id: 888, name: "CONMEBOL Copa America U17", logo: "", country: "World" },
+          {
+            id: 884,
+            name: "FIFA U19 Women World Cup",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 885,
+            name: "FIFA U17 Women World Cup",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 886,
+            name: "UEFA Women U19 Championship",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 887,
+            name: "UEFA Women U17 Championship",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 888,
+            name: "CONMEBOL Copa America U17",
+            logo: "",
+            country: "World",
+          },
           { id: 889, name: "AFC U19 Championship", logo: "", country: "World" },
           { id: 890, name: "AFC U16 Championship", logo: "", country: "World" },
-          { id: 891, name: "CAF U20 Cup of Nations", logo: "", country: "World" },
-          { id: 892, name: "CAF U17 Cup of Nations", logo: "", country: "World" },
-          { id: 893, name: "CONCACAF U17 Championship", logo: "", country: "World" },
+          {
+            id: 891,
+            name: "CAF U20 Cup of Nations",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 892,
+            name: "CAF U17 Cup of Nations",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 893,
+            name: "CONCACAF U17 Championship",
+            logo: "",
+            country: "World",
+          },
           { id: 894, name: "OFC U17 Championship", logo: "", country: "World" },
-          { id: 895, name: "FIFA Beach Soccer World Cup", logo: "", country: "World" },
-          { id: 896, name: "FIFA Futsal World Cup", logo: "", country: "World" },
-          { id: 897, name: "FIFA Club World Cup U20", logo: "", country: "World" },
-          { id: 898, name: "World Youth Championship", logo: "", country: "World" },
-          { id: 899, name: "International Friendlies U21", logo: "", country: "World" },
-          { id: 900, name: "International Friendlies U19", logo: "", country: "World" },
-          { id: 901, name: "International Friendlies U18", logo: "", country: "World" },
-          { id: 902, name: "International Friendlies U17", logo: "", country: "World" },
-          { id: 903, name: "International Friendlies U16", logo: "", country: "World" },
-          { id: 904, name: "FIFA Youth Olympic Tournament", logo: "", country: "World" },
-          { id: 905, name: "World University Games Football", logo: "", country: "World" },
+          {
+            id: 895,
+            name: "FIFA Beach Soccer World Cup",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 896,
+            name: "FIFA Futsal World Cup",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 897,
+            name: "FIFA Club World Cup U20",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 898,
+            name: "World Youth Championship",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 899,
+            name: "International Friendlies U21",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 900,
+            name: "International Friendlies U19",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 901,
+            name: "International Friendlies U18",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 902,
+            name: "International Friendlies U17",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 903,
+            name: "International Friendlies U16",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 904,
+            name: "FIFA Youth Olympic Tournament",
+            logo: "",
+            country: "World",
+          },
+          {
+            id: 905,
+            name: "World University Games Football",
+            logo: "",
+            country: "World",
+          },
           // Major Domestic Leagues
           { id: 39, name: "Premier League", logo: "", country: "England" },
           { id: 140, name: "La Liga", logo: "", country: "Spain" },
@@ -520,7 +677,8 @@ const LeagueStandingsFilter = () => {
 
     const nextMatch = fixtures.response.find((fixture: any) => {
       return (
-        (fixture.teams.home.id === teamId || fixture.teams.away.id === teamId) &&
+        (fixture.teams.home.id === teamId ||
+          fixture.teams.away.id === teamId) &&
         new Date(fixture.fixture.date) > new Date()
       );
     });
@@ -724,40 +882,53 @@ const LeagueStandingsFilter = () => {
                                     ) && (
                                       <>
                                         {isNationalTeam ? (
-                                          <div className="hover:scale-110 transition-transform">
+                                          <div className="">
                                             <MyCircularFlag
                                               showNextMatchOverlay={true}
                                               teamName={
                                                 group.find(
                                                   (opponent) =>
-                                                    opponent.team.id !== standing.team.id &&
-                                                    opponent.rank > standing.rank,
+                                                    opponent.team.id !==
+                                                      standing.team.id &&
+                                                    opponent.rank >
+                                                      standing.rank,
                                                 )?.team.name || ""
                                               }
                                               fallbackUrl={
                                                 group.find(
                                                   (opponent) =>
-                                                    opponent.team.id !== standing.team.id &&
-                                                    opponent.rank > standing.rank,
+                                                    opponent.team.id !==
+                                                      standing.team.id &&
+                                                    opponent.rank >
+                                                      standing.rank,
                                                 )?.team.logo
                                               }
                                               alt={`Next opponent`}
                                               size="24px"
                                               className="popular-leagues-size"
                                               nextMatchInfo={
-                                                fixtures && group.find(
+                                                fixtures &&
+                                                group.find(
                                                   (opponent) =>
-                                                    opponent.team.id !== standing.team.id &&
-                                                    opponent.rank > standing.rank,
-                                                ) ? {
-                                                  opponent: group.find(
-                                                    (opponent) =>
-                                                      opponent.team.id !== standing.team.id &&
-                                                      opponent.rank > standing.rank,
-                                                  )?.team.name || "TBD",
-                                                  date: "2025-03-25T19:45:00Z",
-                                                  venue: "Wembley Stadium"
-                                                } : undefined
+                                                    opponent.team.id !==
+                                                      standing.team.id &&
+                                                    opponent.rank >
+                                                      standing.rank,
+                                                )
+                                                  ? {
+                                                      opponent:
+                                                        group.find(
+                                                          (opponent) =>
+                                                            opponent.team.id !==
+                                                              standing.team
+                                                                .id &&
+                                                            opponent.rank >
+                                                              standing.rank,
+                                                        )?.team.name || "TBD",
+                                                      date: "2025-03-25T19:45:00Z",
+                                                      venue: "Wembley Stadium",
+                                                    }
+                                                  : undefined
                                               }
                                             />
                                           </div>
@@ -772,7 +943,7 @@ const LeagueStandingsFilter = () => {
                                               )?.team.logo
                                             }
                                             alt={`Next opponent`}
-                                            className="w-5 h-5 rounded-full object-contain hover:scale-110 transition-transform"
+                                            className="w-5 h-5 rounded-full object-contain"
                                             onError={(e) => {
                                               (
                                                 e.target as HTMLImageElement
