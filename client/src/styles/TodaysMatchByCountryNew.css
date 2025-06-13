@@ -59,8 +59,30 @@
   fill: rgb(59 130 246);
 }
 
-/* Use the exact same layout as MyLogoPositioning.css */
+/* Three-grid layout container - EXACTLY like TodayPopularFootballLeaguesNew */
+.country-matches-container .match-three-grid-container {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: 
+    "status"
+    "content"
+    "penalty";
+  min-height: 50px;
+  width: 100%;
+}
+
+/* Top grid for status - EXACTLY like TodayPopularFootballLeaguesNew */
+.country-matches-container .match-status-top {
+  grid-area: status;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 20px;
+}
+
+/* Middle grid for main content - EXACTLY like TodayPopularFootballLeaguesNew */
 .country-matches-container .match-content-container {
+  grid-area: content;
   display: grid;
   grid-template-columns: 1fr 32px 80px 32px 1fr;
   grid-template-areas: "home-team-name home-team-logo score away-team-logo away-team-name";
@@ -70,6 +92,16 @@
   align-content: center;
   width: 100%;
   padding: 8px 8px 0 8px;
+}
+
+/* Bottom grid for penalty results */
+.country-matches-container .match-penalty-bottom {
+  grid-area: penalty;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 20px;
+  padding-bottom: 4px;
 }
 
 /* Team name containers - Grid areas - EXACTLY like MyLogoPositioning */
@@ -105,7 +137,25 @@
   align-self: center;
 }
 
-/* Team logo containers - Grid areas - EXACTLY like MyLogoPositioning */
+/* Team logo containers - Grid areas - EXACTLY like TodayPopularFootballLeaguesNew */
+.country-matches-container .home-team-logo-container {
+  grid-area: home-team-logo;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none !important;
+  background-color: transparent !important;
+}
+
+.country-matches-container .away-team-logo-container {
+  grid-area: away-team-logo;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none !important;
+  background-color: transparent !important;
+}
+
 .country-matches-container .team-logo-container {
   display: flex;
   align-items: center;
@@ -293,6 +343,31 @@
   50% {
     opacity: 0.7;
   }
+}
+
+/* Penalty result display styles - EXACTLY like TodayPopularFootballLeaguesNew */
+.country-matches-container .penalty-result-display {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 0.75rem;
+  color: rgb(107 114 128);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.country-matches-container .penalty-winner {
+  background-color: rgb(243 244 246);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  color: rgb(55 65 81);
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+}
+
+.country-matches-container .match-card-container:hover .penalty-winner {
+  background-color: rgb(229 231 235);
 }
 
 /* Disable hover effect when star button is being interacted with */
