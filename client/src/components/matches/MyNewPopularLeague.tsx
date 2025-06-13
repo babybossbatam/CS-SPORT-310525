@@ -692,7 +692,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                             {(() => {
                               const status = match.fixture.status.short;
 
-                              // Finished matches status - check this FIRST
+                              // Finished matches status - check this FIRST and RETURN immediately
                               if (
                                 [
                                   "FT",
@@ -728,7 +728,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                                 );
                               }
 
-                              // Live matches status
+                              // Live matches status - only check if NOT finished
                               if (
                                 [
                                   "LIVE",
@@ -752,11 +752,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                               }
 
                               // Postponed matches status
-                              if (
-                                [
-                                  "PST",
-                                ].includes(status)
-                              ) {
+                              if (status === "PST") {
                                 return (
                                   <div className="match-status-label status-postponed">
                                     Postponed
