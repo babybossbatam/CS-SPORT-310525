@@ -369,29 +369,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     },
   );
 
-  // Process live matches with smart date labeling context
-  const processedCountries = sortedCountries.map((countryData: any) => ({
-    ...countryData,
-    leagues: Object.fromEntries(
-      Object.entries(countryData.leagues).map(([leagueId, leagueData]: [string, any]) => [
-        leagueId,
-        {
-          ...leagueData,
-          matches: leagueData.matches.map((match: any) => {
-            const smartResult = MySmartDateLabeling.getSmartDateLabel(
-              match.fixture.date,
-              match.fixture.status.short
-            );
-            return {
-              ...match,
-              smartDateLabel: smartResult.label,
-              smartDateReason: smartResult.reason
-            };
-          })
-        }
-      ])
-    )
-  }));
+  // Use the sorted countries directly without deprecated MySmartDateLabeling
+  const processedCountries = sortedCountries;
 
   // Show loading only if we're actually loading and have no data
   if (isLoading && !fixtures.length) {
