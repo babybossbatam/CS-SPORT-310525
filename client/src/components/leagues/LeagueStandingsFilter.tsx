@@ -842,14 +842,13 @@ const LeagueStandingsFilter = () => {
                                         <img
                                           src={standing.team.logo}
                                           alt={standing.team.name}
-                                          className="h-4 w-4 rounded-full mr-3"
+                                          className="h-4 w-4 rounded-full mr-3 object-cover"
+                                          onError={(e) => {
+                                            (e.target as HTMLImageElement).src =
+                                              "/assets/fallback-logo.svg";
+                                          }}
                                         />
-                                      </div>md object-cover mr-1"
-                                        onError={(e) => {
-                                          (e.target as HTMLImageElement).src =
-                                            "/assets/fallback-logo.svg";
-                                        }}
-                                      />
+                                      </div>
                                     )}
                                     <span className="text-[0.85rem] truncate">
                                       {standing.team.name}
