@@ -879,17 +879,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Custom date - format it nicely
       try {
         const customDate = parseISO(selectedDate);
-        ```text
-if (isValid(customDate)) {
-          return `${format(customDate, 'EEEE, MMMM do')} Football Matches by Country`;
-        } else {
+          if (isValid(customDate)) {
+            return `${format(customDate, 'EEEE, MMMM do')} Football Matches by Country`;
+          } else {
+            return "Football Matches by Country";
+          }
+        } catch {
           return "Football Matches by Country";
         }
-      } catch {
-        return "Football Matches by Country";
       }
-    }
-  };
+    };
 
   // Prefetch function for background loading
   const prefetchMatchData = useCallback(async (fixtureId: number) => {
@@ -1341,7 +1340,7 @@ if (isValid(customDate)) {
                                 return aDate - bDate;
                               })
                               .map((match: any, matchIndex) => (
-                                
+
                                 <LazyMatchItem
                                   key={match.fixture.id}
                                   priority={matchIndex < 3 ? 'high' : 'normal'}
