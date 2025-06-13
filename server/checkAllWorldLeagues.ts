@@ -2,7 +2,7 @@
 import { rapidApiService } from "./services/rapidApi";
 
 async function checkAllWorldLeagues() {
-  console.log("=== Checking All World Country Leagues (Excluding Women's Leagues) ===\n");
+  console.log("=== Checking All World Country Leagues (Excluding Women's Leagues, Asia, China, and Africa) ===\n");
 
   try {
     // Get all available leagues
@@ -10,7 +10,7 @@ async function checkAllWorldLeagues() {
     const allLeagues = await rapidApiService.getLeagues();
     console.log(`📊 Total leagues available: ${allLeagues.length}\n`);
 
-    // Filter for World country leagues (excluding women's leagues)
+    // Filter for World country leagues (excluding women's leagues, Asia, China, and Africa)
     const worldLeagues = allLeagues.filter(leagueResponse => {
       const country = leagueResponse.country?.name || '';
       const leagueName = leagueResponse.league?.name?.toLowerCase() || '';
@@ -25,10 +25,15 @@ async function checkAllWorldLeagues() {
                             leagueName.includes('female') || 
                             leagueName.includes('ladies');
       
-      return isWorldCountry && !isWomensLeague;
+      // Exclude Asia, China, and Africa regions
+      const isExcludedRegion = country === "Asia" || 
+                              country === "China" || 
+                              country === "Africa";
+      
+      return isWorldCountry && !isWomensLeague && !isExcludedRegion;
     });
 
-    console.log(`🌍 Found ${worldLeagues.length} World country leagues (excluding women's leagues):\n`);
+    console.log(`🌍 Found ${worldLeagues.length} World country leagues (excluding women's leagues, Asia, China, and Africa):\n`);
 
     // Group by league type for better organization
     const uefaLeagues = [];
@@ -109,7 +114,7 @@ async function checkAllWorldLeagues() {
     // Summary
     console.log("\n📊 SUMMARY:");
     console.log("=" + "=".repeat(60));
-    console.log(`Total World country leagues (excluding women's): ${worldLeagues.length}`);
+    console.log(`Total World country leagues (excluding women's, Asia, China, and Africa): ${worldLeagues.length}`);
     console.log(`UEFA Major Leagues: ${uefaLeagues.length}`);
     console.log(`FIFA Leagues: ${fifaLeagues.length}`);
     console.log(`UEFA Youth Leagues: ${youthLeagues.length}`);
