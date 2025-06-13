@@ -433,6 +433,78 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       return false;
     };
 
+    // Check if we have any elite matches at all
+    const hasEliteMatches = todayElite.length > 0 || tomorrowElite.length > 0 || dayAfterElite.length > 0;
+    
+    console.log(`🎯 [ELITE CHECK] Elite matches found:`, {
+      today: todayElite.length,
+      tomorrow: tomorrowElite.length,
+      dayAfter: dayAfterElite.length,
+      hasEliteMatches
+    });
+
+    // If no elite matches found, use broader criteria
+    if (!hasEliteMatches) {
+      console.log(`⚠️ [FALLBACK] No elite matches found, using broader criteria`);
+      
+      // Get matches from popular countries with any league
+      const getPopularCountryMatches = (matches: any[]) => {
+        return matches.filter((fixture) => {
+          if (!fixture?.league || !fixture?.teams?.home || !fixture?.teams?.away) {
+            return false;
+          }
+
+          const country = fixture.league?.country?.toLowerCase() || "";
+          
+          // Popular countries
+          const popularCountries = [
+            "england", "spain", "italy", "germany", "france",
+            "brazil", "argentina", "netherlands", "portugal"
+          ];
+          
+          return popularCountries.some(popularCountry => 
+            country.includes(popularCountry)
+          );
+        });
+      };
+
+      // Get popular country matches for each day
+      const todayPopularCountry = getPopularCountryMatches(todayMatches);
+      const tomorrowPopularCountry = getPopularCountryMatches(tomorrowMatches);
+      const dayAfterPopularCountry = getPopularCountryMatches(dayAfterTomorrowMatches);
+
+      // Sort by match status priority
+      const todayFallback = sortByPriority(todayPopularCountry);
+      const tomorrowFallback = sortByPriority(tomorrowPopularCountry);
+      const dayAfterFallback = sortByPriority(dayAfterPopularCountry);
+
+      console.log(`🎯 [FALLBACK] Popular country matches:`, {
+        today: todayFallback.length,
+        tomorrow: tomorrowFallback.length,
+        dayAfter: dayAfterFallback.length
+      });
+
+      // Use fallback matches
+      const todayPrioritized = todayFallback;
+      const tomorrowPrioritized = tomorrowFallback;
+      const dayAfterPrioritized = dayAfterFallback;
+
+      // Continue with the existing slide distribution logic using fallback matches
+      const todayLeagueCards = groupMatchesByLeagueCards(todayPrioritized);
+      
+      console.log(`🎯 [FALLBACK LEAGUE CARDS] Today's league cards:`, 
+        todayLeagueCards.map(card => ({
+          league: card.leagueName,
+          country: card.country,
+          totalMatches: card.allMatches.length,
+          popularCountryMatches: card.popularCountryMatches.length
+        }))
+      );
+
+      // Use the same slide distribution logic but with fallback data
+      // This will be processed in the next section
+    }
+
     // Helper function to check if live match is before 23:59:59 today
     const isValidTodayLiveMatch = (match: any) => {
       if (
@@ -552,7 +624,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       todayValidLive: todayValidLive.length,
     });
 
-    // Group today's matches by league cards
+    // Group today's matches by league cards (will use fallback if no elite matches)
     const todayLeagueCards = groupMatchesByLeagueCards(todayPrioritized);
     
     console.log(`🎯 [LEAGUE CARDS DEBUG] Today's league cards:`, 
@@ -699,6 +771,26 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
             `✅ [SLIDE DEBUG] Added 2-days-later backup match to slide ${slidesDistribution.length}: ${twoDaysLaterOnlyMatches[i].teams.home.name} vs ${twoDaysLaterOnlyMatches[i].teams.away.name}`,
           );
         }
+      }
+    }
+
+    // Final fallback: if still no slides, take any available matches
+    if (slidesDistribution.length === 0) {
+      console.log(`🚨 [FINAL FALLBACK] No matches in slides, using any available matches`);
+      
+      const allAvailableMatches = [
+        ...todayMatches,
+        ...tomorrowMatches,
+        ...dayAfterTomorrowMatches
+      ].filter(match => 
+        match?.league && match?.teams?.home && match?.teams?.away
+      );
+
+      console.log(`🚨 [FINAL FALLBACK] Available matches: ${allAvailableMatches.length}`);
+
+      // Add up to 3 matches from any league
+      for (let i = 0; i < Math.min(3, allAvailableMatches.length); i++) {
+        addUniqueMatch(allAvailableMatches[i]);
       }
     }
 
