@@ -201,26 +201,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     1836, 1837, 1838, 1839, 1840, 1841, 1842, 1843, 1844, 1845, 1846, 1847,
   ];
 
-  // Major competitions mapping for detection
-  const MAJOR_COMPETITIONS = {
-    "Euro Championship": [4], // Euro Championship ID
-    "World Cup": [1], // World Cup ID
-    "UEFA Champions League": [2], // Champions League ID
-    "FIFA Club World Cup": [15], // FIFA Club World Cup ID
-    "Olympics Men": [480], // Olympics Men ID
-    "UEFA Europa League": [3], // Europa League ID
-    "Africa Cup of Nations": [6], // Africa Cup of Nations ID
-    "Copa America": [9], // Copa America ID
-    "CONCACAF Champions League": [16], // CONCACAF Champions League ID
-    "AFC Champions League": [17], // AFC Champions League ID
-    "Friendlies": [10], // Friendlies ID
-    "UEFA Nations League": [5], // UEFA Nations League ID
-    "CONMEBOL Sudamericana": [11], // CONMEBOL Sudamericana ID
-    "CAF Champions League": [12], // CAF Champions League ID
-    "CONMEBOL Libertadores": [13], // CONMEBOL Libertadores ID
-    "UEFA Europa Conference League": [848], // UEFA Europa Conference League ID
-  };
-
   // Always call hooks in the same order - validate after hooks
   // Fetch all fixtures for the selected date with comprehensive caching
   const { data: fixtures = [], isLoading } = useQuery({
@@ -457,7 +437,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   };
 
   // Apply smart time filtering directly
-  const { validFixtures, rejectedFixtures, stats, majorCompetitionsWithMatches } = useMemo(() => {
+  const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     if (!fixtures?.length) {
       return {
         validFixtures: [],
@@ -512,58 +492,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return acc;
     }, {} as Record<string, number>);
 
-    // Calculate major competitions with matches
-    const competitions: { [key: string]: number } = {};
-    filtered.forEach((fixture: any) => {
-      if (!fixture?.league?.id) return;
-
-      const leagueId = fixture.league.id;
-      const leagueName = fixture.league.name?.toLowerCase() || "";
-
-      // Check each major competition
-      Object.entries(MAJOR_COMPETITIONS).forEach(([competitionName, ids]) => {
-        if (ids.includes(leagueId)) {
-          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
-        }
-        // Enhanced name-based matching for additional competitions
-        else if (competitionName === "Friendlies" && 
-                 (leagueName.includes("friendlies") || leagueName.includes("international")) && 
-                 !leagueName.includes("women")) {
-          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
-        }
-        else if (competitionName === "Euro Championship" && 
-                 (leagueName.includes("euro") || leagueName.includes("european") || 
-                  leagueName.includes("u21") || leagueName.includes("u-21"))) {
-          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
-        }
-        else if (competitionName === "World Cup" && 
-                 (leagueName.includes("world cup") || leagueName.includes("fifa"))) {
-          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
-        }
-        else if (competitionName === "UEFA Champions League" && 
-                 leagueName.includes("champions")) {
-          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
-        }
-        else if (competitionName === "UEFA Europa League" && 
-                 leagueName.includes("europa") && !leagueName.includes("conference")) {
-          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
-        }
-        else if (competitionName === "UEFA Europa Conference League" && 
-                 leagueName.includes("conference")) {
-          competitions[competitionName] = (competitions[competitionName] || 0) + 1;
-        }
-      });
-    });
-
-    // Debug logging for major competitions
-    console.log('🏆 [MAJOR COMPETITIONS DEBUG] Detected competitions:', competitions);
-    console.log('🏆 [MAJOR COMPETITIONS DEBUG] Sample fixtures:', filtered.slice(0, 5).map(f => ({
-      id: f.fixture.id,
-      leagueId: f.league.id,
-      leagueName: f.league.name,
-      country: f.league.country
-    })));
-
     return {
       validFixtures: filtered,
       rejectedFixtures: rejectedFixtures.map(f => ({ fixture: f, reason: 'Date mismatch' })),
@@ -575,8 +503,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           'smart-time-filter': filtered.length,
           ...labelCounts
         }
-      },
-      majorCompetitionsWithMatches: competitions
+      }
     };
   }, [fixtures, selectedDate]);
 
@@ -1160,40 +1087,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       <CardHeader className="flex flex-col space-y-1.5 p-2 border-b border-stone-200">
         <h3 className="font-semibold" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>{getHeaderTitle()}</h3>
       </CardHeader>
-
-      {/* Major Competitions Section */}
-      {(Object.keys(majorCompetitionsWithMatches).length > 0 || validFixtures.length > 0) && (
-        <div className="border-b border-stone-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg">🔥</span>
-            <h4 className="font-bold text-gray-800" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '14px' }}>
-              MAJOR COMPETITIONS WITH MATCHES:
-            </h4>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {Object.entries(majorCompetitionsWithMatches).length > 0 ? (
-              Object.entries(majorCompetitionsWithMatches)
-                .sort(([,a], [,b]) => b - a) // Sort by match count descending
-                .map(([competition, count]) => (
-                  <div key={competition} className="flex items-center gap-2 text-sm">
-                    <span className="text-base">🏆</span>
-                    <span className="font-medium text-gray-700" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '12.5px' }}>
-                      {competition}
-                    </span>
-                    <span className="text-blue-600 font-semibold" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '12.5px' }}>
-                      - {count} match{count !== 1 ? '(es)' : ''}
-                    </span>
-                  </div>
-                ))
-            ) : (
-              <div className="text-sm text-gray-600">
-                🔍 Scanning {validFixtures.length} matches for major competitions...
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       <CardContent className="p-0">
         <div>
           {/* Use sortedCountries directly */}
@@ -1433,7 +1326,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               style={{
                                 animation: expandedLeagues.has(`${countryData.country}-${leagueData.league.id}`) 
                                   ? 'slideDown 0.3s ease-out' 
-                                  : 'slideUp 0.3s3s ease-out'
+                                  : 'slideUp 0.3s ease-out'
                               }}
                             >
                             {leagueData.matches
