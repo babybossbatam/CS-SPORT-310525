@@ -414,6 +414,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         leagueName.includes("europa league") ||
         leagueName.includes("conference league") ||
         leagueName.includes("uefa") ||
+        leagueName.includes("u21 championship") ||
         // FIFA competitions
         leagueName.includes("world cup") ||
         leagueName.includes("fifa club world cup") ||
@@ -1147,6 +1148,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
               if (aIsWomensNationsLeague && !bIsWomensNationsLeague) return 1; // a goes to bottom
               if (!aIsWomensNationsLeague && bIsWomensNationsLeague) return -1; // b goes to bottom
               if (aIsWomensNationsLeague && bIsWomensNationsLeague) return 0; // both same priority
+
+              // Check for UEFA U21 Championship - high priority (should always show)
+              const aIsUefaU21 = a.league.name?.toLowerCase().includes("uefa u21") || 
+                                a.league.name?.toLowerCase().includes("u21 championship");
+              const bIsUefaU21 = b.league.name?.toLowerCase().includes("uefa u21") || 
+                                b.league.name?.toLowerCase().includes("u21 championship");
+
+              if (aIsUefaU21 && !bIsUefaU21) return -1; // a goes to top
+              if (!aIsUefaU21 && bIsUefaU21) return 1; // b goes to top
 
               // Prioritize leagues that are popular for this specific country
               if (a.isPopularForCountry && !b.isPopularForCountry) return -1;

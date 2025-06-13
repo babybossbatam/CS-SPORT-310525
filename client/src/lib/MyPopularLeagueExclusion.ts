@@ -153,7 +153,7 @@ export function shouldExcludeFromPopularLeagues(
   // SPECIAL HANDLING FOR WORLD COUNTRY - Add debugging
   if (countryLower === "world") {
     console.log(`🌍 [WORLD DEBUG] Checking World league: "${leagueName}" | ${homeTeamName} vs ${awayTeamName} | Country: ${country}`);
-    
+
     // For World country, only exclude if it contains explicit exclusion terms
     const hasExclusionTerms = popularLeagueExclusionTerms.some(
       (term) =>
@@ -290,6 +290,11 @@ export function isPopularLeagueSuitable(
     !league.includes("asia")
   ) {
     return true;
+  }
+
+  // Allow all UEFA competitions (including youth tournaments and U21 championships)
+  if (league.includes('uefa') || league.includes('euro') || league.includes('u21 championship')) {
+    return false;
   }
 
   // Exclude leagues with problematic terms

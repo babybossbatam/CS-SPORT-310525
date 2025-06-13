@@ -570,7 +570,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     removedFixtures: fixtures
       .filter((f) => !validFixtures.includes(f))
       .slice(0, 10)
-```text
       .map((f) => ({
         id: f.fixture?.id,
         date: f.fixture?.date,
