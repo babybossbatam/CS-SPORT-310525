@@ -115,28 +115,28 @@ const HomeTopScorersList = () => {
 
     const buttons = container.querySelectorAll('button');
     const targetButton = buttons[leagueIndex] as HTMLElement;
-    
+
     if (!targetButton) return;
 
     // Get container and button dimensions
     const containerWidth = container.clientWidth;
     const containerScrollLeft = container.scrollLeft;
-    
+
     // Get button position relative to the scrollable content
     const buttonLeft = targetButton.offsetLeft;
     const buttonWidth = targetButton.offsetWidth;
     const buttonCenter = buttonLeft + (buttonWidth / 2);
-    
+
     // Calculate where we want the button center to be (center of visible area)
     const targetCenter = containerWidth / 2;
-    
+
     // Calculate the required scroll position
     const targetScrollLeft = buttonCenter - targetCenter;
-    
+
     // Ensure we don't scroll beyond the boundaries
     const maxScrollLeft = container.scrollWidth - containerWidth;
     const finalScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScrollLeft));
-    
+
     // Only scroll if there's a significant difference
     if (Math.abs(finalScrollLeft - containerScrollLeft) > 5) {
       container.scrollTo({
@@ -163,6 +163,24 @@ const HomeTopScorersList = () => {
       setTimeout(() => scrollToLeague(newLeagueId), 50);
     }
   };
+
+  // Auto-center the selected league when component mounts or league changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollToLeague(selectedLeague);
+    }, 150); // Slightly longer delay to ensure DOM is fully ready
+
+    return () => clearTimeout(timer);
+  }, [selectedLeague]);
+
+  // Also center on initial load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollToLeague(selectedLeague);
+    }, 300); // Initial load delay
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <>
