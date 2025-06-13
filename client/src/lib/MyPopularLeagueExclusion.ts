@@ -189,6 +189,9 @@ export function shouldExcludeFromPopularLeagues(
     league.includes("conference league") ||
     league.includes("euro") ||
     league.includes("european championship") ||
+    // Specifically allow UEFA U21 Championship
+    league.includes("uefa u21 championship") ||
+    league.includes("uefa european under-21 championship") ||
     // FIFA competitions
     league.includes("fifa") ||
     league.includes("world cup") ||
