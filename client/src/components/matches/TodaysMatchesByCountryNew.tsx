@@ -337,7 +337,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  
+
 
   // Country code to full name mapping with caching
   const getCountryDisplayName = (
@@ -817,12 +817,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   useEffect(() => {
     // Reset to collapsed state when selected date changes
     setExpandedCountries(new Set());
-    
-    // Auto-expand first league in each country by default
+
+    // Auto-expand ONLY the first league in each country by default
     const firstLeagues = new Set<string>();
     sortedCountries.forEach((countryData: any) => {
       const leagueIds = Object.keys(countryData.leagues);
       if (leagueIds.length > 0) {
+        // Expand only the first league (index 0)
         const firstLeagueId = leagueIds[0];
         const leagueKey = `${countryData.country}-${firstLeagueId}`;
         firstLeagues.add(leagueKey);
@@ -1286,10 +1287,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         const leagueKey = `${countryData.country}-${leagueData.league.id}`;
                         const isFirstLeague = leagueIndex === 0;
 
-                        // Auto-expand first league only if user hasn't manually toggled it
-                        const hasBeenManuallyToggled = expandedLeagues.has(leagueKey);
-                        const shouldAutoExpand = isFirstLeague && !hasBeenManuallyToggled;
-                        const isLeagueExpanded = shouldAutoExpand || expandedLeagues.has(leagueKey);
+                        // First league should be expanded by default, rest should be collapsed
+                        const isLeagueExpanded = expandedLeagues.has(leagueKey);
 
                         return (
                         <div
@@ -1354,10 +1353,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                           </button>
 
                           {/* Matches - Show when league is expanded OR when it's the first league */}
-                          {(isLeagueExpanded || shouldAutoExpand) && (
+                          {(isLeagueExpanded) && (
                             <div className="space-y-0 league-matches-container"
                               style={{
-                                animation: (isLeagueExpanded || shouldAutoExpand)
+                                animation: (isLeagueExpanded)
                                   ? 'slideDown 0.3s ease-out' 
                                   : 'slideUp 0.3s ease-out'
                               }}
