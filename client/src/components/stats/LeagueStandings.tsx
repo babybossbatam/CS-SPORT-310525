@@ -169,7 +169,6 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
 
   return (
     <Card className="w-full h-full">
-      <LeagueStatsPanel leagueId={leagueId} season={season} className="border-b rounded-t-lg rounded-b-none" />
       <CardContent className="pt-6">
         <Tabs defaultValue="overall" className="w-full" onValueChange={(v) => setView(v as any)}>
           <TabsList className="w-full mb-4">
