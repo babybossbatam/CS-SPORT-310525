@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCachedQuery } from '@/lib/cachingHelper';
 import { useLocation } from 'wouter';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
@@ -75,8 +75,6 @@ interface PlayerStatistics {
 const HomeTopScorersList = () => {
   const [, navigate] = useLocation();
   const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [isSelectedLeagueVisible, setIsSelectedLeagueVisible] = useState(true);
 
   const { data: topScorers, isLoading } = useQuery({
     queryKey: [`/api/leagues/${selectedLeague}/topscorers`],
@@ -90,255 +88,182 @@ const HomeTopScorersList = () => {
     }
   });
 
-  const checkSelectedLeagueVisibility = () => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const leagueIndex = POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague);
-    if (leagueIndex === -1) return;
-
-    const buttons = container.querySelectorAll('button');
-    const targetButton = buttons[leagueIndex] as HTMLElement;
-
-    if (!targetButton) return;
-
-    const containerRect = container.getBoundingClientRect();
-    const buttonRect = targetButton.getBoundingClientRect();
-
-    // Check if the button is fully visible within the container
-    const isVisible = buttonRect.left >= containerRect.left && 
-                     buttonRect.right <= containerRect.right;
-
-    setIsSelectedLeagueVisible(isVisible);
+  const getCurrentLeagueIndex = () => {
+    return POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague);
   };
 
-  const scrollToLeague = (leagueId: number) => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    // Find the button for the selected league
-    const leagueIndex = POPULAR_LEAGUES.findIndex(league => league.id === leagueId);
-    if (leagueIndex === -1) return;
-
-    const buttons = container.querySelectorAll('button');
-    const targetButton = buttons[leagueIndex] as HTMLElement;
-
-    if (!targetButton) return;
-
-    // Get container and button dimensions
-    const containerWidth = container.clientWidth;
-    const buttonLeft = targetButton.offsetLeft;
-    const buttonWidth = targetButton.offsetWidth;
-    const buttonCenter = buttonLeft + (buttonWidth / 2);
-
-    // Always try to center the button, but respect boundaries
-    const idealScrollLeft = buttonCenter - (containerWidth / 2);
-
-    // Clamp the scroll position to valid bounds
-    const maxScrollLeft = container.scrollWidth - containerWidth;
-    const finalScrollLeft = Math.max(0, Math.min(idealScrollLeft, maxScrollLeft));
-
-    // Scroll smoothly to position the selected league
-    container.scrollTo({
-      left: finalScrollLeft,
-      behavior: 'smooth'
-    });
-
-    // Check visibility after scrolling
-    setTimeout(checkSelectedLeagueVisibility, 300);
+  const getCurrentLeague = () => {
+    return POPULAR_LEAGUES.find(league => league.id === selectedLeague);
   };
 
-  const scrollLeft = () => {
-    const currentIndex = POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague);
+  const goToPreviousLeague = () => {
+    const currentIndex = getCurrentLeagueIndex();
     if (currentIndex > 0) {
-      const newLeagueId = POPULAR_LEAGUES[currentIndex - 1].id;
-      setSelectedLeague(newLeagueId);
-      // Immediate scroll for instant response
-      scrollToLeague(newLeagueId);
+      setSelectedLeague(POPULAR_LEAGUES[currentIndex - 1].id);
     }
   };
 
-  const scrollRight = () => {
-    const currentIndex = POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague);
+  const goToNextLeague = () => {
+    const currentIndex = getCurrentLeagueIndex();
     if (currentIndex < POPULAR_LEAGUES.length - 1) {
-      const newLeagueId = POPULAR_LEAGUES[currentIndex + 1].id;
-      setSelectedLeague(newLeagueId);
-      // Immediate scroll for instant response
-      scrollToLeague(newLeagueId);
+      setSelectedLeague(POPULAR_LEAGUES[currentIndex + 1].id);
     }
   };
 
-  // Auto-center the selected league when component mounts or league changes
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      scrollToLeague(selectedLeague);
-    }, 150); // Slightly longer delay to ensure DOM is fully ready
-
-    return () => clearTimeout(timer);
-  }, [selectedLeague]);
-
-  // Also center on initial load
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      scrollToLeague(selectedLeague);
-    }, 300); // Initial load delay
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Add scroll event listener to check visibility
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const handleScroll = () => {
-      checkSelectedLeagueVisibility();
-    };
-
-    container.addEventListener('scroll', handleScroll);
-    
-    // Initial check
-    checkSelectedLeagueVisibility();
-
-    return () => {
-      container.removeEventListener('scroll', handleScroll);
-    };
-  }, [selectedLeague]);
+  const getLeagueDisplayName = (leagueId: number) => {
+    const league = POPULAR_LEAGUES.find(l => l.id === leagueId);
+    return league?.name || 'League';
+  };
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse" />
-            <div className="space-y-1 flex-1">
-              <div className="h-4 w-32 bg-gray-200 animate-pulse" />
-              <div className="h-3 w-full bg-gray-200 animate-pulse" />
-            </div>
+      <div className="bg-white rounded-lg border border-gray-200">
+        {/* Header skeleton */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+          <div className="h-4 w-4 bg-gray-200 animate-pulse rounded" />
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 bg-gray-200 animate-pulse rounded" />
+            <div className="h-4 w-32 bg-gray-200 animate-pulse rounded" />
           </div>
-        ))}
+          <div className="h-4 w-4 bg-gray-200 animate-pulse rounded" />
+        </div>
+
+        {/* Title skeleton */}
+        <div className="p-4 border-b border-gray-100">
+          <div className="h-5 w-16 bg-gray-200 animate-pulse rounded" />
+        </div>
+
+        {/* Players skeleton */}
+        <div className="p-4 space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-full bg-gray-200 animate-pulse" />
+              <div className="flex-1 space-y-1">
+                <div className="h-4 w-32 bg-gray-200 animate-pulse rounded" />
+                <div className="h-3 w-24 bg-gray-200 animate-pulse rounded" />
+              </div>
+              <div className="text-right">
+                <div className="h-6 w-6 bg-gray-200 animate-pulse rounded" />
+                <div className="h-3 w-8 bg-gray-200 animate-pulse rounded mt-1" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
+  const currentLeague = getCurrentLeague();
+  const currentIndex = getCurrentLeagueIndex();
+
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 w-full">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+        {/* Header with navigation */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
           <button 
-            onClick={scrollLeft}
-            disabled={POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague) === 0}
-            className={`p-2 hover:bg-gray-200 rounded-full transition-all flex-shrink-0 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent ${
-              isSelectedLeagueVisible ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            onClick={goToPreviousLeague}
+            disabled={currentIndex === 0}
+            className={`p-1 rounded hover:bg-gray-200 transition-colors ${
+              currentIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'opacity-70 hover:opacity-100'
             }`}
           >
-            ←
+            <ChevronLeft className="h-4 w-4 text-gray-600" />
           </button>
-          <div 
-            ref={scrollContainerRef}
-            className="overflow-x-auto overflow-y-hidden scrollbar-hide flex-1"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            <div className="flex items-center gap-2 w-max">
-              {POPULAR_LEAGUES.map((league) => (
-                <button
-                  key={league.id}
-                  onClick={() => {
-                    const newLeagueId = league.id;
-                    setSelectedLeague(newLeagueId);
-                    // Immediate scroll for better user experience
-                    scrollToLeague(newLeagueId);
-                  }}
-                  className={`text-xs py-1 px-2 flex items-center gap-2 hover:bg-gray-100 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
-                    selectedLeague === league.id ? 'bg-blue-100 text-blue-600' : 'bg-transparent'
-                  }`}
-                >
-                  <img src={league.logo} alt={league.name} className="w-4 h-4 object-contain" />
-                  {league.name}
-                </button>
-              ))}
-            </div>
+
+          <div className="flex items-center gap-2">
+            {currentLeague && (
+              <>
+                <img 
+                  src={currentLeague.logo} 
+                  alt={currentLeague.name} 
+                  className="w-4 h-4 object-contain" 
+                />
+                <span className="text-sm font-medium text-gray-700">
+                  {currentLeague.name}
+                </span>
+              </>
+            )}
           </div>
+
           <button 
-            onClick={scrollRight}
-            disabled={POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague) === POPULAR_LEAGUES.length - 1}
-            className={`p-2 hover:bg-gray-200 rounded-full transition-all flex-shrink-0 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent ${
-              isSelectedLeagueVisible ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            onClick={goToNextLeague}
+            disabled={currentIndex === POPULAR_LEAGUES.length - 1}
+            className={`p-1 rounded hover:bg-gray-200 transition-colors ${
+              currentIndex === POPULAR_LEAGUES.length - 1 ? 'opacity-40 cursor-not-allowed' : 'opacity-70 hover:opacity-100'
             }`}
           >
-            →
+            <ChevronRight className="h-4 w-4 text-gray-600" />
           </button>
         </div>
 
-        <div>
-          <CardContent className="p-0">
-              <div className="relative overflow-x-auto">
-                <div className="space-y-1">
-                {topScorers?.slice(0, 3).map((scorer, index) => {
-                  const playerStats = scorer.statistics[0];
-                  const goals = playerStats?.goals?.total || 0;
+        {/* Goals title */}
+        <div className="px-4 py-3 border-b border-gray-100">
+          <h3 className="text-sm font-semibold text-gray-900">Goals</h3>
+        </div>
 
-                  return (
-                    <div key={scorer.player.id} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg mb-1">
-                      <div className="flex items-start gap-3">
-                        <Avatar className="h-11 w-11 rounded-full overflow-hidden">
-                          <AvatarImage 
-                            src={scorer.player.photo} 
-                            alt={scorer.player.name}
-                            className="object-cover object-center scale-110" 
-                          />
-                          <AvatarFallback>{scorer.player.name.slice(0, 2)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-semibold text-sm">
-                            {scorer.player.name} 
-                            <span className="font-normal text-gray-500 ml-1">{playerStats.games.position}</span>
-                          </div>
-                          <div className="text-sm text-gray-500">{playerStats.team.name}</div>
-                        </div>
-                      </div>
-                      <div className="text-right px-2">
-                        <div className="font-bold text-lg">{goals}</div>
-                        <div className="text-xs text-gray-500">Goals</div>
-                      </div>
+        {/* Players list */}
+        <div className="p-4">
+          <div className="space-y-3">
+            {topScorers?.slice(0, 3).map((scorer, index) => {
+              const playerStats = scorer.statistics[0];
+              const goals = playerStats?.goals?.total || 0;
+              const position = playerStats?.games?.position || '';
+              const country = playerStats?.league?.country || playerStats?.team?.name || '';
+
+              return (
+                <div key={scorer.player.id} className="flex items-center gap-3">
+                  <Avatar className="h-12 w-12 rounded-full overflow-hidden border border-gray-200">
+                    <AvatarImage 
+                      src={scorer.player.photo} 
+                      alt={scorer.player.name}
+                      className="object-cover object-center scale-110" 
+                    />
+                    <AvatarFallback className="text-xs">
+                      {scorer.player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h4 className="font-semibold text-sm text-gray-900 truncate">
+                        {scorer.player.name}
+                      </h4>
+                      {position && (
+                        <span className="text-xs text-gray-500 font-medium">
+                          {position}
+                        </span>
+                      )}
                     </div>
-                      );
-                })}
-              </div>
-              </div>
-
-              <div className="text-center pt-2">
-                <button 
-                  className="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center mx-auto"
-                  onClick={() => navigate(`/league/${selectedLeague}/stats`)}
-                >
-                  <div className="flex items-center justify-center">
-                    {selectedLeague.toString() === '2' && 'Champions League Stats'}
-                    {selectedLeague.toString() === '3' && 'Europa League Stats'}
-                    {selectedLeague.toString() === '848' && 'Conference League Stats'}
-                    {selectedLeague.toString() === '5' && 'Nations League Stats'}
-                    {selectedLeague.toString() === '15' && 'Club World Cup Stats'}
-                    {selectedLeague.toString() === '32' && 'WC Qualification Europe Stats'}
-                    {selectedLeague.toString() === '33' && 'WC Qualification Oceania Stats'}
-                    {selectedLeague.toString() === '34' && 'WC Qualification South America Stats'}
-                    {selectedLeague.toString() === '35' && 'Asian Cup Qualification Stats'}
-                    {selectedLeague.toString() === '36' && 'AFCON Qualification Stats'}
-                    {selectedLeague.toString() === '37' && 'WC Intercontinental Play-offs Stats'}
-                    {selectedLeague.toString() === '39' && 'Premier League Stats'}
-                    {selectedLeague.toString() === '140' && 'La Liga Stats'}
-                    {selectedLeague.toString() === '135' && 'Serie A Stats'}
-                    {selectedLeague.toString() === '78' && 'Bundesliga Stats'}
-                    {selectedLeague.toString() === '61' && 'Ligue 1 Stats'}
-                    {selectedLeague.toString() === '45' && 'FA Cup Stats'}
-                    {selectedLeague.toString() === '48' && 'League Cup Stats'}
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="ml-1">
-                      <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
+                    <p className="text-xs text-gray-500 truncate">
+                      {country}
+                    </p>
                   </div>
-                </button>
-              </div>
-            </CardContent>
+
+                  <div className="text-right flex-shrink-0">
+                    <div className="text-lg font-bold text-gray-900">
+                      {goals}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Goals
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Stats link */}
+          <div className="mt-4 pt-3 border-t border-gray-100">
+            <button 
+              className="w-full text-left text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-between group"
+              onClick={() => navigate(`/league/${selectedLeague}/stats`)}
+            >
+              <span>{getLeagueDisplayName(selectedLeague)} Stats</span>
+              <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
         </div>
       </div>
     </>
