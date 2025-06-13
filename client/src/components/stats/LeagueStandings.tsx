@@ -168,29 +168,7 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
   return (
     <Card className="w-full h-full">
       <LeagueStatsPanel leagueId={leagueId} season={season} className="border-b rounded-t-lg rounded-b-none" />
-      <CardHeader className="pb-0">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <img
-              src={data.league.logo}
-              alt={data.league.name}
-              className="team-logo"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                if (!target.src.includes("/assets/fallback-logo.svg")) {
-                  target.src = "/assets/fallback-logo.svg";
-                }
-              }}
-            />
-            <CardTitle>{data.league.name}</CardTitle>
-          </div>
-          <Button variant="ghost" size="sm" onClick={() => navigate(`/league/${leagueId}/standings`)}>
-            View Full
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         <Tabs defaultValue="overall" className="w-full" onValueChange={(v) => setView(v as any)}>
           <TabsList className="w-full mb-4">
             <TabsTrigger value="overall" className="flex-1">Overall</TabsTrigger>
