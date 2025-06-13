@@ -773,7 +773,7 @@ const LeagueStandingsFilter = () => {
             standings.league.standings.length > 1 ? (
               // Group-based standings (like World Cup Qualifications)
               <div className="space-y-6">
-                {standings.league.standings.map(
+                {standings.league.standings.slice(0, 2).map(
                   (group: Standing[], groupIndex: number) => (
                     <div key={groupIndex}>
                       <h3 className="text-xs font-regular mx-2 pt-2 mt-4 border-t border-b border-gray-100 mb-2 text-gray-700">
@@ -1008,6 +1008,18 @@ const LeagueStandingsFilter = () => {
                       </Table>
                     </div>
                   ),
+                )}
+                
+                {/* Link to view full group standings if more than 2 groups exist */}
+                {standings.league.standings.length > 2 && (
+                  <div className="text-center mt-6 pt-4 border-t border-gray-100">
+                    <button 
+                      onClick={() => window.open(`/league/${selectedLeague}/standings`, '_blank')}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200"
+                    >
+                      {selectedLeagueName} Group Standings →
+                    </button>
+                  </div>
                 )}
               </div>
             ) : (
