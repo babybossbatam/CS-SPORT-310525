@@ -698,6 +698,7 @@ const LeagueStandingsFilter = () => {
                                         {isNationalTeam ? (
                                           <div className="hover:scale-110 transition-transform">
                                             <MyCircularFlag
+                                              showNextMatchOverlay={true}
                                               teamName={
                                                 group.find(
                                                   (opponent) =>

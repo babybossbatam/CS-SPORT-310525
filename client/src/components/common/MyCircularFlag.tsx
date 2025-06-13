@@ -14,6 +14,7 @@ interface MyCircularFlagProps {
     date: string;
     venue?: string;
   };
+  showNextMatchOverlay?: boolean;
 }
 
 const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
@@ -24,6 +25,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   className = "",
   moveLeft = false,
   nextMatchInfo,
+  showNextMatchOverlay = false,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
@@ -134,8 +136,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         position: "relative",
         left: moveLeft ? "-16px" : "4px",
       }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => showNextMatchOverlay && setIsHovered(true)}
+      onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
     >
       <img
         src={getCircleFlagUrl(teamName, fallbackUrl)}
@@ -160,7 +162,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       <div className="gloss"></div>
       
       {/* Next Match Overlay */}
-      {isHovered && nextMatch && (
+      {showNextMatchOverlay && isHovered && nextMatch && (
         <div 
           className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-90 rounded-full text-white font-medium z-10 transition-opacity duration-200"
           style={{
