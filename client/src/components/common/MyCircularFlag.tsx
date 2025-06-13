@@ -161,23 +161,30 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       />
       <div className="gloss"></div>
       
-      {/* Next Match Overlay */}
+      {/* Next Match Tooltip - External popup */}
       {showNextMatchOverlay && isHovered && nextMatch && (
         <div 
-          className="absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-90 rounded-full text-white font-medium z-10 transition-opacity duration-200"
+          className="absolute bg-gray-800 text-white text-xs rounded-lg px-3 py-2 shadow-lg z-50 whitespace-nowrap border border-gray-600"
           style={{
-            fontSize: parseInt(size) > 40 ? "9px" : "7px",
-            padding: "4px",
+            bottom: "calc(100% + 8px)",
+            left: "50%",
+            transform: "translateX(-50%)",
+            fontSize: "11px",
           }}
         >
-          <div className="text-center leading-tight max-w-full">
-            <div className="font-bold truncate text-white">
-              vs {nextMatch.opponent}
+          <div className="text-center">
+            <div className="font-semibold text-white">
+              {nextMatch.opponent}
             </div>
-            <div className="text-gray-200 opacity-95 mt-0.5" style={{ fontSize: parseInt(size) > 40 ? "8px" : "6px" }}>
+            <div className="text-gray-300 mt-1" style={{ fontSize: "10px" }}>
               {formatDate(nextMatch.date)}
             </div>
           </div>
+          {/* Tooltip arrow */}
+          <div 
+            className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"
+            style={{ marginTop: "-1px" }}
+          ></div>
         </div>
       )}
     </div>
