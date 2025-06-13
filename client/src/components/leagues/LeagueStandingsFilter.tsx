@@ -1036,7 +1036,7 @@ const LeagueStandingsFilter = () => {
                       <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
                         L
                       </TableHead>
-                      <TableHead className="text-center text-xs font-semi-bold text-gray-600 mt-0 mb-0 py-0 px-1 w-[100px] -ml-8">
+                      <TableHead className="text-center text-xs font-semi-bold text-gray-600 mt-0 mb-0 py-0 px-1 w-[100px] -ml-16">
                         Form
                       </TableHead>
                     </TableRow>
