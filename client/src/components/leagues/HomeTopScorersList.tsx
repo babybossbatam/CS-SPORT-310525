@@ -164,8 +164,7 @@ const HomeTopScorersList = () => {
     <>
       <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
       <div className="space-y-4">
-      <div>
-        <div className="flex items-center gap-2"></div>
+        <div className="flex items-center gap-2">
           <button 
             onClick={scrollRight}
             disabled={POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague) === 0}
