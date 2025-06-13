@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import LeagueTabs from "./LeagueTabs";
-import { useQuery } from '@tanstack/react-query';
+import { LeagueStandings } from "@/components/stats/LeagueStandings";
 
 interface LeagueTabsHeaderProps {
   leagueId?: number;
@@ -16,21 +16,6 @@ const LeagueTabsHeader = ({
   leagueLogo,
   followers = "5.03M",
 }: LeagueTabsHeaderProps) => {
-  // Fetch standings data for this league
-  const { data: standingsData, isLoading, error } = useQuery({
-    queryKey: ['league-standings', leagueId],
-    queryFn: async () => {
-      if (!leagueId) return null;
-      const response = await fetch(`/api/leagues/${leagueId}/standings`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    },
-    enabled: !!leagueId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
-
   if (!leagueId) return null;
 
   return (
@@ -54,53 +39,10 @@ const LeagueTabsHeader = ({
             </div>
           </div>
           
-          {/* Display standings data if available */}
-          {standingsData && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-lg font-semibold mb-3">Group Standings</h3>
-              {standingsData.league?.standings?.map((group: any[], groupIndex: number) => (
-                <div key={groupIndex} className="mb-4">
-                  {standingsData.league.standings.length > 1 && (
-                    <h4 className="font-medium mb-2">
-                      {group[0]?.group || `Group ${String.fromCharCode(65 + groupIndex)}`}
-                    </h4>
-                  )}
-                  <div className="space-y-1">
-                    {group.slice(0, 5).map((team: any) => (
-                      <div key={team.team.id} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 text-center font-medium">{team.rank}</span>
-                          <img
-                            src={team.team.logo}
-                            alt={team.team.name}
-                            className="w-4 h-4 object-contain"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.src = "/assets/fallback-logo.svg";
-                            }}
-                          />
-                          <span>{team.team.name}</span>
-                        </div>
-                        <span className="font-medium">{team.points} pts</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          
-          {isLoading && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-500">Loading standings...</div>
-            </div>
-          )}
-          
-          {error && (
-            <div className="mt-4 p-4 bg-red-50 rounded-lg">
-              <div className="text-sm text-red-600">Failed to load standings data</div>
-            </div>
-          )}
+          {/* Use the existing LeagueStandings component */}
+          <div className="mt-4">
+            <LeagueStandings leagueId={leagueId} season={2025} />
+          </div>
         </div>
       </div>
       <div className="fixed left-0 right-0 top-[152px] z-40 bg-white shadow-md">
