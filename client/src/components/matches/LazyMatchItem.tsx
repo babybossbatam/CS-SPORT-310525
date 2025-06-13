@@ -1,141 +1,232 @@
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Star } from "lucide-react";
+import { format, parseISO, isValid } from "date-fns";
+import { isNationalTeam } from "../../lib/teamLogoSources";
+import LazyImage from "../common/LazyImage";
+import MyCircularFlag from "../common/MyCircularFlag";
+import "../../styles/MyLogoPositioning.css";
 
 interface LazyMatchItemProps {
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
-  rootMargin?: string;
-  threshold?: number;
-  prefetchMargin?: string;
-  onPrefetch?: () => Promise<void>;
-  priority?: 'high' | 'normal' | 'low';
+  match: any;
+  onMatchClick?: (match: any) => void;
 }
 
-// Global intersection observer for better performance
-let globalObserver: IntersectionObserver | null = null;
-let prefetchObserver: IntersectionObserver | null = null;
-const observedElements = new Map<Element, () => void>();
-const prefetchElements = new Map<Element, () => Promise<void>>();
+const LazyMatchItem: React.FC<LazyMatchItemProps> = ({ match, onMatchClick }) => {
+  const [isStarred, setIsStarred] = useState(false);
+  const [isHoveringCard, setIsHoveringCard] = useState(false);
 
-const LazyMatchItem: React.FC<LazyMatchItemProps> = ({
-  children,
-  fallback,
-  rootMargin = '100px',
-  threshold = 0.1,
-  prefetchMargin = '300px',
-  onPrefetch,
-  priority = 'normal'
-}) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const [hasLoaded, setHasLoaded] = useState(false);
-  const [isPrefetched, setIsPrefetched] = useState(false);
-  const elementRef = useRef<HTMLDivElement>(null);
+  const handleStarClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsStarred(!isStarred);
+  };
 
-  // Initialize global observers
-  useEffect(() => {
-    if (!globalObserver) {
-      globalObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            const callback = observedElements.get(entry.target);
-            if (callback && entry.isIntersecting) {
-              callback();
-            }
-          });
-        },
-        { rootMargin, threshold }
-      );
+  const handleMatchClick = () => {
+    if (onMatchClick) {
+      onMatchClick(match);
     }
+  };
 
-    if (!prefetchObserver && onPrefetch) {
-      prefetchObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            const prefetchCallback = prefetchElements.get(entry.target);
-            if (prefetchCallback && entry.isIntersecting) {
-              prefetchCallback();
-            }
-          });
-        },
-        { rootMargin: prefetchMargin, threshold: 0.01 }
-      );
+  const formatMatchTime = (dateString: string) => {
+    try {
+      if (!dateString) return "TBD";
+      const date = parseISO(dateString);
+      if (!isValid(date)) return "TBD";
+      return format(date, "HH:mm");
+    } catch (error) {
+      return "TBD";
     }
-  }, [rootMargin, threshold, prefetchMargin, onPrefetch]);
+  };
 
-  const handleVisible = useCallback(() => {
-    if (!hasLoaded) {
-      setIsVisible(true);
-      setHasLoaded(true);
-    }
-  }, [hasLoaded]);
+  const getWinnerClass = (isHome: boolean) => {
+    if (match.fixture.status.short !== "FT") return "";
+    
+    const homeScore = match.goals?.home || 0;
+    const awayScore = match.goals?.away || 0;
+    
+    if (homeScore === awayScore) return "";
+    
+    if (isHome && homeScore > awayScore) return "winner";
+    if (!isHome && awayScore > homeScore) return "winner";
+    
+    return "";
+  };
 
-  const handlePrefetch = useCallback(async () => {
-    if (!isPrefetched && onPrefetch) {
-      setIsPrefetched(true);
-      try {
-        await onPrefetch();
-      } catch (error) {
-        console.warn('Prefetch failed:', error);
-        setIsPrefetched(false);
-      }
-    }
-  }, [isPrefetched, onPrefetch]);
-
-  useEffect(() => {
-    const element = elementRef.current;
-    if (!element || !globalObserver) return;
-
-    // Register for visibility detection
-    observedElements.set(element, handleVisible);
-    globalObserver.observe(element);
-
-    // Register for prefetching if callback provided
-    if (onPrefetch && prefetchObserver) {
-      prefetchElements.set(element, handlePrefetch);
-      prefetchObserver.observe(element);
-    }
-
-    return () => {
-      if (element) {
-        observedElements.delete(element);
-        globalObserver?.unobserve(element);
-        
-        if (prefetchObserver) {
-          prefetchElements.delete(element);
-          prefetchObserver.unobserve(element);
-        }
-      }
-    };
-  }, [handleVisible, handlePrefetch, onPrefetch]);
-
-  const defaultFallback = (
-    <div className="border rounded-lg p-4 animate-pulse bg-gray-50">
-      <Skeleton className="h-4 w-32 mb-2" />
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Skeleton className="h-8 w-8 rounded" />
-          <Skeleton className="h-4 w-24" />
-        </div>
-        <Skeleton className="h-6 w-12" />
-        <div className="flex items-center space-x-3">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-8 w-8 rounded" />
-        </div>
-      </div>
-    </div>
-  );
+  const homeIsNational = isNationalTeam(match.teams.home.name);
+  const awayIsNational = isNationalTeam(match.teams.away.name);
 
   return (
-    <div 
-      ref={elementRef}
-      style={{ 
-        minHeight: priority === 'high' ? '80px' : '60px',
-        transition: 'opacity 0.2s ease-in-out'
-      }}
-    >
-      {isVisible ? children : (fallback || defaultFallback)}
-    </div>
+    <Card className="league-card-spacing">
+      <CardContent className="p-0">
+        <div 
+          className={`match-card-container ${isHoveringCard ? "" : "disable-hover"}`}
+          onClick={handleMatchClick}
+          onMouseEnter={() => setIsHoveringCard(true)}
+          onMouseLeave={() => setIsHoveringCard(false)}
+        >
+          {/* Star button slide-in */}
+          <button
+            className="match-star-button"
+            onClick={handleStarClick}
+            onMouseEnter={() => setIsHoveringCard(false)}
+            onMouseLeave={() => setIsHoveringCard(true)}
+          >
+            <Star 
+              className={`match-star-icon ${isStarred ? "starred" : ""}`}
+              fill={isStarred ? "currentColor" : "none"}
+            />
+          </button>
+
+          {/* Three-grid container */}
+          <div className="match-three-grid-container">
+            {/* Top grid - Match status */}
+            <div className="match-status-top">
+              {(() => {
+                const status = match.fixture.status.short;
+
+                // Finished matches status - check this FIRST and RETURN immediately
+                if (
+                  [
+                    "FT",
+                    "AET", 
+                    "PEN",
+                    "AWD",
+                    "WO",
+                    "CANC",
+                    "ABD",
+                    "SUSP",
+                  ].includes(status)
+                ) {
+                  return (
+                    <div className="match-status-label status-ended">
+                      {status === "FT" ? "Ended" : status}
+                    </div>
+                  );
+                }
+
+                // Live matches status - only check if NOT finished
+                if (
+                  [
+                    "LIVE",
+                    "1H", 
+                    "HT",
+                    "2H",
+                    "ET",
+                    "BT",
+                    "P",
+                    "INT",
+                  ].includes(status)
+                ) {
+                  return (
+                    <div className="match-status-label status-live">
+                      {match.fixture.status.elapsed ? `${match.fixture.status.elapsed}'` : "LIVE"}
+                    </div>
+                  );
+                }
+
+                // Postponed matches status
+                if (status === "PST") {
+                  return (
+                    <div className="match-status-label status-postponed">
+                      Postponed
+                    </div>
+                  );
+                }
+
+                // Upcoming matches - show time
+                return (
+                  <div className="match-status-label status-upcoming">
+                    {formatMatchTime(match.fixture.date)}
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Main content - Grid layout */}
+            <div className="match-content-container">
+              {/* Home team name */}
+              <div className={`home-team-name ${getWinnerClass(true)}`}>
+                {match.teams.home.name}
+              </div>
+
+              {/* Home team logo */}
+              <div className="home-team-logo-container">
+                {homeIsNational ? (
+                  <MyCircularFlag
+                    teamName={match.teams.home.name}
+                    size="34px"
+                    className="popular-leagues-size"
+                  />
+                ) : (
+                  <LazyImage
+                    src={`/api/team-logo/square/${match.teams.home.id}`}
+                    alt={match.teams.home.name}
+                    className="team-logo"
+                    style={{
+                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                    }}
+                    fallbackSrc="/assets/fallback-logo.svg"
+                  />
+                )}
+              </div>
+
+              {/* Score/Time center */}
+              <div className="match-score-container">
+                {match.fixture.status.short === "NS" ? (
+                  <div className="match-time-display">
+                    {formatMatchTime(match.fixture.date)}
+                  </div>
+                ) : (
+                  <div className="match-score-display">
+                    <span className="score-number">{match.goals?.home || 0}</span>
+                    <span className="score-separator">-</span>
+                    <span className="score-number">{match.goals?.away || 0}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Away team logo */}
+              <div className="away-team-logo-container">
+                {awayIsNational ? (
+                  <MyCircularFlag
+                    teamName={match.teams.away.name}
+                    size="34px"
+                    className="popular-leagues-size"
+                  />
+                ) : (
+                  <LazyImage
+                    src={`/api/team-logo/square/${match.teams.away.id}`}
+                    alt={match.teams.away.name}
+                    className="team-logo"
+                    style={{
+                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))"
+                    }}
+                    fallbackSrc="/assets/fallback-logo.svg"
+                  />
+                )}
+              </div>
+
+              {/* Away team name */}
+              <div className={`away-team-name ${getWinnerClass(false)}`}>
+                {match.teams.away.name}
+              </div>
+            </div>
+
+            {/* Bottom grid - Penalty results */}
+            <div className="match-penalty-bottom">
+              {match.score?.penalty && (
+                <div className="penalty-result-display">
+                  <div className="penalty-text">
+                    Penalties: {match.score.penalty.home} - {match.score.penalty.away}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
