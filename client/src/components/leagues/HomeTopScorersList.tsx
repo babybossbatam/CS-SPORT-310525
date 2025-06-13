@@ -76,6 +76,7 @@ const HomeTopScorersList = () => {
   const [, navigate] = useLocation();
   const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [isSelectedLeagueVisible, setIsSelectedLeagueVisible] = useState(true);
 
   const { data: topScorers, isLoading } = useQuery({
     queryKey: [`/api/leagues/${selectedLeague}/topscorers`],
@@ -88,6 +89,28 @@ const HomeTopScorersList = () => {
       });
     }
   });
+
+  const checkSelectedLeagueVisibility = () => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const leagueIndex = POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague);
+    if (leagueIndex === -1) return;
+
+    const buttons = container.querySelectorAll('button');
+    const targetButton = buttons[leagueIndex] as HTMLElement;
+
+    if (!targetButton) return;
+
+    const containerRect = container.getBoundingClientRect();
+    const buttonRect = targetButton.getBoundingClientRect();
+
+    // Check if the button is fully visible within the container
+    const isVisible = buttonRect.left >= containerRect.left && 
+                     buttonRect.right <= containerRect.right;
+
+    setIsSelectedLeagueVisible(isVisible);
+  };
 
   const scrollToLeague = (leagueId: number) => {
     const container = scrollContainerRef.current;
@@ -123,6 +146,9 @@ const HomeTopScorersList = () => {
       left: finalScrollLeft,
       behavior: 'smooth'
     });
+
+    // Check visibility after scrolling
+    setTimeout(checkSelectedLeagueVisibility, 300);
   };
 
   const scrollLeft = () => {
@@ -161,6 +187,25 @@ const HomeTopScorersList = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Add scroll event listener to check visibility
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      checkSelectedLeagueVisibility();
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    
+    // Initial check
+    checkSelectedLeagueVisibility();
+
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+    };
+  }, [selectedLeague]);
+
   if (isLoading) {
     return (
       <div className="space-y-3">
@@ -185,7 +230,9 @@ const HomeTopScorersList = () => {
           <button 
             onClick={scrollLeft}
             disabled={POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague) === 0}
-            className="p-2 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            className={`p-2 hover:bg-gray-200 rounded-full transition-all flex-shrink-0 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent ${
+              isSelectedLeagueVisible ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}
           >
             ←
           </button>
@@ -216,7 +263,9 @@ const HomeTopScorersList = () => {
           <button 
             onClick={scrollRight}
             disabled={POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague) === POPULAR_LEAGUES.length - 1}
-            className="p-2 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+            className={`p-2 hover:bg-gray-200 rounded-full transition-all flex-shrink-0 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent ${
+              isSelectedLeagueVisible ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}
           >
             →
           </button>
