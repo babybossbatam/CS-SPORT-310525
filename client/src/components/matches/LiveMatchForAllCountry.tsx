@@ -35,7 +35,7 @@ import {
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
-import { isNationalTeam } from "../../lib/teamLogoSources";
+import { isNationalTeam, getTeamLogoSources } from "../../lib/teamLogoSources";
 import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
 import LazyMatchItem from "./LazyMatchItem";
