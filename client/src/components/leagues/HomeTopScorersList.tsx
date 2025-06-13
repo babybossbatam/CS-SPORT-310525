@@ -209,7 +209,7 @@ const HomeTopScorersList = () => {
             {topScorers?.slice(0, 3).map((scorer, index) => {
               const playerStats = scorer.statistics[0];
               const goals = playerStats?.goals?.total || 0;
-              const position = playerStats?.games?.position || '';
+              const position = scorer.player.position || playerStats?.games?.position || '';
               const country = playerStats?.team?.name || playerStats?.league?.country || '';
 
               return (
