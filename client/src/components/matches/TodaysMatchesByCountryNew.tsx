@@ -336,23 +336,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Start with all countries collapsed by default
-  useEffect(() => {
-    // Reset to collapsed state when selected date changes
-    setExpandedCountries(new Set());
-    
-    // Auto-expand first league in each country by default
-    const firstLeagues = new Set<string>();
-    sortedCountries.forEach((countryData: any) => {
-      const leagueIds = Object.keys(countryData.leagues);
-      if (leagueIds.length > 0) {
-        const firstLeagueId = leagueIds[0];
-        const leagueKey = `${countryData.country}-${firstLeagueId}`;
-        firstLeagues.add(leagueKey);
-      }
-    });
-    setExpandedLeagues(firstLeagues);
-  }, [selectedDate, sortedCountries.length]);
+  
 
   // Country code to full name mapping with caching
   const getCountryDisplayName = (
@@ -827,6 +811,24 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return countryA.localeCompare(countryB);
     },
   );
+
+  // Start with all countries collapsed by default
+  useEffect(() => {
+    // Reset to collapsed state when selected date changes
+    setExpandedCountries(new Set());
+    
+    // Auto-expand first league in each country by default
+    const firstLeagues = new Set<string>();
+    sortedCountries.forEach((countryData: any) => {
+      const leagueIds = Object.keys(countryData.leagues);
+      if (leagueIds.length > 0) {
+        const firstLeagueId = leagueIds[0];
+        const leagueKey = `${countryData.country}-${firstLeagueId}`;
+        firstLeagues.add(leagueKey);
+      }
+    });
+    setExpandedLeagues(firstLeagues);
+  }, [selectedDate, sortedCountries.length]);
 
   // Single flag fetching effect with deduplication
   useEffect(() => {
