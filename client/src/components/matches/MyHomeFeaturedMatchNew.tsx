@@ -127,7 +127,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   ];
 
   // 2. Popular leagues for featured matches (Globally popular leagues) - Updated from TodayPopularFootballLeaguesNew
-  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 61, 848, 5, 15, 914]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Conference League, UEFA Nations League, FIFA Club World Cup, COSAFA Cup
+  const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78, 61, 848, 5, 15, 38, 914]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Conference League, UEFA Nations League, FIFA Club World Cup, UEFA U21 Championship, COSAFA Cup
 
   // Country-specific popular leagues
   const COUNTRY_POPULAR_LEAGUES = {
@@ -288,7 +288,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         // PRIORITY 1: Only the most elite leagues
-        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5];
+        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 15, 38]; // Added FIFA Club World Cup (15) and UEFA U21 Championship (38)
         if (eliteLeagues.includes(leagueId)) {
           return true;
         }
@@ -331,7 +331,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const sortByPriority = (matches: any[]) => {
       return matches.sort((a, b) => {
         // 1. Elite League Priority
-        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5];
+        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 15, 38]; // Added FIFA Club World Cup (15) and UEFA U21 Championship (38)
         const aEliteIndex = eliteLeagues.indexOf(a.league.id);
         const bEliteIndex = eliteLeagues.indexOf(b.league.id);
 
@@ -524,7 +524,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       
       // Sort league cards by priority (elite leagues first)
       leagueCards.sort((a, b) => {
-        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5];
+        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 15, 38]; // Added FIFA Club World Cup (15) and UEFA U21 Championship (38)
         const aEliteIndex = eliteLeagues.indexOf(a.leagueId);
         const bEliteIndex = eliteLeagues.indexOf(b.leagueId);
         
