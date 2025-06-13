@@ -136,8 +136,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         position: "relative",
         left: moveLeft ? "-16px" : "4px",
       }}
-      onMouseEnter={() => showNextMatchOverlay && setIsHovered(true)}
-      onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
+      
     >
       <img
         src={getCircleFlagUrl(teamName, fallbackUrl)}
@@ -163,41 +162,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       />
       <div className="gloss"></div>
       
-      {/* Next Match Tooltip - External popup */}
-      {showNextMatchOverlay && isHovered && nextMatch && (
-        <div 
-          className="absolute bg-black text-white text-xs rounded-md px-2 py-1 shadow-xl z-[9999] whitespace-nowrap border border-gray-500"
-          style={{
-            bottom: "calc(100% + 6px)",
-            left: "50%",
-            transform: "translateX(-50%)",
-            fontSize: "10px",
-            minWidth: "120px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
-          }}
-        >
-          <div className="text-center">
-            <div className="font-bold text-white text-[10px]">
-              vs {nextMatch.opponent}
-            </div>
-            <div className="text-gray-200 mt-0.5 text-[9px]">
-              {formatDate(nextMatch.date)}
-            </div>
-          </div>
-          {/* Tooltip arrow */}
-          <div 
-            className="absolute top-full left-1/2 transform -translate-x-1/2"
-            style={{
-              width: 0,
-              height: 0,
-              borderLeft: "4px solid transparent",
-              borderRight: "4px solid transparent",
-              borderTop: "4px solid black",
-              marginTop: "0px"
-            }}
-          ></div>
-        </div>
-      )}
+      
     </div>
   );
 };
