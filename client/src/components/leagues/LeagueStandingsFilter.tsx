@@ -515,6 +515,34 @@ const LeagueStandingsFilter = () => {
     return description;
   };
 
+  const getNextMatchInfo = (teamId: number, teamName: string) => {
+    if (!fixtures?.response) return undefined;
+
+    const nextMatch = fixtures.response.find((fixture: any) => {
+      return (
+        (fixture.teams.home.id === teamId || fixture.teams.away.id === teamId) &&
+        new Date(fixture.fixture.date) > new Date()
+      );
+    });
+
+    if (nextMatch) {
+      const opponent =
+        nextMatch.teams.home.id === teamId
+          ? nextMatch.teams.away.name
+          : nextMatch.teams.home.name;
+      const date = nextMatch.fixture.date;
+      const venue = nextMatch.fixture.venue.name;
+
+      return {
+        opponent,
+        date,
+        venue,
+      };
+    }
+
+    return undefined;
+  };
+
   return (
     <Card>
       <CardHeader className=" flex-row items-center justify-between h-10 column px-0 pt-4">
@@ -702,24 +730,35 @@ const LeagueStandingsFilter = () => {
                                               teamName={
                                                 group.find(
                                                   (opponent) =>
-                                                    opponent.team.id !==
-                                                      standing.team.id &&
-                                                    opponent.rank >
-                                                      standing.rank,
+                                                    opponent.team.id !== standing.team.id &&
+                                                    opponent.rank > standing.rank,
                                                 )?.team.name || ""
                                               }
                                               fallbackUrl={
                                                 group.find(
                                                   (opponent) =>
-                                                    opponent.team.id !==
-                                                      standing.team.id &&
-                                                    opponent.rank >
-                                                      standing.rank,
+                                                    opponent.team.id !== standing.team.id &&
+                                                    opponent.rank > standing.rank,
                                                 )?.team.logo
                                               }
                                               alt={`Next opponent`}
                                               size="24px"
                                               className="popular-leagues-size"
+                                              nextMatchInfo={
+                                                fixtures && group.find(
+                                                  (opponent) =>
+                                                    opponent.team.id !== standing.team.id &&
+                                                    opponent.rank > standing.rank,
+                                                ) ? {
+                                                  opponent: group.find(
+                                                    (opponent) =>
+                                                      opponent.team.id !== standing.team.id &&
+                                                      opponent.rank > standing.rank,
+                                                  )?.team.name || "TBD",
+                                                  date: "2025-03-25T19:45:00Z",
+                                                  venue: "Wembley Stadium"
+                                                } : undefined
+                                              }
                                             />
                                           </div>
                                         ) : (
