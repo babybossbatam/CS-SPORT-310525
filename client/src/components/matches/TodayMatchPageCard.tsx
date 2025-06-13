@@ -11,6 +11,7 @@ import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
+import NewPopularLeaguePage from "./NewPopularLeaguePage";
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { format, parseISO, addDays, subDays } from "date-fns";
 import {
@@ -36,6 +37,7 @@ export const TodayMatchPageCard = ({
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
+  const [showMajorCompetitions, setShowMajorCompetitions] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
 
   // Close calendar when clicking outside
@@ -150,6 +152,16 @@ export const TodayMatchPageCard = ({
     // by applying the same filtering logic
     setPopularLeagueFixtures(filteredFixtures);
   }, [filteredFixtures]);
+
+  // If showing major competitions, render that view
+  if (showMajorCompetitions) {
+    return (
+      <NewPopularLeaguePage 
+        selectedDate={selectedDate}
+        onBack={() => setShowMajorCompetitions(false)}
+      />
+    );
+  }
 
   return (
     <>
@@ -286,8 +298,13 @@ export const TodayMatchPageCard = ({
             Live
           </button>
 
-          {/* Spacer to maintain layout */}
-          <div className="flex items-center gap-2"></div>
+          {/* Major Competitions button */}
+          <button
+            onClick={() => setShowMajorCompetitions(true)}
+            className="flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 bg-yellow-400 text-black hover:bg-yellow-500"
+          >
+            🔥 Major
+          </button>
 
           {/* By time button */}
           <button
