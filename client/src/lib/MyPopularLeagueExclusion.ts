@@ -77,6 +77,7 @@ export const popularLeagueExclusionTerms = [
   "matogrossense 2",
   "paraense b1",
   "copa do nordeste",
+  "copa paulista",
 
   // Brazilian youth leagues to exclude
   "brasileiro u20 a",
