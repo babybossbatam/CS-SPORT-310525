@@ -74,10 +74,51 @@ interface PlayerStatistics {
 
 const HomeTopScorersList = () => {
   const [, navigate] = useLocation();
-  const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id);
+  const [availableLeagues, setAvailableLeagues] = useState<typeof POPULAR_LEAGUES>([]);
+  const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
+
+  // Query to check which leagues have data
+  const { data: leagueDataMap, isLoading: isLoadingLeagues } = useQuery({
+    queryKey: ['leagues-with-data'],
+    queryFn: async () => {
+      const dataMap = new Map<number, PlayerStatistics[]>();
+      
+      // Check each league for data
+      for (const league of POPULAR_LEAGUES) {
+        try {
+          const response = await fetch(`/api/leagues/${league.id}/topscorers`);
+          if (response.ok) {
+            const data: PlayerStatistics[] = await response.json();
+            if (data && data.length > 0) {
+              dataMap.set(league.id, data);
+            }
+          }
+        } catch (error) {
+          console.warn(`Failed to check data for league ${league.id}:`, error);
+        }
+      }
+      
+      return dataMap;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  // Update available leagues when data is loaded
+  useEffect(() => {
+    if (leagueDataMap) {
+      const leagues = POPULAR_LEAGUES.filter(league => leagueDataMap.has(league.id));
+      setAvailableLeagues(leagues);
+      
+      // Set initial selected league if not set
+      if (!selectedLeague && leagues.length > 0) {
+        setSelectedLeague(leagues[0].id);
+      }
+    }
+  }, [leagueDataMap, selectedLeague]);
 
   const { data: topScorers, isLoading } = useQuery({
     queryKey: [`/api/leagues/${selectedLeague}/topscorers`],
+    enabled: !!selectedLeague,
     staleTime: 30 * 60 * 1000,
     select: (data: PlayerStatistics[]) => {
       return data.sort((a, b) => {
@@ -89,33 +130,33 @@ const HomeTopScorersList = () => {
   });
 
   const getCurrentLeagueIndex = () => {
-    return POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague);
+    return availableLeagues.findIndex(league => league.id === selectedLeague);
   };
 
   const getCurrentLeague = () => {
-    return POPULAR_LEAGUES.find(league => league.id === selectedLeague);
+    return availableLeagues.find(league => league.id === selectedLeague);
   };
 
   const goToPreviousLeague = () => {
     const currentIndex = getCurrentLeagueIndex();
     if (currentIndex > 0) {
-      setSelectedLeague(POPULAR_LEAGUES[currentIndex - 1].id);
+      setSelectedLeague(availableLeagues[currentIndex - 1].id);
     }
   };
 
   const goToNextLeague = () => {
     const currentIndex = getCurrentLeagueIndex();
-    if (currentIndex < POPULAR_LEAGUES.length - 1) {
-      setSelectedLeague(POPULAR_LEAGUES[currentIndex + 1].id);
+    if (currentIndex < availableLeagues.length - 1) {
+      setSelectedLeague(availableLeagues[currentIndex + 1].id);
     }
   };
 
   const getLeagueDisplayName = (leagueId: number) => {
-    const league = POPULAR_LEAGUES.find(l => l.id === leagueId);
+    const league = availableLeagues.find(l => l.id === leagueId);
     return league?.name || 'League';
   };
 
-  if (isLoading) {
+  if (isLoadingLeagues || isLoading || !selectedLeague) {
     return (
       <div className="bg-white rounded-lg border border-gray-200">
         {/* Header skeleton */}
@@ -189,9 +230,9 @@ const HomeTopScorersList = () => {
 
           <button 
             onClick={goToNextLeague}
-            disabled={currentIndex === POPULAR_LEAGUES.length - 1}
+            disabled={currentIndex === availableLeagues.length - 1}
             className={`p-1 rounded hover:bg-gray-200 transition-colors ${
-              currentIndex === POPULAR_LEAGUES.length - 1 ? 'opacity-40 cursor-not-allowed' : 'opacity-70 hover:opacity-100'
+              currentIndex === availableLeagues.length - 1 ? 'opacity-40 cursor-not-allowed' : 'opacity-70 hover:opacity-100'
             }`}
           >
             <ChevronRight className="h-4 w-4 text-gray-600" />
