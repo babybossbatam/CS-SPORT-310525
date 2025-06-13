@@ -209,8 +209,45 @@ const HomeTopScorersList = () => {
             {topScorers?.slice(0, 3).map((scorer, index) => {
               const playerStats = scorer.statistics[0];
               const goals = playerStats?.goals?.total || 0;
-              const position = scorer.player.position || playerStats?.games?.position || '';
+              
+              // Try to get more specific position information
+              const rawPosition = scorer.player.position || playerStats?.games?.position || '';
+              
+              // Map generic positions to more specific ones based on player data
+              const getSpecificPosition = (pos: string) => {
+                if (!pos) return '';
+                
+                // Convert common generic positions to more specific ones
+                const positionMap: { [key: string]: string } = {
+                  'Attacker': 'Forward',
+                  'Midfielder': 'Midfielder',
+                  'Defender': 'Defender',
+                  'Goalkeeper': 'Goalkeeper'
+                };
+                
+                // If it's already specific, return as is
+                if (pos.includes('Left') || pos.includes('Right') || pos.includes('Central') || pos.includes('Centre')) {
+                  return pos;
+                }
+                
+                // Otherwise use the mapped version or original
+                return positionMap[pos] || pos;
+              };
+              
+              const position = getSpecificPosition(rawPosition);
               const country = playerStats?.team?.name || playerStats?.league?.country || '';
+
+              // Debug logging to see what position data is available
+              if (index === 0) {
+                console.log('🔍 Player position data:', {
+                  playerName: scorer.player.name,
+                  playerPosition: scorer.player.position,
+                  gamesPosition: playerStats?.games?.position,
+                  finalPosition: position,
+                  fullPlayerData: scorer.player,
+                  fullStatsData: playerStats
+                });
+              }
 
               return (
                 <div key={scorer.player.id} className="flex items-center gap-3">
