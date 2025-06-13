@@ -45,9 +45,10 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import LazyMatchItem from './LazyMatchItem';
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
+import "../../styles/MyLogoPositioning.css";
 
 // Helper function to shorten team names
-const shortenTeamName = (teamName: string): string => {
+export const shortenTeamName = (teamName: string): string => {
   if (!teamName) return teamName;
 
   // Remove common suffixes that make names too long
@@ -766,41 +767,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [sortedCountries.length]); // Only depend on count, not the specific countries
 
-  const toggleCountry = (country: string) => {
-    const newExpanded = new Set(expandedCountries);
-    const newExpandedLeagues = new Set(expandedLeagues);
-
-    if (newExpanded.has(country)) {
-      newExpanded.delete(country);
-      // Remove all leagues for this country from expanded leagues
-      const countryData = fixturesByCountry[country];
-      if (countryData) {
-        Object.keys(countryData.leagues).forEach(leagueId => {
-          newExpandedLeagues.delete(`${country}-${leagueId}`);
-        });
+  const toggleCountry = useCallback((country: string) => {
+    setExpandedCountries((prev) => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(country)) {
+        newExpanded.delete(country);
+      } else {
+        newExpanded.add(country);
       }
-    } else {
-      newExpanded.add(country);
-      // Auto-expand the first league when country is expanded
-      const countryData = fixturesByCountry[country];
-      if (countryData && Object.keys(countryData.leagues).length > 0) {
-        // Sort leagues same way as in render (popular first, then alphabetical)
-        const sortedLeagues = Object.values(countryData.leagues)
-          .sort((a: any, b: any) => {
-            if (a.isPopular && !b.isPopular) return -1;
-            if (!a.isPopular && b.isPopular) return 1;
-            return a.league.name.localeCompare(b.league.name);
-          });
+      return newExpanded;
+    });
+  }, []);
 
-        if (sortedLeagues.length > 0) {
-          const firstLeague = sortedLeagues[0] as any;
-          newExpandedLeagues.add(`${country}-${firstLeague.league.id}`);
-        }
+  const toggleStarMatch = (matchId: number) => {
+    setStarredMatches((prev) => {
+      const newStarred = new Set(prev);
+      if (newStarred.has(matchId)) {
+        newStarred.delete(matchId);
+      } else {
+        newStarred.add(matchId);
       }
-    }
-
-    setExpandedCountries(newExpanded);
-    setExpandedLeagues(newExpandedLeagues);
+      return newStarred;
+    });
   };
 
   const toggleLeague = (country: string, leagueId: number) => {
@@ -812,16 +800,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       newExpanded.add(leagueKey);
     }
     setExpandedLeagues(newExpanded);
-  };
-
-  const toggleStarMatch = (fixtureId: number) => {
-    const newStarred = new Set(starredMatches);
-    if (newStarred.has(fixtureId)) {
-      newStarred.delete(fixtureId);
-    } else {
-      newStarred.add(fixtureId);
-    }
-    setStarredMatches(newStarred);
   };
 
   // Enhanced match status logic
@@ -901,7 +879,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Custom date - format it nicely
       try {
         const customDate = parseISO(selectedDate);
-        if (isValid(customDate)) {
+        ```text
+if (isValid(customDate)) {
           return `${format(customDate, 'EEEE, MMMM do')} Football Matches by Country`;
         } else {
           return "Football Matches by Country";
@@ -1362,6 +1341,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                 return aDate - bDate;
                               })
                               .map((match: any, matchIndex) => (
+                                
                                 <LazyMatchItem
                                   key={match.fixture.id}
                                   priority={matchIndex < 3 ? 'high' : 'normal'}
@@ -1416,8 +1396,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                           name: leagueData.league.name,
                                           country: leagueData.league.country,
                                         }) || match.teams.home.name?.includes("U20") || match.teams.home.name?.includes("U21") ? (
-                                          
-                                          
+
+
                                             <MyCircularFlag
                                               teamName={match.teams.home.name || ""}
                                               fallbackUrl={
@@ -1429,7 +1409,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                               size="36px"
                                               className="popular-leagues-size"
                                             />
-                                          
+
                                         ) : (
                                           <LazyImage
                                             src={
@@ -1653,8 +1633,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                           name: leagueData.league.name,
                                           country: leagueData.league.country,
                                         }) || match.teams.away.name?.includes("U20") || match.teams.away.name?.includes("U21") ? (
-                                          
-                                          
+
+
                                             <MyCircularFlag
                                               teamName={match.teams.away.name || ""}
                                               fallbackUrl={
@@ -1666,7 +1646,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                               size="36px"
                                               className="popular-leagues-size"
                                             />
-                                          
+
                                         ) : (
                                           <LazyImage
                                             src={

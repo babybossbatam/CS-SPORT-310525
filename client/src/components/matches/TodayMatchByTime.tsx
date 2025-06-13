@@ -1,17 +1,100 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Activity, Calendar, Star } from "lucide-react";
+import { ChevronDown, ChevronUp, Calendar, Clock, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, userActions } from "@/lib/store";
+import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
+import {
+  shouldExcludeFromPopularLeagues,
+  isPopularLeagueSuitable,
+  isRestrictedUSLeague,
+} from "@/lib/MyPopularLeagueExclusion";
+import { QUERY_CONFIGS, CACHE_FRESHNESS } from "@/lib/cacheConfig";
+import { useCachedQuery, CacheManager } from "@/lib/cachingHelper";
+import { getCurrentUTCDateString } from "@/lib/dateUtilsUpdated";
+import { POPULAR_LEAGUES } from "@/lib/constants";
+import {
+  DEFAULT_POPULAR_TEAMS,
+  DEFAULT_POPULAR_LEAGUES,
+  POPULAR_COUNTRIES,
+  isLiveMatch,
+} from "@/lib/matchFilters";
+import {
+  getCountryFlagWithFallbackSync,
+  clearVenezuelaFlagCache,
+  forceRefreshVenezuelaFlag,
+  clearAllFlagCache,
+  getCountryCode,
+} from "../../lib/flagUtils";
+import { createFallbackHandler } from "../../lib/MyAPIFallback";
+import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
+import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
-import LazyImage from "../common/LazyImage";
-import CombinedLeagueCards from "./CombinedLeagueCards";
+import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
-import { useCentralData } from '@/providers/CentralDataProvider';
+import LazyMatchItem from "./LazyMatchItem";
+import LazyImage from "../common/LazyImage";
+import MyCircularFlag from "../common/MyCircularFlag";
+
+// Helper function to shorten team names
+export const shortenTeamName = (teamName: string): string => {
+  if (!teamName) return teamName;
+
+  // Remove common suffixes that make names too long
+  const suffixesToRemove = [
+    "-sc",
+    "-SC",
+    " SC",
+    " FC",
+    " CF",
+    " United",
+    " City",
+    " Islands",
+    " Republic",
+    " National Team",
+    " U23",
+    " U21",
+    " U20",
+    " U19",
+  ];
+
+  let shortened = teamName;
+  for (const suffix of suffixesToRemove) {
+    if (shortened.endsWith(suffix)) {
+      shortened = shortened.replace(suffix, "");
+      break;
+    }
+  }
+
+  // Handle specific country name shortenings
+  const countryMappings: { [key: string]: string } = {
+    "Cape Verde Islands": "Cape Verde",
+    "Central African Republic": "CAR",
+    "Dominican Republic": "Dominican Rep",
+    "Bosnia and Herzegovina": "Bosnia",
+    "Trinidad and Tobago": "Trinidad",
+    "Papua New Guinea": "Papua NG",
+    "United Arab Emirates": "UAE",
+    "Saudi Arabia": "Saudi",
+    "South Africa": "S. Africa",
+    "New Zealand": "New Zealand",
+    "Costa Rica": "Costa Rica",
+    "Puerto Rico": "Puerto Rico",
+  };
+
+  // Check if the team name matches any country mappings
+  if (countryMappings[shortened]) {
+    shortened = countryMappings[shortened];
+  }
+
+  return shortened.trim();
+};
 
 interface TodayMatchByTimeProps {
   selectedDate: string;
@@ -28,7 +111,11 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   liveFilterActive = false,
   timeFilterActive = false,
 }) => {
+  const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
+    new Set(),
+  );
   const [enableFetching, setEnableFetching] = useState(true);
+  const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
 
   // Fetch live fixtures only
   const { data: liveFixturesData = [], isLoading: liveLoading } = useQuery({
@@ -144,6 +231,30 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   const allFixturesError = error;
 
   const isLoadingCentral = isLoading;
+
+  const toggleCountry = useCallback((country: string) => {
+    setExpandedCountries((prev) => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(country)) {
+        newExpanded.delete(country);
+      } else {
+        newExpanded.add(country);
+      }
+      return newExpanded;
+    });
+  }, []);
+
+  const toggleStarMatch = (matchId: number) => {
+    setStarredMatches((prev) => {
+      const newStarred = new Set(prev);
+      if (newStarred.has(matchId)) {
+        newStarred.delete(matchId);
+      } else {
+        newStarred.add(matchId);
+      }
+      return newStarred;
+    });
+  };
 
   if (isLoadingCentral) {
     return (
