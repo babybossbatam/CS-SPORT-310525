@@ -486,22 +486,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 5, priority: 4 }, // UEFA Nations League
         { id: 4, priority: 5 }, // Euro Championship
         { id: 15, priority: 6 }, // FIFA World Cup
-        { id: 32, priority: 7 }, // UEFA WC Qualification - Group A
-        { id: 33, priority: 7.1 }, // UEFA WC Qualification - Group B
-        { id: 34, priority: 7.2 }, // UEFA WC Qualification - Group C
-        { id: 35, priority: 7.3 }, // UEFA WC Qualification - Group D
-        { id: 36, priority: 7.4 }, // UEFA WC Qualification - Group E
-        { id: 37, priority: 7.5 }, // UEFA WC Qualification - Group F
-        { id: 38, priority: 7.6 }, // UEFA WC Qualification - Group G
-        { id: 40, priority: 7.7 }, // UEFA WC Qualification - Group H
-        { id: 41, priority: 7.8 }, // UEFA WC Qualification - Group I
-        { id: 42, priority: 7.9 }, // UEFA WC Qualification - Group J
-        { id: 43, priority: 8.0 }, // UEFA WC Qualification - Group K
-        { id: 44, priority: 8.1 }, // UEFA WC Qualification - Group L
-        { id: 39, priority: 8 }, // Premier League
-        { id: 140, priority: 9 }, // La Liga
-        { id: 135, priority: 10 }, // Serie A
-        { id: 78, priority: 11 }, // Bundesliga
+        // World Cup Qualifications
+        { id: 32, priority: 7 }, // World Cup Qualification - Europe
+        { id: 33, priority: 7.1 }, // World Cup Qualification - Oceania
+        { id: 34, priority: 7.2 }, // World Cup Qualification - South America
+        { id: 35, priority: 7.3 }, // Asian Cup - Qualification
+        { id: 36, priority: 7.4 }, // Africa Cup of Nations - Qualification
+        { id: 37, priority: 7.5 }, // World Cup Qualification - Intercontinental Play-offs
+        // Youth and U-League Championships (32 World Country Leagues)
+        { id: 38, priority: 8 }, // UEFA U21 Championship
+        { id: 480, priority: 8.1 }, // Olympic Football Tournament
+        { id: 875, priority: 8.2 }, // UEFA U19 Championship
+        { id: 876, priority: 8.3 }, // UEFA U17 Championship
+        { id: 877, priority: 8.4 }, // FIFA U20 World Cup
+        { id: 878, priority: 8.5 }, // FIFA U17 World Cup
+        { id: 879, priority: 8.6 }, // CONMEBOL Copa America U20
+        { id: 880, priority: 8.7 }, // AFC U23 Championship
+        { id: 881, priority: 8.8 }, // CAF U23 Cup of Nations
+        { id: 882, priority: 8.9 }, // CONCACAF U20 Championship
+        { id: 883, priority: 9.0 }, // OFC U20 Championship
+        { id: 884, priority: 9.1 }, // FIFA U19 Women World Cup
+        { id: 885, priority: 9.2 }, // FIFA U17 Women World Cup
+        { id: 886, priority: 9.3 }, // UEFA Women U19 Championship
+        { id: 887, priority: 9.4 }, // UEFA Women U17 Championship
+        { id: 888, priority: 9.5 }, // CONMEBOL Copa America U17
+        { id: 889, priority: 9.6 }, // AFC U19 Championship
+        { id: 890, priority: 9.7 }, // AFC U16 Championship
+        { id: 891, priority: 9.8 }, // CAF U20 Cup of Nations
+        { id: 892, priority: 9.9 }, // CAF U17 Cup of Nations
+        { id: 893, priority: 10.0 }, // CONCACAF U17 Championship
+        { id: 894, priority: 10.1 }, // OFC U17 Championship
+        { id: 895, priority: 10.2 }, // FIFA Beach Soccer World Cup
+        { id: 896, priority: 10.3 }, // FIFA Futsal World Cup
+        { id: 897, priority: 10.4 }, // FIFA Club World Cup U20
+        { id: 898, priority: 10.5 }, // World Youth Championship
+        { id: 899, priority: 10.6 }, // International Friendlies U21
+        { id: 900, priority: 10.7 }, // International Friendlies U19
+        { id: 901, priority: 10.8 }, // International Friendlies U18
+        { id: 902, priority: 10.9 }, // International Friendlies U17
+        { id: 903, priority: 11.0 }, // International Friendlies U16
+        { id: 904, priority: 11.1 }, // FIFA Youth Olympic Tournament
+        { id: 905, priority: 11.2 }, // World University Games Football
+        // Major Domestic Leagues
+        { id: 39, priority: 12 }, // Premier League
+        { id: 140, priority: 13 }, // La Liga
+        { id: 135, priority: 14 }, // Serie A
+        { id: 78, priority: 15 }, // Bundesliga
         { id: 61, priority: 12 }, // Ligue 1
         { id: 307, priority: 13 }, // Saudi Pro League
         { id: 233, priority: 14 }, // Egyptian Premier League

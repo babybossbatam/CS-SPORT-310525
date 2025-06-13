@@ -919,8 +919,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const top20FilteredCountries = useMemo(() => {
     if (!showTop20) return liveFilteredCountries;
     return liveFilteredCountries.slice(0, 20);
-  }, [liveFilteredCountries, showTop20]);
-
+  }, [liveFilteredCountries, showTop20]);```text
   const toggleCountry = useCallback((country: string) => {
     setExpandedCountries((prev) => {
       const newExpanded = new Set(prev);
