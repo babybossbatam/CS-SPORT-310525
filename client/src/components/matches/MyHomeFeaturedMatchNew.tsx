@@ -263,6 +263,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const getEliteMatches = (matchesArray: any[]) => {
       console.log(`🔍 [getEliteMatches] Processing ${matchesArray.length} matches`);
       
+      // Debug: Count target leagues in input
+      const u21Matches = matchesArray.filter(f => f.league?.id === 38);
+      const fifaMatches = matchesArray.filter(f => f.league?.id === 15);
+      console.log(`🎯 [TARGET LEAGUES INPUT] UEFA U21 (38): ${u21Matches.length}, FIFA Club World Cup (15): ${fifaMatches.length}`);
+      
       return matchesArray.filter((fixture) => {
         // Basic validation
         if (
@@ -336,7 +341,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         return false;
-      }).map(match => {
+      });
+      
+      // Debug: Count target leagues in output
+      const resultU21 = result.filter(f => f.league?.id === 38);
+      const resultFifa = result.filter(f => f.league?.id === 15);
+      console.log(`🎯 [TARGET LEAGUES OUTPUT] UEFA U21 (38): ${resultU21.length}, FIFA Club World Cup (15): ${resultFifa.length}`);
+      
+      return result.map(match => {
         // Log each elite match found
         if (match.league.id === 15 || match.league.id === 38) {
           console.log(`✅ [ELITE RESULT] Including ${match.league.name}: ${match.teams.home.name} vs ${match.teams.away.name}`);
