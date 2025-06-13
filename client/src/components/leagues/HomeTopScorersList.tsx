@@ -141,6 +141,9 @@ const HomeTopScorersList = () => {
     const currentIndex = getCurrentLeagueIndex();
     if (currentIndex > 0) {
       setSelectedLeague(availableLeagues[currentIndex - 1].id);
+    } else {
+      // If at first league, go to last league
+      setSelectedLeague(availableLeagues[availableLeagues.length - 1].id);
     }
   };
 
@@ -148,6 +151,9 @@ const HomeTopScorersList = () => {
     const currentIndex = getCurrentLeagueIndex();
     if (currentIndex < availableLeagues.length - 1) {
       setSelectedLeague(availableLeagues[currentIndex + 1].id);
+    } else {
+      // If at last league, go to first league
+      setSelectedLeague(availableLeagues[0].id);
     }
   };
 
@@ -205,10 +211,7 @@ const HomeTopScorersList = () => {
         <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
           <button 
             onClick={goToPreviousLeague}
-            disabled={currentIndex === 0}
-            className={`p-1 rounded hover:bg-gray-200 transition-colors ${
-              currentIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'opacity-70 hover:opacity-100'
-            }`}
+            className="p-1 rounded hover:bg-gray-200 transition-colors opacity-70 hover:opacity-100"
           >
             <ChevronLeft className="h-4 w-4 text-gray-600" />
           </button>
@@ -230,10 +233,7 @@ const HomeTopScorersList = () => {
 
           <button 
             onClick={goToNextLeague}
-            disabled={currentIndex === availableLeagues.length - 1}
-            className={`p-1 rounded hover:bg-gray-200 transition-colors ${
-              currentIndex === availableLeagues.length - 1 ? 'opacity-40 cursor-not-allowed' : 'opacity-70 hover:opacity-100'
-            }`}
+            className="p-1 rounded hover:bg-gray-200 transition-colors opacity-70 hover:opacity-100"
           >
             <ChevronRight className="h-4 w-4 text-gray-600" />
           </button>
