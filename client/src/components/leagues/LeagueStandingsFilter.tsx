@@ -1014,7 +1014,7 @@ const LeagueStandingsFilter = () => {
                 {standings.league.standings.length > 2 && (
                   <div className="text-center mt-6 pt-4 border-t border-gray-100">
                     <button 
-                      onClick={() => window.open(`/league/${selectedLeague}/standings`, '_blank')}
+                      onClick={() => window.location.href = `/league/${selectedLeague}/standings`}
                       className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors duration-200"
                     >
                       {selectedLeagueName} Group Standings →
