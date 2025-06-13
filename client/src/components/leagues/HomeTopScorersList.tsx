@@ -207,7 +207,7 @@ const HomeTopScorersList = () => {
         </div>
 
         <div>
-          <CardContent className="p-0"></div>
+          <CardContent className="p-0">
               <div className="relative overflow-x-auto">
                 <div className="space-y-1">
                 {topScorers?.slice(0, 3).map((scorer, index) => {
