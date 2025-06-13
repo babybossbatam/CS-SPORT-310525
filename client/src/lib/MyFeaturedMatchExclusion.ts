@@ -103,7 +103,7 @@ export const shouldExcludeFeaturedMatch = (
 
   // Check if this is a major international competition that should NEVER be excluded
   const isMajorInternationalCompetition =
-    // UEFA competitions (excluding women's and youth)
+    // UEFA competitions (excluding women's and youth, but including UEFA U21 Championship)
     (league.includes("uefa") &&
       !league.includes("women") &&
       !league.includes("youth") &&
@@ -112,10 +112,23 @@ export const shouldExcludeFeaturedMatch = (
       !league.includes("u17") &&
       !league.includes("u18") &&
       !league.includes("u19") &&
-      (!league.includes("u21") ||
-        league.includes("uefa u21") ||
-        league.includes("euro u21")) &&
-      !league.includes("u23")) ||
+      (!league.includes("u21") || league.includes("uefa u21 championship"))) ||
+    (league.includes("world cup") &&
+      !league.includes("women") &&
+      !league.includes("youth") &&
+      !league.includes("u15") &&
+      !league.includes("u16") &&
+      !league.includes("u17") &&
+      !league.includes("u18") &&
+      !league.includes("u19")) ||
+    (league.includes("fifa") &&
+      !league.includes("women") &&
+      !league.includes("youth") &&
+      !league.includes("u15") &&
+      !league.includes("u16") &&
+      !league.includes("u17") &&
+      !league.includes("u18") &&
+      !league.includes("u19")) ||
     (league.includes("champions league") && !league.includes("women")) ||
     (league.includes("europa league") && !league.includes("women")) ||
     (league.includes("conference league") && !league.includes("women")) ||
@@ -126,22 +139,6 @@ export const shouldExcludeFeaturedMatch = (
       league.includes("championship") &&
       !league.includes("women")) ||
     // FIFA competitions (excluding women's and youth)
-    (league.includes("fifa") &&
-      !league.includes("women") &&
-      !league.includes("youth") &&
-      !league.includes("u15") &&
-      !league.includes("u16") &&
-      !league.includes("u17") &&
-      !league.includes("u18") &&
-      !league.includes("u19")) ||
-    (league.includes("world cup") &&
-      !league.includes("women") &&
-      !league.includes("youth") &&
-      !league.includes("u15") &&
-      !league.includes("u16") &&
-      !league.includes("u17") &&
-      !league.includes("u18") &&
-      !league.includes("u19")) ||
     (league.includes("fifa club world cup") && !league.includes("women")) ||
     // CONMEBOL competitions (excluding women's)
     (league.includes("conmebol") && !league.includes("women")) ||
