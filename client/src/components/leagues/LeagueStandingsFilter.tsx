@@ -927,8 +927,12 @@ const LeagueStandingsFilter = () => {
                                                 });
                                                 
                                                 if (nextMatch) {
+                                                  // Format teams properly for tooltip display
+                                                  const homeTeam = nextMatch.teams.home.name;
+                                                  const awayTeam = nextMatch.teams.away.name;
+                                                  
                                                   return {
-                                                    opponent: nextOpponent.team.name,
+                                                    opponent: `${homeTeam} - ${awayTeam}`,
                                                     date: nextMatch.fixture.date,
                                                     venue: nextMatch.fixture.venue?.name || "TBD"
                                                   };

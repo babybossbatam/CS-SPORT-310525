@@ -176,7 +176,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         >
           <div className="text-center">
             <div className="font-bold text-white text-[10px]">
-              vs {nextMatch.opponent}
+              {nextMatch.opponent}
             </div>
             <div className="text-gray-200 mt-0.5 text-[9px]">
               {formatDate(nextMatch.date)}
