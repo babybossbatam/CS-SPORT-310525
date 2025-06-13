@@ -692,30 +692,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                             {(() => {
                               const status = match.fixture.status.short;
 
-                              // Live matches status
-                              if (
-                                [
-                                  "LIVE",
-                                  "LIV",
-                                  "1H",
-                                  "HT",
-                                  "2H",
-                                  "ET",
-                                  "BT",
-                                  "P",
-                                  "INT",
-                                ].includes(status)
-                              ) {
-                                return (
-                                  <div className="match-status-label status-live">
-                                    {status === "HT"
-                                      ? "Halftime"
-                                      : `${match.fixture.status.elapsed || 0}'`}
-                                  </div>
-                                );
-                              }
-
-                              // Finished matches status
+                              // Finished matches status - check this FIRST
                               if (
                                 [
                                   "FT",
@@ -751,35 +728,38 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                                 );
                               }
 
+                              // Live matches status
+                              if (
+                                [
+                                  "LIVE",
+                                  "LIV",
+                                  "1H",
+                                  "HT",
+                                  "2H",
+                                  "ET",
+                                  "BT",
+                                  "P",
+                                  "INT",
+                                ].includes(status)
+                              ) {
+                                return (
+                                  <div className="match-status-label status-live">
+                                    {status === "HT"
+                                      ? "Halftime"
+                                      : `${match.fixture.status.elapsed || 0}'`}
+                                  </div>
+                                );
+                              }
+
                               // Postponed matches status
                               if (
                                 [
                                   "PST",
-                                  "CANC",
-                                  "ABD",
-                                  "SUSP",
-                                  "AWD",
-                                  "WO",
                                 ].includes(status)
                               ) {
-                                const statusText =
-                                  status === "PST"
-                                    ? "Postponed"
-                                    : status === "CANC"
-                                      ? "Cancelled"
-                                      : status === "ABD"
-                                        ? "Abandoned"
-                                        : status === "SUSP"
-                                          ? "Suspended"
-                                          : status === "AWD"
-                                            ? "Awarded"
-                                            : status === "WO"
-                                              ? "Walkover"
-                                              : status;
-
                                 return (
                                   <div className="match-status-label status-postponed">
-                                    {statusText}
+                                    Postponed
                                   </div>
                                 );
                               }
