@@ -111,7 +111,9 @@ const HomeTopScorersList = () => {
       
       // Set initial selected league if not set
       if (!selectedLeague && leagues.length > 0) {
-        setSelectedLeague(leagues[0].id);
+        // Prefer World Cup - Qualification South America (ID 34) if available
+        const preferredLeague = leagues.find(league => league.id === 34);
+        setSelectedLeague(preferredLeague ? preferredLeague.id : leagues[0].id);
       }
     }
   }, [leagueDataMap, selectedLeague]);
