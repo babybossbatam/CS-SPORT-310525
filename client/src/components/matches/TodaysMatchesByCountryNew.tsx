@@ -147,6 +147,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   );
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+  const [hiddenMatches, setHiddenMatches] = useState<Set<number>>(new Set());
   // Initialize flagMap with immediate synchronous values for better rendering
   const [flagMap, setFlagMap] = useState<{ [country: string]: string }>(() => {
     // Pre-populate with synchronous flag URLs to prevent initial undefined state
@@ -891,6 +892,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
   };
 
+  const toggleHideMatch = (matchId: number) => {
+    setHiddenMatches((prev) => {
+      const newHidden = new Set(prev);
+      if (newHidden.has(matchId)) {
+        newHidden.delete(matchId);
+      } else {
+        newHidden.add(matchId);
+      }
+      return newHidden;
+    });
+  };
+
   const toggleLeague = (country: string, leagueId: number) => {
     const leagueKey = `${country}-${leagueId}`;
     const newExpanded = new Set(expandedLeagues);
@@ -1350,6 +1363,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               }}
                             >
                             {leagueData.matches
+                              .filter((match: any) => !hiddenMatches.has(match.fixture.id))
                               .sort((a: any, b: any) => {
                                 // Priority order: Live > Upcoming > Ended
                                 const aStatus = a.fixture.status.short;
@@ -1455,6 +1469,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   prefetchMargin="400px"                                >
                                   <div
                                     className="match-card-container group"
+                                    onClick={() => toggleHideMatch(match.fixture.id)}
+                                    style={{ cursor: 'pointer' }}
                                   >
                                     {/* Star Button with true slide-in effect */}
                                     <button
