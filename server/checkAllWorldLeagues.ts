@@ -2,7 +2,7 @@
 import { rapidApiService } from "./services/rapidApi";
 
 async function checkAllWorldLeagues() {
-  console.log("=== Checking All World Country Leagues (Excluding Women's Leagues, Asia, China, and Africa) ===\n");
+  console.log("=== Checking FIFA, UEFA, World Cup, Champions, International Cup, Qualification & Championship Leagues ===\n");
 
   try {
     // Get all available leagues
@@ -10,7 +10,7 @@ async function checkAllWorldLeagues() {
     const allLeagues = await rapidApiService.getLeagues();
     console.log(`📊 Total leagues available: ${allLeagues.length}\n`);
 
-    // Filter for World country leagues (excluding women's leagues, Asia, China, and Africa)
+    // Filter for international leagues with specific keywords (FIFA, UEFA, World Cup, Champions, International Cup, Qualification, Championships)
     const worldLeagues = allLeagues.filter(leagueResponse => {
       const country = leagueResponse.country?.name || '';
       const leagueName = leagueResponse.league?.name?.toLowerCase() || '';
@@ -25,15 +25,25 @@ async function checkAllWorldLeagues() {
                             leagueName.includes('female') || 
                             leagueName.includes('ladies');
       
-      // Exclude Asia, China, and Africa regions
-      const isExcludedRegion = country === "Asia" || 
-                              country === "China" || 
-                              country === "Africa";
+      // Check for specific international competition keywords
+      const hasInternationalKeywords = leagueName.includes('fifa') ||
+                                      leagueName.includes('uefa') ||
+                                      leagueName.includes('world cup') ||
+                                      leagueName.includes('champions') ||
+                                      leagueName.includes('international cup') ||
+                                      leagueName.includes('qualification') ||
+                                      leagueName.includes('championship') ||
+                                      leagueName.includes('euro') ||
+                                      leagueName.includes('copa') ||
+                                      leagueName.includes('nations league') ||
+                                      leagueName.includes('confederations') ||
+                                      leagueName.includes('olympics') ||
+                                      leagueName.includes('olympic');
       
-      return isWorldCountry && !isWomensLeague && !isExcludedRegion;
+      return isWorldCountry && !isWomensLeague && hasInternationalKeywords;
     });
 
-    console.log(`🌍 Found ${worldLeagues.length} World country leagues (excluding women's leagues, Asia, China, and Africa):\n`);
+    console.log(`🌍 Found ${worldLeagues.length} international competition leagues (FIFA, UEFA, World Cup, Champions, International Cup, Qualification & Championship):\n`);
 
     // Group by league type for better organization
     const uefaLeagues = [];
@@ -114,7 +124,7 @@ async function checkAllWorldLeagues() {
     // Summary
     console.log("\n📊 SUMMARY:");
     console.log("=" + "=".repeat(60));
-    console.log(`Total World country leagues (excluding women's, Asia, China, and Africa): ${worldLeagues.length}`);
+    console.log(`Total international competition leagues (FIFA, UEFA, World Cup, Champions, etc.): ${worldLeagues.length}`);
     console.log(`UEFA Major Leagues: ${uefaLeagues.length}`);
     console.log(`FIFA Leagues: ${fifaLeagues.length}`);
     console.log(`UEFA Youth Leagues: ${youthLeagues.length}`);
