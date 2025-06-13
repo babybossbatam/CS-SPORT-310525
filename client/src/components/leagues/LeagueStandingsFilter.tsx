@@ -881,19 +881,19 @@ const LeagueStandingsFilter = () => {
                                     {(() => {
                                       if (!fixtures?.response) return null;
 
-                                      // Find the actual next match for this team
-                                      const nextMatch = fixtures.response.find(
-                                        (fixture: any) => {
+                                      // Find the next upcoming match for this team
+                                      const nextMatch = fixtures.response
+                                        .filter((fixture: any) => {
                                           const isTeamInMatch =
                                             fixture.teams.home.id === standing.team.id ||
                                             fixture.teams.away.id === standing.team.id;
-
                                           const isUpcoming =
                                             new Date(fixture.fixture.date) > new Date();
-
                                           return isTeamInMatch && isUpcoming;
-                                        }
-                                      );
+                                        })
+                                        .sort((a: any, b: any) => 
+                                          new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
+                                        )[0];
 
                                       if (!nextMatch) return null;
 
@@ -904,23 +904,21 @@ const LeagueStandingsFilter = () => {
                                           : nextMatch.teams.home;
 
                                       return (
-                                        <>
+                                        <div className="flex items-center justify-center">
                                           {isNationalTeam ? (
-                                            <div className="">
-                                              <MyCircularFlag
-                                                showNextMatchOverlay={true}
-                                                teamName={opponent.name}
-                                                fallbackUrl={opponent.logo}
-                                                alt={`Next opponent: ${opponent.name}`}
-                                                size="24px"
-                                                className="popular-leagues-size"
-                                                nextMatchInfo={{
-                                                  opponent: `vs ${opponent.name}`,
-                                                  date: nextMatch.fixture.date,
-                                                  venue: nextMatch.fixture.venue?.name || "TBD",
-                                                }}
-                                              />
-                                            </div>
+                                            <MyCircularFlag
+                                              teamName={opponent.name}
+                                              fallbackUrl={opponent.logo}
+                                              alt={`Next opponent: ${opponent.name}`}
+                                              size="24px"
+                                              className="popular-leagues-size"
+                                              showNextMatchOverlay={true}
+                                              nextMatchInfo={{
+                                                opponent: opponent.name,
+                                                date: nextMatch.fixture.date,
+                                                venue: nextMatch.fixture.venue?.name || "TBD",
+                                              }}
+                                            />
                                           ) : (
                                             <img
                                               src={opponent.logo}
@@ -932,7 +930,7 @@ const LeagueStandingsFilter = () => {
                                               }}
                                             />
                                           )}
-                                        </>
+                                        </div>
                                       );
                                     })()}
                                   </div>
