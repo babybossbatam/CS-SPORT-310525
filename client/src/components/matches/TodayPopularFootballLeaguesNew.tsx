@@ -606,14 +606,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
         return acc;
       }
 
-      // Skip fixtures without a valid country, but keep World and Europe competitions
+      // Handle fixtures with country="World" or null/undefined country for international competitions
       if (
         !country ||
         country === null ||
         country === undefined ||
         typeof country !== "string" ||
         country.trim() === "" ||
-        country.toLowerCase() === "unknown"
+        country.toLowerCase() === "unknown" ||
+        country.toLowerCase() === "world"
       ) {
         // Allow World competitions, CONMEBOL, UEFA, and FIFA competitions to pass through
         if (
@@ -633,7 +634,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
             league.name.toLowerCase().includes("conmebol") ||
             league.name.toLowerCase().includes("copa america") ||
             league.name.toLowerCase().includes("copa libertadores") ||
-            league.name.toLowerCase().includes("copa sudamericana"))
+            league.name.toLowerCase().includes("copa sudamericana") ||
+            country === "World")
         ) {
           // Determine the appropriate country key
           let countryKey = "World";
@@ -657,7 +659,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
             league.name.toLowerCase().includes("nations league")
           ) {
             countryKey = "Europe";
+          } else if (country === "World") {
+            countryKey = "World";
           }
+
+          console.log(`🌍 [WORLD DEBUG] Processing for countryKey: ${countryKey}`, {
+            originalCountry: country,
+            leagueName: league.name,
+            leagueId: league.id
+          });
 
           if (!acc[countryKey]) {
             acc[countryKey] = {
@@ -705,6 +715,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
       }
 
       const validCountry = country.trim();
+
+      // Handle World country explicitly
+      if (validCountry === "World") {
+        console.log(`🌍 [WORLD DEBUG] Processing World country fixture:`, {
+          leagueName: league.name,
+          leagueId: league.id,
+          homeTeam: fixture.teams?.home?.name,
+          awayTeam: fixture.teams?.away?.name
+        });
+      }
 
       // Only allow valid country names, World, and Europe
       if (
