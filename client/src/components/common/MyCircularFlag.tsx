@@ -164,21 +164,23 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       {/* Next Match Tooltip - External popup */}
       {showNextMatchOverlay && isHovered && nextMatch && (
         <div 
-          className="absolute bg-black text-white text-xs rounded-md px-2 py-1 shadow-xl z-[9999] whitespace-nowrap border border-gray-500"
+          className="absolute bg-gray-800 text-white text-xs rounded-lg px-3 py-2 shadow-2xl z-[9999] whitespace-nowrap border border-gray-600 transition-opacity duration-200"
           style={{
-            bottom: "calc(100% + 6px)",
+            bottom: "calc(100% + 8px)",
             left: "50%",
             transform: "translateX(-50%)",
-            fontSize: "10px",
-            minWidth: "120px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+            fontSize: "11px",
+            minWidth: "140px",
+            maxWidth: "200px",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
+            backdropFilter: "blur(4px)",
           }}
         >
           <div className="text-center">
-            <div className="font-bold text-white text-[10px]">
-              {nextMatch.opponent}
+            <div className="font-semibold text-white text-[11px] mb-1">
+              vs {nextMatch.opponent}
             </div>
-            <div className="text-gray-200 mt-0.5 text-[9px]">
+            <div className="text-gray-300 text-[10px]">
               {formatDate(nextMatch.date)}
             </div>
           </div>
@@ -188,9 +190,9 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             style={{
               width: 0,
               height: 0,
-              borderLeft: "4px solid transparent",
-              borderRight: "4px solid transparent",
-              borderTop: "4px solid black",
+              borderLeft: "5px solid transparent",
+              borderRight: "5px solid transparent",
+              borderTop: "5px solid #374151",
               marginTop: "0px"
             }}
           ></div>

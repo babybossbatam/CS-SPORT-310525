@@ -834,13 +834,17 @@ const LeagueStandingsFilter = () => {
                                           alt={standing.team.name}
                                           size="28px"
                                           className="popular-leagues-size"
+                                          showNextMatchOverlay={true}
                                         />
                                       </div>
                                     ) : (
-                                      <img
-                                        src={standing.team.logo}
-                                        alt={standing.team.name}
-                                        className="h-4 w-4 rounded-md object-cover mr-1"
+                                      <div className="relative">
+                                        <img
+                                          src={standing.team.logo}
+                                          alt={standing.team.name}
+                                          className="h-4 w-4 rounded-full mr-3"
+                                        />
+                                      </div>md object-cover mr-1"
                                         onError={(e) => {
                                           (e.target as HTMLImageElement).src =
                                             "/assets/fallback-logo.svg";
