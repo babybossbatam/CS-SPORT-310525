@@ -26,7 +26,6 @@ export const featuredMatchExclusionTerms = [
   "u17",
   "u18",
   "u19",
-  "u20",
 
   "youth",
   "junior",
@@ -113,8 +112,6 @@ export const shouldExcludeFeaturedMatch = (
       !league.includes("u17") &&
       !league.includes("u18") &&
       !league.includes("u19") &&
-      !league.includes("u20") &&
-      !league.includes("u21") &&
       (!league.includes("u21") ||
         league.includes("uefa u21") ||
         league.includes("euro u21")) &&
@@ -136,10 +133,7 @@ export const shouldExcludeFeaturedMatch = (
       !league.includes("u16") &&
       !league.includes("u17") &&
       !league.includes("u18") &&
-      !league.includes("u19") &&
-      !league.includes("u20") &&
-      !league.includes("u21") &&
-      !league.includes("u23")) ||
+      !league.includes("u19")) ||
     (league.includes("world cup") &&
       !league.includes("women") &&
       !league.includes("youth") &&
@@ -147,10 +141,7 @@ export const shouldExcludeFeaturedMatch = (
       !league.includes("u16") &&
       !league.includes("u17") &&
       !league.includes("u18") &&
-      !league.includes("u19") &&
-      !league.includes("u20") &&
-      !league.includes("u21") &&
-      !league.includes("u23")) ||
+      !league.includes("u19")) ||
     (league.includes("fifa club world cup") && !league.includes("women")) ||
     // CONMEBOL competitions (excluding women's)
     (league.includes("conmebol") && !league.includes("women")) ||
