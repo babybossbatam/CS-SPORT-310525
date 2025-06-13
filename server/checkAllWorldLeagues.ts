@@ -55,81 +55,56 @@ async function checkAllWorldLeagues() {
       }
     });
 
-    // Display UEFA Major Leagues
-    console.log("🏆 UEFA MAJOR LEAGUES:");
-    console.log("=" + "=".repeat(60));
-    if (uefaLeagues.length > 0) {
-      uefaLeagues.forEach((leagueResponse, index) => {
-        console.log(`\n${index + 1}. League ID: ${leagueResponse.league.id}`);
-        console.log(`   Name: ${leagueResponse.league.name}`);
-        console.log(`   Country: ${leagueResponse.country.name}`);
-        console.log(`   Type: ${leagueResponse.league.type}`);
-        console.log(`   Logo: ${leagueResponse.league.logo}`);
-        if (leagueResponse.seasons && leagueResponse.seasons.length > 0) {
-          const currentSeason = leagueResponse.seasons.find(s => s.current) || leagueResponse.seasons[0];
-          console.log(`   Current Season: ${currentSeason.year} (${currentSeason.start} to ${currentSeason.end})`);
-        }
-      });
-    } else {
-      console.log("❌ No UEFA major leagues found");
-    }
+    // Helper function to display leagues sorted by country and championship
+    const displayLeaguesByCountryAndChampionship = (leagues: any[], categoryTitle: string) => {
+      console.log(`\n${categoryTitle}:`);
+      console.log("=" + "=".repeat(60));
+      
+      if (leagues.length === 0) {
+        console.log(`❌ No ${categoryTitle.toLowerCase()} found`);
+        return;
+      }
 
-    // Display FIFA Leagues
-    console.log("\n🌍 FIFA LEAGUES:");
-    console.log("=" + "=".repeat(60));
-    if (fifaLeagues.length > 0) {
-      fifaLeagues.forEach((leagueResponse, index) => {
-        console.log(`\n${index + 1}. League ID: ${leagueResponse.league.id}`);
-        console.log(`   Name: ${leagueResponse.league.name}`);
-        console.log(`   Country: ${leagueResponse.country.name}`);
-        console.log(`   Type: ${leagueResponse.league.type}`);
-        console.log(`   Logo: ${leagueResponse.league.logo}`);
-        if (leagueResponse.seasons && leagueResponse.seasons.length > 0) {
-          const currentSeason = leagueResponse.seasons.find(s => s.current) || leagueResponse.seasons[0];
-          console.log(`   Current Season: ${currentSeason.year} (${currentSeason.start} to ${currentSeason.end})`);
+      // Group by country first
+      const groupedByCountry = leagues.reduce((acc, leagueResponse) => {
+        const country = leagueResponse.country.name;
+        if (!acc[country]) {
+          acc[country] = [];
         }
-      });
-    } else {
-      console.log("❌ No FIFA leagues found");
-    }
+        acc[country].push(leagueResponse);
+        return acc;
+      }, {});
 
-    // Display UEFA Youth Leagues
-    console.log("\n🏅 UEFA YOUTH LEAGUES:");
-    console.log("=" + "=".repeat(60));
-    if (youthLeagues.length > 0) {
-      youthLeagues.forEach((leagueResponse, index) => {
-        console.log(`\n${index + 1}. League ID: ${leagueResponse.league.id}`);
-        console.log(`   Name: ${leagueResponse.league.name}`);
-        console.log(`   Country: ${leagueResponse.country.name}`);
-        console.log(`   Type: ${leagueResponse.league.type}`);
-        console.log(`   Logo: ${leagueResponse.league.logo}`);
-        if (leagueResponse.seasons && leagueResponse.seasons.length > 0) {
-          const currentSeason = leagueResponse.seasons.find(s => s.current) || leagueResponse.seasons[0];
-          console.log(`   Current Season: ${currentSeason.year} (${currentSeason.start} to ${currentSeason.end})`);
-        }
-      });
-    } else {
-      console.log("❌ No UEFA youth leagues found");
-    }
+      // Sort countries alphabetically
+      const sortedCountries = Object.keys(groupedByCountry).sort();
 
-    // Display Other International Leagues
-    console.log("\n🌐 OTHER INTERNATIONAL LEAGUES:");
-    console.log("=" + "=".repeat(60));
-    if (otherLeagues.length > 0) {
-      otherLeagues.forEach((leagueResponse, index) => {
-        console.log(`\n${index + 1}. League ID: ${leagueResponse.league.id}`);
-        console.log(`   Name: ${leagueResponse.league.name}`);
-        console.log(`   Country: ${leagueResponse.country.name}`);
-        console.log(`   Type: ${leagueResponse.league.type}`);
-        console.log(`   Logo: ${leagueResponse.league.logo}`);
-        if (leagueResponse.seasons && leagueResponse.seasons.length > 0) {
-          const currentSeason = leagueResponse.seasons.find(s => s.current) || leagueResponse.seasons[0];
-          console.log(`   Current Season: ${currentSeason.year} (${currentSeason.start} to ${currentSeason.end})`);
-        }
+      sortedCountries.forEach(country => {
+        console.log(`\n📍 ${country.toUpperCase()}:`);
+        console.log("-".repeat(40));
+        
+        // Sort championships within each country alphabetically
+        const sortedLeagues = groupedByCountry[country].sort((a, b) => 
+          a.league.name.localeCompare(b.league.name)
+        );
+
+        sortedLeagues.forEach((leagueResponse, index) => {
+          console.log(`\n  ${index + 1}. ${leagueResponse.league.name}`);
+          console.log(`     League ID: ${leagueResponse.league.id}`);
+          console.log(`     Type: ${leagueResponse.league.type}`);
+          console.log(`     Logo: ${leagueResponse.league.logo}`);
+          if (leagueResponse.seasons && leagueResponse.seasons.length > 0) {
+            const currentSeason = leagueResponse.seasons.find(s => s.current) || leagueResponse.seasons[0];
+            console.log(`     Current Season: ${currentSeason.year} (${currentSeason.start} to ${currentSeason.end})`);
+          }
+        });
       });
-    } else {
-      console.log("❌ No other international leagues found");
-    }
+    };
+
+    // Display all categories sorted by country and championship
+    displayLeaguesByCountryAndChampionship(uefaLeagues, "🏆 UEFA MAJOR LEAGUES");
+    displayLeaguesByCountryAndChampionship(fifaLeagues, "🌍 FIFA LEAGUES");
+    displayLeaguesByCountryAndChampionship(youthLeagues, "🏅 UEFA YOUTH LEAGUES");
+    displayLeaguesByCountryAndChampionship(otherLeagues, "🌐 OTHER INTERNATIONAL LEAGUES");
 
     // Summary
     console.log("\n📊 SUMMARY:");
