@@ -19,25 +19,13 @@ export const popularLeagueExclusionTerms = [
   "uefa nations league women",
   "UEFA Nations League - Women",
 
-  // Youth and development leagues (strict filtering for popular leagues)
-  "u15",
-  "u16",
-  "u17",
-  "u18",
-  "u19",
-  "u20",
-
-  "youth",
-  "junior",
-  "reserve",
+  // Only exclude amateur and development leagues (allow youth u17-u23)
   "amateur",
+  "reserve",
   "development",
   "academy",
   "primavera",
   "reserves",
-  "juvenil",
-  "cadete",
-  "infantil",
 
   // Non-competitive/exhibition matches (but allow World Friendlies)
   "test",

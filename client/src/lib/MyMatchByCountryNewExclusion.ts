@@ -10,6 +10,9 @@ export const matchByCountryExclusionTerms = [
   'women', 'girls', 'feminine', 'feminin', 'donne', 'frauen', 'femenino',
   'women\'s', "women's", 'friendlies women', 'women friendlies',
 
+  // Amateur competitions only
+  'amateur',
+
   // Non-competitive matches (allow exhibition and FIFA matches)
   'test', 'testimonial', 'charity',
 

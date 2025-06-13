@@ -5,9 +5,8 @@
 
 // Enhanced exclusion terms organized by category for geographic filtering
 export const exclusionTerms = [
-  // Youth and development leagues (strict filtering)
-  'u15', 'u16', 'u17', 'u18', 'u19', 'u20', 'u21', 'u23', 'youth', 'junior', 'reserve', 'amateur',
-  'development', 'academy', 'primavera', 'reserves', 'juvenil', 'cadete', 'infantil',
+  // Only exclude amateur and development leagues (allow youth u17-u23)
+  'amateur', 'reserve', 'development', 'academy', 'primavera', 'reserves',
 
   // Women's competitions (comprehensive exclusion)
   'women', 'girls', 'feminine', 'feminin', 'donne', 'frauen', 'femenino',
