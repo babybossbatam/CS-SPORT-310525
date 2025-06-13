@@ -427,16 +427,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const slidesDistribution = [];
     const usedFixtureIds = new Set<number>();
 
-    // Helper function to add match if not already used
-    const addUniqueMatch = (match: any) => {
-      if (match && !usedFixtureIds.has(match.fixture.id)) {
-        slidesDistribution.push(match);
-        usedFixtureIds.add(match.fixture.id);
-        return true;
-      }
-      return false;
-    };
-
     // Helper function to group matches by league cards (similar to TodayPopularFootballLeaguesNew)
     const groupMatchesByLeagueCards = (matches: any[]) => {
       const leagueCards: any[] = [];
@@ -491,6 +481,16 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       });
       
       return leagueCards;
+    };
+
+    // Helper function to add match if not already used
+    const addUniqueMatch = (match: any) => {
+      if (match && !usedFixtureIds.has(match.fixture.id)) {
+        slidesDistribution.push(match);
+        usedFixtureIds.add(match.fixture.id);
+        return true;
+      }
+      return false;
     };
 
     // Check if we have any elite matches at all
