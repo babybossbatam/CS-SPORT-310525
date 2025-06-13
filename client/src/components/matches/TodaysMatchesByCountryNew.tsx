@@ -46,6 +46,7 @@ import MyCircularFlag from "../common/MyCircularFlag";
 import LazyMatchItem from './LazyMatchItem';
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import "../../styles/MyLogoPositioning.css";
+import "../../styles/TodaysMatchByCountryNew.css";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -1088,7 +1089,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         <h3 className="font-semibold" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>{getHeaderTitle()}</h3>
       </CardHeader>
       <CardContent className="p-0">
-        <div>
+        <div className="todays-matches-by-country-container">
           {/* Use sortedCountries directly */}
           {sortedCountries.map((countryData: any) => {
             const isExpanded = expandedCountries.has(countryData.country);
