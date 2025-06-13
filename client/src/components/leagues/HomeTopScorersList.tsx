@@ -75,6 +75,7 @@ interface PlayerStatistics {
 const HomeTopScorersList = () => {
   const [, navigate] = useLocation();
   const [selectedLeague, setSelectedLeague] = useState(POPULAR_LEAGUES[0].id);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const { data: topScorers, isLoading } = useQuery({
     queryKey: [`/api/leagues/${selectedLeague}/topscorers`],
@@ -103,8 +104,6 @@ const HomeTopScorersList = () => {
       </div>
     );
   }
-
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollLeft = () => {
     const currentIndex = POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague);
