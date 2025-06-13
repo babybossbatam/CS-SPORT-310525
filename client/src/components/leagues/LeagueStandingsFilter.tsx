@@ -208,14 +208,17 @@ const LeagueStandingsFilter = () => {
 
         setPopularLeagues(processedLeagues);
 
-        // Set default selection to first league with valid ID
+        // Set default selection to World Cup - Qualification Europe (ID 32) if available, otherwise first league
         if (processedLeagues.length > 0) {
-          const firstValidLeague = processedLeagues.find(
+          const preferredLeague = processedLeagues.find(
+            (league) => league && league.id === 32 && league.name,
+          );
+          const defaultLeague = preferredLeague || processedLeagues.find(
             (league) => league && league.id && league.name,
           );
-          if (firstValidLeague) {
-            setSelectedLeague(firstValidLeague.id.toString());
-            setSelectedLeagueName(firstValidLeague.name);
+          if (defaultLeague) {
+            setSelectedLeague(defaultLeague.id.toString());
+            setSelectedLeagueName(defaultLeague.name);
           }
         }
       } catch (error) {
