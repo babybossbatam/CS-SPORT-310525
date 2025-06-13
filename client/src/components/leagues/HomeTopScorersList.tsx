@@ -107,20 +107,16 @@ const HomeTopScorersList = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({
-        left: -200,
-        behavior: 'smooth'
-      });
+    const currentIndex = POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague);
+    if (currentIndex > 0) {
+      setSelectedLeague(POPULAR_LEAGUES[currentIndex - 1].id);
     }
   };
 
   const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({
-        left: 200,
-        behavior: 'smooth'
-      });
+    const currentIndex = POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague);
+    if (currentIndex < POPULAR_LEAGUES.length - 1) {
+      setSelectedLeague(POPULAR_LEAGUES[currentIndex + 1].id);
     }
   };
 
@@ -132,7 +128,8 @@ const HomeTopScorersList = () => {
         <div className="flex items-center gap-2">
           <button 
             onClick={scrollLeft}
-            className="p-2 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0 z-10"
+            disabled={POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague) === 0}
+            className="p-2 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
           >
             ←
           </button>
@@ -156,7 +153,8 @@ const HomeTopScorersList = () => {
           </div>
           <button 
             onClick={scrollRight}
-            className="p-2 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0 z-10"
+            disabled={POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague) === POPULAR_LEAGUES.length - 1}
+            className="p-2 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0 z-10 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent"
           >
             →
           </button>
