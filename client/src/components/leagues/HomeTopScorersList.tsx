@@ -276,7 +276,6 @@ const HomeTopScorersList = () => {
             </CardContent>
         </div>
       </div>
-    </div>
     </>
   );
 };
