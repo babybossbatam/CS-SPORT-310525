@@ -89,22 +89,6 @@ const HomeTopScorersList = () => {
     }
   });
 
-  if (isLoading) {
-    return (
-      <div className="space-y-3">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse" />
-            <div className="space-y-1 flex-1">
-              <div className="h-4 w-32 bg-gray-200 animate-pulse" />
-              <div className="h-3 w-full bg-gray-200 animate-pulse" />
-            </div>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
   const scrollToLeague = (leagueId: number) => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -181,6 +165,22 @@ const HomeTopScorersList = () => {
 
     return () => clearTimeout(timer);
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse" />
+            <div className="space-y-1 flex-1">
+              <div className="h-4 w-32 bg-gray-200 animate-pulse" />
+              <div className="h-3 w-full bg-gray-200 animate-pulse" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <>
