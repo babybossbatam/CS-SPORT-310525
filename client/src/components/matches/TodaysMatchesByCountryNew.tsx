@@ -340,8 +340,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   useEffect(() => {
     // Reset to collapsed state when selected date changes
     setExpandedCountries(new Set());
-    setExpandedLeagues(new Set());
-  }, [selectedDate]);
+    
+    // Auto-expand first league in each country by default
+    const firstLeagues = new Set<string>();
+    sortedCountries.forEach((countryData: any) => {
+      const leagueIds = Object.keys(countryData.leagues);
+      if (leagueIds.length > 0) {
+        const firstLeagueId = leagueIds[0];
+        const leagueKey = `${countryData.country}-${firstLeagueId}`;
+        firstLeagues.add(leagueKey);
+      }
+    });
+    setExpandedLeagues(firstLeagues);
+  }, [selectedDate, sortedCountries.length]);
 
   // Country code to full name mapping with caching
   const getCountryDisplayName = (
@@ -1260,8 +1271,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         const leagueKey = `${countryData.country}-${leagueData.league.id}`;
                         const isFirstLeague = leagueIndex === 0;
 
-                        // Always auto-expand the first league in each country
-                        const shouldAutoExpand = isFirstLeague;
+                        // Auto-expand first league only if user hasn't manually toggled it
+                        const hasBeenManuallyToggled = expandedLeagues.has(leagueKey);
+                        const shouldAutoExpand = isFirstLeague && !hasBeenManuallyToggled;
                         const isLeagueExpanded = shouldAutoExpand || expandedLeagues.has(leagueKey);
 
                         return (
