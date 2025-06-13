@@ -131,22 +131,8 @@ const HomeTopScorersList = () => {
     const buttonWidth = targetButton.offsetWidth;
     const buttonCenter = buttonLeft + (buttonWidth / 2);
 
-    // Calculate the center position of the visible area
-    const visibleCenter = containerWidth / 2;
-    
-    // For leagues in the beginning or end, adjust positioning
-    let idealScrollLeft;
-    
-    if (leagueIndex <= 2) {
-      // If it's one of the first 3 leagues, position it more to the left
-      idealScrollLeft = buttonLeft - (containerWidth * 0.2);
-    } else if (leagueIndex >= POPULAR_LEAGUES.length - 3) {
-      // If it's one of the last 3 leagues, position it more to the right
-      idealScrollLeft = buttonCenter - (containerWidth * 0.8);
-    } else {
-      // For middle leagues, center them
-      idealScrollLeft = buttonCenter - visibleCenter;
-    }
+    // Always try to center the button, but respect boundaries
+    const idealScrollLeft = buttonCenter - (containerWidth / 2);
 
     // Clamp the scroll position to valid bounds
     const maxScrollLeft = container.scrollWidth - containerWidth;
@@ -167,8 +153,8 @@ const HomeTopScorersList = () => {
     if (currentIndex > 0) {
       const newLeagueId = POPULAR_LEAGUES[currentIndex - 1].id;
       setSelectedLeague(newLeagueId);
-      // Immediate scroll for better responsiveness
-      setTimeout(() => scrollToLeague(newLeagueId), 10);
+      // Immediate scroll for instant response
+      scrollToLeague(newLeagueId);
     }
   };
 
@@ -177,8 +163,8 @@ const HomeTopScorersList = () => {
     if (currentIndex < POPULAR_LEAGUES.length - 1) {
       const newLeagueId = POPULAR_LEAGUES[currentIndex + 1].id;
       setSelectedLeague(newLeagueId);
-      // Immediate scroll for better responsiveness
-      setTimeout(() => scrollToLeague(newLeagueId), 10);
+      // Immediate scroll for instant response
+      scrollToLeague(newLeagueId);
     }
   };
 
@@ -261,7 +247,8 @@ const HomeTopScorersList = () => {
                   onClick={() => {
                     const newLeagueId = league.id;
                     setSelectedLeague(newLeagueId);
-                    setTimeout(() => scrollToLeague(newLeagueId), 50);
+                    // Immediate scroll for better user experience
+                    scrollToLeague(newLeagueId);
                   }}
                   className={`text-xs py-1 px-2 flex items-center gap-2 hover:bg-gray-100 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
                     selectedLeague === league.id ? 'bg-blue-100 text-blue-600' : 'bg-transparent'
