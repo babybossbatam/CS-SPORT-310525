@@ -886,12 +886,27 @@ const LeagueStandingsFilter = () => {
                                         );
                                       }
 
-                                      // Filter fixtures to only include matches from this specific league
-                                      const leagueFixtures = fixtures.response.filter((fixture: any) => 
-                                        fixture.league.id === parseInt(selectedLeague)
-                                      );
+                                      // For group-based competitions, be more flexible with fixture filtering
+                                      const isGroupCompetition = standings.league.standings.length > 1;
+                                      
+                                      let leagueFixtures;
+                                      if (isGroupCompetition) {
+                                        // For group competitions, include fixtures from the same competition family
+                                        leagueFixtures = fixtures.response.filter((fixture: any) => {
+                                          const leagueId = parseInt(selectedLeague);
+                                          // Include exact match or related competition fixtures
+                                          return fixture.league.id === leagueId || 
+                                                 (fixture.league.name && selectedLeagueName && 
+                                                  fixture.league.name.toLowerCase().includes(selectedLeagueName.toLowerCase().split(' - ')[0]));
+                                        });
+                                      } else {
+                                        // For single league competitions, use strict filtering
+                                        leagueFixtures = fixtures.response.filter((fixture: any) => 
+                                          fixture.league.id === parseInt(selectedLeague)
+                                        );
+                                      }
 
-                                      console.log(`Found ${leagueFixtures.length} fixtures for league ${selectedLeague}`);
+                                      console.log(`Found ${leagueFixtures.length} fixtures for league ${selectedLeague} (group competition: ${isGroupCompetition})`);
 
                                       // Find the next upcoming match for this team within the league
                                       const nextMatch = leagueFixtures
