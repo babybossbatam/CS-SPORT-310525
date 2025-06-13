@@ -105,17 +105,51 @@ const HomeTopScorersList = () => {
     );
   }
 
+  const scrollToLeague = (leagueId: number) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const leagueIndex = POPULAR_LEAGUES.findIndex(league => league.id === leagueId);
+    if (leagueIndex === -1) return;
+
+    // Find the tab trigger element for the selected league
+    const tabTrigger = container.querySelector(`[value="${leagueId}"]`) as HTMLElement;
+    if (!tabTrigger) return;
+
+    // Calculate the scroll position to center the selected tab
+    const containerRect = container.getBoundingClientRect();
+    const tabRect = tabTrigger.getBoundingClientRect();
+    
+    const scrollLeft = container.scrollLeft;
+    const tabCenter = tabRect.left - containerRect.left + scrollLeft + (tabRect.width / 2);
+    const containerCenter = containerRect.width / 2;
+    
+    const targetScrollLeft = tabCenter - containerCenter;
+    
+    // Smooth scroll to the calculated position
+    container.scrollTo({
+      left: Math.max(0, targetScrollLeft),
+      behavior: 'smooth'
+    });
+  };
+
   const scrollLeft = () => {
     const currentIndex = POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague);
     if (currentIndex > 0) {
-      setSelectedLeague(POPULAR_LEAGUES[currentIndex - 1].id);
+      const newLeagueId = POPULAR_LEAGUES[currentIndex - 1].id;
+      setSelectedLeague(newLeagueId);
+      // Small delay to ensure state update, then scroll
+      setTimeout(() => scrollToLeague(newLeagueId), 100);
     }
   };
 
   const scrollRight = () => {
     const currentIndex = POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague);
     if (currentIndex < POPULAR_LEAGUES.length - 1) {
-      setSelectedLeague(POPULAR_LEAGUES[currentIndex + 1].id);
+      const newLeagueId = POPULAR_LEAGUES[currentIndex + 1].id;
+      setSelectedLeague(newLeagueId);
+      // Small delay to ensure state update, then scroll
+      setTimeout(() => scrollToLeague(newLeagueId), 100);
     }
   };
 
@@ -123,7 +157,12 @@ const HomeTopScorersList = () => {
     <>
       <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
       <div className="space-y-4">
-      <Tabs value={selectedLeague.toString()} onValueChange={(value) => setSelectedLeague(Number(value))}>
+      <Tabs value={selectedLeague.toString()} onValueChange={(value) => {
+        const newLeagueId = Number(value);
+        setSelectedLeague(newLeagueId);
+        // Small delay to ensure state update, then scroll
+        setTimeout(() => scrollToLeague(newLeagueId), 100);
+      }}>
         <div className="flex items-center gap-2">
           <button 
             onClick={scrollLeft}
