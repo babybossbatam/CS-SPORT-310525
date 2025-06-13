@@ -879,7 +879,10 @@ const LeagueStandingsFilter = () => {
                                 <TableCell className="px-1 py-1 mx-0 font-regular">
                                   <div className="flex items-center justify-center">
                                     {(() => {
-                                      if (!fixtures?.response) return null;
+                                      if (!fixtures?.response) {
+                                        console.log("No fixtures data available");
+                                        return null;
+                                      }
 
                                       // Find the next upcoming match for this team
                                       const nextMatch = fixtures.response
@@ -895,7 +898,12 @@ const LeagueStandingsFilter = () => {
                                           new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
                                         )[0];
 
-                                      if (!nextMatch) return null;
+                                      if (!nextMatch) {
+                                        console.log(`No next match found for team: ${standing.team.name}`);
+                                        return (
+                                          <span className="text-xs text-gray-400">-</span>
+                                        );
+                                      }
 
                                       // Determine the opponent
                                       const opponent = 
@@ -903,8 +911,10 @@ const LeagueStandingsFilter = () => {
                                           ? nextMatch.teams.away
                                           : nextMatch.teams.home;
 
+                                      console.log(`Next opponent for ${standing.team.name}: ${opponent.name}`);
+
                                       return (
-                                        <div className="flex items-center justify-center">
+                                        <div className="flex items-center justify-center min-w-[24px]">
                                           {isNationalTeam ? (
                                             <MyCircularFlag
                                               teamName={opponent.name}
@@ -923,7 +933,7 @@ const LeagueStandingsFilter = () => {
                                             <img
                                               src={opponent.logo}
                                               alt={`Next opponent: ${opponent.name}`}
-                                              className="w-5 h-5 rounded-full object-contain"
+                                              className="w-6 h-6 rounded-full object-contain"
                                               onError={(e) => {
                                                 (e.target as HTMLImageElement).src =
                                                   "/assets/fallback-logo.svg";
