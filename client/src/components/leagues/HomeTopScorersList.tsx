@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useCachedQuery } from '@/lib/cachingHelper';
 import { useLocation } from 'wouter';
