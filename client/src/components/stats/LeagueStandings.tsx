@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
+import MyCircularFlag from '@/components/common/MyCircularFlag';
+import { isNationalTeam } from '@/lib/teamLogoSources';
 
 interface Team {
   id: number;
@@ -246,17 +248,26 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                           </TableCell>
                           <TableCell className="min-w-[180px] pl-2">
                             <div className="flex items-center gap-2">
-                              <img
-                                src={standing.team.logo}
-                                alt={standing.team.name}
-                                className="team-logo"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  if (!target.src.includes("/assets/fallback-logo.svg")) {
-                                    target.src = "/assets/fallback-logo.svg";
-                                  }
-                                }}
-                              />
+                              {isNationalTeam(standing.team.name) ? (
+                                <MyCircularFlag
+                                  teamName={standing.team.name}
+                                  fallbackUrl={standing.team.logo}
+                                  size="24px"
+                                  className="flex-shrink-0"
+                                />
+                              ) : (
+                                <img
+                                  src={standing.team.logo}
+                                  alt={standing.team.name}
+                                  className="w-6 h-6 object-contain rounded flex-shrink-0"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    if (!target.src.includes("/assets/fallback-logo.svg")) {
+                                      target.src = "/assets/fallback-logo.svg";
+                                    }
+                                  }}
+                                />
+                              )}
                               <div className="flex flex-col">
                                 <span className="font-medium text-sm">{standing.team.name}</span>
                                 {standing.rank <= 7 && standing.description && (
@@ -297,17 +308,28 @@ const LeagueStandings: React.FC<LeagueStandingsProps> = ({ leagueId, season = 20
                           </TableCell>
                           <TableCell className="text-center">
                             {standing.team.nextMatch && (
-                              <img
-                                src={standing.team.nextMatch.logo}
-                                alt={standing.team.nextMatch.name}
-                                className="team-logo"
-                                onError={(e) => {
-                                  const target = e.target as HTMLImageElement;
-                                  if (!target.src.includes("/assets/fallback-logo.svg")) {
-                                    target.src = "/assets/fallback-logo.svg";
-                                  }
-                                }}
-                              />
+                              <div className="flex justify-center">
+                                {isNationalTeam(standing.team.nextMatch.name) ? (
+                                  <MyCircularFlag
+                                    teamName={standing.team.nextMatch.name}
+                                    fallbackUrl={standing.team.nextMatch.logo}
+                                    size="20px"
+                                    className="flex-shrink-0"
+                                  />
+                                ) : (
+                                  <img
+                                    src={standing.team.nextMatch.logo}
+                                    alt={standing.team.nextMatch.name}
+                                    className="w-5 h-5 object-contain rounded flex-shrink-0"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      if (!target.src.includes("/assets/fallback-logo.svg")) {
+                                        target.src = "/assets/fallback-logo.svg";
+                                      }
+                                    }}
+                                  />
+                                )}
+                              </div>
                             )}
                           </TableCell>
                         </TableRow>
