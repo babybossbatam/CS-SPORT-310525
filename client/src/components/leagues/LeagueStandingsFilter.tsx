@@ -906,30 +906,36 @@ const LeagueStandingsFilter = () => {
                                               alt={`Next opponent`}
                                               size="24px"
                                               className="popular-leagues-size"
-                                              nextMatchInfo={
-                                                fixtures &&
-                                                group.find(
+                                              nextMatchInfo={(() => {
+                                                const nextOpponent = group.find(
                                                   (opponent) =>
-                                                    opponent.team.id !==
-                                                      standing.team.id &&
-                                                    opponent.rank >
-                                                      standing.rank,
-                                                )
-                                                  ? {
-                                                      opponent:
-                                                        group.find(
-                                                          (opponent) =>
-                                                            opponent.team.id !==
-                                                              standing.team
-                                                                .id &&
-                                                            opponent.rank >
-                                                              standing.rank,
-                                                        )?.team.name || "TBD",
-                                                      date: "2025-03-25T19:45:00Z",
-                                                      venue: "Wembley Stadium",
-                                                    }
-                                                  : undefined
-                                              }
+                                                    opponent.team.id !== standing.team.id &&
+                                                    opponent.rank > standing.rank,
+                                                );
+                                                
+                                                if (!nextOpponent || !fixtures?.response) return undefined;
+                                                
+                                                // Find the actual next match between these two teams
+                                                const nextMatch = fixtures.response.find((fixture: any) => {
+                                                  const isMatchBetweenTeams = 
+                                                    (fixture.teams.home.id === standing.team.id && fixture.teams.away.id === nextOpponent.team.id) ||
+                                                    (fixture.teams.home.id === nextOpponent.team.id && fixture.teams.away.id === standing.team.id);
+                                                  
+                                                  const isUpcoming = new Date(fixture.fixture.date) > new Date();
+                                                  
+                                                  return isMatchBetweenTeams && isUpcoming;
+                                                });
+                                                
+                                                if (nextMatch) {
+                                                  return {
+                                                    opponent: nextOpponent.team.name,
+                                                    date: nextMatch.fixture.date,
+                                                    venue: nextMatch.fixture.venue?.name || "TBD"
+                                                  };
+                                                }
+                                                
+                                                return undefined;
+                                              })()}
                                             />
                                           </div>
                                         ) : (
