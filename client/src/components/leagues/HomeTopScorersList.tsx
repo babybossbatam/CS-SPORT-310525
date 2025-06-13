@@ -109,17 +109,25 @@ const HomeTopScorersList = () => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    // Find the tab trigger element for the selected league
-    const tabTrigger = container.querySelector(`[value="${leagueId}"]`) as HTMLElement;
-    if (!tabTrigger) return;
-
-    // Get container width and tab position
-    const containerWidth = container.clientWidth;
-    const tabOffsetLeft = tabTrigger.offsetLeft;
-    const tabWidth = tabTrigger.offsetWidth;
+    // Find the button for the selected league
+    const buttons = container.querySelectorAll('button');
+    let targetButton: HTMLElement | null = null;
     
-    // Calculate the scroll position to center the tab
-    const targetScrollLeft = tabOffsetLeft - (containerWidth / 2) + (tabWidth / 2);
+    buttons.forEach((button, index) => {
+      if (POPULAR_LEAGUES[index]?.id === leagueId) {
+        targetButton = button;
+      }
+    });
+
+    if (!targetButton) return;
+
+    // Get container width and button position
+    const containerWidth = container.clientWidth;
+    const buttonOffsetLeft = targetButton.offsetLeft;
+    const buttonWidth = targetButton.offsetWidth;
+    
+    // Calculate the scroll position to center the button
+    const targetScrollLeft = buttonOffsetLeft - (containerWidth / 2) + (buttonWidth / 2);
     
     // Ensure we don't scroll beyond the boundaries
     const maxScrollLeft = container.scrollWidth - containerWidth;
@@ -156,13 +164,8 @@ const HomeTopScorersList = () => {
     <>
       <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
       <div className="space-y-4">
-      <Tabs value={selectedLeague.toString()} onValueChange={(value) => {
-        const newLeagueId = Number(value);
-        setSelectedLeague(newLeagueId);
-        // Use requestAnimationFrame for smooth immediate scrolling
-        requestAnimationFrame(() => scrollToLeague(newLeagueId));
-      }}>
-        <div className="flex items-center gap-2">
+      <div>
+        <div className="flex items-center gap-2"></div>
           <button 
             onClick={scrollRight}
             disabled={POPULAR_LEAGUES.findIndex(league => league.id === selectedLeague) === 0}
@@ -175,18 +178,24 @@ const HomeTopScorersList = () => {
             className="overflow-x-auto overflow-y-hidden scrollbar-hide flex-1"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            <TabsList className="flex items-center gap-2 bg-transparent p-0 w-max min-w-full">
+            <div className="flex items-center gap-2 w-max">
               {POPULAR_LEAGUES.map((league) => (
-                <TabsTrigger
+                <button
                   key={league.id}
-                  value={league.id.toString()}
-                  className="text-xs py-1 px-2 flex items-center gap-2 bg-transparent hover:bg-gray-100 rounded-none data-[state=active]:bg-transparent data-[state=active]:shadow-none whitespace-nowrap flex-shrink-0"
+                  onClick={() => {
+                    const newLeagueId = league.id;
+                    setSelectedLeague(newLeagueId);
+                    requestAnimationFrame(() => scrollToLeague(newLeagueId));
+                  }}
+                  className={`text-xs py-1 px-2 flex items-center gap-2 hover:bg-gray-100 rounded-lg whitespace-nowrap flex-shrink-0 transition-colors ${
+                    selectedLeague === league.id ? 'bg-blue-100 text-blue-600' : 'bg-transparent'
+                  }`}
                 >
                   <img src={league.logo} alt={league.name} className="w-4 h-4 object-contain" />
                   {league.name}
-                </TabsTrigger>
+                </button>
               ))}
-            </TabsList>
+            </div>
           </div>
           <button 
             onClick={scrollLeft}
@@ -197,9 +206,8 @@ const HomeTopScorersList = () => {
           </button>
         </div>
 
-        {POPULAR_LEAGUES.map((league) => (
-          <TabsContent key={league.id} value={league.id.toString()}>
-            <CardContent className="p-0">
+        <div>
+          <CardContent className="p-0"></div>
               <div className="relative overflow-x-auto">
                 <div className="space-y-1">
                 {topScorers?.slice(0, 3).map((scorer, index) => {
@@ -266,9 +274,8 @@ const HomeTopScorersList = () => {
                 </button>
               </div>
             </CardContent>
-          </TabsContent>
-        ))}
-      </Tabs>
+        </div>
+      </div>
     </div>
     </>
   );
