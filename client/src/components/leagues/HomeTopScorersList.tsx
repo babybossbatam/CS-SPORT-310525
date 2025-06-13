@@ -257,11 +257,10 @@ const HomeTopScorersList = () => {
           {/* Stats link */}
           <div className="mt-4 pt-3 border-t border-gray-100">
             <button 
-              className="w-full text-left text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center justify-between group"
+              className="w-full text-left text-sm text-blue-600 hover:text-blue-800 font-medium group"
               onClick={() => navigate(`/league/${selectedLeague}/stats`)}
             >
-              <span>{getLeagueDisplayName(selectedLeague)} Stats</span>
-              <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              <span className="hover:underline transition-all duration-200">{getLeagueDisplayName(selectedLeague)} Stats</span>
             </button>
           </div>
         </div>
