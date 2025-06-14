@@ -95,7 +95,7 @@ const AllMatchesComparison: React.FC<AllMatchesComparisonProps> = ({ selectedDat
     },
   });
 
-  // Filter matches to only include leagues from your specific list
+  // Show ALL matches without filtering to debug what's available
   const filteredTodayMatches = useMemo(() => {
     // Debug logging for specific leagues
     const uefaU21Matches = todayFixtures.filter(match => match.league.id === 38);
@@ -105,6 +105,18 @@ const AllMatchesComparison: React.FC<AllMatchesComparisonProps> = ({ selectedDat
       match.teams.home.name.toLowerCase().includes('inter miami') || 
       match.teams.away.name.toLowerCase().includes('inter miami')
     );
+    
+    // Log all World competitions
+    const worldMatches = todayFixtures.filter(match => match.league.country === 'World');
+    console.log('🌍 [DEBUG] All World competitions today:', worldMatches.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (${m.league.name}, ID: ${m.league.id})`));
+    
+    // Search for U21 matches in any league
+    const anyU21Matches = todayFixtures.filter(match => 
+      match.league.name.toLowerCase().includes('u21') ||
+      match.teams.home.name.toLowerCase().includes('u21') ||
+      match.teams.away.name.toLowerCase().includes('u21')
+    );
+    console.log('🏆 [DEBUG] Any U21 matches found:', anyU21Matches.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (${m.league.name}, ID: ${m.league.id})`));
     
     if (uefaU21Matches.length > 0) {
       console.log('🏆 [DEBUG] Found UEFA U21 matches for today:', uefaU21Matches.map(m => `${m.teams.home.name} vs ${m.teams.away.name}`));
@@ -116,7 +128,8 @@ const AllMatchesComparison: React.FC<AllMatchesComparisonProps> = ({ selectedDat
       console.log('🏆 [DEBUG] Found Al Ahly/Inter Miami matches for today:', alAhlyMatches.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (League: ${m.league.name}, ID: ${m.league.id})`));
     }
     
-    return todayFixtures.filter(match => YOUR_LEAGUE_IDS.includes(match.league.id));
+    // TEMPORARILY SHOW ALL MATCHES TO DEBUG
+    return todayFixtures;
   }, [todayFixtures]);
 
   const filteredTomorrowMatches = useMemo(() => {
@@ -129,6 +142,14 @@ const AllMatchesComparison: React.FC<AllMatchesComparisonProps> = ({ selectedDat
       match.teams.away.name.toLowerCase().includes('inter miami')
     );
     
+    // Search for U21 matches in any league
+    const anyU21Matches = tomorrowFixtures.filter(match => 
+      match.league.name.toLowerCase().includes('u21') ||
+      match.teams.home.name.toLowerCase().includes('u21') ||
+      match.teams.away.name.toLowerCase().includes('u21')
+    );
+    console.log('🏆 [DEBUG] Any U21 matches found for tomorrow:', anyU21Matches.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (${m.league.name}, ID: ${m.league.id})`));
+    
     if (uefaU21Matches.length > 0) {
       console.log('🏆 [DEBUG] Found UEFA U21 matches for tomorrow:', uefaU21Matches.map(m => `${m.teams.home.name} vs ${m.teams.away.name}`));
     } else {
@@ -139,7 +160,8 @@ const AllMatchesComparison: React.FC<AllMatchesComparisonProps> = ({ selectedDat
       console.log('🏆 [DEBUG] Found Al Ahly/Inter Miami matches for tomorrow:', alAhlyMatches.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (League: ${m.league.name}, ID: ${m.league.id})`));
     }
     
-    return tomorrowFixtures.filter(match => YOUR_LEAGUE_IDS.includes(match.league.id));
+    // TEMPORARILY SHOW ALL MATCHES TO DEBUG
+    return tomorrowFixtures;
   }, [tomorrowFixtures]);
 
   // Group matches by league
