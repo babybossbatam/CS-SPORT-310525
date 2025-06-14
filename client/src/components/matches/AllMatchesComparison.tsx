@@ -30,6 +30,8 @@ const YOUR_LEAGUE_IDS = [
   266, // Qatar Stars League (ID: 266)
   233, // Egyptian Premier League (ID: 233)
   15, // FIFA Club World Cup (ID: 15)
+  1186, // FIFA Club World Cup - Play-In (ID: 1186)
+  1168, // FIFA Intercontinental Cup (ID: 1168)
   32, // World Cup - Qualification Europe (ID: 32)
   33, // World Cup - Qualification Oceania (ID: 33)
   34, // World Cup - Qualification South America (ID: 34)
