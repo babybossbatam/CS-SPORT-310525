@@ -19,6 +19,9 @@ async function checkEuroU21Matches() {
   // Test date - using a future date where these matches might be scheduled
   const testDate = '2025-06-16'; // Adjust this date as needed
 
+  // Declare worldFixtures in broader scope to use later
+  let worldFixtures: any[] = [];
+
   try {
     // 1. Check RapidAPI for Euro U21 league (ID: 38)
     console.log('📡 Checking RapidAPI...');
@@ -29,7 +32,7 @@ async function checkEuroU21Matches() {
     console.log(`Found ${rapidFixtures.length} total fixtures on ${testDate}`);
 
     // Filter for only World competitions (country = "World")
-    const worldFixtures = rapidFixtures.filter(fixture => 
+    worldFixtures = rapidFixtures.filter(fixture => 
       fixture.country?.name === "World" || 
       fixture.country?.name?.toLowerCase() === "world"
     );
