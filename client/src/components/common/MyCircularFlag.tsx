@@ -176,8 +176,18 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         position: "relative",
         left: moveLeft ? "-16px" : "4px",
       }}
-      onMouseEnter={() => (showNextMatchOverlay || showFifaWorldCupFixtures) && setIsHovered(true)}
-      onMouseLeave={() => (showNextMatchOverlay || showFifaWorldCupFixtures) && setIsHovered(false)}
+      onMouseEnter={() => {
+        if (showNextMatchOverlay || showFifaWorldCupFixtures) {
+          console.log('🏆 [FIFA] Mouse enter for', teamName, 'FIFA fixtures:', teamFifaFixtures.length);
+          setIsHovered(true);
+        }
+      }}
+      onMouseLeave={() => {
+        if (showNextMatchOverlay || showFifaWorldCupFixtures) {
+          console.log('🏆 [FIFA] Mouse leave for', teamName);
+          setIsHovered(false);
+        }
+      }}
     >
       <img
         src={getCircleFlagUrl(teamName, fallbackUrl)}
@@ -241,7 +251,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       )}
 
       {/* FIFA World Cup Fixtures Tooltip */}
-      {showFifaWorldCupFixtures && isHovered && teamFifaFixtures.length > 0 && (
+      {showFifaWorldCupFixtures && isHovered && (teamFifaFixtures.length > 0 || fifaFixtures.length > 0) && (
         <div
           className="absolute bg-gray-800 text-white text-xs rounded-lg px-3 py-2 shadow-2xl z-[9999] border border-gray-600 transition-opacity duration-200"
           style={{
@@ -263,7 +273,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             </div>
           </div>
           <div className="space-y-1">
-            {teamFifaFixtures.slice(0, 5).map((fixture, index) => (
+            {(teamFifaFixtures.length > 0 ? teamFifaFixtures : fifaFixtures).slice(0, 5).map((fixture, index) => (
               <div key={fixture.id} className="text-center border-b border-gray-600 pb-1 last:border-b-0">
                 <div className="text-white text-[10px] font-medium">
                   {fixture.homeTeam} vs {fixture.awayTeam}
@@ -278,9 +288,9 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
                 )}
               </div>
             ))}
-            {teamFifaFixtures.length > 5 && (
+            {(teamFifaFixtures.length > 0 ? teamFifaFixtures : fifaFixtures).length > 5 && (
               <div className="text-gray-400 text-[9px] text-center pt-1">
-                +{teamFifaFixtures.length - 5} more matches...
+                +{(teamFifaFixtures.length > 0 ? teamFifaFixtures : fifaFixtures).length - 5} more matches...
               </div>
             )}
           </div>

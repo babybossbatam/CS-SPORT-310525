@@ -518,11 +518,14 @@ const LeagueStandingsFilter = () => {
   const { data: fifaFixtures, isLoading: fifaFixturesLoading } = useQuery({
     queryKey: ["fifaFixtures", todayDateKey],
     queryFn: async () => {
+      console.log('🏆 [FIFA] Fetching FIFA Club World Cup fixtures...');
       const response = await apiRequest(
         "GET",
         `/api/fifa-club-world-cup/fixtures`,
       );
-      return response.json();
+      const data = await response.json();
+      console.log('🏆 [FIFA] Received fixtures:', data.length, 'matches');
+      return data;
     },
     enabled: selectedLeagueName?.toLowerCase().includes('fifa club world cup'), // Only fetch for FIFA Club World Cup
     staleTime: 24 * 60 * 60 * 1000, // 24 hours
@@ -853,9 +856,13 @@ const LeagueStandingsFilter = () => {
                                           className="popular-leagues-size"
                                           showNextMatchOverlay={true}
                                           showFifaWorldCupFixtures={selectedLeagueName?.toLowerCase().includes('fifa club world cup')}
-                                          fifaFixtures={fifaFixtures?.filter((fixture: any) =>
-                                            fixture.homeTeam === standing.team.name || fixture.awayTeam === standing.team.name
-                                          ) || []}
+                                          fifaFixtures={fifaFixtures?.filter((fixture: any) => {
+                                            const teamMatches = fixture.homeTeam === standing.team.name || fixture.awayTeam === standing.team.name;
+                                            if (teamMatches) {
+                                              console.log('🏆 [FIFA] Found match for', standing.team.name, ':', fixture.homeTeam, 'vs', fixture.awayTeam);
+                                            }
+                                            return teamMatches;
+                                          }) || []}
                                         />
                                       </div>
                                     ) : (
