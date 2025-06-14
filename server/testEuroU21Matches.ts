@@ -57,7 +57,15 @@ async function checkEuroU21Matches() {
                           homeTeamName.includes('chinese') ||
                           awayTeamName.includes('chinese');
       
-      return isWorldCompetition && !isWomensMatch && !isChinaMatch;
+      const isAsiaMatch = leagueName.includes('asia') ||
+                         leagueName.includes('asian') ||
+                         leagueName.includes('afc') ||
+                         homeTeamName.includes('asia') ||
+                         awayTeamName.includes('asia') ||
+                         homeTeamName.includes('asian') ||
+                         awayTeamName.includes('asian');
+      
+      return isWorldCompetition && !isWomensMatch && !isChinaMatch && !isAsiaMatch;
     });
 
     console.log(`\n🌍 World competitions found: ${worldFixtures.length}`);
