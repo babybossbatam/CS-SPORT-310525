@@ -1,4 +1,3 @@
-
 import { rapidApiService } from './services/rapidApi';
 import sportsradarApi from './services/sportsradarApi';
 
@@ -26,7 +25,7 @@ async function checkEuroU21Matches() {
     // 1. Check RapidAPI for Euro U21 league (ID: 38)
     console.log('📡 Checking RapidAPI...');
     console.log('='.repeat(50));
-    
+
     // Get fixtures by date
     const rapidFixtures = await rapidApiService.getFixturesByDate(testDate);
     console.log(`Found ${rapidFixtures.length} total fixtures on ${testDate}`);
@@ -38,13 +37,13 @@ async function checkEuroU21Matches() {
     });
 
     console.log(`\n🌍 World competitions found: ${worldFixtures.length}`);
-    
+
     // Group by league for better organization
     const worldLeagues = {};
     worldFixtures.forEach(fixture => {
       const leagueId = fixture.league.id;
       const leagueName = fixture.league.name;
-      
+
       if (!worldLeagues[leagueId]) {
         worldLeagues[leagueId] = {
           name: leagueName,
@@ -65,7 +64,7 @@ async function checkEuroU21Matches() {
 
     // Search for specific team combinations in World competitions only
     console.log('\n🔍 Searching for specific matches in World competitions...');
-    
+
     // Search for Euro U21 teams in World competitions
     for (const match of targetMatches) {
       const found = worldFixtures.find(fixture => 
@@ -74,7 +73,7 @@ async function checkEuroU21Matches() {
         (fixture.teams.home.name.toLowerCase().includes(match.home.toLowerCase()) &&
          fixture.teams.away.name.toLowerCase().includes(match.away.toLowerCase()))
       );
-      
+
       if (found) {
         console.log(`✅ Found in World competitions: ${found.teams.home.name} vs ${found.teams.away.name}`);
         console.log(`   League: ${found.league.name}, Country: ${found.country?.name}, Date: ${found.fixture.date}`);
@@ -106,7 +105,7 @@ async function checkEuroU21Matches() {
     // 2. Check SportsRadar API
     console.log('\n\n📡 Checking SportsRadar API...');
     console.log('='.repeat(50));
-    
+
     // Get football/soccer leagues
     const sportsRadarLeagues = await sportsradarApi.getFootballLeagues();
     console.log(`Found ${sportsRadarLeagues?.length || 0} soccer leagues in SportsRadar`);
@@ -130,7 +129,7 @@ async function checkEuroU21Matches() {
     // Search for Euro U21 matches in SportsRadar
     if (sportsRadarFixtures && sportsRadarFixtures.length > 0) {
       console.log('\n🔍 Searching SportsRadar fixtures for Euro U21 matches...');
-      
+
       for (const match of targetMatches) {
         const found = sportsRadarFixtures.find(fixture => 
           (fixture.home_team?.name?.toLowerCase().includes(match.home.toLowerCase().replace(' u21', '')) &&
@@ -138,7 +137,7 @@ async function checkEuroU21Matches() {
           (fixture.home_team?.name?.toLowerCase().includes(match.home.toLowerCase()) &&
            fixture.away_team?.name?.toLowerCase().includes(match.away.toLowerCase()))
         );
-        
+
         if (found) {
           console.log(`✅ Found in SportsRadar: ${found.home_team?.name} vs ${found.away_team?.name}`);
           console.log(`   Tournament: ${found.tournament?.name}, Date: ${found.scheduled}`);
@@ -155,13 +154,19 @@ async function checkEuroU21Matches() {
   // 3. Check what World competitions are available
   console.log('\n\n📊 Summary of All Available World Competitions:');
   console.log('='.repeat(50));
-  
+
   try {
     const allLeagues = await rapidApiService.getLeagues();
-    const worldLeagues = allLeagues.filter(league => 
-      league.country?.name === "World" || 
-      league.country?.name?.toLowerCase() === "world"
-    );
+    // Filter for World competitions only but exclude Asian Cup
+    const worldLeagues = allLeagues.filter(leagueResponse => {
+      const isWorldCompetition = leagueResponse.country?.name === "World" || 
+                                 leagueResponse.country?.name?.toLowerCase() === "world";
+
+      // Exclude Asian Cup (ID: 7)
+      const isAsianCup = leagueResponse.league?.id === 7;
+
+      return isWorldCompetition && !isAsianCup;
+    });
 
     console.log(`Found ${worldLeagues.length} World competitions in RapidAPI:`);
     worldLeagues.forEach(league => {
