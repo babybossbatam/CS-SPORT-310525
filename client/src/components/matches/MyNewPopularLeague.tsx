@@ -87,9 +87,9 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
 
   // Major competitions mapping with their league IDs (All World Leagues)
   const MAJOR_COMPETITIONS = {
-    "Euro Championship": [4],
-    "UEFA U21 Championship": [38], // Moved to top priority
+    "UEFA U21 Championship": [38], // Top priority - Euro U21
     "FIFA Club World Cup": [15], // High priority
+    "Euro Championship": [4],
     "Confederations Cup": [21],
     "World Cup": [1],
     "Asian Games": [803],
@@ -277,6 +277,30 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
     console.log(
       `🔍 [MyNewPopularLeague] Processing ${fixtures.length} fixtures for major competitions`,
     );
+    
+    // Debug: Check for Euro U21 and FIFA Club World Cup fixtures specifically
+    const euroU21Fixtures = fixtures.filter(f => f.league?.id === 38);
+    const fifaClubWCFixtures = fixtures.filter(f => f.league?.id === 15);
+    
+    console.log(`🇪🇺 [Euro U21 Debug] Found ${euroU21Fixtures.length} Euro U21 fixtures:`, 
+      euroU21Fixtures.map(f => ({
+        id: f.fixture.id,
+        date: f.fixture.date,
+        home: f.teams.home.name,
+        away: f.teams.away.name,
+        status: f.fixture.status.short
+      }))
+    );
+    
+    console.log(`🏆 [FIFA Club WC Debug] Found ${fifaClubWCFixtures.length} FIFA Club World Cup fixtures:`,
+      fifaClubWCFixtures.map(f => ({
+        id: f.fixture.id,  
+        date: f.fixture.date,
+        home: f.teams.home.name,
+        away: f.teams.away.name,
+        status: f.fixture.status.short
+      }))
+    );
 
     const competitionsWithMatches: Array<{
       name: string;
@@ -307,16 +331,41 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
             const tomorrow = format(new Date(Date.now() + 24 * 60 * 60 * 1000), "yyyy-MM-dd");
             const yesterday = format(new Date(Date.now() - 24 * 60 * 60 * 1000), "yyyy-MM-dd");
 
+            // Log filtering decisions for priority competitions
+            if (leagueIds.includes(38) || leagueIds.includes(15)) {
+              console.log(`🔍 [Major Competition Filter] League ${fixture.league.id}:`, {
+                selectedDate,
+                fixtureDate: fixture.fixture.date.split('T')[0],
+                smartLabel: smartResult.label,
+                isWithinTimeRange: smartResult.isWithinTimeRange,
+                status: fixture.fixture.status.short,
+                teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`
+              });
+            }
+
             if (selectedDate === tomorrow && smartResult.label === "tomorrow") return true;
             if (selectedDate === today && smartResult.label === "today") return true;
             if (selectedDate === yesterday && smartResult.label === "yesterday") return true;
 
-            // Custom dates
+            // Custom dates - be more inclusive for major competitions
             if (
               selectedDate !== today &&
               selectedDate !== tomorrow &&
               selectedDate !== yesterday
             ) {
+              // For major competitions (Euro U21, FIFA Club World Cup), be more lenient with date matching
+              const isHighPriorityCompetition = leagueIds.includes(38) || leagueIds.includes(15);
+              if (isHighPriorityCompetition) {
+                const fixtureDate = fixture.fixture.date.split('T')[0];
+                if (fixtureDate === selectedDate) {
+                  console.log(`✅ [Priority Match] Including match for ${selectedDate}:`, {
+                    league: fixture.league.name,
+                    teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`
+                  });
+                  return true;
+                }
+              }
+              
               if (smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
             }
 
@@ -651,7 +700,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                     return aDistance - bDistance;
                   })
                   .map((match: any) => {
-                    // Debug log to help identify Euro U21 and FIFA Club World Cup matches
+                    // Debug log to help identify specific competitions
                     if (competition.name.includes("U21") || competition.name.includes("FIFA") || competition.name.includes("World Cup")) {
                       console.log(`🏆 [${competition.name}] Match found:`, {
                         id: match.fixture.id,
@@ -661,7 +710,30 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                         away: match.teams.away.name,
                         time: format(parseISO(match.fixture.date), "HH:mm"),
                         leagueId: match.league.id,
-                        leagueName: match.league.name
+                        leagueName: match.league.name,
+                        competitionName: competition.name
+                      });
+                    }
+                    
+                    // Additional debugging for Euro U21 specifically
+                    if (match.league.id === 38) {
+                      console.log(`🇪🇺 [Euro U21] Found match:`, {
+                        id: match.fixture.id,
+                        home: match.teams.home.name,
+                        away: match.teams.away.name,
+                        league: match.league.name,
+                        status: match.fixture.status.short
+                      });
+                    }
+                    
+                    // Additional debugging for FIFA Club World Cup specifically  
+                    if (match.league.id === 15) {
+                      console.log(`🏆 [FIFA Club World Cup] Found match:`, {
+                        id: match.fixture.id,
+                        home: match.teams.home.name,
+                        away: match.teams.away.name,
+                        league: match.league.name,
+                        status: match.fixture.status.short
                       });
                     }
 
