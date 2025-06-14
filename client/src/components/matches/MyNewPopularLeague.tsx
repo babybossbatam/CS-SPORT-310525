@@ -270,13 +270,25 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
     },
   );
 
-  // Filter and group fixtures by major competitions - NO FILTERING, SHOW ALL
+  // Filter and group fixtures by major competitions - TEAM-BASED SEARCH
   const majorCompetitionsData = useMemo(() => {
     if (!fixtures?.length) return [];
 
     console.log(
-      `🔍 [MyNewPopularLeague] Processing ${fixtures.length} fixtures for ALL WORLD COMPETITIONS (NO FILTER)`,
+      `🔍 [MyNewPopularLeague] Processing ${fixtures.length} fixtures for ALL WORLD COMPETITIONS (TEAM-BASED SEARCH)`,
     );
+
+    // Define specific teams to search for (Euro U21, FIFA Club World Cup teams, etc.)
+    const targetTeams = [
+      // Euro U21 teams
+      "Spain U21", "Romania U21", "France U21", "Georgia U21", 
+      "Portugal U21", "Poland U21", "Slovakia U21", "Italy U21",
+      // FIFA Club World Cup teams
+      "Al Ahly", "Inter Miami", "Real Madrid", "Manchester City",
+      // CONCACAF Gold Cup teams
+      "USA", "Trinidad", "Haiti", "Saudi Arabia", "Costa Rica", "Suriname",
+      // Add more target teams as needed
+    ];
 
     const competitionsWithMatches: Array<{
       name: string;
@@ -286,14 +298,49 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
       leagueIds: number[];
     }> = [];
 
-    // Process each major competition - INCLUDE ALL MATCHES WITHOUT ANY FILTERING
+    // Process each major competition with enhanced team-based search
     Object.entries(MAJOR_COMPETITIONS).forEach(([competitionName, leagueIds]) => {
       const competitionMatches = fixtures.filter((fixture) => {
-        // Only check if fixture belongs to this competition - NO OTHER FILTERS
-        return leagueIds.includes(fixture.league?.id);
+        // Check if fixture belongs to this competition
+        if (!leagueIds.includes(fixture.league?.id)) {
+          return false;
+        }
+
+        // Enhanced team search - look for target teams or U21/youth indicators
+        const homeTeam = fixture.teams?.home?.name?.toLowerCase() || "";
+        const awayTeam = fixture.teams?.away?.name?.toLowerCase() || "";
+        
+        // Check for specific target teams (case-insensitive partial match)
+        const hasTargetTeam = targetTeams.some(team => 
+          homeTeam.includes(team.toLowerCase()) || 
+          awayTeam.includes(team.toLowerCase())
+        );
+
+        // Check for U21, youth, or major club indicators
+        const hasYouthIndicator = 
+          homeTeam.includes("u21") || awayTeam.includes("u21") ||
+          homeTeam.includes("u20") || awayTeam.includes("u20") ||
+          homeTeam.includes("u23") || awayTeam.includes("u23") ||
+          homeTeam.includes("youth") || awayTeam.includes("youth");
+
+        // Check for major international competitions keywords
+        const isImportantMatch = 
+          competitionName.toLowerCase().includes("euro") ||
+          competitionName.toLowerCase().includes("fifa") ||
+          competitionName.toLowerCase().includes("world cup") ||
+          competitionName.toLowerCase().includes("champions") ||
+          competitionName.toLowerCase().includes("gold cup") ||
+          competitionName.toLowerCase().includes("copa america") ||
+          competitionName.toLowerCase().includes("confederations") ||
+          competitionName.toLowerCase().includes("nations league");
+
+        // Include match if it has target teams, youth indicators, or is from important competitions
+        return hasTargetTeam || hasYouthIndicator || isImportantMatch;
       });
 
       if (competitionMatches.length > 0) {
+        console.log(`🎯 [MyNewPopularLeague] Found ${competitionMatches.length} matches in ${competitionName}`);
+        
         competitionsWithMatches.push({
           name: competitionName,
           icon: "🏆",
@@ -304,8 +351,17 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
       }
     });
 
-    // Sort by match count (descending) and then by name
+    // Sort by priority: Euro U21 and FIFA competitions first, then by match count
     competitionsWithMatches.sort((a, b) => {
+      // Prioritize Euro U21 Championship
+      if (a.name.includes("UEFA U21") && !b.name.includes("UEFA U21")) return -1;
+      if (!a.name.includes("UEFA U21") && b.name.includes("UEFA U21")) return 1;
+      
+      // Prioritize FIFA competitions
+      if (a.name.includes("FIFA") && !b.name.includes("FIFA")) return -1;
+      if (!a.name.includes("FIFA") && b.name.includes("FIFA")) return 1;
+      
+      // Then sort by match count
       if (b.matchCount !== a.matchCount) {
         return b.matchCount - a.matchCount;
       }
@@ -313,7 +369,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
     });
 
     console.log(
-      `🏆 [MyNewPopularLeague] Found ${competitionsWithMatches.length} major competitions with matches (NO FILTERING)`,
+      `🏆 [MyNewPopularLeague] Found ${competitionsWithMatches.length} major competitions with target matches`,
     );
 
     return competitionsWithMatches;
@@ -420,7 +476,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
     <>
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        🌍 All World Competitions & Championships (No Filter)
+        🎯 World Competitions & Championships (Team-Based Search)
       </CardHeader>
 
       {/* Competition Cards with Team Display */}
