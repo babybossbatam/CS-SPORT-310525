@@ -89,13 +89,14 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
   // Major competitions mapping with their league IDs (All World Leagues)
   const MAJOR_COMPETITIONS = {
     "Euro Championship": [4],
+    "UEFA U21 Championship": [38], // Moved to top priority
+    "FIFA Club World Cup": [15], // High priority
     "Confederations Cup": [21],
     "World Cup": [1],
     "Asian Games": [803],
     "Caribbean Cup": [804],
     "UEFA Champions League": [2],
     "Asian Cup": [7],
-    "FIFA Club World Cup": [15],
     "Olympics Men": [480],
     "CECAFA Senior Challenge Cup": [535],
     "SAFF Championship": [28],
@@ -121,7 +122,6 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
     "UEFA Youth League": [14],
     "AFC Cup": [18],
     "CAF Confederation Cup": [20],
-    "UEFA U21 Championship": [38],
     "World Cup - U20": [490],
     "UEFA Nations League": [5],
     "CONCACAF Nations League - Qualification": [808],
@@ -651,7 +651,22 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                     const bDistance = Math.abs(bTime - nowTime);
                     return aDistance - bDistance;
                   })
-                  .map((match: any) => (
+                  .map((match: any) => {
+                    // Debug log to help identify Euro U21 and FIFA Club World Cup matches
+                    if (competition.name.includes("U21") || competition.name.includes("FIFA") || competition.name.includes("World Cup")) {
+                      console.log(`🏆 [${competition.name}] Match found:`, {
+                        id: match.fixture.id,
+                        date: match.fixture.date,
+                        status: match.fixture.status.short,
+                        home: match.teams.home.name,
+                        away: match.teams.away.name,
+                        time: format(parseISO(match.fixture.date), "HH:mm"),
+                        leagueId: match.league.id,
+                        leagueName: match.league.name
+                      });
+                    }
+                    
+                    return (
                     <LazyMatchItem key={match.fixture.id}>
                       <div
                         key={match.fixture.id}
