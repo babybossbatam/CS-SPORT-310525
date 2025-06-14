@@ -97,10 +97,48 @@ const AllMatchesComparison: React.FC<AllMatchesComparisonProps> = ({ selectedDat
 
   // Filter matches to only include leagues from your specific list
   const filteredTodayMatches = useMemo(() => {
+    // Debug logging for specific leagues
+    const uefaU21Matches = todayFixtures.filter(match => match.league.id === 38);
+    const alAhlyMatches = todayFixtures.filter(match => 
+      match.teams.home.name.toLowerCase().includes('al ahly') || 
+      match.teams.away.name.toLowerCase().includes('al ahly') ||
+      match.teams.home.name.toLowerCase().includes('inter miami') || 
+      match.teams.away.name.toLowerCase().includes('inter miami')
+    );
+    
+    if (uefaU21Matches.length > 0) {
+      console.log('🏆 [DEBUG] Found UEFA U21 matches for today:', uefaU21Matches.map(m => `${m.teams.home.name} vs ${m.teams.away.name}`));
+    } else {
+      console.log('❌ [DEBUG] No UEFA U21 matches found for today');
+    }
+    
+    if (alAhlyMatches.length > 0) {
+      console.log('🏆 [DEBUG] Found Al Ahly/Inter Miami matches for today:', alAhlyMatches.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (League: ${m.league.name}, ID: ${m.league.id})`));
+    }
+    
     return todayFixtures.filter(match => YOUR_LEAGUE_IDS.includes(match.league.id));
   }, [todayFixtures]);
 
   const filteredTomorrowMatches = useMemo(() => {
+    // Debug logging for specific leagues
+    const uefaU21Matches = tomorrowFixtures.filter(match => match.league.id === 38);
+    const alAhlyMatches = tomorrowFixtures.filter(match => 
+      match.teams.home.name.toLowerCase().includes('al ahly') || 
+      match.teams.away.name.toLowerCase().includes('al ahly') ||
+      match.teams.home.name.toLowerCase().includes('inter miami') || 
+      match.teams.away.name.toLowerCase().includes('inter miami')
+    );
+    
+    if (uefaU21Matches.length > 0) {
+      console.log('🏆 [DEBUG] Found UEFA U21 matches for tomorrow:', uefaU21Matches.map(m => `${m.teams.home.name} vs ${m.teams.away.name}`));
+    } else {
+      console.log('❌ [DEBUG] No UEFA U21 matches found for tomorrow');
+    }
+    
+    if (alAhlyMatches.length > 0) {
+      console.log('🏆 [DEBUG] Found Al Ahly/Inter Miami matches for tomorrow:', alAhlyMatches.map(m => `${m.teams.home.name} vs ${m.teams.away.name} (League: ${m.league.name}, ID: ${m.league.id})`));
+    }
+    
     return tomorrowFixtures.filter(match => YOUR_LEAGUE_IDS.includes(match.league.id));
   }, [tomorrowFixtures]);
 
