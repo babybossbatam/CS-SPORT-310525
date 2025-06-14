@@ -31,11 +31,24 @@ async function checkEuroU21Matches() {
     const rapidFixtures = await rapidApiService.getFixturesByDate(testDate, true);
     console.log(`Found ${rapidFixtures.length} total fixtures on ${testDate}`);
 
-    // Filter for only World competitions (country = "World")
-    worldFixtures = rapidFixtures.filter(fixture => 
-      fixture.country?.name === "World" || 
-      fixture.country?.name?.toLowerCase() === "world"
-    );
+    // Filter for only World competitions (country = "World") and exclude women's matches
+    worldFixtures = rapidFixtures.filter(fixture => {
+      const isWorldCompetition = fixture.country?.name === "World" || 
+                                 fixture.country?.name?.toLowerCase() === "world";
+      
+      const leagueName = fixture.league?.name?.toLowerCase() || '';
+      const isWomensMatch = leagueName.includes('women') || 
+                           leagueName.includes('female') || 
+                           leagueName.includes('ladies') ||
+                           leagueName.includes('feminine') ||
+                           leagueName.includes('feminin') ||
+                           leagueName.includes('donne') ||
+                           leagueName.includes('frauen') ||
+                           leagueName.includes('femenino') ||
+                           leagueName.includes("women's");
+      
+      return isWorldCompetition && !isWomensMatch;
+    });
 
     console.log(`\n🌍 World competitions found: ${worldFixtures.length}`);
     
