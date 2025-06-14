@@ -765,6 +765,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fixtures = await rapidApiService.getFixturesByLeague(id, season);
       console.log(`Received ${fixtures ? fixtures.length : 0} fixtures for league ${id} from RapidAPI`);
 
+      // Special debugging for FIFA Club World Cup
+      if (id === 15) {
+        console.log(`🏆 [FIFA Club World Cup] Debug info:`);
+        console.log(`   Total fixtures: ${fixtures.length}`);
+        if (fixtures.length > 0) {
+          console.log(`   Sample fixtures:`);
+          fixtures.slice(0, 5).forEach((fixture, index) => {
+            console.log(`   ${index + 1}. ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+            console.log(`      Date: ${fixture.fixture.date}`);
+            console.log(`      Status: ${fixture.fixture.status.short}`);
+          });
+        }
+      }
+
       res.json(fixtures);
     } catch (error) {
       console.error(`Error fetching fixtures for league ID ${req.params.id}:`, error);
