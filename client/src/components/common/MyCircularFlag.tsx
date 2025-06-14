@@ -71,6 +71,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Chile: "cl",
       Uruguay: "uy",
       Paraguay: "py",
+      "S. Africa": "za",
       Bolivia: "bo",
       Ecuador: "ec",
       Venezuela: "ve",
@@ -80,6 +81,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Kyrgyzstan: "kg",
       Turkmenistan: "tm",
       Uzbekistan: "uz",
+      Mali: "ml",
       Mexico: "mx",
       "United States": "us",
       Canada: "ca",
@@ -104,7 +106,9 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       // Fetch next match from API
       const fetchNextMatch = async () => {
         try {
-          const response = await fetch(`/api/teams/next-match/${encodeURIComponent(teamName)}`);
+          const response = await fetch(
+            `/api/teams/next-match/${encodeURIComponent(teamName)}`,
+          );
           if (response.ok) {
             const data = await response.json();
             setNextMatch(data);
@@ -119,10 +123,10 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
     });
   };
 
@@ -150,7 +154,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           borderRadius: "50%",
           position: "relative",
           zIndex: 1,
-          filter: "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
+          filter:
+            "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
         }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
@@ -160,10 +165,10 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         }}
       />
       <div className="gloss"></div>
-      
+
       {/* Next Match Tooltip - External popup */}
       {showNextMatchOverlay && isHovered && nextMatch && (
-        <div 
+        <div
           className="absolute bg-gray-800 text-white text-xs rounded-lg px-3 py-2 shadow-2xl z-[9999] whitespace-nowrap border border-gray-600 transition-opacity duration-200"
           style={{
             bottom: "calc(100% + 8px)",
@@ -185,7 +190,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             </div>
           </div>
           {/* Tooltip arrow */}
-          <div 
+          <div
             className="absolute top-full left-1/2 transform -translate-x-1/2"
             style={{
               width: 0,
@@ -193,7 +198,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
               borderLeft: "5px solid transparent",
               borderRight: "5px solid transparent",
               borderTop: "5px solid #374151",
-              marginTop: "0px"
+              marginTop: "0px",
             }}
           ></div>
         </div>
