@@ -42,6 +42,7 @@ import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew'
 import { Button } from "@/components/ui/button";
 import { UnifiedDebugPanel } from "../components/debug/UnifiedDebugPanel";
 import AllMatchesComparison from "@/components/matches/AllMatchesComparison";
+import ComprehensiveMatchAnalysis from "@/components/matches/ComprehensiveMatchAnalysis";
 
 
 // Cleanup any stale video references
@@ -495,6 +496,9 @@ const Home = () => {
 
           {/* All Matches Comparison Component for debugging */}
           <AllMatchesComparison selectedDate={selectedDate} />
+
+          {/* Comprehensive Match Analysis without filters */}
+          <ComprehensiveMatchAnalysis />
     </>
   );
 };
