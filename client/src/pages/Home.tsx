@@ -41,6 +41,7 @@ import TodaysMatchesByCountryNew from '@/components/matches/TodaysMatchesByCount
 import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew';
 import { Button } from "@/components/ui/button";
 import { UnifiedDebugPanel } from "../components/debug/UnifiedDebugPanel";
+import AllMatchesComparison from "@/components/matches/AllMatchesComparison";
 
 
 // Cleanup any stale video references
@@ -484,13 +485,16 @@ const Home = () => {
 
       <RegionModal />
       <CacheMonitor />
-      
+
 
       {/* Debug Panel */}
       <UnifiedDebugPanel 
         isVisible={showDebugPanel}
         onClose={() => setShowDebugPanel(false)}
       />
+
+          {/* All Matches Comparison Component for debugging */}
+          <AllMatchesComparison selectedDate={selectedDate} />
     </>
   );
 };
