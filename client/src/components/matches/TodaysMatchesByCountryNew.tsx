@@ -818,14 +818,20 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Reset to collapsed state when selected date changes
     setExpandedCountries(new Set());
 
-    // Auto-expand ONLY the first league in each country by default
+    // Auto-expand the first league in each country by default (using the same sorting logic as display)
     const firstLeagues = new Set<string>();
     sortedCountries.forEach((countryData: any) => {
-      const leagueIds = Object.keys(countryData.leagues);
-      if (leagueIds.length > 0) {
-        // Expand only the first league (index 0)
-        const firstLeagueId = leagueIds[0];
-        const leagueKey = `${countryData.country}-${firstLeagueId}`;
+      const sortedLeagues = Object.values(countryData.leagues)
+        .sort((a: any, b: any) => {
+          if (a.isPopular && !b.isPopular) return -1;
+          if (!a.isPopular && b.isPopular) return 1;
+          return a.league.name.localeCompare(b.league.name);
+        });
+
+      if (sortedLeagues.length > 0) {
+        // Expand the first league after sorting (same order as displayed)
+        const firstLeague = sortedLeagues[0];
+        const leagueKey = `${countryData.country}-${firstLeague.league.id}`;
         firstLeagues.add(leagueKey);
       }
     });
