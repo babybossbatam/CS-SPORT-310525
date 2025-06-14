@@ -1,28 +1,220 @@
 
-import { rapidApiService } from "./services/rapidApi";
-import { format, addDays } from "date-fns";
+import { rapidApiService } from './services/rapidApi';
+import { format, addDays } from 'date-fns';
 
-async function checkSpecificLeaguesMatches() {
-  console.log("=== Checking Today & Tomorrow Matches for Specific Leagues ===\n");
+// Your complete league list from the image
+const specificLeagueIds = [
+  // AFC Challenge Cup
+  951,
+  // AFC Champions League
+  1132,
+  // AFC Futsal Asian Cup
+  870,
+  // Asian Cup
+  1, 4,
+  // AFC Youth Championships
+  794, 844,
+  // Africa Cup of Nations (and qualifications)
+  6, 7, 8, 9, 10, 16,
+  // Africa Youth Championships
+  796, 797, 798, 799,
+  // Africa Club Championships
+  35, 1819,
+  // Africa Nations Championship
+  1116,
+  // Arab Club Champions Cup
+  802,
+  // Arab Championship
+  820, 822, 847,
+  // Arab Club Champions Cup
+  801,
+  // ASEAN Championship
+  808,
+  // Baltic Cup
+  809,
+  // CAF Champions League
+  12,
+  // CAF Super Cup
+  39,
+  // CAF Nations Cup (various levels)
+  815, 816, 817, 818, 819,
+  // CFU Caribbean Cup
+  813,
+  // CFU Club Championship
+  840,
+  // Champions League (various)
+  2, 3, 848,
+  // CONCACAF
+  10, 846, 1064,
+  // CONCACAF Gold Cup
+  1065,
+  // CONCACAF Champions League
+  808,
+  // CONCACAF Nations League
+  1066,
+  // CONCACAF U20 Championship
+  1067,
+  // CONCACAF League
+  852,
+  // CONCACAF U-17 Championship
+  853,
+  // CONCACAF W Championship
+  854,
+  // CONCACAF Olympics
+  1066,
+  // CONMEBOL Copa America
+  9,
+  // CONMEBOL Libertadores
+  13,
+  // CONMEBOL Sudamericana
+  11,
+  // CONMEBOL Recopa
+  14,
+  // CONMEBOL Women's Libertadores
+  999,
+  // CONMEBOL Youth Championships
+  271,
+  // Copa America
+  9,
+  // Copa Libertadores
+  13,
+  // Copa Sudamericana
+  11,
+  // Euro (European Championship)
+  4,
+  // European Championships
+  271,
+  // European Championship (Women)
+  541,
+  // EURO U21
+  818,
+  // UEFA Nations League
+  5,
+  // UEFA Champions League
+  2,
+  // UEFA Europa League
+  3,
+  // UEFA Conference League
+  848,
+  // UEFA Euro U19
+  1346,
+  // UEFA Euro U17
+  1348,
+  // UEFA Youth League
+  826,
+  // UEFA Women's Champions League
+  1070,
+  // Friendlies
+  10,
+  // FIFA Club World Cup
+  15,
+  // FIFA World Cup
+  1,
+  // FIFA World Cup (Women)
+  106,
+  // FIFA U-20 World Cup
+  1371,
+  // FIFA U-17 World Cup
+  1372,
+  // FIFA Confederations Cup
+  17,
+  // International Champions Cup
+  641,
+  // International Championships
+  673,
+  // King's Cup
+  1046,
+  // OFC Nations Cup
+  702,
+  // OFC Champions League
+  28,
+  // Olympics
+  27,
+  // Premier League Asia Trophy
+  667,
+  // SheBelieves Cup
+  524,
+  // Women's World Cup
+  106,
+  // World Cup
+  1,
+  // Youth Olympics
+  525,
+  // SAFF Championship
+  903,
+  // West Asian Championship
+  807,
+  // Gulf Cup
+  801,
+  // WAFF Championship
+  531,
+  // U17 World Championship
+  893,
+  // U20 World Championship
+  892,
+  // U17 Women's World Championship
+  894,
+  // U20 Women's World Championship
+  897,
+  // UEFA Youth League
+  526,
+  // UEFA Women's Euro
+  541,
+  // UEFA Nations League
+  5,
+  // Tournament Maurice Revello
+  21,
+  // Tournoi de France
+  674,
+  // SheBelieves Cup
+  524,
+  // Premier League Asia Trophy
+  667,
+  // Pinatar Cup
+  899,
+  // Cyprus Cup
+  670,
+  // Algarve Cup
+  671,
+  // Arnold Clark Cup
+  892,
+  // UEFA Futsal EURO
+  15,
+  // FIFA Beach Soccer World Cup
+  75,
+  // FIFA Futsal World Cup
+  33,
+  // AFF Championship
+  25,
+  // COSAFA Cup
+  801,
+  // CECAFA Cup
+  903,
+  // SAFF Championship
+  903,
+  // WAFF Championship
+  531,
+  // Arab Cup
+  847,
+  // Gulf Cup of Nations
+  810,
+  // West Asian Championship
+  807,
+  // Central Asian Championship
+  809,
+  // East Asian Championship
+  808,
+  // EAFF Championship
+  808,
+  // International Friendlies
+  10,
+  // World Cup Qualifiers
+  40, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
+];
+
+async function checkTodayTomorrowMatches() {
+  console.log('🚀 Starting Today & Tomorrow Match Checker for Your League List...');
   
-  // List of specific league IDs from the user's attachment
-  const specificLeagueIds = [
-    3071, 3110, 1157, 1160, 929, 924, 749, 1013, 1849, 1112,
-    1849, 945, 1013, 924, 929, 749, 1112, 1157, 1160, 3071,
-    3110, 1129, 740, 71, 95, 101, 79, 615, 751, 73, 27, 17,
-    848, 546, 1084, 1086, 1084, 1086, 1068, 667, 740, 71, 95,
-    101, 79, 615, 751, 73, 27, 17, 848, 546, 1084, 1086, 524,
-    549, 1343, 541, 1160, 1347, 1384, 950, 531, 534, 1348,
-    1006, 950, 534, 531, 1348, 1006, 11, 1365, 21, 1149,
-    77, 1, 1346, 950, 534, 531, 1348, 1006, 136, 144, 143,
-    136, 144, 143, 533, 534, 536, 1346, 533, 534, 536, 1346,
-    533, 534, 536, 1346, 140, 78, 135, 61, 39, 1129, 563,
-    533, 534, 536, 1346, 533, 534, 536, 1346, 533, 534, 536,
-    1346, 533, 534, 536, 1346, 533, 534, 536, 1346, 533, 534,
-    536, 1346, 533, 534, 536, 1346, 533, 534, 536, 1346, 533,
-    534, 536, 1346, 533, 534, 536, 1346
-  ];
-
   // Remove duplicates
   const uniqueLeagueIds = [...new Set(specificLeagueIds)];
   
@@ -33,7 +225,7 @@ async function checkSpecificLeaguesMatches() {
   
   console.log(`📅 Today's date: ${todayDate}`);
   console.log(`📅 Tomorrow's date: ${tomorrowDate}`);
-  console.log(`🎯 Checking ${uniqueLeagueIds.length} unique leagues\n`);
+  console.log(`🎯 Checking ${uniqueLeagueIds.length} unique leagues from your list\n`);
 
   try {
     // Get all fixtures for today and tomorrow
@@ -58,141 +250,117 @@ async function checkSpecificLeaguesMatches() {
     console.log(`🏆 Matching fixtures today: ${todayMatchingFixtures.length}`);
     console.log(`🏆 Matching fixtures tomorrow: ${tomorrowMatchingFixtures.length}\n`);
 
-    // Display today's matches
-    console.log("🎯 TODAY'S MATCHES:");
-    console.log("=" + "=".repeat(70));
-    
-    if (todayMatchingFixtures.length === 0) {
-      console.log("❌ No matches found for today in the specified leagues");
-    } else {
-      // Group by league
-      const todayByLeague = new Map();
-      todayMatchingFixtures.forEach(fixture => {
-        const leagueId = fixture.league.id;
-        if (!todayByLeague.has(leagueId)) {
-          todayByLeague.set(leagueId, {
-            league: fixture.league,
-            fixtures: []
-          });
-        }
-        todayByLeague.get(leagueId).fixtures.push(fixture);
-      });
+    // Display TODAY'S MATCHES
+    if (todayMatchingFixtures.length > 0) {
+      console.log('═'.repeat(80));
+      console.log(`🔥 TODAY'S MATCHES (${todayDate}) - ${todayMatchingFixtures.length} matches`);
+      console.log('═'.repeat(80));
 
-      Array.from(todayByLeague.values()).forEach((leagueData, index) => {
-        console.log(`\n${index + 1}. ${leagueData.league.name} (ID: ${leagueData.league.id})`);
-        console.log(`   Country: ${leagueData.league.country}`);
-        console.log(`   Matches: ${leagueData.fixtures.length}`);
-        
-        leagueData.fixtures.forEach((fixture, matchIndex) => {
+      // Group by league
+      const todayByLeague = todayMatchingFixtures.reduce((acc, fixture) => {
+        const leagueId = fixture.league.id;
+        if (!acc[leagueId]) {
+          acc[leagueId] = {
+            league: fixture.league,
+            matches: []
+          };
+        }
+        acc[leagueId].matches.push(fixture);
+        return acc;
+      }, {} as any);
+
+      Object.values(todayByLeague).forEach((group: any) => {
+        console.log(`\n🏆 ${group.league.name} (ID: ${group.league.id})`);
+        console.log(`🌍 Country: ${group.league.country}`);
+        console.log(`📊 Matches: ${group.matches.length}`);
+        console.log('─'.repeat(60));
+
+        group.matches.forEach((fixture: any, index: number) => {
+          const homeTeam = fixture.teams.home.name;
+          const awayTeam = fixture.teams.away.name;
+          const status = fixture.fixture.status.short;
+          const elapsed = fixture.fixture.status.elapsed;
           const date = new Date(fixture.fixture.date);
-          const time = date.toLocaleTimeString('en-GB', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          });
-          const status = fixture.fixture.status.long;
           
-          console.log(`   ${matchIndex + 1}. ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-          console.log(`      Time: ${time} | Status: ${status}`);
-          if (fixture.goals.home !== null && fixture.goals.away !== null) {
-            console.log(`      Score: ${fixture.goals.home} - ${fixture.goals.away}`);
+          // Show score for live/finished matches
+          let scoreDisplay = '';
+          if (['FT', 'AET', 'PEN', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'LIVE'].includes(status)) {
+            const homeScore = fixture.goals.home ?? 0;
+            const awayScore = fixture.goals.away ?? 0;
+            scoreDisplay = ` ${homeScore}-${awayScore}`;
           }
-          if (fixture.fixture.venue?.name) {
-            console.log(`      Venue: ${fixture.fixture.venue.name}`);
-          }
+
+          console.log(`${index + 1}. ${homeTeam}${scoreDisplay ? scoreDisplay : ' vs'} ${awayTeam}`);
+          console.log(`   ⏰ ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} | Status: ${status}${elapsed ? ` (${elapsed}')` : ''}`);
+          console.log(`   🏟️ ${fixture.fixture.venue?.name || 'TBD'}`);
+          console.log(`   🆔 Fixture ID: ${fixture.fixture.id}`);
+          console.log('');
         });
       });
+    } else {
+      console.log(`📭 No matches found for TODAY (${todayDate}) in your specified leagues`);
     }
 
-    // Display tomorrow's matches
-    console.log("\n\n🎯 TOMORROW'S MATCHES:");
-    console.log("=" + "=".repeat(70));
-    
-    if (tomorrowMatchingFixtures.length === 0) {
-      console.log("❌ No matches found for tomorrow in the specified leagues");
-    } else {
-      // Group by league
-      const tomorrowByLeague = new Map();
-      tomorrowMatchingFixtures.forEach(fixture => {
-        const leagueId = fixture.league.id;
-        if (!tomorrowByLeague.has(leagueId)) {
-          tomorrowByLeague.set(leagueId, {
-            league: fixture.league,
-            fixtures: []
-          });
-        }
-        tomorrowByLeague.get(leagueId).fixtures.push(fixture);
-      });
+    // Display TOMORROW'S MATCHES
+    if (tomorrowMatchingFixtures.length > 0) {
+      console.log('\n' + '═'.repeat(80));
+      console.log(`🚀 TOMORROW'S MATCHES (${tomorrowDate}) - ${tomorrowMatchingFixtures.length} matches`);
+      console.log('═'.repeat(80));
 
-      Array.from(tomorrowByLeague.values()).forEach((leagueData, index) => {
-        console.log(`\n${index + 1}. ${leagueData.league.name} (ID: ${leagueData.league.id})`);
-        console.log(`   Country: ${leagueData.league.country}`);
-        console.log(`   Matches: ${leagueData.fixtures.length}`);
-        
-        leagueData.fixtures.forEach((fixture, matchIndex) => {
+      // Group by league
+      const tomorrowByLeague = tomorrowMatchingFixtures.reduce((acc, fixture) => {
+        const leagueId = fixture.league.id;
+        if (!acc[leagueId]) {
+          acc[leagueId] = {
+            league: fixture.league,
+            matches: []
+          };
+        }
+        acc[leagueId].matches.push(fixture);
+        return acc;
+      }, {} as any);
+
+      Object.values(tomorrowByLeague).forEach((group: any) => {
+        console.log(`\n🏆 ${group.league.name} (ID: ${group.league.id})`);
+        console.log(`🌍 Country: ${group.league.country}`);
+        console.log(`📊 Matches: ${group.matches.length}`);
+        console.log('─'.repeat(60));
+
+        group.matches.forEach((fixture: any, index: number) => {
+          const homeTeam = fixture.teams.home.name;
+          const awayTeam = fixture.teams.away.name;
+          const status = fixture.fixture.status.short;
           const date = new Date(fixture.fixture.date);
-          const time = date.toLocaleTimeString('en-GB', { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          });
-          const status = fixture.fixture.status.long;
           
-          console.log(`   ${matchIndex + 1}. ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-          console.log(`      Time: ${time} | Status: ${status}`);
-          if (fixture.goals.home !== null && fixture.goals.away !== null) {
-            console.log(`      Score: ${fixture.goals.home} - ${fixture.goals.away}`);
-          }
-          if (fixture.fixture.venue?.name) {
-            console.log(`      Venue: ${fixture.fixture.venue.name}`);
-          }
+          console.log(`${index + 1}. ${homeTeam} vs ${awayTeam}`);
+          console.log(`   ⏰ ${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} | Status: ${status}`);
+          console.log(`   🏟️ ${fixture.fixture.venue?.name || 'TBD'}`);
+          console.log(`   🆔 Fixture ID: ${fixture.fixture.id}`);
+          console.log('');
         });
       });
+    } else {
+      console.log(`📭 No matches found for TOMORROW (${tomorrowDate}) in your specified leagues`);
     }
 
     // Summary
-    console.log("\n📊 SUMMARY:");
-    console.log("=" + "=".repeat(70));
-    console.log(`Total unique leagues checked: ${uniqueLeagueIds.length}`);
-    console.log(`Leagues with matches today: ${todayMatchingFixtures.length > 0 ? new Set(todayMatchingFixtures.map(f => f.league.id)).size : 0}`);
-    console.log(`Leagues with matches tomorrow: ${tomorrowMatchingFixtures.length > 0 ? new Set(tomorrowMatchingFixtures.map(f => f.league.id)).size : 0}`);
-    console.log(`Total matches today: ${todayMatchingFixtures.length}`);
-    console.log(`Total matches tomorrow: ${tomorrowMatchingFixtures.length}`);
-
-    // Show which specific leagues had matches
-    if (todayMatchingFixtures.length > 0 || tomorrowMatchingFixtures.length > 0) {
-      console.log("\n🎯 LEAGUES WITH MATCHES:");
-      console.log("-".repeat(50));
-      
-      const allMatchingLeagueIds = new Set([
-        ...todayMatchingFixtures.map(f => f.league.id),
-        ...tomorrowMatchingFixtures.map(f => f.league.id)
-      ]);
-
-      allMatchingLeagueIds.forEach(leagueId => {
-        const todayCount = todayMatchingFixtures.filter(f => f.league.id === leagueId).length;
-        const tomorrowCount = tomorrowMatchingFixtures.filter(f => f.league.id === leagueId).length;
-        const sampleFixture = todayMatchingFixtures.find(f => f.league.id === leagueId) ||
-                            tomorrowMatchingFixtures.find(f => f.league.id === leagueId);
-        
-        if (sampleFixture) {
-          console.log(`${sampleFixture.league.name} (ID: ${leagueId})`);
-          console.log(`  Today: ${todayCount} matches, Tomorrow: ${tomorrowCount} matches`);
-          console.log(`  Country: ${sampleFixture.league.country}`);
-        }
-      });
-    }
+    console.log('\n' + '═'.repeat(80));
+    console.log('📊 SUMMARY');
+    console.log('═'.repeat(80));
+    console.log(`🎯 Leagues checked: ${uniqueLeagueIds.length}`);
+    console.log(`📅 Today (${todayDate}): ${todayMatchingFixtures.length} matches`);
+    console.log(`📅 Tomorrow (${tomorrowDate}): ${tomorrowMatchingFixtures.length} matches`);
+    console.log(`🏆 Total matches: ${todayMatchingFixtures.length + tomorrowMatchingFixtures.length}`);
 
   } catch (error) {
-    console.error("❌ Error checking specific leagues matches:", error);
+    console.error('❌ Error checking matches:', error);
   }
-
-  console.log("\n✅ Check Complete!");
 }
 
-// Run the check
-checkSpecificLeaguesMatches().then(() => {
-  console.log("\n🏁 Script completed successfully!");
-  process.exit(0);
-}).catch((error) => {
-  console.error("💥 Script failed:", error);
-  process.exit(1);
-});
+// Run the script
+async function main() {
+  await checkTodayTomorrowMatches();
+  console.log('\n✅ Today & Tomorrow match check completed!');
+}
+
+main().catch(console.error);
