@@ -270,36 +270,12 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
     },
   );
 
-  // Filter and group fixtures by major competitions
+  // Filter and group fixtures by major competitions - NO FILTERING, SHOW ALL
   const majorCompetitionsData = useMemo(() => {
     if (!fixtures?.length) return [];
 
     console.log(
-      `🔍 [MyNewPopularLeague] Processing ${fixtures.length} fixtures for major competitions`,
-    );
-    
-    // Debug: Check for Euro U21 and FIFA Club World Cup fixtures specifically
-    const euroU21Fixtures = fixtures.filter(f => f.league?.id === 38);
-    const fifaClubWCFixtures = fixtures.filter(f => f.league?.id === 15);
-    
-    console.log(`🇪🇺 [Euro U21 Debug] Found ${euroU21Fixtures.length} Euro U21 fixtures:`, 
-      euroU21Fixtures.map(f => ({
-        id: f.fixture.id,
-        date: f.fixture.date,
-        home: f.teams.home.name,
-        away: f.teams.away.name,
-        status: f.fixture.status.short
-      }))
-    );
-    
-    console.log(`🏆 [FIFA Club WC Debug] Found ${fifaClubWCFixtures.length} FIFA Club World Cup fixtures:`,
-      fifaClubWCFixtures.map(f => ({
-        id: f.fixture.id,  
-        date: f.fixture.date,
-        home: f.teams.home.name,
-        away: f.teams.away.name,
-        status: f.fixture.status.short
-      }))
+      `🔍 [MyNewPopularLeague] Processing ${fixtures.length} fixtures for ALL WORLD COMPETITIONS (NO FILTER)`,
     );
 
     const competitionsWithMatches: Array<{
@@ -310,72 +286,11 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
       leagueIds: number[];
     }> = [];
 
-    // Process each major competition
+    // Process each major competition - INCLUDE ALL MATCHES WITHOUT ANY FILTERING
     Object.entries(MAJOR_COMPETITIONS).forEach(([competitionName, leagueIds]) => {
       const competitionMatches = fixtures.filter((fixture) => {
-        // Check if fixture belongs to this competition
-        const belongsToCompetition = leagueIds.includes(fixture.league?.id);
-
-        if (!belongsToCompetition) return false;
-
-        // Apply smart time filtering
-        if (fixture.fixture.date && fixture.fixture.status?.short) {
-          const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-            fixture.fixture.date,
-            fixture.fixture.status.short,
-            selectedDate + "T12:00:00Z",
-          );
-
-          const shouldInclude = (() => {
-            const today = format(new Date(), "yyyy-MM-dd");
-            const tomorrow = format(new Date(Date.now() + 24 * 60 * 60 * 1000), "yyyy-MM-dd");
-            const yesterday = format(new Date(Date.now() - 24 * 60 * 60 * 1000), "yyyy-MM-dd");
-
-            // Log filtering decisions for priority competitions
-            if (leagueIds.includes(38) || leagueIds.includes(15)) {
-              console.log(`🔍 [Major Competition Filter] League ${fixture.league.id}:`, {
-                selectedDate,
-                fixtureDate: fixture.fixture.date.split('T')[0],
-                smartLabel: smartResult.label,
-                isWithinTimeRange: smartResult.isWithinTimeRange,
-                status: fixture.fixture.status.short,
-                teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`
-              });
-            }
-
-            if (selectedDate === tomorrow && smartResult.label === "tomorrow") return true;
-            if (selectedDate === today && smartResult.label === "today") return true;
-            if (selectedDate === yesterday && smartResult.label === "yesterday") return true;
-
-            // Custom dates - be more inclusive for major competitions
-            if (
-              selectedDate !== today &&
-              selectedDate !== tomorrow &&
-              selectedDate !== yesterday
-            ) {
-              // For major competitions (Euro U21, FIFA Club World Cup), be more lenient with date matching
-              const isHighPriorityCompetition = leagueIds.includes(38) || leagueIds.includes(15);
-              if (isHighPriorityCompetition) {
-                const fixtureDate = fixture.fixture.date.split('T')[0];
-                if (fixtureDate === selectedDate) {
-                  console.log(`✅ [Priority Match] Including match for ${selectedDate}:`, {
-                    league: fixture.league.name,
-                    teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`
-                  });
-                  return true;
-                }
-              }
-              
-              if (smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
-            }
-
-            return false;
-          })();
-
-          return shouldInclude;
-        }
-
-        return true;
+        // Only check if fixture belongs to this competition - NO OTHER FILTERS
+        return leagueIds.includes(fixture.league?.id);
       });
 
       if (competitionMatches.length > 0) {
@@ -398,7 +313,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
     });
 
     console.log(
-      `🏆 [MyNewPopularLeague] Found ${competitionsWithMatches.length} major competitions with matches`,
+      `🏆 [MyNewPopularLeague] Found ${competitionsWithMatches.length} major competitions with matches (NO FILTERING)`,
     );
 
     return competitionsWithMatches;
@@ -505,7 +420,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
     <>
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        🔥 Major Competitions
+        🌍 All World Competitions & Championships (No Filter)
       </CardHeader>
 
       {/* Competition Cards with Team Display */}
