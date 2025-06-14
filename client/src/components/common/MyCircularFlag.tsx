@@ -15,6 +15,15 @@ interface MyCircularFlagProps {
     venue?: string;
   };
   showNextMatchOverlay?: boolean;
+  showFifaWorldCupFixtures?: boolean;
+  fifaFixtures?: Array<{
+    id: number;
+    date: string;
+    homeTeam: string;
+    awayTeam: string;
+    status: string;
+    venue?: string;
+  }>;
 }
 
 const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
@@ -26,9 +35,12 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   moveLeft = false,
   nextMatchInfo,
   showNextMatchOverlay = false,
+  showFifaWorldCupFixtures = false,
+  fifaFixtures = [],
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
+  const [teamFifaFixtures, setTeamFifaFixtures] = useState(fifaFixtures);
   const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
     // Extract country from team name or use direct country mapping
     const countryCode = getCountryCode(teamName);
@@ -123,7 +135,27 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       };
       fetchNextMatch();
     }
-  }, [teamName, nextMatchInfo]);
+
+    // Fetch FIFA World Cup fixtures if needed
+    if (showFifaWorldCupFixtures && teamFifaFixtures.length === 0) {
+      const fetchFifaFixtures = async () => {
+        try {
+          const response = await fetch('/api/fifa-world-cup-fixtures');
+          if (response.ok) {
+            const data = await response.json();
+            // Filter fixtures for this specific team
+            const teamFixtures = data.filter((fixture: any) => 
+              fixture.homeTeam === teamName || fixture.awayTeam === teamName
+            );
+            setTeamFifaFixtures(teamFixtures);
+          }
+        } catch (error) {
+          console.log("Could not fetch FIFA fixtures:", error);
+        }
+      };
+      fetchFifaFixtures();
+    }
+  }, [teamName, nextMatchInfo, showFifaWorldCupFixtures, teamFifaFixtures.length]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -144,8 +176,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         position: "relative",
         left: moveLeft ? "-16px" : "4px",
       }}
-      onMouseEnter={() => showNextMatchOverlay && setIsHovered(true)}
-      onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
+      onMouseEnter={() => (showNextMatchOverlay || showFifaWorldCupFixtures) && setIsHovered(true)}
+      onMouseLeave={() => (showNextMatchOverlay || showFifaWorldCupFixtures) && setIsHovered(false)}
     >
       <img
         src={getCircleFlagUrl(teamName, fallbackUrl)}
@@ -171,7 +203,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       <div className="gloss"></div>
 
       {/* Next Match Tooltip - External popup */}
-      {showNextMatchOverlay && isHovered && nextMatch && (
+      {showNextMatchOverlay && isHovered && nextMatch && !showFifaWorldCupFixtures && (
         <div
           className="absolute bg-gray-800 text-white text-xs rounded-lg px-3 py-2 shadow-2xl z-[9999] whitespace-nowrap border border-gray-600 transition-opacity duration-200"
           style={{
@@ -192,6 +224,65 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
             <div className="text-gray-300 text-[10px]">
               {formatDate(nextMatch.date)}
             </div>
+          </div>
+          {/* Tooltip arrow */}
+          <div
+            className="absolute top-full left-1/2 transform -translate-x-1/2"
+            style={{
+              width: 0,
+              height: 0,
+              borderLeft: "5px solid transparent",
+              borderRight: "5px solid transparent",
+              borderTop: "5px solid #374151",
+              marginTop: "0px",
+            }}
+          ></div>
+        </div>
+      )}
+
+      {/* FIFA World Cup Fixtures Tooltip */}
+      {showFifaWorldCupFixtures && isHovered && teamFifaFixtures.length > 0 && (
+        <div
+          className="absolute bg-gray-800 text-white text-xs rounded-lg px-3 py-2 shadow-2xl z-[9999] border border-gray-600 transition-opacity duration-200"
+          style={{
+            bottom: "calc(100% + 8px)",
+            left: "50%",
+            transform: "translateX(-50%)",
+            fontSize: "10px",
+            minWidth: "200px",
+            maxWidth: "300px",
+            maxHeight: "200px",
+            overflowY: "auto",
+            boxShadow: "0 8px 24px rgba(0,0,0,0.6)",
+            backdropFilter: "blur(4px)",
+          }}
+        >
+          <div className="text-center mb-2">
+            <div className="font-semibold text-yellow-400 text-[11px] mb-1">
+              🏆 FIFA Club World Cup Schedule
+            </div>
+          </div>
+          <div className="space-y-1">
+            {teamFifaFixtures.slice(0, 5).map((fixture, index) => (
+              <div key={fixture.id} className="text-center border-b border-gray-600 pb-1 last:border-b-0">
+                <div className="text-white text-[10px] font-medium">
+                  {fixture.homeTeam} vs {fixture.awayTeam}
+                </div>
+                <div className="text-gray-300 text-[9px]">
+                  {formatDate(fixture.date)}
+                </div>
+                {fixture.venue && (
+                  <div className="text-gray-400 text-[8px]">
+                    📍 {fixture.venue}
+                  </div>
+                )}
+              </div>
+            ))}
+            {teamFifaFixtures.length > 5 && (
+              <div className="text-gray-400 text-[9px] text-center pt-1">
+                +{teamFifaFixtures.length - 5} more matches...
+              </div>
+            )}
           </div>
           {/* Tooltip arrow */}
           <div
