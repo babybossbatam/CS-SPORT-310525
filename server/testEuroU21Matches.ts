@@ -28,37 +28,44 @@ async function checkEuroU21Matches() {
     const rapidFixtures = await rapidApiService.getFixturesByDate(testDate, true);
     console.log(`Found ${rapidFixtures.length} total fixtures on ${testDate}`);
 
-    // Filter for Euro U21 (League ID 38)
-    const euroU21Fixtures = rapidFixtures.filter(fixture => 
-      fixture.league?.id === 38 || 
-      fixture.league?.name?.toLowerCase().includes('uefa u21') ||
-      fixture.league?.name?.toLowerCase().includes('euro u21')
+    // Filter for only World competitions (country = "World")
+    const worldFixtures = rapidFixtures.filter(fixture => 
+      fixture.country?.name === "World" || 
+      fixture.country?.name?.toLowerCase() === "world"
     );
 
-    console.log(`\n🇪🇺 Euro U21 Championship fixtures found: ${euroU21Fixtures.length}`);
-    euroU21Fixtures.forEach(fixture => {
-      console.log(`- ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-      console.log(`  Date: ${fixture.fixture.date}, Status: ${fixture.fixture.status.short}`);
-      console.log(`  League: ${fixture.league.name} (ID: ${fixture.league.id})`);
+    console.log(`\n🌍 World competitions found: ${worldFixtures.length}`);
+    
+    // Group by league for better organization
+    const worldLeagues = {};
+    worldFixtures.forEach(fixture => {
+      const leagueId = fixture.league.id;
+      const leagueName = fixture.league.name;
+      
+      if (!worldLeagues[leagueId]) {
+        worldLeagues[leagueId] = {
+          name: leagueName,
+          fixtures: []
+        };
+      }
+      worldLeagues[leagueId].fixtures.push(fixture);
     });
 
-    // Check for FIFA Club World Cup (League ID 15)
-    const fifaFixtures = rapidFixtures.filter(fixture => 
-      fixture.league?.id === 15 || 
-      fixture.league?.name?.toLowerCase().includes('fifa club world cup')
-    );
-
-    console.log(`\n🏆 FIFA Club World Cup fixtures found: ${fifaFixtures.length}`);
-    fifaFixtures.forEach(fixture => {
-      console.log(`- ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-      console.log(`  Date: ${fixture.fixture.date}, Status: ${fixture.fixture.status.short}`);
-      console.log(`  League: ${fixture.league.name} (ID: ${fixture.league.id})`);
+    // Display all World leagues and their matches
+    Object.entries(worldLeagues).forEach(([leagueId, leagueData]) => {
+      console.log(`\n🏆 ${leagueData.name} (ID: ${leagueId}) - ${leagueData.fixtures.length} matches:`);
+      leagueData.fixtures.forEach(fixture => {
+        console.log(`  - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+        console.log(`    Date: ${fixture.fixture.date}, Status: ${fixture.fixture.status.short}`);
+      });
     });
 
-    // Search for specific team combinations
-    console.log('\n🔍 Searching for specific Euro U21 matches...');
+    // Search for specific team combinations in World competitions only
+    console.log('\n🔍 Searching for specific matches in World competitions...');
+    
+    // Search for Euro U21 teams in World competitions
     for (const match of targetMatches) {
-      const found = rapidFixtures.find(fixture => 
+      const found = worldFixtures.find(fixture => 
         (fixture.teams.home.name.toLowerCase().includes(match.home.toLowerCase().replace(' u21', '')) &&
          fixture.teams.away.name.toLowerCase().includes(match.away.toLowerCase().replace(' u21', ''))) ||
         (fixture.teams.home.name.toLowerCase().includes(match.home.toLowerCase()) &&
@@ -66,15 +73,15 @@ async function checkEuroU21Matches() {
       );
       
       if (found) {
-        console.log(`✅ Found: ${found.teams.home.name} vs ${found.teams.away.name}`);
-        console.log(`   League: ${found.league.name}, Date: ${found.fixture.date}`);
+        console.log(`✅ Found in World competitions: ${found.teams.home.name} vs ${found.teams.away.name}`);
+        console.log(`   League: ${found.league.name}, Country: ${found.country?.name}, Date: ${found.fixture.date}`);
       } else {
-        console.log(`❌ Not found: ${match.home} vs ${match.away}`);
+        console.log(`❌ Not found in World competitions: ${match.home} vs ${match.away}`);
       }
     }
 
-    // Search for FIFA match
-    const foundFifa = rapidFixtures.find(fixture => 
+    // Search for FIFA match in World competitions
+    const foundFifa = worldFixtures.find(fixture => 
       (fixture.teams.home.name.toLowerCase().includes('al ahly') &&
        fixture.teams.away.name.toLowerCase().includes('inter miami')) ||
       (fixture.teams.away.name.toLowerCase().includes('al ahly') &&
@@ -82,10 +89,10 @@ async function checkEuroU21Matches() {
     );
 
     if (foundFifa) {
-      console.log(`✅ Found FIFA match: ${foundFifa.teams.home.name} vs ${foundFifa.teams.away.name}`);
-      console.log(`   League: ${foundFifa.league.name}, Date: ${foundFifa.fixture.date}`);
+      console.log(`✅ Found FIFA match in World competitions: ${foundFifa.teams.home.name} vs ${foundFifa.teams.away.name}`);
+      console.log(`   League: ${foundFifa.league.name}, Country: ${foundFifa.country?.name}, Date: ${foundFifa.fixture.date}`);
     } else {
-      console.log(`❌ FIFA match not found: ${fifaMatch.home} vs ${fifaMatch.away}`);
+      console.log(`❌ FIFA match not found in World competitions: ${fifaMatch.home} vs ${fifaMatch.away}`);
     }
 
   } catch (error) {
@@ -142,23 +149,39 @@ async function checkEuroU21Matches() {
     console.error('❌ SportsRadar API Error:', error);
   }
 
-  // 3. Check what leagues are available for Euro competitions
-  console.log('\n\n📊 Summary of Available Euro Competitions:');
+  // 3. Check what World competitions are available
+  console.log('\n\n📊 Summary of All Available World Competitions:');
   console.log('='.repeat(50));
   
   try {
     const allLeagues = await rapidApiService.getLeagues();
-    const euroLeagues = allLeagues.filter(league => 
-      league.league.name.toLowerCase().includes('euro') ||
-      league.league.name.toLowerCase().includes('uefa') ||
-      league.league.name.toLowerCase().includes('u21') ||
-      league.league.name.toLowerCase().includes('u20') ||
-      league.league.name.toLowerCase().includes('youth')
+    const worldLeagues = allLeagues.filter(league => 
+      league.country?.name === "World" || 
+      league.country?.name?.toLowerCase() === "world"
     );
 
-    console.log(`Found ${euroLeagues.length} Euro/UEFA/Youth leagues in RapidAPI:`);
-    euroLeagues.forEach(league => {
-      console.log(`- ${league.league.name} (ID: ${league.league.id}, Country: ${league.country?.name || 'N/A'})`);
+    console.log(`Found ${worldLeagues.length} World competitions in RapidAPI:`);
+    worldLeagues.forEach(league => {
+      console.log(`- ${league.league.name} (ID: ${league.league.id})`);
+    });
+
+    // Also show which of these have fixtures on our test date
+    const worldLeagueIds = worldLeagues.map(l => l.league.id);
+    const activeWorldLeagues = worldFixtures.reduce((acc, fixture) => {
+      const leagueId = fixture.league.id;
+      if (!acc[leagueId]) {
+        acc[leagueId] = {
+          name: fixture.league.name,
+          count: 0
+        };
+      }
+      acc[leagueId].count++;
+      return acc;
+    }, {});
+
+    console.log(`\n📅 World leagues with fixtures on ${testDate}:`);
+    Object.entries(activeWorldLeagues).forEach(([leagueId, data]) => {
+      console.log(`- ${data.name} (ID: ${leagueId}): ${data.count} matches`);
     });
 
   } catch (error) {
