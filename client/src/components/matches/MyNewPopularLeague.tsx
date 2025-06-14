@@ -1,4 +1,4 @@
-
+typescript
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -292,7 +292,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
       const competitionMatches = fixtures.filter((fixture) => {
         // Check if fixture belongs to this competition
         const belongsToCompetition = leagueIds.includes(fixture.league?.id);
-        
+
         if (!belongsToCompetition) return false;
 
         // Apply smart time filtering
@@ -665,7 +665,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                         leagueName: match.league.name
                       });
                     }
-                    
+
                     return (
                     <LazyMatchItem key={match.fixture.id}>
                       <div
@@ -893,7 +893,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                                   const hasValidScores =
                                     homeScore !== null &&
                                     homeScore !== undefined &&
-                                    awayScore !== null &&
+                                    awayScore !==null &&
                                     awayScore !== undefined &&
                                     !isNaN(Number(homeScore)) &&
                                     !isNaN(Number(awayScore));
@@ -1042,7 +1042,8 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                         </div>
                       </div>
                     </LazyMatchItem>
-                  ))}
+                    );
+                  })}
               </div>
             )}
           </Card>
