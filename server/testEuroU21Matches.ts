@@ -28,44 +28,13 @@ async function checkEuroU21Matches() {
     console.log('='.repeat(50));
     
     // Get fixtures by date
-    const rapidFixtures = await rapidApiService.getFixturesByDate(testDate, true);
+    const rapidFixtures = await rapidApiService.getFixturesByDate(testDate);
     console.log(`Found ${rapidFixtures.length} total fixtures on ${testDate}`);
 
-    // Filter for only World competitions (country = "World") and exclude women's matches and China
+    // Filter for only World competitions (country = "World")
     worldFixtures = rapidFixtures.filter(fixture => {
-      const isWorldCompetition = fixture.country?.name === "World" || 
-                                 fixture.country?.name?.toLowerCase() === "world";
-      
-      const leagueName = fixture.league?.name?.toLowerCase() || '';
-      const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || '';
-      const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || '';
-      
-      const isWomensMatch = leagueName.includes('women') || 
-                           leagueName.includes('female') || 
-                           leagueName.includes('ladies') ||
-                           leagueName.includes('feminine') ||
-                           leagueName.includes('feminin') ||
-                           leagueName.includes('donne') ||
-                           leagueName.includes('frauen') ||
-                           leagueName.includes('femenino') ||
-                           leagueName.includes("women's");
-      
-      const isChinaMatch = leagueName.includes('china') ||
-                          leagueName.includes('chinese') ||
-                          homeTeamName.includes('china') ||
-                          awayTeamName.includes('china') ||
-                          homeTeamName.includes('chinese') ||
-                          awayTeamName.includes('chinese');
-      
-      const isAsiaMatch = leagueName.includes('asia') ||
-                         leagueName.includes('asian') ||
-                         leagueName.includes('afc') ||
-                         homeTeamName.includes('asia') ||
-                         awayTeamName.includes('asia') ||
-                         homeTeamName.includes('asian') ||
-                         awayTeamName.includes('asian');
-      
-      return isWorldCompetition && !isWomensMatch && !isChinaMatch && !isAsiaMatch;
+      return fixture.country?.name === "World" || 
+             fixture.country?.name?.toLowerCase() === "world";
     });
 
     console.log(`\n🌍 World competitions found: ${worldFixtures.length}`);
