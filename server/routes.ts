@@ -494,7 +494,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 36, priority: 7.4 }, // Africa Cup of Nations - Qualification
         { id: 37, priority: 7.5 }, // World Cup Qualification - Intercontinental Play-offs
         // Youth and U-League Championships (32 World Country Leagues)
-        { id: 38, priority: 8 }, // UEFA U21 Championship
+        { id: 38, priority: 7.1 }, // UEFA U21 Championship (Euro U21)
         { id: 480, priority: 8.1 }, // Olympic Football Tournament
         { id: 875, priority: 8.2 }, // UEFA U19 Championship
         { id: 876, priority: 8.3 }, // UEFA U17 Championship

@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useQuery } from '@tanstack/react-query';
@@ -284,3 +283,45 @@ const AllMatchesComparison: React.FC<AllMatchesComparisonProps> = ({ selectedDat
 };
 
 export default AllMatchesComparison;
+
+const POPULAR_LEAGUES = [
+  39, 45, 48, // England: Premier League, FA Cup, EFL Cup
+  140, 143, // Spain: La Liga, Copa del Rey
+  135, 137, // Italy: Serie A, Coppa Italia
+  78, 81, // Germany: Bundesliga, DFB Pokal
+  61, 66, // France: Ligue 1, Coupe de France
+  301, // UAE Pro League
+  233, // Egyptian Premier League
+  15, // FIFA Club World Cup
+  38, // UEFA U21 Championship (Euro U21)
+  914, 848, // COSAFA Cup, UEFA Conference League
+  2, 3, // Champions League, Europa League
+];
+
+export const isInternationalCompetition = (leagueName: string, country: string) => {
+  // Check if it's an international competition
+  const isInternationalCompetition =
+    leagueName.includes("champions league") ||
+    leagueName.includes("europa league") ||
+    leagueName.includes("conference league") ||
+    leagueName.includes("uefa") ||
+    leagueName.includes("world cup") ||
+    leagueName.includes("fifa club world cup") ||
+    leagueName.includes("fifa") ||
+    leagueName.includes("u21") ||
+    leagueName.includes("euro u21") ||
+    leagueName.includes("uefa u21") ||
+    leagueName.includes("conmebol") ||
+    leagueName.includes("copa america") ||
+    leagueName.includes("copa libertadores") ||
+    leagueName.includes("copa sudamericana") ||
+    leagueName.includes("libertadores") ||
+    leagueName.includes("sudamericana") ||
+    (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
+    (leagueName.includes("international") && !leagueName.includes("women")) ||
+    country.includes("world") ||
+    country.includes("europe") ||
+    country.includes("international");
+
+  return isInternationalCompetition;
+};
