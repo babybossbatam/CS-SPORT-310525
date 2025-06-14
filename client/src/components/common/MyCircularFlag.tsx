@@ -274,14 +274,12 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           </div>
           <div className="space-y-1">
             {(teamFifaFixtures.length > 0 ? teamFifaFixtures : fifaFixtures).slice(0, 5).map((fixture, index) => (
-              <div key={fixture.id} className="text-left border-b border-gray-600 pb-1 last:border-b-0">
+              <div key={fixture.id} className="text-center border-b border-gray-600 pb-1 last:border-b-0">
                 <div className="text-white text-[10px] font-medium">
-                  <span className="text-blue-300">{fixture.homeTeam}</span>
-                  <span className="text-gray-400 mx-1">vs</span>
-                  <span className="text-orange-300">{fixture.awayTeam}</span>
+                  {fixture.homeTeam} vs {fixture.awayTeam}
                 </div>
                 <div className="text-gray-300 text-[9px]">
-                  📅 {formatDate(fixture.date)}
+                  {formatDate(fixture.date)}
                 </div>
                 {fixture.venue && (
                   <div className="text-gray-400 text-[8px]">
@@ -289,7 +287,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
                   </div>
                 )}
               </div>
-            ))}</div>
+            ))}
             {(teamFifaFixtures.length > 0 ? teamFifaFixtures : fifaFixtures).length > 5 && (
               <div className="text-gray-400 text-[9px] text-center pt-1">
                 +{(teamFifaFixtures.length > 0 ? teamFifaFixtures : fifaFixtures).length - 5} more matches...
