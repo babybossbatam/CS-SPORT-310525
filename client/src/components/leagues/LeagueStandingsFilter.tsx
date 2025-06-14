@@ -514,7 +514,24 @@ const LeagueStandingsFilter = () => {
     refetchOnWindowFocus: false, // Don't refetch when window gains focus
   });
 
-  const isLoading = standingsLoading || fixturesLoading || leaguesLoading;
+  // Add FIFA fixtures query
+  const { data: fifaFixtures, isLoading: fifaFixturesLoading } = useQuery({
+    queryKey: ["fifaFixtures", todayDateKey],
+    queryFn: async () => {
+      const response = await apiRequest(
+        "GET",
+        `/api/fifa-club-world-cup/fixtures`,
+      );
+      return response.json();
+    },
+    enabled: selectedLeagueName?.toLowerCase().includes('fifa club world cup'), // Only fetch for FIFA Club World Cup
+    staleTime: 24 * 60 * 60 * 1000, // 24 hours
+    gcTime: 24 * 60 * 60 * 1000, // 24 hours
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+  });
+
+  const isLoading = standingsLoading || fixturesLoading || leaguesLoading || fifaFixturesLoading;
 
   // Function to get team color from logo or team name
   const getTeamColor = (teamName: string, rank: number): string => {
@@ -835,6 +852,10 @@ const LeagueStandingsFilter = () => {
                                           size="28px"
                                           className="popular-leagues-size"
                                           showNextMatchOverlay={true}
+                                          showFifaWorldCupFixtures={selectedLeagueName?.toLowerCase().includes('fifa club world cup')}
+                                          fifaFixtures={fifaFixtures?.filter((fixture: any) =>
+                                            fixture.homeTeam === standing.team.name || fixture.awayTeam === standing.team.name
+                                          ) || []}
                                         />
                                       </div>
                                     ) : (
@@ -1009,7 +1030,7 @@ const LeagueStandingsFilter = () => {
                     </div>
                   ),
                 )}
-                
+
                 {/* Link to view full group standings if more than 2 groups exist */}
                 {standings.league.standings.length > 2 && (
                   <div className="text-center mt-6 pt-4 border-t border-gray-100">
