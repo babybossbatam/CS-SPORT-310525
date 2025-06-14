@@ -786,6 +786,12 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                                   ? "winner"
                                   : ""
                               }`}
+                              style={{
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                maxWidth: "120px"
+                              }}
                             >
                               {shortenTeamName(match.teams.home.name) ||
                                 "Unknown Team"}
@@ -824,7 +830,14 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                             </div>
 
                             {/* Score/Time Center - Fixed width and centered */}
-                            <div className="match-score-container">
+                            <div 
+                              className="match-score-container"
+                              style={{
+                                minWidth: "60px",
+                                textAlign: "center",
+                                padding: "0 8px"
+                              }}
+                            >
                               {(() => {
                                 const status = match.fixture.status.short;
                                 const fixtureDate = parseISO(
@@ -987,6 +1000,12 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                                   ? "winner"
                                   : ""
                               }`}
+                              style={{
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                maxWidth: "120px"
+                              }}
                             >
                               {shortenTeamName(match.teams.away.name) ||
                                 "Unknown Team"}
