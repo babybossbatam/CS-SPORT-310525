@@ -31,12 +31,15 @@ async function checkEuroU21Matches() {
     const rapidFixtures = await rapidApiService.getFixturesByDate(testDate, true);
     console.log(`Found ${rapidFixtures.length} total fixtures on ${testDate}`);
 
-    // Filter for only World competitions (country = "World") and exclude women's matches
+    // Filter for only World competitions (country = "World") and exclude women's matches and China
     worldFixtures = rapidFixtures.filter(fixture => {
       const isWorldCompetition = fixture.country?.name === "World" || 
                                  fixture.country?.name?.toLowerCase() === "world";
       
       const leagueName = fixture.league?.name?.toLowerCase() || '';
+      const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || '';
+      const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || '';
+      
       const isWomensMatch = leagueName.includes('women') || 
                            leagueName.includes('female') || 
                            leagueName.includes('ladies') ||
@@ -47,7 +50,14 @@ async function checkEuroU21Matches() {
                            leagueName.includes('femenino') ||
                            leagueName.includes("women's");
       
-      return isWorldCompetition && !isWomensMatch;
+      const isChinaMatch = leagueName.includes('china') ||
+                          leagueName.includes('chinese') ||
+                          homeTeamName.includes('china') ||
+                          awayTeamName.includes('china') ||
+                          homeTeamName.includes('chinese') ||
+                          awayTeamName.includes('chinese');
+      
+      return isWorldCompetition && !isWomensMatch && !isChinaMatch;
     });
 
     console.log(`\n🌍 World competitions found: ${worldFixtures.length}`);
