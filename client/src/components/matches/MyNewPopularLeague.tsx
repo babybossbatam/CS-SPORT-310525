@@ -226,15 +226,16 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
     "FIFA Club World Cup - Play-In": [1186],
   };
 
-  // Smart cache duration based on date type
+  // Smart cache duration based on date type - more consistent for live matches
   const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
   const isFuture = selectedDate > today;
 
+  // Shorter cache for live/current matches to ensure consistency
   const cacheMaxAge = isFuture
     ? 4 * 60 * 60 * 1000
     : isToday
-      ? 2 * 60 * 60 * 1000
+      ? 1 * 60 * 1000 // 1 minute for today to catch live match updates
       : 30 * 60 * 1000;
 
   // Fetch all fixtures for the selected date
@@ -308,6 +309,17 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
 
         // For FIFA Club World Cup - show ALL matches (no team filtering)
         if (competitionName.includes("FIFA Club World Cup")) {
+          // Additional logging for FIFA matches to debug timezone issues
+          console.log(`🏆 [FIFA Club World Cup] Found match:`, {
+            id: fixture.fixture.id,
+            date: fixture.fixture.date,
+            dateUTC: new Date(fixture.fixture.date).toISOString(),
+            selectedDate,
+            status: fixture.fixture.status.short,
+            homeTeam: fixture.teams.home.name,
+            awayTeam: fixture.teams.away.name,
+            timezone: fixture.fixture.timezone || 'UTC'
+          });
           return true;
         }
 
@@ -676,18 +688,26 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                     return aDistance - bDistance;
                   })
                   .map((match: any) => {
-                    // Debug log to help identify specific competitions
+                    // Debug log to help identify specific competitions and timezone issues
                     if (competition.name.includes("U21") || competition.name.includes("FIFA") || competition.name.includes("World Cup")) {
+                      const matchDate = parseISO(match.fixture.date);
+                      const localDate = format(matchDate, "yyyy-MM-dd");
+                      
                       console.log(`🏆 [${competition.name}] Match found:`, {
                         id: match.fixture.id,
-                        date: match.fixture.date,
+                        originalDate: match.fixture.date,
+                        utcDate: matchDate.toISOString(),
+                        localDate: localDate,
+                        selectedDate,
+                        dateMatches: localDate === selectedDate,
                         status: match.fixture.status.short,
                         home: match.teams.home.name,
                         away: match.teams.away.name,
-                        time: format(parseISO(match.fixture.date), "HH:mm"),
+                        time: format(matchDate, "HH:mm"),
                         leagueId: match.league.id,
                         leagueName: match.league.name,
-                        competitionName: competition.name
+                        competitionName: competition.name,
+                        timezone: match.fixture.timezone || 'UTC'
                       });
                     }
 
@@ -759,9 +779,12 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                               const currentTime = now.getTime();
                               const timeDiffMinutes = (currentTime - matchTime) / (1000 * 60);
 
-                              // Smart status detection - if match was supposed to start more than 2.5 hours ago
-                              // and still shows live status, treat it as finished
-                              const isLikelyFinished = timeDiffMinutes > 150; // 2.5 hours in minutes
+                              // For FIFA Club World Cup, be more lenient with live status
+                              const isFifaMatch = competition.name.includes("FIFA Club World Cup");
+                              
+                              // Smart status detection - if match was supposed to start more than 4 hours ago
+                              // and still shows live status, treat it as finished (extended for FIFA matches)
+                              const isLikelyFinished = isFifaMatch ? timeDiffMinutes > 240 : timeDiffMinutes > 150; // 4 hours for FIFA, 2.5 for others
 
                               // Finished matches status - check this FIRST and RETURN immediately
                               if (
