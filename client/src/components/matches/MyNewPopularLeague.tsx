@@ -291,6 +291,17 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
       // Add more target teams as needed
     ];
 
+    // Priority league IDs that should always be included regardless of team names
+    const priorityLeagueIds = [
+      38,  // UEFA U21 Championship - highest priority
+      15,  // FIFA Club World Cup
+      22,  // CONCACAF Gold Cup
+      1,   // World Cup
+      4,   // Euro Championship
+      6,   // Africa Cup of Nations
+      9,   // Copa America
+    ];
+
     const competitionsWithMatches: Array<{
       name: string;
       icon: string;
@@ -307,13 +318,14 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
           return false;
         }
 
-        // For FIFA Club World Cup - show ALL matches (no team filtering)
-        if (competitionName.includes("FIFA Club World Cup")) {
-          // Additional logging for FIFA matches to debug timezone issues
-          console.log(`🏆 [FIFA Club World Cup] Found match:`, {
+        // For priority leagues (UEFA U21, FIFA Club World Cup, etc.) - show ALL matches
+        if (priorityLeagueIds.includes(fixture.league?.id)) {
+          // Additional logging for priority matches
+          console.log(`🎯 [${competitionName}] Priority league match found:`, {
             id: fixture.fixture.id,
+            leagueId: fixture.league.id,
+            leagueName: fixture.league.name,
             date: fixture.fixture.date,
-            dateUTC: new Date(fixture.fixture.date).toISOString(),
             selectedDate,
             status: fixture.fixture.status.short,
             homeTeam: fixture.teams.home.name,
@@ -564,7 +576,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                       fontSize: "10px",
                     }}
                   >
-                    • {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                    • Asia/Manila
                   </span>
                   {competition.matches.length > 0 && (
                     <span
@@ -576,22 +588,37 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                       }}
                     >
                       • {(() => {
-                        // Get the first upcoming match time for display
-                        const upcomingMatch = competition.matches
+                        // Get all match times and show the range or first upcoming time
+                        const upcomingMatches = competition.matches
                           .filter(match => match.fixture.status.short === "NS" || match.fixture.status.short === "TBD")
-                          .sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime())[0];
+                          .sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
                         
-                        if (upcomingMatch) {
-                          const matchDate = parseISO(upcomingMatch.fixture.date);
-                          const localTime = format(matchDate, "HH:mm");
-                          return localTime;
+                        if (upcomingMatches.length > 0) {
+                          // Convert UTC time to Asia/Manila timezone
+                          const firstMatchDate = parseISO(upcomingMatches[0].fixture.date);
+                          
+                          // Create a date in Asia/Manila timezone
+                          const manilaTime = new Intl.DateTimeFormat('en-US', {
+                            timeZone: 'Asia/Manila',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            hour12: false
+                          }).format(firstMatchDate);
+                          
+                          return manilaTime;
                         }
                         
                         // If no upcoming matches, show the first match time
                         const firstMatch = competition.matches[0];
-                        const matchDate = parseISO(firstMatch.fixture.date);
-                        const localTime = format(matchDate, "HH:mm");
-                        return localTime;
+                        const firstMatchDate = parseISO(firstMatch.fixture.date);
+                        const manilaTime = new Intl.DateTimeFormat('en-US', {
+                          timeZone: 'Asia/Manila',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          hour12: false
+                        }).format(firstMatchDate);
+                        
+                        return manilaTime;
                       })()}
                     </span>
                   )}
