@@ -1173,14 +1173,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                 const getWorldLeaguePriority = (leagueData: any) => {
                   const name = (leagueData.league?.name || "").toLowerCase();
+                  const leagueId = leagueData.league?.id;
                   // Check if it's marked as friendlies or contains friendlies in name
                   const isFriendlies =
                     leagueData.isFriendlies || name.includes("friendlies");
 
                   console.log(
-                    `🔍 [PRIORITY CHECK] League: "${leagueData.league?.name}"`,
+                    `🔍 [PRIORITY CHECK] League: "${leagueData.league?.name}" (ID: ${leagueId})`,
                     {
                       nameToLower: name,
+                      leagueId,
                       isFriendlies,
                       leagueDataIsFriendlies: leagueData.isFriendlies,
                       nameIncludesFriendlies: name.includes("friendlies"),
@@ -1191,94 +1193,113 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     },
                   );
 
-                  // Priority 1: FIFA Club World Cup (ABSOLUTE TOP PRIORITY)
+                  // Priority 0: FIFA Club World Cup by ID (ABSOLUTE TOP PRIORITY)
+                  if (leagueId === 15) {
+                    console.log(
+                      `✅ [PRIORITY 0] FIFA Club World Cup found by ID: "${leagueData.league?.name}" (ID: ${leagueId}) - ABSOLUTE TOP PRIORITY`,
+                    );
+                    return 0;
+                  }
+
+                  // Priority 0: FIFA Club World Cup by name (ABSOLUTE TOP PRIORITY)
                   if (
                     name.includes("fifa club world cup") ||
                     name.includes("club world cup")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 1] FIFA Club World Cup found: "${leagueData.league?.name}" - ABSOLUTE TOP PRIORITY`,
+                      `✅ [PRIORITY 0] FIFA Club World Cup found by name: "${leagueData.league?.name}" - ABSOLUTE TOP PRIORITY`,
                     );
-                    return 1;
+                    return 0;
                   }
 
-                  // Priority 2: UEFA Nations League
+                  // Priority 1: UEFA Nations League
                   if (
                     name.includes("uefa nations league") &&
                     !name.includes("women")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 2] UEFA Nations League found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 1] UEFA Nations League found: "${leagueData.league?.name}"`,
                     );
-                    return 2;
+                    return 1;
                   }
 
-                  // Priority 3: World Cup Qualification South America
+                  // Priority 2: World Cup Qualification South America
                   if (
                     name.includes("world cup") &&
                     name.includes("qualification") &&
                     name.includes("south america")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 3] World Cup Qualification South America found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 2] World Cup Qualification South America found: "${leagueData.league?.name}"`,
                     );
-                    return 3;
+                    return 2;
                   }
 
-                  // Priority 4: World Cup Qualification Europe
+                  // Priority 3: World Cup Qualification Europe
                   if (
                     name.includes("world cup") &&
                     name.includes("qualification") &&
                     name.includes("europe")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 4] World Cup Qualification Europe found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 3] World Cup Qualification Europe found: "${leagueData.league?.name}"`,
                     );
-                    return 4;
+                    return 3;
                   }
 
-                  // Priority 5: Friendlies (but exclude UEFA Nations League and women's matches)
+                  // Priority 4: Friendlies (but exclude UEFA Nations League and women's matches)
                   if (
                     isFriendlies &&
                     !name.includes("uefa nations league") &&
                     !name.includes("women")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 5] Friendlies found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 4] Friendlies found: "${leagueData.league?.name}"`,
                     );
-                    return 5;
+                    return 4;
                   }
 
-                  // Priority 6: World Cup Qualification Asia
+                  // Priority 5: World Cup Qualification Asia
                   if (
                     name.includes("world cup") &&
                     name.includes("qualification") &&
                     name.includes("asia")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 6] World Cup Qualification Asia found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 5] World Cup Qualification Asia found: "${leagueData.league?.name}"`,
                     );
-                    return 6;
+                    return 5;
                   }
 
-                  // Priority 7: World Cup Qualification CONCACAF
+                  // Priority 6: World Cup Qualification CONCACAF
                   if (
                     name.includes("world cup") &&
                     name.includes("qualification") &&
                     name.includes("concacaf")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 7] World Cup Qualification CONCACAF found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 6] World Cup Qualification CONCACAF found: "${leagueData.league?.name}"`,
+                    );
+                    return 6;
+                  }
+
+                  // Priority 7: Tournoi Maurice Revello
+                  if (name.includes("tournoi maurice revello")) {
+                    console.log(
+                      `✅ [PRIORITY 7] Tournoi Maurice Revello found: "${leagueData.league?.name}"`,
                     );
                     return 7;
                   }
 
-                  // Priority 8: Tournoi Maurice Revello
-                  if (name.includes("tournoi maurice revello")) {
+                  // Priority 998: UEFA Nations League - Women (second to last)
+                  if (
+                    name.includes("uefa nations league") &&
+                    name.includes("women")
+                  ) {
                     console.log(
-                      `✅ [PRIORITY 8] Tournoi Maurice Revello found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 998] UEFA Nations League - Women found: "${leagueData.league?.name}"`,
                     );
-                    return 8;
+                    return 998;
                   }
 
                   console.log(
