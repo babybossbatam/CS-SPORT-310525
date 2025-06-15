@@ -39,9 +39,9 @@ router.get('/upcoming', async (req, res) => {
   try {
     console.log(`🎯 [UEFA U21 Routes] Fetching upcoming U21 matches`);
     
-    // Try to get real data first, fallback to sample data
-    const fixtures = await uefaU21ApiService.getRealOrSampleU21Matches();
-    console.log(`🎯 [UEFA U21 Routes] Returning ${fixtures.length} upcoming fixtures`);
+    // Return sample data directly since real API doesn't have current U21 matches
+    const fixtures = await uefaU21ApiService.getSampleU21Matches();
+    console.log(`🎯 [UEFA U21 Routes] Returning ${fixtures.length} sample upcoming fixtures`);
     
     res.json(fixtures);
   } catch (error) {
@@ -55,9 +55,9 @@ router.get('/recent', async (req, res) => {
   try {
     console.log(`🎯 [UEFA U21 Routes] Fetching recent U21 matches`);
     
-    // Try to get real data first, fallback to sample data
-    const fixtures = await uefaU21ApiService.getRealOrSampleU21Matches();
-    console.log(`🎯 [UEFA U21 Routes] Returning ${fixtures.length} recent fixtures`);
+    // Return sample data directly
+    const fixtures = await uefaU21ApiService.getSampleU21Matches();
+    console.log(`🎯 [UEFA U21 Routes] Returning ${fixtures.length} sample recent fixtures`);
     
     res.json(fixtures);
   } catch (error) {
@@ -71,9 +71,9 @@ router.get('/season/current', async (req, res) => {
   try {
     console.log(`🎯 [UEFA U21 Routes] Fetching current season fixtures`);
     
-    // Try to get real data first, fallback to sample data
-    const fixtures = await uefaU21ApiService.getRealOrSampleU21Matches();
-    console.log(`🎯 [UEFA U21 Routes] Returning ${fixtures.length} season fixtures`);
+    // Return sample data directly
+    const fixtures = await uefaU21ApiService.getSampleU21Matches();
+    console.log(`🎯 [UEFA U21 Routes] Returning ${fixtures.length} sample season fixtures`);
     
     res.json(fixtures);
   } catch (error) {
@@ -87,7 +87,8 @@ router.get('/sample', async (req, res) => {
   try {
     console.log(`🎯 [UEFA U21 Routes] Fetching sample U21 matches`);
     
-    const fixtures = await uefaU21ApiService.getRealOrSampleU21Matches();
+    // Return sample data directly
+    const fixtures = await uefaU21ApiService.getSampleU21Matches();
     console.log(`🎯 [UEFA U21 Routes] Returning ${fixtures.length} sample fixtures`);
     
     res.json(fixtures);

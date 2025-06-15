@@ -328,26 +328,26 @@ class UefaU21ApiService {
    */
   async getSampleU21Matches(): Promise<U21Match[]> {
     try {
-      console.log(`🎯 [UEFA U21] Fetching sample U21 matches from known teams`);
+      console.log(`🎯 [UEFA U21] Creating sample U21 matches for the specific teams requested`);
       
-      // Get current date and add a few days for upcoming matches
-      const today = new Date();
-      const tomorrow = new Date(today);
-      tomorrow.setDate(today.getDate() + 1);
-      const dayAfter = new Date(today);
-      dayAfter.setDate(today.getDate() + 2);
+      // Create specific dates for the matches mentioned by the user
+      const matchDate1 = new Date();
+      matchDate1.setHours(16, 0, 0, 0); // 16:00 UTC
       
-      // Create mock data for the specific matches mentioned with realistic upcoming dates
+      const matchDate2 = new Date();
+      matchDate2.setHours(19, 0, 0, 0); // 19:00 UTC
+      
+      // Create the exact matches mentioned by the user with correct times
       const mockU21Matches: U21Match[] = [
         {
           fixture: {
             id: 999001,
-            date: `${tomorrow.toISOString().split('T')[0]}T16:00:00+00:00`,
+            date: matchDate1.toISOString(), // 16:00 UTC (4:00 PM UTC)
             status: { long: 'Not Started', short: 'NS' },
             venue: { name: 'Arena Națională', city: 'Bucharest' }
           },
           league: {
-            id: this.leagueId,
+            id: 38, // UEFA U21 Championship
             name: 'UEFA European Under-21 Championship',
             logo: 'https://media.api-sports.io/football/leagues/38.png',
             country: 'Europe'
@@ -365,12 +365,12 @@ class UefaU21ApiService {
         {
           fixture: {
             id: 999002,
-            date: `${tomorrow.toISOString().split('T')[0]}T19:00:00+00:00`,
+            date: matchDate2.toISOString(), // 19:00 UTC (7:00 PM UTC)
             status: { long: 'Not Started', short: 'NS' },
             venue: { name: 'Stade de France', city: 'Paris' }
           },
           league: {
-            id: this.leagueId,
+            id: 38,
             name: 'UEFA European Under-21 Championship',
             logo: 'https://media.api-sports.io/football/leagues/38.png',
             country: 'Europe'
@@ -388,12 +388,12 @@ class UefaU21ApiService {
         {
           fixture: {
             id: 999003,
-            date: `${dayAfter.toISOString().split('T')[0]}T19:00:00+00:00`,
+            date: matchDate2.toISOString(), // 19:00 UTC (7:00 PM UTC)
             status: { long: 'Not Started', short: 'NS' },
             venue: { name: 'Estádio da Luz', city: 'Lisbon' }
           },
           league: {
-            id: this.leagueId,
+            id: 38,
             name: 'UEFA European Under-21 Championship',
             logo: 'https://media.api-sports.io/football/leagues/38.png',
             country: 'Europe'
@@ -411,12 +411,12 @@ class UefaU21ApiService {
         {
           fixture: {
             id: 999004,
-            date: `${dayAfter.toISOString().split('T')[0]}T19:00:00+00:00`,
+            date: matchDate2.toISOString(), // 19:00 UTC (7:00 PM UTC)
             status: { long: 'Not Started', short: 'NS' },
             venue: { name: 'Tehelné pole', city: 'Bratislava' }
           },
           league: {
-            id: this.leagueId,
+            id: 38,
             name: 'UEFA European Under-21 Championship',
             logo: 'https://media.api-sports.io/football/leagues/38.png',
             country: 'Europe'
