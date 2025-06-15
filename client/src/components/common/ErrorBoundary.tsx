@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode, startTransition } from 'react';
 import { handleNetworkRecovery } from '../../lib/errorHandler';
 
 interface Props {
@@ -50,7 +50,9 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   handleNetworkError = async () => {
-    this.setState({ isRecovering: true });
+    startTransition(() => {
+      this.setState({ isRecovering: true });
+    });
 
     try {
       // Attempt network recovery
@@ -58,25 +60,31 @@ export default class ErrorBoundary extends Component<Props, State> {
 
       // Reset error state after recovery attempt
       setTimeout(() => {
-        this.setState({
-          hasError: false,
-          error: null,
-          errorInfo: null,
-          isRecovering: false
+        startTransition(() => {
+          this.setState({
+            hasError: false,
+            error: null,
+            errorInfo: null,
+            isRecovering: false
+          });
         });
       }, 3000);
     } catch (recoveryError) {
       console.error('Recovery failed:', recoveryError);
-      this.setState({ isRecovering: false });
+      startTransition(() => {
+        this.setState({ isRecovering: false });
+      });
     }
   };
 
   handleRetry = () => {
-    this.setState({
-      hasError: false,
-      error: null,
-      errorInfo: null,
-      isRecovering: false
+    startTransition(() => {
+      this.setState({
+        hasError: false,
+        error: null,
+        errorInfo: null,
+        isRecovering: false
+      });
     });
   };
 
