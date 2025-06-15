@@ -309,7 +309,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
         // Enhanced team search - look for target teams or U21/youth indicators
         const homeTeam = fixture.teams?.home?.name?.toLowerCase() || "";
         const awayTeam = fixture.teams?.away?.name?.toLowerCase() || "";
-        
+
         // Check for specific target teams (case-insensitive partial match)
         const hasTargetTeam = targetTeams.some(team => 
           homeTeam.includes(team.toLowerCase()) || 
@@ -340,7 +340,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
 
       if (competitionMatches.length > 0) {
         console.log(`🎯 [MyNewPopularLeague] Found ${competitionMatches.length} matches in ${competitionName}`);
-        
+
         competitionsWithMatches.push({
           name: competitionName,
           icon: "🏆",
@@ -356,11 +356,11 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
       // Prioritize Euro U21 Championship
       if (a.name.includes("UEFA U21") && !b.name.includes("UEFA U21")) return -1;
       if (!a.name.includes("UEFA U21") && b.name.includes("UEFA U21")) return 1;
-      
+
       // Prioritize FIFA competitions
       if (a.name.includes("FIFA") && !b.name.includes("FIFA")) return -1;
       if (!a.name.includes("FIFA") && b.name.includes("FIFA")) return 1;
-      
+
       // Then sort by match count
       if (b.matchCount !== a.matchCount) {
         return b.matchCount - a.matchCount;
@@ -685,7 +685,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                         competitionName: competition.name
                       });
                     }
-                    
+
                     // Additional debugging for Euro U21 specifically
                     if (match.league.id === 38) {
                       console.log(`🇪🇺 [Euro U21] Found match:`, {
@@ -696,7 +696,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                         status: match.fixture.status.short
                       });
                     }
-                    
+
                     // Additional debugging for FIFA Club World Cup specifically  
                     if (match.league.id === 15) {
                       console.log(`🏆 [FIFA Club World Cup] Found match:`, {
@@ -748,6 +748,15 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                           <div className="match-status-top">
                             {(() => {
                               const status = match.fixture.status.short;
+                              const fixtureDate = parseISO(match.fixture.date);
+                              const now = new Date();
+                              const matchTime = fixtureDate.getTime();
+                              const currentTime = now.getTime();
+                              const timeDiffMinutes = (currentTime - matchTime) / (1000 * 60);
+
+                              // Smart status detection - if match was supposed to start more than 2.5 hours ago
+                              // and still shows live status, treat it as finished
+                              const isLikelyFinished = timeDiffMinutes > 150; // 2.5 hours in minutes
 
                               // Finished matches status - check this FIRST and RETURN immediately
                               if (
@@ -760,11 +769,12 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                                   "ABD",
                                   "CANC",
                                   "SUSP",
-                                ].includes(status)
+                                ].includes(status) || 
+                                (isLikelyFinished && ["HT", "1H", "2H", "LIVE", "LIV", "ET", "BT", "P", "INT"].includes(status))
                               ) {
                                 return (
                                   <div className="match-status-label status-ended">
-                                    {status === "FT"
+                                    {status === "FT" || isLikelyFinished
                                       ? "Ended"
                                       : status === "AET"
                                         ? "Ended (AET)"
@@ -780,13 +790,14 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                                                   ? "Cancelled"
                                                   : status === "SUSP"
                                                     ? "Suspended"
-                                                    : status}
+                                                    : "Ended"}
                                   </div>
                                 );
                               }
 
-                              // Live matches status - only check if NOT finished
+                              // Live matches status - only check if NOT finished and not likely finished
                               if (
+                                !isLikelyFinished &&
                                 [
                                   "LIVE",
                                   "LIV",
@@ -827,7 +838,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                               }
 
                               // Default - no status display for regular upcoming matches
-                              return null;
+return null;
                             })()}
                           </div>
 
