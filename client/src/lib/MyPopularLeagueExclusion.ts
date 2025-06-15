@@ -87,6 +87,7 @@ export const popularLeagueExclusionTerms = [
   "paulista - u20",
   "cearense u20",
   "estadual junior u20",
+  "paraibano u20",
 
   // Women's leagues (additional exclusions)
   "liga femenina",
