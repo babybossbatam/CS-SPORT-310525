@@ -76,6 +76,20 @@ router.get('/season/current', async (req, res) => {
   }
 });
 
+// Get sample UEFA U21 matches
+router.get('/sample', async (req, res) => {
+  try {
+    console.log(`🎯 [UEFA U21 Routes] Fetching sample U21 matches`);
+    
+    const fixtures = await uefaU21ApiService.getSampleU21Matches();
+    
+    res.json(fixtures);
+  } catch (error) {
+    console.error('❌ [UEFA U21 Routes] Error fetching sample matches:', error);
+    res.status(500).json({ error: 'Failed to fetch sample UEFA U21 matches' });
+  }
+});
+
 // Get live UEFA U21 matches
 router.get('/live', async (req, res) => {
   try {
