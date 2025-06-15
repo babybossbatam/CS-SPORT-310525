@@ -1214,37 +1214,37 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     return 2;
                   }
 
-                  // Priority 3: World Cup Qualification Europe
+                  // Priority 3: FIFA Club World Cup (HIGH PRIORITY - before World Cup qualifications and friendlies)
+                  if (
+                    name.includes("fifa club world cup") ||
+                    name.includes("club world cup")
+                  ) {
+                    console.log(
+                      `✅ [PRIORITY 3] FIFA Club World Cup found: "${leagueData.league?.name}"`,
+                    );
+                    return 3;
+                  }
+
+                  // Priority 4: World Cup Qualification Europe
                   if (
                     name.includes("world cup") &&
                     name.includes("qualification") &&
                     name.includes("europe")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 3] World Cup Qualification Europe found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 4] World Cup Qualification Europe found: "${leagueData.league?.name}"`,
                     );
-                    return 3;
+                    return 4;
                   }
 
-                  // Priority 4: Friendlies (but exclude UEFA Nations League and women's matches)
+                  // Priority 5: Friendlies (but exclude UEFA Nations League and women's matches)
                   if (
                     isFriendlies &&
                     !name.includes("uefa nations league") &&
                     !name.includes("women")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 4] Friendlies found: "${leagueData.league?.name}"`,
-                    );
-                    return 4;
-                  }
-
-                  // Priority 5: FIFA Club World Cup (HIGH PRIORITY - after friendlies)
-                  if (
-                    name.includes("fifa club world cup") ||
-                    name.includes("club world cup")
-                  ) {
-                    console.log(
-                      `✅ [PRIORITY 5] FIFA Club World Cup found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 5] Friendlies found: "${leagueData.league?.name}"`,
                     );
                     return 5;
                   }
