@@ -239,35 +239,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return 999; // Other statuses
   };
 
-  // Real-time update effect for live matches
-  useEffect(() => {
-    // If we have a current match that's live, set up more frequent updates
-    if (currentMatch && getMatchStatusLabel(currentMatch) === "LIVE") {
-      const liveUpdateInterval = setInterval(async () => {
-        try {
-          console.log(`🔄 [LIVE UPDATE] Refreshing data for live match: ${currentMatch.teams.home.name} vs ${currentMatch.teams.away.name}`);
-          
-          // Fetch latest fixture data directly
-          const response = await apiRequest("GET", `/api/fixtures/${currentMatch.fixture.id}`);
-          const updatedMatch = await response.json();
-          
-          // Update the current match data if status changed
-          if (updatedMatch && updatedMatch.fixture.status.short !== currentMatch.fixture.status.short) {
-            console.log(`🔄 [LIVE UPDATE] Status changed from ${currentMatch.fixture.status.short} to ${updatedMatch.fixture.status.short}`);
-            // Force a data refresh by invalidating cache
-            const cacheKey = `featured-matches-multi-day-v3-${today}-${tomorrowStr}-${dayAfterStr}-${twoDaysAfterStr}`;
-            localStorage.removeItem(cacheKey);
-            window.location.reload();
-          }
-        } catch (error) {
-          console.error("Error updating live match:", error);
-        }
-      }, 30000); // Update every 30 seconds for live matches
-
-      return () => clearInterval(liveUpdateInterval);
-    }
-  }, [currentMatch, today, tomorrowStr, dayAfterStr, twoDaysAfterStr]);
-
   // Featured matches filtering logic with specific slide distribution
   const featuredMatches = useMemo(() => {
     if (!fixtures?.length) return [];
@@ -778,6 +749,35 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }, [fixtures, dateToUse, maxMatches]);
 
   const currentMatch = featuredMatches[currentIndex] || null;
+
+  // Real-time update effect for live matches
+  useEffect(() => {
+    // If we have a current match that's live, set up more frequent updates
+    if (currentMatch && getMatchStatusLabel(currentMatch) === "LIVE") {
+      const liveUpdateInterval = setInterval(async () => {
+        try {
+          console.log(`🔄 [LIVE UPDATE] Refreshing data for live match: ${currentMatch.teams.home.name} vs ${currentMatch.teams.away.name}`);
+          
+          // Fetch latest fixture data directly
+          const response = await apiRequest("GET", `/api/fixtures/${currentMatch.fixture.id}`);
+          const updatedMatch = await response.json();
+          
+          // Update the current match data if status changed
+          if (updatedMatch && updatedMatch.fixture.status.short !== currentMatch.fixture.status.short) {
+            console.log(`🔄 [LIVE UPDATE] Status changed from ${currentMatch.fixture.status.short} to ${updatedMatch.fixture.status.short}`);
+            // Force a data refresh by invalidating cache
+            const cacheKey = `featured-matches-multi-day-v3-${today}-${tomorrowStr}-${dayAfterStr}-${twoDaysAfterStr}`;
+            localStorage.removeItem(cacheKey);
+            window.location.reload();
+          }
+        } catch (error) {
+          console.error("Error updating live match:", error);
+        }
+      }, 30000); // Update every 30 seconds for live matches
+
+      return () => clearInterval(liveUpdateInterval);
+    }
+  }, [currentMatch, today, tomorrowStr, dayAfterStr, twoDaysAfterStr]);
 
   const handlePrevious = () => {
     if (featuredMatches.length <= 1) return;
