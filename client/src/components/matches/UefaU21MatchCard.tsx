@@ -76,7 +76,8 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
       const endpoints = [
         '/api/uefa-u21/upcoming',
         '/api/uefa-u21/recent',
-        '/api/uefa-u21/season/current'
+        '/api/uefa-u21/season/current',
+        '/api/uefa-u21/sample'
       ];
       
       let allMatches: U21Match[] = [];

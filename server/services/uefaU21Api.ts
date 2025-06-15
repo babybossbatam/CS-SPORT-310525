@@ -94,10 +94,27 @@ class UefaU21ApiService {
       // Get all fixtures for the date
       const allFixtures = await rapidApiService.getFixturesByDate(date, true);
       
-      // Filter for UEFA U21 Championship only
-      const u21Fixtures = allFixtures.filter(fixture => 
-        fixture.league.id === this.leagueId
-      );
+      // Filter for UEFA U21 Championship and related youth matches
+      const u21Fixtures = allFixtures.filter(fixture => {
+        const leagueName = fixture.league.name.toLowerCase();
+        const homeTeam = fixture.teams.home.name.toLowerCase();
+        const awayTeam = fixture.teams.away.name.toLowerCase();
+        
+        return (
+          fixture.league.id === this.leagueId ||
+          leagueName.includes('u21') ||
+          leagueName.includes('under 21') ||
+          leagueName.includes('uefa u21') ||
+          leagueName.includes('european u21') ||
+          homeTeam.includes('u21') ||
+          awayTeam.includes('u21')
+        ) && (
+          leagueName.includes('uefa') ||
+          leagueName.includes('euro') ||
+          leagueName.includes('championship') ||
+          fixture.league.id === this.leagueId
+        );
+      });
       
       console.log(`🏆 [UEFA U21] Found ${u21Fixtures.length} U21 fixtures for ${date}`);
       
@@ -116,12 +133,29 @@ class UefaU21ApiService {
     try {
       console.log(`🏆 [UEFA U21] Fetching current season fixtures`);
       
+      // Try multiple years as U21 championships span across years
       const currentYear = new Date().getFullYear();
-      const fixtures = await rapidApiService.getFixturesByLeague(this.leagueId, currentYear);
+      const years = [currentYear - 1, currentYear, currentYear + 1];
+      let allFixtures: U21Match[] = [];
       
-      console.log(`🏆 [UEFA U21] Found ${fixtures.length} current season fixtures`);
+      for (const year of years) {
+        try {
+          const yearlyFixtures = await rapidApiService.getFixturesByLeague(this.leagueId, year);
+          console.log(`🏆 [UEFA U21] Found ${yearlyFixtures.length} fixtures for year ${year}`);
+          allFixtures.push(...(yearlyFixtures as U21Match[]));
+        } catch (error) {
+          console.warn(`⚠️ [UEFA U21] Could not fetch fixtures for year ${year}`);
+        }
+      }
       
-      return fixtures as U21Match[];
+      // Remove duplicates
+      const uniqueFixtures = allFixtures.filter((fixture, index, self) => 
+        index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
+      );
+      
+      console.log(`🏆 [UEFA U21] Found ${uniqueFixtures.length} total current season fixtures`);
+      
+      return uniqueFixtures;
       
     } catch (error) {
       console.error('❌ [UEFA U21] Error fetching current season fixtures:', error);
@@ -204,9 +238,18 @@ class UefaU21ApiService {
       
       const liveFixtures = await rapidApiService.getLiveFixtures();
       
-      const liveU21Fixtures = liveFixtures.filter(fixture => 
-        fixture.league.id === this.leagueId
-      );
+      const liveU21Fixtures = liveFixtures.filter(fixture => {
+        const leagueName = fixture.league.name.toLowerCase();
+        const homeTeam = fixture.teams.home.name.toLowerCase();
+        const awayTeam = fixture.teams.away.name.toLowerCase();
+        
+        return (
+          fixture.league.id === this.leagueId ||
+          leagueName.includes('u21') ||
+          homeTeam.includes('u21') ||
+          awayTeam.includes('u21')
+        );
+      });
       
       console.log(`🔴 [UEFA U21] Found ${liveU21Fixtures.length} live U21 matches`);
       
@@ -214,6 +257,48 @@ class UefaU21ApiService {
       
     } catch (error) {
       console.error('❌ [UEFA U21] Error fetching live matches:', error);
+      return [];
+    }
+  }
+  
+  /**
+   * Get sample UEFA U21 matches from known teams
+   */
+  async getSampleU21Matches(): Promise<U21Match[]> {
+    try {
+      console.log(`🎯 [UEFA U21] Fetching sample U21 matches from known teams`);
+      
+      const knownU21Teams = [
+        'Spain U21', 'Romania U21', 'France U21', 'Georgia U21',
+        'Portugal U21', 'Poland U21', 'Slovakia U21', 'Italy U21',
+        'Germany U21', 'England U21', 'Netherlands U21', 'Ukraine U21'
+      ];
+      
+      let allMatches: U21Match[] = [];
+      
+      // Search in a wider date range
+      const startDate = format(subDays(new Date(), 60), 'yyyy-MM-dd');
+      const endDate = format(addDays(new Date(), 60), 'yyyy-MM-dd');
+      
+      const allFixtures = await this.getU21FixturesForDateRange(startDate, endDate);
+      
+      // Filter for matches with known U21 teams
+      const sampleMatches = allFixtures.filter(fixture => {
+        const homeTeam = fixture.teams.home.name;
+        const awayTeam = fixture.teams.away.name;
+        
+        return knownU21Teams.some(team => 
+          homeTeam.includes(team.replace(' U21', '')) || 
+          awayTeam.includes(team.replace(' U21', ''))
+        );
+      });
+      
+      console.log(`🎯 [UEFA U21] Found ${sampleMatches.length} sample U21 matches`);
+      
+      return sampleMatches;
+      
+    } catch (error) {
+      console.error('❌ [UEFA U21] Error fetching sample matches:', error);
       return [];
     }
   }
