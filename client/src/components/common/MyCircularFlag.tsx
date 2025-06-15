@@ -29,8 +29,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
-  const isNational = isNationalTeam(teamName);
-
   const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
     // Extract country from team name or use direct country mapping
     const countryCode = getCountryCode(teamName);
@@ -63,7 +61,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Sweden: "se",
       Norway: "no",
       Finland: "fi",
-      Romania: "ro",
       Russia: "ru",
       Serbia: "rs",
       // South American teams
@@ -81,7 +78,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Ecuador: "ec",
       Venezuela: "ve",
       // Others
-      Algaria: "dz",
       Angola: "ao",
       Afghanistan: "af",
       Dominican: "do",
@@ -110,7 +106,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
   // Fetch next match info if not provided
   useEffect(() => {
-    if (!nextMatchInfo && isNational) {
+    if (!nextMatchInfo && isNationalTeam(teamName)) {
       // Fetch next match from API
       const fetchNextMatch = async () => {
         try {
@@ -127,7 +123,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       };
       fetchNextMatch();
     }
-  }, [teamName, nextMatchInfo, isNational]);
+  }, [teamName, nextMatchInfo]);
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -137,29 +133,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       year: "numeric",
     });
   };
-
-  // Only render circular flag for national teams
-  if (!isNational) {
-    console.warn(`MyCircularFlag should only be used for national teams. Received: ${teamName}`);
-    return (
-      <img
-        src={fallbackUrl || "/assets/fallback-logo.svg"}
-        alt={alt || teamName}
-        className="team-logo"
-        style={{
-          width: size,
-          height: size,
-          objectFit: "cover",
-        }}
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          if (!target.src.includes("/assets/fallback-logo.svg")) {
-            target.src = "/assets/fallback-logo.svg";
-          }
-        }}
-      />
-    );
-  }
 
   // For national teams, use the circular flag format
   return (
