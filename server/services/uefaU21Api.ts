@@ -265,6 +265,65 @@ class UefaU21ApiService {
   }
   
   /**
+   * Try to get real UEFA U21 matches first, fallback to sample data
+   */
+  async getRealOrSampleU21Matches(): Promise<U21Match[]> {
+    try {
+      console.log(`🔍 [UEFA U21] Attempting to fetch real U21 matches first...`);
+      
+      // Try to get real matches from multiple approaches
+      const today = format(new Date(), 'yyyy-MM-dd');
+      const nextWeek = format(addDays(new Date(), 7), 'yyyy-MM-dd');
+      
+      // Try specific team searches for the matches you mentioned
+      const specificMatches = [
+        { home: 'Spain U21', away: 'Romania U21' },
+        { home: 'France U21', away: 'Georgia U21' },
+        { home: 'Portugal U21', away: 'Poland U21' },
+        { home: 'Slovakia U21', away: 'Italy U21' }
+      ];
+      
+      let realMatches: U21Match[] = [];
+      
+      // Search for each specific match
+      for (const match of specificMatches) {
+        try {
+          const found = await this.searchU21MatchesByTeams(match.home, match.away);
+          if (found.length > 0) {
+            console.log(`✅ [UEFA U21] Found real match: ${match.home} vs ${match.away}`);
+            realMatches.push(...found);
+          }
+        } catch (error) {
+          console.warn(`⚠️ [UEFA U21] Could not find: ${match.home} vs ${match.away}`);
+        }
+      }
+      
+      // Try getting upcoming matches
+      if (realMatches.length === 0) {
+        const upcoming = await this.getUpcomingU21Matches();
+        if (upcoming.length > 0) {
+          console.log(`✅ [UEFA U21] Found ${upcoming.length} real upcoming matches`);
+          realMatches = upcoming;
+        }
+      }
+      
+      // If we found real matches, return them
+      if (realMatches.length > 0) {
+        console.log(`🎯 [UEFA U21] Returning ${realMatches.length} real U21 matches`);
+        return realMatches;
+      }
+      
+      // Fallback to sample data
+      console.log(`📝 [UEFA U21] No real matches found, falling back to sample data`);
+      return this.getSampleU21Matches();
+      
+    } catch (error) {
+      console.error('❌ [UEFA U21] Error in getRealOrSampleU21Matches:', error);
+      return this.getSampleU21Matches();
+    }
+  }
+
+  /**
    * Get sample UEFA U21 matches from known teams
    */
   async getSampleU21Matches(): Promise<U21Match[]> {

@@ -74,20 +74,26 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
       
       // Try sample endpoint first since it has mock data
       try {
+        console.log('🔍 Attempting to fetch from /api/uefa-u21/sample...');
         const response = await fetch('/api/uefa-u21/sample');
+        console.log(`🔍 Sample endpoint response status: ${response.status}`);
+        
         if (response.ok) {
           const data = await response.json();
           console.log(`🏆 Sample endpoint returned ${data.length} matches:`, data);
           
           if (data.length > 0) {
             setMatches(data);
+            setLoading(false);
             return;
           }
         } else {
-          console.error(`❌ Sample endpoint failed with status ${response.status}`);
+          const errorText = await response.text();
+          console.error(`❌ Sample endpoint failed with status ${response.status}: ${errorText}`);
         }
       } catch (err) {
         console.error('❌ Failed to fetch sample data:', err);
+        console.error('❌ Error details:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
       }
       
       // Try other endpoints as fallback
