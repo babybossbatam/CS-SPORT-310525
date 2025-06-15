@@ -287,7 +287,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return false;
         }
 
-        // PRIORITY 1: Only the most elite leagues
+        // PRIORITY 1: Only the most elite leagues (including UEFA U21 Championship)
         const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 8];
         if (eliteLeagues.includes(leagueId)) {
           return true;
@@ -298,7 +298,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           (leagueName.includes("uefa nations league") &&
             !leagueName.includes("women")) ||
           (leagueName.includes("uefa u21") ||
-            leagueName.includes("uefa european under-21")) ||
+            leagueName.includes("uefa european under-21") ||
+            leagueName.includes("uefa u-21") ||
+            leagueName.includes("european under 21")) ||
           (leagueName.includes("world cup") &&
             leagueName.includes("qualification") &&
             (leagueName.includes("europe") ||
@@ -332,7 +334,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     // Sort matches by priority
     const sortByPriority = (matches: any[]) => {
       return matches.sort((a, b) => {
-        // 1. Elite League Priority
+        // 1. Elite League Priority (including UEFA U21 Championship)
         const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 8];
         const aEliteIndex = eliteLeagues.indexOf(a.league.id);
         const bEliteIndex = eliteLeagues.indexOf(b.league.id);
@@ -524,7 +526,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         existingCard.matches.push(match);
       });
 
-      // Sort league cards by priority (elite leagues first)
+      // Sort league cards by priority (elite leagues first, including UEFA U21)
       leagueCards.sort((a, b) => {
         const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 8];
         const aEliteIndex = eliteLeagues.indexOf(a.leagueId);
