@@ -134,18 +134,15 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     });
   };
 
-  // Check if this is a national team
-  const isNational = isNationalTeam(teamName);
-  
+  // For national teams, use the circular flag format
   return (
     <div
-      className={`${isNational ? 'flag-circle' : 'team-logo-container'} ${className}`}
+      className={`flag-circle ${className}`}
       style={{
         width: size,
         height: size,
         position: "relative",
         left: moveLeft ? "-16px" : "4px",
-        ...(isNational ? {} : {})
       }}
       onMouseEnter={() => showNextMatchOverlay && setIsHovered(true)}
       onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
@@ -158,12 +155,11 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          borderRadius: isNational ? "50%" : "0",
+          borderRadius: "50%",
           position: "relative",
           zIndex: 1,
-          filter: isNational 
-            ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
-            : "none",
+          filter:
+            "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
         }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
@@ -172,9 +168,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           }
         }}
       />
-      {isNational && (
-        <div className="gloss"></div>
-      )}
+      <div className="gloss"></div>
 
       {/* Next Match Tooltip - External popup */}
       {showNextMatchOverlay && isHovered && nextMatch && (
