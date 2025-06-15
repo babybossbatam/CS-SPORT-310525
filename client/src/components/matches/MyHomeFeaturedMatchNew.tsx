@@ -136,7 +136,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     Italy: [135], // Serie A
     Germany: [78], // Bundesliga
     France: [61], // Ligue 1
-    World: [2, 3, 848, 15], // UEFA competitions and FIFA Club World Cup
+    World: [2, 3, 848, 15, 8], // UEFA competitions, FIFA Club World Cup, and UEFA U21 Championship
     Europe: [2, 3, 848], // UEFA competitions
     "South America": [9, 13], // Copa Libertadores, Copa Sudamericana
     "United Arab Emirates": [305], // UAE Pro League
@@ -288,7 +288,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         // PRIORITY 1: Only the most elite leagues
-        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5];
+        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 8];
         if (eliteLeagues.includes(leagueId)) {
           return true;
         }
@@ -297,6 +297,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const isTopInternationalCompetition =
           (leagueName.includes("uefa nations league") &&
             !leagueName.includes("women")) ||
+          (leagueName.includes("uefa u21") ||
+            leagueName.includes("uefa european under-21")) ||
           (leagueName.includes("world cup") &&
             leagueName.includes("qualification") &&
             (leagueName.includes("europe") ||
@@ -331,7 +333,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const sortByPriority = (matches: any[]) => {
       return matches.sort((a, b) => {
         // 1. Elite League Priority
-        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5];
+        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 8];
         const aEliteIndex = eliteLeagues.indexOf(a.league.id);
         const bEliteIndex = eliteLeagues.indexOf(b.league.id);
 
@@ -524,7 +526,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
       // Sort league cards by priority (elite leagues first)
       leagueCards.sort((a, b) => {
-        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5];
+        const eliteLeagues = [2, 3, 39, 140, 135, 78, 61, 848, 5, 8];
         const aEliteIndex = eliteLeagues.indexOf(a.leagueId);
         const bEliteIndex = eliteLeagues.indexOf(b.leagueId);
 
