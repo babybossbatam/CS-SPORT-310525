@@ -217,6 +217,20 @@ export const CACHE_FRESHNESS = {
   // Very stable data - very long cache
   COUNTRY_FLAGS: 24 * 60 * 60 * 1000, // 24 hours
   TEAM_LOGOS: 12 * 60 * 60 * 1000, // 12 hours
+
+  // Helper function to check if data is fresh
+  isFresh: (dataUpdatedAt: number, maxAge: number): boolean => {
+    if (!dataUpdatedAt) return false;
+    const age = Date.now() - dataUpdatedAt;
+    return age < maxAge;
+  },
+
+  // Helper function to check if data needs refresh
+  needsRefresh: (dataUpdatedAt: number, maxAge: number = 30 * 60 * 1000): boolean => {
+    if (!dataUpdatedAt) return true;
+    const age = Date.now() - dataUpdatedAt;
+    return age >= maxAge;
+  },
 };
 
 // Background refresh functionality
