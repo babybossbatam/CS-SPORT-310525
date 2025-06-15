@@ -298,7 +298,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
       leagueIds: number[];
     }> = [];
 
-    // Process each major competition with enhanced team-based search
+    // Process each major competition with enhanced filtering
     Object.entries(MAJOR_COMPETITIONS).forEach(([competitionName, leagueIds]) => {
       const competitionMatches = fixtures.filter((fixture) => {
         // Check if fixture belongs to this competition
@@ -306,7 +306,12 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
           return false;
         }
 
-        // Enhanced team search - look for target teams or U21/youth indicators
+        // For FIFA Club World Cup - show ALL matches (no team filtering)
+        if (competitionName.includes("FIFA Club World Cup")) {
+          return true;
+        }
+
+        // Enhanced team search for other competitions - look for target teams or U21/youth indicators
         const homeTeam = fixture.teams?.home?.name?.toLowerCase() || "";
         const awayTeam = fixture.teams?.away?.name?.toLowerCase() || "";
 
