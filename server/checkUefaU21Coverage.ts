@@ -5,9 +5,9 @@ async function checkUefaU21Coverage() {
   console.log('🔍 Checking UEFA U21 Championship Coverage...\n');
 
   try {
-    // 1. Check if UEFA U21 Championship league exists (ID: 8)
+    // 1. Check if UEFA U21 Championship league exists (ID: 38)
     console.log('1. Checking UEFA U21 Championship league info...');
-    const league = await rapidApiService.getLeagueById(8);
+    const league = await rapidApiService.getLeagueById(38);
     if (league) {
       console.log(`✅ League found: ${league.league.name} (ID: ${league.league.id})`);
       console.log(`   Country: ${league.country.name}`);
@@ -19,7 +19,7 @@ async function checkUefaU21Coverage() {
 
     // 2. Check fixtures for current season
     console.log('\n2. Checking UEFA U21 Championship fixtures...');
-    const fixtures = await rapidApiService.getFixturesByLeague(8, 2025);
+    const fixtures = await rapidApiService.getFixturesByLeague(38, 2025);
     console.log(`✅ Found ${fixtures.length} fixtures for UEFA U21 Championship`);
 
     if (fixtures.length > 0) {
@@ -38,7 +38,7 @@ async function checkUefaU21Coverage() {
     const u21TodayMatches = todayFixtures.filter(match => 
       match.league.name.toLowerCase().includes('u21') ||
       match.league.name.toLowerCase().includes('under-21') ||
-      match.league.id === 8
+      match.league.id === 38
     );
 
     console.log(`✅ Found ${u21TodayMatches.length} U21 matches today`);
