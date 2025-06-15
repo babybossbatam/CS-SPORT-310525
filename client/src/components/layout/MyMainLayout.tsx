@@ -37,12 +37,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
             />
           </div>
 
-          {/* Today's matches by country */}
-          <TodaysMatchesByCountryNew 
-            selectedDate={selectedDate} 
-            maxCountries={20}
-            maxMatchesPerCountry={10}
-          />
+          
         </div>
 
         {/* Right column (7 columns) */}
