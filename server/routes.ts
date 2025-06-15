@@ -19,6 +19,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { format, addDays, subDays } from 'date-fns';
+import uefaU21Routes from './routes/uefaU21Routes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -773,7 +774,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cacheAge = now.getTime() - cacheTime.getTime();
 
         // Use 2 hour cache for league fixtures
-        if (cacheAge < 2 * 60 * 60 * 1000) {
+        if (cacheAge < 2 * 60 * 60 * 100) {
           console.log(`Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
           return res.json(cachedFixtures.data);
         }
@@ -1986,7 +1987,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-
+  // UEFA U21 Championship routes
+  apiRouter.use('/uefa-u21', uefaU21Routes);
 
   // Create HTTP server
   const httpServer = createServer(app);
