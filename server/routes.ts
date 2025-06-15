@@ -780,8 +780,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
       // If we're in the second half of the year, use next year as season
       const currentSeason = currentMonth >= 7 ? 
-        current<replit_final_file>
-Date.getFullYear() + 1 : 
+        currentDate.getFullYear() + 1 : 
         currentDate.getFullYear();
       const season = parseInt(req.query.season as string) || currentSeason;
 
