@@ -1,0 +1,304 @@
+✅ Current season: 2025 (2025-06-15 to 2025-06-27)
+
+2. FIFA Club World Cup Fixtures for 2025:
+Fetching fixtures for league 15, season 2025
+Using correct season 2025 for league 15 (FIFA Club World Cup)
+Fixtures API response status: 200, results count: 48
+Received 48 fixtures for league 15
+Found 48 fixtures for FIFA Club World Cup 2025
+
+All FIFA Club World Cup fixtures:
+
+1. Al Ahly vs Inter Miami
+   Date: 6/15/2025, 12:00:00 AM
+   Status: Not Started (NS)
+   Venue: Hard Rock Stadium
+   Round: Group Stage - 1
+
+2. Bayern München vs Auckland City
+   Date: 6/15/2025, 4:00:00 PM
+   Status: Not Started (NS)
+   Venue: TQL Stadium
+   Round: Group Stage - 1
+
+3. Paris Saint Germain vs Atletico Madrid
+   Date: 6/15/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Rose Bowl
+   Round: Group Stage - 1
+
+4. Palmeiras vs FC Porto
+   Date: 6/15/2025, 10:00:00 PM
+   Status: Not Started (NS)
+   Venue: MetLife Stadium
+   Round: Group Stage - 1
+
+5. Botafogo vs Seattle Sounders
+   Date: 6/16/2025, 2:00:00 AM
+   Status: Not Started (NS)
+   Venue: Lumen Field
+   Round: Group Stage - 1
+
+6. Chelsea vs Los Angeles FC
+   Date: 6/16/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Mercedes-Benz Stadium
+   Round: Group Stage - 1
+
+7. Boca Juniors vs Benfica
+   Date: 6/16/2025, 10:00:00 PM
+   Status: Not Started (NS)
+   Venue: Hard Rock Stadium
+   Round: Group Stage - 1
+
+8. Flamengo vs ES Tunis
+   Date: 6/17/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Lincoln Financial Field
+   Round: Group Stage - 1
+
+9. Fluminense vs Borussia Dortmund
+   Date: 6/17/2025, 4:00:00 PM
+   Status: Not Started (NS)
+   Venue: MetLife Stadium
+   Round: Group Stage - 1
+
+10. River Plate vs Urawa
+   Date: 6/17/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Lumen Field
+   Round: Group Stage - 1
+
+11. Ulsan Hyundai FC vs Mamelodi Sundowns
+   Date: 6/17/2025, 10:00:00 PM
+   Status: Not Started (NS)
+   Venue: Inter&Co Stadium
+   Round: Group Stage - 1
+
+12. Monterrey vs Inter
+   Date: 6/18/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Rose Bowl
+   Round: Group Stage - 1
+
+13. Manchester City vs Wydad AC
+   Date: 6/18/2025, 4:00:00 PM
+   Status: Not Started (NS)
+   Venue: Lincoln Financial Field
+   Round: Group Stage - 1
+
+14. Real Madrid vs Al-Hilal Saudi FC
+   Date: 6/18/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Hard Rock Stadium
+   Round: Group Stage - 1
+
+15. Pachuca vs Red Bull Salzburg
+   Date: 6/18/2025, 10:00:00 PM
+   Status: Not Started (NS)
+   Venue: TQL Stadium
+   Round: Group Stage - 1
+
+16. Al Ain vs Juventus
+   Date: 6/19/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Audi Field
+   Round: Group Stage - 1
+
+17. Palmeiras vs Al Ahly
+   Date: 6/19/2025, 4:00:00 PM
+   Status: Not Started (NS)
+   Venue: MetLife Stadium
+   Round: Group Stage - 2
+
+18. Inter Miami vs FC Porto
+   Date: 6/19/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Mercedes-Benz Stadium
+   Round: Group Stage - 2
+
+19. Seattle Sounders vs Atletico Madrid
+   Date: 6/19/2025, 10:00:00 PM
+   Status: Not Started (NS)
+   Venue: Lumen Field
+   Round: Group Stage - 2
+
+20. Paris Saint Germain vs Botafogo
+   Date: 6/20/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Rose Bowl
+   Round: Group Stage - 2
+
+21. Benfica vs Auckland City
+   Date: 6/20/2025, 4:00:00 PM
+   Status: Not Started (NS)
+   Venue: Inter&Co Stadium
+   Round: Group Stage - 2
+
+22. Flamengo vs Chelsea
+   Date: 6/20/2025, 6:00:00 PM
+   Status: Not Started (NS)
+   Venue: Lincoln Financial Field
+   Round: Group Stage - 2
+
+23. Los Angeles FC vs ES Tunis
+   Date: 6/20/2025, 10:00:00 PM
+   Status: Not Started (NS)
+   Venue: GEODIS Park
+   Round: Group Stage - 2
+
+24. Bayern München vs Boca Juniors
+   Date: 6/21/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Hard Rock Stadium
+   Round: Group Stage - 2
+
+25. Mamelodi Sundowns vs Borussia Dortmund
+   Date: 6/21/2025, 4:00:00 PM
+   Status: Not Started (NS)
+   Venue: TQL Stadium
+   Round: Group Stage - 2
+
+26. Inter vs Urawa
+   Date: 6/21/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Lumen Field
+   Round: Group Stage - 2
+
+27. Fluminense vs Ulsan Hyundai FC
+   Date: 6/21/2025, 10:00:00 PM
+   Status: Not Started (NS)
+   Venue: MetLife Stadium
+   Round: Group Stage - 2
+
+28. River Plate vs Monterrey
+   Date: 6/22/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Rose Bowl
+   Round: Group Stage - 2
+
+29. Juventus vs Wydad AC
+   Date: 6/22/2025, 4:00:00 PM
+   Status: Not Started (NS)
+   Venue: Lincoln Financial Field
+   Round: Group Stage - 2
+
+30. Real Madrid vs Pachuca
+   Date: 6/22/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Bank of America Stadium
+   Round: Group Stage - 2
+
+31. Red Bull Salzburg vs Al-Hilal Saudi FC
+   Date: 6/22/2025, 10:00:00 PM
+   Status: Not Started (NS)
+   Venue: Audi Field
+   Round: Group Stage - 2
+
+32. Manchester City vs Al Ain
+   Date: 6/23/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Mercedes-Benz Stadium
+   Round: Group Stage - 2
+
+33. Atletico Madrid vs Botafogo
+   Date: 6/23/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Rose Bowl
+   Round: Group Stage - 3
+
+34. Seattle Sounders vs Paris Saint Germain
+   Date: 6/23/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Lumen Field
+   Round: Group Stage - 3
+
+35. FC Porto vs Al Ahly
+   Date: 6/24/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: MetLife Stadium
+   Round: Group Stage - 3
+
+36. Inter Miami vs Palmeiras
+   Date: 6/24/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Hard Rock Stadium
+   Round: Group Stage - 3
+
+37. Benfica vs Bayern München
+   Date: 6/24/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Bank of America Stadium
+   Round: Group Stage - 3
+
+38. Auckland City vs Boca Juniors
+   Date: 6/24/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: GEODIS Park
+   Round: Group Stage - 3
+
+39. ES Tunis vs Chelsea
+   Date: 6/25/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Lincoln Financial Field
+   Round: Group Stage - 3
+
+40. Los Angeles FC vs Flamengo
+   Date: 6/25/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Camping World Stadium
+   Round: Group Stage - 3
+
+41. Borussia Dortmund vs Ulsan Hyundai FC
+   Date: 6/25/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: TQL Stadium
+   Round: Group Stage - 3
+
+42. Mamelodi Sundowns vs Fluminense
+   Date: 6/25/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Hard Rock Stadium
+   Round: Group Stage - 3
+
+43. Urawa vs Monterrey
+   Date: 6/26/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Rose Bowl
+   Round: Group Stage - 3
+
+44. Inter vs River Plate
+   Date: 6/26/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Lumen Field
+   Round: Group Stage - 3
+
+45. Juventus vs Manchester City
+   Date: 6/26/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Camping World Stadium
+   Round: Group Stage - 3
+
+46. Wydad AC vs Al Ain
+   Date: 6/26/2025, 7:00:00 PM
+   Status: Not Started (NS)
+   Venue: Audi Field
+   Round: Group Stage - 3
+
+47. Red Bull Salzburg vs Real Madrid
+   Date: 6/27/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: Lincoln Financial Field
+   Round: Group Stage - 3
+
+48. Al-Hilal Saudi FC vs Pachuca
+   Date: 6/27/2025, 1:00:00 AM
+   Status: Not Started (NS)
+   Venue: GEODIS Park
+   Round: Group Stage - 3
+
+3. Looking for Al Ahly vs Inter Miami match:
+✅ Found Al Ahly vs Inter Miami match:
+   Al Ahly vs Inter Miami
+   Date: 6/15/2025, 12:00:00 AM
+   Status: Not Started
