@@ -107,7 +107,7 @@ class UefaU21ApiService {
           leagueName.includes('u21') ||
           leagueName.includes('under 21') ||
           leagueName.includes('under-21') ||
-          leagueName.includes('uefa') && (leagueName.includes('u21') || leagueName.includes('under'))) ||
+          (leagueName.includes('uefa') && (leagueName.includes('u21') || leagueName.includes('under'))) ||
           homeTeam.includes('u21') ||
           awayTeam.includes('u21') ||
           homeTeam.includes('under 21') ||
