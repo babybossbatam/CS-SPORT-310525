@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { getCountryCode } from "@/lib/flagUtils";
-import { isNationalTeam } from "@/lib/teamLogoSources";
 
 interface MyCircularFlagProps {
   teamName: string;
@@ -106,7 +105,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
   // Fetch next match info if not provided
   useEffect(() => {
-    if (!nextMatchInfo && isNationalTeam(teamName)) {
+    if (!nextMatchInfo) {
       // Fetch next match from API
       const fetchNextMatch = async () => {
         try {
@@ -134,7 +133,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     });
   };
 
-  // For national teams, use the circular flag format
+  // Circular flag format for national teams and countries
   return (
     <div
       className={`flag-circle ${className}`}
