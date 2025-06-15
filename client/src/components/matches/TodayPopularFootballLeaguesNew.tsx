@@ -1226,48 +1226,59 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     return 3;
                   }
 
-                  // Priority 4: Friendlies (but exclude UEFA Nations League and women's matches)
+                  // Priority 4: FIFA Club World Cup (HIGH PRIORITY - before friendlies)
+                  if (
+                    name.includes("fifa club world cup") ||
+                    name.includes("club world cup")
+                  ) {
+                    console.log(
+                      `✅ [PRIORITY 4] FIFA Club World Cup found: "${leagueData.league?.name}"`,
+                    );
+                    return 4;
+                  }
+
+                  // Priority 5: Friendlies (but exclude UEFA Nations League and women's matches)
                   if (
                     isFriendlies &&
                     !name.includes("uefa nations league") &&
                     !name.includes("women")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 4] Friendlies found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 5] Friendlies found: "${leagueData.league?.name}"`,
                     );
-                    return 4;
+                    return 5;
                   }
 
-                  // Priority 5: World Cup Qualification Asia
+                  // Priority 6: World Cup Qualification Asia
                   if (
                     name.includes("world cup") &&
                     name.includes("qualification") &&
                     name.includes("asia")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 5] World Cup Qualification Asia found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 6] World Cup Qualification Asia found: "${leagueData.league?.name}"`,
                     );
-                    return 5;
+                    return 6;
                   }
 
-                  // Priority 6: World Cup Qualification CONCACAF
+                  // Priority 7: World Cup Qualification CONCACAF
                   if (
                     name.includes("world cup") &&
                     name.includes("qualification") &&
                     name.includes("concacaf")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 6] World Cup Qualification CONCACAF found: "${leagueData.league?.name}"`,
-                    );
-                    return 6;
-                  }
-
-                  // Priority 7: Tournoi Maurice Revello
-                  if (name.includes("tournoi maurice revello")) {
-                    console.log(
-                      `✅ [PRIORITY 7] Tournoi Maurice Revello found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 7] World Cup Qualification CONCACAF found: "${leagueData.league?.name}"`,
                     );
                     return 7;
+                  }
+
+                  // Priority 8: Tournoi Maurice Revello
+                  if (name.includes("tournoi maurice revello")) {
+                    console.log(
+                      `✅ [PRIORITY 8] Tournoi Maurice Revello found: "${leagueData.league?.name}"`,
+                    );
+                    return 8;
                   }
 
                   console.log(
