@@ -120,10 +120,10 @@ export const QUERY_CONFIGS = {
     const today = new Date().toISOString().slice(0, 10);
     const isToday = selectedDate === today;
     const isFuture = selectedDate > today;
-    
+
     // Use shorter cache for today (live matches), longer for future dates
     const preset = isToday ? 'FIXTURES' : isFuture ? 'UPCOMING_FIXTURES' : 'POPULAR_FIXTURES';
-    
+
     return createQueryOptions(preset, {
       queryKey: ['all-fixtures-by-date', selectedDate],
       enabled: !!selectedDate && enableFetching,
@@ -193,27 +193,31 @@ export const CACHE_KEYS = {
   news: (sport?: string) => ['news', sport || 'football'],
 } as const;
 
-// Cache freshness validation
 export const CACHE_FRESHNESS = {
-  // Check if cache is fresh (within specified duration)
-  isFresh: (timestamp: string | number, maxAge: number): boolean => {
-    const now = Date.now();
-    const cacheTime = typeof timestamp === 'string' ? new Date(timestamp).getTime() : timestamp;
-    return (now - cacheTime) < maxAge;
-  },
+  // Live data - very short cache for real-time updates
+  LIVE_FIXTURES: 30 * 1000, // 30 seconds
+  LIVE_SCORES: 15 * 1000, // 15 seconds
 
-  // Get cache age in milliseconds
-  getAge: (timestamp: string | number): number => {
-    const now = Date.now();
-    const cacheTime = typeof timestamp === 'string' ? new Date(timestamp).getTime() : timestamp;
-    return now - cacheTime;
-  },
+  // Today's data - short cache for frequent updates
+  TODAY_FIXTURES: 5 * 60 * 1000, // 5 minutes
+  TODAY_POPULAR: 10 * 60 * 1000, // 10 minutes
 
-  // Check if cache needs refresh (30 minutes = 1800000ms)
-  needsRefresh: (timestamp: string | number, refreshInterval: number = 30 * 60 * 1000): boolean => {
-    return !CACHE_FRESHNESS.isFresh(timestamp, refreshInterval);
-  },
-} as const;
+  // World competitions - shorter cache for better updates
+  WORLD_COMPETITIONS: 5 * 60 * 1000, // 5 minutes
+  MAJOR_COMPETITIONS: 10 * 60 * 1000, // 10 minutes
+
+  // Featured matches - medium cache
+  FEATURED_MATCHES: 15 * 60 * 1000, // 15 minutes
+
+  // Static-ish data - longer cache
+  LEAGUE_DATA: 60 * 60 * 1000, // 1 hour
+  TEAM_DATA: 60 * 60 * 1000, // 1 hour
+  STANDINGS: 30 * 60 * 1000, // 30 minutes
+
+  // Very stable data - very long cache
+  COUNTRY_FLAGS: 24 * 60 * 60 * 1000, // 24 hours
+  TEAM_LOGOS: 12 * 60 * 60 * 1000, // 12 hours
+};
 
 // Background refresh functionality
 export const CACHE_REFRESH = {

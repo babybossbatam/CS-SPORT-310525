@@ -154,9 +154,24 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       const data = await response.json();
 
       console.log(`Received ${data.length} live fixtures`);
+      
+      // Log World competition fixtures for debugging
+      const worldFixtures = data.filter((fixture: any) => 
+        fixture.league?.country === 'World' || 
+        fixture.league?.country === 'Europe' ||
+        fixture.league?.name?.toLowerCase().includes('fifa') ||
+        fixture.league?.name?.toLowerCase().includes('uefa')
+      );
+      
+      if (worldFixtures.length > 0) {
+        console.log(`🌍 Found ${worldFixtures.length} World competition fixtures:`, 
+          worldFixtures.map((f: any) => `${f.league.name}: ${f.teams.home.name} vs ${f.teams.away.name}`)
+        );
+      }
+      
       return data;
     },
-    staleTime: 30000, // 30 seconds
+    staleTime: 20000, // 20 seconds for faster World competition updates
     gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
     enabled: enableFetching && !propsFixtures, // Only fetch if no props data
     refetchOnWindowFocus: true,
