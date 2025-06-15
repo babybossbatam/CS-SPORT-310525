@@ -29,6 +29,29 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
+
+  // Only render circular flag for national teams
+  if (!isNationalTeam(teamName)) {
+    console.warn(`MyCircularFlag should only be used for national teams. Received: ${teamName}`);
+    return (
+      <img
+        src={fallbackUrl || "/assets/fallback-logo.svg"}
+        alt={alt || teamName}
+        className="team-logo"
+        style={{
+          width: size,
+          height: size,
+          objectFit: "cover",
+        }}
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          if (!target.src.includes("/assets/fallback-logo.svg")) {
+            target.src = "/assets/fallback-logo.svg";
+          }
+        }}
+      />
+    );
+  }
   const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
     // Extract country from team name or use direct country mapping
     const countryCode = getCountryCode(teamName);
