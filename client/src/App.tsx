@@ -103,15 +103,6 @@ function App() {
     <TooltipProvider>
       <Toaster />
       <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[130px] mb-[130px]">
-        <QueryClientProvider client={queryClient}>
-          <CentralDataProvider
-            selectedDate={new Date().toISOString().slice(0, 10)}
-          >
-            <Provider store={store}>
-              <AppContent />
-            </Provider>
-          </CentralDataProvider>
-        </QueryClientProvider>
       </main>
     </TooltipProvider>
   );
