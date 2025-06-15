@@ -82,7 +82,7 @@ const HomeTopScorersList = () => {
     queryKey: ['leagues-with-data'],
     queryFn: async () => {
       const dataMap = new Map<number, PlayerStatistics[]>();
-      
+
       // Check each league for data
       for (const league of POPULAR_LEAGUES) {
         try {
@@ -97,7 +97,7 @@ const HomeTopScorersList = () => {
           console.warn(`Failed to check data for league ${league.id}:`, error);
         }
       }
-      
+
       return dataMap;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -108,7 +108,7 @@ const HomeTopScorersList = () => {
     if (leagueDataMap) {
       const leagues = POPULAR_LEAGUES.filter(league => leagueDataMap.has(league.id));
       setAvailableLeagues(leagues);
-      
+
       // Set initial selected league if not set
       if (!selectedLeague && leagues.length > 0) {
         // Prefer World Cup - Qualification South America (ID 34) if available
@@ -252,14 +252,14 @@ const HomeTopScorersList = () => {
             {topScorers?.slice(0, 3).map((scorer, index) => {
               const playerStats = scorer.statistics[0];
               const goals = playerStats?.goals?.total || 0;
-              
+
               // Try to get more specific position information
               const rawPosition = scorer.player.position || playerStats?.games?.position || '';
-              
+
               // Map generic positions to more specific ones based on player data
               const getSpecificPosition = (pos: string) => {
                 if (!pos) return '';
-                
+
                 // Convert common generic positions to more specific ones
                 const positionMap: { [key: string]: string } = {
                   'Attacker': 'Forward',
@@ -267,16 +267,16 @@ const HomeTopScorersList = () => {
                   'Defender': 'Defender',
                   'Goalkeeper': 'Goalkeeper'
                 };
-                
+
                 // If it's already specific, return as is
                 if (pos.includes('Left') || pos.includes('Right') || pos.includes('Central') || pos.includes('Centre')) {
                   return pos;
                 }
-                
+
                 // Otherwise use the mapped version or original
                 return positionMap[pos] || pos;
               };
-              
+
               const position = getSpecificPosition(rawPosition);
               const country = playerStats?.team?.name || playerStats?.league?.country || '';
 
