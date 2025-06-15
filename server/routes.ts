@@ -794,7 +794,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
       // If we're in the second half of the year, use next year as season
       const currentSeason = currentMonth >= 7 ? 
-        currentDate.getFullYear() + 1 : 
+        current<replit_final_file>
+Date.getFullYear() + 1 : 
         currentDate.getFullYear();
       const season = parseInt(req.query.season as string) || currentSeason;
 
@@ -1558,7 +1559,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const apiDateString = fixture.fixture.date;
       const extractedDate = apiDateString.split('T')[0];
 
-      // Allow fixtures from ±1 day to capture all timezone variations
+            // Allow fixtures from ±1 day to capture all timezone variations
       const targetDateObj = new Date(date);
       const previousDay = new Date(targetDateObj);
       previousDay.setDate(previousDay.getDate() - 1);
@@ -1771,39 +1772,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // If everything fails, return an empty array
-        return res.json([]);      }
+        return res.json([]);
+      }
     } catch (error) {
       console.error('Error fetching live fixtures:', error);
       res.status(500).json({ message: "Failed to fetch live fixtures" });
     }
   });
 
-  // Add FIFA World Cup fixtures endpoint
-  apiRouter.get('/fifa-world-cup-fixtures', async (req: Request, res: Response) => {
-    try {
-      console.log('🏆 [FIFA] Fetching FIFA Club World Cup fixtures...');
 
-      // Use league ID 15 for FIFA Club World Cup
-      const fixtures = await rapidApiService.getFixturesByLeague(15, 2025);
-
-      // Transform the fixtures to a simpler format for the frontend
-      const transformedFixtures = fixtures.map(fixture => ({
-        id: fixture.fixture.id,
-        date: fixture.fixture.date,
-        homeTeam: fixture.teams.home.name,
-        awayTeam: fixture.teams.away.name,
-        status: fixture.fixture.status.short,
-        venue: fixture.fixture.venue?.name || 'TBD'
-      }));
-
-      console.log(`🏆 [FIFA] Found ${transformedFixtures.length} FIFA Club World Cup fixtures`);
-
-      res.json(transformedFixtures);
-    } catch (error) {
-      console.error('❌ [FIFA] Error fetching FIFA fixtures:', error);
-      res.status(500).json({ error: 'Failed to fetch FIFA fixtures' });
-    }
-  });
 
   // Get country flag with SportsRadar fallback
   apiRouter.get('/flags/:country', async (req: Request, res: Response) => {
@@ -2040,50 +2017,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
-  apiRouter.get('/search-teams/:searchTerm', async (req, res) => {
-  try {
-      const { searchTerm } = req.params;
-
-      if (!searchTerm) {
-          return res.status(400).json({ error: 'Search term is required' });
-      }
-
-      console.log(`API: Searching teams with term: ${searchTerm}`);
-      const allLeagues = await rapidApiService.getLeagues();
-      const teams = new Set<string>();
-
-      allLeagues.forEach(leagueResponse => {
-          if (leagueResponse.seasons && leagueResponse.country) {
-              leagueResponse.seasons.forEach(async season => {
-                      try {
-                          const fixtures = await rapidApiService.getFixturesByLeague(leagueResponse.league.id, season.year);
-                         fixtures.forEach(fixture => {
-                              if (fixture.teams.home.name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                                  teams.add(fixture.teams.home.name);
-                              }
-                              if (fixture.teams.away.name.toLowerCase().includes(searchTerm.toLowerCase())) {
-                                  teams.add(fixture.teams.away.name);
-                              }
-                         });
-                      } catch (error) {
-                        console.log("something went wrong in the team search. ");
-                      }
-              });
-          }
-      });
-      res.json({ 
-          success: true,
-          teams: Array.from(teams),
-          searchTerm: searchTerm
-      });
-    }  catch (error) {
-      console.error('Error searching teams:', error);
-      res.status(500).json({ 
-          success: false, 
-          error: error instanceof Error ? error.message : 'Failed to search teams'
-      });
-  }
-  });
 
   // Team logo endpoint with image processing
   apiRouter.get('/team-logo/square/:teamId', async (req: Request, res: Response) => {
@@ -2159,3 +2092,500 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Internal server error' });
     }
   });
+
+  // SportsRadar team logo endpoint (server-side to avoid CORS)
+  apiRouter.get('/sportsradar/teams/:teamId/logo', async (req: Request, res: Response) => {
+    try {
+      let { teamId } = req.params;
+
+      // If teamId contains a URL, extract the actual team ID
+      if (teamId.includes('http')) {
+        const urlDecoded = decodeURIComponent(teamId);
+        const teamIdMatch = urlDecoded.match(/\/teams\/(\d+)\.png/);
+        if (teamIdMatch && teamIdMatch[1]) {
+          teamId = teamIdMatch[1];
+        } else {
+          console.warn(`Could not extract team ID from URL: ${urlDecoded}`);
+          return res.status(400).json({ error: 'Invalid team ID format' });
+        }
+      }
+
+      // Validate that teamId is numeric
+      if (!/^\d+$/.test(teamId)) {
+        console.warn(`Invalid team ID format: ${teamId}`);
+        return res.status(400).json({ error: 'Team ID must be numeric' });
+      }
+
+      console.log(`SportsRadar: Fetching logo for team ID: ${teamId}`);
+
+      // Try multiple SportsRadar logo formats
+      const logoUrls = [
+        `https://api.sportradar.com/soccer/production/v4/en/competitors/${teamId}/profile.png`,
+        `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`,
+        `https://imagecache.sportradar.com/production/soccer/competitors/${teamId}/logo.png`
+      ];
+
+      for (const logoUrl of logoUrls) {
+        try {
+          const response = await fetch(logoUrl, {
+            headers: {
+              'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
+              'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+          });
+
+          if (response.ok) {
+            const contentType = response.headers.get('content-type') || 'image/png';
+            const buffer = await response.arrayBuffer();
+
+            res.set('Content-Type', contentType);
+            res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+            res.send(Buffer.from(buffer));
+            return;
+          }
+        } catch (error) {
+          console.warn(`SportsRadar logo URL failed: ${logoUrl}`, error);
+          continue;
+        }
+      }
+
+      console.warn(`SportsRadar team logo not found for team: ${teamId}`);
+      res.status(404).json({ error: 'Team logo not found' });
+    } catch (error) {
+      console.error(`Error fetching SportsRadar team logo for ${req.params.teamId}:`, error);
+      res.status(500).json({ error: 'Failed to fetch team logo' });
+    }
+  });
+
+  // Get fixtures by country and season
+  apiRouter.get('/fixtures/country/:country', async (req: Request, res: Response) => {
+    try {
+      const { country } = req.params;
+      const { season, league } = req.query;
+
+      console.log(`API: Getting fixtures for country: ${country}, season: ${season}, league: ${league}`);
+
+      // Get all available leagues first
+      const allLeagues = await rapidApiService.getLeagues();
+
+      // Filter leagues by country
+      const countryLeagues = allLeagues.filter(leagueResponse => {
+        const leagueCountry = leagueResponse.country?.name?.toLowerCase() || '';
+        return leagueCountry.includes(country.toLowerCase());
+      });
+
+      console.log(`Found ${countryLeagues.length} leagues for country: ${country}`);
+
+      let allFixtures: any[] = [];
+
+      // Fetch fixtures for each league in the country
+      for (const leagueResponse of countryLeagues.slice(0, 10)) { // Limit to top 10 leagues to avoid timeout
+        try {
+          const leagueId = leagueResponse.league.id;
+          const seasonYear = season ? parseInt(season as string) : 2024;
+
+          const leagueFixtures = await rapidApiService.getFixturesByLeague(leagueId, seasonYear);
+
+          // Filter by specific league if requested
+          if (league && !leagueResponse.league.name.toLowerCase().includes((league as string).toLowerCase())) {
+            continue;
+          }
+
+          allFixtures = [...allFixtures, ...leagueFixtures];
+
+          console.log(`Added ${leagueFixtures.length} fixtures from ${leagueResponse.league.name}`);
+        } catch (error) {
+          console.error(`Error fetching fixtures for league ${leagueResponse.league.id}:`, error);
+          continue;
+        }
+      }
+
+      // Sort by date
+      allFixtures.sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
+
+      console.log(`Total fixtures for ${country}: ${allFixtures.length}`);
+
+      // Server-side: Keep all fixtures - let client do precise date filtering
+  // This ensures we capture fixtures from all timezones that might be valid
+  const validatedFixtures = allFixtures.filter(fixture => {
+    try {
+      const apiDateString = fixture.fixture.date;
+      const extractedDate = apiDateString.split('T')[0];
+
+      // Allow fixtures from ±1 day to capture all timezone variations
+      const targetDateObj = new Date(date);
+      const previousDay = new Date(targetDateObj);
+      previousDay.setDate(previousDay.getDate() - 1);
+      const nextDay = new Date(targetDateObj);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      const validDates = [
+        previousDay.toISOString().split('T')[0],
+        date,
+        nextDay.toISOString().split('T')[0]
+      ];
+
+      if (!validDates.includes(extractedDate)) {
+        console.log(`🚫 [Routes] Final validation - rejecting fixture outside date range: {
+  requestedDate: '${date}',
+  apiReturnedDate: '${apiDateString}',
+  extractedDate: '${extractedDate}',
+  fixtureId: ${fixture.fixture.id}
+}`);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error in final date validation:', error);
+      return false;
+    }
+  });
+
+      res.json({ 
+        success: true, 
+        fixtures: validatedFixtures,
+        country: country,
+        season: season || 2024,
+        totalLeagues: countryLeagues.length,
+        totalFixtures: validatedFixtures.length
+      });
+    } catch (error) {
+      console.error('Error fetching fixtures by country:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to fetch fixtures by country'
+      });
+    }
+  });
+
+  // Debug endpoint to test RapidAPI date requests directly
+  apiRouter.get('/debug/rapidapi-date/:date', async (req: Request, res: Response) => {
+    try {
+      const { date } = req.params;
+
+      console.log(`🔬 [DEBUG] Testing RapidAPI direct call for date: ${date}`);
+
+      // Make direct API call with different timezone parameters
+      const tests = [
+        { timezone: 'UTC', name: 'UTC' },
+        { timezone: 'Europe/London', name: 'London' },
+        { timezone: 'America/New_York', name: 'New_York' },
+        { name: 'No_Timezone' } // No timezone parameter
+      ];
+
+      const results = [];
+
+      for (const test of tests) {
+        try {
+          const params: any = { date };
+          if (test.timezone) {
+            params.timezone = test.timezone;
+          }
+
+          console.log(`🧪 [DEBUG] Testing with params:`, params);
+
+          const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?${new URLSearchParams(params)}`, {
+            headers: {
+              'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
+              'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
+            }
+          });
+
+          const data = await response.json();
+
+          if (data.response?.length > 0) {
+            const sampleDates = data.response.slice(0, 5).map((f: any) => {
+              const fixtureDate = new Date(f.fixture?.date);
+              return {
+                id: f.fixture?.id,
+                returnedDate: f.fixture?.date,
+                extractedDate: fixtureDate.toISOString().split('T')[0],
+                matchesRequested: fixtureDate.toISOString().split('T')[0] === date
+              };
+            });
+
+            results.push({
+              testName: test.name,
+              timezone: test.timezone || 'none',
+              totalResults: data.response.length,
+              sampleDates,
+              correctDateCount: data.response.filter((f: any) => {
+                const fixtureDate = new Date(f.fixture?.date);
+                return fixtureDate.toISOString().split('T')[0] === date;
+              }).length
+            });
+          } else {
+            results.push({
+              testName: test.name,
+              timezone: test.timezone || 'none',
+              totalResults: 0,
+              error: 'No fixtures returned'
+            });
+          }
+        } catch (error) {
+          results.push({
+            testName: test.name,
+            timezone: test.timezone || 'none',
+            error: error instanceof Error ? error.message : 'Unknown error'
+          });
+        }
+      }
+
+      res.json({
+        requestedDate: date,
+        serverTime: new Date().toISOString(),
+        serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        testResults: results
+      });
+
+    } catch (error) {
+      console.error('Debug endpoint error:', error);
+      res.status(500).json({ error: 'Debug test failed' });
+    }
+  });
+
+  // Get fixtures by date
+  apiRouter.get('/fixtures/date/:date', async (req: Request, res: Response) => {
+    try {
+      const { date } = req.params;
+      const { all } = req.query;
+
+      if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+      }
+    // Get fixtures for the requested date without timezone restrictions
+  // This allows us to capture fixtures from all timezones for the given date
+  const apiFromDate = requestedDate; // Use the date as-is
+  const apiToDate = requestedDate; // Same day
+
+      const fixtures = await rapidApiService.getFixturesByDate(date, all === 'true');
+      console.log(`Got ${fixtures.length} fixtures ${all === 'true' ? 'from all leagues' : 'from popular leagues'} for date ${date}`);
+      res.json(fixtures);
+    } catch (error) {
+      console.error('Error fetching fixtures by date:', error);
+      res.status(500).json({ error: 'Failed to fetch fixtures' });
+    }
+  });
+
+  // Get live fixtures (with B365API fallback)
+  apiRouter.get("/fixtures/live", async (_req: Request, res: Response) => {
+    try {
+      // Use API-Football (RapidAPI) only
+      try {
+        const fixtures = await rapidApiService.getLiveFixtures();
+        console.log(`Retrieved ${fixtures.length} live fixtures from RapidAPI`);
+
+        // Cache the live fixtures
+        for (const fixture of fixtures) {
+          try {
+            const fixtureId = fixture.fixture.id.toString();
+            const existingFixture = await storage.getCachedFixture(fixtureId);
+
+            if (existingFixture) {
+              await storage.updateCachedFixture(fixtureId, fixture);
+            } else {
+              await storage.createCachedFixture({
+                fixtureId: fixtureId,
+                date: new Date().toISOString().split('T')[0],
+                league: fixture.league.id.toString(),
+                data: fixture
+              });
+            }
+          } catch (cacheError) {
+            console.error(`Error caching live fixture ${fixture.fixture.id}:`, cacheError);
+          }
+        }
+
+        return res.json(fixtures);
+      } catch (rapidApiError) {
+        console.error('RapidAPI error for live fixtures:', rapidApiError);
+
+        // If both APIs fail, try to return cached live fixtures from today
+        try {
+          const todayDate = new Date().toISOString().split('T')[0];
+          const cachedFixtures = await storage.getCachedFixturesByDate(todayDate);
+          const liveFixtures = cachedFixtures
+            .filter((fixture: CachedFixture) => {
+              const fixtureData = fixture.data as any;
+              return fixtureData && fixtureData.fixture && 
+                (fixtureData.fixture.status.short === 'LIVE' || 
+                fixtureData.fixture.status.short === '1H' || 
+                fixtureData.fixture.status.short === '2H' || 
+                fixtureData.fixture.status.short === 'HT');
+            })
+            .map((fixture: CachedFixture) => fixture.data);
+
+          if (liveFixtures.length > 0) {
+            console.log(`Using ${liveFixtures.length} cached live fixtures`);
+            return res.json(liveFixtures);
+          }
+        } catch (cacheError) {
+          console.error('Error retrieving cached live fixtures:', cacheError);
+        }
+
+        // If everything fails, return an empty array
+        return res.json([]);      }
+    } catch (error) {
+      console.error('Error fetching live fixtures:', error);
+      res.status(500).json({ message: "Failed to fetch live fixtures" });
+    }
+  });
+
+
+
+  // Get country flag with SportsRadar fallback
+  apiRouter.get('/flags/:country', async (req: Request, res: Response) => {
+    try {
+      const { country } = req.params;
+
+      if (!country) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Country parameter is required',
+          fallbackUrl: '/assets/fallback-logo.svg',
+          shouldExclude: true
+        });
+      }
+
+      console.log(`Getting flag for country: ${country}`);
+
+      // Try SportsRadar flag with timeout
+      try {
+        const sportsRadarFlag = await Promise.race([
+          sportsradarApi.getCountryFlag(country),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('SportsRadar timeout')), 5000)
+          )
+        ]) as string | null;
+
+        if (sportsRadarFlag) {
+          return res.json({ 
+            success: true, 
+            flagUrl: sportsRadarFlag,
+            source: 'SportsRadar'
+          });
+        }
+      } catch (sportsRadarError) {
+        console.warn(`SportsRadar flag failed for ${country}:`, sportsRadarError);
+      }
+
+      // If SportsRadar fails, return fallback response
+      console.warn(`🚫 Country ${country} will use fallback flag`);
+      res.json({ 
+        success: false, 
+        message: 'Flag not found in SportsRadar - using fallback',
+        fallbackUrl: '/assets/fallback-logo.svg',
+        shouldExclude: false // Don't exclude, just use fallback
+      });
+
+    } catch (error) {
+      console.error('Error fetching flag:', error);
+      res.status(200).json({ // Return 200 to avoid network errors
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to fetch flag',
+        fallbackUrl: '/assets/fallback-logo.svg',
+        shouldExclude: false
+      });
+    }
+  });
+
+  // Get available countries and their seasons
+  apiRouter.get('/countries', async (req: Request, res: Response) => {    try {
+      console.log('API: Getting available countries and seasons');
+
+      const allLeagues = await rapidApiService.getLeagues();
+
+      // Group leagues by country and extract season information
+      const countriesMap = new Map();
+
+      allLeagues.forEach(leagueResponse => {
+        const countryName = leagueResponse.country?.name || 'Unknown';
+        const countryCode = leagueResponse.country?.code || '';
+        const countryFlag = leagueResponse.country?.flag || '';
+
+        if (!countriesMap.has(countryName)) {
+          countriesMap.set(countryName, {
+            name: countryName,
+            code: countryCode,
+            flag: countryFlag,
+            leagues: [],
+            seasons: new Set()
+          });
+        }
+
+        const countryData = countriesMap.get(countryName);
+        countryData.leagues.push({
+          id: leagueResponse.league.id,
+          name: leagueResponse.league.name,
+          type: leagueResponse.league.type,
+          logo: leagueResponse.league.logo
+        });
+
+        // Add available seasons for this league
+        if (leagueResponse.seasons) {
+          leagueResponse.seasons.forEach(season => {
+            countryData.seasons.add(season.year);
+          });
+        }
+      });
+
+      // Convert to array and sort
+      const countries = Array.from(countriesMap.values()).map(country => ({
+        ...country,
+        seasons: Array.from(country.seasons).sort((a, b) => b - a), // Sort seasons descending
+        leagueCount: country.leagues.length
+      })).sort((a, b) => a.name.localeCompare(b.name));
+
+      console.log(`Found ${countries.length} countries with leagues`);
+
+      res.json({ 
+        success: true, 
+        countries: countries,
+        totalCountries: countries.length,
+        totalLeagues: allLeagues.length
+      });
+    } catch (error) {
+      console.error('Error fetching countries:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Failed to fetch countries'
+      });
+    }
+  });
+
+
+
+  // Create HTTP server
+  const httpServer = createServer(app);
+
+  return httpServer;
+}
+
+// Utility function to get country flag with fallback chain
+async function getCountryFlag(country: string): Promise<string | null> {
+  try {
+    // Try SportsRadar flag first
+    let flagUrl = await sportsradarApi.getCountryFlag(country);
+
+    if (flagUrl) {
+      return flagUrl;
+    }
+
+    // If SportsRadar fails, try 365scores CDN
+    console.log(`SportsRadar flag not found for ${country}, trying 365scores CDN fallback`);
+    flagUrl = `https://sports.365scores.com/CDN/images/flags/${country}.svg`;
+
+    // Check if the 365scores flag exists (naive check)
+    const response = await fetch(flagUrl, { method: 'HEAD' });
+    if (response.ok) {
+      return flagUrl;
+    } else {
+      console.log(`365scores CDN flag not found for ${country}`);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching country flag:', error);
+    return null;
+  }
+}
