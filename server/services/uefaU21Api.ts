@@ -271,14 +271,21 @@ class UefaU21ApiService {
     try {
       console.log(`🎯 [UEFA U21] Fetching sample U21 matches from known teams`);
       
-      // Create mock data for the specific matches mentioned
+      // Get current date and add a few days for upcoming matches
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(today.getDate() + 1);
+      const dayAfter = new Date(today);
+      dayAfter.setDate(today.getDate() + 2);
+      
+      // Create mock data for the specific matches mentioned with realistic upcoming dates
       const mockU21Matches: U21Match[] = [
         {
           fixture: {
             id: 999001,
-            date: '2025-06-15T16:00:00+00:00',
+            date: `${tomorrow.toISOString().split('T')[0]}T16:00:00+00:00`,
             status: { long: 'Not Started', short: 'NS' },
-            venue: { name: 'Stadium TBD', city: 'TBD' }
+            venue: { name: 'Arena Națională', city: 'Bucharest' }
           },
           league: {
             id: this.leagueId,
@@ -287,8 +294,8 @@ class UefaU21ApiService {
             country: 'Europe'
           },
           teams: {
-            home: { id: 1111, name: 'Spain U21', logo: 'https://media.api-sports.io/football/teams/1111.png' },
-            away: { id: 2222, name: 'Romania U21', logo: 'https://media.api-sports.io/football/teams/2222.png' }
+            home: { id: 1111, name: 'Spain U21', logo: 'https://hatscripts.github.io/circle-flags/flags/es.svg' },
+            away: { id: 2222, name: 'Romania U21', logo: 'https://hatscripts.github.io/circle-flags/flags/ro.svg' }
           },
           goals: { home: null, away: null },
           score: {
@@ -299,9 +306,9 @@ class UefaU21ApiService {
         {
           fixture: {
             id: 999002,
-            date: '2025-06-15T19:00:00+00:00',
+            date: `${tomorrow.toISOString().split('T')[0]}T19:00:00+00:00`,
             status: { long: 'Not Started', short: 'NS' },
-            venue: { name: 'Stadium TBD', city: 'TBD' }
+            venue: { name: 'Stade de France', city: 'Paris' }
           },
           league: {
             id: this.leagueId,
@@ -310,8 +317,8 @@ class UefaU21ApiService {
             country: 'Europe'
           },
           teams: {
-            home: { id: 3333, name: 'France U21', logo: 'https://media.api-sports.io/football/teams/3333.png' },
-            away: { id: 4444, name: 'Georgia U21', logo: 'https://media.api-sports.io/football/teams/4444.png' }
+            home: { id: 3333, name: 'France U21', logo: 'https://hatscripts.github.io/circle-flags/flags/fr.svg' },
+            away: { id: 4444, name: 'Georgia U21', logo: 'https://hatscripts.github.io/circle-flags/flags/ge.svg' }
           },
           goals: { home: null, away: null },
           score: {
@@ -322,9 +329,9 @@ class UefaU21ApiService {
         {
           fixture: {
             id: 999003,
-            date: '2025-06-15T19:00:00+00:00',
+            date: `${dayAfter.toISOString().split('T')[0]}T19:00:00+00:00`,
             status: { long: 'Not Started', short: 'NS' },
-            venue: { name: 'Stadium TBD', city: 'TBD' }
+            venue: { name: 'Estádio da Luz', city: 'Lisbon' }
           },
           league: {
             id: this.leagueId,
@@ -333,8 +340,8 @@ class UefaU21ApiService {
             country: 'Europe'
           },
           teams: {
-            home: { id: 5555, name: 'Portugal U21', logo: 'https://media.api-sports.io/football/teams/5555.png' },
-            away: { id: 6666, name: 'Poland U21', logo: 'https://media.api-sports.io/football/teams/6666.png' }
+            home: { id: 5555, name: 'Portugal U21', logo: 'https://hatscripts.github.io/circle-flags/flags/pt.svg' },
+            away: { id: 6666, name: 'Poland U21', logo: 'https://hatscripts.github.io/circle-flags/flags/pl.svg' }
           },
           goals: { home: null, away: null },
           score: {
@@ -345,9 +352,9 @@ class UefaU21ApiService {
         {
           fixture: {
             id: 999004,
-            date: '2025-06-15T19:00:00+00:00',
+            date: `${dayAfter.toISOString().split('T')[0]}T19:00:00+00:00`,
             status: { long: 'Not Started', short: 'NS' },
-            venue: { name: 'Stadium TBD', city: 'TBD' }
+            venue: { name: 'Tehelné pole', city: 'Bratislava' }
           },
           league: {
             id: this.leagueId,
@@ -356,8 +363,8 @@ class UefaU21ApiService {
             country: 'Europe'
           },
           teams: {
-            home: { id: 7777, name: 'Slovakia U21', logo: 'https://media.api-sports.io/football/teams/7777.png' },
-            away: { id: 8888, name: 'Italy U21', logo: 'https://media.api-sports.io/football/teams/8888.png' }
+            home: { id: 7777, name: 'Slovakia U21', logo: 'https://hatscripts.github.io/circle-flags/flags/sk.svg' },
+            away: { id: 8888, name: 'Italy U21', logo: 'https://hatscripts.github.io/circle-flags/flags/it.svg' }
           },
           goals: { home: null, away: null },
           score: {
