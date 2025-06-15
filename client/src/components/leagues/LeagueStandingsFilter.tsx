@@ -143,40 +143,74 @@ const LeagueStandingsFilter = () => {
             leagueName.includes("u17") ||
             leagueName.includes("under 17");
 
-          // Keep current ongoing leagues
-          const isCurrentLeague =
-            // Major European leagues (run most of the year)
-            leagueName.includes("premier league") ||
-            leagueName.includes("la liga") ||
-            leagueName.includes("serie a") ||
-            leagueName.includes("bundesliga") ||
-            leagueName.includes("ligue 1") ||
-            // Continental competitions (ongoing)
-            leagueName.includes("champions league") ||
-            leagueName.includes("europa league") ||
-            leagueName.includes("conference league") ||
-            leagueName.includes("nations league") ||
-            // Specific major leagues from other regions
-            leagueName.includes("saudi pro league") ||
-            leagueName.includes("egyptian premier league") ||
-            // Major leagues from other regions
-            country.includes("brazil") ||
-            country.includes("argentina") ||
-            country.includes("saudi arabia") ||
-            country.includes("united arab emirates") ||
-            country.includes("egypt") ||
-            country.includes("colombia") ||
-            country.includes("united states") ||
-            // Current ongoing competitions
-            (leagueName.includes("qualification") && currentMonth <= 11) ||
-            // Current cup competitions
-            (leagueName.includes("cup") &&
-              !leagueName.includes("world cup") &&
-              !leagueName.includes("euro")) ||
-            (leagueName.includes("copa") &&
-              !leagueName.includes("copa america"));
+          // Exclude low-tier and regional leagues
+          const isLowTierLeague =
+            // Second and third divisions
+            leagueName.includes("second league") ||
+            leagueName.includes("third league") ||
+            leagueName.includes("division 2") ||
+            leagueName.includes("division 3") ||
+            leagueName.includes("liga 2") ||
+            leagueName.includes("serie b") ||
+            leagueName.includes("serie c") ||
+            leagueName.includes("championship") ||
+            leagueName.includes("league one") ||
+            leagueName.includes("league two") ||
+            // Regional competitions
+            leagueName.includes("regional") ||
+            leagueName.includes("amateur") ||
+            leagueName.includes("youth") ||
+            // Olympics qualifications (often youth teams)
+            leagueName.includes("olympics") ||
+            // Super Cup competitions (one-off matches, not league standings)
+            (leagueName.includes("super cup") && !leagueName.includes("saudi")) ||
+            leagueName.includes("supercup") ||
+            leagueName.includes("community shield") ||
+            // Campeones Cup and similar one-off competitions
+            leagueName.includes("campeones cup") ||
+            // Group stage qualifiers (not full leagues)
+            leagueName.includes("group");
 
-          return !isHistoricalTournament && isCurrentLeague;
+          // Keep current ongoing leagues - STRICT FILTERING
+          const isCurrentLeague =
+            // Major European leagues (run most of the year) - EXACT MATCHES
+            leagueName === "premier league" ||
+            leagueName === "la liga" ||
+            leagueName === "serie a" ||
+            leagueName === "bundesliga" ||
+            leagueName === "ligue 1" ||
+            // Continental competitions (ongoing) - EXACT MATCHES
+            leagueName === "uefa champions league" ||
+            leagueName === "uefa europa league" ||
+            leagueName === "uefa europa conference league" ||
+            leagueName === "uefa nations league" ||
+            // World Cup qualifications - SPECIFIC MATCHES
+            leagueName === "world cup qualification - europe" ||
+            leagueName === "world cup qualification - south america" ||
+            leagueName === "world cup qualification - africa" ||
+            leagueName === "world cup qualification - asia" ||
+            leagueName === "world cup qualification - oceania" ||
+            leagueName === "world cup qualification - intercontinental play-offs" ||
+            // Major tournaments
+            leagueName === "fifa world cup" ||
+            leagueName === "euro championship" ||
+            leagueName === "copa america" ||
+            leagueName === "african cup of nations" ||
+            leagueName === "asian cup" ||
+            // Specific major leagues from other regions - EXACT MATCHES
+            leagueName === "saudi pro league" ||
+            leagueName === "egyptian premier league" ||
+            leagueName === "mls" ||
+            leagueName === "brasileiro série a" ||
+            leagueName === "liga profesional argentina" ||
+            // Major cup competitions - EXACT MATCHES ONLY
+            leagueName === "fa cup" ||
+            leagueName === "copa del rey" ||
+            leagueName === "coppa italia" ||
+            leagueName === "dfl-supercup" ||
+            leagueName === "coupe de france";
+
+          return !isHistoricalTournament && !isLowTierLeague && isCurrentLeague;
         });
 
         // Process leagues to ensure we have proper names and logos
