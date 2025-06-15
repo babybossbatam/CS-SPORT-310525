@@ -308,10 +308,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const isToday = date === today;
 
         // Past dates: 24 hours cache (matches are finished and stable)
-        // Today: 5 minutes cache (frequent updates for live matches)
+        // Today: 30 minutes cache (balanced for live updates and efficiency)
         // Future dates: 4 hours cache (schedules rarely change)
         const maxCacheAge = isPastDate ? 24 * 60 * 60 * 1000 : 
-                       isToday ? 5 * 60 * 1000 : 
+                       isToday ? 30 * 60 * 1000 : 
                        4 * 60 * 60 * 1000;
 
         if (cacheAge < maxCacheAge) {
