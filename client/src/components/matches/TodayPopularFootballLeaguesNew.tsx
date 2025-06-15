@@ -1193,21 +1193,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     },
                   );
 
-                  // Priority 0: FIFA Club World Cup by ID (ABSOLUTE TOP PRIORITY)
-                  if (leagueId === 15) {
-                    console.log(
-                      `✅ [PRIORITY 0] FIFA Club World Cup found by ID: "${leagueData.league?.name}" (ID: ${leagueId}) - ABSOLUTE TOP PRIORITY`,
-                    );
-                    return 0;
-                  }
-
-                  // Priority 0: FIFA Club World Cup by name (ABSOLUTE TOP PRIORITY)
+                  // Priority 0: FIFA Club World Cup - Multiple checks for absolute priority
                   if (
+                    leagueId === 15 ||
                     name.includes("fifa club world cup") ||
-                    name.includes("club world cup")
+                    name.includes("club world cup") ||
+                    name === "fifa club world cup"
                   ) {
                     console.log(
-                      `✅ [PRIORITY 0] FIFA Club World Cup found by name: "${leagueData.league?.name}" - ABSOLUTE TOP PRIORITY`,
+                      `✅ [PRIORITY 0] FIFA Club World Cup found: "${leagueData.league?.name}" (ID: ${leagueId}) - ABSOLUTE TOP PRIORITY`,
                     );
                     return 0;
                   }
