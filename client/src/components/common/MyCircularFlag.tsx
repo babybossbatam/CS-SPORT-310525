@@ -61,6 +61,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Sweden: "se",
       Norway: "no",
       Finland: "fi",
+      Romania: "ro",
       Russia: "ru",
       Serbia: "rs",
       // South American teams

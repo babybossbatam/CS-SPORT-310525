@@ -204,7 +204,7 @@
   border-radius: 50%;
   position: relative;
   z-index: 1;
-  filter: contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg);
+  filter: contrast(155%) brightness(90%) saturate(110%) hue-rotate(-15deg);
 }
 
 .flag-circle .gloss {
@@ -214,7 +214,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: linear-gradient(55deg,
+  background: linear-gradient(25deg,
       rgba(255, 255, 255, 0.6) 0%,
       rgba(255, 255, 255, 0.3) 25%,
       rgba(255, 255, 255, 0.1) 50%,
