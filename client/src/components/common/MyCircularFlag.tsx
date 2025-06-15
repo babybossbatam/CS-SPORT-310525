@@ -145,12 +145,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         height: size,
         position: "relative",
         left: moveLeft ? "-16px" : "4px",
-        ...(isNational ? {} : {
-          borderRadius: "8px",
-          overflow: "hidden",
-          transform: "translateZ(0)",
-          transition: "all 0.3s ease"
-        })
+        ...(isNational ? {} : {})
       }}
       onMouseEnter={() => showNextMatchOverlay && setIsHovered(true)}
       onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
@@ -163,12 +158,12 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          borderRadius: isNational ? "50%" : "8px",
+          borderRadius: isNational ? "50%" : "0",
           position: "relative",
           zIndex: 1,
           filter: isNational 
             ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
-            : "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
+            : "none",
         }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
@@ -177,36 +172,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           }
         }}
       />
-      <div 
-        className="gloss"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          borderRadius: isNational ? "50%" : "8px",
-          background: "linear-gradient(55deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.3) 25%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 75%, rgba(0, 0, 0, 0.1) 100%)",
-          zIndex: 2,
-          pointerEvents: "none",
-          mixBlendMode: "plus-darker"
-        }}
-      ></div>
-      {!isNational && (
-        <div 
-          style={{
-            position: "absolute",
-            top: "10%",
-            left: "15%",
-            width: "30%",
-            height: "30%",
-            background: "radial-gradient(ellipse at center, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.2) 60%, transparent 100%)",
-            borderRadius: "50%",
-            zIndex: 3,
-            pointerEvents: "none",
-            filter: "blur(1px)"
-          }}
-        ></div>
+      {isNational && (
+        <div className="gloss"></div>
       )}
 
       {/* Next Match Tooltip - External popup */}
