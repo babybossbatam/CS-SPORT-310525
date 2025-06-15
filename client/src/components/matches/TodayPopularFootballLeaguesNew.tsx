@@ -1173,16 +1173,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                 const getWorldLeaguePriority = (leagueData: any) => {
                   const name = (leagueData.league?.name || "").toLowerCase();
-                  const leagueId = leagueData.league?.id;
                   // Check if it's marked as friendlies or contains friendlies in name
                   const isFriendlies =
                     leagueData.isFriendlies || name.includes("friendlies");
 
                   console.log(
-                    `🔍 [PRIORITY CHECK] League: "${leagueData.league?.name}" (ID: ${leagueId})`,
+                    `🔍 [PRIORITY CHECK] League: "${leagueData.league?.name}"`,
                     {
                       nameToLower: name,
-                      leagueId,
                       isFriendlies,
                       leagueDataIsFriendlies: leagueData.isFriendlies,
                       nameIncludesFriendlies: name.includes("friendlies"),
@@ -1193,27 +1191,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     },
                   );
 
-                  // Priority 0: FIFA Club World Cup - Multiple checks for absolute priority
-                  if (
-                    leagueId === 15 ||
-                    name.includes("fifa club world cup") ||
-                    name.includes("club world cup") ||
-                    name === "fifa club world cup" ||
-                    name === "club world cup"
-                  ) {
-                    console.log(
-                      `✅ [PRIORITY 0] FIFA Club World Cup found: "${leagueData.league?.name}" (ID: ${leagueId}) - ABSOLUTE TOP PRIORITY`,
-                    );
-                    return -1000; // Use a very negative number to ensure it comes first
-                  }
-
-                  // Priority 1: UEFA Nations League
+                  // Priority 1: UEFA Nations League (HIGHEST PRIORITY - must come before all others)
                   if (
                     name.includes("uefa nations league") &&
                     !name.includes("women")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 1] UEFA Nations League found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 1] UEFA Nations League found: "${leagueData.league?.name}" - TOP PRIORITY`,
                     );
                     return 1;
                   }
@@ -1242,59 +1226,59 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     return 3;
                   }
 
-                  // Priority 4: Friendlies (but exclude UEFA Nations League and women's matches)
+                  // Priority 4: FIFA Club World Cup (HIGH PRIORITY - before friendlies)
+                  if (
+                    name.includes("fifa club world cup") ||
+                    name.includes("club world cup")
+                  ) {
+                    console.log(
+                      `✅ [PRIORITY 4] FIFA Club World Cup found: "${leagueData.league?.name}"`,
+                    );
+                    return 4;
+                  }
+
+                  // Priority 5: Friendlies (but exclude UEFA Nations League and women's matches)
                   if (
                     isFriendlies &&
                     !name.includes("uefa nations league") &&
                     !name.includes("women")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 4] Friendlies found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 5] Friendlies found: "${leagueData.league?.name}"`,
                     );
-                    return 4;
+                    return 5;
                   }
 
-                  // Priority 5: World Cup Qualification Asia
+                  // Priority 6: World Cup Qualification Asia
                   if (
                     name.includes("world cup") &&
                     name.includes("qualification") &&
                     name.includes("asia")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 5] World Cup Qualification Asia found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 6] World Cup Qualification Asia found: "${leagueData.league?.name}"`,
                     );
-                    return 5;
+                    return 6;
                   }
 
-                  // Priority 6: World Cup Qualification CONCACAF
+                  // Priority 7: World Cup Qualification CONCACAF
                   if (
                     name.includes("world cup") &&
                     name.includes("qualification") &&
                     name.includes("concacaf")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 6] World Cup Qualification CONCACAF found: "${leagueData.league?.name}"`,
-                    );
-                    return 6;
-                  }
-
-                  // Priority 7: Tournoi Maurice Revello
-                  if (name.includes("tournoi maurice revello")) {
-                    console.log(
-                      `✅ [PRIORITY 7] Tournoi Maurice Revello found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 7] World Cup Qualification CONCACAF found: "${leagueData.league?.name}"`,
                     );
                     return 7;
                   }
 
-                  // Priority 998: UEFA Nations League - Women (second to last)
-                  if (
-                    name.includes("uefa nations league") &&
-                    name.includes("women")
-                  ) {
+                  // Priority 8: Tournoi Maurice Revello
+                  if (name.includes("tournoi maurice revello")) {
                     console.log(
-                      `✅ [PRIORITY 998] UEFA Nations League - Women found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 8] Tournoi Maurice Revello found: "${leagueData.league?.name}"`,
                     );
-                    return 998;
+                    return 8;
                   }
 
                   console.log(
