@@ -545,16 +545,28 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                 >
                   {competition.name}
                 </span>
-                <span
-                  className="text-gray-600"
-                  style={{
-                    fontFamily:
-                      "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                    fontSize: "11px",
-                  }}
-                >
-                  {competition.matchCount} match{competition.matchCount !== 1 ? "es" : ""}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span
+                    className="text-gray-600"
+                    style={{
+                      fontFamily:
+                        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                      fontSize: "11px",
+                    }}
+                  >
+                    {competition.matchCount} match{competition.matchCount !== 1 ? "es" : ""}
+                  </span>
+                  <span
+                    className="text-gray-500 text-xs"
+                    style={{
+                      fontFamily:
+                        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                      fontSize: "10px",
+                    }}
+                  >
+                    • {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                  </span>
+                </div>
               </div>
 
               {/* Expand/Collapse Button */}
