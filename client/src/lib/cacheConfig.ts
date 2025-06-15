@@ -57,8 +57,8 @@ export const CACHE_PRESETS = {
 
   // For player statistics and top scorers
   PLAYER_STATS: {
-    staleTime: CACHE_DURATIONS.TWELVE_HOURS,
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS,
+    staleTime: CACHE_DURATIONS.FOUR_HOURS, // Top scorers change infrequently
+    gcTime: CACHE_DURATIONS.TWELVE_HOURS,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,

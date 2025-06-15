@@ -121,7 +121,7 @@ const HomeTopScorersList = () => {
   const { data: topScorers, isLoading } = useQuery({
     queryKey: [`/api/leagues/${selectedLeague}/topscorers`],
     enabled: !!selectedLeague,
-    staleTime: 30 * 60 * 1000,
+    staleTime: 2 * 60 * 60 * 1000, // 2 hours - top scorers don't change frequently
     select: (data: PlayerStatistics[]) => {
       return data.sort((a, b) => {
         const goalsA = a.statistics[0]?.goals?.total || 0;
