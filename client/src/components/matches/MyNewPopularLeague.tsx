@@ -566,6 +566,35 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                   >
                     • {Intl.DateTimeFormat().resolvedOptions().timeZone}
                   </span>
+                  {competition.matches.length > 0 && (
+                    <span
+                      className="text-blue-600 text-xs font-medium"
+                      style={{
+                        fontFamily:
+                          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                        fontSize: "10px",
+                      }}
+                    >
+                      • {(() => {
+                        // Get the first upcoming match time for display
+                        const upcomingMatch = competition.matches
+                          .filter(match => match.fixture.status.short === "NS" || match.fixture.status.short === "TBD")
+                          .sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime())[0];
+                        
+                        if (upcomingMatch) {
+                          const matchDate = parseISO(upcomingMatch.fixture.date);
+                          const localTime = format(matchDate, "HH:mm");
+                          return localTime;
+                        }
+                        
+                        // If no upcoming matches, show the first match time
+                        const firstMatch = competition.matches[0];
+                        const matchDate = parseISO(firstMatch.fixture.date);
+                        const localTime = format(matchDate, "HH:mm");
+                        return localTime;
+                      })()}
+                    </span>
+                  )}
                 </div>
               </div>
 
