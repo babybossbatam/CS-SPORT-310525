@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { getCountryCode } from "@/lib/flagUtils";
+import { isNationalTeam } from "@/lib/teamLogoSources";
+import MyNormalTeamLogo from "./MyNormalTeamLogo";
 
 interface MyCircularFlagProps {
   teamName: string;
+  teamId?: number | string;
   fallbackUrl?: string;
   alt?: string;
   size?: string;
@@ -14,10 +17,15 @@ interface MyCircularFlagProps {
     venue?: string;
   };
   showNextMatchOverlay?: boolean;
+  leagueContext?: {
+    name?: string;
+    country?: string;
+  };
 }
 
 const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   teamName,
+  teamId,
   fallbackUrl,
   alt,
   size = "64px",
@@ -25,6 +33,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   moveLeft = false,
   nextMatchInfo,
   showNextMatchOverlay = false,
+  leagueContext,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
@@ -132,6 +141,24 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       year: "numeric",
     });
   };
+
+  // Check if this is a national team
+  const isNational = isNationalTeam({ name: teamName }, leagueContext);
+
+  // If it's not a national team, use MyNormalTeamLogo instead
+  if (!isNational) {
+    return (
+      <MyNormalTeamLogo
+        teamName={teamName}
+        teamId={teamId}
+        fallbackUrl={fallbackUrl}
+        alt={alt}
+        size={size}
+        className={className}
+        moveLeft={moveLeft}
+      />
+    );
+  }
 
   // Circular flag format for national teams and countries
   return (
