@@ -94,7 +94,7 @@ export const queryClient = new QueryClient({
       staleTime: CACHE_DURATIONS.ONE_HOUR, // Data stays fresh for 60 minutes
       cacheTime: CACHE_DURATIONS.SIX_HOURS, // Keep unused data in cache for 6 hours
       gcTime: CACHE_DURATIONS.SIX_HOURS, // 6 hours
-      retry: 1,
+      retry: 0, // Disable retries to prevent cascading requests
       retryDelay: 2000,
       refetchOnMount: false,
       refetchOnReconnect: false,

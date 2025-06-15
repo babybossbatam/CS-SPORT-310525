@@ -51,7 +51,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const twoDaysAfterStr = twoDaysAfter.toISOString().slice(0, 10);
 
   const dateToUse = selectedDate || today;
-  const cacheMaxAge = 1 * 60 * 1000; // 1 minute cache to force refresh for new logic
+  const cacheMaxAge = 5 * 60 * 1000; // 5 minute cache to reduce frequent refreshes
 
   // Fetch fixtures for multiple days to build the 9-slide distribution
   const { data: fixtures = [], isLoading } = useCachedQuery(
@@ -762,18 +762,18 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           const response = await apiRequest("GET", `/api/fixtures/${currentMatch.fixture.id}`);
           const updatedMatch = await response.json();
           
-          // Update the current match data if status changed
+          // Update the current match data if status changed - but don't reload page
           if (updatedMatch && updatedMatch.fixture.status.short !== currentMatch.fixture.status.short) {
             console.log(`🔄 [LIVE UPDATE] Status changed from ${currentMatch.fixture.status.short} to ${updatedMatch.fixture.status.short}`);
-            // Force a data refresh by invalidating cache
+            // Just invalidate cache, let React Query handle the update naturally
             const cacheKey = `featured-matches-multi-day-v3-${today}-${tomorrowStr}-${dayAfterStr}-${twoDaysAfterStr}`;
             localStorage.removeItem(cacheKey);
-            window.location.reload();
+            // Don't reload the page - let the component re-render naturally
           }
         } catch (error) {
           console.error("Error updating live match:", error);
         }
-      }, 30000); // Update every 30 seconds for live matches
+      }, 60000); // Reduce frequency to every 60 seconds
 
       return () => clearInterval(liveUpdateInterval);
     }

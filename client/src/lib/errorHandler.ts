@@ -1,18 +1,17 @@
-
 // Centralized error handling utility
 export const handleImageError = (
   event: React.SyntheticEvent<HTMLImageElement, Event>,
   fallbackUrl?: string
 ) => {
   const target = event.currentTarget;
-  
+
   // Prevent infinite loops
   if (target.dataset.errorHandled === 'true') {
     return;
   }
-  
+
   target.dataset.errorHandled = 'true';
-  
+
   // Try provided fallback first, then default
   if (fallbackUrl && !target.src.includes(fallbackUrl)) {
     target.src = fallbackUrl;
@@ -24,7 +23,7 @@ export const handleImageError = (
 
 export const handleApiError = (error: unknown): string => {
   console.error('API Error:', error);
-  
+
   if (error instanceof Error) {
     if (error.message.includes('Network') || error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
       return "Network error: Please check your internet connection and try again.";
@@ -37,52 +36,23 @@ export const handleApiError = (error: unknown): string => {
     }
     return error.message;
   }
-  
+
   return "An unexpected error occurred. Please try again.";
 };
 
 // Add network recovery helper
-export const handleNetworkRecovery = async () => {
-  console.log('🔄 Attempting network recovery...');
-  
-  try {
-    // Clear any stale cache entries
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const staleKeys = Object.keys(localStorage).filter(key => 
-        key.startsWith('flag_') || 
-        key.startsWith('logo_') || 
-        key.startsWith('standings_') ||
-        key.startsWith('fixtures_')
-      );
-      staleKeys.forEach(key => {
-        try {
-          localStorage.removeItem(key);
-        } catch (e) {
-          console.warn('Failed to remove cache key:', key);
-        }
-      });
-      console.log(`🧹 Cleared ${staleKeys.length} stale cache entries`);
-    }
-
-    // Test network connectivity
-    try {
-      const testResponse = await fetch('/api/health', { 
-        method: 'GET',
-        timeout: 5000 
-      });
-      
-      if (testResponse.ok) {
-        console.log('✅ Network connectivity restored');
-        return true;
+export const handleNetworkRecovery = () => {
+  // Clear any cached data that might be stale
+  if (typeof window !== 'undefined') {
+    // Clear localStorage caches that might be corrupted
+    Object.keys(localStorage).forEach(key => {
+      if (key.includes('cache') || key.includes('query')) {
+        localStorage.removeItem(key);
       }
-    } catch (testError) {
-      console.warn('❌ Network test failed:', testError);
-    }
+    });
 
-    return false;
-  } catch (error) {
-    console.error('Recovery process failed:', error);
-    return false;
+    // Don't automatically reload - let the app recover naturally
+    console.log('🌐 Network recovery: Cleared stale cache data');
   }
 };
 
@@ -91,12 +61,12 @@ export const setupGlobalErrorHandlers = () => {
   // Handle unhandled promise rejections
   window.addEventListener('unhandledrejection', (event) => {
     const error = event.reason;
-    
+
     // Prevent default handling that might cause cascade errors
     event.preventDefault();
-    
+
     console.error('🚨 Unhandled promise rejection:', error);
-    
+
     // Handle specific error types
     if (error instanceof Error) {
       if (error.message?.includes('Failed to fetch') || 
@@ -107,14 +77,14 @@ export const setupGlobalErrorHandlers = () => {
         handleNetworkRecovery();
         return;
       }
-      
+
       if (error.message?.includes('frame') || 
           error.message?.includes('Cannot read properties of undefined')) {
         console.log('🖼️ Frame-related error detected, suppressing cascade...');
         return;
       }
     }
-    
+
     // Handle string errors that might be fetch-related
     if (typeof error === 'string' && 
         (error.includes('Failed to fetch') || error.includes('Network'))) {
@@ -123,13 +93,13 @@ export const setupGlobalErrorHandlers = () => {
       return;
     }
   });
-  
+
   // Handle global JavaScript errors
   window.addEventListener('error', (event) => {
     const error = event.error;
-    
+
     console.error('🚨 Global error:', error);
-    
+
     // Prevent frame-related errors from crashing the app
     if (error?.message?.includes('frame') || 
         error?.message?.includes('ErrorOverlay') ||
@@ -138,7 +108,7 @@ export const setupGlobalErrorHandlers = () => {
       event.preventDefault();
       return;
     }
-    
+
     // Handle network-related errors
     if (error?.message?.includes('Failed to fetch') || 
         error?.message?.includes('NetworkError')) {
@@ -153,14 +123,14 @@ export const setupGlobalErrorHandlers = () => {
   const originalConsoleError = console.error;
   console.error = (...args) => {
     const message = args.join(' ');
-    
+
     // Filter out known harmless frame errors
     if (message.includes('Cannot read properties of undefined (reading \'frame\')') ||
         message.includes('ErrorOverlay') ||
         message.includes('vite/client')) {
       return; // Suppress these specific errors
     }
-    
+
     // Call original console.error for other errors
     originalConsoleError.apply(console, args);
   };
