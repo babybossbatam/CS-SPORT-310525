@@ -12,6 +12,7 @@ import { Provider } from "react-redux";
 import { store } from "@/lib/store";
 import { setupGlobalErrorHandlers } from "./lib/errorHandler";
 import { CentralDataProvider } from "./providers/CentralDataProvider";
+import Footer from "./components/layout/Footer";
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -111,6 +112,7 @@ function App() {
               <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
                 <AppContent />
               </Suspense>
+              <Footer />
             </Provider>
           </CentralDataProvider>
         </QueryClientProvider>
