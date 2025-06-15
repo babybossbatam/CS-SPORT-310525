@@ -759,11 +759,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid league ID' });
       }
 
-      console.log(`Fetching fixtures for league ${id} with fixed season ${season} as requested`);
+      // Check cache first with 2 hour duration for league fixtures
+      const cacheKey = `league-fixtures-${id}-${season}`;
+      const cachedFixtures = await storage.getCachedFixture(cacheKey);
+
+      if (cachedFixtures) {
+        const now = new Date();
+        const cacheTime = new Date(cachedFixtures.timestamp);
+        const cacheAge = now.getTime() - cacheTime.getTime();
+
+        // Use 2 hour cache for league fixtures
+        if (cacheAge < 2 * 60 * 60 * 1000) {
+          console.log(`Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
+          return res.json(cachedFixtures.data);
+        }
+      }
+
+      console.log(`Fetching fresh fixtures for league ${id} with fixed season ${season}`);
 
       // Use API-Football (RapidAPI) only
       const fixtures = await rapidApiService.getFixturesByLeague(id, season);
       console.log(`Received ${fixtures ? fixtures.length : 0} fixtures for league ${id} from RapidAPI`);
+
+      // Cache the fixtures data
+      try {
+        if (cachedFixtures) {
+          await storage.updateCachedFixture(cacheKey, fixtures);
+        } else {
+          await storage.createCachedFixture({
+            fixtureId: cacheKey,
+            data: fixtures,
+            league: id.toString(),
+            date: new Date().toISOString().split('T')[0]
+          });
+        }
+      } catch (cacheError) {
+        console.error(`Error caching fixtures for league ${id}:`, cacheError);
+      }
 
       res.json(fixtures);
     } catch (error) {
@@ -788,11 +820,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid league ID" });
       }
 
-      console.log(`Fetching top scorers for league ${id} with fixed season ${season} as requested`);
+      // Check cache first with longer duration for top scorers
+      const cacheKey = `topscorers-${id}-${season}`;
+      const cachedTopScorers = await storage.getCachedFixture(cacheKey);
+
+      if (cachedTopScorers) {
+        const now = new Date();
+        const cacheTime = new Date(cachedTopScorers.timestamp);
+        const cacheAge = now.getTime() - cacheTime.getTime();
+
+        // Use 6 hour cache for top scorers (they don't change frequently)
+        if (cacheAge < 6 * 60 * 60 * 1000) {
+          console.log(`Using cached top scorers for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
+          return res.json(cachedTopScorers.data);
+        }
+      }
+
+      console.log(`Fetching fresh top scorers for league ${id} with fixed season ${season}`);
 
       // Use API-Football (RapidAPI) only
       const topScorers = await rapidApiService.getTopScorers(id, season);
       console.log(`Received top scorers data for league ${id} from RapidAPI`);
+
+      // Cache the top scorers data
+      try {
+        if (cachedTopScorers) {
+          await storage.updateCachedFixture(cacheKey, topScorers);
+        } else {
+          await storage.createCachedFixture({
+            fixtureId: cacheKey,
+            data: topScorers,
+            league: id.toString(),
+            date: new Date().toISOString().split('T')[0]
+          });
+        }
+      } catch (cacheError) {
+        console.error(`Error caching top scorers for league ${id}:`, cacheError);
+      }
 
       res.json(topScorers);
     } catch (error) {
@@ -818,11 +882,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Invalid league ID' });
       }
 
-      console.log(`Fetching standings for league ${id} with fixed season ${season} as requested`);
+      // Check cache first with 4 hour duration for standings
+      const cacheKey = `standings-${id}-${season}`;
+      const cachedStandings = await storage.getCachedFixture(cacheKey);
+
+      if (cachedStandings) {
+        const now = new Date();
+        const cacheTime = new Date(cachedStandings.timestamp);
+        const cacheAge = now.getTime() - cacheTime.getTime();
+
+        // Use 4 hour cache for standings
+        if (cacheAge < 4 * 60 * 60 * 1000) {
+          console.log(`Using cached standings for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
+          return res.json(cachedStandings.data);
+        }
+      }
+
+      console.log(`Fetching fresh standings for league ${id} with fixed season ${season}`);
 
       // Use API-Football (RapidAPI) only
       const standings = await rapidApiService.getLeagueStandings(id, season);
       console.log(`Received standings data for league ${id} from RapidAPI`);
+
+      // Cache the standings data
+      try {
+        if (cachedStandings) {
+          await storage.updateCachedFixture(cacheKey, standings);
+        } else {
+          await storage.createCachedFixture({
+            fixtureId: cacheKey,
+            data: standings,
+            league: id.toString(),
+            date: new Date().toISOString().split('T')[0]
+          });
+        }
+      } catch (cacheError) {
+        console.error(`Error caching standings for league ${id}:`, cacheError);
+      }
 
       res.json(standings);
     } catch (error) {

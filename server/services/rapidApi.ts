@@ -888,8 +888,8 @@ export const rapidApiService = {
     const cached = playersCache.get(cacheKey);
 
     const now = Date.now();
-    // Use reasonable cache duration for top scorers (2 hours - stats don't change frequently)
-    if (cached && now - cached.timestamp < 2 * 60 * 60 * 1000) {
+    // Use longer cache duration for top scorers (6 hours - stats don't change frequently)
+    if (cached && now - cached.timestamp < 6 * 60 * 60 * 1000) {
       return cached.data;
     }
 
