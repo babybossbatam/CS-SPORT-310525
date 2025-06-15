@@ -1198,12 +1198,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     leagueId === 15 ||
                     name.includes("fifa club world cup") ||
                     name.includes("club world cup") ||
-                    name === "fifa club world cup"
+                    name === "fifa club world cup" ||
+                    name === "club world cup"
                   ) {
                     console.log(
                       `✅ [PRIORITY 0] FIFA Club World Cup found: "${leagueData.league?.name}" (ID: ${leagueId}) - ABSOLUTE TOP PRIORITY`,
                     );
-                    return 0;
+                    return -1000; // Use a very negative number to ensure it comes first
                   }
 
                   // Priority 1: UEFA Nations League
