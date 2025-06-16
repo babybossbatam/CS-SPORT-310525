@@ -1713,9 +1713,26 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                                  minutesSinceKickoff > 180 ? 'Live for over 3 hours' :
                                                  'Impossible elapsed time for status'
                                         });
+                                        // Use actual status but style as ended since it's likely stale
+                                        const actualStatus = status === "FT" ? "Ended" :
+                                                           status === "AET" ? "Ended (AET)" :
+                                                           status === "PEN" ? "Ended (Penalties)" :
+                                                           status === "HT" ? "Halftime" :
+                                                           status === "1H" ? "1st Half" :
+                                                           status === "2H" ? "2nd Half" :
+                                                           status === "ET" ? "Extra Time" :
+                                                           status === "P" ? "Penalties" :
+                                                           status === "LIVE" || status === "LIV" ? "Live" :
+                                                           status === "AWD" ? "Awarded" :
+                                                           status === "WO" ? "Walkover" :
+                                                           status === "ABD" ? "Abandoned" :
+                                                           status === "CANC" ? "Cancelled" :
+                                                           status === "SUSP" ? "Suspended" :
+                                                           status;
+
                                         return (
                                           <div className="match-status-label status-ended">
-                                            Likely Ended
+                                            {actualStatus}
                                           </div>
                                         );
                                       }
