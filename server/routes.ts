@@ -775,8 +775,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Use 2 hour cache for league fixtures
         if (cacheAge < 2 * 60 * 60 * 100) {
-          ```typescript
-console.log(`Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
+          console.log(`Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
           return res.json(cachedFixtures.data);
         }
       }
