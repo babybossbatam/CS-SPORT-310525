@@ -1697,7 +1697,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     } else {
                                       // For LIVE, LIV, 1H, 2H
                                       if (elapsed !== null && elapsed !== undefined) {
-                                        displayText = `${elapsed}'`;
+                                        // Check if match is in injury/stoppage time
+                                        const extraTime = match.fixture.status.extra;
+                                        if (status === "2H" && elapsed >= 90 && extraTime) {
+                                          displayText = `${elapsed}'+${extraTime}'`;
+                                        } else if ((status === "1H" && elapsed >= 45) || (status === "2H" && elapsed >= 90)) {
+                                          displayText = `${elapsed}'+`;
+                                        } else {
+                                          displayText = `${elapsed}'`;
+                                        }
                                       } else {
                                         displayText = "LIVE";
                                       }
