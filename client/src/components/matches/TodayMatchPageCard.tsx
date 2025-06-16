@@ -12,6 +12,7 @@ import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
 import MyNewPopularLeague from "./MyNewPopularLeague";
+import WorldCompetitionsCard from "./WorldCompetitionsCard";
 
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { format, parseISO, addDays, subDays } from "date-fns";
@@ -384,6 +385,10 @@ export const TodayMatchPageCard = ({
         <>
           <MyNewPopularLeague 
             selectedDate={selectedDate} 
+            onMatchCardClick={onMatchCardClick}
+          />
+          <WorldCompetitionsCard
+            selectedDate={selectedDate}
             onMatchCardClick={onMatchCardClick}
           />
           <TodayPopularFootballLeaguesNew
