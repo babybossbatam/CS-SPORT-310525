@@ -95,9 +95,16 @@ const MyMatchdetailsScoreboard = ({
       label: status,
       variant: "secondary" as const,
     };
+    
     return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
+  // Apply gray-900 color for finished matches
+  const isFinished = ["FT", "AET", "PEN"].includes(status);
+  const badgeClassName = isFinished ? "text-gray-900" : "";
+
+  return <Badge variant={config.variant} className={badgeClassName}>{config.label}</Badge>;
+  };
   return (
     <Card className={`w-full ${className}`}>
       <CardHeader className="text-center relative">
