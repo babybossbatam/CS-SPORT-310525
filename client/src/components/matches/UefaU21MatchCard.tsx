@@ -134,19 +134,8 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
       if (sortedMatches.length > 0) {
         setMatches(sortedMatches);
       } else {
-        // Final fallback to sample data only if no real data found
-        console.log('🔍 No real matches found, trying sample data as last resort...');
-        try {
-          const sampleResponse = await fetch('/api/uefa-u21/sample');
-          if (sampleResponse.ok) {
-            const sampleData = await sampleResponse.json();
-            console.log(`📝 Using ${sampleData.length} sample matches as fallback`);
-            setMatches(sampleData);
-          }
-        } catch (sampleErr) {
-          console.error('❌ Failed to fetch even sample data:', sampleErr);
-          setError('No UEFA U21 matches available');
-        }
+        console.log('❌ No UEFA U21 matches found in any endpoint');
+        setError('No UEFA U21 matches available at this time');
       }
       
     } catch (err) {

@@ -143,7 +143,7 @@ class UefaU21ApiService {
           console.log(`🏆 [UEFA U21] Found ${yearlyFixtures.length} fixtures for year ${year}`);
           allFixtures.push(...(yearlyFixtures as U21Match[]));
         } catch (error) {
-          console.warn(`⚠️ [UEFA U21] Could not fetch fixtures for year ${year}`);
+          console.warn(`⚠️ [UEFA U21] Could not fetch fixtures for year ${year}:`, error);
         }
       }
       
@@ -172,7 +172,18 @@ class UefaU21ApiService {
       
       console.log(`🏆 [UEFA U21] Searching upcoming matches from ${today} to ${nextMonth}`);
       
-      return this.getU21FixturesForDateRange(today, nextMonth);
+      const upcomingMatches = await this.getU21FixturesForDateRange(today, nextMonth);
+      
+      // If no matches found via date range, try getting current season fixtures and filter upcoming
+      if (upcomingMatches.length === 0) {
+        const seasonFixtures = await this.getCurrentSeasonU21Fixtures();
+        const now = new Date();
+        const futureMatches = seasonFixtures.filter(match => new Date(match.fixture.date) > now);
+        console.log(`🏆 [UEFA U21] Found ${futureMatches.length} upcoming matches from season fixtures`);
+        return futureMatches;
+      }
+      
+      return upcomingMatches;
       
     } catch (error) {
       console.error('❌ [UEFA U21] Error fetching upcoming matches:', error);
@@ -190,7 +201,18 @@ class UefaU21ApiService {
       
       console.log(`🏆 [UEFA U21] Searching recent matches from ${lastMonth} to ${today}`);
       
-      return this.getU21FixturesForDateRange(lastMonth, today);
+      const recentMatches = await this.getU21FixturesForDateRange(lastMonth, today);
+      
+      // If no matches found via date range, try getting current season fixtures and filter recent
+      if (recentMatches.length === 0) {
+        const seasonFixtures = await this.getCurrentSeasonU21Fixtures();
+        const now = new Date();
+        const pastMatches = seasonFixtures.filter(match => new Date(match.fixture.date) <= now);
+        console.log(`🏆 [UEFA U21] Found ${pastMatches.length} recent matches from season fixtures`);
+        return pastMatches;
+      }
+      
+      return recentMatches;
       
     } catch (error) {
       console.error('❌ [UEFA U21] Error fetching recent matches:', error);
@@ -273,20 +295,20 @@ class UefaU21ApiService {
       
       // Try multiple approaches to find U21 matches
       const today = format(new Date(), 'yyyy-MM-dd');
-      const nextWeek = format(addDays(new Date(), 7), 'yyyy-MM-dd');
-      const lastWeek = format(subDays(new Date(), 7), 'yyyy-MM-dd');
+      const nextMonth = format(addDays(new Date(), 30), 'yyyy-MM-dd');
+      const lastMonth = format(subDays(new Date(), 30), 'yyyy-MM-dd');
       
       let allMatches: U21Match[] = [];
       
-      // 1. Try UEFA U21 Championship (league ID 38)
+      // 1. Try UEFA U21 Championship (league ID 38) - most important
       try {
-        const uefaMatches = await this.getCurrentSeasonU21Fixtures();
+        const uefaMatches = await rapidApiService.getFixturesByLeague(this.leagueId, new Date().getFullYear());
         if (uefaMatches.length > 0) {
           console.log(`✅ [UEFA U21] Found ${uefaMatches.length} UEFA Championship matches`);
-          allMatches.push(...uefaMatches);
+          allMatches.push(...(uefaMatches as U21Match[]));
         }
       } catch (error) {
-        console.warn(`⚠️ [UEFA U21] Could not fetch UEFA Championship matches`);
+        console.warn(`⚠️ [UEFA U21] Could not fetch UEFA Championship matches:`, error);
       }
       
       // 2. Try UEFA U21 Qualification (league ID 867)
@@ -297,11 +319,11 @@ class UefaU21ApiService {
           allMatches.push(...(qualificationMatches as U21Match[]));
         }
       } catch (error) {
-        console.warn(`⚠️ [UEFA U21] Could not fetch UEFA U21 Qualification matches`);
+        console.warn(`⚠️ [UEFA U21] Could not fetch UEFA U21 Qualification matches:`, error);
       }
       
-      // 3. Search by date range for any U21 matches
-      const dateRange = [lastWeek, today, nextWeek];
+      // 3. Search by date range for any U21 matches in fixtures
+      const dateRange = [lastMonth, today, nextMonth];
       for (const date of dateRange) {
         try {
           const dailyMatches = await this.getU21FixturesForDate(date);
@@ -310,7 +332,7 @@ class UefaU21ApiService {
             allMatches.push(...dailyMatches);
           }
         } catch (error) {
-          console.warn(`⚠️ [UEFA U21] Could not fetch matches for ${date}`);
+          console.warn(`⚠️ [UEFA U21] Could not fetch matches for ${date}:`, error);
         }
       }
       

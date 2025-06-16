@@ -34,7 +34,7 @@ router.get('/fixtures/range/:startDate/:endDate', async (req, res) => {
   }
 });
 
-// Get upcoming UEFA U21 matches (next 7 days)
+// Get upcoming UEFA U21 matches (next 30 days)
 router.get('/upcoming', async (req, res) => {
   try {
     console.log(`🎯 [UEFA U21 Routes] Fetching real upcoming U21 matches`);
@@ -49,7 +49,7 @@ router.get('/upcoming', async (req, res) => {
   }
 });
 
-// Get recent UEFA U21 matches (past 7 days)
+// Get recent UEFA U21 matches (past 30 days)
 router.get('/recent', async (req, res) => {
   try {
     console.log(`🎯 [UEFA U21 Routes] Fetching real recent U21 matches`);
@@ -61,6 +61,7 @@ router.get('/recent', async (req, res) => {
   } catch (error) {
     console.error('❌ [UEFA U21 Routes] Error fetching recent matches:', error);
     res.status(500).json({ error: 'Failed to fetch recent UEFA U21 matches' });
+  }A U21 matches' });
   }
 });
 
@@ -91,6 +92,7 @@ router.get('/realtime', async (req, res) => {
   } catch (error) {
     console.error('❌ [UEFA U21 Routes] Error fetching real-time matches:', error);
     res.status(500).json({ error: 'Failed to fetch real-time UEFA U21 matches' });
+  }ch real-time UEFA U21 matches' });
   }
 });
 
