@@ -1437,7 +1437,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                 else aPriority = 4; // Other statuses
 
                                 if (bLive) bPriority = 1;
-                                else if bUpcoming) bPriority = 2;
+                                else if (bUpcoming) bPriority = 2;
                                 else if (bEnded) bPriority = 3;
                                 else bPriority = 4; // Other statuses
 
