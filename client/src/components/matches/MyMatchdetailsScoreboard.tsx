@@ -81,7 +81,7 @@ const MyMatchdetailsScoreboard = ({
 
   return (
     <Card className={`w-full ${className}`}>
-      <CardHeader className="pb-8 text-center relative">
+      <CardHeader className="text-center relative">
         {onClose && (
           <button
             onClick={onClose}
