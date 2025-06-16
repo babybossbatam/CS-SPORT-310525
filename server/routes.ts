@@ -775,7 +775,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Use 2 hour cache for league fixtures
         if (cacheAge < 2 * 60 * 60 * 100) {
-          console.log(`Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
+          console.log```typescript
+(`Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
           return res.json(cachedFixtures.data);
         }
       }
@@ -1545,7 +1546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Validate that teamId is numeric
       if (!/^\d+$/.test(teamId)) {
-        console.warn(`Invalid team ID format: ${teamId}`);
+        console.warn(`Invalid team ID format: ${teamId}`);```typescript
 return res.status(400).json({ error: 'Team ID must be numeric' });
       }
 
