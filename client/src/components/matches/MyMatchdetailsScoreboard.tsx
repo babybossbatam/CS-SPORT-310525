@@ -82,14 +82,29 @@ const MyMatchdetailsScoreboard = ({
       }
     };
 
+    // For live matches, show elapsed time with pulse animation
+    const isLiveMatch = ["LIVE", "1H", "2H"].includes(status);
+    if (isLiveMatch) {
+      const elapsed = displayMatch.fixture.status.elapsed || 0;
+      const timeLabel = status === "1H" ? `${elapsed}'` : 
+                       status === "2H" ? `${elapsed}'` : 
+                       "LIVE";
+      
+      return (
+        <Badge 
+          variant="destructive" 
+          className="bg-red-500 text-white font-normal text-[11px] animate-pulse"
+        >
+          {timeLabel}
+        </Badge>
+      );
+    }
+
     const statusConfig = {
       NS: { label: "Upcoming", variant: "default" as const },
-      LIVE: { label: "Live", variant: "destructive" as const },
       FT: { label: getFinishedLabel(), variant: "default" as const },
       AET: { label: getFinishedLabel(), variant: "default" as const },
       PEN: { label: getFinishedLabel(), variant: "default" as const },
-      "1H": { label: "First Half", variant: "destructive" as const },
-      "2H": { label: "Second Half", variant: "destructive" as const },
       HT: { label: "Half Time", variant: "outline" as const },
     };
 
