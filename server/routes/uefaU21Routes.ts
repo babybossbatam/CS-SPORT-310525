@@ -116,22 +116,4 @@ router.get('/search', async (req, res) => {
   }
 });
 
-// Sample endpoint for testing (only this endpoint returns mock data)
-router.get('/sample', async (req, res) => {
-  try {
-    console.log('🎯 [UEFA U21 Routes] Fetching sample U21 matches');
-
-    const sampleMatches = uefaU21ApiService.createSampleU21Matches();
-
-    console.log(`🎯 [UEFA U21 Routes] Returning ${sampleMatches.length} sample fixtures`);
-    res.json(sampleMatches);
-  } catch (error: any) {
-    console.error('❌ [UEFA U21 Routes] Error fetching sample matches:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch sample UEFA U21 matches',
-      details: error.message 
-    });
-  }
-});
-
 export default router;

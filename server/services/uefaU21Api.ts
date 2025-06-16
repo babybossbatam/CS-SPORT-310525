@@ -1,4 +1,3 @@
-
 import { format, addDays, subDays } from 'date-fns';
 import axios from 'axios';
 
@@ -267,96 +266,6 @@ class UefaU21ApiService {
       console.error('❌ [UEFA U21] Error searching matches:', error);
       throw error;
     }
-  }
-
-  /**
-   * Create sample data for testing (only used by /sample endpoint)
-   */
-  createSampleU21Matches(): U21Match[] {
-    console.log('🎯 [UEFA U21] Creating sample U21 matches for testing');
-    
-    return [
-      {
-        fixture: {
-          id: 999001,
-          date: "2025-06-16T16:00:00.000Z",
-          status: { long: "Not Started", short: "NS" },
-          venue: { name: "Arena Națională", city: "Bucharest" }
-        },
-        league: {
-          id: 38,
-          name: "UEFA European Under-21 Championship",
-          logo: "https://media.api-sports.io/football/leagues/38.png",
-          country: "Europe"
-        },
-        teams: {
-          home: { id: 1111, name: "Spain U21", logo: "https://hatscripts.github.io/circle-flags/flags/es.svg" },
-          away: { id: 2222, name: "Romania U21", logo: "https://hatscripts.github.io/circle-flags/flags/ro.svg" }
-        },
-        goals: { home: null, away: null },
-        score: { halftime: { home: null, away: null }, fulltime: { home: null, away: null } }
-      },
-      {
-        fixture: {
-          id: 999002,
-          date: "2025-06-16T19:00:00.000Z",
-          status: { long: "Not Started", short: "NS" },
-          venue: { name: "Stade de France", city: "Paris" }
-        },
-        league: {
-          id: 38,
-          name: "UEFA European Under-21 Championship",
-          logo: "https://media.api-sports.io/football/leagues/38.png",
-          country: "Europe"
-        },
-        teams: {
-          home: { id: 3333, name: "France U21", logo: "https://hatscripts.github.io/circle-flags/flags/fr.svg" },
-          away: { id: 4444, name: "Georgia U21", logo: "https://hatscripts.github.io/circle-flags/flags/ge.svg" }
-        },
-        goals: { home: null, away: null },
-        score: { halftime: { home: null, away: null }, fulltime: { home: null, away: null } }
-      },
-      {
-        fixture: {
-          id: 999003,
-          date: "2025-06-17T16:00:00.000Z",
-          status: { long: "Not Started", short: "NS" },
-          venue: { name: "Allianz Arena", city: "Munich" }
-        },
-        league: {
-          id: 38,
-          name: "UEFA European Under-21 Championship",
-          logo: "https://media.api-sports.io/football/leagues/38.png",
-          country: "Europe"
-        },
-        teams: {
-          home: { id: 5555, name: "Portugal U21", logo: "https://hatscripts.github.io/circle-flags/flags/pt.svg" },
-          away: { id: 6666, name: "Poland U21", logo: "https://hatscripts.github.io/circle-flags/flags/pl.svg" }
-        },
-        goals: { home: null, away: null },
-        score: { halftime: { home: null, away: null }, fulltime: { home: null, away: null } }
-      },
-      {
-        fixture: {
-          id: 999004,
-          date: "2025-06-17T19:00:00.000Z",
-          status: { long: "Not Started", short: "NS" },
-          venue: { name: "San Siro", city: "Milan" }
-        },
-        league: {
-          id: 38,
-          name: "UEFA European Under-21 Championship",
-          logo: "https://media.api-sports.io/football/leagues/38.png",
-          country: "Europe"
-        },
-        teams: {
-          home: { id: 7777, name: "Slovakia U21", logo: "https://hatscripts.github.io/circle-flags/flags/sk.svg" },
-          away: { id: 8888, name: "Italy U21", logo: "https://hatscripts.github.io/circle-flags/flags/it.svg" }
-        },
-        goals: { home: null, away: null },
-        score: { halftime: { home: null, away: null }, fulltime: { home: null, away: null } }
-      }
-    ];
   }
 }
 
