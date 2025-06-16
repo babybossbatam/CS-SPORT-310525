@@ -64,10 +64,28 @@ const MyMatchdetailsScoreboard = ({
   };
 
   const getStatusBadge = (status: string) => {
+    // Check if it's a finished match and determine the appropriate label
+    const getFinishedLabel = () => {
+      if (!["FT", "AET", "PEN"].includes(status)) return "Finished";
+      
+      try {
+        const matchDate = new Date(displayMatch.fixture.date);
+        const now = new Date();
+        const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+        
+        // If finished less than 1 hour ago, show "Just Finished"
+        return hoursElapsed <= 1 ? "Just Finished" : "Ended";
+      } catch (error) {
+        return "Ended";
+      }
+    };
+
     const statusConfig = {
       NS: { label: "Upcoming", variant: "secondary" as const },
       LIVE: { label: "Live", variant: "destructive" as const },
-      FT: { label: "Finished", variant: "default" as const },
+      FT: { label: getFinishedLabel(), variant: "default" as const },
+      AET: { label: getFinishedLabel(), variant: "default" as const },
+      PEN: { label: getFinishedLabel(), variant: "default" as const },
       "1H": { label: "First Half", variant: "destructive" as const },
       "2H": { label: "Second Half", variant: "destructive" as const },
       HT: { label: "Half Time", variant: "outline" as const },
