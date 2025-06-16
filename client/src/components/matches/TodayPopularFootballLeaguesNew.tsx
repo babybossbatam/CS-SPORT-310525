@@ -1668,43 +1668,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     // Check for matches that should have finished (90+ minutes in 2H)
                                     if (elapsed && elapsed >= 90 && status === "2H") {
                                       console.log(`🚨 [STALE MATCH DETECTED] Match ${match.fixture.id} showing ${elapsed}' in 2H - should be finished`);
-                                      
-                                      // Force refresh this specific match
-                                      const refreshMatch = async () => {
-                                        try {
-                                          const response = await fetch(`/api/fixtures/${match.fixture.id}`);
-                                          if (response.ok) {
-                                            const freshMatch = await response.json();
-                                            console.log(`🔄 [FORCE REFRESH] Fresh status for match ${match.fixture.id}:`, {
-                                              oldStatus: status,
-                                              newStatus: freshMatch.fixture.status.short,
-                                              oldElapsed: elapsed,
-                                              newElapsed: freshMatch.fixture.status.elapsed
-                                            });
-                                            
-                                            // If status changed to finished, invalidate cache to trigger re-render
-                                            if (["FT", "AET", "PEN"].includes(freshMatch.fixture.status.short)) {
-                                              console.log(`✅ [MATCH FINISHED] Invalidating cache for finished match ${match.fixture.id}`);
-                                              // Clear relevant caches
-                                              const cacheKeys = [
-                                                `all-fixtures-by-date-${selectedDate}`,
-                                                `fixtures-live`,
-                                                `fixture-${match.fixture.id}`
-                                              ];
-                                              cacheKeys.forEach(key => {
-                                                localStorage.removeItem(key);
-                                              });
-                                              // Trigger a re-fetch by refreshing the page data
-                                              window.location.reload();
-                                            }
-                                          }
-                                        } catch (error) {
-                                          console.error(`❌ [FORCE REFRESH ERROR] Failed to refresh match ${match.fixture.id}:`, error);
-                                        }
-                                      };
-                                      
-                                      // Refresh after a short delay to avoid blocking render
-                                      setTimeout(refreshMatch, 100);
                                     }
                                     
                                     if (status === "HT") {
