@@ -56,17 +56,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
         {/* Right column (7 columns) */}
         <div className="lg:col-span-7 space-y-4">
           {selectedFixture ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={handleBackToMain}
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                >
-                  ← Back to Main
-                </button>
-              </div>
-              <ScoreDetailsCard currentFixture={selectedFixture} />
-            </div>
+            <ScoreDetailsCard currentFixture={selectedFixture} onClose={handleBackToMain} />
           ) : (
             <MyRightContent />
           )}
