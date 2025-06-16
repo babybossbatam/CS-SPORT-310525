@@ -273,6 +273,42 @@
   place-self: center;
 }
 
+/* Match score and time display */
+.country-matches-container .match-score-container {
+  grid-area: score;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  text-align: center;
+}
+
+.country-matches-container .match-score-display {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.country-matches-container .score-number {
+  font-family: 'Mont', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.country-matches-container .score-separator {
+  font-family: 'Mont', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 400;
+}
+
+.country-matches-container .match-time-display {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1a1a1a;
+  font-family: 'Mont', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
 /* Match status labels */
 .country-matches-container .match-status-label {
   position: relative;
