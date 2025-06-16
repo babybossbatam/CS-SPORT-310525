@@ -911,7 +911,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const timeFilteredCountries = useMemo(() => {
     // Smart filtering is already applied in filteredFixtures, so just return sorted countries
     // timeFilterActive now only affects sorting/prioritization, not inclusion/exclusion
-    return sortedCountries;
+    returnsortedCountries;
   }, [sortedCountries]);
 
   // Apply live filters
@@ -1651,58 +1651,82 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                   // Live matches status
                                   if (
-                                    [
-                                      "LIVE",
-                                      "LIV",
-                                      "1H",
-                                      "HT",
-                                      "2H",
-                                      "ET",
-                                      "BT",
-                                      "P",
-                                      "INT",
-                                    ].includes(status)
-                                  ) {
-                                    let displayText = "";
-                                    
-                                    // Check for matches that should have finished (90+ minutes in 2H)
-                                    if (elapsed && elapsed >= 90 && status === "2H") {
-                                      console.log(`🚨 [STALE MATCH DETECTED] Match ${match.fixture.id} showing ${elapsed}' in 2H - should be finished`);
-                                    }
-                                    
-                                    if (status === "HT") {
-                                      displayText = "Halftime";
-                                    } else if (status === "P") {
-                                      displayText = "Penalties";
-                                    } else if (status === "ET") {
-                                      displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
-                                    } else if (status === "BT") {
-                                      displayText = "Break Time";
-                                    } else if (status === "INT") {
-                                      displayText = "Interrupted";
-                                    } else {
-                                      // For LIVE, LIV, 1H, 2H
-                                      if (elapsed !== null && elapsed !== undefined) {
-                                        // Check if match is in injury/stoppage time
-                                        const extraTime = match.fixture.status.extra;
-                                        if (status === "2H" && elapsed >= 90 && extraTime) {
-                                          displayText = `${elapsed}'+${extraTime}'`;
-                                        } else if ((status === "1H" && elapsed >= 45) || (status === "2H" && elapsed >= 90)) {
-                                          displayText = `${elapsed}'+`;
-                                        } else {
-                                          displayText = `${elapsed}'`;
-                                        }
-                                      } else {
-                                        displayText = "LIVE";
-                                      }
-                                    }
+                                      [
+                                        "LIVE",
+                                        "LIV",
+                                        "1H",
+                                        "HT",
+                                        "2H",
+                                        "ET",
+                                        "BT",
+                                        "P",
+                                        "INT",
+                                      ].includes(status)
+                                    ) {
+                                      let displayText = "";
 
-                                    return (
-                                      <div className="match-status-label status-live">
-                                        {displayText}
-                                      </div>
-                                    );
-                                  }
+                                      // Check for matches that should have finished (likely stale data)
+                                      const isLikelyStale = elapsed && (
+                                        (status === "2H" && elapsed >= 95) || // 95+ minutes in 2H is very likely finished
+                                        (status === "1H" && elapsed >= 50) || // 50+ minutes in 1H is unusual
+                                        (["LIVE", "LIV"].includes(status) && elapsed >= 95) // Generic live status with high elapsed time
+                                      );
+
+                                      if (isLikelyStale) {
+                                        console.log(`🚨 [STALE MATCH] Match ${match.fixture.id} showing ${elapsed}' in ${status} - likely finished`);
+                                        // For stale matches, show as likely finished
+                                        return (
+                                          <div className="match-status-label status-ended">
+                                            Likely Ended
+                                          </div>
+                                        );
+                                      }
+
+                                      if (status === "HT") {
+                                        displayText = "Halftime";
+                                      } else if (status === "P") {
+                                        displayText = "Penalties";
+                                      } else if (status === "ET") {
+                                        displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
+                                      } else if (status === "BT") {
+                                        displayText = "Break Time";
+                                      } else if (status === "INT") {
+                                        displayText = "Interrupted";
+                                      } else {
+                                        // For LIVE, LIV, 1H, 2H
+                                        if (elapsed !== null && elapsed !== undefined) {
+                                          // Handle injury/stoppage time more reliably
+                                          const extraTime = match.fixture.status.extra;
+
+                                          if (status === "2H" && elapsed >= 90) {
+                                            // Second half injury time
+                                            if (extraTime && extraTime > 0) {
+                                              displayText = `${elapsed}'+${extraTime}'`;
+                                            } else {
+                                              displayText = `${elapsed}'+`;
+                                            }
+                                          } else if (status === "1H" && elapsed >= 45) {
+                                            // First half injury time
+                                            if (extraTime && extraTime > 0) {
+                                              displayText = `${elapsed}'+${extraTime}'`;
+                                            } else {
+                                              displayText = `${elapsed}'+`;
+                                            }
+                                          } else {
+                                            // Regular time
+                                            displayText = `${elapsed}'`;
+                                          }
+                                        } else {
+                                          displayText = "LIVE";
+                                        }
+                                      }
+
+                                      return (
+                                        <div className="match-status-label status-live">
+                                          {displayText}
+                                        </div>
+                                      );
+                                    }
 
                                   // Finished matches status
                                   if (
@@ -1850,7 +1874,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         "LIV",
                                         "1H",
                                         "HT",
-                                        "2H",
+                                        "```text
+2H",
                                         "ET",
                                         "BT",
                                         "P",
