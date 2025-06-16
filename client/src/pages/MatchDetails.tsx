@@ -45,6 +45,7 @@ import MatchScoreboard from "@/components/matches/MatchScoreboard";
 import MatchTimeline, { MatchEvent } from "@/components/matches/MatchTimeline";
 import TodayMatchpage from "@/components/matches/TodayMatchPageCard";
 import MyMatchdetailsScoreboard from "@/components/matches/MyMatchdetailsScoreboard";
+import MyDetailsLayout from "@/components/matches/MyDetailsLayout";
 import { format } from "date-fns";
 
 const MatchDetails = () => {
@@ -673,117 +674,37 @@ const MatchDetails = () => {
 
           {/* Details Tab */}
           <TabsContent value="details">
-            <Card className="w-full">
-              <CardContent className="p-6">
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                  {/* Left Column (5/12 width) */}
-                  <div className="lg:col-span-5">
-                    <TodayMatchpage />
-                  </div>
-
-                  {/* Right Column (7/12 width) */}
-                  <div className="lg:col-span-7">
-                    {/* Additional content can go here */}
-                    <MyMatchdetailsScoreboard match={currentFixture} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <MyDetailsLayout currentFixture={currentFixture} />
           </TabsContent>
+
           {/* Matches Tab */}
           <TabsContent value="matches">
-            <CardContent className="p-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Matches</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Recent match data will be displayed here.
-                  </p>
-                </CardContent>
-              </Card>
-            </CardContent>
+            <MyDetailsLayout currentFixture={currentFixture} />
           </TabsContent>
 
           {/* Standings Tab */}
           <TabsContent value="standings">
-            <CardContent className="p-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>League Standings</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    League standings will be displayed here.
-                  </p>
-                </CardContent>
-              </Card>
-            </CardContent>
+            <MyDetailsLayout currentFixture={currentFixture} />
           </TabsContent>
 
           {/* News Tab */}
           <TabsContent value="news">
-            <CardContent className="p-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Related News</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Match-related news will be displayed here.
-                  </p>
-                </CardContent>
-              </Card>
-            </CardContent>
+            <MyDetailsLayout currentFixture={currentFixture} />
           </TabsContent>
 
           {/* Highlights Tab */}
           <TabsContent value="highlights">
-            <CardContent className="p-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Match Highlights</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Match highlights will be displayed here.
-                  </p>
-                </CardContent>
-              </Card>
-            </CardContent>
+            <MyDetailsLayout currentFixture={currentFixture} />
           </TabsContent>
 
           {/* Stats Tab */}
           <TabsContent value="stats">
-            <CardContent className="p-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Match Statistics</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Detailed match statistics will be displayed here.
-                  </p>
-                </CardContent>
-              </Card>
-            </CardContent>
+            <MyDetailsLayout currentFixture={currentFixture} />
           </TabsContent>
 
           {/* Insights Tab */}
           <TabsContent value="insights">
-            <CardContent className="p-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Match Insights</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600">
-                    Match insights and analysis will be displayed here.
-                  </p>
-                </CardContent>
-              </Card>
-            </CardContent>
+            <MyDetailsLayout currentFixture={currentFixture} />
           </TabsContent>
         </Tabs>
       </Card>
