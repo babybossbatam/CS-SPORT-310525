@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star } from "lucide-react";
@@ -62,16 +63,14 @@ interface TodayMatchByTimeMatchesProps {
   selectedDate: string;
   timeFilterActive?: boolean;
   liveFilterActive?: boolean;
-  showTop20?: boolean;
-  onMatchCardClick?: (fixture: any) => void;
+  maxMatches?: number;
 }
 
 const TodayMatchByTimeMatches: React.FC<TodayMatchByTimeMatchesProps> = ({
   selectedDate,
   timeFilterActive = false,
   liveFilterActive = false,
-  showTop20 = false,
-  onMatchCardClick,
+  maxMatches = 50,
 }) => {
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const dispatch = useDispatch();
@@ -319,12 +318,7 @@ const TodayMatchByTimeMatches: React.FC<TodayMatchByTimeMatchesProps> = ({
         <div className="space-y-0">
           {filteredMatches.map((match) => (
             <LazyMatchItem key={match.fixture.id}>
-              <div
-                key={match.fixture.id}
-                className="match-card-container group"
-                onClick={() => onMatchCardClick?.(match)}
-                style={{ cursor: onMatchCardClick ? 'pointer' : 'default' }}
-              >
+              <div className="match-card-container group">
                 {/* Star Button */}
                 <button
                   onClick={(e) => {
