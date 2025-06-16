@@ -99,19 +99,19 @@ export const shortenTeamName = (teamName: string): string => {
 };
 
 interface LiveMatchForAllCountryProps {
-  refreshInterval?: number;
   isTimeFilterActive?: boolean;
   liveFilterActive?: boolean;
   timeFilterActive?: boolean;
-  liveFixtures?: any[]; // Accept shared live fixtures
+  liveFixtures?: any[];
+  onMatchCardClick?: (fixture: any) => void;
 }
 
 const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
-  refreshInterval = 30000,
   isTimeFilterActive = false,
   liveFilterActive = false,
   timeFilterActive = false,
-  liveFixtures: propsFixtures,
+  liveFixtures = [],
+  onMatchCardClick,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
@@ -155,7 +155,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       const data = await response.json();
 
       console.log(`Received ${data.length} live fixtures`);
-      
+
       // Log World competition fixtures for debugging
       const worldFixtures = data.filter((fixture: any) => 
         fixture.league?.country === 'World' || 
@@ -163,13 +163,13 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
         fixture.league?.name?.toLowerCase().includes('fifa') ||
         fixture.league?.name?.toLowerCase().includes('uefa')
       );
-      
+
       if (worldFixtures.length > 0) {
         console.log(`🌍 Found ${worldFixtures.length} World competition fixtures:`, 
           worldFixtures.map((f: any) => `${f.league.name}: ${f.teams.home.name} vs ${f.teams.away.name}`)
         );
       }
-      
+
       return data;
     },
     staleTime: 20000, // 20 seconds for faster World competition updates
@@ -348,7 +348,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
           league.name.toLowerCase().includes('copa america') ||
           league.name.toLowerCase().includes('copa libertadores') ||
           league.name.toLowerCase().includes('copa sudamericana'))) {
-        
+
         // Determine the appropriate country key
         let countryKey = "World";
         if (
@@ -381,7 +381,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
             hasPopularLeague: true,
           };
         }
-        
+
         const leagueId = league.id;
         if (!acc[countryKey].leagues[leagueId]) {
           acc[countryKey].leagues[leagueId] = {
@@ -390,7 +390,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
             isPopular: POPULAR_LEAGUES.includes(leagueId) || true, // International competitions are considered popular
           };
         }
-        
+
         acc[countryKey].leagues[leagueId].matches.push({
           ...fixture,
           teams: {
@@ -663,11 +663,13 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                         return 0;
                       })
                       .map((match: any) => (
-                        <div
-                          key={match.fixture.id}
-                          className="country-matches-container"
-                        >
-                          <div className="match-card-container group">
+                        <LazyMatchItem key={match.fixture.id}>
+                          <div
+                            key={match.fixture.id}
+                            className="match-card-container group"
+                            onClick={() => onMatchCardClick?.(match)}
+                            style={{ cursor: onMatchCardClick ? 'pointer' : 'default' }}
+                          >
                             {/* Star Button with slide-in effect */}
                             <button
                               onClick={(e) => {
@@ -699,7 +701,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                               <div className="match-status-top">
                                 {(() => {
                                   const status = match.fixture.status.short;
-                                  
+
                                   // Live matches
                                   if (
                                     [
@@ -1000,7 +1002,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </LazyMatchItem>
                       ))}
                   </div>
                 </CardContent>

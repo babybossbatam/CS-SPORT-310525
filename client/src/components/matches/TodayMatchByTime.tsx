@@ -100,6 +100,7 @@ interface TodayMatchByTimeProps {
   isTimeFilterActive?: boolean;
   liveFilterActive?: boolean;
   timeFilterActive?: boolean;
+  onMatchCardClick?: (fixture: any) => void;
 }
 
 const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
@@ -108,6 +109,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   isTimeFilterActive = false,
   liveFilterActive = false,
   timeFilterActive = false,
+  onMatchCardClick,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
