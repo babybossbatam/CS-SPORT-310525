@@ -147,7 +147,7 @@ const MyMatchdetailsScoreboard = ({
                   {displayMatch.goals.away ?? 0}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {displayMatch.fixture.status.long}
+                  {format(new Date(displayMatch.fixture.date), "dd/MM")}
                 </div>
               </div>
             )}
