@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, User, Trophy } from "lucide-react";
 import { format } from "date-fns";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
+import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 interface MyMatchdetailsScoreboardProps {
   match?: any;
@@ -139,7 +140,19 @@ const MyMatchdetailsScoreboard = ({
         <div className="flex items-center justify-between">
           {/* Home Team */}
           <div className="flex flex-col items-center space-y-4 flex-1">
-            {isNationalTeam(displayMatch.teams.home, displayMatch.league) ? (
+            {displayMatch.league.country === "World" || 
+             displayMatch.league.country === "International" ? (
+              <MyWorldTeamLogo
+                teamName={displayMatch.teams.home.name}
+                teamLogo={displayMatch.teams.home.logo}
+                alt={displayMatch.teams.home.name}
+                size="56px"
+                leagueContext={{
+                  name: displayMatch.league.name,
+                  country: displayMatch.league.country,
+                }}
+              />
+            ) : isNationalTeam(displayMatch.teams.home, displayMatch.league) ? (
               <MyCircularFlag
                 teamName={displayMatch.teams.home.name}
                 fallbackUrl={displayMatch.teams.home.logo}
@@ -226,7 +239,19 @@ const MyMatchdetailsScoreboard = ({
 
           {/* Away Team */}
           <div className="flex flex-col items-center space-y-4 flex-1">
-            {isNationalTeam(displayMatch.teams.away, displayMatch.league) ? (
+            {displayMatch.league.country === "World" || 
+             displayMatch.league.country === "International" ? (
+              <MyWorldTeamLogo
+                teamName={displayMatch.teams.away.name}
+                teamLogo={displayMatch.teams.away.logo}
+                alt={displayMatch.teams.away.name}
+                size="56px"
+                leagueContext={{
+                  name: displayMatch.league.name,
+                  country: displayMatch.league.country,
+                }}
+              />
+            ) : isNationalTeam(displayMatch.teams.away, displayMatch.league) ? (
               <MyCircularFlag
                 teamName={displayMatch.teams.away.name}
                 fallbackUrl={displayMatch.teams.away.logo}
