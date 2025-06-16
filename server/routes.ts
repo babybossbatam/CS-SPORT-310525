@@ -1839,22 +1839,43 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
       
       console.log(`🔍 [DEBUG] Checking fixture ${fixtureId} freshness`);
 
+      if (!fixtureId || fixtureId.trim() === '') {
+        return res.status(400).json({ 
+          error: 'Invalid fixture ID',
+          fixtureId: fixtureId
+        });
+      }
+
       // Check cached version
-      const cachedFixture = await storage.getCachedFixture(fixtureId);
       let cacheInfo = null;
-      
-      if (cachedFixture) {
-        const cacheAge = Date.now() - new Date(cachedFixture.timestamp).getTime();
+      try {
+        const cachedFixture = await storage.getCachedFixture(fixtureId);
+        
+        if (cachedFixture) {
+          const cacheAge = Date.now() - new Date(cachedFixture.timestamp).getTime();
+          cacheInfo = {
+            exists: true,
+            age: Math.round(cacheAge / 60000), // in minutes
+            lastUpdated: cachedFixture.timestamp,
+            data: cachedFixture.data
+          };
+        } else {
+          cacheInfo = {
+            exists: false,
+            message: 'No cached data found'
+          };
+        }
+      } catch (cacheError) {
+        console.error(`Error checking cache for fixture ${fixtureId}:`, cacheError);
         cacheInfo = {
-          exists: true,
-          age: Math.round(cacheAge / 60000), // in minutes
-          lastUpdated: cachedFixture.timestamp,
-          data: cachedFixture.data
+          exists: false,
+          error: cacheError instanceof Error ? cacheError.message : 'Cache error'
         };
       }
 
       // Fetch fresh data from API
       let freshData = null;
+      let apiError = null;
       try {
         const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?id=${fixtureId}`, {
           headers: {
@@ -1866,9 +1887,12 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         const apiResponse = await response.json();
         if (apiResponse.response && apiResponse.response.length > 0) {
           freshData = apiResponse.response[0];
+        } else {
+          apiError = 'No fixture found in API response';
         }
       } catch (error) {
         console.error(`Error fetching fresh data for fixture ${fixtureId}:`, error);
+        apiError = error instanceof Error ? error.message : 'API fetch error';
       }
 
       // Compare data
@@ -1877,11 +1901,12 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         serverTime: new Date().toISOString(),
         cache: cacheInfo,
         fresh: freshData,
+        apiError: apiError,
         isOutdated: false,
         differences: []
       };
 
-      if (cacheInfo && freshData) {
+      if (cacheInfo?.exists && freshData) {
         // Compare key fields safely
         const fieldsToCompare = [
           'fixture.status.short',
@@ -1928,11 +1953,16 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         }
       }
 
+      console.log(`✅ [DEBUG] Successfully processed fixture ${fixtureId} debug request`);
       res.json(comparison);
 
     } catch (error) {
-      console.error('Debug fixture endpoint error:', error);
-      res.status(500).json({ error: 'Debug test failed' });
+      console.error(`❌ [DEBUG] Error in debug fixture endpoint for ${req.params.fixtureId}:`, error);
+      res.status(500).json({ 
+        error: 'Debug test failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        fixtureId: req.params.fixtureId
+      });
     }
   });
 
