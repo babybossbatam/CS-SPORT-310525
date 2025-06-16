@@ -97,10 +97,13 @@ const MyMatchdetailsScoreboard = ({
       variant: "default" as const,
     };
 
-    // Apply gray-900 color for finished matches
+    // Apply gray color for finished matches and upcoming matches
     const isFinished = ["FT", "AET", "PEN"].includes(status);
+    const isUpcoming = status === "NS";
     const badgeClassName = isFinished
       ? "bg-gray-500 text-white font-normal text-[11px]"
+      : isUpcoming
+      ? "bg-gray-400 text-white font-normal text-[11px]"
       : "";
 
     return (
