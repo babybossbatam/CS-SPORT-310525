@@ -132,12 +132,14 @@ interface TodaysMatchesByCountryNewProps {
   selectedDate: string;
   liveFilterActive?: boolean;
   timeFilterActive?: boolean;
+  onMatchCardClick?: (fixture: any) => void;
 }
 
 const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   selectedDate,
   liveFilterActive = false,
   timeFilterActive = false,
+  onMatchCardClick,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
@@ -1474,8 +1476,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   prefetchMargin="400px"                                >
                                   <div
                                     className="match-card-container group"
-                                    onClick={() => toggleHideMatch(match.fixture.id)}
-                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => onMatchCardClick ? onMatchCardClick(match) : toggleHideMatch(match.fixture.id)}
+                                    style={{ cursor: onMatchCardClick ? 'pointer' : 'pointer' }}
                                   >
                                     {/* Star Button with true slide-in effect */}
                                     <button
