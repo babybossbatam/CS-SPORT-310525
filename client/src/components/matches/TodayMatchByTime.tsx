@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronDown, ChevronUp, Calendar, Clock, Star } from "lucide-react";
+import { ChevronDown, ChevronUp, Calendar, Activity, Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, userActions } from "@/lib/store";
@@ -35,14 +35,10 @@ import {
 import { createFallbackHandler } from "../../lib/MyAPIFallback";
 import { MyFallbackAPI } from "../../lib/MyFallbackAPI";
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
-import { isNationalTeam } from "../../lib/teamLogoSources";
+import { isNationalTeam, getTeamLogoSources } from "../../lib/teamLogoSources";
 import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
-import LazyMatchItem from "./LazyMatchItem";
-import LazyImage from "../common/LazyImage";
-import MyCircularFlag from "../common/MyCircularFlag";
-import { useCentralData } from "../../providers/CentralDataProvider";
-import CombinedLeagueCards from "./CombinedLeagueCards";
+import "../../styles/TodaysMatchByCountryNew.css";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
