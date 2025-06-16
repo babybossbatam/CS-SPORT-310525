@@ -99,7 +99,9 @@ const MyMatchdetailsScoreboard = ({
 
     // Apply gray-900 color for finished matches
     const isFinished = ["FT", "AET", "PEN"].includes(status);
-    const badgeClassName = isFinished ? "bg-gray-500 text-white " : "";
+    const badgeClassName = isFinished
+      ? "bg-gray-500 text-white font-normal"
+      : "";
 
     return (
       <Badge variant={config.variant} className={badgeClassName}>
