@@ -1491,6 +1491,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   onPrefetch={() => prefetchMatchData(match.fixture.id)}
                                   rootMargin="150px"
                                   prefetchMargin="400px"
+                                >
                                   <div
                                     className="match-card-container group"
                                     onClick={() => toggleHideMatch(match.fixture.id)}
