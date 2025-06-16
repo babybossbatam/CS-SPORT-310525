@@ -390,6 +390,7 @@ export const TodayMatchPageCard = ({
             selectedDate={selectedDate}
             timeFilterActive={timeFilterActive}
             showTop20={timeFilterActive}
+            liveFilterActive={liveFilterActive}
             onMatchCardClick={onMatchCardClick}
           />
           <TodaysMatchesByCountryNew

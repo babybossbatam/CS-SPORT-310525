@@ -102,6 +102,7 @@ interface TodayPopularFootballLeaguesNewProps {
   timeFilterActive?: boolean;
   showTop20?: boolean;
   liveFilterActive?: boolean;
+  onMatchCardClick?: (fixture: any) => void;
 }
 
 const TodayPopularFootballLeaguesNew: React.FC<
@@ -111,6 +112,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   timeFilterActive = false,
   showTop20 = false,
   liveFilterActive = false,
+  onMatchCardClick,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
@@ -1657,6 +1659,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           <div
                             key={match.fixture.id}
                             className="match-card-container group"
+                            onClick={() => onMatchCardClick?.(match)}
+                            style={{ cursor: onMatchCardClick ? 'pointer' : 'default' }}
                           >
                             {/* Star Button with true slide-in effect */}
                             <button
