@@ -1743,7 +1743,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
       };
 
       if (cacheInfo && freshData) {
-        // Compare key fields
+        // Compare key fields safely
         const fieldsToCompare = [
           'fixture.status.short',
           'fixture.status.long',
@@ -1756,16 +1756,35 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         ];
 
         for (const field of fieldsToCompare) {
-          const cachedValue = field.split('.').reduce((obj, key) => obj?.[key], cacheInfo.data);
-          const freshValue = field.split('.').reduce((obj, key) => obj?.[key], freshData);
-          
-          if (cachedValue !== freshValue) {
+          try {
+            const cachedValue = field.split('.').reduce((obj, key) => {
+              return (obj && typeof obj === 'object') ? obj[key] : undefined;
+            }, cacheInfo.data);
+            
+            const freshValue = field.split('.').reduce((obj, key) => {
+              return (obj && typeof obj === 'object') ? obj[key] : undefined;
+            }, freshData);
+            
+            // Safe comparison - convert to strings to avoid type issues
+            const cachedStr = cachedValue !== null && cachedValue !== undefined ? String(cachedValue) : 'null';
+            const freshStr = freshValue !== null && freshValue !== undefined ? String(freshValue) : 'null';
+            
+            if (cachedStr !== freshStr) {
+              comparison.differences.push({
+                field,
+                cached: cachedValue,
+                fresh: freshValue
+              });
+              comparison.isOutdated = true;
+            }
+          } catch (error) {
+            console.error(`Error comparing field ${field}:`, error);
             comparison.differences.push({
               field,
-              cached: cachedValue,
-              fresh: freshValue
+              cached: 'ERROR',
+              fresh: 'ERROR',
+              error: error instanceof Error ? error.message : 'Unknown error'
             });
-            comparison.isOutdated = true;
           }
         }
       }
