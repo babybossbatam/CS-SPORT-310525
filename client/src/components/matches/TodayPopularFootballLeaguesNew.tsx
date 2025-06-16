@@ -117,6 +117,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   );
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -1016,6 +1017,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
     setExpandedCountries(new Set());
   }, [selectedDate]);
 
+  // Real-time timer for live match updates
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
+
   // Clear Venezuela flag cache on component mount to ensure fresh fetch
   useEffect(() => {
     console.log("🔄 Clearing Venezuela flag cache for fresh fetch...");
@@ -1648,6 +1658,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 {(() => {
                                   const status = match.fixture.status.short;
                                   const elapsed = match.fixture.status.elapsed;
+                                  const matchDate = parseISO(match.fixture.date);
+                                  const now = new Date();
+                                  const minutesSinceKickoff = Math.floor((now.getTime() - matchDate.getTime()) / (1000 * 60));
 
                                   // Live matches status
                                   if (
@@ -1665,16 +1678,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     ) {
                                       let displayText = "";
 
-                                      // Check for matches that should have finished (likely stale data)
+                                      // Enhanced stale match detection
                                       const isLikelyStale = elapsed && (
-                                        (status === "2H" && elapsed >= 95) || // 95+ minutes in 2H is very likely finished
-                                        (status === "1H" && elapsed >= 50) || // 50+ minutes in 1H is unusual
-                                        (["LIVE", "LIV"].includes(status) && elapsed >= 95) // Generic live status with high elapsed time
+                                        // Match has been "live" for more than 2 hours
+                                        minutesSinceKickoff > 120 ||
+                                        // Specific status checks
+                                        (status === "2H" && elapsed >= 100) || // 100+ minutes is definitely stale
+                                        (status === "1H" && elapsed >= 60) || // 60+ minutes in first half is impossible
+                                        (["LIVE", "LIV"].includes(status) && elapsed >= 100) || // Generic live with high elapsed time
+                                        // Match started more than 2.5 hours ago and still showing as live
+                                        (minutesSinceKickoff > 150)
                                       );
 
                                       if (isLikelyStale) {
-                                        console.log(`🚨 [STALE MATCH] Match ${match.fixture.id} showing ${elapsed}' in ${status} - likely finished`);
-                                        // For stale matches, show as likely finished
+                                        console.log(`🚨 [STALE MATCH] Match ${match.fixture.id} showing ${elapsed}' in ${status} - ${minutesSinceKickoff} minutes since kickoff - marking as ended`);
                                         return (
                                           <div className="match-status-label status-ended">
                                             Likely Ended
@@ -1682,6 +1699,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         );
                                       }
 
+                                      // Real-time calculation for live matches
                                       if (status === "HT") {
                                         displayText = "Halftime";
                                       } else if (status === "P") {
@@ -1693,28 +1711,37 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       } else if (status === "INT") {
                                         displayText = "Interrupted";
                                       } else {
-                                        // For LIVE, LIV, 1H, 2H
-                                        if (elapsed !== null && elapsed !== undefined) {
+                                        // For LIVE, LIV, 1H, 2H - use real-time calculation when possible
+                                        let currentElapsed = elapsed;
+                                        
+                                        // If we have a valid kickoff time and elapsed time, calculate real-time elapsed
+                                        if (elapsed !== null && elapsed !== undefined && minutesSinceKickoff > 0) {
+                                          // Estimate current time based on when match started
+                                          const estimatedElapsed = Math.max(elapsed, Math.min(minutesSinceKickoff, 95));
+                                          currentElapsed = estimatedElapsed;
+                                        }
+
+                                        if (currentElapsed !== null && currentElapsed !== undefined) {
                                           // Handle injury/stoppage time more reliably
                                           const extraTime = match.fixture.status.extra;
 
-                                          if (status === "2H" && elapsed >= 90) {
+                                          if (status === "2H" && currentElapsed >= 90) {
                                             // Second half injury time
                                             if (extraTime && extraTime > 0) {
-                                              displayText = `${elapsed}'+${extraTime}'`;
+                                              displayText = `${currentElapsed}'+${extraTime}'`;
                                             } else {
-                                              displayText = `${elapsed}'+`;
+                                              displayText = `${currentElapsed}'+`;
                                             }
-                                          } else if (status === "1H" && elapsed >= 45) {
+                                          } else if (status === "1H" && currentElapsed >= 45) {
                                             // First half injury time
                                             if (extraTime && extraTime > 0) {
-                                              displayText = `${elapsed}'+${extraTime}'`;
+                                              displayText = `${currentElapsed}'+${extraTime}'`;
                                             } else {
-                                              displayText = `${elapsed}'+`;
+                                              displayText = `${currentElapsed}'+`;
                                             }
                                           } else {
                                             // Regular time
-                                            displayText = `${elapsed}'`;
+                                            displayText = `${currentElapsed}'`;
                                           }
                                         } else {
                                           displayText = "LIVE";
