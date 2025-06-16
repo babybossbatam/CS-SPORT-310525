@@ -134,7 +134,7 @@ const MyMatchdetailsScoreboard = ({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="p-0 m-0">
         {/* Teams Section */}
         <div className="flex items-center justify-between">
           {/* Home Team */}
