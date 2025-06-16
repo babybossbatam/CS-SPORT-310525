@@ -687,20 +687,34 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         };
       }
 
-      // Add fixture with safe team data
-      acc[displayCountry].leagues[leagueId].matches.push({
-        ...fixture,
-        teams: {
-          home: {
-            ...fixture.teams.home,
-            logo: fixture.teams.home.logo || "/assets/fallback-logo.png",
+      // Check if this fixture already exists in this league to prevent duplicates
+      const existingMatch = acc[displayCountry].leagues[leagueId].matches.find(
+        (existingFixture: any) => existingFixture.fixture.id === fixture.fixture.id
+      );
+
+      if (!existingMatch) {
+        // Add fixture with safe team data only if it doesn't already exist
+        acc[displayCountry].leagues[leagueId].matches.push({
+          ...fixture,
+          teams: {
+            home: {
+              ...fixture.teams.home,
+              logo: fixture.teams.home.logo || "/assets/fallback-logo.png",
+            },
+            away: {
+              ...fixture.teams.away,
+              logo: fixture.teams.away.logo || "/assets/fallback-logo.png",
+            },
           },
-          away: {
-            ...fixture.teams.away,
-            logo: fixture.teams.away.logo || "/assets/fallback-logo.png",
-          },
-        },
-      });
+        });
+      } else {
+        console.log(`🔄 [DEBUG] Duplicate fixture prevented:`, {
+          fixtureId: fixture.fixture.id,
+          league: leagueName,
+          country: displayCountry,
+          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+        });
+      }
 
       console.log(`✅ [DEBUG] Added match to country group:`, {
         country: displayCountry,
@@ -1368,7 +1382,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               }}
                             >
                             {leagueData.matches
-                              .filter((match: any) => !hiddenMatches.has(match.fixture.id))
+                              .filter((match: any, index: number, array: any[]) => {
+                                // Remove duplicates by fixture ID and filter hidden matches
+                                const isFirstOccurrence = array.findIndex(m => m.fixture.id === match.fixture.id) === index;
+                                const isNotHidden = !hiddenMatches.has(match.fixture.id);
+                                return isFirstOccurrence && isNotHidden;
+                              })
                               .sort((a: any, b: any) => {
                                 // Priority order: Live > Upcoming > Ended
                                 const aStatus = a.fixture.status.short;
@@ -1467,11 +1486,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               .map((match: any, matchIndex) => (
 
                                 <LazyMatchItem
-                                  key={match.fixture.id}
+                                  key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}-${matchIndex}`}
                                   priority={matchIndex < 3 ? 'high' : 'normal'}
                                   onPrefetch={() => prefetchMatchData(match.fixture.id)}
                                   rootMargin="150px"
-                                  prefetchMargin="400px"                                >
+                                  prefetchMargin="400px"
                                   <div
                                     className="match-card-container group"
                                     onClick={() => toggleHideMatch(match.fixture.id)}
