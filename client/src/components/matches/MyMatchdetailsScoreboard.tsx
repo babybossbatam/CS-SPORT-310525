@@ -103,8 +103,8 @@ const MyMatchdetailsScoreboard = ({
     const badgeClassName = isFinished
       ? "bg-gray-500 text-white font-normal text-[11px]"
       : isUpcoming
-      ? "bg-gray-400 text-white font-normal text-[11px]"
-      : "";
+        ? "bg-gray-500 text-white font-normal text-[11px]"
+        : "";
 
     return (
       <Badge variant={config.variant} className={badgeClassName}>
@@ -114,7 +114,7 @@ const MyMatchdetailsScoreboard = ({
   };
   return (
     <Card
-      className={`w-full ${className} p-0  pb-0 bg-gradient-to-br from-pink-50 via-yellow-60 to-black-110`}
+      className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50`}
     >
       <CardHeader className="text-center relative ">
         {onClose && (
