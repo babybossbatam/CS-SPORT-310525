@@ -775,8 +775,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Use 2 hour cache for league fixtures
         if (cacheAge < 2 * 60 * 60 * 100) {
-          console.log```typescript
-(`Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
+          ```typescript
+console.log(`Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
           return res.json(cachedFixtures.data);
         }
       }
@@ -1546,7 +1546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Validate that teamId is numeric
       if (!/^\d+$/.test(teamId)) {
-        console.warn(`Invalid team ID format: ${teamId}`);```typescript
+        console.warn(`Invalid team ID format: ${teamId}`);
 return res.status(400).json({ error: 'Team ID must be numeric' });
       }
 
@@ -1697,7 +1697,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
   apiRouter.get('/debug/fixture/:fixtureId/compare', async (req: Request, res: Response) => {
     try {
       const { fixtureId } = req.params;
-      
+
       console.log(`🔍 [DEBUG] Comparing fixture ${fixtureId} between APIs`);
 
       if (!fixtureId || fixtureId.trim() === '') {
@@ -1743,18 +1743,18 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
       let sportsRadarError = null;
       try {
         const sportsRadarKey = process.env.SPORTSRADAR_API_KEY || 'GyxLqseloLhoo4ietUKotcYT89QjqHuYS6xDNAyY';
-        
+
         // Try to find the fixture in SportsRadar by searching live matches first
         const liveResponse = await fetch(`https://api.sportradar.com/soccer/trial/v4/en/matches/live.json?api_key=${sportsRadarKey}`);
-        
+
         if (liveResponse.ok) {
           const liveData = await liveResponse.json();
-          
+
           // Look for the match by team names if we have RapidAPI data
           if (rapidApiData) {
             const rapidHomeTeam = rapidApiData.teams?.home?.name || '';
             const rapidAwayTeam = rapidApiData.teams?.away?.name || '';
-            
+
             const sportsRadarMatch = liveData.matches?.find((match: any) => {
               const homeTeam = match.home_team?.name || '';
               const awayTeam = match.away_team?.name || '';
@@ -1878,7 +1878,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
   apiRouter.get('/debug/fixture/:fixtureId', async (req: Request, res: Response) => {
     try {
       const { fixtureId } = req.params;
-      
+
       console.log(`🔍 [DEBUG] Checking fixture ${fixtureId} freshness`);
 
       if (!fixtureId || fixtureId.trim() === '') {
@@ -1892,7 +1892,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
       let cacheInfo = null;
       try {
         const cachedFixture = await storage.getCachedFixture(fixtureId);
-        
+
         if (cachedFixture) {
           const cacheAge = Date.now() - new Date(cachedFixture.timestamp).getTime();
           cacheInfo = {
@@ -1966,15 +1966,15 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
             const cachedValue = field.split('.').reduce((obj, key) => {
               return (obj && typeof obj === 'object') ? obj[key] : undefined;
             }, cacheInfo.data);
-            
+
             const freshValue = field.split('.').reduce((obj, key) => {
               return (obj && typeof obj === 'object') ? obj[key] : undefined;
             }, freshData);
-            
+
             // Safe comparison - convert to strings to avoid type issues
             const cachedStr = cachedValue !== null && cachedValue !== undefined ? String(cachedValue) : 'null';
             const freshStr = freshValue !== null && freshValue !== undefined ? String(freshValue) : 'null';
-            
+
             if (cachedStr !== freshStr) {
               comparison.differences.push({
                 field,
