@@ -28,11 +28,13 @@ import {
 interface TodayMatchPageCardProps {
   fixtures: any[];
   onMatchClick: (matchId: number) => void;
+  onMatchCardClick?: (fixture: any) => void;
 }
 
 export const TodayMatchPageCard = ({
   fixtures,
   onMatchClick,
+  onMatchCardClick,
 }: TodayMatchPageCardProps) => {
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
@@ -380,16 +382,21 @@ export const TodayMatchPageCard = ({
       ) : (
         // Neither filter active - show default view
         <>
-          <MyNewPopularLeague selectedDate={selectedDate} />
+          <MyNewPopularLeague 
+            selectedDate={selectedDate} 
+            onMatchCardClick={onMatchCardClick}
+          />
           <TodayPopularFootballLeaguesNew
             selectedDate={selectedDate}
             timeFilterActive={timeFilterActive}
             showTop20={timeFilterActive}
+            onMatchCardClick={onMatchCardClick}
           />
           <TodaysMatchesByCountryNew
             selectedDate={selectedDate}
             liveFilterActive={liveFilterActive}
             timeFilterActive={timeFilterActive}
+            onMatchCardClick={onMatchCardClick}
           />
         </>
       )}
