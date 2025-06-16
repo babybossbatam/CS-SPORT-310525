@@ -1700,26 +1700,47 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
       
       console.log(`🔍 [DEBUG] Comparing fixture ${fixtureId} between APIs`);
 
+      if (!fixtureId || fixtureId.trim() === '') {
+        return res.status(400).json({ 
+          error: 'Invalid fixture ID',
+          fixtureId: fixtureId
+        });
+      }
+
       // Fetch from RapidAPI (our current source)
       let rapidApiData = null;
+      let rapidApiError = null;
       try {
-        const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?id=${fixtureId}`, {
-          headers: {
-            'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
-            'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-          }
-        });
+        const rapidApiKey = process.env.RAPID_API_KEY;
+        if (!rapidApiKey) {
+          rapidApiError = 'RapidAPI key not configured';
+        } else {
+          const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?id=${fixtureId}`, {
+            headers: {
+              'X-RapidAPI-Key': rapidApiKey,
+              'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
+            }
+          });
 
-        const apiResponse = await response.json();
-        if (apiResponse.response && apiResponse.response.length > 0) {
-          rapidApiData = apiResponse.response[0];
+          if (response.ok) {
+            const apiResponse = await response.json();
+            if (apiResponse.response && apiResponse.response.length > 0) {
+              rapidApiData = apiResponse.response[0];
+            } else {
+              rapidApiError = 'No fixture found in RapidAPI response';
+            }
+          } else {
+            rapidApiError = `RapidAPI responded with status ${response.status}`;
+          }
         }
       } catch (error) {
+        rapidApiError = error instanceof Error ? error.message : 'Unknown RapidAPI error';
         console.error(`Error fetching from RapidAPI for fixture ${fixtureId}:`, error);
       }
 
       // Fetch from SportsRadar API
       let sportsRadarData = null;
+      let sportsRadarError = null;
       try {
         const sportsRadarKey = process.env.SPORTSRADAR_API_KEY || 'GyxLqseloLhoo4ietUKotcYT89QjqHuYS6xDNAyY';
         
@@ -1729,28 +1750,41 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         if (liveResponse.ok) {
           const liveData = await liveResponse.json();
           
-          // Look for the match by team names (Palmeiras vs FC Porto)
-          const sportsRadarMatch = liveData.matches?.find((match: any) => {
-            const homeTeam = match.home_team?.name || '';
-            const awayTeam = match.away_team?.name || '';
-            return (homeTeam.includes('Palmeiras') && awayTeam.includes('Porto')) ||
-                   (homeTeam.includes('Porto') && awayTeam.includes('Palmeiras'));
-          });
+          // Look for the match by team names if we have RapidAPI data
+          if (rapidApiData) {
+            const rapidHomeTeam = rapidApiData.teams?.home?.name || '';
+            const rapidAwayTeam = rapidApiData.teams?.away?.name || '';
+            
+            const sportsRadarMatch = liveData.matches?.find((match: any) => {
+              const homeTeam = match.home_team?.name || '';
+              const awayTeam = match.away_team?.name || '';
+              return (homeTeam.includes(rapidHomeTeam.split(' ')[0]) && awayTeam.includes(rapidAwayTeam.split(' ')[0])) ||
+                     (homeTeam.includes(rapidAwayTeam.split(' ')[0]) && awayTeam.includes(rapidHomeTeam.split(' ')[0]));
+            });
 
-          if (sportsRadarMatch) {
-            sportsRadarData = sportsRadarMatch;
+            if (sportsRadarMatch) {
+              sportsRadarData = sportsRadarMatch;
+            } else {
+              sportsRadarError = 'Matching fixture not found in SportsRadar live data';
+            }
+          } else {
+            sportsRadarError = 'Cannot search SportsRadar without RapidAPI data for comparison';
           }
+        } else {
+          sportsRadarError = `SportsRadar API responded with status ${liveResponse.status}`;
         }
       } catch (error) {
+        sportsRadarError = error instanceof Error ? error.message : 'Unknown SportsRadar error';
         console.error(`Error fetching from SportsRadar:`, error);
       }
 
-      // Compare the data
+      // Build comparison response
       const comparison = {
         fixtureId,
         serverTime: new Date().toISOString(),
         rapidApi: {
           available: !!rapidApiData,
+          error: rapidApiError,
           data: rapidApiData ? {
             status: rapidApiData.fixture?.status?.short,
             statusLong: rapidApiData.fixture?.status?.long,
@@ -1765,6 +1799,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         },
         sportsRadar: {
           available: !!sportsRadarData,
+          error: sportsRadarError,
           data: sportsRadarData ? {
             status: sportsRadarData.status,
             homeTeam: sportsRadarData.home_team?.name,
@@ -1776,13 +1811,12 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
             league: sportsRadarData.tournament?.name
           } : null
         },
-        differences: [],
+        differences: [] as any[],
         recommendation: ''
       };
 
       // Compare key fields if both APIs have data
       if (rapidApiData && sportsRadarData) {
-        const rapidStatus = rapidApiData.fixture?.status?.short;
         const rapidHomeGoals = rapidApiData.goals?.home;
         const rapidAwayGoals = rapidApiData.goals?.away;
         const rapidElapsed = rapidApiData.fixture?.status?.elapsed;
@@ -1818,17 +1852,25 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         comparison.recommendation = comparison.differences.length > 0 
           ? 'Data differs between APIs - consider cross-referencing'
           : 'Data is consistent between both APIs';
-      } else if (!sportsRadarData) {
-        comparison.recommendation = 'SportsRadar data not available for comparison';
-      } else if (!rapidApiData) {
-        comparison.recommendation = 'RapidAPI data not available';
+      } else if (rapidApiError && sportsRadarError) {
+        comparison.recommendation = 'Both APIs failed - check API configurations';
+      } else if (rapidApiError) {
+        comparison.recommendation = 'RapidAPI failed - using SportsRadar data if available';
+      } else if (sportsRadarError) {
+        comparison.recommendation = 'SportsRadar data not available - using RapidAPI data';
+      } else {
+        comparison.recommendation = 'No data available from either API';
       }
 
       res.json(comparison);
 
     } catch (error) {
       console.error('Debug fixture comparison error:', error);
-      res.status(500).json({ error: 'Comparison test failed' });
+      res.status(500).json({ 
+        error: 'Comparison test failed',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        fixtureId: req.params.fixtureId
+      });
     }
   });
 
