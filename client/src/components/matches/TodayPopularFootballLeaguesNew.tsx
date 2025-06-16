@@ -1657,11 +1657,30 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       console.log(`🚨 [MATCH STATUS DEBUG] Match showing ${elapsed}' but still live:`, {
                                         fixtureId: match.fixture.id,
                                         status: status,
+                                        statusLong: match.fixture.status.long,
                                         elapsed: elapsed,
                                         homeTeam: match.teams?.home?.name,
                                         awayTeam: match.teams?.away?.name,
                                         date: match.fixture.date,
-                                        league: match.league?.name
+                                        league: match.league?.name,
+                                        fullStatusObject: match.fixture.status,
+                                        isFTStatus: status === "FT",
+                                        isLiveStatus: ["LIVE", "LIV", "1H", "2H", "ET", "BT", "P", "INT"].includes(status)
+                                      });
+                                    }
+                                    
+                                    // Specific check for FT status
+                                    if (status === "FT") {
+                                      console.log(`✅ [FT STATUS CONFIRMED] Match has FT status:`, {
+                                        fixtureId: match.fixture.id,
+                                        status: status,
+                                        statusLong: match.fixture.status.long,
+                                        elapsed: elapsed,
+                                        homeTeam: match.teams?.home?.name,
+                                        awayTeam: match.teams?.away?.name,
+                                        homeScore: match.goals?.home,
+                                        awayScore: match.goals?.away,
+                                        fullStatusObject: match.fixture.status
                                       });
                                     }
                                     
