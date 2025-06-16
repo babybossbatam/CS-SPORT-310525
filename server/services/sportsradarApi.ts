@@ -96,6 +96,93 @@ export async function getFixturesByDate(date: string) {
   return makeRequest('/matches/date', { date });
 }
 
+// Get World/International fixtures for a specific date
+export async function getWorldFixturesByDate(date: string) {
+  try {
+    const allFixtures = await getFixturesByDate(date);
+    
+    if (!allFixtures || allFixtures.length === 0) {
+      return [];
+    }
+
+    // Filter for World/International competitions
+    const worldFixtures = allFixtures.filter(fixture => {
+      const tournament = fixture.tournament?.name?.toLowerCase() || '';
+      const category = fixture.tournament?.category?.name?.toLowerCase() || '';
+      
+      return tournament.includes('world') || 
+             tournament.includes('international') || 
+             tournament.includes('uefa') || 
+             tournament.includes('fifa') || 
+             tournament.includes('champions') ||
+             tournament.includes('europa') ||
+             tournament.includes('nations') ||
+             category.includes('world') ||
+             category.includes('international');
+    });
+
+    console.log(`SportsRadar: Found ${worldFixtures.length} World/International fixtures for ${date}`);
+    return worldFixtures;
+  } catch (error) {
+    console.error('Error getting World fixtures from SportsRadar:', error);
+    return [];
+  }
+}
+
+// Get finished World/International matches for today
+export async function getTodayFinishedWorldMatches() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const todayFixtures = await getWorldFixturesByDate(today);
+    
+    const finishedMatches = todayFixtures.filter(fixture => {
+      const status = fixture.status?.toLowerCase() || '';
+      return status.includes('finished') || 
+             status.includes('ended') || 
+             status.includes('ft') ||
+             status.includes('full time');
+    });
+
+    console.log(`SportsRadar: Found ${finishedMatches.length} finished World matches today`);
+    return finishedMatches;
+  } catch (error) {
+    console.error('Error getting finished World matches:', error);
+    return [];
+  }
+}
+
+// Get live World/International matches
+export async function getLiveWorldMatches() {
+  try {
+    const liveFixtures = await getLiveFixtures();
+    
+    if (!liveFixtures || liveFixtures.length === 0) {
+      return [];
+    }
+
+    const worldLiveMatches = liveFixtures.filter(fixture => {
+      const tournament = fixture.tournament?.name?.toLowerCase() || '';
+      const category = fixture.tournament?.category?.name?.toLowerCase() || '';
+      
+      return tournament.includes('world') || 
+             tournament.includes('international') || 
+             tournament.includes('uefa') || 
+             tournament.includes('fifa') || 
+             tournament.includes('champions') ||
+             tournament.includes('europa') ||
+             tournament.includes('nations') ||
+             category.includes('world') ||
+             category.includes('international');
+    });
+
+    console.log(`SportsRadar: Found ${worldLiveMatches.length} live World matches`);
+    return worldLiveMatches;
+  } catch (error) {
+    console.error('Error getting live World matches:', error);
+    return [];
+  }
+}
+
 // Get live fixtures
 export async function getLiveFixtures() {
   return makeRequest('/matches/live');
@@ -317,6 +404,9 @@ export default {
   getFootballLeagues,
   getFixturesByLeague,
   getFixturesByDate,
+  getWorldFixturesByDate,
+  getTodayFinishedWorldMatches,
+  getLiveWorldMatches,
   getLiveFixtures,
   getLeagueDetails,
   getTopScorers,
