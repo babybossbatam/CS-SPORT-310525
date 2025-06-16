@@ -12,7 +12,7 @@ import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
 import MyNewPopularLeague from "./MyNewPopularLeague";
-import UefaU21MatchCard from "./UefaU21MatchCard";
+
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { format, parseISO, addDays, subDays } from "date-fns";
 import {
@@ -359,7 +359,6 @@ export const TodayMatchPageCard = ({
       ) : (
         // Neither filter active - show default view
         <>
-          <UefaU21MatchCard onMatchClick={onMatchClick} />
           <MyNewPopularLeague selectedDate={selectedDate} />
           <TodayPopularFootballLeaguesNew
             selectedDate={selectedDate}

@@ -10,7 +10,7 @@ import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
 import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
-import UefaU21MatchCard from '@/components/matches/UefaU21MatchCard';
+
 import { Card, CardContent } from '@/components/ui/card';
 
 interface MyMainLayoutProps {
@@ -30,9 +30,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left column (5 columns) */}
         <div className="lg:col-span-5 space-y-4">
-          {/* UEFA U21 Championship Matches */}
-          <UefaU21MatchCard onMatchClick={handleMatchClick} />
-          
           {/* New TodayMatchPageCard for testing */}
           <div>
             <TodayMatchPageCard 
