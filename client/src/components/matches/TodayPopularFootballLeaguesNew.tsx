@@ -911,7 +911,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const timeFilteredCountries = useMemo(() => {
     // Smart filtering is already applied in filteredFixtures, so just return sorted countries
     // timeFilterActive now only affects sorting/prioritization, not inclusion/exclusion
-    returnsortedCountries;
+    return sortedCountries;
   }, [sortedCountries]);
 
   // Apply live filters
