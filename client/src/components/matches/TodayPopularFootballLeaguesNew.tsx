@@ -1634,6 +1634,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               <div className="match-status-top">
                                 {(() => {
                                   const status = match.fixture.status.short;
+                                  const elapsed = match.fixture.status.elapsed;
 
                                   // Live matches status
                                   if (
@@ -1649,11 +1650,30 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       "INT",
                                     ].includes(status)
                                   ) {
+                                    let displayText = "";
+                                    
+                                    if (status === "HT") {
+                                      displayText = "Halftime";
+                                    } else if (status === "P") {
+                                      displayText = "Penalties";
+                                    } else if (status === "ET") {
+                                      displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
+                                    } else if (status === "BT") {
+                                      displayText = "Break Time";
+                                    } else if (status === "INT") {
+                                      displayText = "Interrupted";
+                                    } else {
+                                      // For LIVE, LIV, 1H, 2H
+                                      if (elapsed !== null && elapsed !== undefined) {
+                                        displayText = `${elapsed}'`;
+                                      } else {
+                                        displayText = "LIVE";
+                                      }
+                                    }
+
                                     return (
                                       <div className="match-status-label status-live">
-                                        {status === "HT"
-                                          ? "Halftime"
-                                          : `${match.fixture.status.elapsed || 0}'`}
+                                        {displayText}
                                       </div>
                                     );
                                   }
