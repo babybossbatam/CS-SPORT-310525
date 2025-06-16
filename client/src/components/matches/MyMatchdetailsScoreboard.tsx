@@ -67,12 +67,13 @@ const MyMatchdetailsScoreboard = ({
     // Check if it's a finished match and determine the appropriate label
     const getFinishedLabel = () => {
       if (!["FT", "AET", "PEN"].includes(status)) return "Finished";
-      
+
       try {
         const matchDate = new Date(displayMatch.fixture.date);
         const now = new Date();
-        const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-        
+        const hoursElapsed =
+          (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+
         // If finished less than 1 hour ago, show "Just Finished"
         return hoursElapsed <= 1 ? "Just Finished" : "Ended";
       } catch (error) {
@@ -95,15 +96,16 @@ const MyMatchdetailsScoreboard = ({
       label: status,
       variant: "secondary" as const,
     };
-    
-    return <Badge variant={config.variant}>{config.label}</Badge>;
-  };
 
-  // Apply gray-900 color for finished matches
-  const isFinished = ["FT", "AET", "PEN"].includes(status);
-  const badgeClassName = isFinished ? "text-gray-900" : "";
+    // Apply gray-900 color for finished matches
+    const isFinished = ["FT", "AET", "PEN"].includes(status);
+    const badgeClassName = isFinished ? "text-white" : "";
 
-  return <Badge variant={config.variant} className={badgeClassName}>{config.label}</Badge>;
+    return (
+      <Badge variant={config.variant} className={badgeClassName}>
+        {config.label}
+      </Badge>
+    );
   };
   return (
     <Card className={`w-full ${className}`}>
