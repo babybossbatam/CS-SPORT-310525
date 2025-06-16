@@ -13,7 +13,7 @@ const ScoreDetailsCard: React.FC<ScoreDetailsCardProps> = ({
 }) => {
   return (
     <Card className="w-full">
-      <CardContent className="p-6">
+      <CardContent>
         <MyMatchdetailsScoreboard match={currentFixture} onClose={onClose} />
       </CardContent>
     </Card>
