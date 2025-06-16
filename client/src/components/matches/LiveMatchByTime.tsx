@@ -131,7 +131,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   const { liveFixtures: fetchedFixtures, isLoading, error } = useCentralData();
 
   // Use props data if available, otherwise use fetched data
-  const fixtures = propsFixtures || fetchedFixtures;
+  const fixtures = liveFixtures.length > 0 ? liveFixtures : fetchedFixtures;
 
   // Enhanced country flag mapping with better null safety
   const getCountryFlag = (
