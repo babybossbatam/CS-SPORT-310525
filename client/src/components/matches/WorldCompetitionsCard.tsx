@@ -43,7 +43,29 @@ const WorldCompetitionsCard: React.FC<WorldCompetitionsCardProps> = ({
     return groups;
   }, [worldFixtures]);
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, fixtureDate?: string) => {
+    // Check if match is stale (live status but started more than 3 hours ago)
+    const isStaleMatch = (status: string, date?: string): boolean => {
+      if (!date) return false;
+      
+      const liveStatuses = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P"];
+      if (!liveStatuses.includes(status)) return false;
+      
+      try {
+        const matchDate = new Date(date);
+        const now = new Date();
+        const hoursSinceStart = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+        
+        // Football matches typically last 2 hours max, so anything over 3 hours is stale
+        return hoursSinceStart > 3;
+      } catch (error) {
+        return false;
+      }
+    };
+
+    // Override stale live matches to show as finished
+    const effectiveStatus = isStaleMatch(status, fixtureDate) ? "FT" : status;
+
     const statusConfig = {
       NS: { label: "Upcoming", variant: "default" as const, color: "bg-gray-500" },
       LIVE: { label: "Live", variant: "destructive" as const, color: "bg-red-500" },
@@ -52,11 +74,11 @@ const WorldCompetitionsCard: React.FC<WorldCompetitionsCardProps> = ({
       HT: { label: "Half Time", variant: "outline" as const, color: "bg-yellow-500" },
       FT: { label: "Finished", variant: "default" as const, color: "bg-gray-500" },
       AET: { label: "Finished", variant: "default" as const, color: "bg-gray-500" },
-      PEN: { label: "Penalties", variant: "default" as const, color: "bg-gray-500" },
+      PEN: { label: "Finished", variant: "default" as const, color: "bg-gray-500" },
     };
 
-    const config = statusConfig[status as keyof typeof statusConfig] || {
-      label: status,
+    const config = statusConfig[effectiveStatus as keyof typeof statusConfig] || {
+      label: effectiveStatus,
       variant: "default" as const,
       color: "bg-gray-500",
     };
@@ -206,7 +228,7 @@ const WorldCompetitionsCard: React.FC<WorldCompetitionsCardProps> = ({
                             {fixture.goals.home ?? 0} - {fixture.goals.away ?? 0}
                           </div>
                           <div className="mt-1">
-                            {getStatusBadge(fixture.fixture.status.short)}
+                            {getStatusBadge(fixture.fixture.status.short, fixture.fixture.date)}
                           </div>
                         </div>
                       )}
