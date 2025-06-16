@@ -289,14 +289,16 @@ main {
   --radius: 0.5rem;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Saira+Stencil+One&display=swap');
+
 @layer base {
   * {
     @apply border-border;
-    font-family: 'Sifonn', 'Century Gothic', 'Avenir Next', 'Avenir', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Saira Stencil One', 'Impact', 'Arial Black', ui-sans-serif, system-ui, sans-serif;
   }
 
   body {
     @apply antialiased bg-background text-foreground;
-    font-family: 'Sifonn', 'Century Gothic', 'Avenir Next', 'Avenir', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Saira Stencil One', 'Impact', 'Arial Black', ui-sans-serif, system-ui, sans-serif;
   }
 }
