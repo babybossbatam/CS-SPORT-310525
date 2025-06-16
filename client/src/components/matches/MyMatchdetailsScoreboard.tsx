@@ -182,7 +182,7 @@ const MyMatchdetailsScoreboard = ({
                 alt={displayMatch.teams.home.name}
                 className="w-16 h-16 object-contain"
                 style={{
-                  filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
+                  filter: "drop-shadow(4 4px 8px rgba(0, 0, 0, 0.15))",
                 }}
                 onError={(e) => {
                   e.currentTarget.src = "/assets/fallback-logo.png";
