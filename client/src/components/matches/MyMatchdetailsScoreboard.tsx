@@ -126,7 +126,7 @@ const MyMatchdetailsScoreboard = ({
             x
           </button>
         )}
-        <CardTitle className="text-md font-normal text-gray-900 ">
+        <CardTitle className="text-md font-normal text-gray-900 text-center">
           {displayMatch.teams.home.name} vs {displayMatch.teams.away.name}
         </CardTitle>
         <div className="text-xs text-gray-400 font-normal">
