@@ -175,16 +175,22 @@ const MyMatchdetailsScoreboard = ({
                 size="56px"
               />
             ) : (
-              <img
-                src={
-                  displayMatch.teams.home.logo || "/assets/fallback-logo.png"
-                }
-                alt={displayMatch.teams.home.name}
-                className="w-16 h-16 object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = "/assets/fallback-logo.png";
-                }}
-              />
+              <div className="relative">
+                <img
+                  src={
+                    displayMatch.teams.home.logo || "/assets/fallback-logo.png"
+                  }
+                  alt={displayMatch.teams.home.name}
+                  className="w-16 h-16 object-contain drop-shadow-lg filter brightness-75 hover:brightness-100 transition-all duration-300"
+                  style={{
+                    filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) brightness(0.85)",
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.src = "/assets/fallback-logo.png";
+                  }}
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20 rounded-full pointer-events-none"></div>
+              </div>
             )}
             <span className="text-md font-medium text-center">
               {displayMatch.teams.home.name}
@@ -274,16 +280,22 @@ const MyMatchdetailsScoreboard = ({
                 size="56px"
               />
             ) : (
-              <img
-                src={
-                  displayMatch.teams.away.logo || "/assets/fallback-logo.png"
-                }
-                alt={displayMatch.teams.away.name}
-                className="w-16 h-16 object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = "/assets/fallback-logo.png";
-                }}
-              />
+              <div className="relative">
+                <img
+                  src={
+                    displayMatch.teams.away.logo || "/assets/fallback-logo.png"
+                  }
+                  alt={displayMatch.teams.away.name}
+                  className="w-16 h-16 object-contain drop-shadow-lg filter brightness-75 hover:brightness-100 transition-all duration-300"
+                  style={{
+                    filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) brightness(0.85)",
+                  }}
+                  onError={(e) => {
+                    e.currentTarget.src = "/assets/fallback-logo.png";
+                  }}
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-20 rounded-full pointer-events-none"></div>
+              </div>
             )}
             <span className="text-md font-medium text-center">
               {displayMatch.teams.away.name}
