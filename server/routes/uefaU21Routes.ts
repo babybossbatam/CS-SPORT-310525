@@ -61,7 +61,6 @@ router.get('/recent', async (req, res) => {
   } catch (error) {
     console.error('❌ [UEFA U21 Routes] Error fetching recent matches:', error);
     res.status(500).json({ error: 'Failed to fetch recent UEFA U21 matches' });
-  }A U21 matches' });
   }
 });
 
@@ -92,22 +91,6 @@ router.get('/realtime', async (req, res) => {
   } catch (error) {
     console.error('❌ [UEFA U21 Routes] Error fetching real-time matches:', error);
     res.status(500).json({ error: 'Failed to fetch real-time UEFA U21 matches' });
-  }ch real-time UEFA U21 matches' });
-  }
-});
-
-// Keep sample endpoint for fallback
-router.get('/sample', async (req, res) => {
-  try {
-    console.log(`🎯 [UEFA U21 Routes] Fetching sample U21 matches (fallback)`);
-    
-    const fixtures = await uefaU21ApiService.getSampleU21Matches();
-    console.log(`🎯 [UEFA U21 Routes] Returning ${fixtures.length} sample fixtures`);
-    
-    res.json(fixtures);
-  } catch (error) {
-    console.error('❌ [UEFA U21 Routes] Error fetching sample matches:', error);
-    res.status(500).json({ error: 'Failed to fetch sample UEFA U21 matches' });
   }
 });
 
