@@ -158,11 +158,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
     World: [914, 848, 15], // COSAFA Cup, UEFA Conference League, FIFA Club World Cup
   };
 
-  // Flatten popular leagues for backward compatibility and add COSAFA Cup
+  // Flatten popular leagues for backward compatibility and add COSAFA Cup and CONCACAF Gold Cup
   const POPULAR_LEAGUES = [
     ...Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat(),
-    914,
-  ]; // 914 is COSAFA Cup
+    914, // COSAFA Cup
+    16,  // CONCACAF Gold Cup
+  ];
 
   // Popular teams for match prioritization
   const POPULAR_TEAMS = [
