@@ -292,11 +292,11 @@ main {
 @layer base {
   * {
     @apply border-border;
-    font-family: 'Intro', 'Intro Pro', 'Inter', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Mont', 'Inter', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
   }
 
   body {
     @apply antialiased bg-background text-foreground;
-    font-family: 'Intro', 'Intro Pro', 'Inter', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Mont', 'Inter', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
   }
 }
