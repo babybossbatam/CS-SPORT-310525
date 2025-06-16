@@ -219,19 +219,21 @@ const MyMatchdetailsScoreboard = ({
 
         {/* Navigation Tabs */}
         <div className="flex space-x-1 py-2 pb-0 border-t px-0">
-          <button className="flex-0 py-0 px-4 text-sm font-medium text-gray-600 border-b border-blue-500 pb-0 ">
+          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-600 border-b border-blue-500 pb-0 ">
             Match
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 pb-0">
-            {displayMatch.fixture.status.short === "NS" ? "Probable Lineups" : "Lineups"}
+          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
+            {displayMatch.fixture.status.short === "NS"
+              ? "Probable Lineups"
+              : "Lineups"}
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 pb-0">
+          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
             Stats
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 relative pb-0">
+          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 relative pb-0">
             Trends
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 pb-0">
+          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
             Head to Head
           </button>
         </div>
