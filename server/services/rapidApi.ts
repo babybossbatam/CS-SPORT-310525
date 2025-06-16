@@ -29,8 +29,8 @@ const apiClient = axios.create({
   },
 });
 
-// Improved cache control with longer durations
-const LIVE_DATA_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for live data
+// Improved cache control with shorter duration for live data
+const LIVE_DATA_CACHE_DURATION = 30 * 1000; // 30 seconds for live data (more frequent updates)
 const TODAY_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes for today's matches
 const FUTURE_CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours for future dates
 const PAST_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for past dates
@@ -494,8 +494,8 @@ export const rapidApiService = {
     const cached = fixturesCache.get(cacheKey);
 
     const now = Date.now();
-    // Short cache time for live fixtures (30 seconds)
-    if (cached && now - cached.timestamp < 30 * 1000) {
+    // Very short cache time for live fixtures (15 seconds) to catch status changes quickly
+    if (cached && now - cached.timestamp < 15 * 1000) {
       return cached.data;
     }
 
