@@ -143,6 +143,27 @@ export const TodayMatchPageCard = ({
     `📊 [TodayMatchPageCard] Got ${filteredFixtures.length} fixtures for ${selectedDate}`,
   );
 
+  // Debug: Show details of the fixtures
+  if (filteredFixtures.length > 0) {
+    console.log(`🔍 [TodayMatchPageCard] Fixture details for ${selectedDate}:`, 
+      filteredFixtures.slice(0, 10).map(fixture => ({
+        id: fixture.fixture?.id,
+        date: fixture.fixture?.date,
+        status: fixture.fixture?.status?.short,
+        league: fixture.league?.name,
+        country: fixture.league?.country,
+        homeTeam: fixture.teams?.home?.name,
+        awayTeam: fixture.teams?.away?.name,
+        homeGoals: fixture.goals?.home,
+        awayGoals: fixture.goals?.away
+      }))
+    );
+    
+    if (filteredFixtures.length > 10) {
+      console.log(`📋 [TodayMatchPageCard] ... and ${filteredFixtures.length - 10} more fixtures`);
+    }
+  }
+
   // Extract the same fixtures that TodayPopularFootballLeaguesNew would show
   // We need to flatten the fixtures from the country/league structure to individual matches
   const [popularLeagueFixtures, setPopularLeagueFixtures] = useState<any[]>([]);
