@@ -111,7 +111,7 @@ const MyMatchdetailsScoreboard = ({
   };
   return (
     <Card
-      className={`w-full ${className} p-0 bg-gradient-to-br from-pink-70 via-orange-80 to-pink-110`}
+      className={`w-full ${className} p-0  pb-0 bg-gradient-to-br from-pink-70 via-orange-80 to-pink-110`}
     >
       <CardHeader className="text-center relative ">
         {onClose && (
@@ -131,11 +131,11 @@ const MyMatchdetailsScoreboard = ({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-2">
         {/* Teams Section */}
         <div className="flex items-center justify-between">
           {/* Home Team */}
-          <div className="flex flex-col items-center space-y-2 flex-1">
+          <div className="flex flex-col items-center space-y-4 flex-1">
             {isNationalTeam(displayMatch.teams.home, displayMatch.league) ? (
               <MyCircularFlag
                 teamName={displayMatch.teams.home.name}
@@ -187,7 +187,7 @@ const MyMatchdetailsScoreboard = ({
           </div>
 
           {/* Away Team */}
-          <div className="flex flex-col items-center space-y-2 flex-1">
+          <div className="flex flex-col items-center space-y-4 flex-1">
             {isNationalTeam(displayMatch.teams.away, displayMatch.league) ? (
               <MyCircularFlag
                 teamName={displayMatch.teams.away.name}
@@ -214,17 +214,17 @@ const MyMatchdetailsScoreboard = ({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex space-x-1 pt-4 border-t">
-          <button className="flex-1 py-2 px-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 bg-blue-50">
+        <div className="flex space-x-1 pt-1 pb-0 border-t px-0">
+          <button className="flex-1 py-1 px-1 text-sm font-medium text-gray-600 border-b border-blue-500 pb-0 ">
             Match
           </button>
-          <button className="flex-1 py-2 px-3 text-sm font-medium text-gray-500 hover:text-gray-700">
+          <button className="flex-1 py-1 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 pb-0">
             Stats
           </button>
-          <button className="flex-1 py-2 px-3 text-sm font-medium text-gray-500 hover:text-gray-700 relative">
+          <button className="flex-1 py-1 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 relative pb-0">
             🔥 Trends
           </button>
-          <button className="flex-1 py-2 px-3 text-sm font-medium text-gray-500 hover:text-gray-700">
+          <button className="flex-1 py-1 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 pb-0">
             Head to Head
           </button>
         </div>
