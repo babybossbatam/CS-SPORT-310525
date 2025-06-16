@@ -82,7 +82,7 @@ const MyMatchdetailsScoreboard = ({
     };
 
     const statusConfig = {
-      NS: { label: "Upcoming", variant: "secondary" as const },
+      NS: { label: "Upcoming", variant: "default" as const },
       LIVE: { label: "Live", variant: "destructive" as const },
       FT: { label: getFinishedLabel(), variant: "default" as const },
       AET: { label: getFinishedLabel(), variant: "default" as const },
