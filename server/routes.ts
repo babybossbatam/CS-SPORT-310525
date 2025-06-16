@@ -1693,6 +1693,145 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     }
   });
 
+  // Debug endpoint to compare fixture data between RapidAPI and SportsRadar
+  apiRouter.get('/debug/fixture/:fixtureId/compare', async (req: Request, res: Response) => {
+    try {
+      const { fixtureId } = req.params;
+      
+      console.log(`🔍 [DEBUG] Comparing fixture ${fixtureId} between APIs`);
+
+      // Fetch from RapidAPI (our current source)
+      let rapidApiData = null;
+      try {
+        const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?id=${fixtureId}`, {
+          headers: {
+            'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
+            'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
+          }
+        });
+
+        const apiResponse = await response.json();
+        if (apiResponse.response && apiResponse.response.length > 0) {
+          rapidApiData = apiResponse.response[0];
+        }
+      } catch (error) {
+        console.error(`Error fetching from RapidAPI for fixture ${fixtureId}:`, error);
+      }
+
+      // Fetch from SportsRadar API
+      let sportsRadarData = null;
+      try {
+        const sportsRadarKey = process.env.SPORTSRADAR_API_KEY || 'GyxLqseloLhoo4ietUKotcYT89QjqHuYS6xDNAyY';
+        
+        // Try to find the fixture in SportsRadar by searching live matches first
+        const liveResponse = await fetch(`https://api.sportradar.com/soccer/trial/v4/en/matches/live.json?api_key=${sportsRadarKey}`);
+        
+        if (liveResponse.ok) {
+          const liveData = await liveResponse.json();
+          
+          // Look for the match by team names (Palmeiras vs FC Porto)
+          const sportsRadarMatch = liveData.matches?.find((match: any) => {
+            const homeTeam = match.home_team?.name || '';
+            const awayTeam = match.away_team?.name || '';
+            return (homeTeam.includes('Palmeiras') && awayTeam.includes('Porto')) ||
+                   (homeTeam.includes('Porto') && awayTeam.includes('Palmeiras'));
+          });
+
+          if (sportsRadarMatch) {
+            sportsRadarData = sportsRadarMatch;
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching from SportsRadar:`, error);
+      }
+
+      // Compare the data
+      const comparison = {
+        fixtureId,
+        serverTime: new Date().toISOString(),
+        rapidApi: {
+          available: !!rapidApiData,
+          data: rapidApiData ? {
+            status: rapidApiData.fixture?.status?.short,
+            statusLong: rapidApiData.fixture?.status?.long,
+            homeTeam: rapidApiData.teams?.home?.name,
+            awayTeam: rapidApiData.teams?.away?.name,
+            homeGoals: rapidApiData.goals?.home,
+            awayGoals: rapidApiData.goals?.away,
+            date: rapidApiData.fixture?.date,
+            elapsed: rapidApiData.fixture?.status?.elapsed,
+            league: rapidApiData.league?.name
+          } : null
+        },
+        sportsRadar: {
+          available: !!sportsRadarData,
+          data: sportsRadarData ? {
+            status: sportsRadarData.status,
+            homeTeam: sportsRadarData.home_team?.name,
+            awayTeam: sportsRadarData.away_team?.name,
+            homeGoals: sportsRadarData.home_score,
+            awayGoals: sportsRadarData.away_score,
+            date: sportsRadarData.scheduled,
+            elapsed: sportsRadarData.clock?.minute,
+            league: sportsRadarData.tournament?.name
+          } : null
+        },
+        differences: [],
+        recommendation: ''
+      };
+
+      // Compare key fields if both APIs have data
+      if (rapidApiData && sportsRadarData) {
+        const rapidStatus = rapidApiData.fixture?.status?.short;
+        const rapidHomeGoals = rapidApiData.goals?.home;
+        const rapidAwayGoals = rapidApiData.goals?.away;
+        const rapidElapsed = rapidApiData.fixture?.status?.elapsed;
+
+        const sportsRadarHomeGoals = sportsRadarData.home_score;
+        const sportsRadarAwayGoals = sportsRadarData.away_score;
+        const sportsRadarElapsed = sportsRadarData.clock?.minute;
+
+        if (rapidHomeGoals !== sportsRadarHomeGoals) {
+          comparison.differences.push({
+            field: 'home_goals',
+            rapidApi: rapidHomeGoals,
+            sportsRadar: sportsRadarHomeGoals
+          });
+        }
+
+        if (rapidAwayGoals !== sportsRadarAwayGoals) {
+          comparison.differences.push({
+            field: 'away_goals',
+            rapidApi: rapidAwayGoals,
+            sportsRadar: sportsRadarAwayGoals
+          });
+        }
+
+        if (rapidElapsed !== sportsRadarElapsed) {
+          comparison.differences.push({
+            field: 'elapsed_time',
+            rapidApi: rapidElapsed,
+            sportsRadar: sportsRadarElapsed
+          });
+        }
+
+        comparison.recommendation = comparison.differences.length > 0 
+          ? 'Data differs between APIs - consider cross-referencing'
+          : 'Data is consistent between both APIs';
+      } else if (!sportsRadarData) {
+        comparison.recommendation = 'SportsRadar data not available for comparison';
+      } else if (!rapidApiData) {
+        comparison.recommendation = 'RapidAPI data not available';
+      }
+
+      res.json(comparison);
+
+    } catch (error) {
+      console.error('Debug fixture comparison error:', error);
+      res.status(500).json({ error: 'Comparison test failed' });
+    }
+  });
+
   // Debug endpoint to check specific fixture freshness
   apiRouter.get('/debug/fixture/:fixtureId', async (req: Request, res: Response) => {
     try {
