@@ -943,21 +943,17 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                 match.teams.away,
                                 leagueData.league,
                               ) ? (
-                                <div className="flag-circle">
-                                  <LazyImage
-                                    src={
-                                      match.teams.away.id
-                                        ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                        : "/assets/fallback-logo.svg"
-                                    }
-                                    alt={match.teams.away.name}
-                                    title={match.teams.away.name}
-                                    className="team-logo"
-                                    style={{ backgroundColor: "transparent" }}
-                                    fallbackSrc="/assets/fallback-logo.svg"
-                                  />
-                                  <div className="gloss"></div>
-                                </div>
+                                <MyCircularFlag
+                                  teamName={match.teams.away.name || ""}
+                                  fallbackUrl={
+                                    match.teams.away.id
+                                      ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                      : "/assets/fallback-logo.svg"
+                                  }
+                                  alt={match.teams.away.name}
+                                  size="34px"
+                                  className="popular-leagues-size"
+                                />
                               ) : (
                                 <LazyImage
                                   src={
@@ -968,7 +964,10 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                   alt={match.teams.away.name}
                                   title={match.teams.away.name}
                                   className="team-logo"
-                                  style={{ backgroundColor: "transparent" }}
+                                  style={{
+                                    filter:
+                                      "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
+                                  }}
                                   fallbackSrc="/assets/fallback-logo.svg"
                                 />
                               )}

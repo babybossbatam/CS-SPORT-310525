@@ -311,20 +311,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
             // Only include matches that are specifically labeled as "today"
             // Exclude anything from yesterday or other dates
             if (smartResult.label === "today") return true;
-            
+
             // Additional check: exclude matches from previous dates regardless of status
             const fixtureDate = new Date(fixture.fixture.date);
             const selectedDateObj = new Date(selectedDate);
             const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-            
+
             if (fixtureDateString < selectedDate) {
               console.log(`❌ [DATE FILTER] Excluding yesterday match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${fixtureDateString} < ${selectedDate})`);
               return false;
             }
-            
+
             return false;
           }
-          
+
           if (
             selectedDate === tomorrowString &&
             smartResult.label === "tomorrow"
@@ -367,7 +367,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         // Additional safety check: ensure match date matches selected date for strict filtering
         const fixtureDate = parseISO(fixture.fixture.date);
         const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-        
+
         // For today's view, be extra strict about date matching
         if (selectedDate === todayString && fixtureDateString !== selectedDate) {
           console.log(
@@ -1722,7 +1722,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       const currentDate = new Date();
                                       const hoursSinceStart = Math.floor((currentDate.getTime() - matchStartDate.getTime()) / (1000 * 60 * 60));
                                       const daysSinceStart = Math.floor(hoursSinceStart / 24);
-                                      
+
                                       const isLikelyStale = (
                                         // Match is from a previous day and still showing as live
                                         daysSinceStart >= 1 ||
@@ -1776,7 +1776,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       } else {
                                         // For LIVE, LIV, 1H, 2H - use real-time calculation when possible
                                         let currentElapsed = elapsed;
-                                        
+
                                         // If we have a valid kickoff time and elapsed time, calculate real-time elapsed
                                         if (elapsed !== null && elapsed !== undefined && minutesSinceKickoff > 0) {
                                           // Estimate current time based on when match started
@@ -1832,8 +1832,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     ].includes(status)
                                   ) {
                                     return (
-                                      <div className="match-status-label status-ended">
-                                        {status === "FT"
+                                      <div className="match-status-label status-ended">                                        {status === "FT"
                                           ? "Ended"
                                           : status === "AET"
                                             ? "Ended (AET)"
