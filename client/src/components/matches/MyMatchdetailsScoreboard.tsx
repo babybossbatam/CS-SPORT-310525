@@ -86,13 +86,16 @@ const MyMatchdetailsScoreboard = ({
     const isLiveMatch = ["LIVE", "1H", "2H"].includes(status);
     if (isLiveMatch) {
       const elapsed = displayMatch.fixture.status.elapsed || 0;
-      const timeLabel = status === "1H" ? `${elapsed}'` : 
-                       status === "2H" ? `${elapsed}'` : 
-                       "LIVE";
-      
+      const timeLabel =
+        status === "1H"
+          ? `${elapsed}'`
+          : status === "2H"
+            ? `${elapsed}'`
+            : "LIVE";
+
       return (
-        <Badge 
-          variant="destructive" 
+        <Badge
+          variant="destructive"
           className="bg-red-500 text-white font-normal text-[11px] animate-pulse"
         >
           {timeLabel}
@@ -147,16 +150,15 @@ const MyMatchdetailsScoreboard = ({
           {displayMatch.league.country}, {displayMatch.league.name}
         </div>
       </CardTitle>
-      <CardHeader className="text-center">
-      </CardHeader>
+      <CardHeader className="text-center"></CardHeader>
 
       <CardContent className="p-0 m-0">
         {/* Teams Section */}
         <div className="flex items-center justify-between">
           {/* Home Team */}
           <div className="flex flex-col items-center space-y-4 flex-1">
-            {displayMatch.league.country === "World" || 
-             displayMatch.league.country === "International" ? (
+            {displayMatch.league.country === "World" ||
+            displayMatch.league.country === "International" ? (
               <MyWorldTeamLogo
                 teamName={displayMatch.teams.home.name}
                 teamLogo={displayMatch.teams.home.logo}
@@ -182,7 +184,7 @@ const MyMatchdetailsScoreboard = ({
                 alt={displayMatch.teams.home.name}
                 className="w-16 h-16 object-contain"
                 style={{
-                  filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4))",
+                  filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
                 }}
                 onError={(e) => {
                   e.currentTarget.src = "/assets/fallback-logo.png";
@@ -205,18 +207,33 @@ const MyMatchdetailsScoreboard = ({
                       const today = new Date();
                       const tomorrow = new Date(today);
                       tomorrow.setDate(today.getDate() + 1);
-                      
-                      const matchDay = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
-                      const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-                      const tomorrowDay = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
-                      
+
+                      const matchDay = new Date(
+                        matchDate.getFullYear(),
+                        matchDate.getMonth(),
+                        matchDate.getDate(),
+                      );
+                      const todayDay = new Date(
+                        today.getFullYear(),
+                        today.getMonth(),
+                        today.getDate(),
+                      );
+                      const tomorrowDay = new Date(
+                        tomorrow.getFullYear(),
+                        tomorrow.getMonth(),
+                        tomorrow.getDate(),
+                      );
+
                       if (matchDay.getTime() === todayDay.getTime()) {
                         return "Today";
                       } else if (matchDay.getTime() === tomorrowDay.getTime()) {
                         return "Tomorrow";
                       } else {
-                        const diffTime = matchDay.getTime() - todayDay.getTime();
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        const diffTime =
+                          matchDay.getTime() - todayDay.getTime();
+                        const diffDays = Math.ceil(
+                          diffTime / (1000 * 60 * 60 * 24),
+                        );
                         if (diffDays > 1 && diffDays <= 7) {
                           return `${diffDays} days`;
                         } else {
@@ -257,8 +274,8 @@ const MyMatchdetailsScoreboard = ({
 
           {/* Away Team */}
           <div className="flex flex-col items-center space-y-4 flex-1">
-            {displayMatch.league.country === "World" || 
-             displayMatch.league.country === "International" ? (
+            {displayMatch.league.country === "World" ||
+            displayMatch.league.country === "International" ? (
               <MyWorldTeamLogo
                 teamName={displayMatch.teams.away.name}
                 teamLogo={displayMatch.teams.away.logo}
@@ -284,7 +301,7 @@ const MyMatchdetailsScoreboard = ({
                 alt={displayMatch.teams.away.name}
                 className="w-16 h-16 object-contain"
                 style={{
-                  filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4))",
+                  filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
                 }}
                 onError={(e) => {
                   e.currentTarget.src = "/assets/fallback-logo.png";
