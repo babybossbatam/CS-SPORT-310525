@@ -94,12 +94,12 @@ const MyMatchdetailsScoreboard = ({
 
     const config = statusConfig[status as keyof typeof statusConfig] || {
       label: status,
-      variant: "secondary" as const,
+      variant: "default" as const,
     };
 
     // Apply gray-900 color for finished matches
     const isFinished = ["FT", "AET", "PEN"].includes(status);
-    const badgeClassName = isFinished ? "text-white" : "";
+    const badgeClassName = isFinished ? "bg-gray-500 text-white " : "";
 
     return (
       <Badge variant={config.variant} className={badgeClassName}>
