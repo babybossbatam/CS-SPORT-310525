@@ -12,8 +12,8 @@ const ScoreDetailsCard: React.FC<ScoreDetailsCardProps> = ({
   onClose,
 }) => {
   return (
-    <Card className="w-full">
-      <CardContent>
+    <Card className="w-full border-0 shadow-none">
+      <CardContent className="p-0">
         <MyMatchdetailsScoreboard match={currentFixture} onClose={onClose} />
       </CardContent>
     </Card>
