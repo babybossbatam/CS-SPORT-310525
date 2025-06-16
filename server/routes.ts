@@ -1693,6 +1693,91 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     }
   });
 
+  // Debug endpoint to check specific fixture freshness
+  apiRouter.get('/debug/fixture/:fixtureId', async (req: Request, res: Response) => {
+    try {
+      const { fixtureId } = req.params;
+      
+      console.log(`🔍 [DEBUG] Checking fixture ${fixtureId} freshness`);
+
+      // Check cached version
+      const cachedFixture = await storage.getCachedFixture(fixtureId);
+      let cacheInfo = null;
+      
+      if (cachedFixture) {
+        const cacheAge = Date.now() - new Date(cachedFixture.timestamp).getTime();
+        cacheInfo = {
+          exists: true,
+          age: Math.round(cacheAge / 60000), // in minutes
+          lastUpdated: cachedFixture.timestamp,
+          data: cachedFixture.data
+        };
+      }
+
+      // Fetch fresh data from API
+      let freshData = null;
+      try {
+        const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?id=${fixtureId}`, {
+          headers: {
+            'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
+            'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
+          }
+        });
+
+        const apiResponse = await response.json();
+        if (apiResponse.response && apiResponse.response.length > 0) {
+          freshData = apiResponse.response[0];
+        }
+      } catch (error) {
+        console.error(`Error fetching fresh data for fixture ${fixtureId}:`, error);
+      }
+
+      // Compare data
+      const comparison = {
+        fixtureId,
+        serverTime: new Date().toISOString(),
+        cache: cacheInfo,
+        fresh: freshData,
+        isOutdated: false,
+        differences: []
+      };
+
+      if (cacheInfo && freshData) {
+        // Compare key fields
+        const fieldsToCompare = [
+          'fixture.status.short',
+          'fixture.status.long',
+          'goals.home',
+          'goals.away',
+          'score.halftime.home',
+          'score.halftime.away',
+          'score.fulltime.home',
+          'score.fulltime.away'
+        ];
+
+        for (const field of fieldsToCompare) {
+          const cachedValue = field.split('.').reduce((obj, key) => obj?.[key], cacheInfo.data);
+          const freshValue = field.split('.').reduce((obj, key) => obj?.[key], freshData);
+          
+          if (cachedValue !== freshValue) {
+            comparison.differences.push({
+              field,
+              cached: cachedValue,
+              fresh: freshValue
+            });
+            comparison.isOutdated = true;
+          }
+        }
+      }
+
+      res.json(comparison);
+
+    } catch (error) {
+      console.error('Debug fixture endpoint error:', error);
+      res.status(500).json({ error: 'Debug test failed' });
+    }
+  });
+
   // Debug endpoint to test RapidAPI date requests directly
   apiRouter.get('/debug/rapidapi-date/:date', async (req: Request, res: Response) => {
     try {
