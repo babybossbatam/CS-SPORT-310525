@@ -47,7 +47,7 @@ import LazyMatchItem from './LazyMatchItem';
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
-import { MyWorldTeamLogo } from "../common/MyWorldTeamLogo";
+import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
