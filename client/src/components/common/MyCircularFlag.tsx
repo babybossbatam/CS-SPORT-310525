@@ -79,9 +79,11 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Ecuador: "ec",
       Venezuela: "ve",
       // Others
+      Algeria: "dz",
       Angola: "ao",
       Afghanistan: "af",
       Dominican: "do",
+      Guadeloupe: "gp",
       Kyrgyzstan: "kg",
       Turkmenistan: "tm",
       Uzbekistan: "uz",
