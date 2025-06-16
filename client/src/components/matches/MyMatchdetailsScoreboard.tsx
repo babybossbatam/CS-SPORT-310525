@@ -167,12 +167,10 @@ const MyMatchdetailsScoreboard = ({
           <div className="flex flex-col items-center space-y-1 px-4">
             {displayMatch.fixture.status.short === "NS" ? (
               <div className="text-center">
-                <div className="text-2xl py-2 font-bold text-gray-600">
+                <div className="text-3xl py-1 font-medium text-gray-700 -mt-10">
                   Tomorrow
                 </div>
-                <div className="text-sm text-gray-700 font-semi-bold">
-                  03:00
-                </div>
+                <div className="text-sm text-gray-700 font-medium">03:00</div>
               </div>
             ) : (
               <div className="text-center">
