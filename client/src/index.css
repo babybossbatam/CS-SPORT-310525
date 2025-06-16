@@ -297,6 +297,6 @@ main {
 
   body {
     @apply antialiased bg-background text-foreground;
-    font-family: 'Futura', 'Century Gothic', 'Avenir Next', 'Avenir', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Sifonn', 'Century Gothic', 'Avenir Next', 'Avenir', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
   }
 }
