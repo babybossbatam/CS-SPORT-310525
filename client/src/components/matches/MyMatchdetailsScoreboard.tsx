@@ -116,6 +116,12 @@ const MyMatchdetailsScoreboard = ({
     <Card
       className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50`}
     >
+      <CardTitle className="text-md font-normal text-gray-900 text-center pt-2">
+        {displayMatch.teams.home.name} vs {displayMatch.teams.away.name}
+        <div className="text-xs text-gray-400 font-normal text-center">
+          {displayMatch.league.country}, {displayMatch.league.name}
+        </div>
+      </CardTitle>
       <CardHeader className="text-center relative ">
         {onClose && (
           <button
@@ -126,12 +132,6 @@ const MyMatchdetailsScoreboard = ({
             x
           </button>
         )}
-        <CardTitle className="text-md font-normal text-gray-900 text-center">
-          {displayMatch.teams.home.name} vs {displayMatch.teams.away.name}
-        </CardTitle>
-        <div className="text-xs text-gray-400 font-normal">
-          {displayMatch.league.country}, {displayMatch.league.name}
-        </div>
       </CardHeader>
 
       <CardContent className="p-0 m-0">
