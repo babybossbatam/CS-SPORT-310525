@@ -114,11 +114,13 @@ const MyMatchdetailsScoreboard = ({
               />
             ) : (
               <img
-                src={displayMatch.teams.home.logo || '/assets/fallback-logo.png'}
+                src={
+                  displayMatch.teams.home.logo || "/assets/fallback-logo.png"
+                }
                 alt={displayMatch.teams.home.name}
                 className="w-16 h-16 object-contain"
                 onError={(e) => {
-                  e.currentTarget.src = '/assets/fallback-logo.png';
+                  e.currentTarget.src = "/assets/fallback-logo.png";
                 }}
               />
             )}
@@ -142,11 +144,11 @@ const MyMatchdetailsScoreboard = ({
                 <div className="text-sm font-medium text-gray-500 mb-1">
                   {getStatusBadge(displayMatch.fixture.status.short)}
                 </div>
-                <div className="text-3xl font-bold">
+                <div className="text-3xl font-semi-bold">
                   {displayMatch.goals.home ?? 0} -{" "}
                   {displayMatch.goals.away ?? 0}
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-sm text-gray-900 font-bold">
                   {format(new Date(displayMatch.fixture.date), "dd/MM")}
                 </div>
               </div>
@@ -164,11 +166,13 @@ const MyMatchdetailsScoreboard = ({
               />
             ) : (
               <img
-                src={displayMatch.teams.away.logo || '/assets/fallback-logo.png'}
+                src={
+                  displayMatch.teams.away.logo || "/assets/fallback-logo.png"
+                }
                 alt={displayMatch.teams.away.name}
                 className="w-16 h-16 object-contain"
                 onError={(e) => {
-                  e.currentTarget.src = '/assets/fallback-logo.png';
+                  e.currentTarget.src = "/assets/fallback-logo.png";
                 }}
               />
             )}
