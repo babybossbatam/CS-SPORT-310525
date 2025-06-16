@@ -1874,8 +1874,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         "LIV",
                                         "1H",
                                         "HT",
-                                        "```text
-2H",
+                                        "2H",
                                         "ET",
                                         "BT",
                                         "P",
