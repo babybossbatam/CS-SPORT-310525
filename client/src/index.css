@@ -289,16 +289,14 @@ main {
   --radius: 0.5rem;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Saira+Stencil+One&display=swap');
-
 @layer base {
   * {
     @apply border-border;
-    font-family: 'Saira Stencil One', 'Impact', 'Arial Black', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Intro', 'Intro Pro', 'Inter', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
   }
 
   body {
     @apply antialiased bg-background text-foreground;
-    font-family: 'Saira Stencil One', 'Impact', 'Arial Black', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Intro', 'Intro Pro', 'Inter', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
   }
 }
