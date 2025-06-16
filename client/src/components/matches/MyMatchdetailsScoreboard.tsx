@@ -168,9 +168,45 @@ const MyMatchdetailsScoreboard = ({
             {displayMatch.fixture.status.short === "NS" ? (
               <div className="text-center">
                 <div className="text-3xl py-1 font-medium text-gray-700 -mt-10">
-                  Tomorrow
+                  {(() => {
+                    try {
+                      const matchDate = new Date(displayMatch.fixture.date);
+                      const today = new Date();
+                      const tomorrow = new Date(today);
+                      tomorrow.setDate(today.getDate() + 1);
+                      
+                      const matchDay = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
+                      const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                      const tomorrowDay = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
+                      
+                      if (matchDay.getTime() === todayDay.getTime()) {
+                        return "Today";
+                      } else if (matchDay.getTime() === tomorrowDay.getTime()) {
+                        return "Tomorrow";
+                      } else {
+                        const diffTime = matchDay.getTime() - todayDay.getTime();
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        if (diffDays > 1 && diffDays <= 7) {
+                          return `${diffDays} days`;
+                        } else {
+                          return format(matchDate, "dd MMM");
+                        }
+                      }
+                    } catch (error) {
+                      return "Upcoming";
+                    }
+                  })()}
                 </div>
-                <div className="text-sm text-gray-700 font-medium">03:00</div>
+                <div className="text-sm text-gray-700 font-medium">
+                  {(() => {
+                    try {
+                      const matchDate = new Date(displayMatch.fixture.date);
+                      return format(matchDate, "HH:mm");
+                    } catch (error) {
+                      return "TBD";
+                    }
+                  })()}
+                </div>
               </div>
             ) : (
               <div className="text-center">
