@@ -174,15 +174,15 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     },
     staleTime: 20000, // 20 seconds for faster World competition updates
     gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
-    enabled: enableFetching && !propsFixtures, // Only fetch if no props data
+    enabled: enableFetching && !liveFixtures.length, // Only fetch if no props data
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
-    refetchInterval: refreshInterval, // Auto-refresh every 30 seconds
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
   });
 
   // Use props data if available, otherwise use fetched data
-  const fixtures = propsFixtures || fetchedFixtures;
+  const fixtures = liveFixtures.length > 0 ? liveFixtures : fetchedFixtures;
 
   // Enhanced team logo source with 365scores integration
   const getTeamLogoUrl = (team: any, league?: any) => {
