@@ -1652,6 +1652,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   ) {
                                     let displayText = "";
                                     
+                                    // Debug logging for matches that should have finished
+                                    if (elapsed && elapsed >= 90 && status !== "HT") {
+                                      console.log(`🚨 [MATCH STATUS DEBUG] Match showing ${elapsed}' but still live:`, {
+                                        fixtureId: match.fixture.id,
+                                        status: status,
+                                        elapsed: elapsed,
+                                        homeTeam: match.teams?.home?.name,
+                                        awayTeam: match.teams?.away?.name,
+                                        date: match.fixture.date,
+                                        league: match.league?.name
+                                      });
+                                    }
+                                    
                                     if (status === "HT") {
                                       displayText = "Halftime";
                                     } else if (status === "P") {
