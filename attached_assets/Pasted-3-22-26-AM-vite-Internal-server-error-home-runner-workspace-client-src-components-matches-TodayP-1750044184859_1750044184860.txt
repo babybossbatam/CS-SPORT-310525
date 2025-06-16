@@ -1,0 +1,67 @@
+3:22:26 AM [vite] Internal server error: /home/runner/workspace/client/src/components/matches/TodayPopularFootballLeaguesNew.tsx: Unterminated string constant. (1877:40)
+
+  1875 |                                         "1H",
+  1876 |                                         "HT",
+> 1877 |                                         "```text
+       |                                         ^
+  1878 | 2H",
+  1879 |                                         "ET",
+  1880 |                                         "BT",
+  Plugin: vite:react-babel
+  File: /home/runner/workspace/client/src/components/matches/TodayPopularFootballLeaguesNew.tsx:1877:40
+  1875|                                          "1H",
+  1876|                                          "HT",
+  1877|                                          "```text
+     |                                          ^
+  1878|  2H",
+  1879|                                          "ET",
+      at toParseError (/home/runner/workspace/node_modules/@babel/parser/src/parse-error.ts:95:45)
+      at raise (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:1497:19)
+      at unterminated (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:1607:18)
+      at readStringContents (/home/runner/workspace/node_modules/@babel/babel-helper-string-parser/src/index.ts:115:16)
+      at readString (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:1330:46)
+      at getTokenFromCode (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:985:14)
+      at getTokenFromCode (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:631:13)
+      at getTokenFromCode (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3975:13)
+      at nextToken (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:274:10)
+      at next (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:121:10)
+      at eat (/home/runner/workspace/node_modules/@babel/parser/src/tokenizer/index.ts:126:12)
+      at expect (/home/runner/workspace/node_modules/@babel/parser/src/parser/util.ts:156:15)
+      at parseExprList (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2663:14)
+      at parseArrayLike (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2455:26)
+      at parseArrayLike (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:2578:26)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:1143:21)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:583:22)
+      at parseExprSubscripts (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:714:23)
+      at parseUpdate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:693:21)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:655:23)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3735:20)
+      at parseMaybeUnaryOrPrivate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:389:14)
+      at parseExprOps (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:401:23)
+      at parseMaybeConditional (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:356:23)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:298:21)
+      at parseMaybeAssign (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3607:22)
+      at parseExpressionBase (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:221:23)
+      at callback (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:212:39)
+      at allowInAnd (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:3112:16)
+      at parseExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:212:17)
+      at parseHeaderExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:893:22)
+      at parseIfStatement (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1064:22)
+      at parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:496:21)
+      at parseStatementContent (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3056:20)
+      at parseStatementLike (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:437:17)
+      at parseStatementListItem (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:386:17)
+      at parseBlockOrModuleBlockBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1420:16)
+      at parseBlockBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1393:10)
+      at parseBlock (/home/runner/workspace/node_modules/@babel/parser/src/parser/statement.ts:1361:10)
+      at parseFunctionBody (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2557:24)
+      at parseArrowExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:2498:10)
+      at parseParenAndDistinguishExpression (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:1794:12)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:1131:21)
+      at parseExprAtom (/home/runner/workspace/node_modules/@babel/parser/src/plugins/jsx/index.ts:583:22)
+      at parseExprSubscripts (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:714:23)
+      at parseUpdate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:693:21)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:655:23)
+      at parseMaybeUnary (/home/runner/workspace/node_modules/@babel/parser/src/plugins/typescript/index.ts:3735:20)
+      at parseMaybeUnaryOrPrivate (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:389:14)
+      at parseExprOps (/home/runner/workspace/node_modules/@babel/parser/src/parser/expression.ts:401:23)
