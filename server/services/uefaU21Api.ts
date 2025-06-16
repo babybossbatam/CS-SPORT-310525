@@ -62,229 +62,96 @@ class UefaU21ApiService {
 
       if (!process.env.RAPIDAPI_KEY) {
         console.error('❌ [UEFA U21] RAPIDAPI_KEY not found in environment');
-        return [];
+        throw new Error('RAPIDAPI_KEY is required but not found');
       }
 
       const allMatches: U21Match[] = [];
-
-      // Get current season fixtures for UEFA U21 Championship (league ID 38)
       const currentYear = new Date().getFullYear();
-      const season = currentYear;
 
-      console.log(`🏆 [UEFA U21] Fetching season ${season} for league ${this.leagueId}`);
+      // Try multiple seasons and leagues to get real data
+      const seasonsToTry = [currentYear, currentYear - 1, currentYear + 1];
+      const leaguesToTry = [this.leagueId, this.qualificationLeagueId];
 
-      try {
-        const response = await axios.get('https://api-football-v1.p.rapidapi.com/v3/fixtures', {
-          params: {
-            league: this.leagueId,
-            season: season
-          },
-          headers: {
-            'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-            'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-          },
-          timeout: 10000
-        });
+      for (const season of seasonsToTry) {
+        for (const leagueId of leaguesToTry) {
+          try {
+            console.log(`🏆 [UEFA U21] Fetching season ${season} for league ${leagueId}`);
 
-        if (response.data?.response && Array.isArray(response.data.response)) {
-          const fixtures = response.data.response.map((fixture: any) => ({
-            fixture: {
-              id: fixture.fixture.id,
-              date: fixture.fixture.date,
-              status: {
-                long: fixture.fixture.status.long,
-                short: fixture.fixture.status.short
+            const response = await axios.get('https://api-football-v1.p.rapidapi.com/v3/fixtures', {
+              params: {
+                league: leagueId,
+                season: season
               },
-              venue: fixture.fixture.venue ? {
-                name: fixture.fixture.venue.name,
-                city: fixture.fixture.venue.city
-              } : undefined
-            },
-            league: {
-              id: fixture.league.id,
-              name: fixture.league.name,
-              logo: fixture.league.logo,
-              country: fixture.league.country || 'Europe'
-            },
-            teams: {
-              home: {
-                id: fixture.teams.home.id,
-                name: fixture.teams.home.name,
-                logo: fixture.teams.home.logo
+              headers: {
+                'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+                'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
               },
-              away: {
-                id: fixture.teams.away.id,
-                name: fixture.teams.away.name,
-                logo: fixture.teams.away.logo
-              }
-            },
-            goals: {
-              home: fixture.goals.home,
-              away: fixture.goals.away
-            },
-            score: {
-              halftime: {
-                home: fixture.score.halftime.home,
-                away: fixture.score.halftime.away
-              },
-              fulltime: {
-                home: fixture.score.fulltime.home,
-                away: fixture.score.fulltime.away
-              }
+              timeout: 10000
+            });
+
+            console.log(`🏆 [UEFA U21] API Response for league ${leagueId} season ${season}:`, {
+              status: response.status,
+              dataExists: !!response.data,
+              responseExists: !!response.data?.response,
+              responseLength: response.data?.response?.length || 0
+            });
+
+            if (response.data?.response && Array.isArray(response.data.response) && response.data.response.length > 0) {
+              const fixtures = response.data.response.map((fixture: any) => ({
+                fixture: {
+                  id: fixture.fixture.id,
+                  date: fixture.fixture.date,
+                  status: {
+                    long: fixture.fixture.status.long,
+                    short: fixture.fixture.status.short
+                  },
+                  venue: fixture.fixture.venue ? {
+                    name: fixture.fixture.venue.name,
+                    city: fixture.fixture.venue.city
+                  } : undefined
+                },
+                league: {
+                  id: fixture.league.id,
+                  name: fixture.league.name,
+                  logo: fixture.league.logo,
+                  country: fixture.league.country || 'Europe'
+                },
+                teams: {
+                  home: {
+                    id: fixture.teams.home.id,
+                    name: fixture.teams.home.name,
+                    logo: fixture.teams.home.logo
+                  },
+                  away: {
+                    id: fixture.teams.away.id,
+                    name: fixture.teams.away.name,
+                    logo: fixture.teams.away.logo
+                  }
+                },
+                goals: {
+                  home: fixture.goals.home,
+                  away: fixture.goals.away
+                },
+                score: {
+                  halftime: {
+                    home: fixture.score.halftime.home,
+                    away: fixture.score.halftime.away
+                  },
+                  fulltime: {
+                    home: fixture.score.fulltime.home,
+                    away: fixture.score.fulltime.away
+                  }
+                }
+              }));
+
+              allMatches.push(...fixtures);
+              console.log(`🏆 [UEFA U21] Found ${fixtures.length} REAL matches from league ${leagueId} season ${season}`);
+            } else {
+              console.log(`⚠️ [UEFA U21] No fixtures found for league ${leagueId} season ${season}`);
             }
-          }));
-
-          allMatches.push(...fixtures);
-          console.log(`🏆 [UEFA U21] Found ${fixtures.length} real matches from league ${this.leagueId}`);
-        } else {
-          console.log(`⚠️ [UEFA U21] No fixtures found for league ${this.leagueId} season ${season}`);
-        }
-      } catch (apiError: any) {
-        console.error(`❌ [UEFA U21] Error fetching from league ${this.leagueId}:`, apiError.message);
-        
-        // Try previous year if current year has no data
-        const previousSeason = currentYear - 1;
-        console.log(`🏆 [UEFA U21] Trying previous season ${previousSeason}...`);
-        
-        try {
-          const prevResponse = await axios.get('https://api-football-v1.p.rapidapi.com/v3/fixtures', {
-            params: {
-              league: this.leagueId,
-              season: previousSeason
-            },
-            headers: {
-              'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-              'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-            },
-            timeout: 10000
-          });
-
-          if (prevResponse.data?.response && Array.isArray(prevResponse.data.response)) {
-            const fixtures = prevResponse.data.response.map((fixture: any) => ({
-              fixture: {
-                id: fixture.fixture.id,
-                date: fixture.fixture.date,
-                status: {
-                  long: fixture.fixture.status.long,
-                  short: fixture.fixture.status.short
-                },
-                venue: fixture.fixture.venue ? {
-                  name: fixture.fixture.venue.name,
-                  city: fixture.fixture.venue.city
-                } : undefined
-              },
-              league: {
-                id: fixture.league.id,
-                name: fixture.league.name,
-                logo: fixture.league.logo,
-                country: fixture.league.country || 'Europe'
-              },
-              teams: {
-                home: {
-                  id: fixture.teams.home.id,
-                  name: fixture.teams.home.name,
-                  logo: fixture.teams.home.logo
-                },
-                away: {
-                  id: fixture.teams.away.id,
-                  name: fixture.teams.away.name,
-                  logo: fixture.teams.away.logo
-                }
-              },
-              goals: {
-                home: fixture.goals.home,
-                away: fixture.goals.away
-              },
-              score: {
-                halftime: {
-                  home: fixture.score.halftime.home,
-                  away: fixture.score.halftime.away
-                },
-                fulltime: {
-                  home: fixture.score.fulltime.home,
-                  away: fixture.score.fulltime.away
-                }
-              }
-            }));
-
-            allMatches.push(...fixtures);
-            console.log(`🏆 [UEFA U21] Found ${fixtures.length} matches from previous season ${previousSeason}`);
+          } catch (apiError: any) {
+            console.error(`❌ [UEFA U21] Error fetching from league ${leagueId} season ${season}:`, apiError.message);
           }
-        } catch (prevError) {
-          console.error(`❌ [UEFA U21] Error fetching previous season:`, prevError);
-        }
-      }
-
-      // Also try qualification league if we have few matches
-      if (allMatches.length < 10) {
-        try {
-          console.log(`🏆 [UEFA U21] Trying qualification league ${this.qualificationLeagueId}...`);
-          
-          const qualResponse = await axios.get('https://api-football-v1.p.rapidapi.com/v3/fixtures', {
-            params: {
-              league: this.qualificationLeagueId,
-              season: season
-            },
-            headers: {
-              'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-              'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-            },
-            timeout: 10000
-          });
-
-          if (qualResponse.data?.response && Array.isArray(qualResponse.data.response)) {
-            const qualFixtures = qualResponse.data.response.map((fixture: any) => ({
-              fixture: {
-                id: fixture.fixture.id,
-                date: fixture.fixture.date,
-                status: {
-                  long: fixture.fixture.status.long,
-                  short: fixture.fixture.status.short
-                },
-                venue: fixture.fixture.venue ? {
-                  name: fixture.fixture.venue.name,
-                  city: fixture.fixture.venue.city
-                } : undefined
-              },
-              league: {
-                id: fixture.league.id,
-                name: fixture.league.name,
-                logo: fixture.league.logo,
-                country: fixture.league.country || 'Europe'
-              },
-              teams: {
-                home: {
-                  id: fixture.teams.home.id,
-                  name: fixture.teams.home.name,
-                  logo: fixture.teams.home.logo
-                },
-                away: {
-                  id: fixture.teams.away.id,
-                  name: fixture.teams.away.name,
-                  logo: fixture.teams.away.logo
-                }
-              },
-              goals: {
-                home: fixture.goals.home,
-                away: fixture.goals.away
-              },
-              score: {
-                halftime: {
-                  home: fixture.score.halftime.home,
-                  away: fixture.score.halftime.away
-                },
-                fulltime: {
-                  home: fixture.score.fulltime.home,
-                  away: fixture.score.fulltime.away
-                }
-              }
-            }));
-
-            allMatches.push(...qualFixtures);
-            console.log(`🏆 [UEFA U21] Found ${qualFixtures.length} real qualification matches`);
-          }
-        } catch (qualError) {
-          console.log('⚠️ [UEFA U21] No qualification matches found');
         }
       }
 
@@ -297,12 +164,17 @@ class UefaU21ApiService {
         new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
       );
 
-      console.log(`🏆 [UEFA U21] Returning ${sortedMatches.length} real UEFA U21 matches`);
+      console.log(`🏆 [UEFA U21] Returning ${sortedMatches.length} REAL UEFA U21 matches`);
+
+      if (sortedMatches.length === 0) {
+        throw new Error('No real UEFA U21 matches found in API');
+      }
+
       return sortedMatches;
 
     } catch (error: any) {
       console.error('❌ [UEFA U21] Error fetching real U21 matches:', error.message);
-      return [];
+      throw error; // Don't return empty array, throw error so frontend shows proper error message
     }
   }
 
@@ -322,7 +194,7 @@ class UefaU21ApiService {
       return upcoming;
     } catch (error) {
       console.error('❌ [UEFA U21] Error fetching upcoming matches:', error);
-      return [];
+      throw error;
     }
   }
 
@@ -342,7 +214,7 @@ class UefaU21ApiService {
       return recent;
     } catch (error) {
       console.error('❌ [UEFA U21] Error fetching recent matches:', error);
-      return [];
+      throw error;
     }
   }
 
@@ -356,7 +228,7 @@ class UefaU21ApiService {
       return matches;
     } catch (error) {
       console.error('❌ [UEFA U21] Error fetching current season:', error);
-      return [];
+      throw error;
     }
   }
 
@@ -374,7 +246,7 @@ class UefaU21ApiService {
       return live;
     } catch (error) {
       console.error('❌ [UEFA U21] Error fetching live matches:', error);
-      return [];
+      throw error;
     }
   }
 
@@ -393,8 +265,98 @@ class UefaU21ApiService {
       return matches;
     } catch (error) {
       console.error('❌ [UEFA U21] Error searching matches:', error);
-      return [];
+      throw error;
     }
+  }
+
+  /**
+   * Create sample data for testing (only used by /sample endpoint)
+   */
+  createSampleU21Matches(): U21Match[] {
+    console.log('🎯 [UEFA U21] Creating sample U21 matches for testing');
+    
+    return [
+      {
+        fixture: {
+          id: 999001,
+          date: "2025-06-16T16:00:00.000Z",
+          status: { long: "Not Started", short: "NS" },
+          venue: { name: "Arena Națională", city: "Bucharest" }
+        },
+        league: {
+          id: 38,
+          name: "UEFA European Under-21 Championship",
+          logo: "https://media.api-sports.io/football/leagues/38.png",
+          country: "Europe"
+        },
+        teams: {
+          home: { id: 1111, name: "Spain U21", logo: "https://hatscripts.github.io/circle-flags/flags/es.svg" },
+          away: { id: 2222, name: "Romania U21", logo: "https://hatscripts.github.io/circle-flags/flags/ro.svg" }
+        },
+        goals: { home: null, away: null },
+        score: { halftime: { home: null, away: null }, fulltime: { home: null, away: null } }
+      },
+      {
+        fixture: {
+          id: 999002,
+          date: "2025-06-16T19:00:00.000Z",
+          status: { long: "Not Started", short: "NS" },
+          venue: { name: "Stade de France", city: "Paris" }
+        },
+        league: {
+          id: 38,
+          name: "UEFA European Under-21 Championship",
+          logo: "https://media.api-sports.io/football/leagues/38.png",
+          country: "Europe"
+        },
+        teams: {
+          home: { id: 3333, name: "France U21", logo: "https://hatscripts.github.io/circle-flags/flags/fr.svg" },
+          away: { id: 4444, name: "Georgia U21", logo: "https://hatscripts.github.io/circle-flags/flags/ge.svg" }
+        },
+        goals: { home: null, away: null },
+        score: { halftime: { home: null, away: null }, fulltime: { home: null, away: null } }
+      },
+      {
+        fixture: {
+          id: 999003,
+          date: "2025-06-17T16:00:00.000Z",
+          status: { long: "Not Started", short: "NS" },
+          venue: { name: "Allianz Arena", city: "Munich" }
+        },
+        league: {
+          id: 38,
+          name: "UEFA European Under-21 Championship",
+          logo: "https://media.api-sports.io/football/leagues/38.png",
+          country: "Europe"
+        },
+        teams: {
+          home: { id: 5555, name: "Portugal U21", logo: "https://hatscripts.github.io/circle-flags/flags/pt.svg" },
+          away: { id: 6666, name: "Poland U21", logo: "https://hatscripts.github.io/circle-flags/flags/pl.svg" }
+        },
+        goals: { home: null, away: null },
+        score: { halftime: { home: null, away: null }, fulltime: { home: null, away: null } }
+      },
+      {
+        fixture: {
+          id: 999004,
+          date: "2025-06-17T19:00:00.000Z",
+          status: { long: "Not Started", short: "NS" },
+          venue: { name: "San Siro", city: "Milan" }
+        },
+        league: {
+          id: 38,
+          name: "UEFA European Under-21 Championship",
+          logo: "https://media.api-sports.io/football/leagues/38.png",
+          country: "Europe"
+        },
+        teams: {
+          home: { id: 7777, name: "Slovakia U21", logo: "https://hatscripts.github.io/circle-flags/flags/sk.svg" },
+          away: { id: 8888, name: "Italy U21", logo: "https://hatscripts.github.io/circle-flags/flags/it.svg" }
+        },
+        goals: { home: null, away: null },
+        score: { halftime: { home: null, away: null }, fulltime: { home: null, away: null } }
+      }
+    ];
   }
 }
 
