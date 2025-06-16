@@ -110,15 +110,17 @@ const MyMatchdetailsScoreboard = ({
     );
   };
   return (
-    <Card className={`w-full ${className}`}>
-      <CardHeader className="text-center relative">
+    <Card
+      className={`w-full ${className} p-0 bg-gradient-to-br from-pink-70 via-orange-80 to-pink-110`}
+    >
+      <CardHeader className="text-center relative ">
         {onClose && (
           <button
             onClick={onClose}
-            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-bold w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+            className="absolute top-2 right-2 text-gray-500  text-xl font-semi-bold w-8 h-8 flex items-center justify-center "
             aria-label="Close"
           >
-            ×
+            x
           </button>
         )}
         <CardTitle className="text-md font-normal text-gray-900">
