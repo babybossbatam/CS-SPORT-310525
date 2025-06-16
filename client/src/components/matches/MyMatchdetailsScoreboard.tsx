@@ -111,19 +111,19 @@ const MyMatchdetailsScoreboard = ({
   };
   return (
     <Card
-      className={`w-full ${className} p-0  pb-0 bg-gradient-to-br from-pink-70 via-orange-80 to-pink-110`}
+      className={`w-full ${className} p-0  pb-0 bg-gradient-to-br from-pink-50 via-yellow-60 to-black-110`}
     >
       <CardHeader className="text-center relative ">
         {onClose && (
           <button
             onClick={onClose}
-            className="absolute top-2 right-2 text-gray-500  text-xl font-semi-bold w-8 h-8 flex items-center justify-center "
+            className="absolute top-2 right-2 text-gray-500  text-xl font-semi-bold w-2 h-4 flex items-center justify-center "
             aria-label="Close"
           >
             x
           </button>
         )}
-        <CardTitle className="text-md font-normal text-gray-900">
+        <CardTitle className="text-md font-normal text-gray-900 ">
           {displayMatch.teams.home.name} vs {displayMatch.teams.away.name}
         </CardTitle>
         <div className="text-xs text-gray-400 font-normal">
@@ -131,7 +131,7 @@ const MyMatchdetailsScoreboard = ({
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-4">
         {/* Teams Section */}
         <div className="flex items-center justify-between">
           {/* Home Team */}
@@ -179,7 +179,7 @@ const MyMatchdetailsScoreboard = ({
                   {displayMatch.goals.home ?? 0} -{" "}
                   {displayMatch.goals.away ?? 0}
                 </div>
-                <div className="text-sm text-gray-900 font-bold">
+                <div className="text-sm text-gray-900 font-semi-bold">
                   {format(new Date(displayMatch.fixture.date), "dd/MM")}
                 </div>
               </div>
@@ -214,17 +214,20 @@ const MyMatchdetailsScoreboard = ({
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex space-x-1 pt-1 pb-0 border-t px-0">
-          <button className="flex-1 py-1 px-1 text-sm font-medium text-gray-600 border-b border-blue-500 pb-0 ">
+        <div className="flex space-x-1 py-2 pb-0 border-t px-0">
+          <button className="flex-0 py-0 px-4 text-sm font-medium text-gray-600 border-b border-blue-500 pb-0 ">
             Match
           </button>
-          <button className="flex-1 py-1 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 pb-0">
+          <button className="flex-0 py-0 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 pb-0">
+            Lineups
+          </button>
+          <button className="flex-0 py-0 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 pb-0">
             Stats
           </button>
-          <button className="flex-1 py-1 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 relative pb-0">
-            🔥 Trends
+          <button className="flex-0 py-0 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 relative pb-0">
+            Trends
           </button>
-          <button className="flex-1 py-1 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 pb-0">
+          <button className="flex-0 py-0 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 pb-0">
             Head to Head
           </button>
         </div>
