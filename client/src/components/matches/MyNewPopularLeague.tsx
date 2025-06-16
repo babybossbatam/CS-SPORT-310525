@@ -279,6 +279,99 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
       `🔍 [MyNewPopularLeague] Processing ${fixtures.length} fixtures for ALL WORLD COMPETITIONS (TEAM-BASED SEARCH)`,
     );
 
+    // Apply smart time filtering first to ensure we only get matches for the selected date
+    const today = new Date();
+    const todayString = format(today, "yyyy-MM-dd");
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowString = format(tomorrow, "yyyy-MM-dd");
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayString = format(yesterday, "yyyy-MM-dd");
+
+    // First, filter fixtures to only include those for the selected date
+    const dateFilteredFixtures = fixtures.filter((fixture) => {
+      if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
+        return false;
+      }
+
+      // Apply smart time filtering with selected date context
+      const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+        fixture.fixture.date,
+        fixture.fixture.status.short,
+        selectedDate + "T12:00:00Z",
+      );
+
+      // Check if this match should be included based on the selected date
+      const shouldInclude = (() => {
+        // For today's view, exclude any matches that are from previous days
+        if (selectedDate === todayString) {
+          if (smartResult.label === "today") return true;
+          
+          // Additional check: exclude matches from previous dates regardless of status
+          const fixtureDate = new Date(fixture.fixture.date);
+          const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+          
+          if (fixtureDateString < selectedDate) {
+            console.log(`❌ [MyNewPopularLeague DATE FILTER] Excluding yesterday match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${fixtureDateString} < ${selectedDate})`);
+            return false;
+          }
+          
+          return false;
+        }
+        
+        if (selectedDate === tomorrowString && smartResult.label === "tomorrow") return true;
+        if (selectedDate === yesterdayString && smartResult.label === "yesterday") return true;
+
+        // Handle custom dates
+        if (
+          selectedDate !== todayString &&
+          selectedDate !== tomorrowString &&
+          selectedDate !== yesterdayString
+        ) {
+          if (smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
+        }
+
+        return false;
+      })();
+
+      if (!shouldInclude) {
+        console.log(
+          `❌ [MyNewPopularLeague SMART FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+          {
+            fixtureDate: fixture.fixture.date,
+            status: fixture.fixture.status.short,
+            reason: smartResult.reason,
+            label: smartResult.label,
+            selectedDate,
+            isWithinTimeRange: smartResult.isWithinTimeRange,
+          },
+        );
+        return false;
+      }
+
+      // Additional safety check: ensure match date matches selected date for strict filtering
+      const fixtureDate = parseISO(fixture.fixture.date);
+      const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+      
+      if (selectedDate === todayString && fixtureDateString !== selectedDate) {
+        console.log(
+          `❌ [MyNewPopularLeague DATE MISMATCH] Excluding match with wrong date: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+          {
+            fixtureDate: fixtureDateString,
+            selectedDate,
+            status: fixture.fixture.status.short,
+            reason: "Date mismatch - not for selected date"
+          },
+        );
+        return false;
+      }
+
+      return true;
+    });
+
+    console.log(`🔍 [MyNewPopularLeague] After date filtering: ${dateFilteredFixtures.length} fixtures remaining`);
+
     // Define specific teams to search for (Euro U21, FIFA Club World Cup teams, etc.)
     const targetTeams = [
       // Euro U21 teams
@@ -310,9 +403,9 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
       leagueIds: number[];
     }> = [];
 
-    // Process each major competition with enhanced filtering
+    // Process each major competition with enhanced filtering on date-filtered fixtures
     Object.entries(MAJOR_COMPETITIONS).forEach(([competitionName, leagueIds]) => {
-      const competitionMatches = fixtures.filter((fixture) => {
+      const competitionMatches = dateFilteredFixtures.filter((fixture) => {
         // Check if fixture belongs to this competition
         if (!leagueIds.includes(fixture.league?.id)) {
           return false;
