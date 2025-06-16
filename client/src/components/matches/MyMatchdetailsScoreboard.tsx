@@ -139,7 +139,7 @@ const MyMatchdetailsScoreboard = ({
                 teamName={displayMatch.teams.home.name}
                 fallbackUrl={displayMatch.teams.home.logo}
                 alt={displayMatch.teams.home.name}
-                size="64px"
+                size="56px"
               />
             ) : (
               <img
@@ -153,7 +153,7 @@ const MyMatchdetailsScoreboard = ({
                 }}
               />
             )}
-            <span className="text-sm font-medium text-center">
+            <span className="text-md font-medium text-center">
               {displayMatch.teams.home.name}
             </span>
           </div>
@@ -191,7 +191,7 @@ const MyMatchdetailsScoreboard = ({
                 teamName={displayMatch.teams.away.name}
                 fallbackUrl={displayMatch.teams.away.logo}
                 alt={displayMatch.teams.away.name}
-                size="64px"
+                size="56px"
               />
             ) : (
               <img
@@ -205,7 +205,7 @@ const MyMatchdetailsScoreboard = ({
                 }}
               />
             )}
-            <span className="text-sm font-medium text-center">
+            <span className="text-md font-medium text-center">
               {displayMatch.teams.away.name}
             </span>
           </div>
