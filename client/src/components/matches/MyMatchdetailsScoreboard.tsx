@@ -167,9 +167,6 @@ const MyMatchdetailsScoreboard = ({
           <div className="flex flex-col items-center space-y-1 px-4">
             {displayMatch.fixture.status.short === "NS" ? (
               <div className="text-center">
-                <div className="text-sm font-medium text-gray-500 mb-1">
-                  {getStatusBadge(displayMatch.fixture.status.short)}
-                </div>
                 <div className="text-lg font-bold text-gray-600">Tomorrow</div>
                 <div className="text-sm text-gray-500">03:00</div>
               </div>
