@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, User, Trophy } from "lucide-react";
 import { format } from "date-fns";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
+import { isNationalTeam } from "@/lib/teamLogoSources";
 interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
@@ -104,12 +105,23 @@ const MyMatchdetailsScoreboard = ({
         <div className="flex items-center justify-between">
           {/* Home Team */}
           <div className="flex flex-col items-center space-y-2 flex-1">
-            <MyCircularFlag
-              teamName={displayMatch.teams.home.name}
-              fallbackUrl={displayMatch.teams.home.logo}
-              alt={displayMatch.teams.home.name}
-              size="64px"
-            />
+            {isNationalTeam(displayMatch.teams.home, displayMatch.league) ? (
+              <MyCircularFlag
+                teamName={displayMatch.teams.home.name}
+                fallbackUrl={displayMatch.teams.home.logo}
+                alt={displayMatch.teams.home.name}
+                size="64px"
+              />
+            ) : (
+              <img
+                src={displayMatch.teams.home.logo || '/assets/fallback-logo.png'}
+                alt={displayMatch.teams.home.name}
+                className="w-16 h-16 object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = '/assets/fallback-logo.png';
+                }}
+              />
+            )}
             <span className="text-sm font-medium text-center">
               {displayMatch.teams.home.name}
             </span>
@@ -137,12 +149,23 @@ const MyMatchdetailsScoreboard = ({
 
           {/* Away Team */}
           <div className="flex flex-col items-center space-y-2 flex-1">
-            <MyCircularFlag
-              teamName={displayMatch.teams.away.name}
-              fallbackUrl={displayMatch.teams.away.logo}
-              alt={displayMatch.teams.away.name}
-              size="64px"
-            />
+            {isNationalTeam(displayMatch.teams.away, displayMatch.league) ? (
+              <MyCircularFlag
+                teamName={displayMatch.teams.away.name}
+                fallbackUrl={displayMatch.teams.away.logo}
+                alt={displayMatch.teams.away.name}
+                size="64px"
+              />
+            ) : (
+              <img
+                src={displayMatch.teams.away.logo || '/assets/fallback-logo.png'}
+                alt={displayMatch.teams.away.name}
+                className="w-16 h-16 object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = '/assets/fallback-logo.png';
+                }}
+              />
+            )}
             <span className="text-sm font-medium text-center">
               {displayMatch.teams.away.name}
             </span>
