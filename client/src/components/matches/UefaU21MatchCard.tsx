@@ -70,17 +70,17 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
       setLoading(true);
       setError(null);
       
-      console.log('🏆 Fetching UEFA U21 matches...');
+      console.log('🏆 Fetching real-time UEFA U21 matches...');
       
-      // Try sample endpoint first since it has mock data
+      // Try real-time endpoint first
       try {
-        console.log('🔍 Attempting to fetch from /api/uefa-u21/sample...');
-        const response = await fetch('/api/uefa-u21/sample');
-        console.log(`🔍 Sample endpoint response status: ${response.status}`);
+        console.log('🔍 Attempting to fetch from /api/uefa-u21/realtime...');
+        const response = await fetch('/api/uefa-u21/realtime');
+        console.log(`🔍 Real-time endpoint response status: ${response.status}`);
         
         if (response.ok) {
           const data = await response.json();
-          console.log(`🏆 Sample endpoint returned ${data.length} matches:`, data);
+          console.log(`🏆 Real-time endpoint returned ${data.length} matches:`, data);
           
           if (data.length > 0) {
             setMatches(data);
@@ -89,14 +89,13 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
           }
         } else {
           const errorText = await response.text();
-          console.error(`❌ Sample endpoint failed with status ${response.status}: ${errorText}`);
+          console.error(`❌ Real-time endpoint failed with status ${response.status}: ${errorText}`);
         }
       } catch (err) {
-        console.error('❌ Failed to fetch sample data:', err);
-        console.error('❌ Error details:', JSON.stringify(err, Object.getOwnPropertyNames(err)));
+        console.error('❌ Failed to fetch real-time data:', err);
       }
       
-      // Try other endpoints as fallback
+      // Try other real endpoints as fallback
       const endpoints = [
         '/api/uefa-u21/upcoming',
         '/api/uefa-u21/recent',
@@ -107,6 +106,7 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
       
       for (const endpoint of endpoints) {
         try {
+          console.log(`🔍 Trying endpoint: ${endpoint}`);
           const response = await fetch(endpoint);
           if (response.ok) {
             const data = await response.json();
@@ -130,7 +130,24 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
       );
       
       console.log(`🏆 Total unique UEFA U21 matches: ${sortedMatches.length}`);
-      setMatches(sortedMatches);
+      
+      if (sortedMatches.length > 0) {
+        setMatches(sortedMatches);
+      } else {
+        // Final fallback to sample data only if no real data found
+        console.log('🔍 No real matches found, trying sample data as last resort...');
+        try {
+          const sampleResponse = await fetch('/api/uefa-u21/sample');
+          if (sampleResponse.ok) {
+            const sampleData = await sampleResponse.json();
+            console.log(`📝 Using ${sampleData.length} sample matches as fallback`);
+            setMatches(sampleData);
+          }
+        } catch (sampleErr) {
+          console.error('❌ Failed to fetch even sample data:', sampleErr);
+          setError('No UEFA U21 matches available');
+        }
+      }
       
     } catch (err) {
       console.error('❌ Error fetching UEFA U21 matches:', err);
