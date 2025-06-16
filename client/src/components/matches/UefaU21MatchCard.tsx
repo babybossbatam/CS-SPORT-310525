@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -62,85 +61,54 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchU21Matches();
+    fetchRealU21Matches();
   }, []);
 
-  const fetchU21Matches = async () => {
+  const fetchRealU21Matches = async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      console.log('🏆 Fetching real-time UEFA U21 matches...');
-      
-      // Try real-time endpoint first
-      try {
-        console.log('🔍 Attempting to fetch from /api/uefa-u21/realtime...');
-        const response = await fetch('/api/uefa-u21/realtime');
-        console.log(`🔍 Real-time endpoint response status: ${response.status}`);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log(`🏆 Real-time endpoint returned ${data.length} matches:`, data);
-          
-          if (data.length > 0) {
-            setMatches(data);
-            setLoading(false);
-            return;
-          }
-        } else {
-          const errorText = await response.text();
-          console.error(`❌ Real-time endpoint failed with status ${response.status}: ${errorText}`);
-        }
-      } catch (err) {
-        console.error('❌ Failed to fetch real-time data:', err);
+
+      console.log('🏆 Fetching REAL UEFA U21 matches from API...');
+
+      // Try to get real UEFA U21 matches from the API
+      const response = await fetch('/api/uefa-u21/realtime');
+
+      if (!response.ok) {
+        throw new Error(`API returned ${response.status}: ${response.statusText}`);
       }
-      
-      // Try other real endpoints as fallback
-      const endpoints = [
-        '/api/uefa-u21/upcoming',
-        '/api/uefa-u21/recent',
-        '/api/uefa-u21/season/current'
-      ];
-      
-      let allMatches: U21Match[] = [];
-      
-      for (const endpoint of endpoints) {
-        try {
-          console.log(`🔍 Trying endpoint: ${endpoint}`);
-          const response = await fetch(endpoint);
-          if (response.ok) {
-            const data = await response.json();
-            console.log(`🏆 Found ${data.length} matches from ${endpoint}`, data);
-            allMatches.push(...data);
-          } else {
-            console.warn(`⚠️ ${endpoint} returned status ${response.status}`);
-          }
-        } catch (err) {
-          console.warn(`⚠️ Failed to fetch from ${endpoint}:`, err);
+
+      const data = await response.json();
+      console.log('🏆 Real-time API response:', data);
+
+      // Filter out any mock/sample data by checking for realistic fixture IDs
+      const realMatches = data.filter((match: U21Match) => {
+        // Real fixture IDs are typically 6+ digits, not 999001, 999002, etc.
+        const isRealFixture = match.fixture.id > 100000 && !match.fixture.id.toString().startsWith('999');
+        const hasRealTeams = !match.teams.home.name.includes('U21') || !match.teams.away.name.includes('U21');
+
+        if (!isRealFixture) {
+          console.log('❌ Filtering out mock fixture:', match.fixture.id, match.teams.home.name, 'vs', match.teams.away.name);
         }
-      }
-      
-      // Remove duplicates and sort by date
-      const uniqueMatches = allMatches.filter((match, index, self) => 
-        index === self.findIndex(m => m.fixture.id === match.fixture.id)
-      );
-      
-      const sortedMatches = uniqueMatches.sort((a, b) => 
-        new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
-      );
-      
-      console.log(`🏆 Total unique UEFA U21 matches: ${sortedMatches.length}`);
-      
-      if (sortedMatches.length > 0) {
-        setMatches(sortedMatches);
+
+        return isRealFixture;
+      });
+
+      console.log(`🏆 Found ${realMatches.length} real UEFA U21 matches (filtered from ${data.length} total)`);
+
+      if (realMatches.length === 0) {
+        setError('No real UEFA U21 matches available at this time');
       } else {
-        console.log('❌ No UEFA U21 matches found in any endpoint');
-        setError('No UEFA U21 matches available at this time');
+        // Sort matches by date
+        const sortedMatches = realMatches.sort((a, b) => 
+          new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
+        );
+        setMatches(sortedMatches);
       }
-      
+
     } catch (err) {
-      console.error('❌ Error fetching UEFA U21 matches:', err);
-      setError('Failed to load UEFA U21 matches');
+      console.error('❌ Error fetching real UEFA U21 matches:', err);
+      setError('Failed to load UEFA U21 matches from API');
     } finally {
       setLoading(false);
     }
@@ -156,7 +124,7 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
         minute: '2-digit',
         hour12: false
       }).format(date);
-      
+
       return {
         utc: time,
         local: localTime,
@@ -199,7 +167,7 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
         <CardContent>
           <div className="flex items-center justify-center p-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-2 text-gray-600">Loading U21 matches...</span>
+            <span className="ml-2 text-gray-600">Loading real U21 matches...</span>
           </div>
         </CardContent>
       </Card>
@@ -216,7 +184,7 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
           <div className="text-center p-8 text-red-600">
             <p>{error}</p>
             <button 
-              onClick={fetchU21Matches}
+              onClick={fetchRealU21Matches}
               className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
               Retry
@@ -235,9 +203,10 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
         </CardHeader>
         <CardContent>
           <div className="text-center p-8 text-gray-600">
-            <p>No UEFA U21 matches found</p>
+            <p>No real UEFA U21 matches found</p>
+            <p className="text-sm mt-2">The API may not have current UEFA U21 data available</p>
             <button 
-              onClick={fetchU21Matches}
+              onClick={fetchRealU21Matches}
               className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             >
               Refresh
@@ -254,16 +223,16 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
         <CardTitle className="text-lg font-bold flex items-center gap-2">
           🏆 UEFA U21 Championship
           <Badge variant="outline" className="text-xs">
-            {matches.length} matches
+            {matches.length} real matches
           </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        {matches.slice(0, 10).map((match) => {
+        {matches.map((match) => {
           const timeInfo = formatMatchTime(match.fixture.date);
           const isLive = ['LIVE', '1H', '2H', 'HT'].includes(match.fixture.status.short);
           const isFinished = ['FT', 'AET', 'PEN'].includes(match.fixture.status.short);
-          
+
           return (
             <div
               key={match.fixture.id}
@@ -282,7 +251,7 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
                     {match.teams.home.name}
                   </span>
                 </div>
-                
+
                 {/* Score or Time */}
                 <div className="flex flex-col items-center px-2">
                   {isFinished && match.goals.home !== null && match.goals.away !== null ? (
@@ -307,7 +276,7 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex items-center space-x-2 min-w-0 flex-1 justify-end">
                   <span className="text-sm font-medium truncate text-right">
                     {match.teams.away.name}
@@ -319,7 +288,7 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
                   />
                 </div>
               </div>
-              
+
               {/* Status Badge */}
               <div className="ml-2">
                 <Badge 
@@ -332,14 +301,6 @@ const UefaU21MatchCard: React.FC<UefaU21MatchCardProps> = ({ onMatchClick }) => 
             </div>
           );
         })}
-        
-        {matches.length > 10 && (
-          <div className="text-center pt-2">
-            <Badge variant="outline" className="text-xs">
-              +{matches.length - 10} more matches
-            </Badge>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
