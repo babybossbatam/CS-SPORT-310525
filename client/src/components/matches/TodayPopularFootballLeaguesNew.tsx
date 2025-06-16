@@ -425,6 +425,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
         leagueName.includes("copa sudamericana") ||
         leagueName.includes("libertadores") ||
         leagueName.includes("sudamericana") ||
+        // CONCACAF competitions
+        leagueName.includes("concacaf") ||
+        leagueName.includes("gold cup") ||
+        leagueName.includes("concacaf gold cup") ||
         // Men's International Friendlies (excludes women's)
         (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
         (leagueName.includes("international") &&
@@ -494,6 +498,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
         leagueNameLower.includes("copa sudamericana") ||
         leagueNameLower.includes("libertadores") ||
         leagueNameLower.includes("sudamericana") ||
+        // CONCACAF competitions
+        leagueNameLower.includes("concacaf") ||
+        leagueNameLower.includes("gold cup") ||
+        leagueNameLower.includes("concacaf gold cup") ||
         // Men's International Friendlies (excludes women's)
         (leagueNameLower.includes("friendlies") &&
           !leagueNameLower.includes("women")) ||
@@ -616,7 +624,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         country.toLowerCase() === "unknown" ||
         country.toLowerCase() === "world"
       ) {
-        // Allow World competitions, CONMEBOL, UEFA, and FIFA competitions to pass through
+        // Allow World competitions, CONMEBOL, UEFA, CONCACAF and FIFA competitions to pass through
         if (
           league.name &&
           (league.name.toLowerCase().includes("world") ||
@@ -626,6 +634,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
             league.name.toLowerCase().includes("fifa club world cup") ||
             league.name.toLowerCase().includes("champions") ||
             league.name.toLowerCase().includes("conference") ||
+            // CONCACAF competitions
+            league.name.toLowerCase().includes("concacaf") ||
+            league.name.toLowerCase().includes("gold cup") ||
+            league.name.toLowerCase().includes("concacaf gold cup") ||
             // Men's International Friendlies only (excludes women's)
             (league.name.toLowerCase().includes("friendlies") &&
               !league.name.toLowerCase().includes("women")) ||
