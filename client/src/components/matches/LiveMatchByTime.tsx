@@ -346,8 +346,8 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                           key={`${match.fixture.id}-${match.fixture.status.elapsed}-${index}`}
                           className="country-matches-container"
                         >
-                          
-                          
+
+
                             <div
                               key={match.fixture.id}
                               className="match-card-container group"
@@ -679,7 +679,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                                 </div>
                               </div>
                             </div>
-                          
+
                         </div>
                       ))}
           </div>
