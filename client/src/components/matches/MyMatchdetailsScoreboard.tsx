@@ -223,7 +223,7 @@ const MyMatchdetailsScoreboard = ({
             Match
           </button>
           <button className="flex-0 py-0 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 pb-0">
-            Lineups
+            {displayMatch.fixture.status.short === "NS" ? "Probable Lineups" : "Lineups"}
           </button>
           <button className="flex-0 py-0 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 pb-0">
             Stats
