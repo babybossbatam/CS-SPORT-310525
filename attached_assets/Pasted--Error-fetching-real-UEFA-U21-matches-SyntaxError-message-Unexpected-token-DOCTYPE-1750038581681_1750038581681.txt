@@ -1,0 +1,38 @@
+❌ Error fetching real UEFA U21 matches: 
+SyntaxError {}
+message: "Unexpected token '<', "<!DOCTYPE "... is not valid JSON"
+stack: "SyntaxError: Unexpected token '<', "<!DOCTYPE "... is not valid JSON"
+get stack: ƒ ()
+set stack: ƒ ()
+[[Prototype]]: Object
+
+at t.value (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:3000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:17465)
+at new t (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:3000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:12630)
+at t.value (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:3000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:32766)
+at https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:3000/__replco/static/devtools/eruda/3.2.3/eruda.js:2:34400
+
+hook.js:608 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render. Error Component Stack
+    at TodayMatchPageCard (TodayMatchPageCard.tsx:34:3)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at div (<anonymous>)
+    at MyMainLayout (MyMainLayout.tsx:20:54)
+    at Home (Home.tsx:52:3)
+    at Route (wouter.js?v=0e23ef53:265:16)
+    at Switch (wouter.js?v=0e23ef53:321:17)
+    at Router (<anonymous>)
+    at AppContent (<anonymous>)
+    at Suspense (<anonymous>)
+    at Provider (react-redux.js?v=0e23ef53:923:11)
+    at CentralDataProvider (CentralDataProvider.tsx:26:39)
+    at QueryClientProvider (@tanstack_react-query.js?v=0e23ef53:2805:3)
+    at main (<anonymous>)
+    at Provider (chunk-E7IAXTU4.js?v=0e23ef53:38:15)
+    at TooltipProvider (@radix-ui_react-tooltip.js?v=0e23ef53:61:5)
+    at App (App.tsx:87:9)
+    at ErrorBoundary (ErrorBoundary.tsx:17:5)
+    at V (next-themes.js?v=0e23ef53:44:25)
+    at J (next-themes.js?v=0e23ef53:42:18)
+    at QueryClientProvider (@tanstack_react-query.js?v=0e23ef53:2805:3)
+    at Provider (react-redux.js?v=0e23ef53:923:11)
