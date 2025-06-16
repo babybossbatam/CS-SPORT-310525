@@ -19,7 +19,7 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { format, addDays, subDays } from 'date-fns';
-import uefaU21Routes from './routes/uefaU21Routes';
+// Removing uefaU21Routes import as requested
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -1546,7 +1546,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate that teamId is numeric
       if (!/^\d+$/.test(teamId)) {
         console.warn(`Invalid team ID format: ${teamId}`);
-        return res.status(400).json({ error: 'Team ID must be numeric' });
+return res.status(400).json({ error: 'Team ID must be numeric' });
       }
 
       console.log(`SportsRadar: Fetching logo for team ID: ${teamId}`);
@@ -1987,8 +1987,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // UEFA U21 Championship routes
-  apiRouter.use('/uefa-u21', uefaU21Routes);
+  // Removing UEFA U21 routes registration as requested
 
   // Create HTTP server
   const httpServer = createServer(app);
