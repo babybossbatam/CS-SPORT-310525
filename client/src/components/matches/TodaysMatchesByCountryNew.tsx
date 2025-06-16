@@ -47,7 +47,6 @@ import LazyMatchItem from './LazyMatchItem';
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
-import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -1638,56 +1637,50 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         {/* Home team logo - grid area */}
                                         <div className="home-team-logo-container">
                                           {(() => {
-                                            // For World country, use MyWorldTeamLogo to handle both national and club teams
-                                            if (leagueData.league.country === "World") {
-                                              return (
-                                                <MyWorldTeamLogo
-                                                  teamName={match.teams.home.name}
-                                                  teamLogo={getCachedTeamLogo(match.teams.home.id, match.teams.home.logo)}
-                                                  alt={match.teams.home.name}
-                                                  size="32px"
-                                                  className="home-team-logo"
-                                                  leagueContext={{
-                                                    name: leagueData.league.name,
-                                                    country: leagueData.league.country,
-                                                  }}
-                                                />
-                                              );
-                                            }
-
                                             // Check if this is a national team
                                             const isActualNationalTeam = isNationalTeam(match.teams.home, {
                                               name: leagueData.league.name,
                                               country: leagueData.league.country,
                                             });
-
+                                            
                                             // Check for youth teams
                                             const isYouthTeam = match.teams.home.name?.includes("U20") || 
                                                               match.teams.home.name?.includes("U21") ||
                                                               match.teams.home.name?.includes("U19") ||
                                                               match.teams.home.name?.includes("U23");
-
+                                            
                                             // Use MyCircularFlag for all national teams and youth teams
                                             if (isActualNationalTeam || isYouthTeam) {
                                               return (
                                                 <MyCircularFlag
-                                                  teamName={match.teams.home.name}
-                                                  fallbackUrl={getCachedTeamLogo(match.teams.home.id, match.teams.home.logo)}
+                                                  teamName={match.teams.home.name || ""}
+                                                  fallbackUrl={
+                                                    match.teams.home.id
+                                                      ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                                      : "/assets/fallback-logo.svg"
+                                                  }
                                                   alt={match.teams.home.name}
-                                                  size="32px"
-                                                  className="home-team-logo"
+                                                  size="34px"
+                                                  className="popular-leagues-size"
                                                 />
                                               );
                                             }
-
-                                            // For non-national teams, use regular LazyImage
+                                            
+                                            // Default to regular team logo for club teams
                                             return (
                                               <LazyImage
-                                                src={getCachedTeamLogo(match.teams.home.id, match.teams.home.logo)}
+                                                src={
+                                                  match.teams.home.id
+                                                    ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                                    : "/assets/fallback-logo.svg"
+                                                }
                                                 alt={match.teams.home.name}
                                                 title={match.teams.home.name}
-                                                className="home-team-logo"
-                                                style={{ backgroundColor: "transparent" }}
+                                                className="team-logo"
+                                                style={{
+                                                  filter:
+                                                    "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
+                                                }}
                                                 fallbackSrc="/assets/fallback-logo.svg"
                                               />
                                             );
@@ -1820,56 +1813,50 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                         {/* Away team logo - grid area */}
                                         <div className="away-team-logo-container">
                                           {(() => {
-                                            // For World country, use MyWorldTeamLogo to handle both national and club teams
-                                            if (leagueData.league.country === "World") {
-                                              return (
-                                                <MyWorldTeamLogo
-                                                  teamName={match.teams.away.name}
-                                                  teamLogo={getCachedTeamLogo(match.teams.away.id, match.teams.away.logo)}
-                                                  alt={match.teams.away.name}
-                                                  size="32px"
-                                                  className="away-team-logo"
-                                                  leagueContext={{
-                                                    name: leagueData.league.name,
-                                                    country: leagueData.league.country,
-                                                  }}
-                                                />
-                                              );
-                                            }
-
                                             // Check if this is a national team
                                             const isActualNationalTeam = isNationalTeam(match.teams.away, {
                                               name: leagueData.league.name,
                                               country: leagueData.league.country,
                                             });
-
+                                            
                                             // Check for youth teams
                                             const isYouthTeam = match.teams.away.name?.includes("U20") || 
                                                               match.teams.away.name?.includes("U21") ||
                                                               match.teams.away.name?.includes("U19") ||
                                                               match.teams.away.name?.includes("U23");
-
+                                            
                                             // Use MyCircularFlag for all national teams and youth teams
                                             if (isActualNationalTeam || isYouthTeam) {
                                               return (
                                                 <MyCircularFlag
-                                                  teamName={match.teams.away.name}
-                                                  fallbackUrl={getCachedTeamLogo(match.teams.away.id, match.teams.away.logo)}
+                                                  teamName={match.teams.away.name || ""}
+                                                  fallbackUrl={
+                                                    match.teams.away.id
+                                                      ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                                      : "/assets/fallback-logo.svg"
+                                                  }
                                                   alt={match.teams.away.name}
-                                                  size="32px"
-                                                  className="away-team-logo"
+                                                  size="34px"
+                                                  className="popular-leagues-size"
                                                 />
                                               );
                                             }
-
-                                            // For non-national teams, use regular LazyImage
+                                            
+                                            // Default to regular team logo for club teams
                                             return (
                                               <LazyImage
-                                                src={getCachedTeamLogo(match.teams.away.id, match.teams.away.logo)}
+                                                src={
+                                                  match.teams.away.id
+                                                    ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                                    : "/assets/fallback-logo.svg"
+                                                }
                                                 alt={match.teams.away.name}
                                                 title={match.teams.away.name}
-                                                className="away-team-logo"
-                                                style={{ backgroundColor: "transparent" }}
+                                                className="team-logo"
+                                                style={{
+                                                  filter:
+                                                    "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
+                                                }}
                                                 fallbackSrc="/assets/fallback-logo.svg"
                                               />
                                             );

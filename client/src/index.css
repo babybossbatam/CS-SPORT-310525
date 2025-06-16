@@ -300,11 +300,3 @@ main {
     font-family: 'Mont', 'Inter', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
   }
 }
-
-/* Ensure Mont font is applied to all card components */
-.card-title,
-.card-content,
-.badge,
-button {
-  font-family: 'Mont', 'Inter', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif !important;
-}

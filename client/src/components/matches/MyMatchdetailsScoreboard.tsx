@@ -132,15 +132,16 @@ const MyMatchdetailsScoreboard = ({
           {displayMatch.league.country}, {displayMatch.league.name}
         </div>
       </CardTitle>
-      <CardHeader className="text-center"></CardHeader>
+      <CardHeader className="text-center">
+      </CardHeader>
 
       <CardContent className="p-0 m-0">
         {/* Teams Section */}
-        <div className="flex items-center justify-between ">
+        <div className="flex items-center justify-between">
           {/* Home Team */}
-          <div className="flex flex-col items-center space-y-4 flex-1 ">
-            {displayMatch.league.country === "World" ||
-            displayMatch.league.country === "International" ? (
+          <div className="flex flex-col items-center space-y-4 flex-1">
+            {displayMatch.league.country === "World" || 
+             displayMatch.league.country === "International" ? (
               <MyWorldTeamLogo
                 teamName={displayMatch.teams.home.name}
                 teamLogo={displayMatch.teams.home.logo}
@@ -186,33 +187,18 @@ const MyMatchdetailsScoreboard = ({
                       const today = new Date();
                       const tomorrow = new Date(today);
                       tomorrow.setDate(today.getDate() + 1);
-
-                      const matchDay = new Date(
-                        matchDate.getFullYear(),
-                        matchDate.getMonth(),
-                        matchDate.getDate(),
-                      );
-                      const todayDay = new Date(
-                        today.getFullYear(),
-                        today.getMonth(),
-                        today.getDate(),
-                      );
-                      const tomorrowDay = new Date(
-                        tomorrow.getFullYear(),
-                        tomorrow.getMonth(),
-                        tomorrow.getDate(),
-                      );
-
+                      
+                      const matchDay = new Date(matchDate.getFullYear(), matchDate.getMonth(), matchDate.getDate());
+                      const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                      const tomorrowDay = new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate());
+                      
                       if (matchDay.getTime() === todayDay.getTime()) {
                         return "Today";
                       } else if (matchDay.getTime() === tomorrowDay.getTime()) {
                         return "Tomorrow";
                       } else {
-                        const diffTime =
-                          matchDay.getTime() - todayDay.getTime();
-                        const diffDays = Math.ceil(
-                          diffTime / (1000 * 60 * 60 * 24),
-                        );
+                        const diffTime = matchDay.getTime() - todayDay.getTime();
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                         if (diffDays > 1 && diffDays <= 7) {
                           return `${diffDays} days`;
                         } else {
@@ -253,8 +239,8 @@ const MyMatchdetailsScoreboard = ({
 
           {/* Away Team */}
           <div className="flex flex-col items-center space-y-4 flex-1">
-            {displayMatch.league.country === "World" ||
-            displayMatch.league.country === "International" ? (
+            {displayMatch.league.country === "World" || 
+             displayMatch.league.country === "International" ? (
               <MyWorldTeamLogo
                 teamName={displayMatch.teams.away.name}
                 teamLogo={displayMatch.teams.away.logo}

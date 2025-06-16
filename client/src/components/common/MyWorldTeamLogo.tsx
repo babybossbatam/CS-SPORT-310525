@@ -43,24 +43,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                      teamName?.includes("U19") ||
                      teamName?.includes("U23");
 
-  // FIFA Club World Cup teams are always club teams, never national teams
-  const isFifaClubWorldCup = leagueContext?.name?.toLowerCase().includes("fifa club world cup") ||
-                            leagueContext?.name?.toLowerCase().includes("club world cup");
-  
-  // List of known club teams that should never use circular flags
-  const knownClubTeams = [
-    "palmeiras", "fc porto", "botafogo", "seattle sounders", 
-    "real madrid", "manchester city", "bayern munich", "psg",
-    "chelsea", "arsenal", "liverpool", "barcelona", "juventus",
-    "inter miami", "monterrey", "al hilal", "urawa red diamonds"
-  ];
-  
-  const isKnownClubTeam = knownClubTeams.some(club => 
-    teamName?.toLowerCase().includes(club)
-  );
-
-  // Use MyCircularFlag for national teams and youth teams, but NOT for FIFA Club World Cup or known club teams
-  if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isKnownClubTeam) {
+  // Use MyCircularFlag for all national teams and youth teams
+  if (isActualNationalTeam || isYouthTeam) {
     return (
       <MyCircularFlag
         teamName={teamName}
