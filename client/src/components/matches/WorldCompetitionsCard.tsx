@@ -1,8 +1,7 @@
-
 import React, { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Calendar, MapPin } from "lucide-react";
+import { Clock, Calendar, MapPin, Globe } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
@@ -31,7 +30,7 @@ const WorldCompetitionsCard: React.FC<WorldCompetitionsCardProps> = ({
   // Group fixtures by league
   const groupedWorldFixtures = useMemo(() => {
     const groups: { [key: string]: any[] } = {};
-    
+
     worldFixtures.forEach((fixture) => {
       const leagueKey = `${fixture.league.id}-${fixture.league.name}`;
       if (!groups[leagueKey]) {
@@ -47,15 +46,15 @@ const WorldCompetitionsCard: React.FC<WorldCompetitionsCardProps> = ({
     // Check if match is stale (live status but started more than 3 hours ago)
     const isStaleMatch = (status: string, date?: string): boolean => {
       if (!date) return false;
-      
+
       const liveStatuses = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P"];
       if (!liveStatuses.includes(status)) return false;
-      
+
       try {
         const matchDate = new Date(date);
         const now = new Date();
         const hoursSinceStart = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-        
+
         // Football matches typically last 2 hours max, so anything over 3 hours is stale
         return hoursSinceStart > 3;
       } catch (error) {
@@ -101,6 +100,27 @@ const WorldCompetitionsCard: React.FC<WorldCompetitionsCardProps> = ({
       return "TBD";
     }
   };
+
+    // Timezone conversion utility (placed outside the component for reusability)
+    const TimezoneConverter = {
+        getTimezoneAbbreviation: () => {
+            try {
+                return Intl.DateTimeFormat().resolvedOptions().timeZone;
+            } catch (error) {
+                console.error("Error getting timezone:", error);
+                return "UTC"; // Fallback timezone
+            }
+        },
+        convertTimeToLocal: (dateStr: string) => {
+            try {
+                const date = parseISO(dateStr);
+                return format(date, "HH:mm"); // Format to local time
+            } catch (error) {
+                console.error("Error converting time:", error);
+                return "TBD";
+            }
+        },
+    };
 
   if (isLoading) {
     return (
@@ -169,6 +189,11 @@ const WorldCompetitionsCard: React.FC<WorldCompetitionsCardProps> = ({
                     </p>
                   </div>
                 </div>
+                {/* Timezone Display */}
+                <div className="flex items-center gap-1 text-xs text-gray-500 ml-auto">
+                  <Globe className="h-3 w-3" />
+                  {TimezoneConverter.getTimezoneAbbreviation()}
+                </div>
               </div>
 
               {/* Matches */}
@@ -219,7 +244,7 @@ const WorldCompetitionsCard: React.FC<WorldCompetitionsCardProps> = ({
                       {fixture.fixture.status.short === "NS" ? (
                         <div className="text-center">
                           <div className="text-xs text-gray-600 font-medium">
-                            {formatMatchTime(fixture.fixture.date)}
+                            {TimezoneConverter.convertTimeToLocal(fixture.fixture.date)}
                           </div>
                         </div>
                       ) : (

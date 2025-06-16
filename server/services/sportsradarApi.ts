@@ -205,22 +205,38 @@ export async function getStandings(leagueId: string) {
 
 // Map Sportsradar data to our internal format
 export function mapSportsradarFixtureToInternal(fixture: SportsradarFixture): any {
+  // Calculate estimated end time based on status and start time
+  const getEstimatedEndTime = (startTime: string, status: string) => {
+    if (!startTime || status === 'NS') return null;
+    
+    const start = new Date(startTime);
+    let durationMinutes = 90; // Default football match duration
+    
+    if (status === 'AET') durationMinutes = 120; // After extra time
+    if (status === 'PEN') durationMinutes = 135; // Including penalty shootout
+    
+    return new Date(start.getTime() + durationMinutes * 60000).toISOString();
+  };
+
   // Implement mapping logic based on the Sportsradar response structure
   return {
     fixture: {
       id: fixture.id,
       referee: fixture.referee || null,
-      timezone: fixture.timezone || 'UTC',
+      timezone: fixture.venue?.timezone || fixture.timezone || 'UTC',
       date: fixture.scheduled || '',
       timestamp: new Date(fixture.scheduled || '').getTime() / 1000,
+      startTime: fixture.scheduled || '',
+      endTime: getEstimatedEndTime(fixture.scheduled || '', fixture.status || ''),
       periods: {
-        first: null,
-        second: null
+        first: fixture.period_scores?.[0] ? new Date(fixture.scheduled || '').getTime() / 1000 : null,
+        second: fixture.period_scores?.[1] ? new Date(fixture.scheduled || '').getTime() / 1000 + 2700 : null
       },
       venue: {
-        id: null,
+        id: fixture.venue?.id || null,
         name: fixture.venue?.name || null,
-        city: fixture.venue?.city || null
+        city: fixture.venue?.city || null,
+        timezone: fixture.venue?.timezone || null
       },
       status: {
         long: fixture.status || 'Not Started',
