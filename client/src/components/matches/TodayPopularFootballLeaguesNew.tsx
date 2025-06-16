@@ -304,12 +304,29 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
         // Check if this match should be included based on the selected date
         const shouldInclude = (() => {
+          // For today's view, exclude any matches that are from previous days
+          if (selectedDate === todayString) {
+            // Only include matches that are specifically labeled as "today"
+            // Exclude anything from yesterday or other dates
+            if (smartResult.label === "today") return true;
+            
+            // Additional check: exclude matches from previous dates regardless of status
+            const fixtureDate = new Date(fixture.fixture.date);
+            const selectedDateObj = new Date(selectedDate);
+            const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+            
+            if (fixtureDateString < selectedDate) {
+              console.log(`❌ [DATE FILTER] Excluding yesterday match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${fixtureDateString} < ${selectedDate})`);
+              return false;
+            }
+            
+            return false;
+          }
+          
           if (
             selectedDate === tomorrowString &&
             smartResult.label === "tomorrow"
           )
-            return true;
-          if (selectedDate === todayString && smartResult.label === "today")
             return true;
           if (
             selectedDate === yesterdayString &&
@@ -340,6 +357,24 @@ const TodayPopularFootballLeaguesNew: React.FC<
               label: smartResult.label,
               selectedDate,
               isWithinTimeRange: smartResult.isWithinTimeRange,
+            },
+          );
+          return false;
+        }
+
+        // Additional safety check: ensure match date matches selected date for strict filtering
+        const fixtureDate = parseISO(fixture.fixture.date);
+        const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+        
+        // For today's view, be extra strict about date matching
+        if (selectedDate === todayString && fixtureDateString !== selectedDate) {
+          console.log(
+            `❌ [DATE MISMATCH] Excluding match with wrong date: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            {
+              fixtureDate: fixtureDateString,
+              selectedDate,
+              status: fixture.fixture.status.short,
+              reason: "Date mismatch - not for today"
             },
           );
           return false;
