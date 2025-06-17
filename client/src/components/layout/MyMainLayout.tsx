@@ -30,7 +30,10 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
 
   const handleMatchCardClick = (fixture: any) => {
     console.log('🎯 [MyMainLayout] Received match data:', fixture);
+    console.log('🎯 [MyMainLayout] Match teams:', fixture?.teams);
+    console.log('🎯 [MyMainLayout] Match fixture:', fixture?.fixture);
     setSelectedFixture(fixture);
+    console.log('🎯 [MyMainLayout] selectedFixture state updated');
   };
 
   const handleBackToMain = () => {

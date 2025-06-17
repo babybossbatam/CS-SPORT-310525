@@ -18,8 +18,13 @@ const MyMatchdetailsScoreboard = ({
   onClose,
   onMatchCardClick,
 }: MyMatchdetailsScoreboardProps) => {
+  console.log('🎯 [MyMatchdetailsScoreboard] Received match prop:', match);
+  console.log('🎯 [MyMatchdetailsScoreboard] Match teams:', match?.teams);
+  console.log('🎯 [MyMatchdetailsScoreboard] Match fixture:', match?.fixture);
+  
   // Only use match data if provided, don't show anything if no match is selected
   if (!match) {
+    console.log('🎯 [MyMatchdetailsScoreboard] No match data - showing placeholder');
     return (
       <div className="flex items-center justify-center h-64 text-gray-500">
         <p>No match selected</p>

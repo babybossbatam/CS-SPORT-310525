@@ -718,6 +718,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
 
   const handleMatchClick = (match: any) => {
     // Call the parent onMatchCardClick to handle right column display
+    console.log('🎯 [CombinedLeagueCards] Passing match to parent:', match);
     if (onMatchCardClick) {
       onMatchCardClick(match);
     }
