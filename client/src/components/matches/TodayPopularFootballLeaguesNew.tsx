@@ -758,7 +758,27 @@ const TodayPopularFootballLeaguesNew: React.FC<
               isFriendlies: league.name.toLowerCase().includes("friendlies"),
             };
           }
-          acc[countryKey].leagues[leagueId].matches.push(fixture);
+          
+          // Ensure fixture has proper structure for MyMatchdetailsScoreboard
+          const processedFixture = {
+            ...fixture,
+            league: {
+              ...fixture.league,
+              country: countryKey // Update country for display but keep original structure
+            },
+            teams: {
+              home: {
+                ...fixture.teams.home,
+                logo: fixture.teams.home.logo || "/assets/fallback-logo.svg",
+              },
+              away: {
+                ...fixture.teams.away,
+                logo: fixture.teams.away.logo || "/assets/fallback-logo.svg",
+              },
+            },
+          };
+          
+          acc[countryKey].leagues[leagueId].matches.push(processedFixture);
           return acc;
         }
 
@@ -864,7 +884,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
         fixture.teams.home.name &&
         fixture.teams.away.name
       ) {
-        acc[country].leagues[leagueId].matches.push({
+        // Ensure consistent data structure for MyMatchdetailsScoreboard
+        const processedFixture = {
           ...fixture,
           teams: {
             home: {
@@ -876,7 +897,46 @@ const TodayPopularFootballLeaguesNew: React.FC<
               logo: fixture.teams.away.logo || "/assets/fallback-logo.svg",
             },
           },
-        });
+          // Ensure all required fields are present
+          fixture: {
+            ...fixture.fixture,
+            id: fixture.fixture.id,
+            date: fixture.fixture.date,
+            status: {
+              short: fixture.fixture.status?.short || "NS",
+              long: fixture.fixture.status?.long || "Not Started",
+              elapsed: fixture.fixture.status?.elapsed || null
+            },
+            venue: fixture.fixture.venue || { name: "TBD", city: "TBD" }
+          },
+          league: {
+            ...fixture.league,
+            id: fixture.league.id,
+            name: fixture.league.name,
+            country: fixture.league.country,
+            round: fixture.league.round || null
+          },
+          goals: {
+            home: fixture.goals?.home !== undefined ? fixture.goals.home : null,
+            away: fixture.goals?.away !== undefined ? fixture.goals.away : null
+          },
+          score: {
+            halftime: {
+              home: fixture.score?.halftime?.home !== undefined ? fixture.score.halftime.home : null,
+              away: fixture.score?.halftime?.away !== undefined ? fixture.score.halftime.away : null
+            },
+            fulltime: {
+              home: fixture.score?.fulltime?.home !== undefined ? fixture.score.fulltime.home : null,
+              away: fixture.score?.fulltime?.away !== undefined ? fixture.score.fulltime.away : null
+            },
+            penalty: {
+              home: fixture.score?.penalty?.home !== undefined ? fixture.score.penalty.home : null,
+              away: fixture.score?.penalty?.away !== undefined ? fixture.score.penalty.away : null
+            }
+          }
+        };
+        
+        acc[country].leagues[leagueId].matches.push(processedFixture);
       }
 
       return acc;
