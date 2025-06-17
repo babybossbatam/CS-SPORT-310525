@@ -60,7 +60,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
           ) : (
             <>
               <MyMatchdetailsScoreboard 
-                onMatchCardClick={handleFixtureClick}
+                onMatchCardClick={handleMatchCardClick}
               />
               <MyRightContent />
             </>
