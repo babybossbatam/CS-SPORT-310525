@@ -302,7 +302,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   const handleMatchClick = (match: any) => {
     // Set the selected match locally instead of passing up
     setSelectedMatch(match);
-    
+
     // Still call parent callback if provided for any additional handling
     if (onMatchCardClick) {
       onMatchCardClick(match);
