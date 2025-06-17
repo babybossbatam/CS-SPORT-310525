@@ -121,6 +121,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [visibleMatches, setVisibleMatches] = useState<Set<number>>(new Set());
+  const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Fetch live fixtures only
@@ -299,7 +300,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   }, []);
 
   const handleMatchClick = (match: any) => {
-    console.log('🎯 [TodayMatchByTime] Match clicked, passing to parent:', match.teams.home.name, 'vs', match.teams.away.name);
+    setSelectedMatch(match);
     // Call the parent onMatchCardClick to handle right column display
     if (onMatchCardClick) {
       onMatchCardClick(match);
@@ -387,7 +388,16 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         }}
       />
 
-      </>
+      {/* Match Details Card - Shows when a match is clicked */}
+      {selectedMatch && (
+        <div className="mt-4">
+          <MyMatchdetailsScoreboard
+            match={selectedMatch}
+            onClose={() => setSelectedMatch(null)}
+          />
+        </div>
+      )}
+    </>
   );
 };
 
