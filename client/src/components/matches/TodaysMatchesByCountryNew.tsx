@@ -185,7 +185,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   
 
   // Always call hooks in the same order - validate after hooks
-  // Fetch all fixtures for the selected date with comprehensive caching
+  // Fetch all fixtures for the selected date with World league priority refresh
   const { data: fixtures = [], isLoading } = useQuery({
     queryKey: ["all-fixtures-by-date", selectedDate],
     queryFn: async () => {
@@ -195,53 +195,42 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       // Check our custom cache first
       const cachedFixtures = getCachedFixturesForDate(selectedDate);
-      if (cachedFixtures) {
+      
+      // For today's date, check if World leagues need fresh data
+      const isToday = selectedDate === format(new Date(), 'yyyy-MM-dd');
+      const hasWorldMatches = cachedFixtures?.some(f => f.league?.country === "World");
+      
+      if (cachedFixtures && (!isToday || !hasWorldMatches)) {
         console.log(
           `✅ [TodaysMatchesByCountryNew] Using cached fixtures: ${cachedFixtures.length} matches`,
         );
 
-        // Detailed API data analysis
-        const apiAnalysis = {
-          totalFixtures: cachedFixtures.length,
-          countries: [
-            ...new Set(
-              cachedFixtures.map((f) => f.league?.country).filter(Boolean),
-            ),
-          ].length,
-          leagues: [
-            ...new Set(
-              cachedFixtures.map((f) => f.league?.name).filter(Boolean),
-            ),
-          ].length,
-          statuses: [
-            ...new Set(
-              cachedFixtures
-                .map((f) => f.fixture?.status?.short)
-                .filter(Boolean),
-            ),
-          ],
-          dateRange: {
-            earliest: cachedFixtures.reduce(
-              (min, f) => (f.fixture?.date < min ? f.fixture.date : min),
-              cachedFixtures[0]?.fixture?.date || "",
-            ),
-            latest: cachedFixtures.reduce(
-              (max, f) => (f.fixture?.date > max ? f.fixture.date : max),
-              cachedFixtures[0]?.fixture?.date || "",
-            ),
-          },
-          sampleFixtures: cachedFixtures.slice(0, 5).map((f) => ({
-            id: f.fixture?.id,
-            date: f.fixture?.date,
-            status: f.fixture?.status?.short,
-            league: f.league?.name,
-            country: f.league?.country,
-            teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
-          })),
-        };
+        // Filter out outdated World matches for today's view
+        let filteredFixtures = cachedFixtures;
+        if (isToday && hasWorldMatches) {
+          const now = new Date();
+          filteredFixtures = cachedFixtures.filter(fixture => {
+            if (fixture.league?.country === "World") {
+              const fixtureDate = new Date(fixture.fixture?.date);
+              const hoursDiff = (now.getTime() - fixtureDate.getTime()) / (1000 * 60 * 60);
+              
+              // Remove World matches that finished more than 3 hours ago for today's view
+              if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(fixture.fixture?.status?.short)) {
+                return hoursDiff <= 3;
+              }
+              
+              // Keep live and upcoming World matches
+              return true;
+            }
+            return true; // Keep all non-World matches
+          });
+          
+          if (filteredFixtures.length !== cachedFixtures.length) {
+            console.log(`🧹 [WORLD CLEANUP] Removed ${cachedFixtures.length - filteredFixtures.length} outdated World matches`);
+          }
+        }
 
-        console.log(`📊 [DEBUG] API Data Analysis:`, apiAnalysis);
-        return cachedFixtures;
+        return filteredFixtures;
       }
 
       console.log(
@@ -260,46 +249,24 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           `💾 [TodaysMatchesByCountryNew] Cached ${data.length} fixtures for ${selectedDate}`,
         );
 
-        // Detailed API data analysis for fresh data
-        const apiAnalysis = {
-          totalFixtures: data.length,
-          countries: [
-            ...new Set(data.map((f) => f.league?.country).filter(Boolean)),
-          ].length,
-          leagues: [...new Set(data.map((f) => f.league?.name).filter(Boolean))]
-            .length,
-          statuses: [
-            ...new Set(
-              data.map((f) => f.fixture?.status?.short).filter(Boolean),
-            ),
-          ],
-          dateRange: {
-            earliest: data.reduce(
-              (min, f) => (f.fixture?.date < min ? f.fixture.date : min),
-              data[0]?.fixture?.date || "",
-            ),
-            latest: data.reduce(
-              (max, f) => (f.fixture?.date > max ? f.fixture.date : max),
-              data[0]?.fixture?.date || "",
-            ),
-          },
-          sampleFixtures: data.slice(0, 5).map((f) => ({
-            id: f.fixture?.id,
-            date: f.fixture?.date,
-            status: f.fixture?.status?.short,
-            league: f.league?.name,
-            country: f.league?.country,
-            teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
-          })),
-        };
-
-        console.log(`📊 [DEBUG] Fresh API Data Analysis:`, apiAnalysis);
+        // Log World league analysis
+        const worldFixtures = data.filter(f => f.league?.country === "World");
+        if (worldFixtures.length > 0) {
+          console.log(`🌍 [WORLD ANALYSIS] Found ${worldFixtures.length} World fixtures:`, 
+            worldFixtures.map(f => ({
+              league: f.league?.name,
+              status: f.fixture?.status?.short,
+              teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
+              date: f.fixture?.date
+            }))
+          );
+        }
       }
 
       return data;
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes for live data
-    gcTime: 30 * 60 * 1000, // 30 minutes garbage collection time
+    staleTime: 1 * 60 * 1000, // 1 minute for more frequent World league updates
+    gcTime: 15 * 60 * 1000, // 15 minutes garbage collection time  
     enabled: !!selectedDate && enableFetching,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
@@ -593,6 +560,53 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           reason: "Alternative format or women's competition",
         });
         return acc;
+      }
+
+      // Special validation for World leagues to ensure fresh data
+      if (countryName === "World") {
+        const fixtureDate = new Date(fixture.fixture?.date);
+        const now = new Date();
+        const hoursDiff = (now.getTime() - fixtureDate.getTime()) / (1000 * 60 * 60);
+        const status = fixture.fixture?.status?.short;
+        
+        // For today's date, apply stricter filtering for World matches
+        const isToday = selectedDate === format(now, 'yyyy-MM-dd');
+        if (isToday) {
+          // Remove very old finished World matches
+          if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) && hoursDiff > 6) {
+            console.log(`🌍 [WORLD FILTER] Removing outdated World match:`, {
+              fixtureId: fixture.fixture.id,
+              league: leagueName,
+              teams: `${homeTeamName} vs ${awayTeamName}`,
+              status,
+              hoursOld: Math.round(hoursDiff * 10) / 10,
+              reason: "Too old for today's view"
+            });
+            return acc;
+          }
+          
+          // Validate that "live" matches are actually recent
+          if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && hoursDiff > 3) {
+            console.log(`🌍 [WORLD FILTER] Removing stale live World match:`, {
+              fixtureId: fixture.fixture.id,
+              league: leagueName,
+              teams: `${homeTeamName} vs ${awayTeamName}`,
+              status,
+              hoursOld: Math.round(hoursDiff * 10) / 10,
+              reason: "Live status too old"
+            });
+            return acc;
+          }
+        }
+        
+        console.log(`🌍 [WORLD DEBUG] Keeping World match:`, {
+          fixtureId: fixture.fixture.id,
+          league: leagueName,
+          teams: `${homeTeamName} vs ${awayTeamName}`,
+          status,
+          date: fixture.fixture?.date,
+          hoursFromNow: Math.round(hoursDiff * 10) / 10
+        });
       }
 
       const country = league.country;
