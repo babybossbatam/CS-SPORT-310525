@@ -366,7 +366,64 @@ const FLAG_STORAGE_KEY = "cssport_flag_cache";
 const FLAG_PRELOAD_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
 /**
- * Save flag cache to localStorage for persistence
+ * Check available localStorage space
+ */
+function getStorageSize(): { used: number; available: number } {
+  let used = 0;
+  for (let key in localStorage) {
+    if (localStorage.hasOwnProperty(key)) {
+      used += localStorage[key].length + key.length;
+    }
+  }
+  // Most browsers have 5MB limit, we'll use 4MB as safe limit
+  const maxSize = 4 * 1024 * 1024; // 4MB
+  return { used, available: maxSize - used };
+}
+
+/**
+ * Clean up old cache entries to free space
+ */
+function cleanupOldCacheEntries(): void {
+  try {
+    const keysToRemove: string[] = [];
+    
+    // Remove old fixture caches (over 2 hours old)
+    for (let key in localStorage) {
+      if (key.startsWith('all-fixtures-by-date-') || 
+          key.startsWith('fixtures-') ||
+          key.startsWith('live-fixtures-')) {
+        try {
+          const data = JSON.parse(localStorage[key]);
+          if (data.timestamp && Date.now() - data.timestamp > 2 * 60 * 60 * 1000) {
+            keysToRemove.push(key);
+          }
+        } catch (e) {
+          keysToRemove.push(key);
+        }
+      }
+    }
+    
+    // Remove old query cache entries
+    for (let key in localStorage) {
+      if (key.includes('query-cache') || key.includes('react-query')) {
+        keysToRemove.push(key);
+      }
+    }
+    
+    keysToRemove.forEach(key => {
+      localStorage.removeItem(key);
+    });
+    
+    if (keysToRemove.length > 0) {
+      console.log(`🧹 Cleaned up ${keysToRemove.length} old cache entries`);
+    }
+  } catch (error) {
+    console.warn("Failed to cleanup old cache entries:", error);
+  }
+}
+
+/**
+ * Save flag cache to localStorage for persistence with size management
  */
 export function saveFlagCacheToStorage(): void {
   try {
@@ -376,11 +433,64 @@ export function saveFlagCacheToStorage(): void {
         timestamp: Date.now(),
         flags: Array.from(cache.entries()),
       };
-      localStorage.setItem(FLAG_STORAGE_KEY, JSON.stringify(cacheData));
-      console.log(`💾 Saved ${cache.size} flags to localStorage`);
+      
+      const dataString = JSON.stringify(cacheData);
+      const dataSize = dataString.length;
+      
+      // Check storage space
+      const storage = getStorageSize();
+      
+      // If data is too large or not enough space, cleanup and try again
+      if (dataSize > storage.available) {
+        console.log(`⚠️ Flag cache too large (${Math.round(dataSize/1024)}KB), cleaning up...`);
+        cleanupOldCacheEntries();
+        
+        // Check again after cleanup
+        const storageAfterCleanup = getStorageSize();
+        if (dataSize > storageAfterCleanup.available) {
+          console.warn(`❌ Still not enough space after cleanup. Need ${Math.round(dataSize/1024)}KB, have ${Math.round(storageAfterCleanup.available/1024)}KB`);
+          
+          // Emergency: keep only the most recent flags
+          const recentFlags = Array.from(cache.entries()).slice(-10);
+          const emergencyData = {
+            timestamp: Date.now(),
+            flags: recentFlags,
+          };
+          localStorage.setItem(FLAG_STORAGE_KEY, JSON.stringify(emergencyData));
+          console.log(`🚨 Emergency save: kept only ${recentFlags.length} most recent flags`);
+          return;
+        }
+      }
+      
+      localStorage.setItem(FLAG_STORAGE_KEY, dataString);
+      console.log(`💾 Saved ${cache.size} flags to localStorage (${Math.round(dataSize/1024)}KB)`);
     }
   } catch (error) {
-    console.warn("Failed to save flag cache to storage:", error);
+    if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+      console.warn("📦 localStorage quota exceeded, attempting emergency cleanup...");
+      try {
+        // Emergency cleanup - remove all non-essential data
+        cleanupOldCacheEntries();
+        
+        // Try to save minimal flag data
+        const cache = (flagCache as any).cache;
+        if (cache instanceof Map) {
+          const essentialFlags = Array.from(cache.entries()).slice(-5); // Keep only 5 most recent
+          const minimalData = {
+            timestamp: Date.now(),
+            flags: essentialFlags,
+          };
+          localStorage.setItem(FLAG_STORAGE_KEY, JSON.stringify(minimalData));
+          console.log(`🆘 Emergency save completed: kept ${essentialFlags.length} essential flags`);
+        }
+      } catch (emergencyError) {
+        console.error("💥 Emergency save failed:", emergencyError);
+        // Clear the flag storage key if it exists to prevent further issues
+        localStorage.removeItem(FLAG_STORAGE_KEY);
+      }
+    } else {
+      console.warn("Failed to save flag cache to storage:", error);
+    }
   }
 }
 
@@ -433,19 +543,45 @@ export function initializeFlagCachePersistence(): void {
   // Load existing cache on startup
   loadFlagCacheFromStorage();
 
-  // Save cache periodically (every 5 minutes)
-  setInterval(saveFlagCacheToStorage, 5 * 60 * 1000);
+  // Save cache less frequently (every 10 minutes instead of 5)
+  setInterval(saveFlagCacheToStorage, 10 * 60 * 1000);
 
-  // Run intelligent cache cleanup every 10 minutes
-  setInterval(intelligentCacheCleanup, 10 * 60 * 1000);
+  // Run intelligent cache cleanup every 15 minutes
+  setInterval(intelligentCacheCleanup, 15 * 60 * 1000);
 
-  // Save cache when page is unloaded
-  window.addEventListener("beforeunload", saveFlagCacheToStorage);
+  // Run storage cleanup every 30 minutes
+  setInterval(() => {
+    try {
+      const storage = getStorageSize();
+      const usagePercent = (storage.used / (4 * 1024 * 1024)) * 100;
+      if (usagePercent > 80) {
+        console.log(`🧹 Storage usage at ${usagePercent.toFixed(1)}%, running cleanup...`);
+        cleanupOldCacheEntries();
+      }
+    } catch (error) {
+      console.warn("Storage cleanup check failed:", error);
+    }
+  }, 30 * 60 * 1000);
 
-  // Save cache when visibility changes (tab switch, etc.)
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
+  // Save cache when page is unloaded (with error handling)
+  window.addEventListener("beforeunload", () => {
+    try {
       saveFlagCacheToStorage();
+    } catch (error) {
+      console.warn("Failed to save cache on page unload:", error);
+    }
+  });
+
+  // Save cache when visibility changes (tab switch, etc.) - but less aggressively
+  let lastSave = 0;
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && Date.now() - lastSave > 60000) { // Only save once per minute
+      try {
+        saveFlagCacheToStorage();
+        lastSave = Date.now();
+      } catch (error) {
+        console.warn("Failed to save cache on visibility change:", error);
+      }
     }
   });
 }
