@@ -96,7 +96,6 @@ interface CombinedLeagueCardsProps {
   showTop20?: boolean;
   liveFilterActive?: boolean;
   filteredFixtures?: any[];
-  onMatchCardClick?: (fixture: any) => void;
   lazyLoadingProps?: {
     visibleMatches: Set<number>;
     createLazyRef: (matchId: number) => (node: HTMLDivElement | null) => void;
@@ -110,7 +109,6 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   showTop20 = false,
   liveFilterActive = false,
   filteredFixtures: propFilteredFixtures,
-  onMatchCardClick,
   lazyLoadingProps,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
@@ -931,26 +929,11 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
                     style={{ minHeight: '60px' }}
                   >
                     {isVisible ? (
-                  <div 
-                    className="match-card-container group"
-                    onClick={(e) => {
-                      console.log('🎯 Match card clicked:', match.teams.home.name, 'vs', match.teams.away.name);
-                      if (onMatchCardClick) {
-                        onMatchCardClick(match);
-                      }
-                    }}
-                    style={{ 
-                      cursor: onMatchCardClick ? 'pointer' : 'default',
-                      position: 'relative',
-                      zIndex: 1
-                    }}
-                  >
+                  <div className="match-card-container group">
                     {/* Star Button */}
                     <button
                       onClick={(e) => {
-                        e.preventDefault();
                         e.stopPropagation();
-                        console.log('⭐ Star button clicked for match:', match.fixture.id);
                         toggleStarMatch(match.fixture.id);
                       }}
                       className="match-star-button"
