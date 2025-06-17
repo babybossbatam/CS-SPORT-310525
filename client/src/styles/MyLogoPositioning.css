@@ -688,10 +688,15 @@
 .match-card-container {
   cursor: pointer !important;
   transition: background-color 0.2s ease;
+  position: relative;
 }
 
 .match-card-container:hover {
   background-color: rgba(0, 0, 0, 0.02);
+}
+
+.match-card-container:active {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .game-card.scoreboard {
