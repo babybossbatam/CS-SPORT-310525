@@ -39,13 +39,17 @@ const NoLiveMatchesEmpty = ({
       </div>
 
       {/* Call-to-action button */}
-      {showBackButton && onBackToHome && (
+      {showBackButton && (
         <Button 
           onClick={() => {
+            // First deactivate the live filter
             if (onDeactivateLiveFilter) {
               onDeactivateLiveFilter();
             }
-            onBackToHome();
+            // Then navigate back to home if callback provided
+            if (onBackToHome) {
+              onBackToHome();
+            }
           }}
           className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full text-base font-medium shadow-lg transition-all duration-200 hover:shadow-xl"
         >
