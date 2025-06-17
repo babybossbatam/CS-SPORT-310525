@@ -104,6 +104,7 @@ interface LiveMatchForAllCountryProps {
   liveFilterActive?: boolean;
   timeFilterActive?: boolean;
   liveFixtures?: any[]; // Accept shared live fixtures
+  setLiveFilterActive?: (active: boolean) => void;
 }
 
 const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
@@ -112,6 +113,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   liveFilterActive = false,
   timeFilterActive = false,
   liveFixtures: propsFixtures,
+  setLiveFilterActive,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
@@ -529,9 +531,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
             // Navigate to all matches or home page
             window.location.href = '/';
           }}
-          onDeactivateLiveFilter={() => {
-            // This could be used to show all matches instead of just live ones
-          }}
+          setLiveFilterActive={setLiveFilterActive}
         />
       </div>
     );
