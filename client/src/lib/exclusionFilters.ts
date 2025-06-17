@@ -3,26 +3,16 @@
  * Used throughout the application to maintain consistent filtering
  */
 
-// Reduced exclusion terms - Only exclude clearly amateur/non-professional leagues
+// Minimal exclusion terms - Only exclude alternative formats and women's competitions
 export const exclusionTerms = [
-  // Only exclude clearly amateur leagues
-  'amateur', 'development', 'academy', 'primavera',
-
   // Women's competitions (keep minimal exclusion)
   'women', 'girls', 'feminine', 'women\'s', "women's",
 
-  // Only exclude very low divisions
-  'division 4', 'division 5', 
-  'oberliga westfalen', 'oberliga baden', 'oberliga bayern',
-
-  // Indoor/alternative formats
+  // Indoor/alternative formats only
   'futsal', 'indoor', 'beach', 'arena',
 
-  // Only exclude clearly non-competitive matches
-  'exhibition', 'testimonial', 'charity',
-
-  // US semi-professional only
-  'npsl', 'usl w league', 'wpsl'
+  // Only exclude clearly non-competitive exhibition matches
+  'exhibition', 'testimonial'
 ];
 
 // Safe substring function to handle null/undefined values
@@ -63,12 +53,24 @@ export function getGeographicPriority(country: string, leagueName: string): numb
     return 2;
   }
 
-  // Tier 3: Major football countries - significantly expanded
+  // Tier 3: Major football countries - greatly expanded to include more regions
   const tier3Countries = ['brazil', 'argentina', 'saudi arabia', 'egypt', 'colombia', 'usa', 'mexico', 
                           'netherlands', 'portugal', 'chile', 'ecuador', 'peru', 'uruguay', 'venezuela',
                           'china', 'south korea', 'japan', 'australia', 'turkey', 'russia', 'ukraine',
                           'belgium', 'croatia', 'poland', 'czech republic', 'denmark', 'sweden', 'norway',
-                          'scotland', 'wales', 'ireland', 'greece', 'serbia', 'switzerland', 'austria'];
+                          'scotland', 'wales', 'ireland', 'greece', 'serbia', 'switzerland', 'austria',
+                          'romania', 'bulgaria', 'slovenia', 'slovakia', 'hungary', 'finland', 'iceland',
+                          'estonia', 'latvia', 'lithuania', 'belarus', 'moldova', 'georgia', 'armenia',
+                          'azerbaijan', 'kazakhstan', 'uzbekistan', 'kyrgyzstan', 'tajikistan', 'iran',
+                          'iraq', 'lebanon', 'jordan', 'syria', 'palestine', 'israel', 'uae', 'qatar',
+                          'kuwait', 'bahrain', 'oman', 'yemen', 'morocco', 'tunisia', 'algeria', 'libya',
+                          'sudan', 'ethiopia', 'kenya', 'uganda', 'tanzania', 'ghana', 'nigeria', 'senegal',
+                          'ivory coast', 'cameroon', 'mali', 'burkina faso', 'zambia', 'zimbabwe',
+                          'south africa', 'botswana', 'namibia', 'madagascar', 'mauritius', 'india',
+                          'bangladesh', 'pakistan', 'afghanistan', 'nepal', 'sri lanka', 'maldives',
+                          'thailand', 'vietnam', 'cambodia', 'laos', 'myanmar', 'malaysia', 'singapore',
+                          'indonesia', 'philippines', 'mongolia', 'north korea', 'new zealand', 'fiji',
+                          'papua new guinea', 'solomon islands', 'vanuatu', 'samoa', 'tonga', 'cook islands'];
   if (tier3Countries.some(c => countryLower.includes(c))) {
     return 3;
   }
