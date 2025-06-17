@@ -58,12 +58,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
           {selectedFixture ? (
             <ScoreDetailsCard currentFixture={selectedFixture} onClose={handleBackToMain} />
           ) : (
-            <>
-              <MyMatchdetailsScoreboard 
-                onMatchCardClick={handleMatchCardClick}
-              />
-              <MyRightContent />
-            </>
+            <MyRightContent />
           )}
         </div>
       </div>
