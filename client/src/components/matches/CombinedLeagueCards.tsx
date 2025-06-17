@@ -920,7 +920,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
               .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
               .map((match: any) => {
                 const isVisible = !lazyLoadingProps || lazyLoadingProps.visibleMatches.has(match.fixture.id);
-                
+
                 return (
                   <div 
                     key={match.fixture.id}
@@ -1264,7 +1264,9 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
                           }}
                         />
                       </div>
-                    ) : (
+                    )}
+                  </div>
+                ) : (
                       lazyLoadingProps?.LazyMatchSkeleton ? (
                         <lazyLoadingProps.LazyMatchSkeleton />
                       ) : null
