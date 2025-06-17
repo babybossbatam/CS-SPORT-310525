@@ -20,8 +20,6 @@ import {
 import { FixtureResponse } from "@/types/fixtures";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
-import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
-import { isNationalTeam } from "@/lib/teamLogoSources";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -1172,33 +1170,39 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   }}
                 >
                   {(() => {
-                    // 1. World/International Competition Check
-                    if (currentMatch?.league?.country === "World" ||
-                        currentMatch?.league?.country === "International") {
-                      return (
-                        <div
-                          className="absolute z-20"
-                          style={{
-                            top: "calc(50% - 32px)",
-                            left: "-32px",
-                          }}
-                        >
-                          <MyWorldTeamLogo
-                            teamName={currentMatch?.teams?.home?.name || ""}
-                            teamLogo={currentMatch?.teams?.home?.logo || ""}
-                            alt={currentMatch?.teams?.home?.name || "Home Team"}
-                            size="64px"
-                            leagueContext={{
-                              name: currentMatch?.league?.name || "",
-                              country: currentMatch?.league?.country || "",
-                            }}
-                          />
-                        </div>
-                      );
-                    }
+                    // Check if this is a national team in an international competition
+                    const isInternationalCompetition =
+                      currentMatch?.league?.country === "World" ||
+                      currentMatch?.league?.country === "Europe" ||
+                      currentMatch?.league?.country === "South America" ||
+                      currentMatch?.league?.name
+                        ?.toLowerCase()
+                        .includes("world cup") ||
+                      currentMatch?.league?.name
+                        ?.toLowerCase()
+                        .includes("euro") ||
+                      currentMatch?.league?.name
+                        ?.toLowerCase()
+                        .includes("copa america") ||
+                      currentMatch?.league?.name
+                        ?.toLowerCase()
+                        .includes("uefa nations") ||
+                      currentMatch?.league?.name
+                        ?.toLowerCase()
+                        .includes("cosafa") ||
+                      currentMatch?.league?.name
+                        ?.toLowerCase()
+                        .includes("tournoi maurice revello") ||
+                      currentMatch?.league?.name
+                        ?.toLowerCase()
+                        .includes("friendlies") ||
+                      currentMatch?.league?.name
+                        ?.toLowerCase()
+                        .includes("international");
 
-                    // 2. National Team Check
-                    if (isNationalTeam(currentMatch?.teams?.home, currentMatch?.league)) {
+                    if (isInternationalCompetition) {
+                      const teamName = currentMatch?.teams?.home?.name || "";
+
                       return (
                         <div
                           className="absolute z-20"
@@ -1208,17 +1212,21 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           }}
                         >
                           <MyCircularFlag
-                            teamName={currentMatch?.teams?.home?.name || ""}
+                            teamName={teamName}
                             fallbackUrl={currentMatch?.teams?.home?.logo}
-                            alt={currentMatch?.teams?.home?.name || "Home Team"}
+                            alt={teamName}
                             size="64px"
                             className="featured-match-size"
+                            leagueContext={{
+                              name: currentMatch?.league?.name || "",
+                              country: currentMatch?.league?.country || "",
+                            }}
                           />
                         </div>
                       );
                     }
 
-                    // 3. Club Team Fallback
+                    // Fallback to original team logo for non-international competitions
                     return (
                       <img
                         src={
@@ -1230,7 +1238,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         style={{
                           top: "calc(50% - 32px)",
                           left: "-32px",
-                          filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
+                          filter:
+                            "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
                         }}
                         loading="lazy"
                         decoding="async"
@@ -1296,9 +1305,39 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
 
                 {(() => {
-                  // 1. World/International Competition Check
-                  if (currentMatch?.league?.country === "World" ||
-                      currentMatch?.league?.country === "International") {
+                  // Check if this is a national team in an international competition
+                  const isInternationalCompetition =
+                    currentMatch?.league?.country === "World" ||
+                    currentMatch?.league?.country === "Europe" ||
+                    currentMatch?.league?.country === "South America" ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("world cup") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("euro") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("copa america") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("uefa nations") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("cosafa") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("tournoi maurice revello") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("friendlies") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("international");
+
+                  if (isInternationalCompetition) {
+                    const teamName = currentMatch?.teams?.away?.name || "";
+
                     return (
                       <div
                         className="absolute z-20"
@@ -1307,11 +1346,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           right: "32px",
                         }}
                       >
-                        <MyWorldTeamLogo
-                          teamName={currentMatch?.teams?.away?.name || ""}
-                          teamLogo={currentMatch?.teams?.away?.logo || ""}
-                          alt={currentMatch?.teams?.away?.name || "Away Team"}
+                        <MyCircularFlag
+                          teamName={teamName}
+                          fallbackUrl={currentMatch?.teams?.away?.logo}
+                          alt={teamName}
                           size="64px"
+                          className="featured-match-size"
                           moveLeft={true}
                           leagueContext={{
                             name: currentMatch?.league?.name || "",
@@ -1322,29 +1362,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     );
                   }
 
-                  // 2. National Team Check
-                  if (isNationalTeam(currentMatch?.teams?.away, currentMatch?.league)) {
-                    return (
-                      <div
-                        className="absolute z-20"
-                        style={{
-                          top: "calc(50% - 32px)",
-                          right: "32px",
-                        }}
-                      >
-                        <MyCircularFlag
-                          teamName={currentMatch?.teams?.away?.name || ""}
-                          fallbackUrl={currentMatch?.teams?.away?.logo}
-                          alt={currentMatch?.teams?.away?.name || "Away Team"}
-                          size="64px"
-                          className="featured-match-size"
-                          moveLeft={true}
-                        />
-                      </div>
-                    );
-                  }
-
-                  // 3. Club Team Fallback
                   return (
                     <img
                       src={
@@ -1354,9 +1371,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       alt={currentMatch?.teams?.away?.name || "Away Team"}
                       className="absolute z-20 w-[64px] h-[64px] object-contain rounded-full"
                       style={{
-                        top: "calc(50% - 32px)",
+                        top: "calc(50% - 64px)",
                         right: "16px",
-                        filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
+                        filter:
+                          "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
                       }}
                       loading="lazy"
                       decoding="async"
