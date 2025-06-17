@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
@@ -12,6 +11,7 @@ import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
 import MyRightContent from '@/components/layout/MyRightContent';
+import MyMatchdetailsScoreboard from "../matches/MyMatchdetailsScoreboard";
 
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -50,7 +50,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
             />
           </div>
 
-          
+
         </div>
 
         {/* Right column (7 columns) */}
@@ -58,7 +58,10 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
           {selectedFixture ? (
             <ScoreDetailsCard currentFixture={selectedFixture} onClose={handleBackToMain} />
           ) : (
-            <MyRightContent />
+            <>
+              <MyMatchdetailsScoreboard />
+              <MyRightContent />
+            </>
           )}
         </div>
       </div>
