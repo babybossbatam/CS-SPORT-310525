@@ -20,8 +20,6 @@ import {
 import { FixtureResponse } from "@/types/fixtures";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
-import { isNationalTeam } from "@/lib/teamLogoSources";
-import LazyImage from "@/components/common/LazyImage";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -761,11 +759,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const liveUpdateInterval = setInterval(async () => {
         try {
           console.log(`🔄 [LIVE UPDATE] Refreshing data for live match: ${currentMatch.teams.home.name} vs ${currentMatch.teams.away.name}`);
-
+          
           // Fetch latest fixture data directly
           const response = await apiRequest("GET", `/api/fixtures/${currentMatch.fixture.id}`);
           const updatedMatch = await response.json();
-
+          
           // Update the current match data if status changed - but don't reload page
           if (updatedMatch && updatedMatch.fixture.status.short !== currentMatch.fixture.status.short) {
             console.log(`🔄 [LIVE UPDATE] Status changed from ${currentMatch.fixture.status.short} to ${updatedMatch.fixture.status.short}`);
@@ -820,7 +818,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     if (status === "CANC") return "Cancelled";
     if (status === "ABD") return "Abandoned";
     if (status === "AWD") return "Technical Loss";
-    if (status=== "WO") return "Walkover";
+    if (status === "WO") return "Walkover";
     if (status === "LIVE") return "Live";
     if (status === "NS") return "UPCOMING";
     return status;
@@ -1307,13 +1305,37 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
 
                 {(() => {
-                  // Use isNationalTeam function to detect national teams
-                  const isActualNationalTeam = isNationalTeam(
-                    currentMatch?.teams?.away,
-                    currentMatch?.league
-                  );
+                  // Check if this is a national team in an international competition
+                  const isInternationalCompetition =
+                    currentMatch?.league?.country === "World" ||
+                    currentMatch?.league?.country === "Europe" ||
+                    currentMatch?.league?.country === "South America" ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("world cup") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("euro") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("copa america") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("uefa nations") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("cosafa") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("tournoi maurice revello") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("friendlies") ||
+                    currentMatch?.league?.name
+                      ?.toLowerCase()
+                      .includes("international");
 
-                  if (isActualNationalTeam) {
+                  if (isInternationalCompetition) {
                     const teamName = currentMatch?.teams?.away?.name || "";
 
                     return (
@@ -1331,35 +1353,35 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           size="64px"
                           className="featured-match-size"
                           moveLeft={true}
+                          leagueContext={{
+                            name: currentMatch?.league?.name || "",
+                            country: currentMatch?.league?.country || "",
+                          }}
                         />
                       </div>
                     );
                   }
 
-                  // Use LazyImage with drop-shadow for club teams
                   return (
-                    <div
-                      className="absolute z-20"
+                    <img
+                      src={
+                        currentMatch?.teams?.away?.logo ||
+                        `/assets/fallback-logo.svg`
+                      }
+                      alt={currentMatch?.teams?.away?.name || "Away Team"}
+                      className="absolute z-20 w-[64px] h-[64px] object-contain rounded-full"
                       style={{
-                        top: "calc(50% - 32px)",
-                        right: "-32px",
+                        top: "calc(50% - 64px)",
+                        right: "16px",
+                        filter:
+                          "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
                       }}
-                    >
-                      <LazyImage
-                        src={
-                          currentMatch?.teams?.away?.logo ||
-                          `/assets/fallback-logo.svg`
-                        }
-                        alt={currentMatch?.teams?.away?.name || "Away Team"}
-                        className="w-[64px] h-[64px] object-contain rounded-full"
-                        style={{
-                          filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
-                        }}
-                        fallbackSrc="/assets/fallback-logo.png"
-                        rootMargin="50px"
-                        threshold={0.1}
-                      />
-                    </div>
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.currentTarget.src = "/assets/fallback-logo.svg";
+                      }}
+                    />
                   );
                 })()}
               </div>
