@@ -717,6 +717,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   };
 
   const handleMatchClick = (match: any) => {
+    console.log('🎯 [CombinedLeagueCards] Match clicked:', match.teams.home.name, 'vs', match.teams.away.name);
     // Call the parent onMatchCardClick to handle right column display
     if (onMatchCardClick) {
       onMatchCardClick(match);
