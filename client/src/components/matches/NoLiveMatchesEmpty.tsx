@@ -21,29 +21,32 @@ const NoLiveMatchesEmpty = ({
       {/* Stadium seats illustration */}
       <div className="mb-8">
         <svg width="120" height="80" viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-          {/* Stadium structure */}
+          {/* Stadium curved roof structure */}
           <path 
-            d="M10 60 L10 20 Q10 15 15 15 L105 15 Q110 15 110 20 L110 60 L95 70 L25 70 Z" 
+            d="M15 25 Q60 10 105 25 L105 35 Q60 20 15 35 Z" 
+            fill="#4B5563" 
+            stroke="#374151" 
+            strokeWidth="1"
+          />
+          
+          {/* Stadium back wall */}
+          <path 
+            d="M15 35 L15 65 L105 65 L105 35" 
             fill="#6B7280" 
             stroke="#4B5563" 
-            strokeWidth="2"
+            strokeWidth="1"
           />
           
-          {/* Seats */}
-          <circle cx="30" cy="45" r="8" fill="#EA580C" />
-          <circle cx="50" cy="45" r="8" fill="#EA580C" />
-          <circle cx="70" cy="45" r="8" fill="#EA580C" />
-          <circle cx="90" cy="45" r="8" fill="#EA580C" />
+          {/* Orange/Red seats in rows */}
+          <circle cx="25" cy="50" r="6" fill="#EA580C" />
+          <circle cx="40" cy="50" r="6" fill="#EA580C" />
+          <circle cx="55" cy="50" r="6" fill="#EA580C" />
+          <circle cx="70" cy="50" r="6" fill="#EA580C" />
+          <circle cx="85" cy="50" r="6" fill="#EA580C" />
+          <circle cx="100" cy="50" r="6" fill="#EA580C" />
           
-          {/* Stadium roof structure */}
-          <path 
-            d="M5 20 Q60 5 115 20" 
-            stroke="#4B5563" 
-            strokeWidth="2" 
-            fill="none"
-          />
-          <line x1="15" y1="20" x2="12" y2="15" stroke="#4B5563" strokeWidth="2" />
-          <line x1="105" y1="20" x2="108" y2="15" stroke="#4B5563" strokeWidth="2" />
+          {/* Front edge/barrier */}
+          <line x1="15" y1="65" x2="105" y2="65" stroke="#374151" strokeWidth="2" />
         </svg>
       </div>
 
