@@ -109,6 +109,7 @@ interface TodayMatchByTimeProps {
 
 const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   selectedDate,
+  refreshInterval = 30000,
   timeFilterActive = false,
   liveFilterActive = false,
   onMatchCardClick,
