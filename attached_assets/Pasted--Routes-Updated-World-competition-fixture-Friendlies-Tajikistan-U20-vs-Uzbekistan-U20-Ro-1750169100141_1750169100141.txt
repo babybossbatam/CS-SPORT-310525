@@ -1,0 +1,24 @@
+🌍 [Routes] Updated World competition fixture: Friendlies - Tajikistan U20 vs Uzbekistan U20
+🌍 [Routes] Updated World competition fixture: CONCACAF Gold Cup - Mexico vs Dominican Republic
+🌍 [Routes] Updated World competition fixture: Friendlies - Algeria U17 vs Tunisia U17
+🌍 [Routes] Updated World competition fixture: CONCACAF Gold Cup - USA vs Trinidad and Tobago
+🌍 [Routes] Updated World competition fixture: Tournoi Maurice Revello - Mexico U20 vs Denmark U20
+🌍 [Routes] Updated World competition fixture: CONCACAF Gold Cup - Panama vs Guadeloupe
+🌍 [Routes] Updated World competition fixture: Friendlies Women - Singapore W vs Hong Kong W
+🌍 [Routes] Updated World competition fixture: CONCACAF Gold Cup - Jamaica vs Guatemala
+🌍 [Routes] Updated World competition fixture: Friendlies - Kyrgyz Republic U20 vs Iran U20
+🌍 [Routes] Updated World competition fixture: CONCACAF Gold Cup - Haiti vs Saudi Arabia
+🌍 [Routes] Updated World competition fixture: COSAFA Cup - Madagascar vs Comoros
+🌍 [Routes] Updated World competition fixture: CONCACAF Gold Cup - Costa Rica vs Suriname
+🌍 [Routes] Updated World competition fixture: COSAFA Cup - Angola vs South Africa
+🌍 [Routes] Updated World competition fixture: Friendlies - Afghanistan U20 vs Turkmenistan U20
+🌍 [Routes] Updated World competition fixture: Friendlies - Tajikistan U20 vs Uzbekistan U20
+🌍 [Routes] Cached new World competition fixture: UEFA U19 Championship - Norway U19 vs Netherlands U19
+🎯 [Routes] Processing multi-timezone request for date: 2025-06-17 (all=true)
+🎯 [Routes] Current server date: 2025-06-17T14:04:55.391Z, requested date: 2025-06-17
+🌍 [Routes] Updated World competition fixture: Friendlies - Algeria U17 vs Tunisia U17
+🌍 [Routes] Updated World competition fixture: Tournoi Maurice Revello - Mexico U20 vs Denmark U20
+🌍 [Routes] Updated World competition fixture: CONCACAF Gold Cup - Curaçao vs El Salvador
+✅ [Routes] Returning 1185 cached fixtures for date 2025-06-17 (age: 0min, maxAge: 30min)
+2:04:55 PM [express] GET /api/fixtures/date/2025-06-17 200 in 321ms :: [{"goals":{"away":null,"home"…
+🌍 [Routes] Updated World competition fixture: CONCACAF Gold Cup - Canada vs Honduras
