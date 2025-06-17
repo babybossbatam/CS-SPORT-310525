@@ -10,6 +10,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
+import MyMatchdetailsScoreboard from "./MyMatchdetailsScoreboard";
 import {
   shouldExcludeFromPopularLeagues,
   isPopularLeagueSuitable,
@@ -297,6 +298,13 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     };
   }, []);
 
+  const handleMatchClick = (match: any) => {
+    // Call the parent onMatchCardClick to handle right column display
+    if (onMatchCardClick) {
+      onMatchCardClick(match);
+    }
+  };
+
   if (isLoadingCentral) {
     return (
       <Card>
@@ -370,14 +378,15 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         showTop20={true}
         liveFilterActive={liveFilterActive}
         filteredFixtures={filteredFixtures}
-        onMatchCardClick={onMatchCardClick}
+        onMatchCardClick={handleMatchClick}
         lazyLoadingProps={{
           visibleMatches,
           createLazyRef,
           LazyMatchSkeleton
         }}
       />
-    </>
+
+      </>
   );
 };
 
