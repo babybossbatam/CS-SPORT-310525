@@ -806,7 +806,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         });
         acc[displayCountry] = {
           country: displayCountry,
-          flag: "",
+          flag: "",```text
           leagues: {},
           hasPopularLeague: POPULAR_LEAGUES.includes(leagueId),
         };
@@ -1359,42 +1359,42 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               );
 
               return (
-                
-                  
-                    
-                      
-                        
-                          
-                            
-                              
-                            
-                            
+
+
+
+
+
+
+
+
+
+
                               {typeof countryData.country === 'string' ? countryData.country : countryData.country?.name || 'Unknown'}
-                            
-                            
+
+
                               ({totalMatches})
-                            
+
                             {/* Live/Recent badges */}
                             {liveMatches > 0 && (
-                              
+
                                 {liveMatches} LIVE
-                              
+
                             )}
                             {recentMatches > 0 && !liveMatches && (
-                              
+
                                 {recentMatches} Recent
-                              
+
                             )}
-                          
+
                           {isExpanded ? (
-                            
+
                           ) : (
-                            
+
                           )}
-                        
-                      
+
+
                       {isExpanded && (
-                        
+
                           {/* Sort leagues - popular first */}
                           {Object.values(countryData.leagues)
                             .sort((a: any, b: any) => {
@@ -1410,22 +1410,22 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               const isLeagueExpanded = expandedLeagues.has(leagueKey);
 
                               return (
-                              
+
                                 {/* League Header - Now clickable */}
-                                
-                                  
-                                    
-                                      
-                                    
-                                    
-                                      
-                                        
+
+
+
+
+
+
+
+
                                           {safeSubstring(leagueData.league.name, 0) ||
                                             "Unknown League"}
-                                        
-                                        
+
+
                                           ({leagueData.matches.length})
-                                        
+
                                         {(() => {
                                           const liveMatchesInLeague = leagueData.matches.filter((match: any) =>
                                             ["LIVE", "1H", "HT", "2H", "ET"].includes(
@@ -1435,28 +1435,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                           if (liveMatchesInLeague > 0) {
                                             return (
-                                              
+
                                                 {liveMatchesInLeague} LIVE
-                                              
+
                                             );
                                           }
                                           return null;
                                         })()}
-                                      
-                                      
+
+
                                         {leagueData.league.country || "Unknown Country"}
-                                      
-                                    
+
+
                                     {leagueData.isPopular && (
-                                      
+
                                         Popular
-                                      
+
                                     )}
-                                  
+
 
                                   {/* Matches - Show when league is expanded OR when it's the first league */}
                                   {(isLeagueExpanded) && (
-                                    
+
                                     {leagueData.matches
                                       .filter((match: any, index: number, array: any[]) => {
                                         // Remove duplicates by fixture ID and filter hidden matches
@@ -1555,20 +1555,20 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       })
                                       .map((match: any, matchIndex) => (
 
-                                        
+
                                           {/* Star Button with true slide-in effect */}
-                                          
-                                            
-                                              
+
+
+
                                                 starred"
                                               : ""
                                             }`}
                                           />
-                                        
+
                                           {/* Three-grid layout container */}
-                                          
+
                                             {/* Top Grid: Match Status */}
-                                            
+
                                               {(() => {
                                                 const status = match.fixture.status.short;
 
@@ -1584,11 +1584,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                   ].includes(status)
                                                 ) {
                                                   return (
-                                                    
+
                                                       {status === "HT"
                                                         ? "Halftime"
                                                         : `${match.fixture.status.elapsed || 0}'`}
-                                                    
+
                                                   );
                                                 }
 
@@ -1606,7 +1606,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                   ].includes(status)
                                                 ) {
                                                   return (
-                                                    
+
                                                       {status === "FT"
                                                         ? "Ended"
                                                         : status === "AET"
@@ -1624,7 +1624,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                                     : status === "SUSP"
                                                                       ? "Suspended"
                                                                       : status}
-                                                    
+
                                                   );
                                                 }
 
@@ -1655,36 +1655,36 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                                 : status;
 
                                                   return (
-                                                    
+
                                                       {statusText}
-                                                    
+
                                                   );
                                                 }
 
                                                 // Upcoming matches (TBD status)
                                                 if (status === "TBD") {
                                                   return (
-                                                    
+
                                                       Time TBD
-                                                    
+
                                                   );
                                                 }
 
                                                 // Default - no status display for regular upcoming matches
                                                 return null;
                                               })()}
-                                            
+
 
                                             {/* Middle Grid: Main match content */}
-                                            
+
                                               {/* Home Team Name - positioned further left */}
-                                              
+
                                                 {shortenTeamName(match.teams.home.name) ||
                                                   "Unknown Team"}
-                                              
+
 
                                               {/* Home team logo - grid area */}
-                                              
+
                                                 {(() => {
                                                   // Check if this is a national team
                                                   const isActualNationalTeam = isNationalTeam(match.teams.home, {
@@ -1701,25 +1701,25 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                   // Use MyCircularFlag for all national teams and youth teams
                                                   if (isActualNationalTeam || isYouthTeam) {
                                                     return (
-                                                      
-                                                        
-                                                      
+
+
+
                                                     );
                                                   }
 
                                                   // Default to regular team logo for club teams
                                                   return (
-                                                    
-                                                      
-                                                        
-                                                      
-                                                    
+
+
+
+
+
                                                   );
                                                 })()}
-                                              
+
 
                                               {/* Score/Time Center - Fixed width and centered */}
-                                              
+
                                 {(() => {
                                   const status = match.fixture.status.short;
                                   const fixtureDate = parseISO(match.fixture.date);
@@ -1746,15 +1746,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     ].includes(displayStatus)
                                   ) {
                                     return (
-                                      
-                                        
+
+
                                           {match.goals.home ?? 0}
-                                        
+
                                         -
-                                        
+
                                           {match.goals.away ?? 0}
-                                        
-                                      
+
+
                                     );
                                   }
 
@@ -1784,22 +1784,22 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                     if (hasValidScores) {
                                       return (
-                                        
-                                          
+
+
                                             {homeScore}
-                                          
+
                                           -
-                                          
+
                                             {awayScore}
-                                          
-                                        
+
+
                                       );
                                     } else {
                                       // Match is finished but no valid score data - show time in user's timezone
                                       return (
-                                        
+
                                           {format(fixtureDate, "HH:mm")}
-                                        
+
                                       );
                                     }
                                   }
@@ -1816,26 +1816,27 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     ].includes(displayStatus)
                                   ) {
                                     return (
-                                      
+
                                         {format(fixtureDate, "HH:mm")}
-                                      
+
                                     );
                                   }
 
-                                  // Upcoming matches (NS = Not Started, TBD = To Be Determined)
+                                  // Upcoming matches```text
+(NS = Not Started, TBD = To Be Determined)
                                   // Show time in user's local timezone (date-fns format automatically converts from UTC)
                                   return (
-                                    
+
                                       {displayStatus === "TBD"
                                         ? "TBD"
                                         : format(fixtureDate, "HH:mm")}
-                                    
+
                                   );
                                 })()}
-                                              
+
 
                                               {/* Away team logo - grid area */}
-                                              
+
                                                 {(() => {
                                                   // Check if this is a national team
                                                   const isActualNationalTeam = isNationalTeam(match.teams.away, {
@@ -1852,32 +1853,32 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                   // Use MyCircularFlag for all national teams and youth teams
                                                   if (isActualNationalTeam || isYouthTeam) {
                                                     return (
-                                                      
-                                                        
-                                                      
+
+
+
                                                     );
                                                   }
 
                                                   // Default to regular team logo for club teams
                                                   return (
-                                                    
-                                                      
-                                                        
-                                                      
-                                                    
+
+
+
+
+
                                                   );
                                                 })()}
-                                              
+
 
                                               {/* Away Team Name - positioned further right */}
-                                              
+
                                                 {shortenTeamName(match.teams.away.name) ||
                                                   "Unknown Team"}
-                                              
-                                            
+
+
 
                                             {/* Bottom Grid: Penalty Result Status */}
-                                            
+
                                               {(() => {
                                                 const status = match.fixture.status.short;
                                                 const isPenaltyMatch = status === "PEN";
@@ -1898,30 +1899,30 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                       : `${shortenTeamName(match.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
 
                                                   return (
-                                                    
-                                                      
+
+
                                                         {winnerText}
-                                                      
-                                                    
+
+
                                                   );
                                                 }
                                                 return null;
                                               })()}
-                                            
-                                          
-                                        
+
+
+
                                       ))
                                     }
-                                  
+
                                 )}
-                              
+
                             );
                             })}
-                        
+
                       )}
-                    
-                  
-                
+
+
+
               );
             })}
         </div>
