@@ -30,11 +30,11 @@ const apiClient = axios.create({
 });
 
 // Improved cache control with shorter duration for live data
-const LIVE_DATA_CACHE_DURATION = 30 * 1000; // 30 seconds for live data (more frequent updates)
-const TODAY_CACHE_DURATION = 10 * 60 * 1000; // 10 minutes for today's matches
-const FUTURE_CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours for future dates
-const PAST_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for past dates
-const STATIC_DATA_CACHE_DURATION = 4 * 60 * 60 * 1000; // 4 hours for static data
+const LIVE_DATA_CACHE_DURATION = 15 * 1000; // 15 seconds for live data (more frequent updates for Pro tier)
+const TODAY_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for today's matches (Pro tier should handle more requests)
+const FUTURE_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for future dates
+const PAST_CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours for past dates
+const STATIC_DATA_CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours for static data
 
 // Cache objects
 const fixturesCache = new Map<string, { data: any; timestamp: number }>();
@@ -475,19 +475,24 @@ export const rapidApiService = {
     const cached = fixturesCache.get(cacheKey);
 
     const now = Date.now();
-    // Very short cache time for live fixtures (15 seconds) to catch status changes quickly
-    if (cached && now - cached.timestamp < 15 * 1000) {
+    // Very short cache time for live fixtures (10 seconds) for Pro subscription
+    if (cached && now - cached.timestamp < 10 * 1000) {
+      console.log(`🔄 [PRO API] Using cached live fixtures (age: ${Math.round((now - cached.timestamp) / 1000)}s)`);
       return cached.data;
     }
 
     try {
       console.log(
-        "🔴 [RapidAPI] Fetching live fixtures without timezone restriction...",
+        "🔴 [RapidAPI PRO] Fetching live fixtures without timezone restriction...",
       );
       const response = await apiClient.get("/fixtures", {
         params: {
           live: "all",
           // No timezone parameter - get all live fixtures regardless of timezone
+        },
+        headers: {
+          "X-RapidAPI-Key": apiKey,
+          "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
         },
       });
 

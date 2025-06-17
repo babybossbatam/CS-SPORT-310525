@@ -150,6 +150,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [hiddenMatches, setHiddenMatches] = useState<Set<number>>(new Set());
+  const [isRefreshing, setIsRefreshing] = useState(false);
   // Initialize flagMap with immediate synchronous values for better rendering
   const [flagMap, setFlagMap] = useState<{ [country: string]: string }>(() => {
     // Pre-populate with synchronous flag URLs to prevent initial undefined state
@@ -414,7 +415,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return format(utcDate, "yyyy-MM-dd");
   };
 
-  // Apply smart time filtering directly
+  // Apply smart time filtering directly and detect stale matches
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     if (!fixtures?.length) {
       return {
@@ -422,6 +423,29 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         rejectedFixtures: [],
         stats: { total: 0, valid: 0, rejected: 0, methods: {} }
       };
+    }
+
+    // Check for stale matches and force refresh if found
+    const staleMatches = fixtures.filter(fixture => {
+      if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) return false;
+      
+      const matchDate = new Date(fixture.fixture.date);
+      const now = new Date();
+      const hoursSinceStart = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+      const status = fixture.fixture.status.short;
+      
+      return hoursSinceStart > 4 && ["1H", "2H", "LIVE", "HT", "ET", "BT", "P", "INT"].includes(status);
+    });
+
+    if (staleMatches.length > 0) {
+      console.log(`🚨 [PRO API] Found ${staleMatches.length} stale matches, forcing fresh API call...`);
+      // Force refresh by invalidating cache and refetching
+      setTimeout(() => {
+        // Clear cache and refetch
+        const cacheKey = `all-fixtures-by-date-${selectedDate}`;
+        localStorage.removeItem(cacheKey);
+        window.location.reload(); // Force page refresh to get latest data
+      }, 1000);
     }
 
     // Use MySmartTimeFilter directly for consistent filtering
@@ -872,6 +896,40 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
   };
 
+  const handleManualRefresh = async () => {
+    if (isRefreshing) return;
+    
+    setIsRefreshing(true);
+    console.log("🔄 [MANUAL REFRESH] Forcing fresh API call...");
+    
+    // Clear all relevant caches
+    const cacheKey = `all-fixtures-by-date-${selectedDate}`;
+    localStorage.removeItem(cacheKey);
+    
+    // Force fresh API call
+    try {
+      const response = await apiRequest(
+        "GET",
+        `/api/fixtures/date/${selectedDate}?all=true&fresh=true&t=${Date.now()}`
+      );
+      const freshData = await response.json();
+      
+      if (freshData && Array.isArray(freshData)) {
+        // Cache fresh data
+        cacheFixturesForDate(selectedDate, freshData, "manual-refresh");
+        console.log(`✅ [MANUAL REFRESH] Got ${freshData.length} fresh fixtures`);
+        
+        // Force component re-render by updating a state that triggers useQuery
+        setEnableFetching(false);
+        setTimeout(() => setEnableFetching(true), 100);
+      }
+    } catch (error) {
+      console.error("❌ [MANUAL REFRESH] Failed:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const toggleLeague = (country: string, leagueId: number) => {
     const leagueKey = `${country}-${leagueId}`;
     const newExpanded = new Set(expandedLeagues);
@@ -1079,8 +1137,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   return (
     <Card className="mt-4">
-      <CardHeader className="flex flex-col space-y-1.5 p-2 border-b border-stone-200">
+      <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
         <h3 className="font-semibold" style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '13.3px' }}>{getHeaderTitle()}</h3>
+        <button
+          onClick={handleManualRefresh}
+          disabled={isRefreshing}
+          className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50"
+          style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", fontSize: '11px' }}
+        >
+          {isRefreshing ? "Refreshing..." : "🔄 Refresh"}
+        </button>
       </CardHeader>
       <CardContent className="p-0">
         <div className="country-matches-container todays-matches-by-country-container">
