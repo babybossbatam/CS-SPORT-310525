@@ -303,17 +303,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cacheTime = new Date(cachedFixtures[0].timestamp);
         const cacheAge = now.getTime() - cacheTime.getTime();
 
-        // Use smart cache durations based on date
+        // Use smart cache durations based on date - EXTENDED CACHE TIMES
         const today = new Date().toISOString().split('T')[0];
         const isPastDate = date < today;
         const isToday = date === today;
 
-        // Past dates: 24 hours cache (matches are finished and stable)
-        // Today: 30 minutes cache (balanced for live updates and efficiency)
-        // Future dates: 4 hours cache (schedules rarely change)
-        const maxCacheAge = isPastDate ? 24 * 60 * 60 * 1000 : 
-                       isToday ? 30 * 60 * 1000 : 
-                       4 * 60 * 60 * 1000;
+        // Past dates: 7 days cache (matches are finished and stable)
+        // Today: 2 hours cache (only live matches need frequent updates)
+        // Future dates: 12 hours cache (schedules rarely change)
+        const maxCacheAge = isPastDate ? 7 * 24 * 60 * 60 * 1000 : 
+                       isToday ? 2 * 60 * 60 * 1000 : 
+                       12 * 60 * 60 * 1000;
 
         if (cacheAge < maxCacheAge) {
           console.log(`✅ [Routes] Returning ${cachedFixtures.length} cached fixtures for date ${date} (age: ${Math.round(cacheAge / 60000)}min, maxAge: ${Math.round(maxCacheAge / 60000)}min)`);
@@ -387,8 +387,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             if (existingFixture) {
               await storage.updateCachedFixture(fixtureId, fixture);
-              if (isWorldFixture) {
-                console.log(`🌍 [Routes] Updated World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+              // Only log World competition updates for LIVE matches to reduce noise
+              if (isWorldFixture && ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P'].includes(fixture.fixture?.status?.short)) {
+                console.log(`🌍 [Routes] Updated LIVE World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.fixture.status.short})`);
               }
             } else {
               await storage.createCachedFixture({
@@ -397,6 +398,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 league: cacheKey,
                 date: date
               });
+              // Only log new World fixtures on first cache, not every refresh
               if (isWorldFixture) {
                 console.log(`🌍 [Routes] Cached new World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
               }

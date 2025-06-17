@@ -245,6 +245,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return cachedFixtures;
       }
 
+      // Check if we really need fresh data based on cache age and date type
+      const today = new Date().toISOString().slice(0, 10);
+      const isPastDate = selectedDate < today;
+
+      // For past dates, be very conservative about refetching
+      if (isPastDate && cachedFixtures && cachedFixtures.length > 0) {
+        console.log(
+          `📦 [TodaysMatchesByCountryNew] Using cached data for past date ${selectedDate} (${cachedFixtures.length} fixtures)`,
+        );
+        return cachedFixtures;
+      }
+
       console.log(
         `📡 [TodaysMatchesByCountryNew] Fetching fresh data for date: ${selectedDate}`,
       );
@@ -254,47 +266,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       );
       const data = await response.json();
 
-      // Cache the fetched data
+      // Cache the fetched data with intelligent pre-caching
       if (data && Array.isArray(data)) {
         cacheFixturesForDate(selectedDate, data, "api");
         console.log(
           `💾 [TodaysMatchesByCountryNew] Cached ${data.length} fixtures for ${selectedDate}`,
         );
-
-        // Detailed API data analysis for fresh data
-        const apiAnalysis = {
-          totalFixtures: data.length,
-          countries: [
-            ...new Set(data.map((f) => f.league?.country).filter(Boolean)),
-          ].length,
-          leagues: [...new Set(data.map((f) => f.league?.name).filter(Boolean))]
-            .length,
-          statuses: [
-            ...new Set(
-              data.map((f) => f.fixture?.status?.short).filter(Boolean),
-            ),
-          ],
-          dateRange: {
-            earliest: data.reduce(
-              (min, f) => (f.fixture?.date < min ? f.fixture.date : min),
-              data[0]?.fixture?.date || "",
-            ),
-            latest: data.reduce(
-              (max, f) => (f.fixture?.date > max ? f.fixture.date : max),
-              data[0]?.fixture?.date || "",
-            ),
-          },
-          sampleFixtures: data.slice(0, 5).map((f) => ({
-            id: f.fixture?.id,
-            date: f.fixture?.date,
-            status: f.fixture?.status?.short,
-            league: f.league?.name,
-            country: f.league?.country,
-            teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
-          })),
-        };
-
-        console.log(`📊 [DEBUG] Fresh API Data Analysis:`, apiAnalysis);
       }
 
       return data;
@@ -419,7 +396,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   useEffect(() => {
     if (fixtures && fixtures.length > 0) {
       console.log(`🔍 [TodaysMatchesByCountryNew] Analyzing ${fixtures.length} fixtures for date: ${selectedDate}`);
-      
+
       // Log first few fixtures with detailed info
       const sampleFixtures = fixtures.slice(0, 5);
       sampleFixtures.forEach((fixture, index) => {
@@ -457,7 +434,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           const now = new Date();
           const matchDate = new Date(fixture.fixture.date);
           const minutesSinceStart = Math.floor((now.getTime() - matchDate.getTime()) / (1000 * 60));
-          
+
           console.log(`🔴 [TodaysMatchesByCountryNew] Live Match ${index + 1}:`, {
             fixtureId: fixture.fixture.id,
             teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
@@ -489,7 +466,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         const hoursDiff = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
         const matchDateString = matchDate.toISOString().split('T')[0];
         const isSelectedDate = matchDateString === selectedDate;
-        
+
         return {
           fixtureId: fixture.fixture.id,
           status: fixture.fixture.status.short,
@@ -530,12 +507,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Check for stale matches and force refresh if found
     const staleMatches = fixtures.filter(fixture => {
       if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) return false;
-      
+
       const matchDate = new Date(fixture.fixture.date);
       const now = new Date();
       const hoursSinceStart = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
       const status = fixture.fixture.status.short;
-      
+
       return hoursSinceStart > 4 && ["1H", "2H", "LIVE", "HT", "ET", "BT", "P", "INT"].includes(status);
     });
 
@@ -842,7 +819,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         0,
       ),
       leagues: Object.keys(data.leagues).length,
-      leagueNames: Object.values(data.leagues).map((l: any) => l.league.name),
+      leagueNames: Object.values(data.leagues).map((l: any) =>```text
+ l.league.name),
       sampleMatches: Object.values(data.leagues)
         .flatMap((l: any) => l.matches)
         .slice(0, 3)
@@ -1015,14 +993,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   const handleManualRefresh = async () => {
     if (isRefreshing) return;
-    
+
     setIsRefreshing(true);
     console.log("🔄 [MANUAL REFRESH] Forcing fresh API call...");
-    
+
     // Clear all relevant caches
     const cacheKey = `all-fixtures-by-date-${selectedDate}`;
     localStorage.removeItem(cacheKey);
-    
+
     // Force fresh API call
     try {
       const response = await apiRequest(
@@ -1030,12 +1008,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         `/api/fixtures/date/${selectedDate}?all=true&fresh=true&t=${Date.now()}`
       );
       const freshData = await response.json();
-      
+
       if (freshData && Array.isArray(freshData)) {
         // Cache fresh data
         cacheFixturesForDate(selectedDate, freshData, "manual-refresh");
         console.log(`✅ [MANUAL REFRESH] Got ${freshData.length} fresh fixtures`);
-        
+
         // Force component re-render by updating a state that triggers useQuery
         setEnableFetching(false);
         setTimeout(() => setEnableFetching(true), 100);

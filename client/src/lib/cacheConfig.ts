@@ -24,14 +24,14 @@ export const CACHE_PRESETS = {
     refetchOnReconnect: true,
   },
 
-  // For match fixtures and schedules (smart cache based on date)
+  // For match fixtures and schedules (smart cache based on date) - EXTENDED CACHE
   FIXTURES: {
-    staleTime: CACHE_DURATIONS.TWELVE_HOURS, // Extended to 12 hours
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 3, // Keep in memory for 72 hours
+    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS, // Extended to 24 hours for better performance
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 7, // Keep in memory for 7 days
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
-    refetchInterval: false, // Disable automatic refetching
+    refetchInterval: false, // Disable automatic refetching completely
     retry: 1,
   },
 

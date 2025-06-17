@@ -13,20 +13,20 @@ interface FixtureCacheStats {
   lastCleanup: number;
 }
 
-// Cache configuration
+// Cache configuration - EXTENDED DURATIONS FOR BETTER PERFORMANCE
 const FIXTURE_CACHE_CONFIG = {
-  // Live/upcoming matches: 1 minute (need frequent updates)
-  LIVE_CACHE_DURATION: 1 * 60 * 1000,
-  // Recent finished matches: 2 hours (scores might be updated)
-  RECENT_FINISHED_CACHE_DURATION: 2 * 60 * 60 * 1000,
-  // Old finished matches: 7 days (stable, no updates expected)
-  OLD_FINISHED_CACHE_DURATION: 7 * 24 * 60 * 60 * 1000,
-  // Yesterday and past dates: 24 hours (finished matches are stable)
-  PAST_DATE_CACHE_DURATION: 24 * 60 * 60 * 1000,
-  // Future matches: 8 hours (schedules rarely change)
-  FUTURE_CACHE_DURATION: 8 * 60 * 60 * 1000,
-  // Today's matches: 5 minutes (live updates needed)
-  TODAY_CACHE_DURATION: 5 * 60 * 1000,
+  // Live/upcoming matches: 2 minutes (need frequent updates but not excessive)
+  LIVE_CACHE_DURATION: 2 * 60 * 1000,
+  // Recent finished matches: 6 hours (scores are stable after match ends)
+  RECENT_FINISHED_CACHE_DURATION: 6 * 60 * 60 * 1000,
+  // Old finished matches: 30 days (stable, no updates expected)
+  OLD_FINISHED_CACHE_DURATION: 30 * 24 * 60 * 60 * 1000,
+  // Yesterday and past dates: 7 days (finished matches are stable)
+  PAST_DATE_CACHE_DURATION: 7 * 24 * 60 * 60 * 1000,
+  // Future matches: 24 hours (schedules rarely change)
+  FUTURE_CACHE_DURATION: 24 * 60 * 60 * 1000,
+  // Today's matches: 30 minutes (balance between freshness and performance)
+  TODAY_CACHE_DURATION: 30 * 60 * 1000,
   // Maximum cache size
   MAX_CACHE_SIZE: 10000,
   // Cleanup interval

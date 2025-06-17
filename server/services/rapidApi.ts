@@ -31,9 +31,9 @@ const apiClient = axios.create({
 
 // Improved cache control with shorter duration for live data
 const LIVE_DATA_CACHE_DURATION = 15 * 1000; // 15 seconds for live data (more frequent updates for Pro tier)
-const TODAY_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for today's matches (Pro tier should handle more requests)
-const FUTURE_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for future dates
-const PAST_CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours for past dates
+const TODAY_CACHE_DURATION = 60 * 60 * 1000; // 1 hour for today (reduced frequency)
+const FUTURE_CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours for future dates (schedules rarely change)
+const PAST_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days for past dates (stable data)
 const STATIC_DATA_CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours for static data
 
 // Cache objects
@@ -986,7 +986,8 @@ export const rapidApiService = {
         params: { league: leagueId, season: correctSeason },
       });
 
-      console.log(
+      Updating cache durations in rapidApiService.```text
+console.log(
         `Standings API response status: ${response.status}, results count: ${response.data?.results || 0}`,
       );
 
