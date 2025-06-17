@@ -132,10 +132,10 @@ export const rapidApiService = {
 
       if (fetchAll) {
         console.log(
-          `🌍 [365scores approach] Fetching fixtures with expanded date range for comprehensive timezone coverage`,
+          `🌍 [Timezone-inclusive fetching] Fetching fixtures with expanded date range for World competitions`,
         );
 
-        // Create expanded date range (±1 day) to catch all timezone variations
+        // Timezone-inclusive fetching: Queries ±1 day to catch all timezone variations
         const requestedDate = new Date(date);
         const previousDay = new Date(requestedDate);
         previousDay.setDate(previousDay.getDate() - 1);
@@ -149,7 +149,7 @@ export const rapidApiService = {
         ];
 
         console.log(
-          `🌍 [365scores approach] Querying date range: ${dateRange.join(", ")} for comprehensive coverage`,
+          `🌍 [Timezone-inclusive] Querying date range: ${dateRange.join(", ")} for World competitions`,
         );
 
         // Fetch fixtures from all dates in range
@@ -162,7 +162,6 @@ export const rapidApiService = {
             const response = await apiClient.get("/fixtures", {
               params: {
                 date: queryDate,
-                // No timezone parameter - let API return all fixtures for the date
               },
             });
 
@@ -173,7 +172,7 @@ export const rapidApiService = {
             if (response.data && response.data.response) {
               const dateFixtures = response.data.response;
 
-              // Filter fixtures using 365scores simple approach
+              // Filter fixtures for World competitions only
               const validFixtures = dateFixtures.filter((fixture: any) => {
                 try {
                   // Check date validity
@@ -181,7 +180,7 @@ export const rapidApiService = {
                     return false;
                   }
 
-                  // 365scores approach: Simple date matching
+                  // Simple date matching for timezone variations
                   const validDateChecks = this.isFixtureValidForDate(
                     fixture,
                     date,
@@ -222,26 +221,8 @@ export const rapidApiService = {
                   if (this.isEsportsFixture(fixture)) {
                     return false;
                   }
-                  // Check for valid international tournaments first
-                  const isValidInternationalTournament =
-                    (fixture.league.country === "World" ||
-                      fixture.league.country === "Europe") &&
-                    (fixture.league.name.toLowerCase().includes("uefa") ||
-                      fixture.league.name.toLowerCase().includes("fifa") ||
-                      fixture.league.name.toLowerCase().includes("euro") ||
-                      fixture.league.name
-                        .toLowerCase()
-                        .includes("championship") ||
-                      fixture.league.name
-                        .toLowerCase()
-                        .includes("nations league") ||
-                      fixture.league.name.toLowerCase().includes("world cup"));
 
-                  // Allow valid international tournaments through
-                  if (isValidInternationalTournament) {
-                    return true;
-                  }
-                  // Filter out fixtures with null/undefined country (99% are esports)
+                  // Filter out fixtures with null/undefined country
                   if (
                     fixture.league.country === null ||
                     fixture.league.country === undefined ||
@@ -286,7 +267,7 @@ export const rapidApiService = {
         }
 
         console.log(
-          `🌍 [365scores approach] Total fixtures collected: ${allFixtures.length} for date ${date}`,
+          `🌍 [Timezone-inclusive] Total fixtures collected: ${allFixtures.length} for date ${date}`,
         );
       } else {
         // Define popular leagues - matches core leagues
