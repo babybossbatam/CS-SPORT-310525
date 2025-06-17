@@ -300,11 +300,17 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   }, []);
 
   const handleMatchClick = (match: any) => {
-    // Pass the selected match data to parent component
-    console.log('🎯 [TodayMatchByTime] Match clicked:', match);
+    // Set the selected match locally instead of passing up
+    setSelectedMatch(match);
+
+    // Still call parent callback if provided for any additional handling
     if (onMatchCardClick) {
       onMatchCardClick(match);
     }
+  };
+
+  const handleBackToMatches = () => {
+    setSelectedMatch(null);
   };
 
   if (isLoadingCentral) {
@@ -372,19 +378,30 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   );
 
   return (
-    <CombinedLeagueCards
-      selectedDate={selectedDate}
-      timeFilterActive={timeFilterActive}
-      showTop20={true}
-      liveFilterActive={liveFilterActive}
-      filteredFixtures={filteredFixtures}
-      onMatchCardClick={handleMatchClick}
-      lazyLoadingProps={{
-        visibleMatches,
-        createLazyRef,
-        LazyMatchSkeleton
-      }}
-    />
+    <>
+      {selectedMatch ? (
+        // Show match details when a match is selected
+        <MyMatchdetailsScoreboard 
+          match={selectedMatch} 
+          onClose={handleBackToMatches}
+        />
+      ) : (
+        // Show match list when no match is selected
+        <CombinedLeagueCards
+          selectedDate={selectedDate}
+          timeFilterActive={timeFilterActive}
+          showTop20={true}
+          liveFilterActive={liveFilterActive}
+          filteredFixtures={filteredFixtures}
+          onMatchCardClick={handleMatchClick}
+          lazyLoadingProps={{
+            visibleMatches,
+            createLazyRef,
+            LazyMatchSkeleton
+          }}
+        />
+      )}
+    </>
   );
 };
 

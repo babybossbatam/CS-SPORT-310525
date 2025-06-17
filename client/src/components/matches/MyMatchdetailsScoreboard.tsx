@@ -18,21 +18,44 @@ const MyMatchdetailsScoreboard = ({
   onClose,
   onMatchCardClick,
 }: MyMatchdetailsScoreboardProps) => {
-  console.log('🎯 [MyMatchdetailsScoreboard] Received match prop:', match);
-  console.log('🎯 [MyMatchdetailsScoreboard] Match teams:', match?.teams);
-  console.log('🎯 [MyMatchdetailsScoreboard] Match fixture:', match?.fixture);
-  
-  // Only use match data if provided, don't show anything if no match is selected
-  if (!match) {
-    console.log('🎯 [MyMatchdetailsScoreboard] No match data - showing placeholder');
-    return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
-        <p>No match selected</p>
-      </div>
-    );
-  }
+  // Sample match data for demonstration
+  const sampleMatch = {
+    fixture: {
+      id: 1100311,
+      date: "2025-06-11T21:00:00+00:00",
+      status: { short: "NS", long: "Not Started" },
+      venue: { name: "Estadio Nacional de Lima", city: "Lima" },
+      referee: "Andres Rojas, Colombia",
+    },
+    league: {
+      id: 135,
+      name: "World Cup - Qualification South America",
+      country: "World",
+      round: "Group Stage - 16",
+    },
+    teams: {
+      home: {
+        id: 2382,
+        name: "Portugal U21",
+        logo: "https://media.api-sports.io/football/teams/2382.png",
+      },
+      away: {
+        id: 768,
+        name: "France U21",
+        logo: "https://media.api-sports.io/football/teams/768.png",
+      },
+    },
+    goals: {
+      home: null,
+      away: null,
+    },
+    score: {
+      halftime: { home: null, away: null },
+      fulltime: { home: null, away: null },
+    },
+  };
 
-  const displayMatch = match;
+  const displayMatch = match || sampleMatch;
 
   const formatDateTime = (dateStr: string) => {
     try {

@@ -29,11 +29,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
   };
 
   const handleMatchCardClick = (fixture: any) => {
-    console.log('🎯 [MyMainLayout] Received match data:', fixture);
-    console.log('🎯 [MyMainLayout] Match teams:', fixture?.teams);
-    console.log('🎯 [MyMainLayout] Match fixture:', fixture?.fixture);
     setSelectedFixture(fixture);
-    console.log('🎯 [MyMainLayout] selectedFixture state updated');
   };
 
   const handleBackToMain = () => {
@@ -60,12 +56,14 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
         {/* Right column (7 columns) */}
         <div className="lg:col-span-7 space-y-4">
           {selectedFixture ? (
-            <MyMatchdetailsScoreboard 
-              match={selectedFixture} 
-              onClose={handleBackToMain}
-            />
+            <ScoreDetailsCard currentFixture={selectedFixture} onClose={handleBackToMain} />
           ) : (
-            <MyRightContent />
+            <>
+              <MyMatchdetailsScoreboard 
+                onMatchCardClick={handleMatchCardClick}
+              />
+              <MyRightContent />
+            </>
           )}
         </div>
       </div>
