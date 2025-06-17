@@ -160,7 +160,7 @@ export const TodayMatchPageCard = ({
         awayGoals: fixture.goals?.away
       }))
     );
-    
+
     if (filteredFixtures.length > 10) {
       console.log(`📋 [TodayMatchPageCard] ... and ${filteredFixtures.length - 10} more fixtures`);
     }
