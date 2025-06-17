@@ -376,7 +376,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
     );
 
     return finalFiltered;
-  }, [fixturesToFilter, selectedDate]);
+  }, [propFilteredFixtures, allFixtures, selectedDate]);
 
   // Group fixtures by country and league
   const fixturesByCountry = filteredFixtures.reduce(
