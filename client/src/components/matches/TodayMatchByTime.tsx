@@ -110,8 +110,9 @@ interface TodayMatchByTimeProps {
 const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   selectedDate,
   refreshInterval = 30000,
-  timeFilterActive = false,
+  isTimeFilterActive = false,
   liveFilterActive = false,
+  timeFilterActive = false,
   onMatchCardClick,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
@@ -120,6 +121,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [visibleMatches, setVisibleMatches] = useState<Set<number>>(new Set());
+  const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Fetch live fixtures only
@@ -201,7 +203,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         return true;
       }
 
-      if (excludedTeams.some(excludedTeam => homeTeam.includes(excludedTeam) || awayTeam.includes(awayTeam))) {
+      if (excludedTeams.some(excludedTeam => homeTeam.includes(excludedTeam) || awayTeam.includes(excludedTeam))) {
         return true;
       }
 
@@ -298,10 +300,17 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   }, []);
 
   const handleMatchClick = (match: any) => {
-    // Pass the match click event up to the parent (MyMainLayout)
+    // Set the selected match locally instead of passing up
+    setSelectedMatch(match);
+
+    // Still call parent callback if provided for any additional handling
     if (onMatchCardClick) {
       onMatchCardClick(match);
     }
+  };
+
+  const handleBackToMatches = () => {
+    setSelectedMatch(null);
   };
 
   if (isLoadingCentral) {
@@ -370,6 +379,14 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
   return (
     <>
+      {selectedMatch ? (
+        // Show match details when a match is selected
+        <MyMatchdetailsScoreboard 
+          match={selectedMatch} 
+          onClose={handleBackToMatches}
+        />
+      ) : (
+        // Show match list when no match is selected
         <CombinedLeagueCards
           selectedDate={selectedDate}
           timeFilterActive={timeFilterActive}
@@ -383,6 +400,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
             LazyMatchSkeleton
           }}
         />
+      )}
     </>
   );
 };
