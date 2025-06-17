@@ -1293,22 +1293,31 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   };
 
   return (
-    
-      
-        
-          
-          
-          
-            {getHeaderTitle()}
-          
-          
+    <Card>
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Calendar className="h-5 w-5 text-blue-600" />
+            <h2 className="text-lg font-semibold text-gray-900">
+              {getHeaderTitle()}
+            </h2>
+          </div>
+          <button
+            onClick={handleManualRefresh}
+            disabled={isRefreshing}
+            className="px-3 py-1 text-sm bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 disabled:opacity-50"
+          >
             {isRefreshing ? "Refreshing..." : "🔄 Refresh"}
-          
-        
-        
-          
-            {/* Use sortedCountries directly */}
-            {sortedCountries.map((countryData: any) => {
+          </button>
+        </div>
+        <p className="text-sm text-gray-500">
+          {validFixtures.length} matches found
+        </p>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="space-y-0">
+          {/* Use sortedCountries directly */}
+          {sortedCountries.map((countryData: any) => {
               const isExpanded = expandedCountries.has(countryData.country);
               const totalMatches = Object.values(countryData.leagues).reduce(
                 (sum: number, league: any) => sum + league.matches.length,
@@ -1915,11 +1924,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                 
               );
             })}
-          
-        
-      
-      <DebugWidget />
-    
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
