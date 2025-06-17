@@ -109,18 +109,49 @@ const LazyMatchItem: React.FC<LazyMatchItemProps> = ({
     };
   }, [handleVisible, handlePrefetch, onPrefetch]);
 
+  // 3-grid layout skeleton that matches the actual match card structure
   const defaultFallback = (
-    <div className="border rounded-lg p-4 animate-pulse bg-gray-50">
-      <Skeleton className="h-4 w-32 mb-2" />
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Skeleton className="h-8 w-8 rounded" />
-          <Skeleton className="h-4 w-24" />
-        </div>
-        <Skeleton className="h-6 w-12" />
-        <div className="flex items-center space-x-3">
-          <Skeleton className="h-4 w-24" />
-          <Skeleton className="h-8 w-8 rounded" />
+    <div className="country-matches-container">
+      <div className="match-card-container">
+        {/* Three-grid layout container */}
+        <div className="match-three-grid-container">
+          {/* Top grid for status */}
+          <div className="match-status-top">
+            <Skeleton className="h-4 w-16 rounded" />
+          </div>
+
+          {/* Middle grid for main content */}
+          <div className="match-content-container">
+            {/* Home Team Name */}
+            <div className="home-team-name">
+              <Skeleton className="h-4 w-24" />
+            </div>
+
+            {/* Home team logo */}
+            <div className="home-team-logo-container">
+              <Skeleton className="h-8 w-8 rounded" />
+            </div>
+
+            {/* Score/Time Center */}
+            <div className="match-score-container">
+              <Skeleton className="h-6 w-12" />
+            </div>
+
+            {/* Away team logo */}
+            <div className="away-team-logo-container">
+              <Skeleton className="h-8 w-8 rounded" />
+            </div>
+
+            {/* Away Team Name */}
+            <div className="away-team-name">
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </div>
+
+          {/* Bottom grid for penalty results */}
+          <div className="match-penalty-bottom">
+            {/* Empty or skeleton for additional info */}
+          </div>
         </div>
       </div>
     </div>
