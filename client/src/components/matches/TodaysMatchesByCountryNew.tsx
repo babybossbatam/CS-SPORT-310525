@@ -182,7 +182,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     114, 116, 120, 121, 122, 123, 124, 125, 126, 127
   ]; // Significantly expanded to include major leagues from all continents
 
-  
+
 
   // Always call hooks in the same order - validate after hooks
   // Fetch all fixtures for the selected date with comprehensive caching
@@ -582,7 +582,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         false,
         countryName,
       );
-      
+
       if (shouldExclude) {
         console.log(`🚫 [DEBUG] Excluding match due to format/competition type:`, {
           fixtureId: fixture.fixture.id,
@@ -744,11 +744,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     (a: any, b: any) => {
       const countryA = a.country || "";
       const countryB = b.country || "";
-      
+
       // Check if either country is World
       const aIsWorld = countryA.toLowerCase() === "world";
       const bIsWorld = countryB.toLowerCase() === "world";
-      
+
       // Check for live matches in each country
       const aHasLive = Object.values(a.leagues).some((league: any) =>
         league.matches.some((match: any) =>
@@ -764,13 +764,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           )
         )
       );
-      
+
       // Priority: World with live matches first, then World without live, then others alphabetically
       if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
       if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
       if (aIsWorld && !bIsWorld) return -1;
       if (bIsWorld && !aIsWorld) return 1;
-      
+
       return countryA.localeCompare(countryB);
     },
   );
@@ -841,8 +841,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     setExpandedCountries((prev) => {
       const newExpanded = new Set(prev);
       if (newExpanded.has(country)) {
-        newExpanded.delete(country);
-      } else {
+        newExpanded.delete(country);      } else {
         newExpanded.add(country);
       }
       return newExpanded;
@@ -1604,13 +1603,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                               name: leagueData.league.name,
                                               country: leagueData.league.country,
                                             });
-                                            
+
                                             // Check for youth teams
                                             const isYouthTeam = match.teams.home.name?.includes("U20") || 
                                                               match.teams.home.name?.includes("U21") ||
                                                               match.teams.home.name?.includes("U19") ||
                                                               match.teams.home.name?.includes("U23");
-                                            
+
                                             // Use MyCircularFlag for all national teams and youth teams
                                             if (isActualNationalTeam || isYouthTeam) {
                                               return (
@@ -1627,7 +1626,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 />
                                               );
                                             }
-                                            
+
                                             // Default to regular team logo for club teams
                                             return (
                                               <LazyImage
@@ -1651,125 +1650,134 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                         {/* Score/Time Center - Fixed width and centered */}
                                         <div className="match-score-container">
-                                          {(() => {
-                                            const status = match.fixture.status.short;
-                                            const fixtureDate = parseISO(
-                                              match.fixture.date,
-                                            );
+                          {(() => {
+                            const status = match.fixture.status.short;
+                            const fixtureDate = parseISO(match.fixture.date);
 
-                                            // Live matches - show score only
-                                            if (
-                                              [
-                                                "LIVE",
-                                                "LIV",
-                                                "1H",
-                                                "HT",
-                                                "2H",
-                                                "ET",
-                                                "BT",
-                                                "P",
-                                                "INT",
-                                              ].includes(status)
-                                            ) {
-                                              return (
-                                                <div className="match-score-display">
-                                                  <span className="score-number">
-                                                    {match.goals.home ?? 0}
-                                                  </span>
-                                                  <span className="score-separator">
-                                                    -
-                                                  </span>
-                                                  <span className="score-number">
-                                                    {match.goals.away ?? 0}
-                                                  </span>
-                                                </div>
-                                              );
-                                            }
+                            // Get smart time filter result for consistent status handling
+                            const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+                              match.fixture.date,
+                              status,
+                              selectedDate + 'T12:00:00Z'
+                            );
 
-                                            // All finished match statuses - show score only
-                                            if (
-                                              [
-                                                "FT",
-                                                "AET",
-                                                "PEN",
-                                                "AWD",
-                                                "WO",
-                                                "ABD",
-                                                "CANC",
-                                                "SUSP",
-                                              ].includes(status)
-                                            ) {
-                                              // Check if we have actual numerical scores
-                                              const homeScore = match.goals.home;
-                                              const awayScore = match.goals.away;
-                                              const hasValidScores =
-                                                homeScore !== null &&
-                                                homeScore !== undefined &&
-                                                awayScore !== null &&
-                                                awayScore !== undefined &&
-                                                !isNaN(Number(homeScore)) &&
-                                                !isNaN(Number(awayScore));
+                            // Use smart filter's converted status if available, otherwise use original
+                            const displayStatus = status;
 
-                                              if (hasValidScores) {
-                                                return (
-                                                  <div className="match-score-display">
-                                                    <span className="score-number">
-                                                      {homeScore}
-                                                    </span>
-                                                    <span className="score-separator">
-                                                      -
-                                                    </span>
-                                                    <span className="score-number">
-                                                      {awayScore}
-                                                    </span>
-                                                  </div>
-                                                );
-                                              } else {
-                                                // Match is finished but no valid score data
-                                                return (
-                                                  <div
-                                                    className="match-time-display"
-                                                    style={{ fontSize: "0.882em" }}
-                                                  >
-                                                    {format(fixtureDate, "HH:mm")}
-                                                  </div>
-                                                );
-                                              }
-                                            }
+                            // Live matches - show score only
+                            if (
+                              [
+                                "LIVE",
+                                "LIV",
+                                "1H",
+                                "HT",
+                                "2H",
+                                "ET",
+                                "BT",
+                                "P",
+                                "INT",
+                              ].includes(displayStatus)
+                            ) {
+                              return (
+                                <div className="match-score-display">
+                                  <span className="score-number">
+                                    {match.goals.home ?? 0}
+                                  </span>
+                                  <span className="score-separator">
+                                    -
+                                  </span>
+                                  <span className="score-number">
+                                    {match.goals.away ?? 0}
+                                  </span>
+                                </div>
+                              );
+                            }
 
-                                            // Postponed or delayed matches
-                                            if (
-                                              [
-                                                "PST",
-                                                "CANC",
-                                                "ABD",
-                                                "SUSP",
-                                                "AWD",
-                                                "WO",
-                                              ].includes(status)
-                                            ) {
-                                              return (
-                                                <div
-                                                  className="match-time-display"
-                                                  style={{ fontSize: "0.882em" }}
-                                                >
-                                                  {format(fixtureDate, "HH:mm")}
-                                                </div>
-                                              );
-                                            }
+                            // All finished match statuses - show score only
+                            if (
+                              [
+                                "FT",
+                                "AET",
+                                "PEN",
+                                "AWD",
+                                "WO",
+                                "ABD",
+                                "CANC",
+                                "SUSP",
+                              ].includes(displayStatus)
+                            ) {
+                              // Check if we have actual numerical scores
+                              const homeScore = match.goals.home;
+                              const awayScore = match.goals.away;
+                              const hasValidScores =
+                                homeScore !== null &&
+                                homeScore !== undefined &&
+                                awayScore !== null &&
+                                awayScore !== undefined &&
+                                !isNaN(Number(homeScore)) &&
+                                !isNaN(Number(awayScore));
 
-                                            // Upcoming matches (NS = Not Started, TBD = To Be Determined)
-                                            return (
-                                              <div
-                                                className="match-time-display"
-                                                style={{ fontSize: "0.882em" }}
-                                              >
-                                                {status === "TBD"
-                                                  ? "TBD"
-                                                  : format(fixtureDate, "HH:mm")}
-                                              </div>
-                                            );
-                                          })()}
+                              if (hasValidScores) {
+                                return (
+                                  <div className="match-score-display">
+                                    <span className="score-number">
+                                      {homeScore}
+                                    </span>
+                                    <span className="score-separator">
+                                      -
+                                    </span>
+                                    <span className="score-number">
+                                      {awayScore}
+                                    </span>
+                                  </div>
+                                );
+                              } else {
+                                // Match is finished but no valid score data - show time in user's timezone
+                                return (
+                                  <div
+                                    className="match-time-display"
+                                    style={{ fontSize: "0.882em" }}
+                                  >
+                                    {format(fixtureDate, "HH:mm")}
+                                  </div>
+                                );
+                              }
+                            }
+
+                            // Postponed or delayed matches
+                            if (
+                              [
+                                "PST",
+                                "CANC",
+                                "ABD",
+                                "SUSP",
+                                "AWD",
+                                "WO",
+                              ].includes(displayStatus)
+                            ) {
+                              return (
+                                <div
+                                  className="match-time-display"
+                                  style={{ fontSize: "0.882em" }}
+                                >
+                                  {format(fixtureDate, "HH:mm")}
+                                </div>
+                              );
+                            }
+
+                            // Upcoming matches (NS = Not Started, TBD = To Be Determined)
+                            // Show time in user's local timezone (date-fns format automatically converts from UTC)
+                            return (
+                              <div
+                                className="match-time-display"
+                                style={{ fontSize: "0.882em" }}
+                              >
+                                {displayStatus === "TBD"
+                                  ? "TBD"
+                                  : format(fixtureDate, "HH:mm")}
+                              </div>
+                            );
+                          })()}
                                         </div>
 
                                         {/* Away team logo - grid area */}
@@ -1780,13 +1788,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                               name: leagueData.league.name,
                                               country: leagueData.league.country,
                                             });
-                                            
+
                                             // Check for youth teams
                                             const isYouthTeam = match.teams.away.name?.includes("U20") || 
                                                               match.teams.away.name?.includes("U21") ||
                                                               match.teams.away.name?.includes("U19") ||
                                                               match.teams.away.name?.includes("U23");
-                                            
+
                                             // Use MyCircularFlag for all national teams and youth teams
                                             if (isActualNationalTeam || isYouthTeam) {
                                               return (
@@ -1803,7 +1811,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 />
                                               );
                                             }
-                                            
+
                                             // Default to regular team logo for club teams
                                             return (
                                               <LazyImage
