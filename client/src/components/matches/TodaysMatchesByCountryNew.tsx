@@ -1487,14 +1487,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                               })
                               .map((match: any, matchIndex) => (
 
-                                <LazyMatchItem
-                                  key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}-${matchIndex}`}
-                                  priority={matchIndex < 3 ? 'high' : 'normal'}
-                                  onPrefetch={() => prefetchMatchData(match.fixture.id)}
-                                  rootMargin="150px"
-                                  prefetchMargin="400px"
-                                >
-                                  <div
+                                <div
+                                    key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}-${matchIndex}`}
                                     className="match-card-container group"
                                     onClick={() => onMatchCardClick?.(match)}
                                     style={{ cursor: onMatchCardClick ? 'pointer' : 'default' }}
@@ -1934,7 +1928,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       </div>
                                     </div>
                                   </div>
-                                </LazyMatchItem>
                               ))}
                             </div>
                           )}

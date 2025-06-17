@@ -1655,7 +1655,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                         return aDistance - bDistance;
                       })
                       .map((match: any) => (
-                        <LazyMatchItem key={match.fixture.id}>
                           <div
                             key={match.fixture.id}
                             className="match-card-container group"
@@ -2152,7 +2151,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               </div>
                             </div>
                           </div>
-                        </LazyMatchItem>
                       ))}
                   </div>
                 </Card>

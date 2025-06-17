@@ -1264,7 +1264,6 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
                           }}
                         />
                       </div>
-                    )
                     ) : (
                       lazyLoadingProps?.LazyMatchSkeleton ? (
                         <lazyLoadingProps.LazyMatchSkeleton />

@@ -135,8 +135,7 @@ const UnifiedMatchCards: React.FC<UnifiedMatchCardsProps> = ({
         <CardContent className="p-0">
           <div className="space-y-0">
             {displayMatches.map((match, index) => (
-              <LazyMatchItem key={`${match.fixture.id}-${index}`}>
-                <div className="match-card-container group">
+                <div key={`${match.fixture.id}-${index}`} className="match-card-container group">
                   {/* Star Button */}
                   {showStars && (
                     <button
@@ -348,7 +347,6 @@ const UnifiedMatchCards: React.FC<UnifiedMatchCardsProps> = ({
                     </div>
                   </div>
                 </div>
-              </LazyMatchItem>
             ))}
           </div>
         </CardContent>

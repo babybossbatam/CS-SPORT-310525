@@ -14,7 +14,6 @@ import {
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MyCircularFlag from "../common/MyCircularFlag";
 import LazyImage from "../common/LazyImage";
-import LazyMatchItem from "./LazyMatchItem";
 
 interface MyNewPopularLeagueProps {
   selectedDate: string;
@@ -895,7 +894,6 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                     }
 
                     return (
-                    <LazyMatchItem key={match.fixture.id}>
                       <div
                         key={match.fixture.id}
                         className="match-card-container group"
@@ -1302,7 +1300,6 @@ return null;
                           </div>
                         </div>
                       </div>
-                    </LazyMatchItem>
                     );
                   })}
               </div>
