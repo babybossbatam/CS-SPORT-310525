@@ -986,8 +986,7 @@ export const rapidApiService = {
         params: { league: leagueId, season: correctSeason },
       });
 
-      Updating cache durations in rapidApiService.```text
-console.log(
+      console.log(
         `Standings API response status: ${response.status}, results count: ${response.data?.results || 0}`,
       );
 
