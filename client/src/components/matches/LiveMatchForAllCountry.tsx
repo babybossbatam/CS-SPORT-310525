@@ -43,7 +43,6 @@ import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import NoLiveMatchesEmpty from "./NoLiveMatchesEmpty";
-import { DebugWidget } from '../debug/DebugWidget';
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -158,7 +157,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       const data = await response.json();
 
       console.log(`Received ${data.length} live fixtures`);
-
+      
       // Log World competition fixtures for debugging
       const worldFixtures = data.filter((fixture: any) => 
         fixture.league?.country === 'World' || 
@@ -166,13 +165,13 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
         fixture.league?.name?.toLowerCase().includes('fifa') ||
         fixture.league?.name?.toLowerCase().includes('uefa')
       );
-
+      
       if (worldFixtures.length > 0) {
         console.log(`🌍 Found ${worldFixtures.length} World competition fixtures:`, 
           worldFixtures.map((f: any) => `${f.league.name}: ${f.teams.home.name} vs ${f.teams.away.name}`)
         );
       }
-
+      
       return data;
     },
     staleTime: 20000, // 20 seconds for faster World competition updates
@@ -191,7 +190,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   useEffect(() => {
     if (fixtures && fixtures.length > 0) {
       console.log(`🔍 [LiveMatchForAllCountry] Analyzing ${fixtures.length} fixtures:`);
-
+      
       // Log first few fixtures with detailed info
       const sampleFixtures = fixtures.slice(0, 5);
       sampleFixtures.forEach((fixture, index) => {
@@ -229,7 +228,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
           const now = new Date();
           const matchDate = new Date(fixture.fixture.date);
           const minutesSinceStart = Math.floor((now.getTime() - matchDate.getTime()) / (1000 * 60));
-
+          
           console.log(`🔴 [LiveMatchForAllCountry] Live Match ${index + 1}:`, {
             fixtureId: fixture.fixture.id,
             teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
@@ -451,7 +450,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
           league.name.toLowerCase().includes('copa america') ||
           league.name.toLowerCase().includes('copa libertadores') ||
           league.name.toLowerCase().includes('copa sudamericana'))) {
-
+        
         // Determine the appropriate country key
         let countryKey = "World";
         if (
@@ -484,7 +483,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
             hasPopularLeague: true,
           };
         }
-
+        
         const leagueId = league.id;
         if (!acc[countryKey].leagues[leagueId]) {
           acc[countryKey].leagues[leagueId] = {
@@ -493,7 +492,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
             isPopular: POPULAR_LEAGUES.includes(leagueId) || true, // International competitions are considered popular
           };
         }
-
+        
         acc[countryKey].leagues[leagueId].matches.push({
           ...fixture,
           teams: {
@@ -807,7 +806,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                               <div className="match-status-top">
                                 {(() => {
                                   const status = match.fixture.status.short;
-
+                                  
                                   // Live matches
                                   if (
                                     [
