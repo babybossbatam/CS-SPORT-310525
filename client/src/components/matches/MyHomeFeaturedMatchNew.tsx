@@ -20,6 +20,7 @@ import {
 import { FixtureResponse } from "@/types/fixtures";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
+import LazyImage from "@/components/common/LazyImage"; // Import LazyImage
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -759,11 +760,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const liveUpdateInterval = setInterval(async () => {
         try {
           console.log(`🔄 [LIVE UPDATE] Refreshing data for live match: ${currentMatch.teams.home.name} vs ${currentMatch.teams.away.name}`);
-          
+
           // Fetch latest fixture data directly
           const response = await apiRequest("GET", `/api/fixtures/${currentMatch.fixture.id}`);
           const updatedMatch = await response.json();
-          
+
           // Update the current match data if status changed - but don't reload page
           if (updatedMatch && updatedMatch.fixture.status.short !== currentMatch.fixture.status.short) {
             console.log(`🔄 [LIVE UPDATE] Status changed from ${currentMatch.fixture.status.short} to ${updatedMatch.fixture.status.short}`);
@@ -945,16 +946,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           <div className="bg-white p-2 mt-6 relative">
             <div className="flex items-center justify-center">
               {currentMatch?.league?.logo ? (
-                <img
-                  src={currentMatch.league.logo}
-                  alt={currentMatch.league.name}
-                  className="w-5 h-5 object-contain mr-2 drop-shadow-md"
-                  loading="lazy"
-                  decoding="async"
-                  onError={(e) => {
-                    e.currentTarget.src = "/assets/fallback-logo.svg";
-                  }}
-                />
+                <LazyImage
+                    src={currentMatch.league.logo}
+                    alt={currentMatch.league.name}
+                    className="w-5 h-5 object-contain mr-2 drop-shadow-md"
+                    fallbackSrc="/assets/fallback-logo.svg"
+                    rootMargin="50px"
+                    threshold={0.1}
+                  />
               ) : (
                 <Trophy className="w-5 h-5 text-amber-500 mr-2" />
               )}
@@ -1228,7 +1227,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     // Fallback to original team logo for non-international competitions
                     return (
-                      <img
+                      <LazyImage
                         src={
                           currentMatch?.teams?.home?.logo ||
                           `/assets/fallback-logo.svg`
@@ -1239,13 +1238,11 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           top: "calc(50% - 32px)",
                           left: "-32px",
                           filter:
-                            "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
+                            "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
                         }}
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          e.currentTarget.src = "/assets/fallback-logo.svg";
-                        }}
+                        fallbackSrc="/assets/fallback-logo.png"
+                        rootMargin="50px"
+                        threshold={0.1}
                       />
                     );
                   })()}
