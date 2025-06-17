@@ -1009,11 +1009,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const selectedDateObj = new Date(selectedDate);
 
     if (isDateStringToday(selectedDate)) {
-      return "Today's Football Matches by Country";
+      return "Football Matches by Country";
     } else if (isDateStringYesterday(selectedDate)) {
-      return "Yesterday's Football Results by Country";
+      return "Football Matches by Country";
     } else if (isDateStringTomorrow(selectedDate)) {
-      return "Tomorrow's Football Matches by Country";
+      return "Football Matches by Country";
     } else {
       // Custom date - format it nicely
       try {
