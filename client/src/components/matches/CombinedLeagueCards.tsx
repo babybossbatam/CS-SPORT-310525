@@ -31,7 +31,7 @@ import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
-import LazyMatchItem from "./LazyMatchItem";
+
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 
@@ -94,6 +94,12 @@ interface CombinedLeagueCardsProps {
   timeFilterActive?: boolean;
   showTop20?: boolean;
   liveFilterActive?: boolean;
+  filteredFixtures?: any[];
+  lazyLoadingProps?: {
+    visibleMatches: Set<number>;
+    createLazyRef: (matchId: number) => (node: HTMLDivElement | null) => void;
+    LazyMatchSkeleton: React.ComponentType;
+  };
 }
 
 const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
@@ -101,6 +107,8 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   timeFilterActive = false,
   showTop20 = false,
   liveFilterActive = false,
+  filteredFixtures: propFilteredFixtures,
+  lazyLoadingProps,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
@@ -174,7 +182,9 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
 
   // Smart filtering operations
   const filteredFixtures = useMemo(() => {
-    if (!allFixtures?.length) return [];
+    // Use provided fixtures if available, otherwise use central data
+    const fixturesToFilter = propFilteredFixtures || allFixtures;
+    if (!fixturesToFilter?.length) return [];
 
     console.log(
       `🔍 [CombinedLeagueCards] Processing ${allFixtures.length} fixtures for date: ${selectedDate}`,
@@ -366,7 +376,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
     );
 
     return finalFiltered;
-  }, [allFixtures, selectedDate]);
+  }, [fixturesToFilter, selectedDate]);
 
   // Group fixtures by country and league
   const fixturesByCountry = filteredFixtures.reduce(
@@ -908,8 +918,16 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
           <div className="space-y-0">
             {allMatches
               .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
-              .map((match: any) => (
-                <LazyMatchItem key={match.fixture.id}>
+              .map((match: any) => {
+                const isVisible = !lazyLoadingProps || lazyLoadingProps.visibleMatches.has(match.fixture.id);
+                
+                return (
+                  <div 
+                    key={match.fixture.id}
+                    ref={lazyLoadingProps?.createLazyRef(match.fixture.id)}
+                    style={{ minHeight: '60px' }}
+                  >
+                    {isVisible ? (
                   <div className="match-card-container group">
                     {/* Star Button */}
                     <button
@@ -1246,10 +1264,15 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
                           }}
                         />
                       </div>
+                    )
+                    ) : (
+                      lazyLoadingProps?.LazyMatchSkeleton ? (
+                        <lazyLoadingProps.LazyMatchSkeleton />
+                      ) : null
                     )}
                   </div>
-                </LazyMatchItem>
-              ))}
+                );
+              })}
           </div>
         </CardContent>
       </Card>

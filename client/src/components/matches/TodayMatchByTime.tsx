@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp, Calendar, Clock, Star } from "lucide-react";
@@ -38,7 +38,6 @@ import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
-import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import { useCentralData } from "../../providers/CentralDataProvider";
@@ -118,6 +117,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   );
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+  const [visibleMatches, setVisibleMatches] = useState<Set<number>>(new Set());
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Fetch live fixtures only
   const { data: liveFixturesData = [], isLoading: liveLoading } = useQuery({
@@ -258,6 +259,42 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     });
   };
 
+  // Initialize intersection observer for lazy loading
+  useEffect(() => {
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const matchId = parseInt(entry.target.getAttribute('data-match-id') || '0');
+            if (matchId) {
+              setVisibleMatches((prev) => new Set(prev).add(matchId));
+            }
+          }
+        });
+      },
+      { 
+        rootMargin: '100px',
+        threshold: 0.1 
+      }
+    );
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, []);
+
+  // Lazy loading ref callback
+  const createLazyRef = useCallback((matchId: number) => {
+    return (node: HTMLDivElement | null) => {
+      if (node && observerRef.current) {
+        node.setAttribute('data-match-id', matchId.toString());
+        observerRef.current.observe(node);
+      }
+    };
+  }, []);
+
   if (isLoadingCentral) {
     return (
       <Card>
@@ -289,15 +326,53 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     );
   }
 
+  // Lazy loading skeleton component
+  const LazyMatchSkeleton = () => (
+    <div className="country-matches-container">
+      <div className="match-card-container">
+        <div className="match-three-grid-container">
+          <div className="match-status-top">
+            <Skeleton className="h-4 w-16 rounded" />
+          </div>
+          <div className="match-content-container">
+            <div className="home-team-name">
+              <Skeleton className="h-4 w-24" />
+            </div>
+            <div className="home-team-logo-container">
+              <Skeleton className="h-8 w-8 rounded" />
+            </div>
+            <div className="match-score-container">
+              <Skeleton className="h-6 w-12" />
+            </div>
+            <div className="away-team-logo-container">
+              <Skeleton className="h-8 w-8 rounded" />
+            </div>
+            <div className="away-team-name">
+              <Skeleton className="h-4 w-24" />
+            </div>
+          </div>
+          <div className="match-penalty-bottom">
+            {/* Empty for additional info */}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
-      {/* Use new CombinedLeagueCards component */}
+      {/* Use new CombinedLeagueCards component with integrated lazy loading */}
       <CombinedLeagueCards
         selectedDate={selectedDate}
         timeFilterActive={timeFilterActive}
         showTop20={true}
         liveFilterActive={liveFilterActive}
         filteredFixtures={filteredFixtures}
+        lazyLoadingProps={{
+          visibleMatches,
+          createLazyRef,
+          LazyMatchSkeleton
+        }}
       />
     </>
   );
