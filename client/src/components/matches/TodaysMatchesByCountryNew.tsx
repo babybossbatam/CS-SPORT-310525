@@ -819,8 +819,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         0,
       ),
       leagues: Object.keys(data.leagues).length,
-      leagueNames: Object.values(data.leagues```text
-).map((l: any) => l.league.name),
+      leagueNames: Object.values(data.leagues).map((l: any) => l.league.name),
       sampleMatches: Object.values(data.leagues)
         .flatMap((l: any) => l.matches)
         .slice(0, 3)
