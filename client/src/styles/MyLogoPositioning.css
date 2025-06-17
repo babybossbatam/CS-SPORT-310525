@@ -684,6 +684,16 @@
   font-size: 11px;
 }
 
+/* Match card container cursor styles */
+.match-card-container {
+  cursor: pointer !important;
+  transition: background-color 0.2s ease;
+}
+
+.match-card-container:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
 .game-card.scoreboard {
   grid-template-columns: 1fr 32px auto 32px 1fr;
   grid-template-rows: 36px;

@@ -935,7 +935,10 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
                             key={match.fixture.id}
                             className="match-card-container group"
                             onClick={() => onMatchCardClick?.(match)}
-                            style={{ cursor: onMatchCardClick ? 'pointer' : 'default' }}
+                            style={{ 
+                              cursor: onMatchCardClick ? 'pointer' : 'default',
+                              userSelect: 'none'
+                            }}
                           >
                     {/* Star Button */}
                     <button
