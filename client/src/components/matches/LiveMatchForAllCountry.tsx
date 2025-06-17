@@ -186,6 +186,89 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   // Use props data if available, otherwise use fetched data
   const fixtures = propsFixtures || fetchedFixtures;
 
+  // Add comprehensive debugging logs for fixture analysis
+  useEffect(() => {
+    if (fixtures && fixtures.length > 0) {
+      console.log(`🔍 [LiveMatchForAllCountry] Analyzing ${fixtures.length} fixtures:`);
+      
+      // Log first few fixtures with detailed info
+      const sampleFixtures = fixtures.slice(0, 5);
+      sampleFixtures.forEach((fixture, index) => {
+        console.log(`📊 [LiveMatchForAllCountry] Fixture ${index + 1}:`, {
+          fixtureId: fixture.fixture?.id,
+          originalDate: fixture.fixture?.date,
+          statusShort: fixture.fixture?.status?.short,
+          statusLong: fixture.fixture?.status?.long,
+          elapsed: fixture.fixture?.status?.elapsed,
+          teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+          league: fixture.league?.name,
+          country: fixture.league?.country,
+          goals: `${fixture.goals?.home || 0}-${fixture.goals?.away || 0}`,
+          venue: fixture.fixture?.venue?.name
+        });
+      });
+
+      // Status breakdown
+      const statusBreakdown = fixtures.reduce((acc: any, fixture: any) => {
+        const status = fixture.fixture?.status?.short || 'UNKNOWN';
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {});
+
+      console.log(`📈 [LiveMatchForAllCountry] Status breakdown:`, statusBreakdown);
+
+      // Live matches analysis
+      const liveMatches = fixtures.filter((fixture: any) => 
+        ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
+      );
+
+      if (liveMatches.length > 0) {
+        console.log(`🔴 [LiveMatchForAllCountry] Found ${liveMatches.length} live matches:`);
+        liveMatches.forEach((fixture: any, index: number) => {
+          const now = new Date();
+          const matchDate = new Date(fixture.fixture.date);
+          const minutesSinceStart = Math.floor((now.getTime() - matchDate.getTime()) / (1000 * 60));
+          
+          console.log(`🔴 [LiveMatchForAllCountry] Live Match ${index + 1}:`, {
+            fixtureId: fixture.fixture.id,
+            teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+            status: fixture.fixture.status.short,
+            elapsed: fixture.fixture.status.elapsed,
+            originalStartTime: fixture.fixture.date,
+            minutesSinceScheduledStart: minutesSinceStart,
+            score: `${fixture.goals.home || 0}-${fixture.goals.away || 0}`,
+            league: fixture.league.name,
+            country: fixture.league.country
+          });
+        });
+      }
+
+      // Country breakdown
+      const countryBreakdown = fixtures.reduce((acc: any, fixture: any) => {
+        const country = fixture.league?.country || 'Unknown';
+        acc[country] = (acc[country] || 0) + 1;
+        return acc;
+      }, {});
+
+      console.log(`🌍 [LiveMatchForAllCountry] Country breakdown:`, countryBreakdown);
+
+      // Time analysis
+      const now = new Date();
+      const timeAnalysis = fixtures.map((fixture: any) => {
+        const matchDate = new Date(fixture.fixture.date);
+        const hoursDiff = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+        return {
+          fixtureId: fixture.fixture.id,
+          status: fixture.fixture.status.short,
+          hoursDiff: Math.round(hoursDiff * 100) / 100,
+          isToday: matchDate.toDateString() === now.toDateString()
+        };
+      });
+
+      console.log(`⏰ [LiveMatchForAllCountry] Time analysis (first 10):`, timeAnalysis.slice(0, 10));
+    }
+  }, [fixtures]);
+
   // Enhanced team logo source with 365scores integration
   const getTeamLogoUrl = (team: any, league?: any) => {
     const isNational = isNationalTeam(team, league);
@@ -245,6 +328,23 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
   // Use only the live fixtures data
   const allFixtures = fixtures;
+
+  // Add comparison logs with TodaysMatchesByCountryNew
+  useEffect(() => {
+    if (fixtures && fixtures.length > 0) {
+      console.log(`🔄 [LiveMatchForAllCountry] COMPARISON DATA:`, {
+        component: 'LiveMatchForAllCountry',
+        totalFixtures: fixtures.length,
+        liveMatchesCount: fixtures.filter(f => 
+          ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(f.fixture?.status?.short)
+        ).length,
+        uniqueCountries: [...new Set(fixtures.map(f => f.league?.country))].length,
+        dataSource: 'live fixtures API endpoint',
+        timestamp: new Date().toISOString(),
+        refreshInterval: refreshInterval
+      });
+    }
+  }, [fixtures, refreshInterval]);
 
   // Apply smart time filtering first - but be more permissive for live matches
   const filteredFixtures = fixtures.filter((fixture: any) => {
