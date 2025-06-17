@@ -1360,7 +1360,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   }
 
                   return (
-                    <img
+                    <LazyImage
                       src={
                         currentMatch?.teams?.away?.logo ||
                         `/assets/fallback-logo.svg`
@@ -1368,16 +1368,14 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       alt={currentMatch?.teams?.away?.name || "Away Team"}
                       className="absolute z-20 w-[64px] h-[64px] object-contain rounded-full"
                       style={{
-                        top: "calc(50% - 64px)",
-                        right: "16px",
+                        top: "calc(50% - 32px)",
+                        right: "-32px",
                         filter:
-                          "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
+                          "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
                       }}
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.currentTarget.src = "/assets/fallback-logo.svg";
-                      }}
+                      fallbackSrc="/assets/fallback-logo.png"
+                      rootMargin="50px"
+                      threshold={0.1}
                     />
                   );
                 })()}
