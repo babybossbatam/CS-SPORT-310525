@@ -933,13 +933,24 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
                     {isVisible ? (
                   <div 
                     className="match-card-container group"
-                    onClick={() => onMatchCardClick?.(match)}
-                    style={{ cursor: onMatchCardClick ? 'pointer' : 'default' }}
+                    onClick={(e) => {
+                      console.log('🎯 Match card clicked:', match.teams.home.name, 'vs', match.teams.away.name);
+                      if (onMatchCardClick) {
+                        onMatchCardClick(match);
+                      }
+                    }}
+                    style={{ 
+                      cursor: onMatchCardClick ? 'pointer' : 'default',
+                      position: 'relative',
+                      zIndex: 1
+                    }}
                   >
                     {/* Star Button */}
                     <button
                       onClick={(e) => {
+                        e.preventDefault();
                         e.stopPropagation();
+                        console.log('⭐ Star button clicked for match:', match.fixture.id);
                         toggleStarMatch(match.fixture.id);
                       }}
                       className="match-star-button"
