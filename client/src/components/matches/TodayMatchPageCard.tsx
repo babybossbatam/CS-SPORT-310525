@@ -376,7 +376,6 @@ export const TodayMatchPageCard = ({
             selectedDate={selectedDate}
             timeFilterActive={timeFilterActive}
             liveFilterActive={liveFilterActive}
-            todayPopularFixtures={popularLeagueFixtures}
           />
         </>
       ) : (
