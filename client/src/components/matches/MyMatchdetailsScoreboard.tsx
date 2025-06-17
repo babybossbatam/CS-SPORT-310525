@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, User, Trophy } from "lucide-react";
 import { format } from "date-fns";
+import { useState, useEffect } from "react";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
@@ -18,6 +19,7 @@ const MyMatchdetailsScoreboard = ({
   onClose,
   onMatchCardClick,
 }: MyMatchdetailsScoreboardProps) => {
+  const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   // Sample match data for demonstration
   const sampleMatch = {
     fixture: {
@@ -57,6 +59,28 @@ const MyMatchdetailsScoreboard = ({
 
   const displayMatch = match || sampleMatch;
 
+  // Real-time update effect for live matches
+  useEffect(() => {
+    if (!displayMatch) return;
+
+    const status = displayMatch.fixture.status.short;
+    const isLiveMatch = ["1H", "2H", "LIVE"].includes(status);
+
+    if (isLiveMatch) {
+      // Initialize with current elapsed time from API
+      setLiveElapsed(displayMatch.fixture.status.elapsed || 0);
+
+      // Update every minute for live matches
+      const timer = setInterval(() => {
+        setLiveElapsed((prev) => (prev !== null ? prev + 1 : prev));
+      }, 60000);
+
+      return () => clearInterval(timer);
+    } else {
+      setLiveElapsed(null);
+    }
+  }, [displayMatch, displayMatch?.fixture?.status?.short, displayMatch?.fixture?.status?.elapsed]);
+
   const formatDateTime = (dateStr: string) => {
     try {
       const date = new Date(dateStr);
@@ -87,7 +111,8 @@ const MyMatchdetailsScoreboard = ({
     // For live matches, show elapsed time with pulse animation
     const isLiveMatch = ["LIVE", "1H", "2H"].includes(status);
     if (isLiveMatch) {
-      const elapsed = displayMatch.fixture.status.elapsed || 0;
+      // Use live elapsed time if available, otherwise fall back to API elapsed time
+      const elapsed = liveElapsed !== null ? liveElapsed : (displayMatch.fixture.status.elapsed || 0);
       const timeLabel =
         status === "1H"
           ? `${elapsed}'`
