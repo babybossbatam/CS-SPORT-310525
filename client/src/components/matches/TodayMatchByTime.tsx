@@ -301,6 +301,10 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
   const handleMatchClick = (match: any) => {
     setSelectedMatch(match);
+    // Call the parent onMatchCardClick to handle right column display
+    if (onMatchCardClick) {
+      onMatchCardClick(match);
+    }
   };
 
   if (isLoadingCentral) {

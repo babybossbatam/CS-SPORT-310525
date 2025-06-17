@@ -119,7 +119,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   );
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
-  const [selectedMatch, setSelectedMatch] = useState<any>(null);
+  
 
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -717,8 +717,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   };
 
   const handleMatchClick = (match: any) => {
-    setSelectedMatch(match);
-    // Also call the parent onMatchCardClick if provided
+    // Call the parent onMatchCardClick to handle right column display
     if (onMatchCardClick) {
       onMatchCardClick(match);
     }
@@ -1339,15 +1338,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
         </CardContent>
       </Card>
 
-      {/* Match Details Card - Shows when a match is clicked */}
-      {selectedMatch && (
-        <div className="mt-4">
-          <MyMatchdetailsScoreboard
-            match={selectedMatch}
-            onClose={() => setSelectedMatch(null)}
-          />
-        </div>
-      )}
+      
     </>
   );
 };
