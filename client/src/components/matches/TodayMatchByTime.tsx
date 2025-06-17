@@ -10,7 +10,6 @@ import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
-import MyMatchdetailsScoreboard from "./MyMatchdetailsScoreboard";
 import {
   shouldExcludeFromPopularLeagues,
   isPopularLeagueSuitable,
@@ -121,7 +120,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [visibleMatches, setVisibleMatches] = useState<Set<number>>(new Set());
-  const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
   // Fetch live fixtures only
@@ -299,10 +297,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     };
   }, []);
 
-  const handleMatchClick = (match: any) => {
-    setSelectedMatch(match);
-  };
-
   if (isLoadingCentral) {
     return (
       <Card>
@@ -376,23 +370,13 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         showTop20={true}
         liveFilterActive={liveFilterActive}
         filteredFixtures={filteredFixtures}
-        onMatchCardClick={handleMatchClick}
+        onMatchCardClick={onMatchCardClick}
         lazyLoadingProps={{
           visibleMatches,
           createLazyRef,
           LazyMatchSkeleton
         }}
       />
-
-      {/* Match Details Card - Shows when a match is clicked */}
-      {selectedMatch && (
-        <div className="mt-4">
-          <MyMatchdetailsScoreboard
-            match={selectedMatch}
-            onClose={() => setSelectedMatch(null)}
-          />
-        </div>
-      )}
     </>
   );
 };
