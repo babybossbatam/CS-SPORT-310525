@@ -9,12 +9,14 @@ interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
   onClose?: () => void;
+  onMatchCardClick?: (match: any) => void;
 }
 
 const MyMatchdetailsScoreboard = ({
   match,
   className = "",
   onClose,
+  onMatchCardClick,
 }: MyMatchdetailsScoreboardProps) => {
   // Sample match data for demonstration
   const sampleMatch = {
@@ -133,7 +135,8 @@ const MyMatchdetailsScoreboard = ({
   };
   return (
     <Card
-      className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative`}
+      className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative cursor-pointer transition-all duration-200 hover:shadow-lg`}
+      onClick={() => onMatchCardClick?.(displayMatch)}
     >
       {onClose && (
         <button
