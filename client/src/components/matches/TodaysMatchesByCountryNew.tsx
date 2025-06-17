@@ -638,7 +638,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     return {
       validFixtures: filtered,
-      rejectedFixtures: rejectedFixtures.map(f => ({ fixture: f, reason: 'Date mismatch' }),
+      rejectedFixtures: rejectedFixtures.map(f => ({ fixture: f, reason: 'Date mismatch' })),
       stats: {
         total: fixtures.length,
         valid: filtered.length,
