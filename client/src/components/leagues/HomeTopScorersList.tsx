@@ -83,24 +83,55 @@ const HomeTopScorersList = () => {
     queryFn: async () => {
       const dataMap = new Map<number, PlayerStatistics[]>();
 
-      // Check each league for data
+      // Check each league for data with retry logic
       for (const league of POPULAR_LEAGUES) {
-        try {
-          const response = await fetch(`/api/leagues/${league.id}/topscorers`);
-          if (response.ok) {
-            const data: PlayerStatistics[] = await response.json();
-            if (data && data.length > 0) {
-              dataMap.set(league.id, data);
+        let retries = 3;
+        while (retries > 0) {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+            
+            const response = await fetch(`/api/leagues/${league.id}/topscorers`, {
+              signal: controller.signal,
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              }
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+              const data: PlayerStatistics[] = await response.json();
+              if (data && data.length > 0) {
+                dataMap.set(league.id, data);
+              }
+              break; // Success, exit retry loop
+            } else if (response.status >= 500) {
+              // Server error, retry
+              retries--;
+              if (retries > 0) {
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+              }
+            } else {
+              // Client error (4xx), don't retry
+              break;
+            }
+          } catch (error) {
+            retries--;
+            console.warn(`Failed to check data for league ${league.id} (${3-retries}/3):`, error);
+            if (retries > 0) {
+              await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
             }
           }
-        } catch (error) {
-          console.warn(`Failed to check data for league ${league.id}:`, error);
         }
       }
 
       return dataMap;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 2, // React Query level retry
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 
   // Update available leagues when data is loaded
