@@ -109,7 +109,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   timeFilterActive = false,
   showTop20 = false,
   liveFilterActive = false,
-  filteredFixtures = [],
+  filteredFixtures: propFilteredFixtures = [],
   onMatchCardClick,
   lazyLoadingProps,
 }) => {
@@ -121,7 +121,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
 
   const dispatch = useDispatch();
   const { toast } = useToast();
-  favoriteTeams = useSelector(
+  const favoriteTeams = useSelector(
     (state: RootState) => state.user.favoriteTeams,
   );
 
