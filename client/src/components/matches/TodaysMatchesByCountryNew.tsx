@@ -158,7 +158,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return initialMap;
   });
 
-  // Popular leagues for prioritization - Significantly expanded to include more leagues worldwide
+  // Popular leagues for prioritization - Expanded to include more major leagues
   const POPULAR_LEAGUES = [
     // UEFA Competitions
     2, 3, 848, 15, 5, 8, 16, 
@@ -166,21 +166,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     39, 140, 135, 78, 61, 94, 88, 179, 218,
     // Major International Competitions
     22, 9, 13, 4, 21, 914,
-    // European Second Tier Leagues
-    144, 103, 106, 119, 113, 203, 345, 384, 317, 244,
-    // Major American Leagues
-    253, 71, 72, 73, 128, 274, 556,
-    // Asian Leagues
-    292, 301, 188, 169, 271, 294, 279, 290,
-    // African & Middle Eastern Leagues
-    307, 233, 239, 302, 383, 551, 332, 556,
-    // South American Leagues
-    71, 72, 325, 265, 267, 268, 269, 270,
-    // European Third Tier Leagues  
-    327, 329, 361, 365, 218, 319, 373, 380,
-    // Additional Regional Leagues
-    114, 116, 120, 121, 122, 123, 124, 125, 126, 127
-  ]; // Significantly expanded to include major leagues from all continents
+    // Other Major Leagues
+    71, 72, 253, 307, 233, 239, 265, 169, 292, 301
+  ]; // UEFA competitions, Top 5 European leagues, Dutch league, Portuguese league, Russian league, Brazilian leagues, MLS, Saudi Pro League, Egyptian Premier League, Colombian Primera A, Chilean Primera, Chinese Super League, K League 1, UAE Pro League
 
   
 
@@ -574,25 +562,35 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const awayTeamName = fixture.teams?.away?.name || "";
       const countryName = league.country || "";
 
-      // Apply minimal exclusion filters - only for alternative formats and women's competitions
-      const shouldExclude = shouldExcludeMatchByCountry(
-        leagueName,
-        homeTeamName,
-        awayTeamName,
-        false,
-        countryName,
-      );
+      // More inclusive filtering - Apply minimal exclusion filters
+      const isWorldCountry = countryName.toLowerCase() === "world";
+      const isInternationalCompetition = countryName.toLowerCase().includes('world') || 
+                                       countryName.toLowerCase().includes('europe') ||
+                                       countryName.toLowerCase().includes('international');
       
-      if (shouldExclude) {
-        console.log(`🚫 [DEBUG] Excluding match due to format/competition type:`, {
-          fixtureId: fixture.fixture.id,
-          league: leagueName,
-          homeTeam: homeTeamName,
-          awayTeam: awayTeamName,
-          country: countryName,
-          reason: "Alternative format or women's competition",
-        });
-        return acc;
+      // Only apply exclusion filters for clearly non-professional leagues
+      if (!isWorldCountry && !isInternationalCompetition) {
+        const shouldExclude = shouldExcludeMatchByCountry(
+          leagueName,
+          homeTeamName,
+          awayTeamName,
+          false,
+          countryName,
+        );
+        // Only exclude if it's clearly amateur/non-professional
+        if (shouldExclude && (leagueName.toLowerCase().includes('amateur') || 
+                              leagueName.toLowerCase().includes('development') ||
+                              leagueName.toLowerCase().includes('academy'))) {
+          console.log(`🚫 [DEBUG] Excluding amateur/development match:`, {
+            fixtureId: fixture.fixture.id,
+            league: leagueName,
+            homeTeam: homeTeamName,
+            awayTeam: awayTeamName,
+            country: countryName,
+            reason: "Amateur/development league",
+          });
+          return acc;
+        }
       }
 
       const country = league.country;
