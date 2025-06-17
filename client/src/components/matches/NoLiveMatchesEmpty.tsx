@@ -23,7 +23,8 @@ const NoLiveMatchesEmpty = ({
         <img 
           src="/nomatch.png" 
           alt="No matches available" 
-          className="w-32 h-32 mx-auto object-contain opacity-60"
+          className="w-32 h-32 mx-auto object-contain filter-none"
+          style={{ imageRendering: 'crisp-edges' }}
         />
       </div>
 
