@@ -323,6 +323,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      let fetchedFreshData = false;
+
       // Calculate date ranges for multiple timezones
       const targetDate = new Date(date + 'T00:00:00Z');
       const previousDay = new Date(targetDate);
@@ -348,10 +350,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           if (all === 'true') {
             dateFixtures = await rapidApiService.getFixturesByDate(fetchDate, true);
+            fetchedFreshData = true;
           } else {
             const popularLeagues = [2, 3, 15, 39, 140, 135, 78, 848];
             dateFixtures = await rapidApiService.getFixturesByDate(fetchDate, false);
             dateFixtures = dateFixtures.filter(fixture => popularLeagues.includes(fixture.league.id));
+            fetchedFreshData = true;
           }
 
           console.log(`📅 [Routes] Got ${dateFixtures.length} fixtures for ${fetchDate}`);
@@ -369,37 +373,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       console.log(`📊 [Routes] Multi-timezone fetch results: ${allFixtures.length} total, ${uniqueFixtures.length} unique fixtures`);
 
-      // Cache the multi-timezone fixtures with World competition priority
-      for (const fixture of uniqueFixtures) {
-        try {
-          const fixtureId = `${cacheKey}:${fixture.fixture.id}`;
-          const isWorldFixture = fixture.league?.country === 'World' || 
-                                fixture.league?.country === 'Europe' ||
-                                fixture.league?.name?.toLowerCase().includes('fifa') ||
-                                fixture.league?.name?.toLowerCase().includes('uefa');
+      // Cache the multi-timezone fixtures with World competition priority (only for fresh data)
+      if (fetchedFreshData && allFixtures.length > 0) { // Only cache if we fetched fresh data
+        for (const fixture of uniqueFixtures) {
+          try {
+            const fixtureId = `${cacheKey}:${fixture.fixture.id}`;
+            const isWorldFixture = fixture.league?.country === 'World' || 
+                                  fixture.league?.country === 'Europe' ||
+                                  fixture.league?.name?.toLowerCase().includes('fifa') ||
+                                  fixture.league?.name?.toLowerCase().includes('uefa');
 
-          const existingFixture = await storage.getCachedFixture(fixtureId);
+            const existingFixture = await storage.getCachedFixture(fixtureId);
 
-          if (existingFixture) {
-            await storage.updateCachedFixture(fixtureId, fixture);
-            if (isWorldFixture) {
-              console.log(`🌍 [Routes] Updated World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+            if (existingFixture) {
+              await storage.updateCachedFixture(fixtureId, fixture);
+              if (isWorldFixture) {
+                console.log(`🌍 [Routes] Updated World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+              }
+            } else {
+              await storage.createCachedFixture({
+                fixtureId: fixtureId,
+                data: fixture,
+                league: cacheKey,
+                date: date
+              });
+              if (isWorldFixture) {
+                console.log(`🌍 [Routes] Cached new World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+              }
             }
-          } else {
-            await storage.createCachedFixture({
-              fixtureId: fixtureId,
-              data: fixture,
-              league: cacheKey,
-              date: date
-            });
-            if (isWorldFixture) {
-              console.log(`🌍 [Routes] Cached new World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-            }
+          } catch (error) {
+            const individualError = error as Error;
+            console.error(`Error caching fixture ${fixture.fixture.id}:`, individualError.message);
           }
-        } catch (error) {
-          const individualError = error as Error;
-          console.error(`Error caching fixture ${fixture.fixture.id}:`, individualError.message);
         }
+      } else if (!fetchedFreshData) {
+        console.log(`📦 [Routes] Skipped caching - using existing cached data for ${date}`);
       }
 
       console.log(`✅ [Routes] Returning ${uniqueFixtures.length} multi-timezone fixtures for ${date}`);
