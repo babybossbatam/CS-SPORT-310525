@@ -35,6 +35,7 @@ import "../../styles/TodaysMatchByCountryNew.css";
 
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
+import MyMatchdetailsScoreboard from "./MyMatchdetailsScoreboard";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -118,6 +119,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   );
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+  const [selectedMatch, setSelectedMatch] = useState<any>(null);
 
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -714,6 +716,14 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
     });
   };
 
+  const handleMatchClick = (match: any) => {
+    setSelectedMatch(match);
+    // Also call the parent onMatchCardClick if provided
+    if (onMatchCardClick) {
+      onMatchCardClick(match);
+    }
+  };
+
   // Start with all countries collapsed by default
   useEffect(() => {
     setExpandedCountries(new Set());
@@ -934,7 +944,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
                   <div
                             key={match.fixture.id}
                             className="match-card-container group"
-                            onClick={() => onMatchCardClick?.(match)}
+                            onClick={() => handleMatchClick(match)}
                             style={{ 
                               cursor: onMatchCardClick ? 'pointer' : 'default',
                               userSelect: 'none'
@@ -1328,6 +1338,16 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Match Details Card - Shows when a match is clicked */}
+      {selectedMatch && (
+        <div className="mt-4">
+          <MyMatchdetailsScoreboard
+            match={selectedMatch}
+            onClose={() => setSelectedMatch(null)}
+          />
+        </div>
+      )}
     </>
   );
 };
