@@ -301,6 +301,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
   const handleMatchClick = (match: any) => {
     // Pass the selected match data to parent component
+    console.log('🎯 [TodayMatchByTime] Match clicked:', match);
     if (onMatchCardClick) {
       onMatchCardClick(match);
     }

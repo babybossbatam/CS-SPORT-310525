@@ -29,6 +29,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
   };
 
   const handleMatchCardClick = (fixture: any) => {
+    console.log('🎯 [MyMainLayout] Received match data:', fixture);
     setSelectedFixture(fixture);
   };
 
