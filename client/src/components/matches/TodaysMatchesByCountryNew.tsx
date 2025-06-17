@@ -528,6 +528,20 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       };
     }
 
+    // Debug FIFA Club World Cup fixtures specifically
+    const fifaFixtures = fixtures.filter(f => f.league?.id === 15);
+    if (fifaFixtures.length > 0) {
+      console.log(`🏆 [FIFA DEBUG] Found ${fifaFixtures.length} FIFA Club World Cup fixtures:`, 
+        fifaFixtures.map(f => ({
+          id: f.fixture.id,
+          date: f.fixture.date,
+          status: f.fixture.status.short,
+          teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+          selectedDate
+        }))
+      );
+    }
+
     // Check for stale matches and force refresh if found
     const staleMatches = fixtures.filter(fixture => {
       if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) return false;
@@ -563,6 +577,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         selectedDate + 'T12:00:00Z'
       );
 
+      // Debug FIFA Club World Cup filtering specifically
+      if (fixture.league?.id === 15) {
+        console.log(`🏆 [FIFA FILTER DEBUG] Fixture ${fixture.fixture.id}:`, {
+          originalDate: fixture.fixture.date,
+          selectedDate,
+          smartLabel: smartResult.label,
+          isWithinTimeRange: smartResult.isWithinTimeRange,
+          status: fixture.fixture.status.short,
+          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+          willBeIncluded: false // We'll update this below
+        });
+      }
+
       // Determine what type of date is selected
       const today = new Date();
       const todayString = format(today, 'yyyy-MM-dd');
@@ -574,16 +601,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const yesterdayString = format(yesterday, 'yyyy-MM-dd');
 
       // Match based on selected date type
-      if (selectedDate === tomorrowString && smartResult.label === 'tomorrow') return true;
-      if (selectedDate === todayString && smartResult.label === 'today') return true;
-      if (selectedDate === yesterdayString && smartResult.label === 'yesterday') return true;
+      const isTomorrow = selectedDate === tomorrowString && smartResult.label === 'tomorrow';
+      const isToday = selectedDate === todayString && smartResult.label === 'today';
+      const isYesterday = selectedDate === yesterdayString && smartResult.label === 'yesterday';
+      const isCustomDate = selectedDate !== todayString && selectedDate !== tomorrowString && selectedDate !== yesterdayString && smartResult.label === 'custom' && smartResult.isWithinTimeRange;
 
-      // Handle custom dates (dates that are not today/tomorrow/yesterday)
-      if (selectedDate !== todayString && selectedDate !== tomorrowString && selectedDate !== yesterdayString) {
-        if (smartResult.label === 'custom' && smartResult.isWithinTimeRange) return true;
+      const shouldInclude = isTomorrow || isToday || isYesterday || isCustomDate;
+
+      // Debug FIFA Club World Cup decisions
+      if (fixture.league?.id === 15) {
+        console.log(`🏆 [FIFA DECISION] Fixture ${fixture.fixture.id}:`, {
+          selectedDate,
+          todayString,
+          tomorrowString,
+          yesterdayString,
+          smartLabel: smartResult.label,
+          isWithinTimeRange: smartResult.isWithinTimeRange,
+          checks: { isTomorrow, isToday, isYesterday, isCustomDate },
+          finalDecision: shouldInclude ? 'INCLUDED' : 'REJECTED'
+        });
       }
 
-      return false;
+      return shouldInclude;
     });
 
     const rejectedFixtures = fixtures.filter(f => !filtered.includes(f));
