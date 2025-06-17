@@ -522,11 +522,18 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
   if (!allFixtures.length) {
     return (
-      <NoLiveMatchesEmpty 
-        showBackButton={false}
-        title="No Live Matches"
-        description="There are no matches currently in play. Our system is continuously monitoring for live matches."
-      />
+      <div className="bg-gray-100 min-h-[400px]">
+        <NoLiveMatchesEmpty 
+          showBackButton={true}
+          onBackToHome={() => {
+            // Navigate to all matches or home page
+            window.location.href = '/';
+          }}
+          onDeactivateLiveFilter={() => {
+            // This could be used to show all matches instead of just live ones
+          }}
+        />
+      </div>
     );
   }
 
