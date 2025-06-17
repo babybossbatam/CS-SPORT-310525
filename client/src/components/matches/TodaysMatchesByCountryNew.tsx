@@ -232,13 +232,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             ),
           },
           sampleFixtures: cachedFixtures.slice(0, 5).map((f) => ({
-            id: f.fixture?.id,
-            date: f.fixture?.date,
-            status: f.fixture?.status?.short,
-            league: f.league?.name,
-            country: f.league?.country,
-            teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
-          })),
+          id: f.fixture?.id,
+          date: f.fixture?.date,
+          status: f.fixture?.status?.short,
+          league: f.league?.name,
+          country: f.league?.country,
+          teams: `${f.teams?.home?.name || 'Unknown'} vs ${f.teams?.away?.name || 'Unknown'}`,
+        })),
         };
 
         console.log(`📊 [DEBUG] API Data Analysis:`, apiAnalysis);
@@ -819,8 +819,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         0,
       ),
       leagues: Object.keys(data.leagues).length,
-      leagueNames: Object.values(data.leagues).map((l: any) =>```text
- l.league.name),
+      leagueNames: Object.values(data.leagues```text
+).map((l: any) => l.league.name),
       sampleMatches: Object.values(data.leagues)
         .flatMap((l: any) => l.matches)
         .slice(0, 3)
