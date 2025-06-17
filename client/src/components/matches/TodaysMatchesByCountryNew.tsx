@@ -158,8 +158,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return initialMap;
   });
 
-  // Popular leagues for prioritization
-  const POPULAR_LEAGUES = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
+  // Popular leagues for prioritization - Expanded to include more major leagues
+  const POPULAR_LEAGUES = [
+    // UEFA Competitions
+    2, 3, 848, 15, 5, 8, 16, 
+    // Top European Leagues
+    39, 140, 135, 78, 61, 94, 88, 179, 218,
+    // Major International Competitions
+    22, 9, 13, 4, 21, 914,
+    // Other Major Leagues
+    71, 72, 253, 307, 233, 239, 265, 169, 292, 301
+  ]; // UEFA competitions, Top 5 European leagues, Dutch league, Portuguese league, Russian league, Brazilian leagues, MLS, Saudi Pro League, Egyptian Premier League, Colombian Primera A, Chilean Primera, Chinese Super League, K League 1, UAE Pro League
 
   
 
@@ -553,11 +562,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const awayTeamName = fixture.teams?.away?.name || "";
       const countryName = league.country || "";
 
-      // Special exclusion bypass: World competitions bypass normal filtering rules
+      // More inclusive filtering - Apply minimal exclusion filters
       const isWorldCountry = countryName.toLowerCase() === "world";
+      const isInternationalCompetition = countryName.toLowerCase().includes('world') || 
+                                       countryName.toLowerCase().includes('europe') ||
+                                       countryName.toLowerCase().includes('international');
       
-      if (!isWorldCountry) {
-        // Apply standard exclusion filters only for non-World competitions
+      // Only apply exclusion filters for clearly non-professional leagues
+      if (!isWorldCountry && !isInternationalCompetition) {
         const shouldExclude = shouldExcludeMatchByCountry(
           leagueName,
           homeTeamName,
@@ -565,14 +577,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           false,
           countryName,
         );
-        if (shouldExclude) {
-          console.log(`🚫 [DEBUG] Excluding match by standard filters:`, {
+        // Only exclude if it's clearly amateur/non-professional
+        if (shouldExclude && (leagueName.toLowerCase().includes('amateur') || 
+                              leagueName.toLowerCase().includes('development') ||
+                              leagueName.toLowerCase().includes('academy'))) {
+          console.log(`🚫 [DEBUG] Excluding amateur/development match:`, {
             fixtureId: fixture.fixture.id,
             league: leagueName,
             homeTeam: homeTeamName,
             awayTeam: awayTeamName,
             country: countryName,
-            reason: "Standard exclusion filters",
+            reason: "Amateur/development league",
           });
           return acc;
         }

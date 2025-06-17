@@ -3,48 +3,26 @@
  * Used throughout the application to maintain consistent filtering
  */
 
-// Enhanced exclusion terms organized by category for geographic filtering
+// Reduced exclusion terms - Only exclude clearly amateur/non-professional leagues
 export const exclusionTerms = [
-  // Only exclude amateur and development leagues (allow youth u17-u23)
-  'amateur', 'reserve', 'development', 'academy', 'primavera', 'reserves',
+  // Only exclude clearly amateur leagues
+  'amateur', 'development', 'academy', 'primavera',
 
-  // Women's competitions (comprehensive exclusion)
-  'women', 'girls', 'feminine', 'feminin', 'donne', 'frauen', 'femenino',
-  'women\'s', "women's", 'friendlies women', 'women friendlies',
+  // Women's competitions (keep minimal exclusion)
+  'women', 'girls', 'feminine', 'women\'s', "women's",
 
-  // Lower divisions and regional competitions
-  'regional', 'division 3', 'division 4', 'division 5', 'third division', 'fourth division',
-  '2. bundesliga', '2 bundesliga', 'second bundesliga', 'bundesliga 2', '2nd bundesliga', 'zweite bundesliga',
-  'serie b', 'serie c', 'serie d', 'segunda division', 'tercera division',
-  'championship', 'league one', 'league two', 'non-league',
-  'amazonenense', 'segunda division', 'tercera division',
-  'oberliga', 'oberliga -', 'oberliga westfalen', 'oberliga baden', 'oberliga bayern', 'oberliga hessen',
-  'oberliga niedersachsen', 'oberliga rheinland', 'oberliga schleswig', 'oberliga thüringen',
-
-  // Non-competitive/exhibition matches (but allow World Friendlies)
-  'test', 'exhibition', 'testimonial', 'charity',
+  // Only exclude very low divisions
+  'division 4', 'division 5', 
+  'oberliga westfalen', 'oberliga baden', 'oberliga bayern',
 
   // Indoor/alternative formats
   'futsal', 'indoor', 'beach', 'arena',
 
-  // Minor competitions and qualifying rounds
-  'national cup 3', 'cup qualifying', 'preliminary', 'qualification',
+  // Only exclude clearly non-competitive matches
+  'exhibition', 'testimonial', 'charity',
 
-  // Specific lower-tier leagues to exclude
-  'eintracht braunschweig', 'fc saarbrücken', 'kosice', 'boys',
-
-  // US lower-tier and semi-professional leagues
-  'npsl', 'national premier soccer league', 'usl w league', 'wpsl',
-
-  // South American lower divisions (exclude unless major competition)
-  'brazilian serie b', 'brazilian serie c', 'chilean primera b', 'copa chile', 
-  'copa do brasil', 'copa argentina', 'copa colombia', 'copa ecuador',
-  'paraguay division profesional', 'peruvian primera division',
-  'uruguayan primera division', 'venezuelan primera division', 'gaúcho', 'gaucho',
-
-  // Additional regional/state competitions to filter
-  'catarinense', 'paulista', 'carioca', 'mineiro', 'gaucho', 'baiano', 'pernambucano',
-  'sergipano', 'alagoano', 'paraibano', 'cearense', 'potiguar', 'maranhense', 'goaino', 'usl super league'
+  // US semi-professional only
+  'npsl', 'usl w league', 'wpsl'
 ];
 
 // Safe substring function to handle null/undefined values
@@ -85,20 +63,27 @@ export function getGeographicPriority(country: string, leagueName: string): numb
     return 2;
   }
 
-  // Tier 3: Other popular countries (only major leagues)
-  const tier3Countries = ['brazil', 'saudi arabia', 'egypt', 'colombia'];
+  // Tier 3: Major football countries - significantly expanded
+  const tier3Countries = ['brazil', 'argentina', 'saudi arabia', 'egypt', 'colombia', 'usa', 'mexico', 
+                          'netherlands', 'portugal', 'chile', 'ecuador', 'peru', 'uruguay', 'venezuela',
+                          'china', 'south korea', 'japan', 'australia', 'turkey', 'russia', 'ukraine',
+                          'belgium', 'croatia', 'poland', 'czech republic', 'denmark', 'sweden', 'norway',
+                          'scotland', 'wales', 'ireland', 'greece', 'serbia', 'switzerland', 'austria'];
   if (tier3Countries.some(c => countryLower.includes(c))) {
     return 3;
   }
 
-  // Tier 4: CONMEBOL competitions
-  if (countryLower.includes('conmebol') || 
+  // Tier 4: CONMEBOL and other continental competitions
+  if (countryLower.includes('conmebol') || countryLower.includes('concacaf') ||
+      countryLower.includes('caf') || countryLower.includes('afc') ||
       leagueLower.includes('copa libertadores') || 
-      leagueLower.includes('copa sudamericana')) {
+      leagueLower.includes('copa sudamericana') ||
+      leagueLower.includes('gold cup') || leagueLower.includes('asian cup')) {
     return 4;
   }
 
-  return 999; // Low priority
+  // Tier 5: All other countries (instead of low priority)
+  return 5;
 }
 
 /**

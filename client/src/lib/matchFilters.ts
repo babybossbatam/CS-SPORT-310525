@@ -25,18 +25,52 @@ export interface FilterResult {
   };
 }
 
-// Default popular leagues (Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga)
-export const DEFAULT_POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78];
+// Default popular leagues - Significantly expanded to include major leagues worldwide
+export const DEFAULT_POPULAR_LEAGUES = [
+  // UEFA Competitions
+  2, 3, 848, 15, 5, 8, 16, 22,
+  // Top European Leagues
+  39, 140, 135, 78, 61, 94, 88, 179, 218, 345, 119, 197, 203, 333, 373,
+  // Major International Competitions  
+  4, 21, 9, 13, 914, 6, 7,
+  // Americas
+  71, 72, 73, 253, 239, 265, 242, 268, 274, 128, 262,
+  // Asia & Middle East
+  307, 305, 169, 292, 286, 271, 278,
+  // Africa & Oceania  
+  233, 230, 274, 188
+];
 
 // Default popular teams (big clubs)
 export const DEFAULT_POPULAR_TEAMS = [
   33, 42, 40, 39, 49, 48, 529, 530, 541, 497, 505, 157, 165
 ];
 
-// Popular countries for country-based filtering
+// Popular countries for country-based filtering - Significantly expanded
 export const POPULAR_COUNTRIES = [
-  'England', 'Spain', 'Italy', 'Germany', 'France', 
-  'Brazil', 'Argentina', 'Netherlands', 'Portugal', 'World', 'International'
+  // Top European countries
+  'England', 'Spain', 'Italy', 'Germany', 'France', 'Netherlands', 'Portugal', 
+  'Belgium', 'Croatia', 'Poland', 'Czech Republic', 'Denmark', 'Sweden', 'Norway',
+  'Scotland', 'Wales', 'Ireland', 'Greece', 'Serbia', 'Switzerland', 'Austria',
+  'Turkey', 'Russia', 'Ukraine', 'Romania', 'Hungary', 'Bulgaria',
+  
+  // South American countries  
+  'Brazil', 'Argentina', 'Colombia', 'Chile', 'Ecuador', 'Peru', 'Uruguay', 'Venezuela',
+  'Paraguay', 'Bolivia',
+  
+  // North American countries
+  'USA', 'Mexico', 'Canada', 'Costa Rica', 'Jamaica', 'Panama',
+  
+  // Asian countries
+  'China', 'South Korea', 'Japan', 'Saudi Arabia', 'UAE', 'Qatar', 'Iran', 'Iraq',
+  'Australia', 'India', 'Thailand', 'Malaysia', 'Singapore',
+  
+  // African countries
+  'Egypt', 'Morocco', 'Tunisia', 'Algeria', 'Nigeria', 'Ghana', 'South Africa',
+  'Senegal', 'Cameroon', 'Ivory Coast',
+  
+  // International/Continental
+  'World', 'International', 'Europe', 'South America', 'CONCACAF', 'CAF', 'AFC'
 ];
 
 /**
