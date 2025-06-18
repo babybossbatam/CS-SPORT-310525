@@ -38,6 +38,7 @@ const MyNormalFlag: React.FC<MyNormalFlagProps> = ({
           objectFit: "contain",
           borderRadius: "0%",
           backgroundColor: "transparent",
+          filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
         }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
