@@ -183,7 +183,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     114, 116, 120, 121, 122, 123, 124, 125, 126, 127,
   ]; // Significantly expanded to include major leagues from all continents
 
-  // Fetch live fixtures with auto-refresh (similar to LiveMatchForAllCountry)
+  // Fetch live fixtures with reasonable refresh rates
   const { data: liveFixtures = [] } = useQuery({
     queryKey: ["live-fixtures-all-countries"],
     queryFn: async () => {
@@ -195,13 +195,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       );
       return data;
     },
-    staleTime: 20000, // 20 seconds for faster live updates
-    gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
+    staleTime: 2 * 60 * 1000, // 2 minutes - live scores don't change every 20 seconds
+    gcTime: 10 * 60 * 1000, // 10 minutes garbage collection time
     enabled: enableFetching,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
-    refetchInterval: liveFilterActive ? 30000 : false, // Auto-refresh every 30 seconds when live filter is active
+    refetchInterval: false, // No automatic polling - user can refresh manually
   });
 
   // Always call hooks in the same order - validate after hooks
@@ -295,7 +295,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       return data;
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes for live data
+    staleTime: 10 * 60 * 1000, // 10 minutes - scheduled matches don't change frequently
     gcTime: 30 * 60 * 1000, // 30 minutes garbage collection time
     enabled: !!selectedDate && enableFetching && !liveFilterActive, // Don't fetch date fixtures when live filter is active
     refetchOnWindowFocus: false,
@@ -538,7 +538,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [fixtures, selectedDate]);
 
-  // Basic filtering - merge live updates with date fixtures for accurate status
+  // Smart live match validation with proper status checking
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     let allFixtures;
     
@@ -575,25 +575,41 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       };
     }
 
-    // Basic filtering - minimal validation only
+    // Smart filtering with proper live match validation
     const filtered = allFixtures.filter((fixture: any) => {
       // Basic validation
       if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
         return false;
       }
 
-      // If live filter is active, only show live matches
+      // Smart live status validation
+      const status = fixture.fixture.status?.short;
+      const matchDate = new Date(fixture.fixture.date);
+      const now = new Date();
+      const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+
+      // Check if status claims to be live
+      const claimsLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
+      
+      if (claimsLive) {
+        // Validate live status - matches can't be live for more than 3.5 hours
+        if (hoursElapsed > 3.5) {
+          console.warn(`⚠️ Stale live match detected: ${fixture.teams.home.name} vs ${fixture.teams.away.name} - status: ${status}, hours elapsed: ${hoursElapsed.toFixed(1)}`);
+          
+          // Convert stale live status to finished
+          fixture.fixture.status.short = "FT";
+          fixture.fixture.status.long = "Match Finished";
+        }
+      }
+
+      // If live filter is active, only show genuinely live matches
       if (liveFilterActive) {
-        const status = fixture.fixture.status?.short;
-        const isCurrentlyLive = [
-          "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
-        ].includes(status);
-        return isCurrentlyLive;
+        const isGenuinelyLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short);
+        return isGenuinelyLive;
       }
 
       // For date-based filtering, check if the match is on the selected date
       if (fixture.fixture.date) {
-        const matchDate = new Date(fixture.fixture.date);
         const matchDateString = matchDate.toISOString().split('T')[0];
         return matchDateString === selectedDate;
       }
@@ -607,14 +623,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       validFixtures: filtered,
       rejectedFixtures: rejectedFixtures.map((f) => ({
         fixture: f,
-        reason: "Basic filtering applied",
+        reason: "Smart validation applied",
       })),
       stats: {
         total: allFixtures.length,
         valid: filtered.length,
         rejected: allFixtures.length - filtered.length,
         methods: {
-          "basic-filter": filtered.length,
+          "smart-filter": filtered.length,
         },
       },
     };
