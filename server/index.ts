@@ -10,12 +10,23 @@ app.use(express.urlencoded({ extended: false }));
 // Global error handlers to prevent crashes
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
-  // Don't exit the process, just log the error
+  // Log but don't exit to prevent restarts
 });
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  // Don't exit the process, just log the error
+  // Prevent unhandled rejections from crashing the process
+});
+
+// Graceful shutdown handling
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully');
+  process.exit(0);
 });
 
 // Add middleware to set headers for video embedding
@@ -95,11 +106,13 @@ app.use((req, res, next) => {
             tryListen(retryPort + 1);
         } else {
             console.error("Failed to find an open port between 5000 and 5010");
-            process.exit(1);
+            // Don't exit immediately, let the process manager handle restarts
+            setTimeout(() => process.exit(1), 1000);
         }
       } else {
         console.error("Failed to start server:", err);
-        process.exit(1);
+        // Don't exit immediately, let the process manager handle restarts
+        setTimeout(() => process.exit(1), 1000);
       }
     });
   };

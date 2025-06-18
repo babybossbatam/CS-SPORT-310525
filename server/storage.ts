@@ -22,20 +22,20 @@ export interface IStorage {
   getUserPreferences(userId: number): Promise<UserPreferences | undefined>;
   createUserPreferences(preferences: InsertUserPreferences): Promise<UserPreferences>;
   updateUserPreferences(userId: number, preferences: Partial<InsertUserPreferences>): Promise<UserPreferences | undefined>;
-  
+
   // Fixtures
   getCachedFixture(fixtureId: string): Promise<CachedFixture | undefined>;
   getCachedFixturesByLeague(leagueId: string, date?: string): Promise<CachedFixture[]>;
   getCachedFixturesByDate(date: string): Promise<CachedFixture[]>;
   createCachedFixture(fixture: InsertCachedFixture): Promise<CachedFixture>;
   updateCachedFixture(fixtureId: string, data: any): Promise<CachedFixture | undefined>;
-  
+
   // Leagues
   getCachedLeague(leagueId: string): Promise<CachedLeague | undefined>;
   getAllCachedLeagues(): Promise<CachedLeague[]>;
   createCachedLeague(league: InsertCachedLeague): Promise<CachedLeague>;
   updateCachedLeague(leagueId: string, data: any): Promise<CachedLeague | undefined>;
-  
+
   // News Articles
   getNewsArticle(id: number): Promise<NewsArticle | undefined>;
   getAllNewsArticles(): Promise<NewsArticle[]>;
@@ -124,16 +124,16 @@ export class MemStorage implements IStorage {
     updatedFields: Partial<InsertUserPreferences>
   ): Promise<UserPreferences | undefined> {
     const existingPrefs = await this.getUserPreferences(userId);
-    
+
     if (!existingPrefs) {
       return undefined;
     }
-    
+
     const updatedPrefs: UserPreferences = {
       ...existingPrefs,
       ...updatedFields,
     };
-    
+
     this.preferences.set(existingPrefs.id, updatedPrefs);
     return updatedPrefs;
   }
@@ -153,7 +153,7 @@ export class MemStorage implements IStorage {
       }
     );
   }
-  
+
   async getCachedFixturesByDate(date: string): Promise<CachedFixture[]> {
     return Array.from(this.fixtures.values()).filter(
       (fixture) => fixture.date === date
@@ -173,17 +173,17 @@ export class MemStorage implements IStorage {
 
   async updateCachedFixture(fixtureId: string, data: any): Promise<CachedFixture | undefined> {
     const existingFixture = await this.getCachedFixture(fixtureId);
-    
+
     if (!existingFixture) {
       return undefined;
     }
-    
+
     const updatedFixture: CachedFixture = {
       ...existingFixture,
       data,
       timestamp: new Date()
     };
-    
+
     this.fixtures.set(fixtureId, updatedFixture);
     return updatedFixture;
   }
@@ -210,30 +210,30 @@ export class MemStorage implements IStorage {
 
   async updateCachedLeague(leagueId: string, data: any): Promise<CachedLeague | undefined> {
     const existingLeague = await this.getCachedLeague(leagueId);
-    
+
     if (!existingLeague) {
       return undefined;
     }
-    
+
     const updatedLeague: CachedLeague = {
       ...existingLeague,
       data,
       timestamp: new Date()
     };
-    
+
     this.leagues.set(leagueId, updatedLeague);
     return updatedLeague;
   }
-  
+
   // News Articles
   async getNewsArticle(id: number): Promise<NewsArticle | undefined> {
     return this.newsArticles.get(id);
   }
-  
+
   async getAllNewsArticles(): Promise<NewsArticle[]> {
     return Array.from(this.newsArticles.values());
   }
-  
+
   async createNewsArticle(article: InsertNewsArticle): Promise<NewsArticle> {
     const now = new Date();
     const newsArticle: NewsArticle = {
@@ -243,31 +243,41 @@ export class MemStorage implements IStorage {
       createdAt: now,
       updatedAt: now
     };
-    
+
     this.newsArticles.set(newsArticle.id, newsArticle);
     return newsArticle;
   }
-  
+
   async updateNewsArticle(id: number, articleUpdates: Partial<InsertNewsArticle>): Promise<NewsArticle | undefined> {
     const article = await this.getNewsArticle(id);
     if (!article) return undefined;
-    
+
     const updatedArticle: NewsArticle = {
       ...article,
       ...articleUpdates,
       updatedAt: new Date()
     };
-    
+
     this.newsArticles.set(id, updatedArticle);
     return updatedArticle;
   }
-  
+
   async deleteNewsArticle(id: number): Promise<boolean> {
     return this.newsArticles.delete(id);
   }
 }
 
 export class DatabaseStorage implements IStorage {
+    private isPoolAvailable(): boolean {
+    try {
+      // Check if the database connection pool is still active.
+      db.raw('SELECT 1'); // A simple query to test the connection
+      return true;
+    } catch (error) {
+      console.error('Database pool is not available:', error);
+      return false;
+    }
+  }
   // User management
   async getUser(id: number): Promise<User | undefined> {
     try {
@@ -306,7 +316,7 @@ export class DatabaseStorage implements IStorage {
         fullName: user.fullName || null,
         createdAt: new Date()
       }).returning();
-      
+
       if (!result[0]) throw new Error('Failed to create user');
       return result[0];
     } catch (error) {
@@ -342,7 +352,7 @@ export class DatabaseStorage implements IStorage {
       const result = await db.insert(userPreferences)
         .values(prefsToInsert)
         .returning();
-      
+
       if (!result[0]) throw new Error('Failed to create user preferences');
       return result[0];
     } catch (error) {
@@ -358,36 +368,36 @@ export class DatabaseStorage implements IStorage {
     try {
       // First check if preferences exist
       const existingPrefs = await this.getUserPreferences(userId);
-      
+
       if (!existingPrefs) {
         return undefined;
       }
-      
+
       // Prepare the updates with proper type handling
       const updates: Record<string, any> = {};
-      
+
       if (updatedFields.favoriteTeams !== undefined) {
         updates.favoriteTeams = updatedFields.favoriteTeams || [];
       }
-      
+
       if (updatedFields.favoriteLeagues !== undefined) {
         updates.favoriteLeagues = updatedFields.favoriteLeagues || [];
       }
-      
+
       if (updatedFields.favoriteMatches !== undefined) {
         updates.favoriteMatches = updatedFields.favoriteMatches || [];
       }
-      
+
       if (updatedFields.region !== undefined) {
         updates.region = updatedFields.region || 'global';
       }
-      
+
       // Update preferences
       const result = await db.update(userPreferences)
         .set(updates)
         .where(eq(userPreferences.id, existingPrefs.id))
         .returning();
-      
+
       return result[0];
     } catch (error) {
       console.error('Error updating user preferences:', error);
@@ -398,6 +408,10 @@ export class DatabaseStorage implements IStorage {
   // Fixtures
   async getCachedFixture(fixtureId: string): Promise<CachedFixture | undefined> {
     try {
+      if (!this.isPoolAvailable()) {
+        console.warn('Database pool not available, skipping cache operation');
+        return undefined;
+      }
       const result = await db.select()
         .from(cachedFixtures)
         .where(eq(cachedFixtures.fixtureId, fixtureId));
@@ -411,7 +425,7 @@ export class DatabaseStorage implements IStorage {
   async getCachedFixturesByLeague(leagueId: string, date?: string): Promise<CachedFixture[]> {
     try {
       let query = db.select().from(cachedFixtures).where(eq(cachedFixtures.league, leagueId));
-      
+
       if (date) {
         query = db.select()
           .from(cachedFixtures)
@@ -420,20 +434,20 @@ export class DatabaseStorage implements IStorage {
             eq(cachedFixtures.date, date)
           ));
       }
-      
+
       return await query;
     } catch (error) {
       console.error('Error getting fixtures by league:', error);
       return [];
     }
   }
-  
+
   async getCachedFixturesByDate(date: string): Promise<CachedFixture[]> {
     try {
       const query = db.select()
         .from(cachedFixtures)
         .where(eq(cachedFixtures.date, date));
-      
+
       return await query;
     } catch (error) {
       console.error('Error getting fixtures by date:', error);
@@ -443,13 +457,17 @@ export class DatabaseStorage implements IStorage {
 
   async createCachedFixture(fixture: InsertCachedFixture): Promise<CachedFixture> {
     try {
+      if (!this.isPoolAvailable()) {
+        console.warn('Database pool not available, skipping cache creation');
+        throw new Error('Database not available');
+      }
       const result = await db.insert(cachedFixtures)
         .values({
           ...fixture,
           timestamp: new Date()
         })
         .returning();
-      
+
       if (!result[0]) throw new Error('Failed to cache fixture');
       return result[0];
     } catch (error) {
@@ -467,7 +485,7 @@ export class DatabaseStorage implements IStorage {
         })
         .where(eq(cachedFixtures.fixtureId, fixtureId))
         .returning();
-      
+
       return result[0];
     } catch (error) {
       console.error('Error updating cached fixture:', error);
@@ -505,7 +523,7 @@ export class DatabaseStorage implements IStorage {
           timestamp: new Date()
         })
         .returning();
-      
+
       if (!result[0]) throw new Error('Failed to cache league');
       return result[0];
     } catch (error) {
@@ -523,14 +541,14 @@ export class DatabaseStorage implements IStorage {
         })
         .where(eq(cachedLeagues.leagueId, leagueId))
         .returning();
-      
+
       return result[0];
     } catch (error) {
       console.error('Error updating cached league:', error);
       return undefined;
     }
   }
-  
+
   // News Articles
   async getNewsArticle(id: number): Promise<NewsArticle | undefined> {
     try {
@@ -541,7 +559,7 @@ export class DatabaseStorage implements IStorage {
       return undefined;
     }
   }
-  
+
   async getAllNewsArticles(): Promise<NewsArticle[]> {
     try {
       return await db.select().from(newsArticles).orderBy(newsArticles.publishedAt);
@@ -550,7 +568,7 @@ export class DatabaseStorage implements IStorage {
       return [];
     }
   }
-  
+
   async createNewsArticle(article: InsertNewsArticle): Promise<NewsArticle> {
     try {
       const [newArticle] = await db.insert(newsArticles).values(article).returning();
@@ -560,34 +578,34 @@ export class DatabaseStorage implements IStorage {
       throw error;
     }
   }
-  
+
   async updateNewsArticle(id: number, articleUpdates: Partial<InsertNewsArticle>): Promise<NewsArticle | undefined> {
     try {
       const existingArticle = await this.getNewsArticle(id);
       if (!existingArticle) {
         return undefined;
       }
-      
+
       const [updatedArticle] = await db
         .update(newsArticles)
         .set({ ...articleUpdates, updatedAt: new Date() })
         .where(eq(newsArticles.id, id))
         .returning();
-      
+
       return updatedArticle;
     } catch (error) {
       console.error('Error updating news article:', error);
       return undefined;
     }
   }
-  
+
   async deleteNewsArticle(id: number): Promise<boolean> {
     try {
       const result = await db
         .delete(newsArticles)
         .where(eq(newsArticles.id, id))
         .returning();
-      
+
       return result.length > 0;
     } catch (error) {
       console.error('Error deleting news article:', error);

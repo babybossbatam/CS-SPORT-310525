@@ -44,15 +44,23 @@ export const handleApiError = (error: unknown): string => {
 export const handleNetworkRecovery = () => {
   // Clear any cached data that might be stale
   if (typeof window !== 'undefined') {
-    // Clear localStorage caches that might be corrupted
-    Object.keys(localStorage).forEach(key => {
-      if (key.includes('cache') || key.includes('query')) {
-        localStorage.removeItem(key);
-      }
-    });
+    try {
+      // Clear localStorage caches that might be corrupted
+      Object.keys(localStorage).forEach(key => {
+        if (key.includes('cache') || key.includes('query')) {
+          try {
+            localStorage.removeItem(key);
+          } catch (e) {
+            // Ignore localStorage errors
+          }
+        }
+      });
 
-    // Don't automatically reload - let the app recover naturally
-    console.log('🌐 Network recovery: Cleared stale cache data');
+      // Don't automatically reload - let the app recover naturally
+      console.log('🌐 Network recovery: Cleared stale cache data');
+    } catch (error) {
+      console.warn('Error during network recovery:', error);
+    }
   }
 };
 

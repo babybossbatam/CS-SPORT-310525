@@ -37,15 +37,28 @@ pool.on('remove', () => {
 
 export const db = drizzle({ client: pool, schema });
 
-// Graceful shutdown handler
-process.on('SIGINT', async () => {
-  console.log('Received SIGINT, closing database connections...');
-  await pool.end();
-  process.exit(0);
-});
+// Track if pool is ending to prevent "pool after calling end" errors
+let isPoolEnding = false;
 
-process.on('SIGTERM', async () => {
-  console.log('Received SIGTERM, closing database connections...');
-  await pool.end();
+// Graceful shutdown handler
+const gracefulShutdown = async (signal: string) => {
+  if (isPoolEnding) return;
+  
+  console.log(`Received ${signal}, closing database connections...`);
+  isPoolEnding = true;
+  
+  try {
+    await pool.end();
+    console.log('Database connections closed successfully');
+  } catch (error) {
+    console.error('Error closing database connections:', error);
+  }
+  
   process.exit(0);
-});
+};
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+// Export a function to check if pool is available
+export const isPoolAvailable = () => !isPoolEnding;
