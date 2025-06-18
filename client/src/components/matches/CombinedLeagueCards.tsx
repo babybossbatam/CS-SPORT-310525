@@ -243,7 +243,51 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayString = format(yesterday, "yyyy-MM-dd");
 
-    const filtered = allFixtures.filter((fixture) => {
+    // First, map over fixtures to handle stale match detection and create new objects if needed
+    const processedFixtures = allFixtures.map((fixture) => {
+      // Apply stale match detection and status correction
+      if (fixture?.fixture?.date && fixture?.fixture?.status) {
+        const matchDate = new Date(fixture.fixture.date);
+        const now = new Date();
+        const status = fixture.fixture.status.short;
+        const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+
+        // Check if status claims to be live
+        const claimsLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
+        
+        if (claimsLive && hoursElapsed > 3) {
+          // Trigger async verification in background
+          verifyMatchStatusWithSportsRadar(fixture).then((verifiedStatus) => {
+            if (verifiedStatus === 'FT') {
+              console.log(`✅ [CombinedLeagueCards] SportsRadar confirmed match finished: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`);
+            }
+          });
+          
+          // For immediate filtering, use time-based validation
+          if (hoursElapsed > 3.5) {
+            console.warn(`⚠️ [CombinedLeagueCards] Stale live match detected: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} - status: ${status}, hours elapsed: ${hoursElapsed.toFixed(1)}`);
+            
+            // Return a new fixture object with updated status
+            return {
+              ...fixture,
+              fixture: {
+                ...fixture.fixture,
+                status: {
+                  ...fixture.fixture.status,
+                  short: "FT",
+                  long: "Match Finished"
+                }
+              }
+            };
+          }
+        }
+      }
+      
+      // Return original fixture if no changes needed
+      return fixture;
+    });
+
+    const filtered = processedFixtures.filter((fixture) => {
       // Apply smart time filtering with selected date context
       if (fixture.fixture.date && fixture.fixture.status?.short) {
         const smartResult = MySmartTimeFilter.getSmartTimeLabel(
@@ -282,36 +326,6 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
 
         if (!shouldInclude) {
           return false;
-        }
-      }
-
-      // Apply stale match detection and status correction
-      if (fixture?.fixture?.date && fixture?.fixture?.status) {
-        const matchDate = new Date(fixture.fixture.date);
-        const now = new Date();
-        const status = fixture.fixture.status.short;
-        const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-
-        // Check if status claims to be live
-        const claimsLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-        
-        if (claimsLive && hoursElapsed > 3) {
-          // Trigger async verification in background
-          verifyMatchStatusWithSportsRadar(fixture).then((verifiedStatus) => {
-            if (verifiedStatus === 'FT') {
-              // Force re-render by updating the fixture status
-              fixture.fixture.status.short = "FT";
-              fixture.fixture.status.long = "Match Finished";
-            }
-          });
-          
-          // For immediate filtering, use time-based validation
-          if (hoursElapsed > 3.5) {
-            console.warn(`⚠️ [CombinedLeagueCards] Stale live match detected: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} - status: ${status}, hours elapsed: ${hoursElapsed.toFixed(1)}`);
-            // Update the fixture status immediately for display
-            fixture.fixture.status.short = "FT";
-            fixture.fixture.status.long = "Match Finished";
-          }
         }
       }
 
