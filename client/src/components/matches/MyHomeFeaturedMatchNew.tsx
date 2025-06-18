@@ -43,6 +43,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
   });
   const autoSlideInterval = useRef<NodeJS.Timeout | null>(null);
 
+  // **DATA SOURCE FLOW - SLIDE DISTRIBUTION SYSTEM**
+  // API Fetch → Multiple days of fixture data are fetched from /api/fixtures/date/{date}
+  // Filtering → Elite leagues and competitions are filtered based on priority
+  // Slide Distribution → 9 slides are created with specific day allocation (Today: slides 1-3, Tomorrow: slides 4-6, 2 days later: slides 7-9)
+  // Current Match → currentMatch = featuredMatches[currentIndex] selects the active slide
+
   // Get multiple days of data for slide distribution
   const today = new Date().toISOString().slice(0, 10);
   const tomorrow = new Date();
@@ -755,6 +761,8 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return finalSlides;
   }, [fixtures, dateToUse, maxMatches]);
 
+  // **CURRENT MATCH SELECTION**
+  // currentMatch = featuredMatches[currentIndex] selects the active slide from the 9-slide distribution
   const currentMatch = featuredMatches[currentIndex] || null;
 
   // Real-time update effect for live matches
