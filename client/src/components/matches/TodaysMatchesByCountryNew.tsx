@@ -702,7 +702,37 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Use original country from league data directly
     const country = league.country;
-    const displayCountry = getCountryDisplayName(country);
+
+    // International Competition Handling (lines 640-680):
+    // Forces certain international competitions to be assigned to "World" country
+    // Includes: FIFA, UEFA, Champions League, Europa League, World Cup, Euro, CONMEBOL, Copa America, CONCACAF, Gold Cup, UEFA U21, and Friendlies (non-women)
+
+    let displayCountry = getCountryDisplayName(country);
+
+    // Force certain international competitions to be assigned to "World" country
+    const leagueNameLower = league.name.toLowerCase();
+    if (
+      leagueNameLower.includes("fifa") ||
+      leagueNameLower.includes("uefa champions league") ||
+      leagueNameLower.includes("uefa europa league") ||
+      leagueNameLower.includes("uefa europa conference league") ||
+      leagueNameLower.includes("uefa nations league") ||
+      leagueNameLower.includes("uefa u21 championship") ||
+      leagueNameLower.includes("uefa u19 championship") ||
+      leagueNameLower.includes("uefa u17 championship") ||
+      leagueNameLower.includes("world cup") ||
+      leagueNameLower.includes("euro championship") ||
+      leagueNameLower.includes("conmebol") ||
+      leagueNameLower.includes("copa america") ||
+      leagueNameLower.includes("concacaf") ||
+      leagueNameLower.includes("gold cup") ||
+      (leagueNameLower.includes("friendlies") && 
+       !leagueNameLower.includes("women") && 
+       (country === "World" || country === "Europe" || country === "International"))
+    ) {
+      displayCountry = "World";
+    }
+
     const leagueId = league.id;
 
     if (!acc[displayCountry]) {
