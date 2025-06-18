@@ -1741,7 +1741,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       index: number,
                                       array: any[],
                                     ) => {
-                                      // Remove duplicates by fixture ID                                      const isFirstOccurrence =
+                                      // Remove duplicates by fixture ID
+                                      const isFirstOccurrence =
                                         array.findIndex(
                                           (m) =>
                                             m.fixture.id === match.fixture.id,
