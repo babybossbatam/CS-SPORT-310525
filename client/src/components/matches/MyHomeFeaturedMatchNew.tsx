@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, ChevronLeft, ChevronRight } from "lucide-react";
@@ -41,6 +41,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     minutes: 0,
     seconds: 0,
   });
+  const autoSlideInterval = useRef<NodeJS.Timeout | null>(null);
 
   // Get multiple days of data for slide distribution
   const today = new Date().toISOString().slice(0, 10);
