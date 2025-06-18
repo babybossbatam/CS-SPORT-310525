@@ -20,6 +20,7 @@ import {
 import { FixtureResponse } from "@/types/fixtures";
 import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
+import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -1169,86 +1170,25 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     ),
                   }}
                 >
-                  {(() => {
-                    // Check if this is a national team in an international competition
-                    const isInternationalCompetition =
-                      currentMatch?.league?.country === "World" ||
-                      currentMatch?.league?.country === "Europe" ||
-                      currentMatch?.league?.country === "South America" ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("world cup") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("euro") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("copa america") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("uefa nations") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("cosafa") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("tournoi maurice revello") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("friendlies") ||
-                      currentMatch?.league?.name
-                        ?.toLowerCase()
-                        .includes("international");
-
-                    if (isInternationalCompetition) {
-                      const teamName = currentMatch?.teams?.home?.name || "";
-
-                      return (
-                        <div
-                          className="absolute z-20"
-                          style={{
-                            top: "calc(50% - 32px)",
-                            left: "-32px",
-                          }}
-                        >
-                          <MyCircularFlag
-                            teamName={teamName}
-                            fallbackUrl={currentMatch?.teams?.home?.logo}
-                            alt={teamName}
-                            size="64px"
-                            className="featured-match-size"
-                            leagueContext={{
-                              name: currentMatch?.league?.name || "",
-                              country: currentMatch?.league?.country || "",
-                            }}
-                          />
-                        </div>
-                      );
-                    }
-
-                    // Fallback to original team logo for non-international competitions
-                    return (
-                      <img
-                        src={
-                          currentMatch?.teams?.home?.logo ||
-                          `/assets/fallback-logo.svg`
-                        }
-                        alt={currentMatch?.teams?.home?.name || "Home Team"}
-                        className="absolute z-20 w-[64px] h-[64px] object-cover rounded-full"
-                        style={{
-                          top: "calc(50% - 32px)",
-                          left: "-32px",
-                          filter:
-                            "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
-                        }}
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          e.currentTarget.src = "/assets/fallback-logo.svg";
-                        }}
-                      />
-                    );
-                  })()}
+                  <div
+                    className="absolute z-20"
+                    style={{
+                      top: "calc(50% - 32px)",
+                      left: "-32px",
+                    }}
+                  >
+                    <MyWorldTeamLogo
+                      teamName={currentMatch?.teams?.home?.name || ""}
+                      teamLogo={currentMatch?.teams?.home?.logo || "/assets/fallback-logo.svg"}
+                      alt={currentMatch?.teams?.home?.name || "Home Team"}
+                      size="64px"
+                      className="featured-match-size"
+                      leagueContext={{
+                        name: currentMatch?.league?.name || "",
+                        country: currentMatch?.league?.country || "",
+                      }}
+                    />
+                  </div>
                 </div>
 
                 <div
@@ -1304,86 +1244,26 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   {currentMatch?.teams?.away?.name || "Away Team"}
                 </div>
 
-                {(() => {
-                  // Check if this is a national team in an international competition
-                  const isInternationalCompetition =
-                    currentMatch?.league?.country === "World" ||
-                    currentMatch?.league?.country === "Europe" ||
-                    currentMatch?.league?.country === "South America" ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("world cup") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("euro") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("copa america") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("uefa nations") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("cosafa") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("tournoi maurice revello") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("friendlies") ||
-                    currentMatch?.league?.name
-                      ?.toLowerCase()
-                      .includes("international");
-
-                  if (isInternationalCompetition) {
-                    const teamName = currentMatch?.teams?.away?.name || "";
-
-                    return (
-                      <div
-                        className="absolute z-20"
-                        style={{
-                          top: "calc(50% - 32px)",
-                          right: "32px",
-                        }}
-                      >
-                        <MyCircularFlag
-                          teamName={teamName}
-                          fallbackUrl={currentMatch?.teams?.away?.logo}
-                          alt={teamName}
-                          size="64px"
-                          className="featured-match-size"
-                          moveLeft={true}
-                          leagueContext={{
-                            name: currentMatch?.league?.name || "",
-                            country: currentMatch?.league?.country || "",
-                          }}
-                        />
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <img
-                      src={
-                        currentMatch?.teams?.away?.logo ||
-                        `/assets/fallback-logo.svg`
-                      }
-                      alt={currentMatch?.teams?.away?.name || "Away Team"}
-                      className="absolute z-20 w-[64px] h-[64px] object-contain rounded-full"
-                      style={{
-                        top: "calc(50% - 64px)",
-                        right: "16px",
-                        filter:
-                          "contrast(115%) brightness(105%) drop-shadow(4px 4px 6px rgba(0, 0, 0, 0.3))",
-                      }}
-                      loading="lazy"
-                      decoding="async"
-                      onError={(e) => {
-                        e.currentTarget.src = "/assets/fallback-logo.svg";
-                      }}
-                    />
-                  );
-                })()}
+                <div
+                  className="absolute z-20"
+                  style={{
+                    top: "calc(50% - 32px)",
+                    right: "32px",
+                  }}
+                >
+                  <MyWorldTeamLogo
+                    teamName={currentMatch?.teams?.away?.name || ""}
+                    teamLogo={currentMatch?.teams?.away?.logo || "/assets/fallback-logo.svg"}
+                    alt={currentMatch?.teams?.away?.name || "Away Team"}
+                    size="64px"
+                    className="featured-match-size"
+                    moveLeft={true}
+                    leagueContext={{
+                      name: currentMatch?.league?.name || "",
+                      country: currentMatch?.league?.country || "",
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
