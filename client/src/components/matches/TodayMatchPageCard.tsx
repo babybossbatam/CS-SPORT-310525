@@ -176,6 +176,29 @@ export const TodayMatchPageCard = ({
     setPopularLeagueFixtures(filteredFixtures);
   }, [filteredFixtures]);
 
+  const handleMatchCardClick = (fixture: any) => {
+    console.log('🎯 [TodayMatchPageCard] Match card clicked:', {
+      fixtureId: fixture.fixture?.id,
+      teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+      league: fixture.league?.name,
+      country: fixture.league?.country,
+      source: 'TodayMatchPageCard'
+    });
+    onMatchCardClick?.(fixture);
+  };
+
+  const handleLiveMatchClick = (fixture: any) => {
+    console.log('🔴 [TodayMatchPageCard] LIVE Match card clicked from LiveMatchForAllCountry:', {
+      fixtureId: fixture.fixture?.id,
+      teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+      league: fixture.league?.name,
+      country: fixture.league?.country,
+      status: fixture.fixture?.status?.short,
+      source: 'LiveMatchForAllCountry'
+    });
+    onMatchCardClick?.(fixture);
+  };
+
   return (
     <>
       <Card className="shadow-md w-full">
@@ -361,11 +384,11 @@ export const TodayMatchPageCard = ({
       ) : liveFilterActive && !timeFilterActive ? (
         // Live only - show LiveMatchForAllCountry
         <LiveMatchForAllCountry
-          isTimeFilterActive={false}
           liveFilterActive={liveFilterActive}
           timeFilterActive={timeFilterActive}
           liveFixtures={sharedLiveFixtures}
           setLiveFilterActive={setLiveFilterActive}
+          onMatchCardClick={handleLiveMatchClick}
         />
       ) : timeFilterActive && !liveFilterActive ? (
         // Time only - show new TodayMatchByTime component with shared data

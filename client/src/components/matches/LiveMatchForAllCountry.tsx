@@ -778,7 +778,17 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                         >
                           <div 
                             className="match-card-container group"
-                            onClick={() => onMatchCardClick?.(match)}
+                            onClick={() => {
+                              console.log('🔴 [LiveMatchForAllCountry] Match card clicked:', {
+                                fixtureId: match.fixture?.id,
+                                teams: `${match.teams?.home?.name} vs ${match.teams?.away?.name}`,
+                                league: match.league?.name,
+                                country: match.league?.country,
+                                status: match.fixture?.status?.short,
+                                hasCallback: !!onMatchCardClick
+                              });
+                              onMatchCardClick?.(match);
+                            }}
                             style={{ cursor: onMatchCardClick ? 'pointer' : 'default' }}
                           >
                             {/* Star Button with slide-in effect */}
