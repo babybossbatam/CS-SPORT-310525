@@ -696,6 +696,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return acc;
     }
 
+    const leagueName = league.name || "";
+    const homeTeamName = fixture.teams?.home?.name || "";
+    const awayTeamName = fixture.teams?.away?.name || "";
+
     // Use original country from league data directly
     const country = league.country;
     const displayCountry = getCountryDisplayName(country);
