@@ -1,5 +1,5 @@
 import { parseISO, isValid, format } from 'date-fns';
-import { formatInTimeZone, utcToZonedTime } from 'date-fns-tz';
+import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 
 export interface TournamentTimezoneConfig {
   leagueId: number;
@@ -82,11 +82,11 @@ export class MyNewDateTimeConverter {
       }
 
       // Convert to user's timezone
-      const userTime = utcToZonedTime(originalDate, this.userTimezone);
+      const userTime = toZonedTime(originalDate, this.userTimezone);
       const userTimeString = formatInTimeZone(originalDate, this.userTimezone, 'yyyy-MM-dd HH:mm:ss zzz');
 
       // Determine match day based on tournament timezone
-      const tournamentTime = utcToZonedTime(originalDate, config.timezone);
+      const tournamentTime = toZonedTime(originalDate, config.timezone);
       const matchDay = this.getMatchDay(tournamentTime, config);
 
       return {
@@ -185,7 +185,7 @@ export class MyNewDateTimeConverter {
    */
   getCurrentUserDate(): string {
     const now = new Date();
-    const userNow = utcToZonedTime(now, this.userTimezone);
+    const userNow = toZonedTime(now, this.userTimezone);
     return format(userNow, 'yyyy-MM-dd');
   }
 
