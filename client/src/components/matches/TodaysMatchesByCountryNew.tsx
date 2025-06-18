@@ -1750,104 +1750,81 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       const isNotHidden = !hiddenMatches.has(
                                         match.fixture.id,
                                       );
+                                      
+                                      // Debug log for finished matches
+                                      if (["FT", "AET", "PEN"].includes(match.fixture.status.short)) {
+                                        console.log(`🏁 [FINISHED MATCH] ${match.teams.home.name} vs ${match.teams.away.name} - Status: ${match.fixture.status.short}, Time: ${match.fixture.date}, Hidden: ${!isNotHidden}, Duplicate: ${!isFirstOccurrence}`);
+                                      }
+                                      
                                       return isFirstOccurrence && isNotHidden;
                                     },
                                   )
                                   .sort((a: any, b: any) => {
-                                    // Priority order: Live > Upcoming > Ended
+                                    // Priority order: Live > Ended (Recent) > Upcoming > Ended (Old)
                                     const aStatus = a.fixture.status.short;
                                     const bStatus = b.fixture.status.short;
-                                    const aDate = new Date(
-                                      a.fixture.date,
-                                    ).getTime();
-                                    const bDate = new Date(
-                                      b.fixture.date,
-                                    ).getTime();
+                                    const aDate = new Date(a.fixture.date).getTime();
+                                    const bDate = new Date(b.fixture.date).getTime();
+                                    const now = new Date().getTime();
 
                                     // Define status categories
                                     const aLive = [
-                                      "LIVE",
-                                      "1H",
-                                      "HT",
-                                      "2H",
-                                      "ET",
-                                      "BT",
-                                      "P",
-                                      "INT",
+                                      "LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"
                                     ].includes(aStatus);
                                     const bLive = [
-                                      "LIVE",
-                                      "1H",
-                                      "HT",
-                                      "2H",
-                                      "ET",
-                                      "BT",
-                                      "P",
-                                      "INT",
+                                      "LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"
                                     ].includes(bStatus);
-
-                                    const aUpcoming =
-                                      aStatus === "NS" && !aLive;
-                                    const bUpcoming =
-                                      bStatus === "NS" && !bLive;
 
                                     const aEnded = [
-                                      "FT",
-                                      "AET",
-                                      "PEN",
-                                      "AWD",
-                                      "WO",
-                                      "ABD",
-                                      "CANC",
-                                      "SUSP",
+                                      "FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"
                                     ].includes(aStatus);
                                     const bEnded = [
-                                      "FT",
-                                      "AET",
-                                      "PEN",
-                                      "AWD",
-                                      "WO",
-                                      "ABD",
-                                      "CANC",
-                                      "SUSP",
+                                      "FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"
                                     ].includes(bStatus);
 
+                                    const aUpcoming = aStatus === "NS" || aStatus === "TBD";
+                                    const bUpcoming = bStatus === "NS" || bStatus === "TBD";
+
+                                    // For ended matches, check if they're recent (within 3 hours)
+                                    const aRecentEnded = aEnded && (now - aDate) <= (3 * 60 * 60 * 1000);
+                                    const bRecentEnded = bEnded && (now - bDate) <= (3 * 60 * 60 * 1000);
+
                                     // Assign priority scores (lower = higher priority)
-                                    let aPriority = 0;
-                                    let bPriority = 0;
+                                    let aPriority = 4; // default
+                                    let bPriority = 4; // default
 
                                     if (aLive) aPriority = 1;
-                                    else if (aUpcoming) aPriority = 2;
-                                    else if (aEnded) aPriority = 3;
-                                    else aPriority = 4; // Other statuses
+                                    else if (aRecentEnded) aPriority = 2;
+                                    else if (aUpcoming) aPriority = 3;
+                                    else if (aEnded) aPriority = 4;
 
                                     if (bLive) bPriority = 1;
-                                    else if (bUpcoming) bPriority = 2;
-                                    else if (bEnded) bPriority = 3;
-                                    else bPriority = 4; // Other statuses
+                                    else if (bRecentEnded) bPriority = 2;
+                                    else if (bUpcoming) bPriority = 3;
+                                    else if (bEnded) bPriority = 4;
 
                                     // First sort by priority
                                     if (aPriority !== bPriority) {
                                       return aPriority - bPriority;
                                     }
 
-                                    // If same priority, sort by time within category
+                                    // Within same priority, sort by time
                                     if (aLive && bLive) {
-                                      // For live matches, show earliest start time first
+                                      // Live matches: earliest start time first
                                       return aDate - bDate;
                                     }
 
-                                    if (aUpcoming && bUpcoming) {
-                                      // For upcoming matches, show earliest start time first
-                                      return aDate - bDate;
-                                    }
-
-                                    if (aEnded && bEnded) {
-                                      // For ended matches, show most recent first
+                                    if ((aRecentEnded && bRecentEnded) || (aEnded && bEnded)) {
+                                      // Ended matches: most recent first
                                       return bDate - aDate;
                                     }
 
-                                    // Default time-based sorting
+                                    if (aUpcoming && bUpcoming) {
+                                      // Upcoming matches: earliest start time first
+                                      return aDate - bDate;
+                                    }
+
+                                    // Default: sort by time
                                     return aDate - bDate;
                                   })
                                   .map((match: any, matchIndex) => (
