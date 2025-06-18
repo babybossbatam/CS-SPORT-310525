@@ -2349,13 +2349,3 @@ async function getCountryFlag(country: string): Promise<string | null> {
 }
 
 import { type NextFunction } from "express";
-
-//Centralized error handler
-app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    console.error('Route error:', err);
-    res.status(status).json({ message });
-    // Don't throw error to prevent process crash
-  });
