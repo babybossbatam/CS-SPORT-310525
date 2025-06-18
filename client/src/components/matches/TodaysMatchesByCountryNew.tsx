@@ -45,7 +45,7 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import LazyMatchItem from "./LazyMatchItem";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
-import { MyNewDateTimeConverter, createDateTimeConverter } from "@/lib/MyNewDateTimeConverter";
+import { MyUpdatedDateTimeConversion, createUpdatedDateTimeConverter } from "@/lib/MyUpdatedDateTimeConversion";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
 
@@ -575,9 +575,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, []);
 
-  // Initialize timezone converter
+  // Initialize enhanced timezone converter
   const timezoneConverter = useMemo(() => {
-    return createDateTimeConverter();
+    return createUpdatedDateTimeConverter();
   }, []);
 
   // Smart live match validation with tournament timezone support
@@ -659,7 +659,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return isGenuinelyLive;
       }
 
-      // For date-based filtering, use the new datetime converter with tournament timezone support
+      // For date-based filtering, use the enhanced datetime converter with tournament timezone support
       if (fixture.fixture.date && fixture.league?.id) {
         const { isMatch } = timezoneConverter.isMatchOnDate(
           fixture.fixture.date,
@@ -1294,13 +1294,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Format the time for display in client's local timezone using tournament timezone converter
+  // Format the time for display in client's local timezone using enhanced tournament timezone converter
   const formatMatchTime = (dateString: string | null | undefined, leagueId?: number) => {
     if (!dateString || typeof dateString !== "string") return "--:--";
 
     try {
-      const { clientTime } = timezoneConverter.convertMatchToClientTime(dateString, leagueId);
-      return format(clientTime, "HH:mm");
+      return timezoneConverter.formatMatchTimeForDisplay(dateString, leagueId);
     } catch (error) {
       console.error("Error formatting match time:", error);
       return "--:--";
