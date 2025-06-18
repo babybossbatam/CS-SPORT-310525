@@ -473,35 +473,55 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
 
                     {/* Home team logo - grid area */}
                     <div className="home-team-logo-container">
-                      {isNationalTeam(
-                        match.teams.home,
-                        match.leagueInfo,
-                      ) || match.teams.home.name?.includes("U20") || match.teams.home.name?.includes("U21") ? (
-                        <MyCircularFlag
-                          teamName={match.teams.home.name || ""}
-                          fallbackUrl={
-                            match.teams.home.id
-                              ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                              : "/assets/fallback-logo.svg"
-                          }
-                          alt={match.teams.home.name}
-                          size="32px"
-                          className=""
-                        />
-                      ) : (
-                        <LazyImage
-                          src={
-                            match.teams.home.id
-                              ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                              : "/assets/fallback-logo.svg"
-                          }
-                          alt={match.teams.home.name}
-                          title={match.teams.home.name}
-                          className="team-logo"
-                          style={{ backgroundColor: "transparent" }}
-                          fallbackSrc="/assets/fallback-logo.svg"
-                        />
-                      )}
+                      {(() => {
+                        // Check if this is a national team
+                        const isActualNationalTeam = isNationalTeam(
+                          match.teams.home,
+                          match.leagueInfo,
+                        );
+
+                        // Check for youth teams
+                        const isYouthTeam = match.teams.home.name?.includes("U20") || 
+                                           match.teams.home.name?.includes("U21") ||
+                                           match.teams.home.name?.includes("U19") ||
+                                           match.teams.home.name?.includes("U23");
+
+                        // Check if this is FIFA Club World Cup (club competition, not national teams)
+                        const isFifaClubWorldCup = match.leagueInfo?.name?.toLowerCase().includes("fifa club world cup");
+
+                        // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup
+                        if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup) {
+                          return (
+                            <MyCircularFlag
+                              teamName={match.teams.home.name || ""}
+                              fallbackUrl={
+                                match.teams.home.id
+                                  ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                  : "/assets/fallback-logo.svg"
+                              }
+                              alt={match.teams.home.name}
+                              size="32px"
+                              className=""
+                            />
+                          );
+                        }
+
+                        // Default to regular team logo for club teams
+                        return (
+                          <LazyImage
+                            src={
+                              match.teams.home.id
+                                ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                : "/assets/fallback-logo.svg"
+                            }
+                            alt={match.teams.home.name}
+                            title={match.teams.home.name}
+                            className="team-logo"
+                            style={{ backgroundColor: "transparent" }}
+                            fallbackSrc="/assets/fallback-logo.svg"
+                          />
+                        );
+                      })()}
                     </div>
 
                     {/* Score/Time Center - Fixed width and centered */}
@@ -617,35 +637,55 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
 
                     {/* Away team logo - grid area */}
                     <div className="away-team-logo-container">
-                      {isNationalTeam(
-                        match.teams.away,
-                        match.leagueInfo,
-                      ) || match.teams.away.name?.includes("U20") || match.teams.away.name?.includes("U21") ? (
-                        <MyCircularFlag
-                          teamName={match.teams.away.name || ""}
-                          fallbackUrl={
-                            match.teams.away.id
-                              ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                              : "/assets/fallback-logo.svg"
-                          }
-                          alt={match.teams.away.name}
-                          size="32px"
-                          className=""
-                        />
-                      ) : (
-                        <LazyImage
-                          src={
-                            match.teams.away.id
-                              ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                              : "/assets/fallback-logo.svg"
-                          }
-                          alt={match.teams.away.name}
-                          title={match.teams.away.name}
-                          className="team-logo"
-                          style={{ backgroundColor: "transparent" }}
-                          fallbackSrc="/assets/fallback-logo.svg"
-                        />
-                      )}
+                      {(() => {
+                        // Check if this is a national team
+                        const isActualNationalTeam = isNationalTeam(
+                          match.teams.away,
+                          match.leagueInfo,
+                        );
+
+                        // Check for youth teams
+                        const isYouthTeam = match.teams.away.name?.includes("U20") || 
+                                           match.teams.away.name?.includes("U21") ||
+                                           match.teams.away.name?.includes("U19") ||
+                                           match.teams.away.name?.includes("U23");
+
+                        // Check if this is FIFA Club World Cup (club competition, not national teams)
+                        const isFifaClubWorldCup = match.leagueInfo?.name?.toLowerCase().includes("fifa club world cup");
+
+                        // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup
+                        if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup) {
+                          return (
+                            <MyCircularFlag
+                              teamName={match.teams.away.name || ""}
+                              fallbackUrl={
+                                match.teams.away.id
+                                  ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                  : "/assets/fallback-logo.svg"
+                              }
+                              alt={match.teams.away.name}
+                              size="32px"
+                              className=""
+                            />
+                          );
+                        }
+
+                        // Default to regular team logo for club teams
+                        return (
+                          <LazyImage
+                            src={
+                              match.teams.away.id
+                                ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                : "/assets/fallback-logo.svg"
+                            }
+                            alt={match.teams.away.name}
+                            title={match.teams.away.name}
+                            className="team-logo"
+                            style={{ backgroundColor: "transparent" }}
+                            fallbackSrc="/assets/fallback-logo.svg"
+                          />
+                        );
+                      })()}
                     </div>
 
                     {/* Away Team Name - positioned further right */}
