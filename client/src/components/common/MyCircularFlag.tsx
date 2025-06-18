@@ -142,14 +142,21 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   // Check if this is actually a national team
   const isActualNationalTeam = isNationalTeam({ name: teamName });
   
-  // Check for youth teams
+  // Check for youth teams (these should also use circular flags)
   const isYouthTeam = teamName?.includes("U20") || 
                      teamName?.includes("U21") ||
                      teamName?.includes("U19") ||
-                     teamName?.includes("U23");
+                     teamName?.includes("U23") ||
+                     teamName?.includes("U17") ||
+                     teamName?.includes("U16");
+  
+  // Additional check for international/national team patterns
+  const hasNationalTeamPattern = teamName?.includes(" W") || // Women's national teams
+                                teamName?.includes(" U") || // Youth national teams
+                                teamName?.match(/\b(national|international)\b/i);
 
   // For club teams (non-national teams), use normal logo format
-  if (!isActualNationalTeam && !isYouthTeam) {
+  if (!isActualNationalTeam && !isYouthTeam && !hasNationalTeamPattern) {
     return (
       <div
         className={`team-logo-container ${className}`}
@@ -222,7 +229,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     );
   }
 
-  // For national teams and youth teams, use the circular flag format
+  // For national teams, youth teams, and international competitions, use the circular flag format
   return (
     <div
       className={`flag-circle ${className}`}
