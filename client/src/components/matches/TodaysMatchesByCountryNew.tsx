@@ -45,6 +45,7 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import LazyMatchItem from "./LazyMatchItem";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
+import { MyNewDateTimeConverter } from "@/lib/MyNewDateTimeConverter";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
 
@@ -729,10 +730,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return isGenuinelyLive;
       }
 
-      // For date-based filtering, check if the match is on the selected date
-      if (fixture.fixture.date) {
-        const matchDateString = matchDate.toISOString().split('T')[0];
-        return matchDateString === selectedDate;
+      // For date-based filtering, use the new datetime converter
+      if (fixture.fixture.date && fixture.league?.id) {
+        const dateCheck = MyNewDateTimeConverter.isFixtureOnDate(
+          fixture.fixture.date,
+          selectedDate,
+          fixture.league.id,
+          fixture.league.name
+        );
+        return dateCheck.isMatch;
       }
 
       return true;
