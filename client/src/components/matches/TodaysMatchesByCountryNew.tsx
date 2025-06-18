@@ -538,7 +538,43 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [fixtures, selectedDate]);
 
-  // Smart live match validation with proper status checking
+  // Enhanced status verification function
+  const verifyMatchStatusWithSportsRadar = useCallback(async (fixture: any) => {
+    try {
+      const homeTeam = fixture.teams?.home?.name || '';
+      const awayTeam = fixture.teams?.away?.name || '';
+      
+      // Call debug endpoint to get SportsRadar comparison
+      const response = await fetch(`/api/debug/fixture/${fixture.fixture.id}/compare`);
+      const comparison = await response.json();
+      
+      if (comparison.sportsRadar?.available && comparison.sportsRadar?.data) {
+        const sportsRadarStatus = comparison.sportsRadar.data.status;
+        
+        // Check if SportsRadar shows the match as finished
+        const isFinishedInSportsRadar = ['completed', 'closed', 'ended', 'finished'].some(
+          status => sportsRadarStatus?.toLowerCase().includes(status)
+        );
+        
+        if (isFinishedInSportsRadar) {
+          console.log(`✅ SportsRadar confirms match is finished: ${homeTeam} vs ${awayTeam}`);
+          return 'FT';
+        } else {
+          console.log(`⚠️ SportsRadar shows match still active: ${homeTeam} vs ${awayTeam} - status: ${sportsRadarStatus}`);
+          return fixture.fixture.status.short; // Keep original status
+        }
+      }
+      
+      // If SportsRadar data not available, use time-based validation
+      console.warn(`📡 SportsRadar data not available for ${homeTeam} vs ${awayTeam}, using time-based validation`);
+      return null; // Will use fallback logic
+    } catch (error) {
+      console.error(`❌ Error verifying match status with SportsRadar:`, error);
+      return null; // Will use fallback logic
+    }
+  }, []);
+
+  // Smart live match validation with SportsRadar verification
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     let allFixtures;
     
@@ -575,14 +611,89 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       };
     }
 
-    // Smart filtering with proper live match validation
+    // Process fixtures with enhanced status validation
+    const processFixtures = async () => {
+      const processed = await Promise.all(
+        allFixtures.map(async (fixture: any) => {
+          // Basic validation
+          if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+            return { fixture, valid: false, reason: "Invalid structure" };
+          }
+
+          const status = fixture.fixture.status?.short;
+          const matchDate = new Date(fixture.fixture.date);
+          const now = new Date();
+          const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+
+          // Check if status claims to be live
+          const claimsLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
+          
+          if (claimsLive && hoursElapsed > 3) {
+            console.warn(`🔍 Verifying potentially stale live match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} - status: ${status}, hours elapsed: ${hoursElapsed.toFixed(1)}`);
+            
+            // Verify with SportsRadar API
+            const verifiedStatus = await verifyMatchStatusWithSportsRadar(fixture);
+            
+            if (verifiedStatus === 'FT') {
+              // SportsRadar confirms match is finished
+              fixture.fixture.status.short = "FT";
+              fixture.fixture.status.long = "Match Finished";
+              console.log(`✅ Status corrected to FT based on SportsRadar verification: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+            } else if (verifiedStatus === null && hoursElapsed > 3.5) {
+              // Fallback to time-based validation if SportsRadar unavailable
+              fixture.fixture.status.short = "FT";
+              fixture.fixture.status.long = "Match Finished";
+              console.log(`⏰ Status corrected to FT based on time validation (SportsRadar unavailable): ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+            } else if (verifiedStatus) {
+              // Keep the original status if SportsRadar shows it's still active
+              console.log(`✅ Match verified as still active by SportsRadar: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+            }
+          }
+
+          // Apply filtering logic
+          if (liveFilterActive) {
+            const isGenuinelyLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short);
+            return { fixture, valid: isGenuinelyLive, reason: isGenuinelyLive ? "Live match" : "Not live" };
+          }
+
+          // For date-based filtering, check if the match is on the selected date
+          if (fixture.fixture.date) {
+            const matchDateString = matchDate.toISOString().split('T')[0];
+            const isValidDate = matchDateString === selectedDate;
+            return { fixture, valid: isValidDate, reason: isValidDate ? "Date match" : "Date mismatch" };
+          }
+
+          return { fixture, valid: true, reason: "Valid" };
+        })
+      );
+
+      const validFixtures = processed.filter(p => p.valid).map(p => p.fixture);
+      const rejectedFixtures = processed.filter(p => !p.valid).map(p => ({
+        fixture: p.fixture,
+        reason: p.reason,
+      }));
+
+      return {
+        validFixtures,
+        rejectedFixtures,
+        stats: {
+          total: allFixtures.length,
+          valid: validFixtures.length,
+          rejected: rejectedFixtures.length,
+          methods: {
+            "sportsradar-verified": validFixtures.length,
+          },
+        },
+      };
+    };
+
+    // For now, use synchronous processing but log async verification attempts
     const filtered = allFixtures.filter((fixture: any) => {
       // Basic validation
       if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
         return false;
       }
 
-      // Smart live status validation
       const status = fixture.fixture.status?.short;
       const matchDate = new Date(fixture.fixture.date);
       const now = new Date();
@@ -591,18 +702,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Check if status claims to be live
       const claimsLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
       
-      if (claimsLive) {
-        // Validate live status - matches can't be live for more than 3.5 hours
+      if (claimsLive && hoursElapsed > 3) {
+        // Trigger async verification in background
+        verifyMatchStatusWithSportsRadar(fixture).then((verifiedStatus) => {
+          if (verifiedStatus === 'FT') {
+            // Force re-render by updating the fixture status
+            fixture.fixture.status.short = "FT";
+            fixture.fixture.status.long = "Match Finished";
+            // Force component re-render
+            setEnableFetching(prev => !prev);
+            setTimeout(() => setEnableFetching(prev => !prev), 100);
+          }
+        });
+        
+        // For immediate filtering, use time-based validation
         if (hoursElapsed > 3.5) {
-          console.warn(`⚠️ Stale live match detected: ${fixture.teams.home.name} vs ${fixture.teams.away.name} - status: ${status}, hours elapsed: ${hoursElapsed.toFixed(1)}`);
-          
-          // Convert stale live status to finished
+          console.warn(`⚠️ Stale live match detected (immediate): ${fixture.teams.home.name} vs ${fixture.teams.away.name} - status: ${status}, hours elapsed: ${hoursElapsed.toFixed(1)}`);
           fixture.fixture.status.short = "FT";
           fixture.fixture.status.long = "Match Finished";
         }
       }
 
-      // If live filter is active, only show genuinely live matches
+      // Apply filtering logic
       if (liveFilterActive) {
         const isGenuinelyLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short);
         return isGenuinelyLive;
@@ -630,11 +751,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         valid: filtered.length,
         rejected: allFixtures.length - filtered.length,
         methods: {
-          "smart-filter": filtered.length,
+          "sportsradar-enhanced": filtered.length,
         },
       },
     };
-  }, [fixtures, selectedDate, liveFilterActive, liveFixtures]);
+  }, [fixtures, selectedDate, liveFilterActive, liveFixtures, verifyMatchStatusWithSportsRadar]);
 
   // Log filtering statistics
   console.log(`📊 [MyDateFilter] Filtering Results for ${selectedDate}:`, {
