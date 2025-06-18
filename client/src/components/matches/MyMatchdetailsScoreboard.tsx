@@ -58,6 +58,15 @@ const MyMatchdetailsScoreboard = ({
   };
 
   const displayMatch = match || sampleMatch;
+  
+  // Debug: Log the match data being received
+  console.log('🎯 [MyMatchdetailsScoreboard] Received match data:', {
+    hasMatch: !!match,
+    fixtureId: displayMatch?.fixture?.id,
+    teams: `${displayMatch?.teams?.home?.name} vs ${displayMatch?.teams?.away?.name}`,
+    status: displayMatch?.fixture?.status?.short,
+    league: displayMatch?.league?.name
+  });
 
   // Real-time update effect for live matches
   useEffect(() => {
@@ -160,8 +169,7 @@ const MyMatchdetailsScoreboard = ({
   };
   return (
     <Card
-      className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative cursor-pointer transition-all duration-200 hover:shadow-lg`}
-      onClick={() => onMatchCardClick?.(displayMatch)}
+      className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 hover:shadow-lg`}
     >
       {onClose && (
         <button
