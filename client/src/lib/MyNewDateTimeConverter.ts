@@ -19,12 +19,20 @@ const TOURNAMENT_TIMEZONES: TournamentTimezoneConfig[] = [
   { leagueId: 2, name: "UEFA Champions League", timezone: "Europe/Berlin", matchDayStart: "06:00" },
   { leagueId: 3, name: "UEFA Europa League", timezone: "Europe/Berlin", matchDayStart: "06:00" },
   { leagueId: 848, name: "UEFA Conference League", timezone: "Europe/Berlin", matchDayStart: "06:00" },
+  // UEFA Youth and International competitions
+  { leagueId: 38, name: "UEFA U21 Championship", timezone: "Europe/Berlin", matchDayStart: "06:00" },
+  { leagueId: 5, name: "UEFA Nations League", timezone: "Europe/Berlin", matchDayStart: "06:00" },
+  { leagueId: 4, name: "Euro Championship", timezone: "Europe/Berlin", matchDayStart: "06:00" },
+  { leagueId: 1, name: "World Cup", timezone: "UTC", matchDayStart: "06:00" }, // Varies by host
   // Copa America (varies by host country)
   { leagueId: 9, name: "Copa America", timezone: "America/Santiago", matchDayStart: "06:00" },
   // Asian Cup
   { leagueId: 22, name: "Asian Cup", timezone: "Asia/Tokyo", matchDayStart: "06:00" },
   // Africa Cup of Nations
   { leagueId: 6, name: "Africa Cup of Nations", timezone: "Africa/Cairo", matchDayStart: "06:00" },
+  // Olympic Football Tournaments
+  { leagueId: 480, name: "Olympics Men", timezone: "UTC", matchDayStart: "06:00" }, // Varies by host
+  { leagueId: 481, name: "Olympics Women", timezone: "UTC", matchDayStart: "06:00" }, // Varies by host
 ];
 
 // Default configuration for leagues without specific timezone settings
@@ -51,8 +59,19 @@ export class MyNewDateTimeConverter {
    * Get tournament configuration for a specific league
    */
   private getTournamentConfig(leagueId?: number): TournamentTimezoneConfig {
-    if (!leagueId) return DEFAULT_CONFIG;
-    return this.tournamentConfigs.get(leagueId) || DEFAULT_CONFIG;
+    if (!leagueId) {
+      console.log(`🌍 [DateTimeConverter] No league ID provided, using default UTC timezone`);
+      return DEFAULT_CONFIG;
+    }
+    
+    const config = this.tournamentConfigs.get(leagueId);
+    if (config) {
+      console.log(`🌍 [DateTimeConverter] League ${leagueId} (${config.name}) using timezone: ${config.timezone}`);
+      return config;
+    } else {
+      console.log(`⚠️ [DateTimeConverter] League ${leagueId} not configured, using default UTC timezone`);
+      return DEFAULT_CONFIG;
+    }
   }
 
   /**
