@@ -538,7 +538,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [fixtures, selectedDate]);
 
-  // Apply smart time filtering directly and detect stale matches
+  // Simplified filtering - only exclude women's and virtual matches
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     // Use the appropriate data source based on filter state
     const allFixtures = liveFilterActive ? liveFixtures : fixtures;
@@ -550,140 +550,86 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       };
     }
 
-    // If live filter is active, apply live-specific filtering (from LiveMatchForAllCountry logic)
-    if (liveFilterActive) {
-      const filtered = allFixtures.filter((fixture: any) => {
-        // Basic validation
-        if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-          return false;
-        }
+    // Simple filtering - only exclude women's and virtual matches
+    const filtered = allFixtures.filter((fixture: any) => {
+      // Basic validation
+      if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+        return false;
+      }
 
-        // For live fixtures, we primarily care about the match status rather than strict time filtering
+      // Only exclude women's competitions and virtual/exhibition matches
+      const leagueName = fixture.league?.name?.toLowerCase() || "";
+      const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
+      const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
+
+      // Exclude women's competitions
+      const isWomensMatch = 
+        leagueName.includes("women") ||
+        leagueName.includes("girls") ||
+        leagueName.includes("feminine") ||
+        homeTeamName.includes("women") ||
+        awayTeamName.includes("women");
+
+      // Exclude virtual/exhibition matches
+      const isVirtualMatch = 
+        leagueName.includes("virtual") ||
+        leagueName.includes("exhibition") ||
+        leagueName.includes("testimonial") ||
+        leagueName.includes("futsal") ||
+        leagueName.includes("indoor") ||
+        leagueName.includes("beach");
+
+      if (isWomensMatch || isVirtualMatch) {
+        return false;
+      }
+
+      // If live filter is active, only show live matches or matches from today
+      if (liveFilterActive) {
         const status = fixture.fixture.status?.short;
         const isCurrentlyLive = [
-          "LIVE",
-          "LIV",
-          "1H",
-          "HT",
-          "2H",
-          "ET",
-          "BT",
-          "P",
-          "INT",
+          "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
         ].includes(status);
 
-        // Always include currently live matches
         if (isCurrentlyLive) {
           return true;
         }
 
-        // For non-live matches, apply time filtering
-        if (fixture.fixture.date && fixture.fixture.status?.short) {
+        // For non-live matches when live filter is active, check if they're from today
+        if (fixture.fixture.date) {
+          const matchDate = new Date(fixture.fixture.date);
           const today = new Date();
-          const todayString = format(today, "yyyy-MM-dd");
-
-          const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-            fixture.fixture.date,
-            fixture.fixture.status.short,
-            todayString + "T12:00:00Z",
-          );
-
-          // Include matches that are within today's time range
-          if (smartResult.label === "today" && smartResult.isWithinTimeRange) {
-            return true;
-          }
+          const matchDateString = matchDate.toISOString().split('T')[0];
+          const todayString = today.toISOString().split('T')[0];
+          return matchDateString === todayString;
         }
 
         return false;
-      });
-
-      return {
-        validFixtures: filtered,
-        rejectedFixtures: allFixtures
-          .filter((f) => !filtered.includes(f))
-          .map((f) => ({ fixture: f, reason: "Not live or today" })),
-        stats: {
-          total: allFixtures.length,
-          valid: filtered.length,
-          rejected: allFixtures.length - filtered.length,
-          methods: { "live-filter": filtered.length },
-        },
-      };
-    }
-
-    // Original date-based filtering logic
-    // Note: Removed stale match check to prevent infinite loops
-
-    // Use MySmartTimeFilter directly for consistent filtering
-    const filtered = allFixtures.filter((fixture) => {
-      if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
-        return false;
       }
 
-      const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-        fixture.fixture.date,
-        fixture.fixture.status.short,
-        selectedDate + "T12:00:00Z",
-      );
-
-      // Determine what type of date is selected
-      const today = new Date();
-      const todayString = format(today, "yyyy-MM-dd");
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowString = format(tomorrow, "yyyy-MM-dd");
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayString = format(yesterday, "yyyy-MM-dd");
-
-      // Match based on selected date type
-      if (selectedDate === tomorrowString && smartResult.label === "tomorrow")
-        return true;
-      if (selectedDate === todayString && smartResult.label === "today")
-        return true;
-      if (selectedDate === yesterdayString && smartResult.label === "yesterday")
-        return true;
-
-      // Handle custom dates (dates that are not today/tomorrow/yesterday)
-      if (
-        selectedDate !== todayString &&
-        selectedDate !== tomorrowString &&
-        selectedDate !== yesterdayString
-      ) {
-        if (smartResult.label === "custom" && smartResult.isWithinTimeRange)
-          return true;
+      // For date-based filtering, check if the match is on the selected date
+      if (fixture.fixture.date) {
+        const matchDate = new Date(fixture.fixture.date);
+        const matchDateString = matchDate.toISOString().split('T')[0];
+        return matchDateString === selectedDate;
       }
 
-      return false;
+      return true;
     });
 
     const rejectedFixtures = allFixtures.filter((f) => !filtered.includes(f));
-    const labelCounts = filtered.reduce(
-      (acc, fixture) => {
-        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short,
-          selectedDate + "T12:00:00Z",
-        );
-        acc[smartResult.label] = (acc[smartResult.label] || 0) + 1;
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
 
     return {
       validFixtures: filtered,
       rejectedFixtures: rejectedFixtures.map((f) => ({
         fixture: f,
-        reason: "Date mismatch",
+        reason: "Filtered out (women's/virtual match or date mismatch)",
       })),
       stats: {
         total: allFixtures.length,
         valid: filtered.length,
         rejected: allFixtures.length - filtered.length,
         methods: {
-          "smart-time-filter": filtered.length,
-          ...labelCounts,
+          "simplified-filter": filtered.length,
         },
       },
     };
@@ -795,29 +741,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const awayTeamName = fixture.teams?.away?.name || "";
     const countryName = league.country || "";
 
-    // Apply minimal exclusion filters - only for alternative formats and women's competitions
-    const shouldExclude = shouldExcludeMatchByCountry(
-      leagueName,
-      homeTeamName,
-      awayTeamName,
-      false,
-      countryName,
-    );
-
-    if (shouldExclude) {
-      console.log(
-        `🚫 [DEBUG] Excluding match due to format/competition type:`,
-        {
-          fixtureId: fixture.fixture.id,
-          league: leagueName,
-          homeTeam: homeTeamName,
-          awayTeam: awayTeamName,
-          country: countryName,
-          reason: "Alternative format or women's competition",
-        },
-      );
-      return acc;
-    }
+    // No additional exclusion logic here since filtering is already done above
 
     const country = league.country;
     const displayCountry = getCountryDisplayName(country);
