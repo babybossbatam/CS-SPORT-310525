@@ -105,6 +105,7 @@ interface LiveMatchForAllCountryProps {
   timeFilterActive?: boolean;
   liveFixtures?: any[]; // Accept shared live fixtures
   setLiveFilterActive?: (active: boolean) => void;
+  onMatchCardClick?: (match: any) => void;
 }
 
 const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
@@ -114,6 +115,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   timeFilterActive = false,
   liveFixtures: propsFixtures,
   setLiveFilterActive,
+  onMatchCardClick,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
@@ -774,7 +776,11 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                           key={match.fixture.id}
                           className="country-matches-container"
                         >
-                          <div className="match-card-container group">
+                          <div 
+                            className="match-card-container group"
+                            onClick={() => onMatchCardClick?.(match)}
+                            style={{ cursor: onMatchCardClick ? 'pointer' : 'default' }}
+                          >
                             {/* Star Button with slide-in effect */}
                             <button
                               onClick={(e) => {
