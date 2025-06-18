@@ -612,36 +612,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     // Original date-based filtering logic
-    // Check for stale matches and force refresh if found
-    // Check for stale matches and force refresh if found
-    const staleMatches = allFixtures.filter((fixture) => {
-      if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short)
-        return false;
-
-      const matchDate = new Date(fixture.fixture.date);
-      const now = new Date();
-      const hoursSinceStart =
-        (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-      const status = fixture.fixture.status.short;
-
-      return (
-        hoursSinceStart > 4 &&
-        ["1H", "2H", "LIVE", "HT", "ET", "BT", "P", "INT"].includes(status)
-      );
-    });
-
-    if (staleMatches.length > 0) {
-      console.log(
-        `🚨 [PRO API] Found ${staleMatches.length} stale matches, forcing fresh API call...`,
-      );
-      // Force refresh by invalidating cache and refetching
-      setTimeout(() => {
-        // Clear cache and refetch
-        const cacheKey = `all-fixtures-by-date-${selectedDate}`;
-        localStorage.removeItem(cacheKey);
-        window.location.reload(); // Force page refresh to get latest data
-      }, 1000);
-    }
+    // Note: Removed stale match check to prevent infinite loops
 
     // Use MySmartTimeFilter directly for consistent filtering
     const filtered = allFixtures.filter((fixture) => {
@@ -991,40 +962,42 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   console.log(`📊 [DEBUG] Comprehensive Grouping Analysis:`, groupingAnalysis);
 
   // Live match prioritization: Live World matches are sorted first
-  const sortedCountries = Object.values(fixturesByCountry).sort(
-    (a: any, b: any) => {
-      const countryA = a.country || "";
-      const countryB = b.country || "";
+  const sortedCountries = useMemo(() => {
+    return Object.values(fixturesByCountry).sort(
+      (a: any, b: any) => {
+        const countryA = a.country || "";
+        const countryB = b.country || "";
 
-      // Check if either country is World
-      const aIsWorld = countryA.toLowerCase() === "world";
-      const bIsWorld = countryB.toLowerCase() === "world";
+        // Check if either country is World
+        const aIsWorld = countryA.toLowerCase() === "world";
+        const bIsWorld = countryB.toLowerCase() === "world";
 
-      // Check for live matches in each country
-      const aHasLive = Object.values(a.leagues).some((league: any) =>
-        league.matches.some((match: any) =>
-          ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-            match.fixture.status.short,
+        // Check for live matches in each country
+        const aHasLive = Object.values(a.leagues).some((league: any) =>
+          league.matches.some((match: any) =>
+            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+              match.fixture.status.short,
+            ),
           ),
-        ),
-      );
-      const bHasLive = Object.values(b.leagues).some((league: any) =>
-        league.matches.some((match: any) =>
-          ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-            match.fixture.status.short,
+        );
+        const bHasLive = Object.values(b.leagues).some((league: any) =>
+          league.matches.some((match: any) =>
+            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+              match.fixture.status.short,
+            ),
           ),
-        ),
-      );
+        );
 
-      // Priority: World with live matches first, then World without live, then others alphabetically
-      if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
-      if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
-      if (aIsWorld && !bIsWorld) return -1;
-      if (bIsWorld && !aIsWorld) return 1;
+        // Priority: World with live matches first, then World without live, then others alphabetically
+        if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
+        if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
+        if (aIsWorld && !bIsWorld) return -1;
+        if (bIsWorld && !aIsWorld) return 1;
 
-      return countryA.localeCompare(countryB);
-    },
-  );
+        return countryA.localeCompare(countryB);
+      },
+    );
+  }, [Object.keys(fixturesByCountry).length, validFixtures.length]);
 
   // Start with all countries collapsed by default
   useEffect(() => {
@@ -1033,7 +1006,42 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Auto-expand the first league in each country by default (using the same sorting logic as display)
     const firstLeagues = new Set<string>();
-    sortedCountries.forEach((countryData: any) => {
+    const sortedCountriesArray = Object.values(fixturesByCountry).sort(
+      (a: any, b: any) => {
+        const countryA = a.country || "";
+        const countryB = b.country || "";
+
+        // Check if either country is World
+        const aIsWorld = countryA.toLowerCase() === "world";
+        const bIsWorld = countryB.toLowerCase() === "world";
+
+        // Check for live matches in each country
+        const aHasLive = Object.values(a.leagues).some((league: any) =>
+          league.matches.some((match: any) =>
+            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+              match.fixture.status.short,
+            ),
+          ),
+        );
+        const bHasLive = Object.values(b.leagues).some((league: any) =>
+          league.matches.some((match: any) =>
+            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+              match.fixture.status.short,
+            ),
+          ),
+        );
+
+        // Priority: World with live matches first, then World without live, then others alphabetically
+        if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
+        if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
+        if (aIsWorld && !bIsWorld) return -1;
+        if (bIsWorld && !aIsWorld) return 1;
+
+        return countryA.localeCompare(countryB);
+      },
+    );
+
+    sortedCountriesArray.forEach((countryData: any) => {
       const sortedLeagues = Object.values(countryData.leagues).sort(
         (a: any, b: any) => {
           if (a.isPopular && !b.isPopular) return -1;
@@ -1050,11 +1058,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
     });
     setExpandedLeagues(firstLeagues);
-  }, [selectedDate, sortedCountries.length]);
+  }, [selectedDate, Object.keys(fixturesByCountry).length]);
 
   // Single flag fetching effect with deduplication
   useEffect(() => {
-    const countries = sortedCountries
+    if (!validFixtures.length) return;
+
+    const countries = Object.values(fixturesByCountry)
       .map((c: any) => c.country)
       .filter(Boolean);
     const uniqueCountries = [...new Set(countries)];
@@ -1087,7 +1097,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         `⚡ Pre-populated ${Object.keys(syncFlags).length} flags synchronously`,
       );
     }
-  }, [sortedCountries.length]); // Only depend on count, not the specific countries
+  }, [Object.keys(fixturesByCountry).length]); // Only depend on country count, not the actual data
 
   const toggleCountry = useCallback((country: string) => {
     setExpandedCountries((prev) => {
