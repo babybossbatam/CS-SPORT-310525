@@ -696,33 +696,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return acc;
     }
 
-    const leagueName = league.name || "";
-    const homeTeamName = fixture.teams?.home?.name || "";
-    const awayTeamName = fixture.teams?.away?.name || "";
-    const countryName = league.country || "";
-
-    // No additional exclusion logic here since filtering is already done above
-
-    // Use original country from league data
+    // Use original country from league data directly
     const country = league.country;
     const displayCountry = getCountryDisplayName(country);
-
-    // Skip fixtures without a valid country
-    if (
-      !country ||
-      country === null ||
-      country === undefined ||
-      typeof country !== "string" ||
-      country.trim() === ""
-    ) {
-      console.warn(
-        "❌ [DEBUG] Skipping fixture with invalid country:",
-        country,
-        fixture.fixture.id,
-      );
-      return acc;
-    }
-
     const leagueId = league.id;
 
     if (!acc[displayCountry]) {
