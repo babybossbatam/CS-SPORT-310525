@@ -45,7 +45,7 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import LazyMatchItem from "./LazyMatchItem";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
-import { MyNewDateTimeConverter } from "@/lib/MyNewDateTimeConverter";
+import { MyNewDateTimeConverter, createDateTimeConverter } from "@/lib/MyNewDateTimeConverter";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
 
@@ -575,7 +575,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, []);
 
-  // Smart live match validation with SportsRadar verification
+  // Initialize timezone converter
+  const timezoneConverter = useMemo(() => {
+    return createDateTimeConverter();
+  }, []);
+
+  // Smart live match validation with tournament timezone support
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     let allFixtures;
     
@@ -612,83 +617,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       };
     }
 
-    // Process fixtures with enhanced status validation
-    const processFixtures = async () => {
-      const processed = await Promise.all(
-        allFixtures.map(async (fixture: any) => {
-          // Basic validation
-          if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-            return { fixture, valid: false, reason: "Invalid structure" };
-          }
-
-          const status = fixture.fixture.status?.short;
-          const matchDate = new Date(fixture.fixture.date);
-          const now = new Date();
-          const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-
-          // Check if status claims to be live
-          const claimsLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-          
-          if (claimsLive && hoursElapsed > 3) {
-            console.warn(`🔍 Verifying potentially stale live match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} - status: ${status}, hours elapsed: ${hoursElapsed.toFixed(1)}`);
-            
-            // Verify with SportsRadar API
-            const verifiedStatus = await verifyMatchStatusWithSportsRadar(fixture);
-            
-            if (verifiedStatus === 'FT') {
-              // SportsRadar confirms match is finished
-              fixture.fixture.status.short = "FT";
-              fixture.fixture.status.long = "Match Finished";
-              console.log(`✅ Status corrected to FT based on SportsRadar verification: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-            } else if (verifiedStatus === null && hoursElapsed > 3.5) {
-              // Fallback to time-based validation if SportsRadar unavailable
-              fixture.fixture.status.short = "FT";
-              fixture.fixture.status.long = "Match Finished";
-              console.log(`⏰ Status corrected to FT based on time validation (SportsRadar unavailable): ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-            } else if (verifiedStatus) {
-              // Keep the original status if SportsRadar shows it's still active
-              console.log(`✅ Match verified as still active by SportsRadar: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-            }
-          }
-
-          // Apply filtering logic
-          if (liveFilterActive) {
-            const isGenuinelyLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short);
-            return { fixture, valid: isGenuinelyLive, reason: isGenuinelyLive ? "Live match" : "Not live" };
-          }
-
-          // For date-based filtering, check if the match is on the selected date
-          if (fixture.fixture.date) {
-            const matchDateString = matchDate.toISOString().split('T')[0];
-            const isValidDate = matchDateString === selectedDate;
-            return { fixture, valid: isValidDate, reason: isValidDate ? "Date match" : "Date mismatch" };
-          }
-
-          return { fixture, valid: true, reason: "Valid" };
-        })
-      );
-
-      const validFixtures = processed.filter(p => p.valid).map(p => p.fixture);
-      const rejectedFixtures = processed.filter(p => !p.valid).map(p => ({
-        fixture: p.fixture,
-        reason: p.reason,
-      }));
-
-      return {
-        validFixtures,
-        rejectedFixtures,
-        stats: {
-          total: allFixtures.length,
-          valid: validFixtures.length,
-          rejected: rejectedFixtures.length,
-          methods: {
-            "sportsradar-verified": validFixtures.length,
-          },
-        },
-      };
-    };
-
-    // For now, use synchronous processing but log async verification attempts
+    // Filter fixtures using the new timezone converter
     const filtered = allFixtures.filter((fixture: any) => {
       // Basic validation
       if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
@@ -730,15 +659,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return isGenuinelyLive;
       }
 
-      // For date-based filtering, use the new datetime converter
+      // For date-based filtering, use the new datetime converter with tournament timezone support
       if (fixture.fixture.date && fixture.league?.id) {
-        const dateCheck = MyNewDateTimeConverter.isFixtureOnDate(
+        const { isMatch } = timezoneConverter.isMatchOnDate(
           fixture.fixture.date,
           selectedDate,
-          fixture.league.id,
-          fixture.league.name
+          fixture.league.id
         );
-        return dateCheck.isMatch;
+        return isMatch;
       }
 
       return true;
@@ -750,18 +678,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       validFixtures: filtered,
       rejectedFixtures: rejectedFixtures.map((f) => ({
         fixture: f,
-        reason: "Smart validation applied",
+        reason: "Tournament timezone validation applied",
       })),
       stats: {
         total: allFixtures.length,
         valid: filtered.length,
         rejected: allFixtures.length - filtered.length,
         methods: {
-          "sportsradar-enhanced": filtered.length,
+          "tournament-timezone-enhanced": filtered.length,
         },
       },
     };
-  }, [fixtures, selectedDate, liveFilterActive, liveFixtures, verifyMatchStatusWithSportsRadar]);
+  }, [fixtures, selectedDate, liveFilterActive, liveFixtures, verifyMatchStatusWithSportsRadar, timezoneConverter]);
 
   // Log filtering statistics
   console.log(`📊 [MyDateFilter] Filtering Results for ${selectedDate}:`, {
@@ -1366,17 +1294,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     );
   }
 
-  // Format the time for display in user's local timezone
-  const formatMatchTime = (dateString: string | null | undefined) => {
+  // Format the time for display in client's local timezone using tournament timezone converter
+  const formatMatchTime = (dateString: string | null | undefined, leagueId?: number) => {
     if (!dateString || typeof dateString !== "string") return "--:--";
 
     try {
-      // Parse UTC time and convert to user's local timezone automatically
-      const utcDate = parseISO(dateString);
-      if (!isValid(utcDate)) return "--:--";
-
-      // format() automatically converts to user's local timezone
-      return format(utcDate, "HH:mm");
+      const { clientTime } = timezoneConverter.convertMatchToClientTime(dateString, leagueId);
+      return format(clientTime, "HH:mm");
     } catch (error) {
       console.error("Error formatting match time:", error);
       return "--:--";
@@ -2175,7 +2099,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                     </div>
                                                   );
                                                 } else {
-                                                  // Match is finished but no valid score data - show time in user's timezone
+                                                  // Match is finished but no valid score data - show time in client's timezone
                                                   return (
                                                     <div
                                                       className="match-time-display"
@@ -2183,9 +2107,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                         fontSize: "0.882em",
                                                       }}
                                                     >
-                                                      {format(
-                                                        fixtureDate,
-                                                        "HH:mm",
+                                                      {formatMatchTime(
+                                                        match.fixture.date,
+                                                        match.league?.id
                                                       )}
                                                     </div>
                                                   );
@@ -2210,16 +2134,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                       fontSize: "0.882em",
                                                     }}
                                                   >
-                                                    {format(
-                                                      fixtureDate,
-                                                      "HH:mm",
+                                                    {formatMatchTime(
+                                                      match.fixture.date,
+                                                      match.league?.id
                                                     )}
                                                   </div>
                                                 );
                                               }
 
                                               // Upcoming matches (NS = Not Started, TBD = To Be Determined)
-                                              // Show time in user's local timezone (date-fns format automatically converts from UTC)
+                                              // Show time in client's local timezone using tournament timezone converter
                                               return (
                                                 <div
                                                   className="match-time-display"
@@ -2229,9 +2153,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 >
                                                   {displayStatus === "TBD"
                                                     ? "TBD"
-                                                    : format(
-                                                        fixtureDate,
-                                                        "HH:mm",
+                                                    : formatMatchTime(
+                                                        match.fixture.date,
+                                                        match.league?.id
                                                       )}
                                                 </div>
                                               );

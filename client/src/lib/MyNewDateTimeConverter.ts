@@ -1,3 +1,4 @@
+
 import { parseISO, isValid, format } from 'date-fns';
 import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 
@@ -35,11 +36,12 @@ const DEFAULT_CONFIG: TournamentTimezoneConfig = {
 };
 
 export class MyNewDateTimeConverter {
-  private userTimezone: string;
+  private clientTimezone: string;
   private tournamentConfigs: Map<number, TournamentTimezoneConfig>;
 
-  constructor(userTimezone: string = 'Asia/Manila') {
-    this.userTimezone = userTimezone;
+  constructor(clientTimezone?: string) {
+    // Detect client timezone if not provided
+    this.clientTimezone = clientTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
     this.tournamentConfigs = new Map(
       TOURNAMENT_TIMEZONES.map(config => [config.leagueId, config])
     );
@@ -54,86 +56,88 @@ export class MyNewDateTimeConverter {
   }
 
   /**
-   * Convert match time to user's local timezone without UTC centralization
+   * Convert match datetime from tournament timezone to client timezone and determine match day
    */
-  convertToUserTimezone(matchDatetime: string, leagueId?: number): {
-    userTime: Date;
-    userTimeString: string;
-    originalTimezone: string;
-    matchDay: string;
+  convertMatchToClientTime(matchDatetime: string, leagueId?: number): {
+    clientTime: Date;
+    clientTimeString: string;
+    tournamentMatchDay: string;
+    clientMatchDay: string;
+    tournamentTimezone: string;
+    clientTimezone: string;
   } {
     try {
       const config = this.getTournamentConfig(leagueId);
-
-      // Parse the original datetime (assuming it comes in ISO format)
+      
+      // Parse the original datetime (should be in ISO format)
       const originalDate = parseISO(matchDatetime);
-
+      
       if (!isValid(originalDate)) {
         throw new Error(`Invalid date format: ${matchDatetime}`);
       }
 
-      // If the datetime has timezone info, use it; otherwise assume tournament timezone
-      let sourceTimezone = config.timezone;
-
-      // Check if the datetime string contains timezone information
-      if (matchDatetime.includes('+') || matchDatetime.includes('Z')) {
-        // Use the timezone from the datetime string
-        sourceTimezone = matchDatetime.endsWith('Z') ? 'UTC' : 'UTC'; // Will be handled by date-fns-tz
-      }
-
-      // Convert to user's timezone
-      const userTime = toZonedTime(originalDate, this.userTimezone);
-      const userTimeString = formatInTimeZone(originalDate, this.userTimezone, 'yyyy-MM-dd HH:mm:ss zzz');
-
-      // Determine match day based on tournament timezone
+      // Convert original UTC time to tournament timezone
       const tournamentTime = toZonedTime(originalDate, config.timezone);
-      const matchDay = this.getMatchDay(tournamentTime, config);
+      
+      // Determine tournament match day based on tournament timezone
+      const tournamentMatchDay = this.getTournamentMatchDay(tournamentTime, config);
+      
+      // Convert to client timezone
+      const clientTime = toZonedTime(originalDate, this.clientTimezone);
+      const clientTimeString = formatInTimeZone(originalDate, this.clientTimezone, 'yyyy-MM-dd HH:mm:ss zzz');
+      
+      // Determine client match day
+      const clientMatchDay = format(clientTime, 'yyyy-MM-dd');
 
       return {
-        userTime,
-        userTimeString,
-        originalTimezone: sourceTimezone,
-        matchDay
+        clientTime,
+        clientTimeString,
+        tournamentMatchDay,
+        clientMatchDay,
+        tournamentTimezone: config.timezone,
+        clientTimezone: this.clientTimezone
       };
     } catch (error) {
-      console.error('Error converting timezone:', error);
-      // Fallback to original parsing
+      console.error('Error converting match time:', error);
+      // Fallback to basic parsing
       const fallbackDate = parseISO(matchDatetime);
       return {
-        userTime: fallbackDate,
-        userTimeString: format(fallbackDate, 'yyyy-MM-dd HH:mm:ss'),
-        originalTimezone: 'Unknown',
-        matchDay: format(fallbackDate, 'yyyy-MM-dd')
+        clientTime: fallbackDate,
+        clientTimeString: format(fallbackDate, 'yyyy-MM-dd HH:mm:ss'),
+        tournamentMatchDay: format(fallbackDate, 'yyyy-MM-dd'),
+        clientMatchDay: format(fallbackDate, 'yyyy-MM-dd'),
+        tournamentTimezone: 'UTC',
+        clientTimezone: this.clientTimezone
       };
     }
   }
 
   /**
-   * Determine match day based on tournament-specific logic
+   * Determine tournament match day based on tournament-specific logic
    */
-  private getMatchDay(tournamentTime: Date, config: TournamentTimezoneConfig): string {
+  private getTournamentMatchDay(tournamentTime: Date, config: TournamentTimezoneConfig): string {
     try {
       // Parse match day start time
       const [startHour, startMinute] = config.matchDayStart.split(':').map(Number);
-
+      
       // Get the tournament time
       const matchHour = tournamentTime.getHours();
       const matchMinute = tournamentTime.getMinutes();
-
+      
       // If match is before the "match day start" time, it belongs to the previous day
       const matchMinutesSinceMidnight = matchHour * 60 + matchMinute;
       const dayStartMinutes = startHour * 60 + startMinute;
-
+      
       let adjustedDate = new Date(tournamentTime);
-
+      
       if (matchMinutesSinceMidnight < dayStartMinutes) {
         // Match is early morning, belongs to previous day
         adjustedDate.setDate(adjustedDate.getDate() - 1);
       }
-
+      
       return format(adjustedDate, 'yyyy-MM-dd');
     } catch (error) {
-      console.error('Error determining match day:', error);
+      console.error('Error determining tournament match day:', error);
       return format(tournamentTime, 'yyyy-MM-dd');
     }
   }
@@ -154,15 +158,15 @@ export class MyNewDateTimeConverter {
           return;
         }
 
-        const { matchDay } = this.convertToUserTimezone(matchDatetime, leagueId);
+        const { tournamentMatchDay } = this.convertMatchToClientTime(matchDatetime, leagueId);
 
-        if (!groupedMatches.has(matchDay)) {
-          groupedMatches.set(matchDay, []);
+        if (!groupedMatches.has(tournamentMatchDay)) {
+          groupedMatches.set(tournamentMatchDay, []);
         }
 
-        groupedMatches.get(matchDay)!.push({
+        groupedMatches.get(tournamentMatchDay)!.push({
           ...match,
-          convertedTime: this.convertToUserTimezone(matchDatetime, leagueId)
+          convertedTime: this.convertMatchToClientTime(matchDatetime, leagueId)
         });
       } catch (error) {
         console.error('Error processing match for grouping:', error, match);
@@ -173,38 +177,76 @@ export class MyNewDateTimeConverter {
   }
 
   /**
-   * Filter matches for a specific tournament match day
+   * Filter matches for a specific tournament match day or client date
    */
-  filterMatchesForTournamentDay(matches: any[], targetDay: string): any[] {
-    const grouped = this.groupMatchesByTournamentDay(matches);
-    return grouped.get(targetDay) || [];
+  filterMatchesForDate(matches: any[], targetDate: string, useClientTimezone: boolean = false): any[] {
+    return matches.filter(match => {
+      try {
+        const matchDatetime = match.fixture?.date || match.date;
+        const leagueId = match.league?.id;
+
+        if (!matchDatetime) {
+          return false;
+        }
+
+        const { tournamentMatchDay, clientMatchDay } = this.convertMatchToClientTime(matchDatetime, leagueId);
+        
+        if (useClientTimezone) {
+          return clientMatchDay === targetDate;
+        } else {
+          return tournamentMatchDay === targetDate;
+        }
+      } catch (error) {
+        console.error('Error filtering match for date:', error, match);
+        return false;
+      }
+    });
   }
 
   /**
-   * Get user's current date in their timezone
+   * Check if a match is on a specific date (considering tournament timezone)
    */
-  getCurrentUserDate(): string {
-    const now = new Date();
-    const userNow = toZonedTime(now, this.userTimezone);
-    return format(userNow, 'yyyy-MM-dd');
-  }
-
-  /**
-   * Check if a match is happening "today" based on tournament context
-   */
-  isMatchToday(matchDatetime: string, leagueId?: number): boolean {
+  isMatchOnDate(matchDatetime: string, targetDate: string, leagueId?: number): { 
+    isMatch: boolean; 
+    reason: string;
+    tournamentMatchDay: string;
+    clientMatchDay: string;
+  } {
     try {
-      const { matchDay } = this.convertToUserTimezone(matchDatetime, leagueId);
-      const currentUserDate = this.getCurrentUserDate();
-      return matchDay === currentUserDate;
+      const { tournamentMatchDay, clientMatchDay } = this.convertMatchToClientTime(matchDatetime, leagueId);
+      
+      const isMatch = tournamentMatchDay === targetDate;
+      
+      return {
+        isMatch,
+        reason: isMatch 
+          ? `Tournament match day ${tournamentMatchDay} matches target date ${targetDate}` 
+          : `Tournament match day ${tournamentMatchDay} does not match target date ${targetDate}`,
+        tournamentMatchDay,
+        clientMatchDay
+      };
     } catch (error) {
-      console.error('Error checking if match is today:', error);
-      return false;
+      console.error('Error checking if match is on date:', error);
+      return {
+        isMatch: false,
+        reason: `Error checking date: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        tournamentMatchDay: '',
+        clientMatchDay: ''
+      };
     }
   }
 
   /**
-   * Static method to check if a fixture is on a specific date
+   * Get current client date
+   */
+  getCurrentClientDate(): string {
+    const now = new Date();
+    const clientNow = toZonedTime(now, this.clientTimezone);
+    return format(clientNow, 'yyyy-MM-dd');
+  }
+
+  /**
+   * Static method for quick date checking
    */
   static isFixtureOnDate(
     fixtureDateTime: string, 
@@ -213,17 +255,10 @@ export class MyNewDateTimeConverter {
     leagueName?: string
   ): { isMatch: boolean; reason: string } {
     try {
-      const converter = new MyNewDateTimeConverter('Asia/Manila');
-      const { matchDay } = converter.convertToUserTimezone(fixtureDateTime, leagueId);
+      const converter = new MyNewDateTimeConverter();
+      const { isMatch, reason } = converter.isMatchOnDate(fixtureDateTime, targetDate, leagueId);
       
-      const isMatch = matchDay === targetDate;
-      
-      return {
-        isMatch,
-        reason: isMatch 
-          ? `Match day ${matchDay} matches target date ${targetDate}` 
-          : `Match day ${matchDay} does not match target date ${targetDate}`
-      };
+      return { isMatch, reason };
     } catch (error) {
       console.error('Error checking if fixture is on date:', error);
       return {
@@ -234,16 +269,16 @@ export class MyNewDateTimeConverter {
   }
 }
 
-// Export utility functions for direct use
-export const createDateTimeConverter = (userTimezone: string = 'Asia/Manila') => {
-  return new MyNewDateTimeConverter(userTimezone);
+// Export utility functions
+export const createDateTimeConverter = (clientTimezone?: string) => {
+  return new MyNewDateTimeConverter(clientTimezone);
 };
 
-export const convertMatchToUserTimezone = (
+export const convertMatchToClientTimezone = (
   matchDatetime: string, 
-  userTimezone: string = 'Asia/Manila', 
+  clientTimezone?: string, 
   leagueId?: number
 ) => {
-  const converter = new MyNewDateTimeConverter(userTimezone);
-  return converter.convertToUserTimezone(matchDatetime, leagueId);
+  const converter = new MyNewDateTimeConverter(clientTimezone);
+  return converter.convertMatchToClientTime(matchDatetime, leagueId);
 };
