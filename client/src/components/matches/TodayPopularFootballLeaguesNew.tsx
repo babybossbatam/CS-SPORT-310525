@@ -43,6 +43,7 @@ import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import MyNormalFlag from "../common/MyNormalFlag";
+import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -1918,30 +1919,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                 {/* Home team logo - grid area */}
                                 <div className="home-team-logo-container">
-                                  {isNationalTeam(
-                                    match.teams.home,
-                                    leagueData.league,
-                                  ) ? (
-                                    <MyCircularFlag
-                                      teamName={match.teams.home.name}
-                                      fallbackUrl={match.teams.home.logo}
-                                      alt={match.teams.home.name}
-                                      size="34px"
-                                      className="popular-leagues-size"
-                                    />
-                                  ) : (
-                                    <MyNormalFlag
-                                      teamName={match.teams.home.name}
-                                      fallbackUrl={
-                                        match.teams.home.id
-                                          ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                          : "/assets/fallback-logo.svg"
-                                      }
-                                      alt={match.teams.home.name}
-                                      size="34px"
-                                      className="popular-leagues-size"
-                                    />
-                                  )}
+                                  <MyWorldTeamLogo
+                                    teamName={match.teams.home.name}
+                                    teamLogo={
+                                      match.teams.home.id
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={match.teams.home.name}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                    leagueContext={{
+                                      name: leagueData.league.name,
+                                      country: leagueData.league.country
+                                    }}
+                                  />
                                 </div>
 
                                 {/* Score/Time Center - Fixed width and centered */}
@@ -2069,30 +2061,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                                 {/* Away team logo - grid area */}
                                 <div className="away-team-logo-container">
-                                  {isNationalTeam(
-                                    match.teams.away,
-                                    leagueData.league,
-                                  ) ? (
-                                    <MyCircularFlag
-                                      teamName={match.teams.away.name}
-                                      fallbackUrl={match.teams.away.logo}
-                                      alt={match.teams.away.name}
-                                      size="34px"
-                                      className="popular-leagues-size"
-                                    />
-                                  ) : (
-                                    <MyNormalFlag
-                                      teamName={match.teams.away.name}
-                                      fallbackUrl={
-                                        match.teams.away.id
-                                          ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                          : "/assets/fallback-logo.svg"
-                                      }
-                                      alt={match.teams.away.name}
-                                      size="34px"
-                                      className="popular-leagues-size"
-                                    />
-                                  )}
+                                  <MyWorldTeamLogo
+                                    teamName={match.teams.away.name}
+                                    teamLogo={
+                                      match.teams.away.id
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={match.teams.away.name}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                    leagueContext={{
+                                      name: leagueData.league.name,
+                                      country: leagueData.league.country
+                                    }}
+                                  />
                                 </div>
 
                                 {/* Away Team Name - positioned further right */}
