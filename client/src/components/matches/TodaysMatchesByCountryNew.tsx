@@ -540,7 +540,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Apply smart time filtering directly and detect stale matches
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
-    if (!fixtures?.length) {
+    // Use the appropriate data source based on filter state
+    const allFixtures = liveFilterActive ? liveFixtures : fixtures;
+    if (!allFixtures?.length) {
       return {
         validFixtures: [],
         rejectedFixtures: [],
@@ -550,7 +552,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // If live filter is active, apply live-specific filtering (from LiveMatchForAllCountry logic)
     if (liveFilterActive) {
-      const filtered = fixtures.filter((fixture: any) => {
+      const filtered = allFixtures.filter((fixture: any) => {
         // Basic validation
         if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
           return false;
@@ -597,13 +599,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       return {
         validFixtures: filtered,
-        rejectedFixtures: fixtures
+        rejectedFixtures: allFixtures
           .filter((f) => !filtered.includes(f))
           .map((f) => ({ fixture: f, reason: "Not live or today" })),
         stats: {
-          total: fixtures.length,
+          total: allFixtures.length,
           valid: filtered.length,
-          rejected: fixtures.length - filtered.length,
+          rejected: allFixtures.length - filtered.length,
           methods: { "live-filter": filtered.length },
         },
       };
@@ -612,7 +614,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Original date-based filtering logic
     // Check for stale matches and force refresh if found
     // Check for stale matches and force refresh if found
-    const staleMatches = fixtures.filter((fixture) => {
+    const staleMatches = allFixtures.filter((fixture) => {
       if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short)
         return false;
 
@@ -642,7 +644,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
 
     // Use MySmartTimeFilter directly for consistent filtering
-    const filtered = fixtures.filter((fixture) => {
+    const filtered = allFixtures.filter((fixture) => {
       if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
         return false;
       }
@@ -684,7 +686,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       return false;
     });
 
-    const rejectedFixtures = fixtures.filter((f) => !filtered.includes(f));
+    const rejectedFixtures = allFixtures.filter((f) => !filtered.includes(f));
     const labelCounts = filtered.reduce(
       (acc, fixture) => {
         const smartResult = MySmartTimeFilter.getSmartTimeLabel(
@@ -705,16 +707,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         reason: "Date mismatch",
       })),
       stats: {
-        total: fixtures.length,
+        total: allFixtures.length,
         valid: filtered.length,
-        rejected: fixtures.length - filtered.length,
+        rejected: allFixtures.length - filtered.length,
         methods: {
           "smart-time-filter": filtered.length,
           ...labelCounts,
         },
       },
     };
-  }, [fixtures, selectedDate, liveFilterActive]);
+  }, [fixtures, selectedDate, liveFilterActive, liveFixtures]);
 
   // Log filtering statistics
   console.log(`📊 [MyDateFilter] Filtering Results for ${selectedDate}:`, {
@@ -1729,8 +1731,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       index: number,
                                       array: any[],
                                     ) => {
-                                      // Remove duplicates by fixture ID and filter hidden matches
-                                      const isFirstOccurrence =
+                                      // Remove duplicates by fixture ID                                      const isFirstOccurrence =
                                         array.findIndex(
                                           (m) =>
                                             m.fixture.id === match.fixture.id,
