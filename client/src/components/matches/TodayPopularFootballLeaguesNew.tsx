@@ -42,6 +42,7 @@ import "../../styles/MyLogoPositioning.css";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
+import MyNormalFlag from "../common/MyNormalFlag";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -1929,20 +1930,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       className="popular-leagues-size"
                                     />
                                   ) : (
-                                    <LazyImage
-                                      src={
+                                    <MyNormalFlag
+                                      teamName={match.teams.home.name}
+                                      fallbackUrl={
                                         match.teams.home.id
                                           ? `/api/team-logo/square/${match.teams.home.id}?size=32`
                                           : "/assets/fallback-logo.svg"
                                       }
                                       alt={match.teams.home.name}
-                                      title={match.teams.home.name}
-                                      className="team-logo"
-                                      style={{
-                                        filter:
-                                          "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                      }}
-                                      fallbackSrc="/assets/fallback-logo.svg"
+                                      size="34px"
+                                      className="popular-leagues-size"
                                     />
                                   )}
                                 </div>
@@ -2084,20 +2081,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       className="popular-leagues-size"
                                     />
                                   ) : (
-                                    <LazyImage
-                                      src={
+                                    <MyNormalFlag
+                                      teamName={match.teams.away.name}
+                                      fallbackUrl={
                                         match.teams.away.id
                                           ? `/api/team-logo/square/${match.teams.away.id}?size=32`
                                           : "/assets/fallback-logo.svg"
                                       }
                                       alt={match.teams.away.name}
-                                      title={match.teams.away.name}
-                                      className="team-logo"
-                                      style={{
-                                        filter:
-                                          "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                      }}
-                                      fallbackSrc="/assets/fallback-logo.svg"
+                                      size="34px"
+                                      className="popular-leagues-size"
                                     />
                                   )}
                                 </div>
