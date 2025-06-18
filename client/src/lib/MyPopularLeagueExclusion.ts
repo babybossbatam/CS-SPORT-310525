@@ -80,6 +80,7 @@ export const popularLeagueExclusionTerms = [
   "copa paulista",
 
   // Brazilian youth leagues to exclude
+  "brasileiro u17",
   "brasileiro u20 a",
   "brasileiro u20 b",
   "brasiliense u20",
