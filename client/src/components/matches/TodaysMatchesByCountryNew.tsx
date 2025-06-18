@@ -538,7 +538,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [fixtures, selectedDate]);
 
-  // Simplified filtering - only exclude women's and virtual matches
+  // Basic filtering - only use live filter when active, otherwise show all fixtures
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     // Use the appropriate data source based on filter state
     const allFixtures = liveFilterActive ? liveFixtures : fixtures;
@@ -550,60 +550,20 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       };
     }
 
-    // Simple filtering - only exclude women's and virtual matches
+    // Basic filtering - minimal validation only
     const filtered = allFixtures.filter((fixture: any) => {
       // Basic validation
       if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
         return false;
       }
 
-      // Only exclude women's competitions and virtual/exhibition matches
-      const leagueName = fixture.league?.name?.toLowerCase() || "";
-      const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
-      const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
-
-      // Exclude women's competitions
-      const isWomensMatch = 
-        leagueName.includes("women") ||
-        leagueName.includes("girls") ||
-        leagueName.includes("feminine") ||
-        homeTeamName.includes("women") ||
-        awayTeamName.includes("women");
-
-      // Exclude virtual/exhibition matches
-      const isVirtualMatch = 
-        leagueName.includes("virtual") ||
-        leagueName.includes("exhibition") ||
-        leagueName.includes("testimonial") ||
-        leagueName.includes("futsal") ||
-        leagueName.includes("indoor") ||
-        leagueName.includes("beach");
-
-      if (isWomensMatch || isVirtualMatch) {
-        return false;
-      }
-
-      // If live filter is active, only show live matches or matches from today
+      // If live filter is active, only show live matches
       if (liveFilterActive) {
         const status = fixture.fixture.status?.short;
         const isCurrentlyLive = [
           "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
         ].includes(status);
-
-        if (isCurrentlyLive) {
-          return true;
-        }
-
-        // For non-live matches when live filter is active, check if they're from today
-        if (fixture.fixture.date) {
-          const matchDate = new Date(fixture.fixture.date);
-          const today = new Date();
-          const matchDateString = matchDate.toISOString().split('T')[0];
-          const todayString = today.toISOString().split('T')[0];
-          return matchDateString === todayString;
-        }
-
-        return false;
+        return isCurrentlyLive;
       }
 
       // For date-based filtering, check if the match is on the selected date
@@ -622,14 +582,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       validFixtures: filtered,
       rejectedFixtures: rejectedFixtures.map((f) => ({
         fixture: f,
-        reason: "Filtered out (women's/virtual match or date mismatch)",
+        reason: "Basic filtering applied",
       })),
       stats: {
         total: allFixtures.length,
         valid: filtered.length,
         rejected: allFixtures.length - filtered.length,
         methods: {
-          "simplified-filter": filtered.length,
+          "basic-filter": filtered.length,
         },
       },
     };
@@ -743,51 +703,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // No additional exclusion logic here since filtering is already done above
 
-    // Force international competitions to be assigned to "World" country
-    let country = league.country;
-    const isInternationalCompetition = 
-      leagueName.toLowerCase().includes('fifa') ||
-      leagueName.toLowerCase().includes('uefa') ||
-      leagueName.toLowerCase().includes('champions league') ||
-      leagueName.toLowerCase().includes('europa league') ||
-      leagueName.toLowerCase().includes('conference league') ||
-      leagueName.toLowerCase().includes('world cup') ||
-      leagueName.toLowerCase().includes('euro') ||
-      leagueName.toLowerCase().includes('conmebol') ||
-      leagueName.toLowerCase().includes('copa america') ||
-      leagueName.toLowerCase().includes('copa libertadores') ||
-      leagueName.toLowerCase().includes('concacaf') ||
-      leagueName.toLowerCase().includes('gold cup') ||
-      (leagueName.toLowerCase().includes('friendlies') && !leagueName.toLowerCase().includes('women'));
-
-    // Override country for international competitions
-    if (isInternationalCompetition) {
-      country = "World";
-      console.log(`🌍 [INTERNATIONAL] Reassigned to World:`, {
-        leagueName,
-        originalCountry: league.country,
-        newCountry: country,
-        fixtureId: fixture.fixture.id
-      });
-    }
-
+    // Use original country from league data
+    const country = league.country;
     const displayCountry = getCountryDisplayName(country);
-
-    // Debug FIFA and UEFA competitions specifically
-    if (leagueName.toLowerCase().includes('fifa') || 
-        leagueName.toLowerCase().includes('uefa') || 
-        leagueName.toLowerCase().includes('champions') ||
-        leagueName.toLowerCase().includes('europa') ||
-        leagueName.toLowerCase().includes('world cup')) {
-      console.log(`🏆 [FIFA/UEFA DEBUG] International competition found:`, {
-        leagueName,
-        originalCountry: country,
-        displayCountry,
-        fixtureId: fixture.fixture.id,
-        teams: `${homeTeamName} vs ${awayTeamName}`,
-        status: fixture.fixture.status?.short
-      });
-    }
 
     // Skip fixtures without a valid country
     if (
@@ -1702,30 +1620,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                 }}
                               >
                                 {leagueData.matches
-                                  .filter(
-                                    (
-                                      match: any,
-                                      index: number,
-                                      array: any[],
-                                    ) => {
-                                      // Remove duplicates by fixture ID
-                                      const isFirstOccurrence =
-                                        array.findIndex(
-                                          (m) =>
-                                            m.fixture.id === match.fixture.id,
-                                        ) === index;
-                                      const isNotHidden = !hiddenMatches.has(
-                                        match.fixture.id,
-                                      );
-                                      
-                                      // Debug log for finished matches
-                                      if (["FT", "AET", "PEN"].includes(match.fixture.status.short)) {
-                                        console.log(`🏁 [FINISHED MATCH] ${match.teams.home.name} vs ${match.teams.away.name} - Status: ${match.fixture.status.short}, Time: ${match.fixture.date}, Hidden: ${!isNotHidden}, Duplicate: ${!isFirstOccurrence}`);
-                                      }
-                                      
-                                      return isFirstOccurrence && isNotHidden;
-                                    },
-                                  )
+                                  .filter((match: any) => {
+                                    // Only filter out hidden matches
+                                    return !hiddenMatches.has(match.fixture.id);
+                                  })
                                   .sort((a: any, b: any) => {
                                     // Priority order: Live > Ended (Recent) > Upcoming > Ended (Old)
                                     const aStatus = a.fixture.status.short;
