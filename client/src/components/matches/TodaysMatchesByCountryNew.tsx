@@ -538,10 +538,35 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [fixtures, selectedDate]);
 
-  // Basic filtering - only use live filter when active, otherwise show all fixtures
+  // Basic filtering - merge live updates with date fixtures for accurate status
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
-    // Use the appropriate data source based on filter state
-    const allFixtures = liveFilterActive ? liveFixtures : fixtures;
+    let allFixtures;
+    
+    if (liveFilterActive) {
+      // When live filter is active, only show live matches
+      allFixtures = liveFixtures;
+    } else {
+      // When showing date fixtures, merge with live updates for accurate status
+      allFixtures = fixtures.map(fixture => {
+        // Find if this fixture has a live update
+        const liveUpdate = liveFixtures.find(live => live.fixture.id === fixture.fixture.id);
+        
+        if (liveUpdate) {
+          // Use live data for status, score, and elapsed time
+          return {
+            ...fixture,
+            fixture: {
+              ...fixture.fixture,
+              status: liveUpdate.fixture.status
+            },
+            goals: liveUpdate.goals
+          };
+        }
+        
+        return fixture;
+      });
+    }
+    
     if (!allFixtures?.length) {
       return {
         validFixtures: [],
