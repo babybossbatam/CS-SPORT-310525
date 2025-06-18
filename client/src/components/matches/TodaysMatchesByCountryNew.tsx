@@ -1770,8 +1770,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                               match.teams.home.name?.includes("U19") ||
                                                               match.teams.home.name?.includes("U23");
 
-                                            // Use MyCircularFlag for all national teams and youth teams
-                                            if (isActualNationalTeam || isYouthTeam) {
+                                            // Check if this is FIFA Club World Cup (club competition, not national teams)
+                                            const isFifaClubWorldCup = leagueData.league.name?.toLowerCase().includes("fifa club world cup");
+
+                                            // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup
+                                            if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup) {
                                               return (
                                                 <MyCircularFlag
                                                   teamName={match.teams.home.name || ""}
@@ -1955,8 +1958,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                               match.teams.away.name?.includes("U19") ||
                                                               match.teams.away.name?.includes("U23");
 
-                                            // Use MyCircularFlag for all national teams and youth teams
-                                            if (isActualNationalTeam || isYouthTeam) {
+                                            // Check if this is FIFA Club World Cup (club competition, not national teams)
+                                            const isFifaClubWorldCup = leagueData.league.name?.toLowerCase().includes("fifa club world cup");
+
+                                            // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup
+                                            if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup) {
                                               return (
                                                 <MyCircularFlag
                                                   teamName={match.teams.away.name || ""}
