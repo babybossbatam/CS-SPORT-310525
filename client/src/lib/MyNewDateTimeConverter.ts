@@ -1,365 +1,219 @@
-
-import { parseISO, isValid, format, addHours, subHours } from 'date-fns';
-import { toZonedTime, formatInTimeZone, zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
+import { parseISO, isValid, format } from 'date-fns';
+import { formatInTimeZone, utcToZonedTime } from 'date-fns-tz';
 
 export interface TournamentTimezoneConfig {
   leagueId: number;
-  leagueName: string;
-  tournamentTimezone: string;
-  utcOffset: number; // hours offset from UTC
-  groupByMatchDay?: boolean; // group by tournament match day instead of calendar date
-  matchDayStartHour?: number; // hour when match day starts (default: 0)
+  name: string;
+  timezone: string;
+  matchDayStart: string; // Time in tournament timezone when "match day" starts (e.g., "06:00")
 }
 
-export interface DateTimeConversionResult {
-  originalFixtureTime: string; // Original fixture time as provided
-  tournamentLocalTime: string;
-  userLocalTime: string;
-  tournamentDate: string; // YYYY-MM-DD in tournament timezone
-  userDate: string; // YYYY-MM-DD in user timezone
-  displayDate: string; // The date to use for grouping
-  matchDay?: string; // Tournament match day identifier
-  conversionMethod: 'original-timezone' | 'tournament-local' | 'match-day-grouping' | 'utc-fallback';
-  reason: string;
-}
+// Tournament-specific timezone configurations
+const TOURNAMENT_TIMEZONES: TournamentTimezoneConfig[] = [
+  // FIFA Club World Cup (USA)
+  { leagueId: 15, name: "FIFA Club World Cup", timezone: "America/New_York", matchDayStart: "06:00" },
+  // CONCACAF Gold Cup (varies, using Central Time)
+  { leagueId: 16, name: "CONCACAF Gold Cup", timezone: "America/Chicago", matchDayStart: "06:00" },
+  // UEFA competitions (Central European Time)
+  { leagueId: 2, name: "UEFA Champions League", timezone: "Europe/Berlin", matchDayStart: "06:00" },
+  { leagueId: 3, name: "UEFA Europa League", timezone: "Europe/Berlin", matchDayStart: "06:00" },
+  { leagueId: 848, name: "UEFA Conference League", timezone: "Europe/Berlin", matchDayStart: "06:00" },
+  // Copa America (varies by host country)
+  { leagueId: 9, name: "Copa America", timezone: "America/Santiago", matchDayStart: "06:00" },
+  // Asian Cup
+  { leagueId: 22, name: "Asian Cup", timezone: "Asia/Tokyo", matchDayStart: "06:00" },
+  // Africa Cup of Nations
+  { leagueId: 6, name: "Africa Cup of Nations", timezone: "Africa/Cairo", matchDayStart: "06:00" },
+];
+
+// Default configuration for leagues without specific timezone settings
+const DEFAULT_CONFIG: TournamentTimezoneConfig = {
+  leagueId: 0,
+  name: "Default",
+  timezone: "UTC",
+  matchDayStart: "06:00"
+};
 
 export class MyNewDateTimeConverter {
-  
-  // Tournament-specific timezone configurations
-  private static readonly TOURNAMENT_CONFIGS: TournamentTimezoneConfig[] = [
-    // FIFA Club World Cup - Uses tournament local timezone (varies by host)
-    {
-      leagueId: 15,
-      leagueName: "FIFA Club World Cup",
-      tournamentTimezone: "America/New_York", // 2025 hosted in USA
-      utcOffset: -5, // EST
-      groupByMatchDay: true,
-      matchDayStartHour: 6 // Match day starts at 6 AM tournament time
-    },
-    
-    // UEFA Competitions - Use CET/CEST
-    {
-      leagueId: 2,
-      leagueName: "UEFA Champions League",
-      tournamentTimezone: "Europe/Zurich",
-      utcOffset: 1, // CET
-      groupByMatchDay: true,
-      matchDayStartHour: 6
-    },
-    {
-      leagueId: 3,
-      leagueName: "UEFA Europa League", 
-      tournamentTimezone: "Europe/Zurich",
-      utcOffset: 1, // CET
-      groupByMatchDay: true,
-      matchDayStartHour: 6
-    },
-    
-    // CONCACAF Gold Cup - Uses tournament local timezone
-    {
-      leagueId: 16,
-      leagueName: "CONCACAF Gold Cup",
-      tournamentTimezone: "America/New_York",
-      utcOffset: -5, // EST
-      groupByMatchDay: true,
-      matchDayStartHour: 6
-    },
-    
-    // Copa America - Uses tournament local timezone
-    {
-      leagueId: 9,
-      leagueName: "Copa America",
-      tournamentTimezone: "America/New_York", // 2024 hosted in USA
-      utcOffset: -5, // EST
-      groupByMatchDay: true,
-      matchDayStartHour: 6
-    },
-    
-    // World Cup Qualifications - Use tournament local timezone per confederation
-    {
-      leagueId: 32,
-      leagueName: "World Cup - Qualification Europe",
-      tournamentTimezone: "Europe/Zurich",
-      utcOffset: 1, // CET
-      groupByMatchDay: true,
-      matchDayStartHour: 6
-    },
-    {
-      leagueId: 34,
-      leagueName: "World Cup - Qualification South America",
-      tournamentTimezone: "America/Sao_Paulo",
-      utcOffset: -3, // BRT
-      groupByMatchDay: true,
-      matchDayStartHour: 6
-    }
-  ];
+  private userTimezone: string;
+  private tournamentConfigs: Map<number, TournamentTimezoneConfig>;
 
-  /**
-   * Get tournament configuration for a league
-   */
-  private static getTournamentConfig(leagueId: number): TournamentTimezoneConfig | null {
-    return this.TOURNAMENT_CONFIGS.find(config => config.leagueId === leagueId) || null;
+  constructor(userTimezone: string = 'Asia/Manila') {
+    this.userTimezone = userTimezone;
+    this.tournamentConfigs = new Map(
+      TOURNAMENT_TIMEZONES.map(config => [config.leagueId, config])
+    );
   }
 
   /**
-   * Convert fixture time to appropriate display timezone using original timezone
+   * Get tournament configuration for a specific league
    */
-  static convertFixtureDateTime(
-    fixtureTimeString: string,
-    leagueId: number,
-    leagueName?: string
-  ): DateTimeConversionResult {
-    
-    try {
-      // Parse the original fixture time without assuming it's UTC
-      const originalFixtureDate = parseISO(fixtureTimeString);
-      
-      if (!isValid(originalFixtureDate)) {
-        return {
-          originalFixtureTime: fixtureTimeString,
-          tournamentLocalTime: fixtureTimeString,
-          userLocalTime: fixtureTimeString,
-          tournamentDate: fixtureTimeString.split('T')[0] || '',
-          userDate: fixtureTimeString.split('T')[0] || '',
-          displayDate: fixtureTimeString.split('T')[0] || '',
-          conversionMethod: 'utc-fallback',
-          reason: 'Invalid date format'
-        };
-      }
-
-      // Check if this is a tournament with special timezone handling
-      const tournamentConfig = this.getTournamentConfig(leagueId);
-      
-      if (tournamentConfig && tournamentConfig.groupByMatchDay) {
-        try {
-          // Use the tournament timezone for match day calculation
-          const tournamentTime = utcToZonedTime(originalFixtureDate, tournamentConfig.tournamentTimezone);
-          const matchDayStartHour = tournamentConfig.matchDayStartHour || 6;
-          
-          // Calculate match day by adjusting for match day start hour
-          let matchDayDate = new Date(tournamentTime);
-          if (tournamentTime.getHours() < matchDayStartHour) {
-            // If it's before match day start hour, consider it part of previous day
-            matchDayDate.setDate(matchDayDate.getDate() - 1);
-          }
-          
-          const tournamentDate = format(tournamentTime, 'yyyy-MM-dd');
-          const matchDay = format(matchDayDate, 'yyyy-MM-dd');
-          const userDate = format(originalFixtureDate, 'yyyy-MM-dd');
-          
-          console.log(`🏆 [Match Day Grouping] ${tournamentConfig.leagueName}:`, {
-            originalFixture: fixtureTimeString,
-            tournamentTime: format(tournamentTime, 'yyyy-MM-dd HH:mm:ss'),
-            tournamentTimezone: tournamentConfig.tournamentTimezone,
-            matchDayStartHour,
-            tournamentDate,
-            matchDay,
-            userDate,
-            displayDate: matchDay
-          });
-
-          return {
-            originalFixtureTime: fixtureTimeString,
-            tournamentLocalTime: tournamentTime.toISOString(),
-            userLocalTime: originalFixtureDate.toISOString(),
-            tournamentDate,
-            userDate,
-            displayDate: matchDay,
-            matchDay,
-            conversionMethod: 'match-day-grouping',
-            reason: `Using match day grouping for ${tournamentConfig.leagueName} in ${tournamentConfig.tournamentTimezone}`
-          };
-        } catch (timezoneError) {
-          console.warn(`⚠️ Timezone conversion failed for ${tournamentConfig.leagueName}, falling back to offset calculation`);
-          
-          // Fallback to simple offset calculation
-          const tournamentLocalTime = addHours(originalFixtureDate, tournamentConfig.utcOffset);
-          const tournamentDate = format(tournamentLocalTime, 'yyyy-MM-dd');
-          const userDate = format(originalFixtureDate, 'yyyy-MM-dd');
-          
-          return {
-            originalFixtureTime: fixtureTimeString,
-            tournamentLocalTime: tournamentLocalTime.toISOString(),
-            userLocalTime: originalFixtureDate.toISOString(),
-            tournamentDate,
-            userDate,
-            displayDate: tournamentDate,
-            matchDay: tournamentDate,
-            conversionMethod: 'tournament-local',
-            reason: `Fallback offset calculation for ${tournamentConfig.leagueName}`
-          };
-        }
-      }
-      
-      if (tournamentConfig) {
-        // Tournament with timezone handling but no match day grouping
-        const tournamentLocalTime = addHours(originalFixtureDate, tournamentConfig.utcOffset);
-        const tournamentDate = format(tournamentLocalTime, 'yyyy-MM-dd');
-        const userDate = format(originalFixtureDate, 'yyyy-MM-dd');
-        
-        console.log(`🌍 [Tournament Timezone] ${tournamentConfig.leagueName}:`, {
-          originalFixture: fixtureTimeString,
-          tournamentLocal: format(tournamentLocalTime, 'yyyy-MM-dd HH:mm:ss'),
-          tournamentTimezone: tournamentConfig.tournamentTimezone,
-          utcOffset: tournamentConfig.utcOffset,
-          tournamentDate,
-          userDate
-        });
-
-        return {
-          originalFixtureTime: fixtureTimeString,
-          tournamentLocalTime: tournamentLocalTime.toISOString(),
-          userLocalTime: originalFixtureDate.toISOString(),
-          tournamentDate,
-          userDate,
-          displayDate: tournamentDate,
-          conversionMethod: 'tournament-local',
-          reason: `Using ${tournamentConfig.tournamentTimezone} timezone for ${tournamentConfig.leagueName}`
-        };
-      }
-
-      // Default: Use original fixture timezone (assume it's already in correct timezone)
-      const fixtureDate = format(originalFixtureDate, 'yyyy-MM-dd');
-      
-      return {
-        originalFixtureTime: fixtureTimeString,
-        tournamentLocalTime: fixtureTimeString,
-        userLocalTime: originalFixtureDate.toISOString(),
-        tournamentDate: fixtureDate,
-        userDate: fixtureDate,
-        displayDate: fixtureDate,
-        conversionMethod: 'original-timezone',
-        reason: 'Using original fixture timezone without conversion'
-      };
-
-    } catch (error) {
-      console.error('Error in datetime conversion:', error);
-      
-      const fallbackDate = fixtureTimeString.split('T')[0] || '';
-      return {
-        originalFixtureTime: fixtureTimeString,
-        tournamentLocalTime: fixtureTimeString,
-        userLocalTime: fixtureTimeString,
-        tournamentDate: fallbackDate,
-        userDate: fallbackDate,
-        displayDate: fallbackDate,
-        conversionMethod: 'utc-fallback',
-        reason: `Conversion error: ${error}`
-      };
-    }
+  private getTournamentConfig(leagueId?: number): TournamentTimezoneConfig {
+    if (!leagueId) return DEFAULT_CONFIG;
+    return this.tournamentConfigs.get(leagueId) || DEFAULT_CONFIG;
   }
 
   /**
-   * Check if a fixture should be grouped on a specific selected date
+   * Convert match time to user's local timezone without UTC centralization
    */
-  static isFixtureOnDate(
-    fixtureTimeString: string,
-    selectedDate: string, // YYYY-MM-DD
-    leagueId: number,
-    leagueName?: string
-  ): { isMatch: boolean; reason: string; conversionUsed: string } {
-    
-    const conversion = this.convertFixtureDateTime(fixtureTimeString, leagueId, leagueName);
-    const isMatch = conversion.displayDate === selectedDate;
-    
-    console.log(`📅 [Date Match Check] ${leagueName || 'Unknown League'}:`, {
-      originalFixture: fixtureTimeString,
-      selectedDate,
-      displayDate: conversion.displayDate,
-      matchDay: conversion.matchDay,
-      isMatch,
-      conversionMethod: conversion.conversionMethod,
-      reason: conversion.reason
-    });
-    
-    return {
-      isMatch,
-      reason: isMatch 
-        ? `Match found on ${selectedDate} using ${conversion.conversionMethod} method${conversion.matchDay ? ` (match day: ${conversion.matchDay})` : ''}`
-        : `No match: fixture on ${conversion.displayDate}, selected ${selectedDate}`,
-      conversionUsed: conversion.conversionMethod
-    };
-  }
-
-  /**
-   * Get all tournament leagues that use special timezone handling
-   */
-  static getTournamentLeagues(): TournamentTimezoneConfig[] {
-    return [...this.TOURNAMENT_CONFIGS];
-  }
-
-  /**
-   * Check if a league uses tournament-specific timezone handling
-   */
-  static isTournamentLeague(leagueId: number): boolean {
-    return this.TOURNAMENT_CONFIGS.some(config => config.leagueId === leagueId);
-  }
-
-  /**
-   * Get display date for grouping fixtures
-   */
-  static getDisplayDate(
-    fixtureTimeString: string,
-    leagueId: number,
-    leagueName?: string
-  ): string {
-    const conversion = this.convertFixtureDateTime(fixtureTimeString, leagueId, leagueName);
-    return conversion.displayDate;
-  }
-
-  /**
-   * Batch process multiple fixtures for date grouping
-   */
-  static processFixturesForDate(
-    fixtures: any[],
-    selectedDate: string
-  ): {
-    matchingFixtures: any[];
-    nonMatchingFixtures: any[];
-    conversionStats: Record<string, number>;
+  convertToUserTimezone(matchDatetime: string, leagueId?: number): {
+    userTime: Date;
+    userTimeString: string;
+    originalTimezone: string;
+    matchDay: string;
   } {
-    
-    const matchingFixtures: any[] = [];
-    const nonMatchingFixtures: any[] = [];
-    const conversionStats: Record<string, number> = {
-      'utc': 0,
-      'tournament-local': 0,
-      'match-day-grouping': 0
-    };
+    try {
+      const config = this.getTournamentConfig(leagueId);
 
-    fixtures.forEach(fixture => {
-      const leagueId = fixture.league?.id;
-      const leagueName = fixture.league?.name;
-      const fixtureDate = fixture.fixture?.date;
-      
-      if (!fixtureDate || !leagueId) {
-        nonMatchingFixtures.push(fixture);
-        return;
+      // Parse the original datetime (assuming it comes in ISO format)
+      const originalDate = parseISO(matchDatetime);
+
+      if (!isValid(originalDate)) {
+        throw new Error(`Invalid date format: ${matchDatetime}`);
       }
 
-      const dateCheck = this.isFixtureOnDate(fixtureDate, selectedDate, leagueId, leagueName);
-      
-      if (dateCheck.isMatch) {
-        matchingFixtures.push(fixture);
-      } else {
-        nonMatchingFixtures.push(fixture);
+      // If the datetime has timezone info, use it; otherwise assume tournament timezone
+      let sourceTimezone = config.timezone;
+
+      // Check if the datetime string contains timezone information
+      if (matchDatetime.includes('+') || matchDatetime.includes('Z')) {
+        // Use the timezone from the datetime string
+        sourceTimezone = matchDatetime.endsWith('Z') ? 'UTC' : 'UTC'; // Will be handled by date-fns-tz
       }
 
-      // Track conversion method usage
-      conversionStats[dateCheck.conversionUsed] = (conversionStats[dateCheck.conversionUsed] || 0) + 1;
+      // Convert to user's timezone
+      const userTime = utcToZonedTime(originalDate, this.userTimezone);
+      const userTimeString = formatInTimeZone(originalDate, this.userTimezone, 'yyyy-MM-dd HH:mm:ss zzz');
+
+      // Determine match day based on tournament timezone
+      const tournamentTime = utcToZonedTime(originalDate, config.timezone);
+      const matchDay = this.getMatchDay(tournamentTime, config);
+
+      return {
+        userTime,
+        userTimeString,
+        originalTimezone: sourceTimezone,
+        matchDay
+      };
+    } catch (error) {
+      console.error('Error converting timezone:', error);
+      // Fallback to original parsing
+      const fallbackDate = parseISO(matchDatetime);
+      return {
+        userTime: fallbackDate,
+        userTimeString: format(fallbackDate, 'yyyy-MM-dd HH:mm:ss'),
+        originalTimezone: 'Unknown',
+        matchDay: format(fallbackDate, 'yyyy-MM-dd')
+      };
+    }
+  }
+
+  /**
+   * Determine match day based on tournament-specific logic
+   */
+  private getMatchDay(tournamentTime: Date, config: TournamentTimezoneConfig): string {
+    try {
+      // Parse match day start time
+      const [startHour, startMinute] = config.matchDayStart.split(':').map(Number);
+
+      // Get the tournament time
+      const matchHour = tournamentTime.getHours();
+      const matchMinute = tournamentTime.getMinutes();
+
+      // If match is before the "match day start" time, it belongs to the previous day
+      const matchMinutesSinceMidnight = matchHour * 60 + matchMinute;
+      const dayStartMinutes = startHour * 60 + startMinute;
+
+      let adjustedDate = new Date(tournamentTime);
+
+      if (matchMinutesSinceMidnight < dayStartMinutes) {
+        // Match is early morning, belongs to previous day
+        adjustedDate.setDate(adjustedDate.getDate() - 1);
+      }
+
+      return format(adjustedDate, 'yyyy-MM-dd');
+    } catch (error) {
+      console.error('Error determining match day:', error);
+      return format(tournamentTime, 'yyyy-MM-dd');
+    }
+  }
+
+  /**
+   * Group matches by tournament match days
+   */
+  groupMatchesByTournamentDay(matches: any[]): Map<string, any[]> {
+    const groupedMatches = new Map<string, any[]>();
+
+    matches.forEach(match => {
+      try {
+        const matchDatetime = match.fixture?.date || match.date;
+        const leagueId = match.league?.id;
+
+        if (!matchDatetime) {
+          console.warn('Match without date found:', match);
+          return;
+        }
+
+        const { matchDay } = this.convertToUserTimezone(matchDatetime, leagueId);
+
+        if (!groupedMatches.has(matchDay)) {
+          groupedMatches.set(matchDay, []);
+        }
+
+        groupedMatches.get(matchDay)!.push({
+          ...match,
+          convertedTime: this.convertToUserTimezone(matchDatetime, leagueId)
+        });
+      } catch (error) {
+        console.error('Error processing match for grouping:', error, match);
+      }
     });
 
-    console.log(`📊 [Batch Conversion] Processed ${fixtures.length} fixtures:`, {
-      selectedDate,
-      matching: matchingFixtures.length,
-      nonMatching: nonMatchingFixtures.length,
-      conversionStats
-    });
+    return groupedMatches;
+  }
 
-    return {
-      matchingFixtures,
-      nonMatchingFixtures,
-      conversionStats
-    };
+  /**
+   * Filter matches for a specific tournament match day
+   */
+  filterMatchesForTournamentDay(matches: any[], targetDay: string): any[] {
+    const grouped = this.groupMatchesByTournamentDay(matches);
+    return grouped.get(targetDay) || [];
+  }
+
+  /**
+   * Get user's current date in their timezone
+   */
+  getCurrentUserDate(): string {
+    const now = new Date();
+    const userNow = utcToZonedTime(now, this.userTimezone);
+    return format(userNow, 'yyyy-MM-dd');
+  }
+
+  /**
+   * Check if a match is happening "today" based on tournament context
+   */
+  isMatchToday(matchDatetime: string, leagueId?: number): boolean {
+    try {
+      const { matchDay } = this.convertToUserTimezone(matchDatetime, leagueId);
+      const currentUserDate = this.getCurrentUserDate();
+      return matchDay === currentUserDate;
+    } catch (error) {
+      console.error('Error checking if match is today:', error);
+      return false;
+    }
   }
 }
+
+// Export utility functions for direct use
+export const createDateTimeConverter = (userTimezone: string = 'Asia/Manila') => {
+  return new MyNewDateTimeConverter(userTimezone);
+};
+
+export const convertMatchToUserTimezone = (
+  matchDatetime: string, 
+  userTimezone: string = 'Asia/Manila', 
+  leagueId?: number
+) => {
+  const converter = new MyNewDateTimeConverter(userTimezone);
+  return converter.convertToUserTimezone(matchDatetime, leagueId);
+};
