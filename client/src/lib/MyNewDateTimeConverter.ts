@@ -1,6 +1,6 @@
 
-import { parseISO, isValid, format, addHours, subHours, zonedTimeToUtc, utcToZonedTime } from 'date-fns';
-import { toZonedTime, formatInTimeZone } from 'date-fns-tz';
+import { parseISO, isValid, format, addHours, subHours } from 'date-fns';
+import { toZonedTime, formatInTimeZone, zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
 
 export interface TournamentTimezoneConfig {
   leagueId: number;
