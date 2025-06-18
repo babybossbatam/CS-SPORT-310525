@@ -80,6 +80,7 @@ const HomeTopScorersList = () => {
   // Query to check which leagues have data
   const { data: leagueDataMap, isLoading: isLoadingLeagues } = useQuery({
     queryKey: ['leagues-with-data'],
+    staleTime: 2 * 60 * 60 * 1000, // 2 hours cache for top scorers data
     queryFn: async () => {
       const dataMap = new Map<number, PlayerStatistics[]>();
 

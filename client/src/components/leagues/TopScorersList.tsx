@@ -90,7 +90,7 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
   const { data: topScorers, isLoading } = useQuery({
     queryKey: [`/api/leagues/${leagueId}/topscorers`],
     enabled: !!leagueId,
-    staleTime: 30 * 60 * 1000, // 30 minutes cache
+    staleTime: 2 * 60 * 60 * 1000, // 2 hours cache - top scorers change infrequently
     select: (data: PlayerStatistics[]) => {
       // Filter out players from excluded competitions
       const filteredScorers = data.filter(scorer => {
