@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -71,23 +72,32 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   const currentMatch = featuredMatches[currentIndex] || null;
 
-  const handlePrevious = () => {
+  // Clean up effect - moved to top of component to ensure consistent hook order
+  useEffect(() => {
+    return () => {
+      if (autoSlideInterval.current) {
+        clearInterval(autoSlideInterval.current);
+      }
+    };
+  }, []);
+
+  const handlePrevious = useCallback(() => {
     if (featuredMatches.length <= 1) return;
     setCurrentIndex(currentIndex > 0 ? currentIndex - 1 : featuredMatches.length - 1);
-  };
+  }, [currentIndex, featuredMatches.length]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (featuredMatches.length <= 1) return;
     setCurrentIndex(currentIndex < featuredMatches.length - 1 ? currentIndex + 1 : 0);
-  };
+  }, [currentIndex, featuredMatches.length]);
 
-  const handleMatchClick = () => {
+  const handleMatchClick = useCallback(() => {
     if (currentMatch?.fixture?.id) {
       navigate(`/match/${currentMatch.fixture.id}`);
     }
-  };
+  }, [currentMatch?.fixture?.id, navigate]);
 
-  const getMatchStatus = (match: any) => {
+  const getMatchStatus = useCallback((match: any) => {
     if (!match) return "";
     const status = match.fixture.status.short;
     const elapsed = match.fixture.status.elapsed;
@@ -100,9 +110,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     if (status === "LIVE") return "Live";
     if (status === "NS") return "UPCOMING";
     return status;
-  };
+  }, []);
 
-  const getMatchStatusLabel = (match: any) => {
+  const getMatchStatusLabel = useCallback((match: any) => {
     if (!match) return "";
     const status = match.fixture.status.short;
 
@@ -113,9 +123,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     } else {
       return "UPCOMING";
     }
-  };
+  }, []);
 
-  const getTeamColor = (teamId: number) => {
+  const getTeamColor = useCallback((teamId: number) => {
     const colors = [
       "#6f7c93", // blue-gray
       "#8b0000", // dark red
@@ -124,7 +134,7 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       "#e63946", // red
     ];
     return colors[teamId % colors.length];
-  };
+  }, []);
 
   // Show loading state
   if (isLoading && !fixtures?.length) {
@@ -166,15 +176,6 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
       </Card>
     );
   }
-
-  // Clean up effect
-  useEffect(() => {
-    return () => {
-      if (autoSlideInterval.current) {
-        clearInterval(autoSlideInterval.current);
-      }
-    };
-  }, []);
 
   return (
     <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4">
