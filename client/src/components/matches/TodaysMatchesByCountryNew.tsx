@@ -45,6 +45,7 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import LazyMatchItem from "./LazyMatchItem";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
+import MyUpdatedFixtureDateSelection from "@/lib/MyUpdatedFixtureDateSelection";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
 
@@ -574,7 +575,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, []);
 
-  // Smart live match validation with SportsRadar verification and Smart Time Filter
+  // Timezone-aware fixture filtering with live match validation
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     let allFixtures;
     
@@ -611,40 +612,45 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       };
     }
 
-    // Filter fixtures using Smart Time Filter and other validation
-    const filtered = allFixtures.filter((fixture: any) => {
+    console.log(`🕒 [TIMEZONE FILTER] Starting timezone-aware filtering for ${allFixtures.length} fixtures`);
+    
+    // Use timezone-aware filtering for date-based fixtures
+    let timezoneFilteredFixtures = allFixtures;
+    
+    if (!liveFilterActive) {
+      // Apply timezone-aware date filtering
+      const processedFixtures = MyUpdatedFixtureDateSelection.getFixturesForSelectedDate(
+        allFixtures,
+        selectedDate
+      );
+      
+      // Extract just the fixtures from the processed result
+      timezoneFilteredFixtures = processedFixtures.map(processed => processed.fixture);
+      
+      console.log(`🕒 [TIMEZONE FILTER] After timezone filtering: ${timezoneFilteredFixtures.length} fixtures remaining`);
+      
+      // Log some examples of timezone conversion
+      if (processedFixtures.length > 0) {
+        console.log(`🕒 [TIMEZONE FILTER] First 3 examples:`, 
+          processedFixtures.slice(0, 3).map(p => ({
+            teams: `${p.fixture.teams?.home?.name} vs ${p.fixture.teams?.away?.name}`,
+            originalDate: p.originalDate,
+            convertedDate: p.convertedDate,
+            localDateString: p.localDateString,
+            isToday: p.isToday,
+            isYesterday: p.isYesterday,
+            isTomorrow: p.isTomorrow
+          }))
+        );
+      }
+    }
+
+    // Apply additional validation filters
+    const filtered = timezoneFilteredFixtures.filter((fixture: any) => {
       // Basic validation
       if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-        console.log(`❌ [SMART FILTER] Invalid fixture structure:`, fixture?.fixture?.id);
+        console.log(`❌ [VALIDATION FILTER] Invalid fixture structure:`, fixture?.fixture?.id);
         return false;
-      }
-
-      // Apply Smart Time Filter first
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short,
-          selectedDate + "T12:00:00Z"
-        );
-
-        // Use Smart Filter result to exclude matches outside time range
-        if (!smartResult.isWithinTimeRange) {
-          console.log(`❌ [SMART FILTER] Match excluded by Smart Time Filter: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-            fixtureDate: fixture.fixture.date,
-            status: fixture.fixture.status.short,
-            reason: smartResult.reason,
-            label: smartResult.label,
-            selectedDate,
-            isWithinTimeRange: smartResult.isWithinTimeRange,
-          });
-          return false;
-        }
-
-        console.log(`✅ [SMART FILTER] Match included by Smart Time Filter: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-          reason: smartResult.reason,
-          label: smartResult.label,
-          isWithinTimeRange: smartResult.isWithinTimeRange,
-        });
       }
 
       const status = fixture.fixture.status?.short;
@@ -682,33 +688,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return isGenuinelyLive;
       }
 
-      // For date-based filtering, additional date check (Smart Filter already handled time ranges)
-      if (fixture.fixture.date) {
-        const matchDateString = matchDate.toISOString().split('T')[0];
-        const isValidDate = matchDateString === selectedDate;
-        if (!isValidDate) {
-          console.log(`❌ [DATE FILTER] Match excluded by date mismatch: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${matchDateString} ≠ ${selectedDate})`);
-          return false;
-        }
-      }
-
       return true;
     });
 
-    const rejectedFixtures = allFixtures.filter((f) => !filtered.includes(f));
+    const rejectedFixtures = allFixtures.filter((f) => !timezoneFilteredFixtures.includes(f));
 
     return {
       validFixtures: filtered,
       rejectedFixtures: rejectedFixtures.map((f) => ({
         fixture: f,
-        reason: "Smart Time Filter or validation applied",
+        reason: "Timezone filtering or validation applied",
       })),
       stats: {
         total: allFixtures.length,
         valid: filtered.length,
         rejected: allFixtures.length - filtered.length,
         methods: {
-          "smart-time-filter": filtered.length,
+          "timezone-filter": filtered.length,
         },
       },
     };
