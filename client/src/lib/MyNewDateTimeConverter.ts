@@ -202,6 +202,36 @@ export class MyNewDateTimeConverter {
       return false;
     }
   }
+
+  /**
+   * Static method to check if a fixture is on a specific date
+   */
+  static isFixtureOnDate(
+    fixtureDateTime: string, 
+    targetDate: string, 
+    leagueId?: number, 
+    leagueName?: string
+  ): { isMatch: boolean; reason: string } {
+    try {
+      const converter = new MyNewDateTimeConverter('Asia/Manila');
+      const { matchDay } = converter.convertToUserTimezone(fixtureDateTime, leagueId);
+      
+      const isMatch = matchDay === targetDate;
+      
+      return {
+        isMatch,
+        reason: isMatch 
+          ? `Match day ${matchDay} matches target date ${targetDate}` 
+          : `Match day ${matchDay} does not match target date ${targetDate}`
+      };
+    } catch (error) {
+      console.error('Error checking if fixture is on date:', error);
+      return {
+        isMatch: false,
+        reason: `Error checking date: ${error instanceof Error ? error.message : 'Unknown error'}`
+      };
+    }
+  }
 }
 
 // Export utility functions for direct use
