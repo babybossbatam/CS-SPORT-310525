@@ -743,8 +743,51 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // No additional exclusion logic here since filtering is already done above
 
-    const country = league.country;
+    // Force international competitions to be assigned to "World" country
+    let country = league.country;
+    const isInternationalCompetition = 
+      leagueName.toLowerCase().includes('fifa') ||
+      leagueName.toLowerCase().includes('uefa') ||
+      leagueName.toLowerCase().includes('champions league') ||
+      leagueName.toLowerCase().includes('europa league') ||
+      leagueName.toLowerCase().includes('conference league') ||
+      leagueName.toLowerCase().includes('world cup') ||
+      leagueName.toLowerCase().includes('euro') ||
+      leagueName.toLowerCase().includes('conmebol') ||
+      leagueName.toLowerCase().includes('copa america') ||
+      leagueName.toLowerCase().includes('copa libertadores') ||
+      leagueName.toLowerCase().includes('concacaf') ||
+      leagueName.toLowerCase().includes('gold cup') ||
+      (leagueName.toLowerCase().includes('friendlies') && !leagueName.toLowerCase().includes('women'));
+
+    // Override country for international competitions
+    if (isInternationalCompetition) {
+      country = "World";
+      console.log(`🌍 [INTERNATIONAL] Reassigned to World:`, {
+        leagueName,
+        originalCountry: league.country,
+        newCountry: country,
+        fixtureId: fixture.fixture.id
+      });
+    }
+
     const displayCountry = getCountryDisplayName(country);
+
+    // Debug FIFA and UEFA competitions specifically
+    if (leagueName.toLowerCase().includes('fifa') || 
+        leagueName.toLowerCase().includes('uefa') || 
+        leagueName.toLowerCase().includes('champions') ||
+        leagueName.toLowerCase().includes('europa') ||
+        leagueName.toLowerCase().includes('world cup')) {
+      console.log(`🏆 [FIFA/UEFA DEBUG] International competition found:`, {
+        leagueName,
+        originalCountry: country,
+        displayCountry,
+        fixtureId: fixture.fixture.id,
+        teams: `${homeTeamName} vs ${awayTeamName}`,
+        status: fixture.fixture.status?.short
+      });
+    }
 
     // Skip fixtures without a valid country
     if (
