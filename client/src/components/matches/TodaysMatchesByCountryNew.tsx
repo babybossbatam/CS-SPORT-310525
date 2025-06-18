@@ -1279,18 +1279,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         >
           {getHeaderTitle()}
         </h3>
-        <button
-          onClick={handleManualRefresh}
-          disabled={isRefreshing}
-          className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50"
-          style={{
-            fontFamily:
-              "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-            fontSize: "11px",
-          }}
-        >
-          {isRefreshing ? "Refreshing..." : "🔄 Refresh"}
-        </button>
       </CardHeader>
       <CardContent className="p-0">
         <div className="country-matches-container todays-matches-by-country-container">
