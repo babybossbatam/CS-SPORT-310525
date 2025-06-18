@@ -388,7 +388,7 @@ export const TodayMatchPageCard = ({
           timeFilterActive={timeFilterActive}
           liveFixtures={sharedLiveFixtures}
           setLiveFilterActive={setLiveFilterActive}
-          onMatchCardClick={handleLiveMatchClick}
+          onMatchCardClick={handleMatchCardClick}
         />
       ) : timeFilterActive && !liveFilterActive ? (
         // Time only - show new TodayMatchByTime component with shared data
