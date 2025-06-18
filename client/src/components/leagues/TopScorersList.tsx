@@ -87,20 +87,34 @@ interface TopScorersListProps {
 const TopScorersList = ({ leagueId }: TopScorersListProps) => {
   const [, navigate] = useLocation();
 
-  const { data: topScorers, isLoading } = useQuery({
-    queryKey: [`/api/leagues/${leagueId}/topscorers`],
-    enabled: !!leagueId,
-    staleTime: 2 * 60 * 60 * 1000, // 2 hours cache - top scorers change infrequently
-    select: (data: PlayerStatistics[]) => {
+  const { data: topScorers, isLoading } = useCachedQuery(
+    [`top-scorers-list-${leagueId}`],
+    async () => {
+      if (!leagueId) return [];
+
+      const response = await fetch(`/api/leagues/${leagueId}/topscorers`, {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Cache-Control': 'max-age=7200'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch top scorers for league ${leagueId}`);
+      }
+      
+      const data: PlayerStatistics[] = await response.json();
+      
       // Filter out players from excluded competitions
       const filteredScorers = data.filter(scorer => {
-        const leagueId = scorer.statistics[0]?.league?.id;
+        const scorerLeagueId = scorer.statistics[0]?.league?.id;
         // If no league ID specified, show only popular leagues
-        if (!leagueId) {
-          return POPULAR_LEAGUES.includes(leagueId);
+        if (!scorerLeagueId) {
+          return POPULAR_LEAGUES.includes(scorerLeagueId);
         }
         // Otherwise check if it's not in excluded list
-        return !EXCLUDED_COMPETITIONS.includes(leagueId);
+        return !EXCLUDED_COMPETITIONS.includes(scorerLeagueId);
       });
 
       // Sort by goals scored
@@ -109,8 +123,14 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
         const goalsB = b.statistics[0]?.goals?.total || 0;
         return goalsB - goalsA;
       });
+    },
+    {
+      enabled: !!leagueId,
+      maxAge: 4 * 60 * 60 * 1000, // 4 hours cache - top scorers change infrequently
+      backgroundRefresh: false,
+      retry: 1
     }
-  });
+  );
 
   if (isLoading) {
     return (
