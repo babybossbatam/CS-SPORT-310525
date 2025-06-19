@@ -10,7 +10,6 @@ import LazyImage from "../common/LazyImage";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
 import { getCountryFlagWithFallbackSync } from "@/lib/flagUtils";
-import { MyUpdatedFixtureDateSelection } from "@/lib/MyUpdatedFixtureDateSelection";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -150,7 +149,7 @@ const MyUpdatedMatchbyCountry: React.FC<MyUpdatedMatchbyCountryProps> = ({
     refetchOnReconnect: false,
   });
 
-  // Combine and process all fixtures with timezone conversion and filtering
+  // Combine and process all fixtures
   const countriesData = useMemo(() => {
     const allFixtures = [...selectedDateFixtures, ...previousDateFixtures];
     
@@ -158,47 +157,12 @@ const MyUpdatedMatchbyCountry: React.FC<MyUpdatedMatchbyCountryProps> = ({
 
     console.log(`🔄 [MyUpdatedMatchbyCountry] Processing ${allFixtures.length} total fixtures`);
 
-    // Get date ranges for filtering
-    const dateRanges = MyUpdatedFixtureDateSelection.getLocalDateRanges(selectedDate);
-    console.log(`📅 [MyUpdatedMatchbyCountry] Date ranges:`, {
-      selected: selectedDate,
-      today: dateRanges.today.dateString,
-      yesterday: dateRanges.yesterday.dateString,
-      tomorrow: dateRanges.tomorrow.dateString
-    });
-
-    // Convert fixtures and filter by client timezone
-    const validFixtures = allFixtures.filter((fixture) => {
-      if (!fixture?.fixture?.date || !fixture?.league?.country || !fixture?.teams) return false;
-
-      // Convert fixture time to client timezone
-      const { localDateString } = MyUpdatedFixtureDateSelection.convertFixtureToLocalTime(fixture.fixture.date);
-      
-      // Check if fixture belongs to selected date or previous date in client timezone
-      const belongsToSelectedDate = localDateString === selectedDate;
-      const belongsToPreviousDate = localDateString === format(subDays(parseISO(selectedDate), 1), "yyyy-MM-dd");
-      
-      const isValid = belongsToSelectedDate || belongsToPreviousDate;
-      
-      if (isValid) {
-        console.log(`✅ [MyUpdatedMatchbyCountry] Valid fixture: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`, {
-          originalDate: fixture.fixture.date,
-          convertedLocalDate: localDateString,
-          selectedDate,
-          belongsToSelected: belongsToSelectedDate,
-          belongsToPrevious: belongsToPreviousDate
-        });
-      }
-      
-      return isValid;
-    });
-
-    console.log(`🔍 [MyUpdatedMatchbyCountry] Filtered ${validFixtures.length} valid fixtures from ${allFixtures.length} total`);
-
-    // Group filtered fixtures by country and league
+    // Group fixtures by country and league
     const countryGroups = new Map();
 
-    validFixtures.forEach((fixture) => {
+    allFixtures.forEach((fixture) => {
+      if (!fixture?.league?.country || !fixture?.teams) return;
+
       const country = fixture.league.country;
       const leagueId = fixture.league.id;
       const leagueName = fixture.league.name;
@@ -251,9 +215,9 @@ const MyUpdatedMatchbyCountry: React.FC<MyUpdatedMatchbyCountryProps> = ({
       return bTotalMatches - aTotalMatches;
     });
 
-    console.log(`📊 [MyUpdatedMatchbyCountry] Processed ${result.length} countries with timezone filtering`);
+    console.log(`📊 [MyUpdatedMatchbyCountry] Processed ${result.length} countries`);
     return result;
-  }, [selectedDateFixtures, previousDateFixtures, selectedDate]);
+  }, [selectedDateFixtures, previousDateFixtures]);
 
   const toggleCountry = (country: string) => {
     setExpandedCountries((prev) => {
@@ -305,11 +269,9 @@ const MyUpdatedMatchbyCountry: React.FC<MyUpdatedMatchbyCountryProps> = ({
   // Format the time for display in user's local timezone
   const formatMatchTime = (dateString: string) => {
     try {
-      const { convertedDate } = MyUpdatedFixtureDateSelection.convertFixtureToLocalTime(dateString);
-      const localDate = parseISO(convertedDate);
-      return format(localDate, "HH:mm");
+      const utcDate = parseISO(dateString);
+      return format(utcDate, "HH:mm");
     } catch (error) {
-      console.error("Error formatting match time:", error);
       return "--:--";
     }
   };
