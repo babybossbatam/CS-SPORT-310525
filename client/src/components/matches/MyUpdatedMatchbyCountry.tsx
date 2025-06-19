@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -46,7 +47,6 @@ import MyCircularFlag from "../common/MyCircularFlag";
 import LazyMatchItem from "./LazyMatchItem";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import MyUpdatedFixtureDateSelection from "@/lib/MyUpdatedFixtureDateSelection";
-import MyUpdatedMatchbyCountry from "./MyUpdatedMatchbyCountry";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
 
@@ -130,14 +130,14 @@ export const shortenTeamName = (teamName: string): string => {
   return shortened.trim();
 };
 
-interface TodaysMatchesByCountryNewProps {
+interface MyUpdatedMatchbyCountryProps {
   selectedDate: string;
   liveFilterActive?: boolean;
   timeFilterActive?: boolean;
   onMatchCardClick?: (fixture: any) => void;
 }
 
-const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
+const MyUpdatedMatchbyCountry: React.FC<MyUpdatedMatchbyCountryProps> = ({
   selectedDate,
   liveFilterActive = false,
   timeFilterActive = false,
@@ -189,11 +189,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const { data: liveFixtures = [] } = useQuery({
     queryKey: ["live-fixtures-all-countries"],
     queryFn: async () => {
-      console.log("🔴 [TodaysMatchesByCountryNew] Fetching live fixtures");
+      console.log("🔴 [MyUpdatedMatchbyCountry] Fetching live fixtures");
       const response = await apiRequest("GET", "/api/fixtures/live");
       const data = await response.json();
       console.log(
-        `🔴 [TodaysMatchesByCountryNew] Received ${data.length} live fixtures`,
+        `🔴 [MyUpdatedMatchbyCountry] Received ${data.length} live fixtures`,
       );
       return data;
     },
@@ -212,14 +212,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     queryKey: ["all-fixtures-by-date", selectedDate],
     queryFn: async () => {
       console.log(
-        `🔍 [TodaysMatchesByCountryNew] Checking cache for date: ${selectedDate}`,
+        `🔍 [MyUpdatedMatchbyCountry] Checking cache for date: ${selectedDate}`,
       );
 
       // Check our custom cache first
       const cachedFixtures = getCachedFixturesForDate(selectedDate);
       if (cachedFixtures) {
         console.log(
-          `✅ [TodaysMatchesByCountryNew] Using cached fixtures: ${cachedFixtures.length} matches`,
+          `✅ [MyUpdatedMatchbyCountry] Using cached fixtures: ${cachedFixtures.length} matches`,
         );
 
         // Detailed API data analysis
@@ -273,13 +273,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // For past dates, be very conservative about refetching
       if (isPastDate && cachedFixtures && cachedFixtures.length > 0) {
         console.log(
-          `📦 [TodaysMatchesByCountryNew] Using cached data for past date ${selectedDate} (${cachedFixtures.length} fixtures)`,
+          `📦 [MyUpdatedMatchbyCountry] Using cached data for past date ${selectedDate} (${cachedFixtures.length} fixtures)`,
         );
         return cachedFixtures;
       }
 
       console.log(
-        `📡 [TodaysMatchesByCountryNew] Fetching fresh data for date: ${selectedDate}`,
+        `📡 [MyUpdatedMatchbyCountry] Fetching fresh data for date: ${selectedDate}`,
       );
       const response = await apiRequest(
         "GET",
@@ -291,7 +291,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       if (data && Array.isArray(data)) {
         cacheFixturesForDate(selectedDate, data, "api");
         console.log(
-          `💾 [TodaysMatchesByCountryNew] Cached ${data.length} fixtures for ${selectedDate}`,
+          `💾 [MyUpdatedMatchbyCountry] Cached ${data.length} fixtures for ${selectedDate}`,
         );
       }
 
@@ -415,13 +415,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   useEffect(() => {
     if (fixtures && fixtures.length > 0) {
       console.log(
-        `🔍 [TodaysMatchesByCountryNew] Analyzing ${fixtures.length} fixtures for date: ${selectedDate}`,
+        `🔍 [MyUpdatedMatchbyCountry] Analyzing ${fixtures.length} fixtures for date: ${selectedDate}`,
       );
 
       // Log first few fixtures with detailed info
       const sampleFixtures = fixtures.slice(0, 5);
       sampleFixtures.forEach((fixture, index) => {
-        console.log(`📊 [TodaysMatchesByCountryNew] Fixture ${index + 1}:`, {
+        console.log(`📊 [MyUpdatedMatchbyCountry] Fixture ${index + 1}:`, {
           fixtureId: fixture.fixture?.id,
           originalDate: fixture.fixture?.date,
           statusShort: fixture.fixture?.status?.short,
@@ -443,7 +443,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }, {});
 
       console.log(
-        `📈 [TodaysMatchesByCountryNew] Status breakdown:`,
+        `📈 [MyUpdatedMatchbyCountry] Status breakdown:`,
         statusBreakdown,
       );
 
@@ -456,7 +456,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       if (liveMatches.length > 0) {
         console.log(
-          `🔴 [TodaysMatchesByCountryNew] Found ${liveMatches.length} live matches:`,
+          `🔴 [MyUpdatedMatchbyCountry] Found ${liveMatches.length} live matches:`,
         );
         liveMatches.forEach((fixture: any, index: number) => {
           const now = new Date();
@@ -466,7 +466,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           );
 
           console.log(
-            `🔴 [TodaysMatchesByCountryNew] Live Match ${index + 1}:`,
+            `🔴 [MyUpdatedMatchbyCountry] Live Match ${index + 1}:`,
             {
               fixtureId: fixture.fixture.id,
               teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
@@ -490,7 +490,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }, {});
 
       console.log(
-        `🌍 [TodaysMatchesByCountryNew] Country breakdown:`,
+        `🌍 [MyUpdatedMatchbyCountry] Country breakdown:`,
         countryBreakdown,
       );
 
@@ -516,7 +516,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       });
 
       console.log(
-        `⏰ [TodaysMatchesByCountryNew] Time analysis (first 10):`,
+        `⏰ [MyUpdatedMatchbyCountry] Time analysis (first 10):`,
         timeAnalysis.slice(0, 10),
       );
 
@@ -534,7 +534,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       };
 
       console.log(
-        `📅 [TodaysMatchesByCountryNew] Date filtering analysis:`,
+        `📅 [MyUpdatedMatchbyCountry] Date filtering analysis:`,
         dateFilterAnalysis,
       );
     }
@@ -868,8 +868,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   });
 
   // Add comparison logs with LiveMatchForAllCountry
-  console.log(`🔄 [TodaysMatchesByCountryNew] COMPARISON DATA:`, {
-    component: "TodaysMatchesByCountryNew",
+  console.log(`🔄 [MyUpdatedMatchbyCountry] COMPARISON DATA:`, {
+    component: "MyUpdatedMatchbyCountry",
     selectedDate,
     totalRawFixtures: fixtures.length,
     validAfterFiltering: validFixtures.length,
@@ -2382,16 +2382,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         </div>
       </CardContent>
     </Card>
-    <>
-      {/* Updated version for modification */}
-      <MyUpdatedMatchbyCountry
-        selectedDate={selectedDate}
-        liveFilterActive={liveFilterActive}
-        timeFilterActive={timeFilterActive}
-        onMatchCardClick={onMatchCardClick}
-      />
-    </>
-  </>;
+  );
 };
 
-export default TodaysMatchesByCountryNew;
+export default MyUpdatedMatchbyCountry;
