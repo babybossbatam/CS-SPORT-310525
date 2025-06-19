@@ -145,15 +145,21 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
     return `${year}-${month}-${day}`;
   };
 
+  const getHeaderTitle = () => {
+    if (!selectedDate) {
+      return "Football Matches by Country";
+    }
+    return selectedDate === getCurrentClientDateString() 
+      ? "Today's Football Matches by Country"
+      : `Football Matches by Country (${selectedDate})`;
+  };
+
   if (isLoading) {
     return (
       <Card className="shadow-md w-full">
         <CardHeader className="pb-3">
           <h2 className="text-lg font-semibold">
-            {selectedDate === getCurrentClientDateString() 
-              ? "Today's Football Matches by Country"
-              : `Football Matches by Country (${selectedDate})`
-            }
+            {getHeaderTitle()}
           </h2>
         </CardHeader>
         <CardContent>
@@ -170,15 +176,12 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
       <Card className="shadow-md w-full">
         <CardHeader className="pb-3">
           <h2 className="text-lg font-semibold">
-            {selectedDate === getCurrentClientDateString() 
-              ? "Today's Football Matches by Country"
-              : `Football Matches by Country (${selectedDate})`
-            }
+            {getHeaderTitle()}
           </h2>
         </CardHeader>
         <CardContent>
           <div className="p-4 text-center text-gray-500">
-            No matches found for {selectedDate}
+            {selectedDate ? `No matches found for ${selectedDate}` : "No matches found"}
           </div>
         </CardContent>
       </Card>
@@ -189,10 +192,7 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
     <Card className="shadow-md w-full">
       <CardHeader className="pb-3">
         <h2 className="text-lg font-semibold">
-          {selectedDate === getCurrentClientDateString() 
-            ? "Today's Football Matches by Country"
-            : `Football Matches by Country (${selectedDate})`
-          }
+          {getHeaderTitle()}
         </h2>
       </CardHeader>
       <CardContent className="p-0">
