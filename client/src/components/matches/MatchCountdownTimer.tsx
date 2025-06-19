@@ -32,16 +32,23 @@ const MatchCountdownTimer = ({ matchDate }: MatchCountdownTimerProps) => {
         }
         
         // Calculate time components
-        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const totalHours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
         
-        // Format with leading zeros
-        const formattedHours = hours.toString().padStart(2, '0');
-        const formattedMinutes = minutes.toString().padStart(2, '0');
-        const formattedSeconds = seconds.toString().padStart(2, '0');
-        
-        setTimeRemaining(`${formattedHours}:${formattedMinutes}:${formattedSeconds}`);
+        // If more than 99 hours, show days and hours
+        if (totalHours > 99) {
+          const days = Math.floor(totalHours / 24);
+          const remainingHours = totalHours % 24;
+          setTimeRemaining(`${days}d ${remainingHours}h`);
+        } else {
+          // Format with leading zeros for HH:mm:ss format
+          const formattedHours = totalHours.toString().padStart(2, '0');
+          const formattedMinutes = minutes.toString().padStart(2, '0');
+          const formattedSeconds = seconds.toString().padStart(2, '0');
+          
+          setTimeRemaining(`${formattedHours}:${formattedMinutes}:${formattedSeconds}`);
+        }
       } catch (error) {
         console.error('Error calculating countdown:', error);
         setTimeRemaining('--:--:--');
