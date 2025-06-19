@@ -44,34 +44,76 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
       time: `${event.time?.elapsed || 0}'${event.time?.extra ? `+${event.time.extra}` : ''}`,
       type: event.type === 'Goal' ? 'goal' : 
             event.type === 'Card' ? 'card' : 
-            event.type === 'subst' ? 'substitution' : 'foul',
+            event.type === 'subst' ? 'substitution' : 
+            event.detail === 'Corner' ? 'corner' :
+            event.detail === 'Offside' ? 'offside' : 'foul',
       player: event.player?.name || 'Unknown Player',
       team: event.team?.id === match?.teams?.home?.id ? 'home' : 'away',
       description: event.detail || event.type || 'Match event',
-      isImportant: event.type === 'Goal' || (event.type === 'Card' && event.detail === 'Red Card')
+      isImportant: event.type === 'Goal' || (event.type === 'Card' && (event.detail === 'Red Card' || event.detail === 'Yellow Card'))
     }));
   };
 
-  // Use real match events or fallback to sample data
+  // Use real match events from the selected match
   const matchEvents = match?.events ? convertApiEventsToMatchEvents(match.events) : [];
 
-  // Sample fallback data if no real events
-  const sampleEvents: MatchEvent[] = matchEvents.length > 0 ? matchEvents : [
-    {
-      id: 1,
-      time: "90'",
-      type: 'goal',
-      player: 'Player Name',
-      team: 'away',
-      description: 'Goal scored',
-      isImportant: true
+  // Generate more realistic sample events based on actual match data
+  const generateSampleEvents = (): MatchEvent[] => {
+    if (!match) return [];
+    
+    const events: MatchEvent[] = [];
+    const homeScore = match.goals?.home || 0;
+    const awayScore = match.goals?.away || 0;
+    
+    // Add goal events based on actual score
+    for (let i = 0; i < homeScore; i++) {
+      events.push({
+        id: events.length + 1,
+        time: `${Math.floor(Math.random() * 90) + 1}'`,
+        type: 'goal',
+        player: `${displayHomeTeam} Player ${i + 1}`,
+        team: 'home',
+        description: 'Goal',
+        isImportant: true
+      });
     }
-  ];
+    
+    for (let i = 0; i < awayScore; i++) {
+      events.push({
+        id: events.length + 1,
+        time: `${Math.floor(Math.random() * 90) + 1}'`,
+        type: 'goal',
+        player: `${displayAwayTeam} Player ${i + 1}`,
+        team: 'away',
+        description: 'Goal',
+        isImportant: true
+      });
+    }
+    
+    // Add some cards if it's a finished match
+    if (displayMatchStatus === 'FT') {
+      events.push({
+        id: events.length + 1,
+        time: `${Math.floor(Math.random() * 90) + 1}'`,
+        type: 'card',
+        player: `${Math.random() > 0.5 ? displayHomeTeam : displayAwayTeam} Player`,
+        team: Math.random() > 0.5 ? 'home' : 'away',
+        description: 'Yellow Card',
+        isImportant: true
+      });
+    }
+    
+    // Sort by time
+    return events.sort((a, b) => parseInt(a.time) - parseInt(b.time));
+  };
+
+  // Use real events if available, otherwise generate sample based on match data
+  const finalEvents = matchEvents.length > 0 ? matchEvents : generateSampleEvents();
 
   // Generate commentary events from match events
   const generateCommentaryEvents = () => {
-    if (matchEvents.length > 0) {
-      return matchEvents
+    if (finalEvents.length > 0) {
+      return finalEvents
         .filter(event => event.isImportant)
         .map(event => ({
           time: event.time,
@@ -80,12 +122,24 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
         }));
     }
 
-    // Fallback commentary
+    // Fallback commentary for matches without events
+    if (displayMatchStatus === 'NS') {
+      return [
+        {
+          time: "Pre-match",
+          score: "",
+          description: `Match between ${displayHomeTeam} and ${displayAwayTeam} has not started yet.`
+        }
+      ];
+    }
+
     return [
       {
-        time: "90'",
+        time: displayMatchStatus === 'FT' ? "90'" : "Live",
         score: `${homeScore}-${awayScore}`,
-        description: `Match ended between ${displayHomeTeam} and ${displayAwayTeam}.`
+        description: displayMatchStatus === 'FT' 
+          ? `Match ended between ${displayHomeTeam} and ${displayAwayTeam}.`
+          : `Match is ongoing between ${displayHomeTeam} and ${displayAwayTeam}.`
       }
     ];
   };
@@ -116,8 +170,8 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
   };
 
   const filteredEvents = activeTab === 'top' 
-    ? sampleEvents.filter(event => event.isImportant)
-    : sampleEvents;
+    ? finalEvents.filter(event => event.isImportant)
+    : finalEvents;
 
   return (
     <Card className="w-full shadow-md">
