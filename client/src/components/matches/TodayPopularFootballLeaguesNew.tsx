@@ -1624,7 +1624,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         );
                                       }
 
-                                      // Real-time calculation for live matches
+                                      // Use API elapsed time directly without manual calculations
                                       if (status === "HT") {
                                         displayText = "Halftime";
                                       } else if (status === "P") {
@@ -1636,37 +1636,28 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       } else if (status === "INT") {
                                         displayText = "Interrupted";
                                       } else {
-                                        // For LIVE, LIV, 1H, 2H - use real-time calculation when possible
-                                        let currentElapsed = elapsed;
-
-                                        // If we have a valid kickoff time and elapsed time, calculate real-time elapsed
-                                        if (elapsed !== null && elapsed !== undefined && minutesSinceKickoff > 0) {
-                                          // Estimate current time based on when match started
-                                          const estimatedElapsed = Math.max(elapsed, Math.min(minutesSinceKickoff, 95));
-                                          currentElapsed = estimatedElapsed;
-                                        }
-
-                                        if (currentElapsed !== null && currentElapsed !== undefined) {
-                                          // Handle injury/stoppage time more reliably
+                                        // For LIVE, LIV, 1H, 2H - use API elapsed time directly
+                                        if (elapsed !== null && elapsed !== undefined) {
+                                          // Handle injury/stoppage time using API data
                                           const extraTime = match.fixture.status.extra;
 
-                                          if (status === "2H" && currentElapsed >= 90) {
+                                          if (status === "2H" && elapsed >= 90) {
                                             // Second half injury time
                                             if (extraTime && extraTime > 0) {
-                                              displayText = `${currentElapsed}'+${extraTime}'`;
+                                              displayText = `${elapsed}'+${extraTime}'`;
                                             } else {
-                                              displayText = `${currentElapsed}'+`;
+                                              displayText = `${elapsed}'+`;
                                             }
-                                          } else if (status === "1H" && currentElapsed >= 45) {
+                                          } else if (status === "1H" && elapsed >= 45) {
                                             // First half injury time
                                             if (extraTime && extraTime > 0) {
-                                              displayText = `${currentElapsed}'+${extraTime}'`;
+                                              displayText = `${elapsed}'+${extraTime}'`;
                                             } else {
-                                              displayText = `${currentElapsed}'+`;
+                                              displayText = `${elapsed}'+`;
                                             }
                                           } else {
-                                            // Regular time
-                                            displayText = `${currentElapsed}'`;
+                                            // Regular time - use API elapsed time directly
+                                            displayText = `${elapsed}'`;
                                           }
                                         } else {
                                           displayText = "LIVE";
