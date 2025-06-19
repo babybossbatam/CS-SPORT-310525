@@ -12,7 +12,7 @@ import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
 import MyRightContent from '@/components/layout/MyRightContent';
 import MyMatchdetailsScoreboard from "../matches/MyMatchdetailsScoreboard";
-import MatchPredictionsCard from "@/components/matches/MatchPredictionsCard";
+
 
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -59,12 +59,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
           {selectedFixture ? (
             <>
               <ScoreDetailsCard currentFixture={selectedFixture} onClose={handleBackToMain} />
-              <MatchPredictionsCard
-                homeTeam={selectedFixture.teams?.home?.name || 'Home Team'}
-                awayTeam={selectedFixture.teams?.away?.name || 'Away Team'}
-                homeTeamLogo={selectedFixture.teams?.home?.logo}
-                awayTeamLogo={selectedFixture.teams?.away?.logo}
-              />
             </>
           ) : (
             <MyRightContent />
