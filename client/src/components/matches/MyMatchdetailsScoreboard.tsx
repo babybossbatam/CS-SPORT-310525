@@ -301,7 +301,7 @@ const MyMatchdetailsScoreboard = ({
                 }}
               />
             )}
-            <span className="text-md font-medium text-center">
+            <span className="text-md font-medium text-center mb-4">
               {displayMatch.teams.home.name}
             </span>
           </div>
