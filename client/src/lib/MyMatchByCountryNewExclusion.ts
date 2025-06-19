@@ -10,9 +10,6 @@ export const matchByCountryExclusionTerms = [
   'women', 'girls', 'feminine', 'feminin', 'donne', 'frauen', 'femenino',
   'women\'s', "women's", 'friendlies women', 'women friendlies',
 
-  // Amateur competitions only
-  'amateur',
-
   // Non-competitive matches (allow exhibition and FIFA matches)
   'test', 'testimonial', 'charity',
 
@@ -37,15 +34,15 @@ export const regionalLeagueTerms = [
 export const youthDevelopmentTerms = [
   'u15', 'u16', 'u17', 'u18', // Only exclude U18 and below
   // Now allowed: 'u19', 'u20', 'u21', 'u23' - these age groups are allowed through
-  // Removed: 'youth', 'junior', 'reserve', 'amateur' - these are now allowed
-  // Removed: 'development', 'academy', 'primavera', 'reserves' - these are now allowed
-  // Removed: 'juvenil', 'cadete', 'infantil' - these are now allowed
+  // Now allowed: 'youth', 'junior', 'reserve', 'amateur' - these are now allowed
+  // Now allowed: 'development', 'academy', 'primavera', 'reserves' - these are now allowed
+  // Now allowed: 'juvenil', 'cadete', 'infantil' - these are now allowed
 ];
 
 /**
  * Check if a fixture should be excluded based on league name and team names
  * Specialized version for TodaysMatchesByCountryNew component
- * Note: Unknown leagues and regional leagues are now allowed through
+ * Note: Unknown leagues, regional leagues, amateur and reserve teams are now allowed through
  * 
  * @param leagueName - The name of the league
  * @param homeTeamName - The name of the home team
