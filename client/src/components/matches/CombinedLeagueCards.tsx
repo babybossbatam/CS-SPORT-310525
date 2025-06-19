@@ -127,42 +127,6 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
     (state: RootState) => state.user.favoriteTeams,
   );
 
-  // Enhanced status verification function
-  const verifyMatchStatusWithSportsRadar = useCallback(async (fixture: any) => {
-    try {
-      const homeTeam = fixture.teams?.home?.name || '';
-      const awayTeam = fixture.teams?.away?.name || '';
-      
-      // Call debug endpoint to get SportsRadar comparison
-      const response = await fetch(`/api/debug/fixture/${fixture.fixture.id}/compare`);
-      const comparison = await response.json();
-      
-      if (comparison.sportsRadar?.available && comparison.sportsRadar?.data) {
-        const sportsRadarStatus = comparison.sportsRadar.data.status;
-        
-        // Check if SportsRadar shows the match as finished
-        const isFinishedInSportsRadar = ['completed', 'closed', 'ended', 'finished'].some(
-          status => sportsRadarStatus?.toLowerCase().includes(status)
-        );
-        
-        if (isFinishedInSportsRadar) {
-          console.log(`✅ SportsRadar confirms match is finished: ${homeTeam} vs ${awayTeam}`);
-          return 'FT';
-        } else {
-          console.log(`⚠️ SportsRadar shows match still active: ${homeTeam} vs ${awayTeam} - status: ${sportsRadarStatus}`);
-          return fixture.fixture.status.short; // Keep original status
-        }
-      }
-      
-      // If SportsRadar data not available, use time-based validation
-      console.warn(`📡 SportsRadar data not available for ${homeTeam} vs ${awayTeam}, using time-based validation`);
-      return null;
-    } catch (error) {
-      console.error(`❌ Error verifying match status for fixture ${fixture.fixture.id}:`, error);
-      return null;
-    }
-  }, []);
-
   // Popular countries prioritization with new requirements
   const POPULAR_COUNTRIES_ORDER = [
     "England",
@@ -243,51 +207,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayString = format(yesterday, "yyyy-MM-dd");
 
-    // First, map over fixtures to handle stale match detection and create new objects if needed
-    const processedFixtures = allFixtures.map((fixture) => {
-      // Apply stale match detection and status correction
-      if (fixture?.fixture?.date && fixture?.fixture?.status) {
-        const matchDate = new Date(fixture.fixture.date);
-        const now = new Date();
-        const status = fixture.fixture.status.short;
-        const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-
-        // Check if status claims to be live
-        const claimsLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-        
-        if (claimsLive && hoursElapsed > 3) {
-          // Trigger async verification in background
-          verifyMatchStatusWithSportsRadar(fixture).then((verifiedStatus) => {
-            if (verifiedStatus === 'FT') {
-              console.log(`✅ [CombinedLeagueCards] SportsRadar confirmed match finished: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`);
-            }
-          });
-          
-          // For immediate filtering, use time-based validation
-          if (hoursElapsed > 3.5) {
-            console.warn(`⚠️ [CombinedLeagueCards] Stale live match detected: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} - status: ${status}, hours elapsed: ${hoursElapsed.toFixed(1)}`);
-            
-            // Return a new fixture object with updated status
-            return {
-              ...fixture,
-              fixture: {
-                ...fixture.fixture,
-                status: {
-                  ...fixture.fixture.status,
-                  short: "FT",
-                  long: "Match Finished"
-                }
-              }
-            };
-          }
-        }
-      }
-      
-      // Return original fixture if no changes needed
-      return fixture;
-    });
-
-    const filtered = processedFixtures.filter((fixture) => {
+    const filtered = allFixtures.filter((fixture) => {
       // Apply smart time filtering with selected date context
       if (fixture.fixture.date && fixture.fixture.status?.short) {
         const smartResult = MySmartTimeFilter.getSmartTimeLabel(
@@ -461,7 +381,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
     );
 
     return finalFiltered;
-  }, [propFilteredFixtures, allFixtures, selectedDate, verifyMatchStatusWithSportsRadar]);
+  }, [propFilteredFixtures, allFixtures, selectedDate]);
 
   // Group fixtures by country and league
   const fixturesByCountry = filteredFixtures.reduce(

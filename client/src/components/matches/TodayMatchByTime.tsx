@@ -194,42 +194,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
 
   console.log(`📊 [TodayMatchByTime] Got ${fixtures?.length || 0} fixtures from central cache`);
 
-  // Enhanced status verification function
-  const verifyMatchStatusWithSportsRadar = useCallback(async (fixture: any) => {
-    try {
-      const homeTeam = fixture.teams?.home?.name || '';
-      const awayTeam = fixture.teams?.away?.name || '';
-      
-      // Call debug endpoint to get SportsRadar comparison
-      const response = await fetch(`/api/debug/fixture/${fixture.fixture.id}/compare`);
-      const comparison = await response.json();
-      
-      if (comparison.sportsRadar?.available && comparison.sportsRadar?.data) {
-        const sportsRadarStatus = comparison.sportsRadar.data.status;
-        
-        // Check if SportsRadar shows the match as finished
-        const isFinishedInSportsRadar = ['completed', 'closed', 'ended', 'finished'].some(
-          status => sportsRadarStatus?.toLowerCase().includes(status)
-        );
-        
-        if (isFinishedInSportsRadar) {
-          console.log(`✅ SportsRadar confirms match is finished: ${homeTeam} vs ${awayTeam}`);
-          return 'FT';
-        } else {
-          console.log(`⚠️ SportsRadar shows match still active: ${homeTeam} vs ${awayTeam} - status: ${sportsRadarStatus}`);
-          return fixture.fixture.status.short; // Keep original status
-        }
-      }
-      
-      // If SportsRadar data not available, use time-based validation
-      console.warn(`📡 SportsRadar data not available for ${homeTeam} vs ${awayTeam}, using time-based validation`);
-      return null;
-    } catch (error) {
-      console.error(`❌ Error verifying match status for fixture ${fixture.fixture.id}:`, error);
-      return null;
-    }
-  }, []);
-
     // Define shouldExcludeFixture function
     const shouldExcludeFixture = (leagueName: string, homeTeam: string, awayTeam: string): boolean => {
       const excludedLeagues = ["Belarusian"];
@@ -258,50 +222,8 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
     const timeFiltered = timeFilterResult.todayFixtures;
     console.log(`📊 [TodayMatchByTime] After time filtering: ${timeFiltered.length} fixtures`);
 
-    // Apply stale match detection and status correction
-    const statusCorrectedFixtures = timeFiltered.map(fixture => {
-      if (!fixture?.fixture?.date || !fixture?.fixture?.status) return fixture;
-
-      const matchDate = new Date(fixture.fixture.date);
-      const now = new Date();
-      const status = fixture.fixture.status.short;
-      const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-
-      // Check if status claims to be live
-      const claimsLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-      
-      if (claimsLive && hoursElapsed > 3) {
-        // Trigger async verification in background
-        verifyMatchStatusWithSportsRadar(fixture).then((verifiedStatus) => {
-          if (verifiedStatus === 'FT') {
-            // Force re-render by updating the fixture status
-            fixture.fixture.status.short = "FT";
-            fixture.fixture.status.long = "Match Finished";
-          }
-        });
-        
-        // For immediate filtering, use time-based validation
-        if (hoursElapsed > 3.5) {
-          console.warn(`⚠️ [TodayMatchByTime] Stale live match detected: ${fixture.teams.home.name} vs ${fixture.teams.away.name} - status: ${status}, hours elapsed: ${hoursElapsed.toFixed(1)}`);
-          return {
-            ...fixture,
-            fixture: {
-              ...fixture.fixture,
-              status: {
-                ...fixture.fixture.status,
-                short: "FT",
-                long: "Match Finished"
-              }
-            }
-          };
-        }
-      }
-
-      return fixture;
-    });
-
     // Apply exclusion filtering if needed
-    const exclusionFiltered = statusCorrectedFixtures.filter(fixture => {
+    const exclusionFiltered = timeFiltered.filter(fixture => {
       if (!fixture?.league || !fixture?.teams) return false;
       const leagueName = fixture.league.name || '';
       const homeTeam = fixture.teams.home.name || '';
@@ -309,9 +231,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       return !shouldExcludeFixture(leagueName, homeTeam, awayTeam);
     });
 
-    console.log(`📊 [TodayMatchByTime] After status correction and exclusion filtering: ${exclusionFiltered.length} fixtures`);
+    console.log(`📊 [TodayMatchByTime] After exclusion filtering: ${exclusionFiltered.length} fixtures`);
     return exclusionFiltered;
-  }, [fixtures, selectedDate, verifyMatchStatusWithSportsRadar]);
+  }, [fixtures, selectedDate]);
 
   const allFixturesError = error;
 
