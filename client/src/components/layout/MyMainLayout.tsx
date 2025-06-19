@@ -14,6 +14,7 @@ import MyRightContent from '@/components/layout/MyRightContent';
 import MyMatchdetailsScoreboard from "../matches/MyMatchdetailsScoreboard";
 import MatchDetailCard from '@/components/matches/MatchDetailCard';
 import MyHighlights from '@/components/matches/MyHighlights';
+import MyMatchEvents from '@/components/matches/MyMatchEvents';
 
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -65,6 +66,11 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
                 homeTeam={selectedFixture?.teams?.home?.name}
                 awayTeam={selectedFixture?.teams?.away?.name}
                 leagueName={selectedFixture?.league?.name}
+                matchStatus={selectedFixture?.fixture?.status?.short}
+              />
+              <MyMatchEvents 
+                homeTeam={selectedFixture?.teams?.home?.name}
+                awayTeam={selectedFixture?.teams?.away?.name}
                 matchStatus={selectedFixture?.fixture?.status?.short}
               />
             </>
