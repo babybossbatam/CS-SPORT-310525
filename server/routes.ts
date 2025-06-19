@@ -1598,56 +1598,124 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
 
       console.log(`Total fixtures for ${country}: ${allFixtures.length}`);
 
-      // Server-side: Keep all fixtures - let client do precise date filtering
-  // This ensures we capture fixtures from all timezones that might be valid
-  const validatedFixtures = allFixtures.filter(fixture => {
-    try {
-      const apiDateString = fixture.fixture.date;
-      const extractedDate = apiDateString.split('T')[0];
-
-      // Allow fixtures from ±1 day to capture all timezone variations
-      const targetDateObj = new Date(date);
-      const previousDay = new Date(targetDateObj);
-      previousDay.setDate(previousDay.getDate() - 1);
-      const nextDay = new Date(targetDateObj);
-      nextDay.setDate(nextDay.getDate() + 1);
-
-      const validDates = [
-        previousDay.toISOString().split('T')[0],
-        date,
-        nextDay.toISOString().split('T')[0]
-      ];
-
-      if (!validDates.includes(extractedDate)) {
-        console.log(`🚫 [Routes] Final validation - rejecting fixture outside date range: {
-  requestedDate: '${date}',
-  apiReturnedDate: '${apiDateString}',
-  extractedDate: '${extractedDate}',
-  fixtureId: ${fixture.fixture.id}
-}`);
-        return false;
-      }
-
-      return true;
-    } catch (error) {
-      console.error('Error in final date validation:', error);
-      return false;
-    }
-  });
-
       res.json({ 
         success: true, 
-        fixtures: validatedFixtures,
+        fixtures: allFixtures,
         country: country,
         season: season || 2024,
         totalLeagues: countryLeagues.length,
-        totalFixtures: validatedFixtures.length
+        totalFixtures: allFixtures.length
       });
     } catch (error) {
       console.error('Error fetching fixtures by country:', error);
       res.status(500).json({ 
         success: false, 
         error: error instanceof Error ? error.message : 'Failed to fetch fixtures by country'
+      });
+    }
+  });
+
+  // Get all countries fixtures for a specific date
+  apiRouter.get('/fixtures/all-countries/:date', async (req: Request, res: Response) => {
+    try {
+      const { date } = req.params;
+
+      // Validate date format
+      if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        console.log(`❌ [Routes] Invalid date format: ${date}`);
+        return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+      }
+
+      console.log(`🌍 [Routes] Fetching all countries fixtures for date: ${date}`);
+
+      // Check cache first
+      const cacheKey = `all-countries-fixtures:${date}`;
+      const cachedFixtures = await storage.getCachedFixturesByLeague(cacheKey);
+
+      if (cachedFixtures && cachedFixtures.length > 0) {
+        const now = new Date();
+        const cacheTime = new Date(cachedFixtures[0].timestamp);
+        const cacheAge = now.getTime() - cacheTime.getTime();
+
+        // Use smart cache durations based on date
+        const today = new Date().toISOString().split('T')[0];
+        const isPastDate = date < today;
+        const isToday = date === today;
+
+        const maxCacheAge = isPastDate ? 7 * 24 * 60 * 60 * 1000 : 
+                           isToday ? 2 * 60 * 60 * 1000 : 
+                           12 * 60 * 60 * 1000;
+
+        if (cacheAge < maxCacheAge) {
+          console.log(`✅ [Routes] Returning ${cachedFixtures.length} cached all-countries fixtures for ${date}`);
+          return res.json(cachedFixtures.map(fixture => fixture.data));
+        }
+      }
+
+      // Fetch fixtures using the existing comprehensive date API
+      const allFixtures = await rapidApiService.getFixturesByDate(date, true);
+
+      // Filter and validate fixtures
+      const validFixtures = allFixtures.filter(fixture => {
+        try {
+          // Basic validation
+          if (!fixture?.league?.country || !fixture?.teams) return false;
+          if (!fixture.teams.home?.name || !fixture.teams.away?.name) return false;
+          
+          // Enhanced esports filtering
+          const leagueName = fixture.league.name?.toLowerCase() || '';
+          const homeTeam = fixture.teams.home.name?.toLowerCase() || '';
+          const awayTeam = fixture.teams.away.name?.toLowerCase() || '';
+          
+          const esportsTerms = [
+            'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual',
+            'fifa', 'pro evolution soccer', 'pes', 'efootball', 'e-football'
+          ];
+          
+          const isEsports = esportsTerms.some(term =>
+            leagueName.includes(term) || homeTeam.includes(term) || awayTeam.includes(term)
+          );
+          
+          if (isEsports) return false;
+          
+          // Filter out invalid countries
+          if (!fixture.league.country || 
+              fixture.league.country === null || 
+              fixture.league.country === undefined ||
+              fixture.league.country === '') return false;
+          
+          return true;
+        } catch (error) {
+          console.error('Error validating fixture:', error);
+          return false;
+        }
+      });
+
+      // Cache the results
+      if (validFixtures.length > 0) {
+        for (const fixture of validFixtures) {
+          try {
+            const fixtureId = `${cacheKey}:${fixture.fixture.id}`;
+            await storage.createCachedFixture({
+              fixtureId: fixtureId,
+              data: fixture,
+              league: cacheKey,
+              date: date
+            });
+          } catch (error) {
+            console.error(`Error caching all-countries fixture ${fixture.fixture.id}:`, error);
+          }
+        }
+      }
+
+      console.log(`✅ [Routes] Returning ${validFixtures.length} all-countries fixtures for ${date}`);
+      res.json(validFixtures);
+
+    } catch (error) {
+      console.error('Error fetching all countries fixtures:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch all countries fixtures',
+        details: error instanceof Error ? error.message : 'Unknown error'
       });
     }
   });

@@ -8,6 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useTodayPopularFixtures } from "../../hooks/useTodayPopularFixtures";
 import TodayPopularFootballLeaguesNew from "./TodayPopularFootballLeaguesNew";
 import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
+import AllCountriesFixtures from "./AllCountriesFixtures";
 import MyUpdatedMatchbyCountry from "./MyUpdatedMatchbyCountry";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
@@ -423,8 +424,9 @@ export const TodayMatchPageCard = ({
             timeFilterActive={timeFilterActive}
             onMatchCardClick={onMatchCardClick}
           />
+          <AllCountriesFixtures />
 
-          
+
         </>
       )}
     </>
