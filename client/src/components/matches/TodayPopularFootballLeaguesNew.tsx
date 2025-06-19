@@ -1558,10 +1558,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               <div className="match-status-top">
                                 {(() => {
                                   const status = match.fixture.status.short;
-                                  const elapsed = match.fixture.status.elapsed;
-                                  const matchDate = parseISO(match.fixture.date);
-                                  const now = new Date();
-                                  const minutesSinceKickoff = Math.floor((now.getTime() - matchDate.getTime()) / (1000 * 60));
 
                                   // Live matches status
                                   if (
