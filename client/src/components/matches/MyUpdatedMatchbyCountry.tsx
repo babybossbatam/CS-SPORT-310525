@@ -157,10 +157,37 @@ const MyUpdatedMatchbyCountry: React.FC<MyUpdatedMatchbyCountryProps> = ({
 
     console.log(`🔄 [MyUpdatedMatchbyCountry] Processing ${allFixtures.length} total fixtures`);
 
+    // Convert selected date to local time ranges
+    const selectedLocalDate = new Date(selectedDate + 'T00:00:00');
+    const selectedDateStart = new Date(selectedLocalDate.getFullYear(), selectedLocalDate.getMonth(), selectedLocalDate.getDate(), 0, 0, 0);
+    const selectedDateEnd = new Date(selectedLocalDate.getFullYear(), selectedLocalDate.getMonth(), selectedLocalDate.getDate(), 23, 59, 59);
+
+    console.log(`🕐 [MyUpdatedMatchbyCountry] Selected date range (local): ${selectedDateStart.toISOString()} - ${selectedDateEnd.toISOString()}`);
+
+    // Filter fixtures that fall within the selected date range when converted to local time
+    const filteredFixtures = allFixtures.filter((fixture) => {
+      if (!fixture?.fixture?.date) return false;
+
+      // Convert UTC time to local time
+      const utcDate = parseISO(fixture.fixture.date);
+      const localDate = new Date(utcDate.getTime());
+
+      // Check if the local time falls within the selected date range
+      const isInRange = localDate >= selectedDateStart && localDate <= selectedDateEnd;
+
+      if (isInRange) {
+        console.log(`✅ [MyUpdatedMatchbyCountry] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} | UTC: ${fixture.fixture.date} | Local: ${localDate.toISOString()} | Selected: ${selectedDate}`);
+      }
+
+      return isInRange;
+    });
+
+    console.log(`🎯 [MyUpdatedMatchbyCountry] Filtered ${filteredFixtures.length} fixtures from ${allFixtures.length} total for selected date ${selectedDate}`);
+
     // Group fixtures by country and league
     const countryGroups = new Map();
 
-    allFixtures.forEach((fixture) => {
+    filteredFixtures.forEach((fixture) => {
       if (!fixture?.league?.country || !fixture?.teams) return;
 
       const country = fixture.league.country;
@@ -270,7 +297,9 @@ const MyUpdatedMatchbyCountry: React.FC<MyUpdatedMatchbyCountryProps> = ({
   const formatMatchTime = (dateString: string) => {
     try {
       const utcDate = parseISO(dateString);
-      return format(utcDate, "HH:mm");
+      // Convert to local time and format
+      const localDate = new Date(utcDate.getTime());
+      return format(localDate, "HH:mm");
     } catch (error) {
       return "--:--";
     }
