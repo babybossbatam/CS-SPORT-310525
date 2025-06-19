@@ -268,8 +268,7 @@ const MyMatchdetailsScoreboard = ({
                         if (hoursToMatch > 0 && hoursToMatch <= 12) {
                           // Show countdown timer for matches within 12 hours
                           return (
-                            <div className="flex flex-col items-center">
-                              <div className="text-sm text-gray-600 mb-1">Starting in</div>
+                            <div className="flex flex-col items-center space-y-1">
                               <MatchCountdownTimer matchDate={displayMatch.fixture.date} />
                             </div>
                           );

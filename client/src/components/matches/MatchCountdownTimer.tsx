@@ -59,8 +59,24 @@ const MatchCountdownTimer = ({ matchDate }: MatchCountdownTimerProps) => {
   }, [matchDate]);
   
   return (
-    <div className="font-mono tabular-nums text-center inline-block h-[20px] leading-[20px] min-w-[80px] whitespace-nowrap">
-      {timeRemaining}
+    <div className="flex flex-col items-center space-y-1">
+      <div className="font-mono tabular-nums text-2xl font-bold text-gray-800">
+        {timeRemaining}
+      </div>
+      <div className="text-sm text-gray-600 font-medium">
+        {(() => {
+          try {
+            const targetDate = parseISO(matchDate);
+            return targetDate.toLocaleTimeString('en-US', { 
+              hour: '2-digit', 
+              minute: '2-digit',
+              hour12: false 
+            });
+          } catch (error) {
+            return 'TBD';
+          }
+        })()}
+      </div>
     </div>
   );
 };
