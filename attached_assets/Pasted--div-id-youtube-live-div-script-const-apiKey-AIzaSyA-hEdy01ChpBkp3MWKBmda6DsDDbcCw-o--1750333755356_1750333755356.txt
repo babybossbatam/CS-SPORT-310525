@@ -1,0 +1,57 @@
+<div id="youtube-live"></div>
+
+<script>
+const apiKey = 'AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o'; // Your API key
+const channelId = 'UCaopyJz-EIXOXYXSMOC6c-g'; // Your channel ID
+
+// These should be set dynamically, e.g., from your backend or a live score API
+const homeTeam = 'Arsenal'; // Example: dynamically set this
+const awayTeam = 'Chelsea'; // Example: dynamically set this
+
+function embedVideo(videoId) {
+  const iframe = `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+  document.getElementById('youtube-live').innerHTML = iframe;
+}
+
+const liveApiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&eventType=live&type=video&key=${apiKey}`;
+
+fetch(liveApiUrl)
+  .then(response => response.json())
+  .then(data => {
+    if (data.items && data.items.length > 0) {
+      // Live video found
+      const videoId = data.items[0].id.videoId;
+      embedVideo(videoId);
+    } else {
+      // No live video, search for highlight by team names
+      const query = encodeURIComponent(`${homeTeam} ${awayTeam}`);
+      const highlightApiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=5&order=date&type=video&q=${query}&key=${apiKey}`;
+      fetch(highlightApiUrl)
+        .then(response => response.json())
+        .then(data => {
+          if (data.items && data.items.length > 0) {
+            // Optionally, further filter by checking if both team names are in the title
+            const match = data.items.find(item => {
+              const title = item.snippet.title.toLowerCase();
+              return title.includes(homeTeam.toLowerCase()) && title.includes(awayTeam.toLowerCase());
+            });
+            if (match) {
+              embedVideo(match.id.videoId);
+            } else {
+              embedVideo(data.items[0].id.videoId); // fallback: show the first result
+            }
+          } else {
+            document.getElementById('youtube-live').innerHTML = '<p>No highlight video found for this match.</p>';
+          }
+        })
+        .catch(error => {
+          document.getElementById('youtube-live').innerHTML = '<p>Error loading highlight video.</p>';
+          console.error(error);
+        });
+    }
+  })
+  .catch(error => {
+    document.getElementById('youtube-live').innerHTML = '<p>Error loading live video.</p>';
+    console.error(error);
+  });
+</script>
