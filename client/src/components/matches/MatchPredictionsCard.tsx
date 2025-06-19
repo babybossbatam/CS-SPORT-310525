@@ -8,6 +8,7 @@ interface MatchPredictionsCardProps {
   awayTeam: string;
   homeTeamLogo?: string;
   awayTeamLogo?: string;
+  matchStatus?: string;
 }
 
 const MatchPredictionsCard: React.FC<MatchPredictionsCardProps> = ({
@@ -15,6 +16,7 @@ const MatchPredictionsCard: React.FC<MatchPredictionsCardProps> = ({
   awayTeam,
   homeTeamLogo,
   awayTeamLogo,
+  matchStatus = "NS",
 }) => {
   return (
     <Card className="w-full mt-4">
