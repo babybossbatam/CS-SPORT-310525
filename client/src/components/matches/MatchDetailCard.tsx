@@ -1,3 +1,4 @@
+
 import React from "react";
 import MatchEndedDetailsCard from "./MatchEndedDetailsCard";
 import MatchLiveDetailsCard from "./MatchLiveDetailsCard";
@@ -18,22 +19,22 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
 
   const getMatchStatus = () => {
     const status = match.fixture?.status?.short;
-
+    
     // Live match statuses
     if (["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
       return "Live";
     }
-
+    
     // Ended match statuses
     if (["FT", "AET", "PEN", "PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
       return "Ended";
     }
-
+    
     // Upcoming match statuses (including NS - Not Started)
     if (["NS", "TBD", "SUSP"].includes(status) || !status) {
       return "Upcoming";
     }
-
+    
     // Default to upcoming for unknown statuses
     return "Upcoming";
   };
@@ -55,7 +56,7 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
             awayTeamLogo={awayTeamLogo}
           />
         );
-
+      
       case "Live":
         return (
           <MatchLiveDetailsCard
@@ -65,7 +66,7 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
             awayTeamLogo={awayTeamLogo}
           />
         );
-
+      
       case "Upcoming":
       default:
         return (

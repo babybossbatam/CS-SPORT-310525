@@ -66,11 +66,7 @@ const MyMatchdetailsScoreboard = ({
     fixtureId: displayMatch?.fixture?.id,
     teams: `${displayMatch?.teams?.home?.name} vs ${displayMatch?.teams?.away?.name}`,
     status: displayMatch?.fixture?.status?.short,
-    league: displayMatch?.league?.name,
-    homeTeam: displayMatch?.teams?.home?.name,
-    awayTeam: displayMatch?.teams?.away?.name,
-    homeTeamLogo: displayMatch?.teams?.home?.logo,
-    awayTeamLogo: displayMatch?.teams?.away?.logo
+    league: displayMatch?.league?.name
   });
 
   // Real-time update effect for live matches - using LiveMatchForAllCountry approach
