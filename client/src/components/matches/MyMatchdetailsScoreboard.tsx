@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
+import MatchCountdownTimer from "./MatchCountdownTimer";
 interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
@@ -260,8 +261,21 @@ const MyMatchdetailsScoreboard = ({
                         tomorrow.getDate(),
                       );
 
+                      // Check if match is today and less than 12 hours away
                       if (matchDay.getTime() === todayDay.getTime()) {
-                        return "Today";
+                        const hoursToMatch = (matchDate.getTime() - today.getTime()) / (1000 * 60 * 60);
+                        
+                        if (hoursToMatch > 0 && hoursToMatch <= 12) {
+                          // Show countdown timer for matches within 12 hours
+                          return (
+                            <div className="flex flex-col items-center">
+                              <div className="text-sm text-gray-600 mb-1">Starting in</div>
+                              <MatchCountdownTimer matchDate={displayMatch.fixture.date} />
+                            </div>
+                          );
+                        } else {
+                          return "Today";
+                        }
                       } else if (matchDay.getTime() === tomorrowDay.getTime()) {
                         return "Tomorrow";
                       } else {
@@ -285,6 +299,26 @@ const MyMatchdetailsScoreboard = ({
                   {(() => {
                     try {
                       const matchDate = new Date(displayMatch.fixture.date);
+                      const today = new Date();
+                      const matchDay = new Date(
+                        matchDate.getFullYear(),
+                        matchDate.getMonth(),
+                        matchDate.getDate(),
+                      );
+                      const todayDay = new Date(
+                        today.getFullYear(),
+                        today.getMonth(),
+                        today.getDate(),
+                      );
+                      
+                      // Don't show time if countdown timer is displayed
+                      if (matchDay.getTime() === todayDay.getTime()) {
+                        const hoursToMatch = (matchDate.getTime() - today.getTime()) / (1000 * 60 * 60);
+                        if (hoursToMatch > 0 && hoursToMatch <= 12) {
+                          return ""; // Hide time when countdown is shown
+                        }
+                      }
+                      
                       return format(matchDate, "HH:mm");
                     } catch (error) {
                       return "TBD";
