@@ -545,19 +545,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     try {
       const homeTeam = fixture.teams?.home?.name || '';
       const awayTeam = fixture.teams?.away?.name || '';
-      
+
       // Call debug endpoint to get SportsRadar comparison
       const response = await fetch(`/api/debug/fixture/${fixture.fixture.id}/compare`);
       const comparison = await response.json();
-      
+
       if (comparison.sportsRadar?.available && comparison.sportsRadar?.data) {
         const sportsRadarStatus = comparison.sportsRadar.data.status;
-        
+
         // Check if SportsRadar shows the match as finished
         const isFinishedInSportsRadar = ['completed', 'closed', 'ended', 'finished'].some(
           status => sportsRadarStatus?.toLowerCase().includes(status)
         );
-        
+
         if (isFinishedInSportsRadar) {
           console.log(`✅ SportsRadar confirms match is finished: ${homeTeam} vs ${awayTeam}`);
           return 'FT';
@@ -566,7 +566,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           return fixture.fixture.status.short; // Keep original status
         }
       }
-      
+
       // If SportsRadar data not available, use time-based validation
       console.warn(`📡 SportsRadar data not available for ${homeTeam} vs ${awayTeam}, using time-based validation`);
       return null; // Will use fallback logic
@@ -579,7 +579,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Timezone-aware fixture filtering with live match validation using MyUpdatedFixtureDateSelection
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     let allFixtures;
-    
+
     if (liveFilterActive) {
       // When live filter is active, only show live matches
       allFixtures = liveFixtures;
@@ -588,7 +588,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       allFixtures = fixtures.map(fixture => {
         // Find if this fixture has a live update
         const liveUpdate = liveFixtures.find(live => live.fixture.id === fixture.fixture.id);
-        
+
         if (liveUpdate) {
           // Use live data for status, score, and elapsed time
           return {
@@ -600,11 +600,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             goals: liveUpdate.goals
           };
         }
-        
+
         return fixture;
       });
     }
-    
+
     if (!allFixtures?.length) {
       console.log(`🚨 [LEAGUES 38&15 DEBUG] No fixtures found - allFixtures length: ${allFixtures?.length || 0}`);
       return {
@@ -617,7 +617,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Debug: Check for leagues 38 and 15 in input fixtures
     const league38Fixtures = allFixtures.filter(f => f.league?.id === 38);
     const league15Fixtures = allFixtures.filter(f => f.league?.id === 15);
-    
+
     console.log(`🏆 [LEAGUES 38&15 DEBUG] Input fixtures analysis:`, {
       totalFixtures: allFixtures.length,
       league38Count: league38Fixtures.length,
@@ -641,26 +641,26 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
 
     console.log(`🕒 [TIMEZONE FILTER] Starting timezone-aware filtering for ${allFixtures.length} fixtures`);
-    
+
     // Use MyUpdatedFixtureDateSelection for proper timezone-aware filtering
     let timezoneFilteredFixtures = allFixtures;
-    
+
     if (!liveFilterActive) {
       // Apply timezone-aware date filtering using MyUpdatedFixtureDateSelection
       const processedFixtures = MyUpdatedFixtureDateSelection.getFixturesForSelectedDate(
         allFixtures,
         selectedDate
       );
-      
+
       // Extract just the fixtures from the processed result
       timezoneFilteredFixtures = processedFixtures.map(processed => processed.fixture);
-      
+
       console.log(`🕒 [TIMEZONE FILTER] After timezone filtering: ${timezoneFilteredFixtures.length} fixtures remaining`);
-      
+
       // Debug: Check what happened to leagues 38 and 15 after timezone filtering
       const league38AfterTimezone = timezoneFilteredFixtures.filter(f => f.league?.id === 38);
       const league15AfterTimezone = timezoneFilteredFixtures.filter(f => f.league?.id === 15);
-      
+
       console.log(`🏆 [LEAGUES 38&15 DEBUG] After timezone filtering:`, {
         league38RemainingCount: league38AfterTimezone.length,
         league15RemainingCount: league15AfterTimezone.length,
@@ -677,7 +677,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           teams: `${f.teams.home.name} vs ${f.teams.away.name}`
         }))
       });
-      
+
       // Debug: Show which fixtures were rejected by timezone filtering
       const rejectedLeague38 = league38Fixtures.filter(original => 
         !timezoneFilteredFixtures.some(filtered => filtered.fixture.id === original.fixture.id)
@@ -685,7 +685,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const rejectedLeague15 = league15Fixtures.filter(original => 
         !timezoneFilteredFixtures.some(filtered => filtered.fixture.id === original.fixture.id)
       );
-      
+
       if (rejectedLeague38.length > 0 || rejectedLeague15.length > 0) {
         console.log(`🚨 [LEAGUES 38&15 DEBUG] Timezone filtering rejected fixtures:`, {
           rejectedLeague38Count: rejectedLeague38.length,
@@ -706,7 +706,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           }))
         });
       }
-      
+
       // Log some examples of timezone conversion
       if (processedFixtures.length > 0) {
         console.log(`🕒 [TIMEZONE FILTER] First 3 examples:`, 
@@ -752,7 +752,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       // Check if status claims to be live
       const claimsLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-      
+
       if (claimsLive && hoursElapsed > 3) {
         // Trigger async verification in background
         verifyMatchStatusWithSportsRadar(fixture).then((verifiedStatus) => {
@@ -765,7 +765,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             setTimeout(() => setEnableFetching(prev => !prev), 100);
           }
         });
-        
+
         // For immediate filtering, use time-based validation
         if (hoursElapsed > 3.5) {
           console.warn(`⚠️ Stale live match detected (immediate): ${fixture.teams.home.name} vs ${fixture.teams.away.name} - status: ${status}, hours elapsed: ${hoursElapsed.toFixed(1)}`);
@@ -777,7 +777,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Apply filtering logic for live filter
       if (liveFilterActive) {
         const isGenuinelyLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short);
-        
+
         // Debug: Log leagues 38 and 15 live filter results
         if (fixture.league.id === 38 || fixture.league.id === 15) {
           console.log(`🏆 [LEAGUES 38&15 DEBUG] Live filter result:`, {
@@ -788,7 +788,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             willBeShown: isGenuinelyLive
           });
         }
-        
+
         return isGenuinelyLive;
       }
 
@@ -810,7 +810,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Final debug summary for leagues 38 and 15
     const finalLeague38 = filtered.filter(f => f.league?.id === 38);
     const finalLeague15 = filtered.filter(f => f.league?.id === 15);
-    
+
     console.log(`🏆 [LEAGUES 38&15 DEBUG] FINAL RESULTS:`, {
       selectedDate,
       liveFilterActive,
@@ -2381,17 +2381,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           })}
         </div>
       </CardContent>
-    </Card>
-    <>
-      {/* Updated version for modification */}
-      <MyUpdatedMatchbyCountry
-        selectedDate={selectedDate}
-        liveFilterActive={liveFilterActive}
-        timeFilterActive={timeFilterActive}
-        onMatchCardClick={onMatchCardClick}
-      />
-    </>
-  </>;
+    
+    {/* Updated version for modification */}
+    <MyUpdatedMatchbyCountry
+      selectedDate={selectedDate}
+      liveFilterActive={liveFilterActive}
+      timeFilterActive={timeFilterActive}
+      onMatchCardClick={onMatchCardClick}
+    />
+    
+  </Card>
+  );
 };
 
 export default TodaysMatchesByCountryNew;
