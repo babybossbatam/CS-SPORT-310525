@@ -260,36 +260,41 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filteredEvents.map((event) => (
-              <div key={event.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="text-sm font-medium text-gray-600 min-w-[40px]">
+          <div className="space-y-4">
+            {filteredEvents.map((event, index) => {
+              // Calculate score at this point in time for each event
+              const eventsUpToThis = finalEvents.slice(0, finalEvents.findIndex(e => e.id === event.id) + 1);
+              const goalsUpToThis = eventsUpToThis.filter(e => e.type === 'goal');
+              const homeGoalsAtTime = goalsUpToThis.filter(e => e.team === 'home').length;
+              const awayGoalsAtTime = goalsUpToThis.filter(e => e.team === 'away').length;
+              
+              return (
+                <div key={event.id} className="flex gap-4 py-3 border-b border-gray-100 last:border-b-0">
+                  {/* Time column */}
+                  <div className="text-sm font-medium text-gray-600 min-w-[40px] pt-1">
                     {event.time}
                   </div>
-                  <div className="flex items-center gap-2">
+                  
+                  {/* Score and description column */}
+                  <div className="flex-1">
+                    {/* Score */}
+                    <div className="text-lg font-bold text-gray-900 mb-1">
+                      {homeGoalsAtTime}-{awayGoalsAtTime}
+                    </div>
+                    
+                    {/* Event description */}
+                    <div className="text-sm text-gray-700">
+                      {event.player} ({event.team === 'home' ? displayHomeTeam : displayAwayTeam}) {event.description}
+                    </div>
+                  </div>
+                  
+                  {/* Event icon */}
+                  <div className="flex items-start pt-1">
                     {getEventIcon(event.type)}
-                    {event.type === 'goal' && (
-                      <span className="text-sm font-medium text-green-600">
-                        {event.time === "45+4'" ? '+4' : ''}
-                      </span>
-                    )}
                   </div>
                 </div>
-                
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <div className="text-sm font-medium text-gray-900">
-                      {event.player}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      ({event.team === 'home' ? displayHomeTeam : displayAwayTeam})
-                    </div>
-                  </div>
-                  {getPlayerAvatar(event.player)}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
