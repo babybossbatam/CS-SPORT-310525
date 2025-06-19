@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Trophy, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { useCachedQuery } from "@/lib/cachingHelper";
