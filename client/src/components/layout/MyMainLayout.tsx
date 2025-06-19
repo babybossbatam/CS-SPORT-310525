@@ -13,6 +13,7 @@ import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
 import MyRightContent from '@/components/layout/MyRightContent';
 import MyMatchdetailsScoreboard from "../matches/MyMatchdetailsScoreboard";
 import MatchDetailCard from '@/components/matches/MatchDetailCard';
+import MyHighlights from '@/components/matches/MyHighlights';
 
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -60,6 +61,12 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
             <>
               <ScoreDetailsCard currentFixture={selectedFixture} onClose={handleBackToMain} />
               <MatchDetailCard match={selectedFixture} />
+              <MyHighlights 
+                homeTeam={selectedFixture?.teams?.home?.name}
+                awayTeam={selectedFixture?.teams?.away?.name}
+                leagueName={selectedFixture?.league?.name}
+                matchStatus={selectedFixture?.fixture?.status?.short}
+              />
             </>
           ) : (
             <MyRightContent />
