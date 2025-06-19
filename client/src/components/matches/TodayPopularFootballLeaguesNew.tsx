@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
+import MyUpdatedFixtureDateSelection from "@/lib/MyUpdatedFixtureDateSelection";
 // Removed complex date utilities - using simple date filtering now
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import {
@@ -256,168 +257,28 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
-  // Smart filtering operations
+  // Timezone-aware filtering operations using MyUpdatedFixtureDateSelection
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
-    );
-
-    // Count COSAFA Cup matches in input
-    const cosafaMatches = fixtures.filter(
-      (f) =>
-        f.league?.name?.toLowerCase().includes("cosafa") ||
-        f.teams?.home?.name?.toLowerCase().includes("cosafa") ||
-        f.teams?.away?.name?.toLowerCase().includes("cosafa"),
-    );
-    console.log(
-      `🏆 [COSAFA DEBUG] Found ${cosafaMatches.length} COSAFA Cup matches in input fixtures:`,
-      cosafaMatches.map((m) => ({
-        id: m.fixture?.id,
-        date: m.fixture?.date,
-        status: m.fixture?.status?.short,
-        league: m.league?.name,
-        home: m.teams?.home?.name,
-        away: m.teams?.away?.name,
-      })),
+      `🔍 [TIMEZONE FILTER] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
     );
 
     const startTime = Date.now();
 
-    // Determine what type of date is selected
-    const today = new Date();
-    const todayString = format(today, "yyyy-MM-dd");
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowString = format(tomorrow, "yyyy-MM-dd");
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayString = format(yesterday, "yyyy-MM-dd");
+    // Use MyUpdatedFixtureDateSelection for proper timezone-aware filtering
+    const timezoneFilteredFixtures = MyUpdatedFixtureDateSelection.getFixturesForSelectedDate(
+      fixtures,
+      selectedDate
+    );
 
-    const isSelectedTomorrow = selectedDate === tomorrowString;
+    console.log(
+      `✅ [TIMEZONE FILTER] After timezone filtering: ${timezoneFilteredFixtures.length} fixtures remaining`,
+    );
 
-    const filtered = fixtures.filter((fixture) => {
-      // Apply smart time filtering with selected date context
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short,
-          selectedDate + "T12:00:00Z", // Pass selected date as context
-        );
-
-        // Check if this match should be included based on the selected date
-        const shouldInclude = (() => {
-          // For today's view, exclude any matches that are from previous days
-          if (selectedDate === todayString) {
-            // Only include matches that are specifically labeled as "today"
-            // Exclude anything from yesterday or other dates
-            if (smartResult.label === "today") return true;
-
-            // Additional check: exclude matches from previous dates regardless of status
-            const fixtureDate = new Date(fixture.fixture.date);
-            const selectedDateObj = new Date(selectedDate);
-            const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-
-            if (fixtureDateString < selectedDate) {
-              console.log(`❌ [DATE FILTER] Excluding yesterday match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${fixtureDateString} < ${selectedDate})`);
-              return false;
-            }
-
-            return false;
-          }
-
-          if (
-            selectedDate === tomorrowString &&
-            smartResult.label === "tomorrow"
-          )
-            return true;
-          if (
-            selectedDate === yesterdayString &&
-            smartResult.label === "yesterday"
-          )
-            return true;
-
-          // Handle custom dates (dates that are not today/tomorrow/yesterday)
-          if (
-            selectedDate !== todayString &&
-            selectedDate !== tomorrowString &&
-            selectedDate !== yesterdayString
-          ) {
-            if (smartResult.label === "custom" && smartResult.isWithinTimeRange)
-              return true;
-          }
-
-          return false;
-        })();
-
-        if (!shouldInclude) {
-          console.log(
-            `❌ [SMART FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-            {
-              fixtureDate: fixture.fixture.date,
-              status: fixture.fixture.status.short,
-              reason: smartResult.reason,
-              label: smartResult.label,
-              selectedDate,
-              isWithinTimeRange: smartResult.isWithinTimeRange,
-            },
-          );
-          return false;
-        }
-
-        // Additional safety check: ensure match date matches selected date for strict filtering
-        const fixtureDate = parseISO(fixture.fixture.date);
-        const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-
-        // For today's view, be extra strict about date matching
-        if (selectedDate === todayString && fixtureDateString !== selectedDate) {
-          console.log(
-            `❌ [DATE MISMATCH] Excluding match with wrong date: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-            {
-              fixtureDate: fixtureDateString,
-              selectedDate,
-              status: fixture.fixture.status.short,
-              reason: "Date mismatch - not for today"
-            },
-          );
-          return false;
-        }
-
-        // Additional debug for COSAFA Cup matches
-        const isCOSAFAMatch =
-          fixture.league?.name?.toLowerCase().includes("cosafa") ||
-          fixture.teams?.home?.name?.toLowerCase().includes("cosafa") ||
-          fixture.teams?.away?.name?.toLowerCase().includes("cosafa");
-
-        if (isCOSAFAMatch) {
-          console.log(
-            `🏆 [COSAFA SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-            {
-              fixtureId: fixture.fixture?.id,
-              fixtureDate: fixture.fixture.date,
-              status: fixture.fixture.status.short,
-              reason: smartResult.reason,
-              label: smartResult.label,
-              selectedDate,
-              isWithinTimeRange: smartResult.isWithinTimeRange,
-              league: fixture.league?.name,
-            },
-          );
-        } else {
-          console.log(
-            `✅ [SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-            {
-              fixtureDate: fixture.fixture.date,
-              status: fixture.fixture.status.short,
-              reason: smartResult.reason,
-              label: smartResult.label,
-              selectedDate,
-              isWithinTimeRange: smartResult.isWithinTimeRange,
-            },
-          );
-        }
-      }
+    // Extract just the fixtures from the processed result
+    const filtered = timezoneFilteredFixtures.map(processed => processed.fixture).filter((fixture) => {
 
       // Client-side filtering for popular leagues and countries
       const leagueId = fixture.league?.id;

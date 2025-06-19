@@ -575,7 +575,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, []);
 
-  // Timezone-aware fixture filtering with live match validation
+  // Timezone-aware fixture filtering with live match validation using MyUpdatedFixtureDateSelection
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     let allFixtures;
     
@@ -614,11 +614,11 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     console.log(`🕒 [TIMEZONE FILTER] Starting timezone-aware filtering for ${allFixtures.length} fixtures`);
     
-    // Use timezone-aware filtering for date-based fixtures
+    // Use MyUpdatedFixtureDateSelection for proper timezone-aware filtering
     let timezoneFilteredFixtures = allFixtures;
     
     if (!liveFilterActive) {
-      // Apply timezone-aware date filtering
+      // Apply timezone-aware date filtering using MyUpdatedFixtureDateSelection
       const processedFixtures = MyUpdatedFixtureDateSelection.getFixturesForSelectedDate(
         allFixtures,
         selectedDate
