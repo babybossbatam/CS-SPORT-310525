@@ -399,7 +399,7 @@ const MyMatchdetailsScoreboard = ({
                 </div>
               </div>
             ) : (
-              <div className="text-center">
+              <div className="text-center mb-4">
                 <div className="text-sm font-medium text-gray-500 mb-1">
                   {getStatusBadge(displayMatch.fixture.status.short)}
                 </div>
