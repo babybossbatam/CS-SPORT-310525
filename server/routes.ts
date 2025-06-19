@@ -1707,7 +1707,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     try {
       const { fixtureId } = req.params;
 
-      console.log(`🔍 [DEBUG] Comparing fixture ${fixtureId} between APIs`);
+      console.log(`🔍 [DEBUG] Comparing fixture ${fixtureId} between APIs for status verification`);
 
       if (!fixtureId || fixtureId.trim() === '') {
         return res.status(400).json({ 
@@ -1747,47 +1747,79 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         console.error(`Error fetching from RapidAPI for fixture ${fixtureId}:`, error);
       }
 
-      // Fetch from SportsRadar API
+      // Enhanced SportsRadar API search
       let sportsRadarData = null;
       let sportsRadarError = null;
       try {
         const sportsRadarKey = process.env.SPORTSRADAR_API_KEY || 'GyxLqseloLhoo4ietUKotcYT89QjqHuYS6xDNAyY';
 
-        // Try to find the fixture in SportsRadar by searching live matches first
-        const liveResponse = await fetch(`https://api.sportradar.com/soccer/trial/v4/en/matches/live.json?api_key=${sportsRadarKey}`);
+        if (rapidApiData) {
+          const rapidHomeTeam = rapidApiData.teams?.home?.name || '';
+          const rapidAwayTeam = rapidApiData.teams?.away?.name || '';
+          const matchDate = new Date(rapidApiData.fixture?.date);
 
-        if (liveResponse.ok) {
-          const liveData = await liveResponse.json();
+          // Try multiple SportsRadar endpoints
+          const endpoints = [
+            `https://api.sportradar.com/soccer/trial/v4/en/matches/live.json?api_key=${sportsRadarKey}`,
+            `https://api.sportradar.com/soccer/trial/v4/en/matches/${matchDate.toISOString().split('T')[0]}/schedule.json?api_key=${sportsRadarKey}`
+          ];
 
-          // Look for the match by team names if we have RapidAPI data
-          if (rapidApiData) {
-            const rapidHomeTeam = rapidApiData.teams?.home?.name || '';
-            const rapidAwayTeam = rapidApiData.teams?.away?.name || '';
+          for (const endpoint of endpoints) {
+            try {
+              const response = await fetch(endpoint);
+              if (response.ok) {
+                const data = await response.json();
+                const matches = data.matches || data.sport_events || [];
 
-            const sportsRadarMatch = liveData.matches?.find((match: any) => {
-              const homeTeam = match.home_team?.name || '';
-              const awayTeam = match.away_team?.name || '';
-              return (homeTeam.includes(rapidHomeTeam.split(' ')[0]) && awayTeam.includes(rapidAwayTeam.split(' ')[0])) ||
-                     (homeTeam.includes(rapidAwayTeam.split(' ')[0]) && awayTeam.includes(rapidHomeTeam.split(' ')[0]));
-            });
+                const sportsRadarMatch = matches.find((match: any) => {
+                  const homeTeam = match.home_team?.name || match.competitors?.find((c: any) => c.qualifier === 'home')?.name || '';
+                  const awayTeam = match.away_team?.name || match.competitors?.find((c: any) => c.qualifier === 'away')?.name || '';
+                  
+                  // Enhanced team name matching
+                  const homeMatches = homeTeam.toLowerCase().includes(rapidHomeTeam.toLowerCase().split(' ')[0]) ||
+                                     rapidHomeTeam.toLowerCase().includes(homeTeam.toLowerCase().split(' ')[0]);
+                  const awayMatches = awayTeam.toLowerCase().includes(rapidAwayTeam.toLowerCase().split(' ')[0]) ||
+                                     rapidAwayTeam.toLowerCase().includes(awayTeam.toLowerCase().split(' ')[0]);
+                  
+                  return homeMatches && awayMatches;
+                });
 
-            if (sportsRadarMatch) {
-              sportsRadarData = sportsRadarMatch;
-            } else {
-              sportsRadarError = 'Matching fixture not found in SportsRadar live data';
+                if (sportsRadarMatch) {
+                  sportsRadarData = {
+                    ...sportsRadarMatch,
+                    // Normalize status information
+                    normalizedStatus: {
+                      original: sportsRadarMatch.status || sportsRadarMatch.sport_event_status?.status,
+                      isLive: ['live', 'inprogress', '1st_half', '2nd_half', 'halftime'].includes(
+                        (sportsRadarMatch.status || sportsRadarMatch.sport_event_status?.status || '').toLowerCase()
+                      ),
+                      isFinished: ['closed', 'ended', 'finished', 'complete', 'ft'].includes(
+                        (sportsRadarMatch.status || sportsRadarMatch.sport_event_status?.status || '').toLowerCase()
+                      )
+                    }
+                  };
+                  console.log(`✅ Found SportsRadar match: ${homeTeam} vs ${awayTeam} - Status: ${sportsRadarMatch.status || sportsRadarMatch.sport_event_status?.status}`);
+                  break;
+                }
+              }
+            } catch (endpointError) {
+              console.warn(`SportsRadar endpoint failed: ${endpoint}`, endpointError);
+              continue;
             }
-          } else {
-            sportsRadarError = 'Cannot search SportsRadar without RapidAPI data for comparison';
+          }
+
+          if (!sportsRadarData) {
+            sportsRadarError = `No matching fixture found for ${rapidHomeTeam} vs ${rapidAwayTeam} in SportsRadar`;
           }
         } else {
-          sportsRadarError = `SportsRadar API responded with status ${liveResponse.status}`;
+          sportsRadarError = 'Cannot search SportsRadar without RapidAPI data for comparison';
         }
       } catch (error) {
         sportsRadarError = error instanceof Error ? error.message : 'Unknown SportsRadar error';
         console.error(`Error fetching from SportsRadar:`, error);
       }
 
-      // Build comparison response
+      // Build enhanced comparison response with status verification focus
       const comparison = {
         fixtureId,
         serverTime: new Date().toISOString(),
@@ -1803,26 +1835,58 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
             awayGoals: rapidApiData.goals?.away,
             date: rapidApiData.fixture?.date,
             elapsed: rapidApiData.fixture?.status?.elapsed,
-            league: rapidApiData.league?.name
+            league: rapidApiData.league?.name,
+            isLive: ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(rapidApiData.fixture?.status?.short)
           } : null
         },
         sportsRadar: {
           available: !!sportsRadarData,
           error: sportsRadarError,
           data: sportsRadarData ? {
-            status: sportsRadarData.status,
-            homeTeam: sportsRadarData.home_team?.name,
-            awayTeam: sportsRadarData.away_team?.name,
-            homeGoals: sportsRadarData.home_score,
-            awayGoals: sportsRadarData.away_score,
-            date: sportsRadarData.scheduled,
-            elapsed: sportsRadarData.clock?.minute,
-            league: sportsRadarData.tournament?.name
+            status: sportsRadarData.status || sportsRadarData.sport_event_status?.status,
+            homeTeam: sportsRadarData.home_team?.name || sportsRadarData.competitors?.find((c: any) => c.qualifier === 'home')?.name,
+            awayTeam: sportsRadarData.away_team?.name || sportsRadarData.competitors?.find((c: any) => c.qualifier === 'away')?.name,
+            homeGoals: sportsRadarData.home_score || sportsRadarData.sport_event_status?.home_score,
+            awayGoals: sportsRadarData.away_score || sportsRadarData.sport_event_status?.away_score,
+            date: sportsRadarData.scheduled || sportsRadarData.start_time,
+            elapsed: sportsRadarData.clock?.minute || sportsRadarData.sport_event_status?.clock?.match_time,
+            league: sportsRadarData.tournament?.name || sportsRadarData.sport_event?.tournament?.name,
+            isLive: sportsRadarData.normalizedStatus?.isLive,
+            isFinished: sportsRadarData.normalizedStatus?.isFinished,
+            normalizedStatus: sportsRadarData.normalizedStatus
           } : null
+        },
+        statusVerification: {
+          rapidApiClaims: rapidApiData ? (['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(rapidApiData.fixture?.status?.short) ? 'LIVE' : 'NOT_LIVE') : 'UNAVAILABLE',
+          sportsRadarClaims: sportsRadarData ? (sportsRadarData.normalizedStatus?.isLive ? 'LIVE' : sportsRadarData.normalizedStatus?.isFinished ? 'FINISHED' : 'UNKNOWN') : 'UNAVAILABLE',
+          consensus: 'UNDETERMINED'
         },
         differences: [] as any[],
         recommendation: ''
       };
+
+      // Determine consensus for status verification
+      if (comparison.rapidApi.available && comparison.sportsRadar.available) {
+        const rapidIsLive = comparison.statusVerification.rapidApiClaims === 'LIVE';
+        const sportsRadarIsLive = comparison.statusVerification.sportsRadarClaims === 'LIVE';
+        const sportsRadarIsFinished = comparison.statusVerification.sportsRadarClaims === 'FINISHED';
+
+        if (rapidIsLive && !sportsRadarIsLive && sportsRadarIsFinished) {
+          comparison.statusVerification.consensus = 'STALE_LIVE_DETECTED';
+          comparison.recommendation = 'RapidAPI shows live but SportsRadar confirms finished - recommend status correction to FT';
+        } else if (rapidIsLive && sportsRadarIsLive) {
+          comparison.statusVerification.consensus = 'GENUINELY_LIVE';
+          comparison.recommendation = 'Both APIs confirm match is live - status is correct';
+        } else if (!rapidIsLive && sportsRadarIsFinished) {
+          comparison.statusVerification.consensus = 'CORRECTLY_FINISHED';
+          comparison.recommendation = 'Both APIs show match is finished - status is correct';
+        } else {
+          comparison.statusVerification.consensus = 'INCONSISTENT';
+          comparison.recommendation = 'APIs show inconsistent status - manual review recommended';
+        }
+      } else {
+        comparison.recommendation = 'Insufficient data for status verification';
+      }
 
       // Compare key fields if both APIs have data
       if (rapidApiData && sportsRadarData) {
