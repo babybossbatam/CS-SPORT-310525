@@ -25,48 +25,84 @@ const MatchEndedDetailsCard: React.FC<MatchEndedDetailsCardProps> = ({
         id: "PafEQYZjA58",
         title: "Al Ain FC vs Juventus (0-5) | Resumen | Highlights Mundial de Clubes FIFA 2025™",
         teams: "Al Ain vs Juventus",
-        result: "0-5"
+        result: "0-5",
+        keywords: ["al ain", "juventus", "fifa club world cup"]
       },
       {
         id: "K4DyBUG242c", // Real Madrid vs Liverpool Champions League Final
         title: "Real Madrid vs Liverpool (1-0) | Champions League Final Highlights",
         teams: "Real Madrid vs Liverpool",
-        result: "1-0"
+        result: "1-0",
+        keywords: ["real madrid", "liverpool", "champions league"]
       },
       {
         id: "HIzbryMEKB8", // Manchester City vs Inter Milan
         title: "Manchester City vs Inter Milan (1-0) | Champions League Final Highlights",
         teams: "Manchester City vs Inter Milan",
-        result: "1-0"
+        result: "1-0",
+        keywords: ["manchester city", "inter milan", "champions league"]
       },
       {
         id: "fFeg_hl0Se4", // Chelsea vs Real Madrid
         title: "Chelsea vs Real Madrid (2-0) | Champions League Highlights",
         teams: "Chelsea vs Real Madrid",
-        result: "2-0"
+        result: "2-0",
+        keywords: ["chelsea", "real madrid", "champions league"]
       },
       {
         id: "JuK9fV5lAHs", // Barcelona vs PSG
         title: "Barcelona vs PSG (4-1) | Champions League Highlights",
         teams: "Barcelona vs PSG",
-        result: "4-1"
+        result: "4-1",
+        keywords: ["barcelona", "psg", "champions league"]
       },
       {
         id: "UOvZKJlrtk8", // Bayern Munich vs Barcelona
         title: "Bayern Munich vs Barcelona (8-2) | Champions League Highlights",
         teams: "Bayern Munich vs Barcelona",
-        result: "8-2"
+        result: "8-2",
+        keywords: ["bayern munich", "barcelona", "champions league"]
       }
     ];
 
-    // You can implement logic to match based on team names
-    // For now, let's try to match with the provided teams or return a random one
-    const matchingVideo = highlightVideos.find(video => 
+    console.log('🎯 [MatchEndedDetailsCard] Looking for highlights for:', {
+      homeTeam,
+      awayTeam,
+      searchTerms: [homeTeam.toLowerCase(), awayTeam.toLowerCase()]
+    });
+
+    // Try to find exact team name matches first
+    const exactMatch = highlightVideos.find(video => {
+      const homeMatch = video.keywords.some(keyword => 
+        homeTeam.toLowerCase().includes(keyword) || keyword.includes(homeTeam.toLowerCase())
+      );
+      const awayMatch = video.keywords.some(keyword => 
+        awayTeam.toLowerCase().includes(keyword) || keyword.includes(awayTeam.toLowerCase())
+      );
+      
+      return homeMatch || awayMatch;
+    });
+
+    if (exactMatch) {
+      console.log('✅ [MatchEndedDetailsCard] Found exact match:', exactMatch.teams);
+      return exactMatch;
+    }
+
+    // Fallback to team name substring matching
+    const substringMatch = highlightVideos.find(video => 
       video.teams.toLowerCase().includes(homeTeam.toLowerCase()) || 
       video.teams.toLowerCase().includes(awayTeam.toLowerCase())
     );
 
-    return matchingVideo || highlightVideos[Math.floor(Math.random() * highlightVideos.length)];
+    if (substringMatch) {
+      console.log('✅ [MatchEndedDetailsCard] Found substring match:', substringMatch.teams);
+      return substringMatch;
+    }
+
+    // Default to Al Ain vs Juventus as it's the most relevant for FIFA Club World Cup
+    const defaultVideo = highlightVideos[0];
+    console.log('🎯 [MatchEndedDetailsCard] Using default video:', defaultVideo.teams);
+    return defaultVideo;
   };
 
   const highlightVideo = getHighlightVideo();
