@@ -40,7 +40,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   // YouTube API Configuration
   const API_KEY = 'AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o';
-  const CHANNEL_ID = 'UCaopyJz-EIXOXYXSMOC6c-g';
+  const CHANNEL_ID = 'UCPCX0qOYcFUk9_h7TfiFc1A'; // FIFA's official YouTube channel
 
   const searchForHighlights = async () => {
     if (!homeTeam || !awayTeam) {
