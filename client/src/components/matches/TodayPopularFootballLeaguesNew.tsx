@@ -1577,96 +1577,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         "INT",
                                       ].includes(status)
                                     ) {
-                                      let displayText = "";
-
-                                      // Enhanced stale match detection with date validation
-                                      const matchStartDate = parseISO(match.fixture.date);
-                                      const currentDate = new Date();
-                                      const hoursSinceStart = Math.floor((currentDate.getTime() - matchStartDate.getTime()) / (1000 * 60 * 60));
-                                      const daysSinceStart = Math.floor(hoursSinceStart / 24);
-
-                                      const isLikelyStale = (
-                                        // Match is from a previous day and still showing as live
-                                        daysSinceStart >= 1 ||
-                                        // Match has been "live" for more than 3 hours
-                                        minutesSinceKickoff > 180 ||
-                                        // Specific status checks
-                                        (status === "2H" && elapsed >= 100) || // 100+ minutes is definitely stale
-                                        (status === "1H" && elapsed >= 60) || // 60+ minutes in first half is impossible
-                                        (["LIVE", "LIV"].includes(status) && elapsed >= 100) || // Generic live with high elapsed time
-                                        // Match started more than 4 hours ago and still showing as live
-                                        (hoursSinceStart > 4)
-                                      );
-
-                                      if (isLikelyStale) {
-                                        console.log(`🚨 [STALE MATCH] Match ${match.fixture.id}:`, {
-                                          teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
-                                          status: status,
-                                          elapsed: elapsed,
-                                          fixtureDate: match.fixture.date,
-                                          matchStartDate: matchStartDate.toISOString(),
-                                          currentDate: currentDate.toISOString(),
-                                          minutesSinceKickoff: minutesSinceKickoff,
-                                          hoursSinceStart: hoursSinceStart,
-                                          daysSinceStart: daysSinceStart,
-                                          reason: daysSinceStart >= 1 ? 'Match from previous day' : 
-                                                 hoursSinceStart > 4 ? 'Match started over 4 hours ago' :
-                                                 minutesSinceKickoff > 180 ? 'Live for over 3 hours' :
-                                                 'Impossible elapsed time for status'
-                                        });
-                                        // For stale matches, show as "Ended" regardless of API status
-                                        const actualStatus = "Ended";
-
-                                        return (
-                                          <div className="match-status-label status-ended">
-                                            {actualStatus}
-                                          </div>
-                                        );
-                                      }
-
-                                      // Use API elapsed time directly without manual calculations
-                                      if (status === "HT") {
-                                        displayText = "Halftime";
-                                      } else if (status === "P") {
-                                        displayText = "Penalties";
-                                      } else if (status === "ET") {
-                                        displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
-                                      } else if (status === "BT") {
-                                        displayText = "Break Time";
-                                      } else if (status === "INT") {
-                                        displayText = "Interrupted";
-                                      } else {
-                                        // For LIVE, LIV, 1H, 2H - use API elapsed time directly
-                                        if (elapsed !== null && elapsed !== undefined) {
-                                          // Handle injury/stoppage time using API data
-                                          const extraTime = match.fixture.status.extra;
-
-                                          if (status === "2H" && elapsed >= 90) {
-                                            // Second half injury time
-                                            if (extraTime && extraTime > 0) {
-                                              displayText = `${elapsed}'+${extraTime}'`;
-                                            } else {
-                                              displayText = `${elapsed}'+`;
-                                            }
-                                          } else if (status === "1H" && elapsed >= 45) {
-                                            // First half injury time
-                                            if (extraTime && extraTime > 0) {
-                                              displayText = `${elapsed}'+${extraTime}'`;
-                                            } else {
-                                              displayText = `${elapsed}'+`;
-                                            }
-                                          } else {
-                                            // Regular time - use API elapsed time directly
-                                            displayText = `${elapsed}'`;
-                                          }
-                                        } else {
-                                          displayText = "LIVE";
-                                        }
-                                      }
-
                                       return (
                                         <div className="match-status-label status-live">
-                                          {displayText}
+                                          {status === "HT"
+                                            ? "Halftime"
+                                            : `${match.fixture.status.elapsed || 0}'`}
                                         </div>
                                       );
                                     }
