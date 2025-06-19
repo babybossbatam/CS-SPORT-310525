@@ -595,11 +595,6 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
 
   return (
     <>
-      {/* Header Section */}
-      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        🎯 World Competitions & Championships (Team-Based Search)
-      </CardHeader>
-
       {/* Competition Cards with Team Display */}
       {majorCompetitionsData.map((competition, index) => {
         const competitionHash = competition.name.replace(/\s+/g, "").toLowerCase().hashCode();
