@@ -274,7 +274,7 @@ const MyMatchdetailsScoreboard = ({
   };
   return (
     <Card
-      className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 hover:shadow-lg`}
+      className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 `}
     >
       {onClose && (
         <button
@@ -294,8 +294,8 @@ const MyMatchdetailsScoreboard = ({
       <CardHeader className="text-center"></CardHeader>
 
       <CardContent className="p-0 m-0 ">
-        {/* Teams Section */}
-        <div className="flex items-center justify-between">
+        {/* Teams Section for adjust top and bottom*/}
+        <div className="flex items-center justify-between mb-4 -mt-6">
           {/* Home Team */}
           <div className="flex flex-col items-center space-y-2 flex-1">
             {displayMatch.league.country === "World" ||
@@ -332,7 +332,7 @@ const MyMatchdetailsScoreboard = ({
                 }}
               />
             )}
-            <span className="text-md font-medium text-center mb-4">
+            <span className="text-md font-medium text-center ">
               {displayMatch.teams.home.name}
             </span>
           </div>
@@ -495,7 +495,7 @@ const MyMatchdetailsScoreboard = ({
       </CardContent>
 
       {/* Navigation Tabs */}
-      <Card mt-4>
+      <Card>
         <div className="flex space-x-1 pb-0  px-0">
           <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-600 border-b border-blue-500 pb-0 ">
             Match
