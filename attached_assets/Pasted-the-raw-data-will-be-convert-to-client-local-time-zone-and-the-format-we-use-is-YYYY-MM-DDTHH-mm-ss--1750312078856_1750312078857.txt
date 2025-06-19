@@ -1,0 +1,43 @@
+the raw data will be convert to client local time zone and the format we use is YYYY-MM-DDTHH:mm:ss
+3. to define what is Today's Matches fixtures we need to compare our local Timezone after converted. with time range like this :
+for Today it start from 2025-06-18T00:00:00 - 2025-06-18T23:59:59 
+for yesterday time it start from 2025-06-17T00:00:00 - 2025-06-17T23:59:59 
+for tomorrow time it start from 2025-06-19T00:00:00 - 2025-06-19T23:59:59 
+
+example :
+match with selected match 2025-06-18 / Today's Matches  is like this:
+1. Fluminense vs Borussia Dortmund
+     Status: FT | Date: 2025-06-17T16:00:00+00:00
+     League: FIFA Club World Cup (World) After Conversion it become 2025-06-18T 00:00:00 so it would be label as today and the condition is true so it will show up on today's matches date.
+2. River Plate vs Urawa
+     Status: FT | Date: 2025-06-17T19:00:00+00:00
+     League: FIFA Club World Cup (World) After Conversion it become 2025-06-18T 03:00:00 so it would be label as today and the condition is true so it will show up on today's matches date.
+ 3. Ulsan Hyundai FC vs Mamelodi Sundowns
+     Status: FT | Date: 2025-06-17T22:00:00+00:00
+     League: FIFA Club World Cup (World) After Conversion it become 2025-06-18T 06:00:00 so it would be label as today and the condition is true so it will show up on today's matches date.
+4. Monterrey vs Inter
+     Status: FT | Date: 2025-06-18T01:00:00+00:00
+     League: FIFA Club World Cup (World) After Conversion it become 2025-06-18T 09:00:00 so it would be label as today and the condition is true so it will show up on today's matches date.
+
+ match with selected match 2025-06-17 / Yesterday's Matches  is like this:
+1. Chelsea vs Los Angeles FC
+     Status: FT | Date: 2025-06-16T19:00:00+00:00
+     League: FIFA Club World Cup (World) After Conversion it become 2025-06-17T 03:00:00 so it would be label as yesterday and the condition is true so it will show up on yesterday's matches date.
+  2. Boca Juniors vs Benfica
+     Status: FT | Date: 2025-06-16T22:00:00+00:00
+     League: FIFA Club World Cup (World) After Conversion it become 2025-06-17T 06:00:00 so it would be label as yesterday and the condition is true so it will show up on yesterday's matches date.
+  3. Flamengo vs ES Tunis
+     Status: FT | Date: 2025-06-17T01:00:00+00:00
+     League: FIFA Club World Cup (World) After Conversion it become 2025-06-17T 09:00:00 so it would be label as yesterday and the condition is true so it will show up on yesterday's matches date.
+
+match with selected match 2025-06-19 / Tomorrow's Matches  is like this:
+1. Manchester City vs Wydad AC
+     Status: NS | Date: 2025-06-18T16:00:00+00:00
+     League: FIFA Club World Cup (World) After Conversion it become 2025-06-19T 00:00:00 so it would be label as Tomorrow and the condition is true so it will show up on Tomorrow's matches date.
+ 2. Real Madrid vs Al-Hilal Saudi FC
+     Status: NS | Date: 2025-06-18T19:00:00+00:00
+     League: FIFA Club World Cup (World) After Conversion it become 2025-06-19T 03:00:00 so it would be label as Tomorrow and the condition is true so it will show up on Tomorrow's matches date.
+3. Pachuca vs Red Bull Salzburg
+     Status: NS | Date: 2025-06-18T22:00:00+00:00
+     League: FIFA Club World Cup (World) After Conversion it become 2025-06-19T 06:00:00 so it would be label as Tomorrow and the condition is true so it will show up on Tomorrow's matches date.
+
