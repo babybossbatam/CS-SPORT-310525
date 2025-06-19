@@ -7,6 +7,9 @@ import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
+import MatchEndedDetailsCard from "./MatchEndedDetailsCard";
+import MatchLiveDetailsCard from "./MatchLiveDetailsCard";
+import MatchUpcomingDetailsCard from "./MatchUpcomingDetailsCard";
 interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
@@ -21,6 +24,7 @@ const MyMatchdetailsScoreboard = ({
   onMatchCardClick,
 }: MyMatchdetailsScoreboardProps) => {
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("Match");
   // Sample match data for demonstration
   const sampleMatch = {
     fixture: {
@@ -68,6 +72,18 @@ const MyMatchdetailsScoreboard = ({
     status: displayMatch?.fixture?.status?.short,
     league: displayMatch?.league?.name
   });
+
+  // Helper function to determine match status type for conditional rendering
+  const getMatchStatusType = (status: string) => {
+    if (["FT", "AET", "PEN"].includes(status)) {
+      return "ENDED";
+    } else if (["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
+      return "LIVE";
+    } else if (["NS", "TBD"].includes(status)) {
+      return "UPCOMING";
+    }
+    return "UPCOMING"; // Default fallback
+  };
 
   // Real-time update effect for live matches - using LiveMatchForAllCountry approach
   useEffect(() => {
@@ -458,24 +474,123 @@ const MyMatchdetailsScoreboard = ({
 
         {/* Navigation Tabs */}
         <div className="flex space-x-1 py-2 pb-0 border-t px-0">
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-600 border-b border-blue-500 pb-0 ">
+          <button 
+            onClick={() => setActiveTab("Match")}
+            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
+              activeTab === "Match" 
+                ? "text-gray-600 border-b border-blue-500" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
             Match
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
+          <button 
+            onClick={() => setActiveTab("Lineups")}
+            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
+              activeTab === "Lineups" 
+                ? "text-gray-600 border-b border-blue-500" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
             {displayMatch.fixture.status.short === "NS"
               ? "Probable Lineups"
               : "Lineups"}
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
+          <button 
+            onClick={() => setActiveTab("Stats")}
+            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
+              activeTab === "Stats" 
+                ? "text-gray-600 border-b border-blue-500" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
             Stats
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 relative pb-0">
+          <button 
+            onClick={() => setActiveTab("Trends")}
+            className={`flex-0 py-0 px-4 text-sm font-normal relative pb-0 ${
+              activeTab === "Trends" 
+                ? "text-gray-600 border-b border-blue-500" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
             Trends
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
+          <button 
+            onClick={() => setActiveTab("Head to Head")}
+            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
+              activeTab === "Head to Head" 
+                ? "text-gray-600 border-b border-blue-500" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
             Head to Head
           </button>
         </div>
+
+        {/* Conditional Content Based on Active Tab */}
+        {activeTab === "Match" && (
+          <div className="px-4 py-2">
+            {(() => {
+              const statusType = getMatchStatusType(displayMatch.fixture.status.short);
+              
+              switch (statusType) {
+                case "ENDED":
+                  return (
+                    <MatchEndedDetailsCard
+                      homeTeam={displayMatch.teams.home.name}
+                      awayTeam={displayMatch.teams.away.name}
+                      homeTeamLogo={displayMatch.teams.home.logo}
+                      awayTeamLogo={displayMatch.teams.away.logo}
+                    />
+                  );
+                case "LIVE":
+                  return (
+                    <MatchLiveDetailsCard
+                      homeTeam={displayMatch.teams.home.name}
+                      awayTeam={displayMatch.teams.away.name}
+                      homeTeamLogo={displayMatch.teams.home.logo}
+                      awayTeamLogo={displayMatch.teams.away.logo}
+                    />
+                  );
+                case "UPCOMING":
+                default:
+                  return (
+                    <MatchUpcomingDetailsCard
+                      homeTeam={displayMatch.teams.home.name}
+                      awayTeam={displayMatch.teams.away.name}
+                      homeTeamLogo={displayMatch.teams.home.logo}
+                      awayTeamLogo={displayMatch.teams.away.logo}
+                    />
+                  );
+              }
+            })()}
+          </div>
+        )}
+
+        {activeTab === "Lineups" && (
+          <div className="px-4 py-2">
+            <p className="text-gray-500 text-sm">Lineups content will be displayed here</p>
+          </div>
+        )}
+
+        {activeTab === "Stats" && (
+          <div className="px-4 py-2">
+            <p className="text-gray-500 text-sm">Stats content will be displayed here</p>
+          </div>
+        )}
+
+        {activeTab === "Trends" && (
+          <div className="px-4 py-2">
+            <p className="text-gray-500 text-sm">Trends content will be displayed here</p>
+          </div>
+        )}
+
+        {activeTab === "Head to Head" && (
+          <div className="px-4 py-2">
+            <p className="text-gray-500 text-sm">Head to Head content will be displayed here</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
