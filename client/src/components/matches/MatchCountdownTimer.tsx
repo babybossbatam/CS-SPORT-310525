@@ -17,12 +17,8 @@ const MatchCountdownTimer = ({ matchDate }: MatchCountdownTimerProps) => {
       try {
         const targetDate = parseISO(matchDate);
         
-        // For demo, use a fixed current date
-        const now = new Date("2025-05-19T12:00:00Z");
-        
-        // Simulate seconds passing in demo time
-        const secondsPassed = Math.floor(Date.now() / 1000) % 60;
-        now.setSeconds(now.getSeconds() + secondsPassed);
+        // Use current real time for accurate countdown
+        const now = new Date();
         
         const diff = targetDate.getTime() - now.getTime();
         
