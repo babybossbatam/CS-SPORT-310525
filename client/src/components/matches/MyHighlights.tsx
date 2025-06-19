@@ -36,7 +36,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const [videoData, setVideoData] = useState<YouTubeVideo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isExpanded, setIsExpanded] = useState(true);
   
 
   // YouTube API Configuration
@@ -137,85 +136,72 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   return (
     <Card className="w-full shadow-md">
-      <CardHeader className="pb-3 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+      <CardHeader className="pb-3">
         <CardTitle className="text-lg font-bold flex items-center">
-          <div className="flex items-center">
-            {isExpanded ? (
-              <svg className="h-4 w-4 mr-2 text-red-500 transform rotate-90" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-              </svg>
-            ) : (
-              <svg className="h-4 w-4 mr-2 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-              </svg>
-            )}
-            Match Highlights
-          </div>
+          <Play className="h-5 w-5 mr-2 text-red-500" />
+          Match Highlights
         </CardTitle>
       </CardHeader>
-      
-      {isExpanded && (
-        <CardContent>
-          {isLoading && (
-            <div className="flex items-center justify-center p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span className="ml-3 text-gray-600">Loading highlights...</span>
-            </div>
-          )}
+      <CardContent>
+        {isLoading && (
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-gray-600">Loading highlights...</span>
+          </div>
+        )}
 
-          {error && (
-            <div className="flex items-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
-              <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
-              <span className="text-sm text-yellow-800">{error}</span>
-            </div>
-          )}
+        {error && (
+          <div className="flex items-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
+            <span className="text-sm text-yellow-800">{error}</span>
+          </div>
+        )}
 
-          {videoData && (
-            <div className="space-y-4">
-              {/* Embedded Video Player - Default Display */}
-              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-                <iframe
-                  className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
-                  src={`https://www.youtube.com/embed/${videoData.id.videoId}?rel=0&modestbranding=1`}
-                  title={videoData.snippet.title}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+        {videoData && (
+          <div className="space-y-4">
+            {/* Embedded Video Player - Default Display */}
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+              <iframe
+                className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+                src={`https://www.youtube.com/embed/${videoData.id.videoId}?rel=0&modestbranding=1`}
+                title={videoData.snippet.title}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+            
+            {/* Video Info and Controls */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-gray-900 line-clamp-2 text-lg">
+                {videoData.snippet.title}
+              </h3>
+              <div className="flex items-center justify-between text-sm text-gray-500">
+                <span className="font-medium">{videoData.snippet.channelTitle}</span>
+                <span>{formatPublishDate(videoData.snippet.publishedAt)}</span>
               </div>
               
-              {/* Video Info and Controls */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900 line-clamp-2 text-lg">
-                  {videoData.snippet.title}
-                </h3>
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span className="font-medium">{videoData.snippet.channelTitle}</span>
-                  <span>{formatPublishDate(videoData.snippet.publishedAt)}</span>
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="flex gap-2 pt-2">
-                  <button
-                    onClick={handleOpenInYouTube}
-                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Watch on YouTube
-                  </button>
-                </div>
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={handleOpenInYouTube}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Watch on YouTube
+                </button>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {!isLoading && !videoData && (
-            <div className="flex items-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
-              <span className="text-sm text-yellow-800">No highlight videos found for this match</span>
-            </div>
-          )}
-        </CardContent>
-      )}
+        {!isLoading && !error && !videoData && (
+          <div className="text-center p-8 text-gray-500">
+            <Play className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+            <p>No highlights available for this match</p>
+          </div>
+        )}
+      </CardContent>
     </Card>
   );
 };
