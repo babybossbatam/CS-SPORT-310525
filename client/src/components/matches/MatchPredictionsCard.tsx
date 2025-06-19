@@ -1,16 +1,13 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import MatchEndedDetailsCard from "./MatchEndedDetailsCard";
-import MatchLiveDetailsCard from "./MatchLiveDetailsCard";
-import MatchUpcomingDetailsCard from "./MatchUpcomingDetailsCard";
 
 interface MatchPredictionsCardProps {
   homeTeam: string;
   awayTeam: string;
   homeTeamLogo?: string;
   awayTeamLogo?: string;
-  matchStatus?: string;
 }
 
 const MatchPredictionsCard: React.FC<MatchPredictionsCardProps> = ({
@@ -18,57 +15,75 @@ const MatchPredictionsCard: React.FC<MatchPredictionsCardProps> = ({
   awayTeam,
   homeTeamLogo,
   awayTeamLogo,
-  matchStatus = "NS",
 }) => {
+  return (
+    <Card className="w-full mt-4">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm text-gray-600 font-normal">Predictions</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="text-center mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Who Will Win?</h3>
+          
+          <div className="flex items-center justify-center gap-4">
+            {/* Home Team Button */}
+            <Button
+              variant="outline"
+              className="flex-1 max-w-[150px] h-12 rounded-full border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                {homeTeamLogo && (
+                  <img 
+                    src={homeTeamLogo} 
+                    alt={homeTeam}
+                    className="w-5 h-5 object-contain"
+                  />
+                )}
+                <span className="text-sm font-medium truncate">
+                  {homeTeam.length > 10 ? `${homeTeam.substring(0, 10)}...` : homeTeam}
+                </span>
+              </div>
+            </Button>
 
-  // Helper function to determine match status type
-  const getMatchStatusType = (status: string) => {
-    const endedStatuses = ['FT', 'AET', 'PEN', 'FT_PEN', 'CANC', 'ABD', 'AWD', 'WO'];
-    const liveStatuses = ['1H', '2H', 'HT', 'LIVE', 'ET', 'BT', 'P', 'INT'];
-    const upcomingStatuses = ['NS', 'TBD', 'SUSP', 'PST'];
+            {/* Draw Button */}
+            <Button
+              variant="outline"
+              className="px-8 h-12 rounded-full border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-colors"
+            >
+              <span className="text-sm font-medium">Draw</span>
+            </Button>
 
-    if (endedStatuses.includes(status)) {
-      return "ENDED";
-    } else if (liveStatuses.includes(status)) {
-      return "LIVE";
-    } else {
-      return "UPCOMING";
-    }
-  };
+            {/* Away Team Button */}
+            <Button
+              variant="outline"
+              className="flex-1 max-w-[150px] h-12 rounded-full border-2 border-blue-200 hover:border-blue-400 hover:bg-blue-50 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                {awayTeamLogo && (
+                  <img 
+                    src={awayTeamLogo} 
+                    alt={awayTeam}
+                    className="w-5 h-5 object-contain"
+                  />
+                )}
+                <span className="text-sm font-medium truncate">
+                  {awayTeam.length > 10 ? `${awayTeam.substring(0, 10)}...` : awayTeam}
+                </span>
+              </div>
+            </Button>
+          </div>
 
-  const statusType = getMatchStatusType(matchStatus);
-
-  // Render appropriate card based on match status
-  switch (statusType) {
-    case "ENDED":
-      return (
-        <MatchEndedDetailsCard
-          homeTeam={homeTeam}
-          awayTeam={awayTeam}
-          homeTeamLogo={homeTeamLogo}
-          awayTeamLogo={awayTeamLogo}
-        />
-      );
-    case "LIVE":
-      return (
-        <MatchLiveDetailsCard
-          homeTeam={homeTeam}
-          awayTeam={awayTeam}
-          homeTeamLogo={homeTeamLogo}
-          awayTeamLogo={awayTeamLogo}
-        />
-      );
-    case "UPCOMING":
-    default:
-      return (
-        <MatchUpcomingDetailsCard
-          homeTeam={homeTeam}
-          awayTeam={awayTeam}
-          homeTeamLogo={homeTeamLogo}
-          awayTeamLogo={awayTeamLogo}
-        />
-      );
-  }
+          {/* Prediction indicators */}
+          <div className="flex justify-center mt-4">
+            <div className="flex gap-1">
+              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+              <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default MatchPredictionsCard;
