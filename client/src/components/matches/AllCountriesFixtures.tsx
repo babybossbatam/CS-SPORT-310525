@@ -30,7 +30,7 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
   const { data: allFixtures = [], isLoading } = useQuery({
     queryKey: ["all-countries-fixtures", selectedDate],
     queryFn: async () => {
-      const response = await apiRequest("GET", `/api/fixtures/all-countries/${selectedDate}`);
+      const response = await apiRequest("GET", `/api/all-countries-fixtures/date/${selectedDate}`);
       return await response.json();
     },
     staleTime: 10 * 60 * 1000, // 10 minutes

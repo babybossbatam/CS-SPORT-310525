@@ -4,6 +4,7 @@ import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { rapidApiService } from "./services/rapidApi";
+import allCountriesRoutes from "./routes/allCountriesRoutes";
 
 
 import sportsradarApi from './services/sportsradarApi';
@@ -24,6 +25,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
   const apiRouter = express.Router();
   app.use("/api", apiRouter);
+
+  // Mount specialized routes
+  apiRouter.use("/all-countries-fixtures", allCountriesRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
