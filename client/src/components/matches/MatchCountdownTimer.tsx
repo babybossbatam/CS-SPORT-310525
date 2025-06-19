@@ -13,15 +13,6 @@ const MatchCountdownTimer = ({ matchDate }: MatchCountdownTimerProps) => {
   const [timeRemaining, setTimeRemaining] = useState<string>('Loading...');
   
   useEffect(() => {
-    // Calculate initial time
-    updateTimer();
-    
-    // Set interval to update every second
-    const interval = setInterval(updateTimer, 1000);
-    
-    // Cleanup interval on unmount
-    return () => clearInterval(interval);
-    
     function updateTimer() {
       try {
         const targetDate = parseISO(matchDate);
@@ -56,6 +47,19 @@ const MatchCountdownTimer = ({ matchDate }: MatchCountdownTimerProps) => {
         setTimeRemaining('--:--:--');
       }
     }
+    
+    // Calculate initial time
+    updateTimer();
+    
+    // Set interval to update every second
+    const interval = setInterval(updateTimer, 1000);
+    
+    // Cleanup interval on unmount
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
   }, [matchDate]);
   
   return (
