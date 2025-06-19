@@ -450,7 +450,7 @@ const MyMatchdetailsScoreboard = ({
                 }}
               />
             )}
-            <span className="text-md font-medium text-center">
+            <span className="text-md font-medium text-center mb-4">
               {displayMatch.teams.away.name}
             </span>
           </div>
