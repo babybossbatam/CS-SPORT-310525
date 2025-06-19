@@ -143,86 +143,94 @@ const MatchEndedDetailsCard: React.FC<MatchEndedDetailsCardProps> = ({
           </div>
 
           {showHighlights && (
-            <div className="mb-4">
-              <div className="relative w-full rounded-lg overflow-hidden shadow-lg bg-black" style={{ paddingBottom: '56.25%' }}>
-                <iframe
-                  className="absolute top-0 left-0 w-full h-full"
-                  src={`https://www.youtube.com/embed/${highlightVideo.id}?autoplay=0&mute=0&controls=1&showinfo=1&rel=0&modestbranding=1&enablejsapi=1&origin=${window.location.origin}`}
-                  title={highlightVideo.title}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
-                  loading="lazy"
-                />
+            <Card className="mb-4 overflow-hidden">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                  <Play className="w-4 h-4 text-red-600" />
+                  Video Player
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="relative w-full rounded-lg overflow-hidden shadow-lg bg-black" style={{ paddingBottom: '56.25%' }}>
+                  <iframe
+                    className="absolute top-0 left-0 w-full h-full"
+                    src={`https://www.youtube.com/embed/${highlightVideo.id}?autoplay=0&mute=0&controls=1&showinfo=1&rel=0&modestbranding=1&enablejsapi=1&origin=${window.location.origin}`}
+                    title={highlightVideo.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                    loading="lazy"
+                  />
 
-                {/* Team logos and score overlay */}
-                <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10 pointer-events-none">
-                  <div className="flex items-center space-x-3">
-                    {/* Home team logo and score */}
-                    <div className="flex items-center space-x-2 bg-black bg-opacity-60 rounded-lg px-3 py-2">
-                      {homeTeamLogo && (
-                        <img 
-                          src={homeTeamLogo} 
-                          alt={homeTeam}
-                          className="w-8 h-8 object-contain rounded"
-                        />
-                      )}
-                      <span className="text-white font-bold text-2xl">
-                        {/* TODO: Replace with actual score */}
-                        0
-                      </span>
+                  {/* Team logos and score overlay */}
+                  <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10 pointer-events-none">
+                    <div className="flex items-center space-x-3">
+                      {/* Home team logo and score */}
+                      <div className="flex items-center space-x-2 bg-black bg-opacity-60 rounded-lg px-3 py-2">
+                        {homeTeamLogo && (
+                          <img 
+                            src={homeTeamLogo} 
+                            alt={homeTeam}
+                            className="w-8 h-8 object-contain rounded"
+                          />
+                        )}
+                        <span className="text-white font-bold text-2xl">
+                          {/* TODO: Replace with actual score */}
+                          0
+                        </span>
+                      </div>
+
+                      {/* VS Divider */}
+                      <div className="text-white font-bold text-lg bg-black bg-opacity-60 rounded px-2 py-1">
+                        -
+                      </div>
+
+                      {/* Away team logo and score */}
+                      <div className="flex items-center space-x-2 bg-black bg-opacity-60 rounded-lg px-3 py-2">
+                        <span className="text-white font-bold text-2xl">
+                          {/* TODO: Replace with actual score */}
+                          0
+                        </span>
+                        {awayTeamLogo && (
+                          <img 
+                            src={awayTeamLogo} 
+                            alt={awayTeam}
+                            className="w-8 h-8 object-contain rounded"
+                          />
+                        )}
+                      </div>
                     </div>
+                  </div>
 
-                    {/* VS Divider */}
-                    <div className="text-white font-bold text-lg bg-black bg-opacity-60 rounded px-2 py-1">
-                      -
-                    </div>
+                  {/* Official Highlights badge */}
+                  <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-medium z-10">
+                    Official Highlights
+                  </div>
 
-                    {/* Away team logo and score */}
-                    <div className="flex items-center space-x-2 bg-black bg-opacity-60 rounded-lg px-3 py-2">
-                      <span className="text-white font-bold text-2xl">
-                        {/* TODO: Replace with actual score */}
-                        0
-                      </span>
-                      {awayTeamLogo && (
-                        <img 
-                          src={awayTeamLogo} 
-                          alt={awayTeam}
-                          className="w-8 h-8 object-contain rounded"
-                        />
-                      )}
+                  {/* Bottom info overlay */}
+                  <div className="absolute bottom-4 left-4 right-4 z-10 pointer-events-none">
+                    <div className="bg-black bg-opacity-70 rounded-lg p-3">
+                      <h4 className="text-white font-semibold text-sm mb-1">
+                        {highlightVideo.title}
+                      </h4>
+                      <p className="text-gray-300 text-xs">
+                        Match Highlights • HD Quality
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Official Highlights badge */}
-                <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-medium z-10">
-                  Official Highlights
+                <div className="p-4 bg-gray-50">
+                  <p className="text-sm font-medium text-gray-800 mb-1">
+                    {highlightVideo.title}
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    {highlightVideo.description}
+                  </p>
                 </div>
-
-                {/* Bottom info overlay */}
-                <div className="absolute bottom-4 left-4 right-4 z-10 pointer-events-none">
-                  <div className="bg-black bg-opacity-70 rounded-lg p-3">
-                    <h4 className="text-white font-semibold text-sm mb-1">
-                      {highlightVideo.title}
-                    </h4>
-                    <p className="text-gray-300 text-xs">
-                      Match Highlights • HD Quality
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                <p className="text-sm font-medium text-gray-800 mb-1">
-                  {highlightVideo.title}
-                </p>
-                <p className="text-xs text-gray-600">
-                  {highlightVideo.description}
-                </p>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           )}
 
           {!showHighlights && (
