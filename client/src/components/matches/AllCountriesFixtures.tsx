@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { getCountryFlagWithFallbackSync } from '@/lib/flagUtils';
 import { formatMatchTime } from '@/lib/dateUtilsUpdated';
+import { MyUpdatedFixtureDateSelection } from '@/lib/MyUpdatedFixtureDateSelection';
 
 interface AllCountriesFixturesProps {
   selectedDate: string;
@@ -37,13 +38,26 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
     enabled: !!selectedDate,
   });
 
-  // Group fixtures by country
+  // Group fixtures by country with timezone-aware filtering
   const countryGroups = useMemo(() => {
     if (!allFixtures || allFixtures.length === 0) return [];
 
+    console.log(`🕒 [AllCountriesFixtures] Starting timezone filtering for ${allFixtures.length} fixtures on ${selectedDate}`);
+
+    // Apply timezone-aware date filtering using MyUpdatedFixtureDateSelection
+    const processedFixtures = MyUpdatedFixtureDateSelection.getFixturesForSelectedDate(
+      allFixtures,
+      selectedDate
+    );
+
+    console.log(`✅ [AllCountriesFixtures] After timezone filtering: ${processedFixtures.length} fixtures remaining`);
+
+    // Extract just the fixtures from the processed result
+    const timezoneFilteredFixtures = processedFixtures.map(processed => processed.fixture);
+
     const countryMap = new Map<string, CountryGroup>();
 
-    allFixtures.forEach((fixture: any) => {
+    timezoneFilteredFixtures.forEach((fixture: any) => {
       if (!fixture?.league?.country || !fixture?.teams) return;
 
       const country = fixture.league.country;
@@ -81,7 +95,7 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
       }
       return a.country.localeCompare(b.country);
     });
-  }, [allFixtures]);
+  }, [allFixtures, selectedDate]);
 
   const toggleCountry = (country: string) => {
     setExpandedCountries(prev => {
