@@ -405,10 +405,6 @@ export const TodayMatchPageCard = ({
       ) : (
         // Neither filter active - show default view
         <>
-          <MyNewPopularLeague 
-            selectedDate={selectedDate} 
-            onMatchCardClick={onMatchCardClick}
-          />
           <TodayPopularFootballLeaguesNew
             selectedDate={selectedDate}
             timeFilterActive={timeFilterActive}
