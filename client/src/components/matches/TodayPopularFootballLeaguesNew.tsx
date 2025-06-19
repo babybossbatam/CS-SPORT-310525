@@ -155,7 +155,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Enhanced leagues by country with tier-based filtering
   const POPULAR_LEAGUES_BY_COUNTRY = {
-    England: [39, 45, 48], // Premier League, FA Cup, EFL Cup
+    England: [39, 45, 48, 38], // Premier League, FA Cup, EFL Cup, League 38
     Spain: [140, 143], // La Liga, Copa del Rey
     Italy: [135, 137], // Serie A, Coppa Italia
     Germany: [78, 81], // Bundesliga, DFB Pokal
@@ -171,6 +171,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
     ...Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat(),
     914, // COSAFA Cup
     16,  // CONCACAF Gold Cup
+    38,  // Premier League (ensure it's included)
+    15,  // FIFA Club World Cup (ensure it's included)
   ];
 
   // Popular teams for match prioritization
@@ -319,6 +321,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
       `🔍 [TIMEZONE FILTER] Processing ${mergedFixtures.length} fixtures for date: ${selectedDate}`,
     );
 
+    // Debug: Check for League 38 and 15 in the input data
+    const league38Matches = mergedFixtures.filter(f => f.league?.id === 38);
+    const league15Matches = mergedFixtures.filter(f => f.league?.id === 15);
+    console.log(`🔍 [LEAGUE DEBUG] Found ${league38Matches.length} League 38 matches, ${league15Matches.length} League 15 matches in input data`);
+
     const startTime = Date.now();
 
     // Use MyUpdatedFixtureDateSelection for proper timezone-aware filtering
@@ -393,9 +400,26 @@ const TodayPopularFootballLeaguesNew: React.FC<
         country.includes("europe") ||
         country.includes("international");
 
-      return (
-        isPopularLeague || isFromPopularCountry || isInternationalCompetition
-      );
+      // Always include matches from popular leagues (including League 38 and 15)
+      if (isPopularLeague) {
+        console.log(`✅ [POPULAR LEAGUE] Allowing league ${leagueId}: ${fixture.league.name}`);
+        return true;
+      }
+
+      // Include matches from popular countries
+      if (isFromPopularCountry) {
+        console.log(`✅ [POPULAR COUNTRY] Allowing country ${country}: ${fixture.league.name}`);
+        return true;
+      }
+
+      // Include international competitions
+      if (isInternationalCompetition) {
+        console.log(`✅ [INTERNATIONAL] Allowing international: ${fixture.league.name}`);
+        return true;
+      }
+
+      console.log(`❌ [FILTERED OUT] League ${leagueId}: ${fixture.league.name} (Country: ${country})`);
+      return false;
     });
 
     const finalFiltered = filtered.filter((fixture) => {
@@ -497,6 +521,31 @@ const TodayPopularFootballLeaguesNew: React.FC<
     console.log(
       `🔍 [TOMORROW DEBUG] Filtered ${mergedFixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
     );
+
+    // Debug: Check for League 38 and 15 after filtering
+    const finalLeague38 = finalFiltered.filter(f => f.league?.id === 38);
+    const finalLeague15 = finalFiltered.filter(f => f.league?.id === 15);
+    console.log(`🔍 [LEAGUE DEBUG] After filtering: ${finalLeague38.length} League 38 matches, ${finalLeague15.length} League 15 matches remaining`);
+    
+    if (finalLeague38.length > 0) {
+      console.log(`✅ [LEAGUE 38] Matches found:`, finalLeague38.map(m => ({
+        id: m.fixture?.id,
+        date: m.fixture?.date,
+        status: m.fixture?.status?.short,
+        home: m.teams?.home?.name,
+        away: m.teams?.away?.name,
+      })));
+    }
+    
+    if (finalLeague15.length > 0) {
+      console.log(`✅ [LEAGUE 15] Matches found:`, finalLeague15.map(m => ({
+        id: m.fixture?.id,
+        date: m.fixture?.date,
+        status: m.fixture?.status?.short,
+        home: m.teams?.home?.name,
+        away: m.teams?.away?.name,
+      })));
+    }
     console.log(
       `🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`,
       finalCosafaMatches.map((m) => ({
