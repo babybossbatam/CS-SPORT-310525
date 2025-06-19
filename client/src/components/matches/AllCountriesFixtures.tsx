@@ -172,20 +172,7 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
   }
 
   if (countryGroups.length === 0) {
-    return (
-      <Card className="shadow-md w-full">
-        <CardHeader className="pb-3">
-          <h2 className="text-lg font-semibold">
-            {getHeaderTitle()}
-          </h2>
-        </CardHeader>
-        <CardContent>
-          <div className="p-4 text-center text-gray-500">
-            {selectedDate ? `No matches found for ${selectedDate}` : "No matches found"}
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   return (
