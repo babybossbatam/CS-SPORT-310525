@@ -161,29 +161,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     return initialMap;
   });
 
-  // Popular leagues for prioritization - Significantly expanded to include more leagues worldwide
-  const POPULAR_LEAGUES = [
-    // UEFA Competitions
-    2, 3, 848, 15, 5, 8, 16,
-    // Top European Leagues
-    39, 140, 135, 78, 61, 94, 88, 179, 218,
-    // Major International Competitions
-    22, 9, 13, 4, 21, 914,
-    // European Second Tier Leagues
-    144, 103, 106, 119, 113, 203, 345, 384, 317, 244,
-    // Major American Leagues
-    253, 71, 72, 73, 128, 274, 556,
-    // Asian Leagues
-    292, 301, 188, 169, 271, 294, 279, 290,
-    // African & Middle Eastern Leagues
-    307, 233, 239, 302, 383, 551, 332, 556,
-    // South American Leagues
-    71, 72, 325, 265, 267, 268, 269, 270,
-    // European Third Tier Leagues
-    327, 329, 361, 365, 218, 319, 373, 380,
-    // Additional Regional Leagues
-    114, 116, 120, 121, 122, 123, 124, 125, 126, 127,
-  ]; // Significantly expanded to include major leagues from all continents
+  
 
   // Fetch live fixtures with reasonable refresh rates
   const { data: liveFixtures = [] } = useQuery({
@@ -978,35 +956,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       });
     }
 
-    // International Competition Handling (lines 640-680):
-    // Forces certain international competitions to be assigned to "World" country
-    // Includes: FIFA, UEFA, Champions League, Europa League, World Cup, Euro, CONMEBOL, Copa America, CONCACAF, Gold Cup, UEFA U21, and Friendlies (non-women)
-
     let displayCountry = getCountryDisplayName(country);
-
-    // Force certain international competitions to be assigned to "World" country
-    const leagueNameLower = league.name.toLowerCase();
-    if (
-      leagueNameLower.includes("fifa") ||
-      leagueNameLower.includes("uefa champions league") ||
-      leagueNameLower.includes("uefa europa league") ||
-      leagueNameLower.includes("uefa europa conference league") ||
-      leagueNameLower.includes("uefa nations league") ||
-      leagueNameLower.includes("uefa u21 championship") ||
-      leagueNameLower.includes("uefa u19 championship") ||
-      leagueNameLower.includes("uefa u17 championship") ||
-      leagueNameLower.includes("world cup") ||
-      leagueNameLower.includes("euro championship") ||
-      leagueNameLower.includes("conmebol") ||
-      leagueNameLower.includes("copa america") ||
-      leagueNameLower.includes("concacaf") ||
-      leagueNameLower.includes("gold cup") ||
-      (leagueNameLower.includes("friendlies") && 
-       !leagueNameLower.includes("women") && 
-       (country === "World" || country === "Europe" || country === "International"))
-    ) {
-      displayCountry = "World";
-    }
 
     const leagueId = league.id;
 
@@ -1021,7 +971,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         country: displayCountry,
         flag: "",
         leagues: {},
-        hasPopularLeague: POPULAR_LEAGUES.includes(leagueId),
       };
     }
 
@@ -1039,7 +988,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             league.logo || "https://media.api-sports.io/football/leagues/1.png",
         },
         matches: [],
-        isPopular: POPULAR_LEAGUES.includes(leagueId),
       };
     }
 
@@ -1797,11 +1745,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                 </span>
                               </div>
                               <div className="flex gap-2 items-center">
-                                {leagueData.isPopular && (
-                                  <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
-                                    Popular
-                                  </span>
-                                )}
                               </div>
                             </button>
 
