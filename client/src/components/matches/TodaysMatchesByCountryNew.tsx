@@ -605,12 +605,39 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
     
     if (!allFixtures?.length) {
+      console.log(`🚨 [LEAGUES 38&15 DEBUG] No fixtures found - allFixtures length: ${allFixtures?.length || 0}`);
       return {
         validFixtures: [],
         rejectedFixtures: [],
         stats: { total: 0, valid: 0, rejected: 0, methods: {} },
       };
     }
+
+    // Debug: Check for leagues 38 and 15 in input fixtures
+    const league38Fixtures = allFixtures.filter(f => f.league?.id === 38);
+    const league15Fixtures = allFixtures.filter(f => f.league?.id === 15);
+    
+    console.log(`🏆 [LEAGUES 38&15 DEBUG] Input fixtures analysis:`, {
+      totalFixtures: allFixtures.length,
+      league38Count: league38Fixtures.length,
+      league15Count: league15Fixtures.length,
+      selectedDate,
+      liveFilterActive,
+      league38Fixtures: league38Fixtures.map(f => ({
+        id: f.fixture.id,
+        date: f.fixture.date,
+        status: f.fixture.status.short,
+        teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+        league: f.league.name
+      })),
+      league15Fixtures: league15Fixtures.map(f => ({
+        id: f.fixture.id,
+        date: f.fixture.date,
+        status: f.fixture.status.short,
+        teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+        league: f.league.name
+      }))
+    });
 
     console.log(`🕒 [TIMEZONE FILTER] Starting timezone-aware filtering for ${allFixtures.length} fixtures`);
     
@@ -628,6 +655,56 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       timezoneFilteredFixtures = processedFixtures.map(processed => processed.fixture);
       
       console.log(`🕒 [TIMEZONE FILTER] After timezone filtering: ${timezoneFilteredFixtures.length} fixtures remaining`);
+      
+      // Debug: Check what happened to leagues 38 and 15 after timezone filtering
+      const league38AfterTimezone = timezoneFilteredFixtures.filter(f => f.league?.id === 38);
+      const league15AfterTimezone = timezoneFilteredFixtures.filter(f => f.league?.id === 15);
+      
+      console.log(`🏆 [LEAGUES 38&15 DEBUG] After timezone filtering:`, {
+        league38RemainingCount: league38AfterTimezone.length,
+        league15RemainingCount: league15AfterTimezone.length,
+        league38Remaining: league38AfterTimezone.map(f => ({
+          id: f.fixture.id,
+          date: f.fixture.date,
+          status: f.fixture.status.short,
+          teams: `${f.teams.home.name} vs ${f.teams.away.name}`
+        })),
+        league15Remaining: league15AfterTimezone.map(f => ({
+          id: f.fixture.id,
+          date: f.fixture.date,
+          status: f.fixture.status.short,
+          teams: `${f.teams.home.name} vs ${f.teams.away.name}`
+        }))
+      });
+      
+      // Debug: Show which fixtures were rejected by timezone filtering
+      const rejectedLeague38 = league38Fixtures.filter(original => 
+        !timezoneFilteredFixtures.some(filtered => filtered.fixture.id === original.fixture.id)
+      );
+      const rejectedLeague15 = league15Fixtures.filter(original => 
+        !timezoneFilteredFixtures.some(filtered => filtered.fixture.id === original.fixture.id)
+      );
+      
+      if (rejectedLeague38.length > 0 || rejectedLeague15.length > 0) {
+        console.log(`🚨 [LEAGUES 38&15 DEBUG] Timezone filtering rejected fixtures:`, {
+          rejectedLeague38Count: rejectedLeague38.length,
+          rejectedLeague15Count: rejectedLeague15.length,
+          rejectedLeague38: rejectedLeague38.map(f => ({
+            id: f.fixture.id,
+            originalDate: f.fixture.date,
+            status: f.fixture.status.short,
+            teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+            reason: 'Timezone date mismatch'
+          })),
+          rejectedLeague15: rejectedLeague15.map(f => ({
+            id: f.fixture.id,
+            originalDate: f.fixture.date,
+            status: f.fixture.status.short,
+            teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+            reason: 'Timezone date mismatch'
+          }))
+        });
+      }
       
       // Log some examples of timezone conversion
       if (processedFixtures.length > 0) {
@@ -658,6 +735,20 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       const now = new Date();
       const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
 
+      // Debug: Log leagues 38 and 15 during validation
+      if (fixture.league.id === 38 || fixture.league.id === 15) {
+        console.log(`🏆 [LEAGUES 38&15 DEBUG] Validating fixture:`, {
+          leagueId: fixture.league.id,
+          leagueName: fixture.league.name,
+          fixtureId: fixture.fixture.id,
+          status,
+          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+          originalDate: fixture.fixture.date,
+          hoursElapsed: hoursElapsed.toFixed(2),
+          liveFilterActive
+        });
+      }
+
       // Check if status claims to be live
       const claimsLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
       
@@ -685,13 +776,69 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Apply filtering logic for live filter
       if (liveFilterActive) {
         const isGenuinelyLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short);
+        
+        // Debug: Log leagues 38 and 15 live filter results
+        if (fixture.league.id === 38 || fixture.league.id === 15) {
+          console.log(`🏆 [LEAGUES 38&15 DEBUG] Live filter result:`, {
+            leagueId: fixture.league.id,
+            fixtureId: fixture.fixture.id,
+            status,
+            isGenuinelyLive,
+            willBeShown: isGenuinelyLive
+          });
+        }
+        
         return isGenuinelyLive;
+      }
+
+      // Debug: Log leagues 38 and 15 when not using live filter
+      if (fixture.league.id === 38 || fixture.league.id === 15) {
+        console.log(`🏆 [LEAGUES 38&15 DEBUG] Regular filter - fixture accepted:`, {
+          leagueId: fixture.league.id,
+          fixtureId: fixture.fixture.id,
+          status,
+          willBeShown: true
+        });
       }
 
       return true;
     });
 
     const rejectedFixtures = allFixtures.filter((f) => !timezoneFilteredFixtures.includes(f));
+
+    // Final debug summary for leagues 38 and 15
+    const finalLeague38 = filtered.filter(f => f.league?.id === 38);
+    const finalLeague15 = filtered.filter(f => f.league?.id === 15);
+    
+    console.log(`🏆 [LEAGUES 38&15 DEBUG] FINAL RESULTS:`, {
+      selectedDate,
+      liveFilterActive,
+      totalInputFixtures: allFixtures.length,
+      totalAfterAllFiltering: filtered.length,
+      league38FinalCount: finalLeague38.length,
+      league15FinalCount: finalLeague15.length,
+      league38Final: finalLeague38.map(f => ({
+        id: f.fixture.id,
+        date: f.fixture.date,
+        status: f.fixture.status.short,
+        teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+        country: f.league.country
+      })),
+      league15Final: finalLeague15.map(f => ({
+        id: f.fixture.id,
+        date: f.fixture.date,
+        status: f.fixture.status.short,
+        teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+        country: f.league.country
+      })),
+      filteringPipeline: {
+        step1_input: allFixtures.length,
+        step2_timezoneFiltered: timezoneFilteredFixtures.length,
+        step3_validationFiltered: filtered.length,
+        step4_league38: finalLeague38.length,
+        step5_league15: finalLeague15.length
+      }
+    });
 
     return {
       validFixtures: filtered,
@@ -817,6 +964,18 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Use original country from league data directly
     const country = league.country;
+
+    // Debug: Log leagues 38 and 15 during country grouping
+    if (league.id === 38 || league.id === 15) {
+      console.log(`🏆 [LEAGUES 38&15 DEBUG] Grouping fixture:`, {
+        leagueId: league.id,
+        leagueName,
+        originalCountry: country,
+        fixtureId: fixture.fixture.id,
+        teams: `${homeTeamName} vs ${awayTeamName}`,
+        status: fixture.fixture.status.short
+      });
+    }
 
     // International Competition Handling (lines 640-680):
     // Forces certain international competitions to be assigned to "World" country
