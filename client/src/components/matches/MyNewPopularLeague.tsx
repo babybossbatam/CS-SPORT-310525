@@ -866,18 +866,17 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                           <div className="match-status-top">
                             {(() => {
                               const status = match.fixture.status.short;
-                              const fixtureDate = parseISO(match.fixture.date);
+                              const elapsed = match.fixture.status.elapsed;
+                              const matchDate = parseISO(match.fixture.date);
                               const now = new Date();
-                              const matchTime = fixtureDate.getTime();
-                              const currentTime = now.getTime();
-                              const timeDiffMinutes = (currentTime - matchTime) / (1000 * 60);
+                              const minutesSinceKickoff = Math.floor((now.getTime() - matchDate.getTime()) / (1000 * 60));
 
                               // For FIFA Club World Cup, be more lenient with live status
                               const isFifaMatch = competition.name.includes("FIFA Club World Cup");
 
                               // Smart status detection - if match was supposed to start more than 4 hours ago
                               // and still shows live status, treat it as finished (extended for FIFA matches)
-                              const isLikelyFinished = isFifaMatch ? timeDiffMinutes > 240 : timeDiffMinutes > 150; // 4 hours for FIFA, 2.5 for others
+                              const isLikelyFinished = isFifaMatch ? minutesSinceKickoff > 240 : minutesSinceKickoff > 150; // 4 hours for FIFA, 2.5 for others
 
                               // Finished matches status - check this FIRST and RETURN immediately
                               if (
@@ -931,11 +930,59 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                                   "INT",
                                 ].includes(status)
                               ) {
+                                // Real-time calculation for live matches
+                                let displayText = "";
+                                if (status === "HT") {
+                                  displayText = "Halftime";
+                                } else if (status === "P") {
+                                  displayText = "Penalties";
+                                } else if (status === "ET") {
+                                  displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
+                                } else if (status === "BT") {
+                                  displayText = "Break Time";
+                                } else if (status === "INT") {
+                                  displayText = "Interrupted";
+                                } else {
+                                  // For LIVE, LIV, 1H, 2H - use real-time calculation when possible
+                                  let currentElapsed = elapsed;
+
+                                  // If we have a valid kickoff time and elapsed time, calculate real-time elapsed
+                                  if (elapsed !== null && elapsed !== undefined && minutesSinceKickoff > 0) {
+                                    // Estimate current time based on when match started
+                                    const estimatedElapsed = Math.max(elapsed, Math.min(minutesSinceKickoff, 95));
+                                    currentElapsed = estimatedElapsed;
+                                  }
+
+                                  if (currentElapsed !== null && currentElapsed !== undefined) {
+                                    // Handle injury/stoppage time more reliably
+                                    const extraTime = match.fixture.status.extra;
+
+                                    if (status === "2H" && currentElapsed >= 90) {
+                                      // Second half injury time
+                                      if (extraTime && extraTime > 0) {
+                                        displayText = `${currentElapsed}'+${extraTime}'`;
+                                      } else {
+                                        displayText = `${currentElapsed}'+`;
+                                      }
+                                    } else if (status === "1H" && currentElapsed >= 45) {
+                                      // First half injury time
+                                      if (extraTime && extraTime > 0) {
+                                        displayText = `${currentElapsed}'+${extraTime}'`;
+                                      } else {
+                                        displayText = `${currentElapsed}'+`;
+                                      }
+                                    } else {
+                                      // Regular time
+                                      displayText = `${currentElapsed}'`;
+                                    }
+                                  } else {
+                                    displayText = "LIVE";
+                                  }
+                                }
+
                                 return (
                                   <div className="match-status-label status-live">
-                                    {status === "HT"
-                                      ? "Halftime"
-                                      : `${match.fixture.status.elapsed || 0}'`}
+                                    {displayText}
                                   </div>
                                 );
                               }
