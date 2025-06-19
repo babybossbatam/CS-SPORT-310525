@@ -45,7 +45,6 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import LazyMatchItem from "./LazyMatchItem";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
-import { MyNewDateTimeConverter } from "@/lib/MyNewDateTimeConverter";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
 
@@ -730,15 +729,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return isGenuinelyLive;
       }
 
-      // For date-based filtering, use the new datetime converter
-      if (fixture.fixture.date && fixture.league?.id) {
-        const dateCheck = MyNewDateTimeConverter.isFixtureOnDate(
-          fixture.fixture.date,
-          selectedDate,
-          fixture.league.id,
-          fixture.league.name
-        );
-        return dateCheck.isMatch;
+      // For date-based filtering, check if the match is on the selected date
+      if (fixture.fixture.date) {
+        const matchDateString = matchDate.toISOString().split('T')[0];
+        return matchDateString === selectedDate;
       }
 
       return true;
@@ -868,9 +862,38 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const homeTeamName = fixture.teams?.home?.name || "";
     const awayTeamName = fixture.teams?.away?.name || "";
 
-    // Use original country from league data directly without any filtering
+    // Use original country from league data directly
     const country = league.country;
+
+    // International Competition Handling (lines 640-680):
+    // Forces certain international competitions to be assigned to "World" country
+    // Includes: FIFA, UEFA, Champions League, Europa League, World Cup, Euro, CONMEBOL, Copa America, CONCACAF, Gold Cup, UEFA U21, and Friendlies (non-women)
+
     let displayCountry = getCountryDisplayName(country);
+
+    // Force certain international competitions to be assigned to "World" country
+    const leagueNameLower = league.name.toLowerCase();
+    if (
+      leagueNameLower.includes("fifa") ||
+      leagueNameLower.includes("uefa champions league") ||
+      leagueNameLower.includes("uefa europa league") ||
+      leagueNameLower.includes("uefa europa conference league") ||
+      leagueNameLower.includes("uefa nations league") ||
+      leagueNameLower.includes("uefa u21 championship") ||
+      leagueNameLower.includes("uefa u19 championship") ||
+      leagueNameLower.includes("uefa u17 championship") ||
+      leagueNameLower.includes("world cup") ||
+      leagueNameLower.includes("euro championship") ||
+      leagueNameLower.includes("conmebol") ||
+      leagueNameLower.includes("copa america") ||
+      leagueNameLower.includes("concacaf") ||
+      leagueNameLower.includes("gold cup") ||
+      (leagueNameLower.includes("friendlies") && 
+       !leagueNameLower.includes("women") && 
+       (country === "World" || country === "Europe" || country === "International"))
+    ) {
+      displayCountry = "World";
+    }
 
     const leagueId = league.id;
 
