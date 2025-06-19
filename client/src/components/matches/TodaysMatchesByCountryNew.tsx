@@ -2381,16 +2381,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           })}
         </div>
       </CardContent>
-    
-    {/* Updated version for modification */}
-    <MyUpdatedMatchbyCountry
-      selectedDate={selectedDate}
-      liveFilterActive={liveFilterActive}
-      timeFilterActive={timeFilterActive}
-      onMatchCardClick={onMatchCardClick}
-    />
-    
-  </Card>
+    </Card>
   );
 };
 

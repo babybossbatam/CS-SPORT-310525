@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
-import { Card } from "../ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Filter, Activity } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { useQuery } from "@tanstack/react-query";
@@ -8,6 +8,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useTodayPopularFixtures } from "../../hooks/useTodayPopularFixtures";
 import TodayPopularFootballLeaguesNew from "./TodayPopularFootballLeaguesNew";
 import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
+import MyUpdatedMatchbyCountry from "./MyUpdatedMatchbyCountry";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
@@ -422,6 +423,30 @@ export const TodayMatchPageCard = ({
             timeFilterActive={timeFilterActive}
             onMatchCardClick={onMatchCardClick}
           />
+
+          {/* New card for MyUpdatedMatchbyCountry */}
+          <Card className="mt-4">
+            <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
+              <h3
+                className="font-semibold"
+                style={{
+                  fontFamily:
+                    "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                  fontSize: "13.3px",
+                }}
+              >
+                Updated Matches by Country (Test Version)
+              </h3>
+            </CardHeader>
+            <CardContent className="p-0">
+              <MyUpdatedMatchbyCountry
+                selectedDate={selectedDate}
+                liveFilterActive={liveFilterActive}
+                timeFilterActive={timeFilterActive}
+                onMatchCardClick={onMatchCardClick}
+              />
+            </CardContent>
+          </Card>
         </>
       )}
     </>
