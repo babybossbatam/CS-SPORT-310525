@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { ChevronDown, ChevronRight } from 'lucide-react';
@@ -48,7 +47,7 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
       if (!fixture?.league?.country || !fixture?.teams) return;
 
       const country = fixture.league.country;
-      
+
       if (!countryMap.has(country)) {
         countryMap.set(country, {
           country,
@@ -124,11 +123,24 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
     onMatchCardClick?.(fixture);
   };
 
+  const getCurrentClientDateString = (): string => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   if (isLoading) {
     return (
       <Card className="shadow-md w-full">
         <CardHeader className="pb-3">
-          <h2 className="text-lg font-semibold">Today's Football Matches by Country</h2>
+          <h2 className="text-lg font-semibold">
+            {selectedDate === getCurrentClientDateString() 
+              ? "Today's Football Matches by Country"
+              : `Football Matches by Country (${selectedDate})`
+            }
+          </h2>
         </CardHeader>
         <CardContent>
           <div className="p-4 text-center text-gray-500">
@@ -143,7 +155,12 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
     return (
       <Card className="shadow-md w-full">
         <CardHeader className="pb-3">
-          <h2 className="text-lg font-semibold">Today's Football Matches by Country</h2>
+          <h2 className="text-lg font-semibold">
+            {selectedDate === getCurrentClientDateString() 
+              ? "Today's Football Matches by Country"
+              : `Football Matches by Country (${selectedDate})`
+            }
+          </h2>
         </CardHeader>
         <CardContent>
           <div className="p-4 text-center text-gray-500">
@@ -157,13 +174,18 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
   return (
     <Card className="shadow-md w-full">
       <CardHeader className="pb-3">
-        <h2 className="text-lg font-semibold">Today's Football Matches by Country</h2>
+        <h2 className="text-lg font-semibold">
+          {selectedDate === getCurrentClientDateString() 
+            ? "Today's Football Matches by Country"
+            : `Football Matches by Country (${selectedDate})`
+          }
+        </h2>
       </CardHeader>
       <CardContent className="p-0">
         <div className="space-y-1">
           {countryGroups.map((group) => {
             const isExpanded = expandedCountries.has(group.country);
-            
+
             return (
               <div key={group.country} className="border-b border-gray-100 last:border-b-0">
                 {/* Country Header */}
@@ -181,7 +203,7 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
                         e.currentTarget.src = '/assets/fallback-logo.svg';
                       }}
                     />
-                    
+
                     {/* Country Name and Count */}
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-gray-900">{group.country}</span>
@@ -193,7 +215,7 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
                       )}
                     </div>
                   </div>
-                  
+
                   {/* Expand/Collapse Icon */}
                   {isExpanded ? (
                     <ChevronDown className="h-4 w-4 text-gray-400" />
@@ -210,7 +232,7 @@ const AllCountriesFixtures: React.FC<AllCountriesFixturesProps> = ({
                         const isLive = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(
                           fixture.fixture?.status?.short
                         );
-                        
+
                         return (
                           <div
                             key={fixture.fixture.id}
