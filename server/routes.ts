@@ -19,7 +19,6 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { format, addDays, subDays } from 'date-fns';
-// Removing uefaU21Routes import as requested
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -1246,56 +1245,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // BetsAPI specific news endpoints
-  apiRouter.get("/news/betsapi/sports/:sportId", async (req: Request, res: Response) => {
-    try {
-      const sportId = parseInt(req.params.sportId);
-      const page = parseInt(req.query.page as string) || 1;
-      const perPage = parseInt(req.query.per_page as string) || 10;
-
-      if (isNaN(sportId)) {
-        return res.status(400).json({ message: "Invalid sport ID" });
-      }
-
-      const articles = await betsApiService.getSportsNews(sportId, page, perPage);
-      const formattedArticles = articles.map((article, index) => 
-        betsApiService.convertToStandardFormat(article, index)
-      );
-
-      res.json(formattedArticles);
-    } catch (error) {
-      console.error("Error fetching BetsAPI sports news:", error);
-      res.status(500).json({ 
-        message: "Failed to fetch sports news from BetsAPI",
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
-  apiRouter.get("/news/betsapi/league/:leagueId", async (req: Request, res: Response) => {
-    try {
-      const leagueId = parseInt(req.params.leagueId);
-      const page = parseInt(req.query.page as string) || 1;
-      const perPage = parseInt(req.query.per_page as string) || 10;
-
-      if (isNaN(leagueId)) {
-        return res.status(400).json({ message: "Invalid league ID" });
-      }
-
-      const articles = await betsApiService.getLeagueNews(leagueId, page, perPage);
-      const formattedArticles = articles.map((article, index) => 
-        betsApiService.convertToStandardFormat(article, index)
-      );
-
-      res.json(formattedArticles);
-    } catch (error) {
-      console.error("Error fetching BetsAPI league news:", error);
-      res.status(500).json({ 
-        message: "Failed to fetch league news from BetsAPI",
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
+  
 
   // SportsRadar flag endpoint (server-side to avoid CORS)
   apiRouter.get('/sportsradar/flags/:country', async (req: Request, res: Response) => {
