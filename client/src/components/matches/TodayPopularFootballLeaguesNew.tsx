@@ -257,7 +257,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
   );
 
   // Fetch live fixtures for real-time updates (only if selected date is today)
-  const today = new Date().toISOString().slice(0, 10);
   const isToday = selectedDate === today;
 
   const { data: liveFixturesData = [] } = useQuery({
