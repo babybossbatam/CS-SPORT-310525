@@ -1130,42 +1130,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   console.log(`📊 [DEBUG] Comprehensive Grouping Analysis:`, groupingAnalysis);
 
-  // Live match prioritization: Live World matches are sorted first
+  // Get countries without sorting - will be modified later
   const sortedCountries = useMemo(() => {
-    return Object.values(fixturesByCountry).sort(
-      (a: any, b: any) => {
-        const countryA = a.country || "";
-        const countryB = b.country || "";
-
-        // Check if either country is World
-        const aIsWorld = countryA.toLowerCase() === "world";
-        const bIsWorld = countryB.toLowerCase() === "world";
-
-        // Check for live matches in each country
-        const aHasLive = Object.values(a.leagues).some((league: any) =>
-          league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-              match.fixture.status.short,
-            ),
-          ),
-        );
-        const bHasLive = Object.values(b.leagues).some((league: any) =>
-          league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-              match.fixture.status.short,
-            ),
-          ),
-        );
-
-        // Priority: World with live matches first, then World without live, then others alphabetically
-        if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
-        if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
-        if (aIsWorld && !bIsWorld) return -1;
-        if (bIsWorld && !aIsWorld) return 1;
-
-        return countryA.localeCompare(countryB);
-      },
-    );
+    return Object.values(fixturesByCountry);
   }, [Object.keys(fixturesByCountry).length, validFixtures.length]);
 
   // Start with all countries collapsed by default
@@ -1175,53 +1142,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     // Auto-expand the first league in each country by default (using the same sorting logic as display)
     const firstLeagues = new Set<string>();
-    const sortedCountriesArray = Object.values(fixturesByCountry).sort(
-      (a: any, b: any) => {
-        const countryA = a.country || "";
-        const countryB = b.country || "";
-
-        // Check if either country is World
-        const aIsWorld = countryA.toLowerCase() === "world";
-        const bIsWorld = countryB.toLowerCase() === "world";
-
-        // Check for live matches in each country
-        const aHasLive = Object.values(a.leagues).some((league: any) =>
-          league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-              match.fixture.status.short,
-            ),
-          ),
-        );
-        const bHasLive = Object.values(b.leagues).some((league: any) =>
-          league.matches.some((match: any) =>
-            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-              match.fixture.status.short,
-            ),
-          ),
-        );
-
-        // Priority: World with live matches first, then World without live, then others alphabetically
-        if (aIsWorld && aHasLive && (!bIsWorld || !bHasLive)) return -1;
-        if (bIsWorld && bHasLive && (!aIsWorld || !aHasLive)) return 1;
-        if (aIsWorld && !bIsWorld) return -1;
-        if (bIsWorld && !aIsWorld) return 1;
-
-        return countryA.localeCompare(countryB);
-      },
-    );
+    const sortedCountriesArray = Object.values(fixturesByCountry);
 
     sortedCountriesArray.forEach((countryData: any) => {
-      const sortedLeagues = Object.values(countryData.leagues).sort(
-        (a: any, b: any) => {
-          if (a.isPopular && !b.isPopular) return -1;
-          if (!a.isPopular && b.isPopular) return 1;
-          return a.league.name.localeCompare(b.league.name);
-        },
-      );
+      const leagues = Object.values(countryData.leagues);
 
-      if (sortedLeagues.length > 0) {
-        // Expand the first league after sorting (same order as displayed)
-        const firstLeague = sortedLeagues[0];
+      if (leagues.length > 0) {
+        // Expand the first league without sorting
+        const firstLeague = leagues[0];
         const leagueKey = `${countryData.country}-${firstLeague.league.id}`;
         firstLeagues.add(leagueKey);
       }
@@ -1777,13 +1705,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                       isExpanded ? "expanded" : "collapsed"
                     }`}
                   >
-                    {/* Sort leagues - popular first */}
+                    {/* Display leagues without sorting */}
                     {Object.values(countryData.leagues)
-                      .sort((a: any, b: any) => {
-                        if (a.isPopular && !b.isPopular) return -1;
-                        if (!a.isPopular && b.isPopular) return 1;
-                        return a.league.name.localeCompare(b.league.name);
-                      })
                       .map((leagueData: any, leagueIndex: number) => {
                         const leagueKey = `${countryData.country}-${leagueData.league.id}`;
                         const isFirstLeague = leagueIndex === 0;
@@ -1895,74 +1818,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   .filter((match: any) => {
                                     // Only filter out hidden matches
                                     return !hiddenMatches.has(match.fixture.id);
-                                  })
-                                  .sort((a: any, b: any) => {
-                                    // Priority order: Live > Ended (Recent) > Upcoming > Ended (Old)
-                                    const aStatus = a.fixture.status.short;
-                                    const bStatus = b.fixture.status.short;
-                                    const aDate = new Date(a.fixture.date).getTime();
-                                    const bDate = new Date(b.fixture.date).getTime();
-                                    const now = new Date().getTime();
-
-                                    // Define status categories
-                                    const aLive = [
-                                      "LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"
-                                    ].includes(aStatus);
-                                    const bLive = [
-                                      "LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"
-                                    ].includes(bStatus);
-
-                                    const aEnded = [
-                                      "FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"
-                                    ].includes(aStatus);
-                                    const bEnded = [
-                                      "FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"
-                                    ].includes(bStatus);
-
-                                    const aUpcoming = aStatus === "NS" || aStatus === "TBD";
-                                    const bUpcoming = bStatus === "NS" || bStatus === "TBD";
-
-                                    // For ended matches, check if they're recent (within 3 hours)
-                                    const aRecentEnded = aEnded && (now - aDate) <= (3 * 60 * 60 * 1000);
-                                    const bRecentEnded = bEnded && (now - bDate) <= (3 * 60 * 60 * 1000);
-
-                                    // Assign priority scores (lower = higher priority)
-                                    let aPriority = 4; // default
-                                    let bPriority = 4; // default
-
-                                    if (aLive) aPriority = 1;
-                                    else if (aRecentEnded) aPriority = 2;
-                                    else if (aUpcoming) aPriority = 3;
-                                    else if (aEnded) aPriority = 4;
-
-                                    if (bLive) bPriority = 1;
-                                    else if (bRecentEnded) bPriority = 2;
-                                    else if (bUpcoming) bPriority = 3;
-                                    else if (bEnded) bPriority = 4;
-
-                                    // First sort by priority
-                                    if (aPriority !== bPriority) {
-                                      return aPriority - bPriority;
-                                    }
-
-                                    // Within same priority, sort by time
-                                    if (aLive && bLive) {
-                                      // Live matches: earliest start time first
-                                      return aDate - bDate;
-                                    }
-
-                                    if ((aRecentEnded && bRecentEnded) || (aEnded && bEnded)) {
-                                      // Ended matches: most recent first
-                                      return bDate - aDate;
-                                    }
-
-                                    if (aUpcoming && bUpcoming) {
-                                      // Upcoming matches: earliest start time first
-                                      return aDate - bDate;
-                                    }
-
-                                    // Default: sort by time
-                                    return aDate - bDate;
                                   })
                                   .map((match: any, matchIndex) => (
                                     <div
