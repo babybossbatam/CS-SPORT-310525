@@ -69,18 +69,25 @@ const MyMatchdetailsScoreboard = ({
     league: displayMatch?.league?.name
   });
 
-  // Real-time update effect for live matches
+  // Real-time update effect for live matches - using LiveMatchForAllCountry approach
   useEffect(() => {
     if (!displayMatch) return;
 
     const status = displayMatch.fixture.status.short;
-    const isLiveMatch = ["1H", "2H", "LIVE"].includes(status);
+    const isLiveMatch = ["1H", "2H", "LIVE", "HT", "ET", "P"].includes(status);
 
     if (isLiveMatch) {
       // Initialize with current elapsed time from API
       setLiveElapsed(displayMatch.fixture.status.elapsed || 0);
+      
+      console.log('🎯 [Live Timer] Starting live updates for match:', {
+        fixtureId: displayMatch.fixture.id,
+        teams: `${displayMatch.teams?.home?.name} vs ${displayMatch.teams?.away?.name}`,
+        status: status,
+        initialElapsed: displayMatch.fixture.status.elapsed
+      });
 
-      // Fetch updated elapsed time from API every 30 seconds
+      // Fetch updated elapsed time from API every 30 seconds - similar to LiveMatchForAllCountry
       const timer = setInterval(async () => {
         try {
           const response = await fetch('/api/fixtures/live');
@@ -89,7 +96,11 @@ const MyMatchdetailsScoreboard = ({
           }
           
           const liveFixtures = await response.json();
-          console.log('🔄 [Live Update] Fetched live fixtures:', liveFixtures.length);
+          console.log('🔄 [Live Timer] Fetched live fixtures:', {
+            totalFixtures: liveFixtures.length,
+            searchingFor: displayMatch.fixture.id,
+            availableIds: liveFixtures.map((f: any) => f.fixture.id)
+          });
           
           // Find the current match in live fixtures
           const currentLiveMatch = liveFixtures.find(
@@ -97,28 +108,57 @@ const MyMatchdetailsScoreboard = ({
           );
           
           if (currentLiveMatch) {
-            console.log('✅ [Live Update] Found current match:', {
+            console.log('✅ [Live Timer] Found current match with updated data:', {
               id: currentLiveMatch.fixture.id,
               elapsed: currentLiveMatch.fixture.status.elapsed,
-              status: currentLiveMatch.fixture.status.short
+              status: currentLiveMatch.fixture.status.short,
+              homeScore: currentLiveMatch.goals?.home,
+              awayScore: currentLiveMatch.goals?.away
             });
             
+            // Update elapsed time
             if (currentLiveMatch.fixture.status.elapsed !== null && 
                 currentLiveMatch.fixture.status.elapsed !== undefined) {
               setLiveElapsed(currentLiveMatch.fixture.status.elapsed);
             }
           } else {
-            console.log('❌ [Live Update] Current match not found in live fixtures:', {
-              searchingFor: displayMatch.fixture.id,
-              availableFixtures: liveFixtures.map((f: any) => f.fixture.id)
-            });
+            console.log('❌ [Live Timer] Current match not found in live fixtures - checking if match ended');
+            
+            // If match not found in live fixtures, it might have ended
+            // Try to fetch the specific match to check its current status
+            try {
+              const specificMatchResponse = await fetch(`/api/fixtures?ids=${displayMatch.fixture.id}`);
+              if (specificMatchResponse.ok) {
+                const specificMatchData = await specificMatchResponse.json();
+                if (specificMatchData.length > 0) {
+                  const updatedMatch = specificMatchData[0];
+                  console.log('🔍 [Live Timer] Specific match status:', {
+                    id: updatedMatch.fixture.id,
+                    status: updatedMatch.fixture.status.short,
+                    elapsed: updatedMatch.fixture.status.elapsed
+                  });
+                  
+                  // If match has ended, stop the timer
+                  if (['FT', 'AET', 'PEN'].includes(updatedMatch.fixture.status.short)) {
+                    console.log('🏁 [Live Timer] Match has ended, stopping updates');
+                    setLiveElapsed(null);
+                    clearInterval(timer);
+                  }
+                }
+              }
+            } catch (specificError) {
+              console.error('❌ [Live Timer] Failed to fetch specific match:', specificError);
+            }
           }
         } catch (error) {
-          console.error('❌ [Live Update] Failed to fetch live match updates:', error);
+          console.error('❌ [Live Timer] Failed to fetch live match updates:', error);
         }
-      }, 30000);
+      }, 30000); // 30 second intervals like LiveMatchForAllCountry
 
-      return () => clearInterval(timer);
+      return () => {
+        console.log('🛑 [Live Timer] Cleaning up timer for match:', displayMatch.fixture.id);
+        clearInterval(timer);
+      };
     } else {
       setLiveElapsed(null);
     }
