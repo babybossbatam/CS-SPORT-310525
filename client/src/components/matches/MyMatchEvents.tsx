@@ -14,88 +14,83 @@ interface MatchEvent {
 }
 
 interface MyMatchEventsProps {
+  match?: any;
   homeTeam?: string;
   awayTeam?: string;
   matchStatus?: string;
 }
 
 const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
-  homeTeam = "Al Ain",
-  awayTeam = "Juventus",
-  matchStatus = "FT"
+  match,
+  homeTeam,
+  awayTeam,
+  matchStatus
 }) => {
   const [activeTab, setActiveTab] = useState<'all' | 'top' | 'commentary'>('top');
 
-  // Sample match events data
-  const sampleEvents: MatchEvent[] = [
+  // Extract team names and match info from match data
+  const displayHomeTeam = match?.teams?.home?.name || homeTeam || "Home Team";
+  const displayAwayTeam = match?.teams?.away?.name || awayTeam || "Away Team";
+  const displayMatchStatus = match?.fixture?.status?.short || matchStatus || "NS";
+  const homeScore = match?.goals?.home ?? 0;
+  const awayScore = match?.goals?.away ?? 0;
+
+  // Convert match events from API to our format
+  const convertApiEventsToMatchEvents = (apiEvents: any[]): MatchEvent[] => {
+    if (!apiEvents || !Array.isArray(apiEvents)) return [];
+
+    return apiEvents.map((event, index) => ({
+      id: index + 1,
+      time: `${event.time?.elapsed || 0}'${event.time?.extra ? `+${event.time.extra}` : ''}`,
+      type: event.type === 'Goal' ? 'goal' : 
+            event.type === 'Card' ? 'card' : 
+            event.type === 'subst' ? 'substitution' : 'foul',
+      player: event.player?.name || 'Unknown Player',
+      team: event.team?.id === match?.teams?.home?.id ? 'home' : 'away',
+      description: event.detail || event.type || 'Match event',
+      isImportant: event.type === 'Goal' || (event.type === 'Card' && event.detail === 'Red Card')
+    }));
+  };
+
+  // Use real match events or fallback to sample data
+  const matchEvents = match?.events ? convertApiEventsToMatchEvents(match.events) : [];
+
+  // Sample fallback data if no real events
+  const sampleEvents: MatchEvent[] = matchEvents.length > 0 ? matchEvents : [
     {
       id: 1,
       time: "90'",
       type: 'goal',
-      player: 'Chico Conceição',
-      team: 'away',
-      description: 'Goal scored',
-      isImportant: true
-    },
-    {
-      id: 2,
-      time: "58'",
-      type: 'goal',
-      player: 'Chico Conceição',
-      team: 'away',
-      description: 'Goal scored',
-      isImportant: true
-    },
-    {
-      id: 3,
-      time: "45+4'",
-      type: 'card',
-      player: 'Randal Kolo Muani',
-      team: 'away',
-      description: 'Yellow card for bad foul',
-      isImportant: false
-    },
-    {
-      id: 4,
-      time: "31'",
-      type: 'goal',
-      player: 'Kenan Yildiz',
-      team: 'away',
-      description: 'Goal scored',
-      isImportant: true
-    },
-    {
-      id: 5,
-      time: "21'",
-      type: 'goal',
-      player: 'Chico Conceição',
-      team: 'away',
-      description: 'Goal scored',
-      isImportant: true
-    },
-    {
-      id: 6,
-      time: "11'",
-      type: 'goal',
-      player: 'Randal Kolo Muani',
+      player: 'Player Name',
       team: 'away',
       description: 'Goal scored',
       isImportant: true
     }
   ];
 
-  const commentaryEvents = [
-    {
-      time: "90'",
-      score: "0-5",
-      description: "Abdoul Traoré (Al Ain) is shown the yellow card for a bad foul."
-    },
-    {
-      time: "90'",
-      score: "",
-      description: "Pierre Kalulu (Juventus) wins a free kick in the defensive half."
+  // Generate commentary events from match events
+  const generateCommentaryEvents = () => {
+    if (matchEvents.length > 0) {
+      return matchEvents
+        .filter(event => event.isImportant)
+        .map(event => ({
+          time: event.time,
+          score: event.type === 'goal' ? `${homeScore}-${awayScore}` : "",
+          description: `${event.player} (${event.team === 'home' ? displayHomeTeam : displayAwayTeam}) ${event.description}`
+        }));
     }
-  ];
+
+    // Fallback commentary
+    return [
+      {
+        time: "90'",
+        score: `${homeScore}-${awayScore}`,
+        description: `Match ended between ${displayHomeTeam} and ${displayAwayTeam}.`
+      }
+    ];
+  };
+
+  const commentaryEvents = generateCommentaryEvents();
 
   const getEventIcon = (type: string) => {
     switch (type) {
@@ -169,8 +164,15 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
 
         {/* Match Score Header */}
         <div className="flex justify-between items-center mb-4 p-3 bg-gray-50 rounded-lg">
-          <span className="text-sm text-gray-600">End of 90 Minutes</span>
-          <span className="text-lg font-bold">0 - 5</span>
+          <span className="text-sm text-gray-600">
+            {displayMatchStatus === 'FT' ? 'Full Time' : 
+             displayMatchStatus === 'HT' ? 'Half Time' : 
+             displayMatchStatus === 'NS' ? 'Not Started' : 
+             displayMatchStatus === '1H' ? '1st Half' : 
+             displayMatchStatus === '2H' ? '2nd Half' : 
+             'Match Status'}
+          </span>
+          <span className="text-lg font-bold">{homeScore} - {awayScore}</span>
         </div>
 
         {/* Events List */}
@@ -227,7 +229,7 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
                       {event.player}
                     </div>
                     <div className="text-xs text-gray-500">
-                      ({event.team === 'home' ? homeTeam : awayTeam})
+                      ({event.team === 'home' ? displayHomeTeam : displayAwayTeam})
                     </div>
                   </div>
                   {getPlayerAvatar(event.player)}

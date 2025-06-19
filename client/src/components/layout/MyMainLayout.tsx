@@ -72,6 +72,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
                 homeTeam={selectedFixture?.teams?.home?.name}
                 awayTeam={selectedFixture?.teams?.away?.name}
                 matchStatus={selectedFixture?.fixture?.status?.short}
+                match={selectedFixture}
               />
             </>
           ) : (
