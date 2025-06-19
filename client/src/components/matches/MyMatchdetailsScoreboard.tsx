@@ -80,16 +80,30 @@ const MyMatchdetailsScoreboard = ({
       // Initialize with current elapsed time from API
       setLiveElapsed(displayMatch.fixture.status.elapsed || 0);
 
-      // Update every minute for live matches
-      const timer = setInterval(() => {
-        setLiveElapsed((prev) => (prev !== null ? prev + 1 : prev));
-      }, 60000);
+      // Fetch updated elapsed time from API every 30 seconds
+      const timer = setInterval(async () => {
+        try {
+          const response = await fetch('/api/fixtures/live');
+          const liveFixtures = await response.json();
+          
+          // Find the current match in live fixtures
+          const currentLiveMatch = liveFixtures.find(
+            (fixture: any) => fixture.fixture.id === displayMatch.fixture.id
+          );
+          
+          if (currentLiveMatch && currentLiveMatch.fixture.status.elapsed) {
+            setLiveElapsed(currentLiveMatch.fixture.status.elapsed);
+          }
+        } catch (error) {
+          console.error('Failed to fetch live match updates:', error);
+        }
+      }, 30000);
 
       return () => clearInterval(timer);
     } else {
       setLiveElapsed(null);
     }
-  }, [displayMatch, displayMatch?.fixture?.status?.short, displayMatch?.fixture?.status?.elapsed]);
+  }, [displayMatch, displayMatch?.fixture?.status?.short, displayMatch?.fixture?.id]);
 
   const formatDateTime = (dateStr: string) => {
     try {
