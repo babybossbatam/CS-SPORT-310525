@@ -62,7 +62,7 @@ const NewsSection: React.FC<NewsSectionProps> = ({
           content: article.content || article.summary || '',
           summary: article.summary || article.content?.substring(0, 150) + '...' || '',
           publishedAt: article.publishedAt || article.published_at || new Date().toISOString(),
-          source: article.source || 'News Source',
+          source: article.source || 'SportMonks',
           url: article.url || article.link || '#',
           imageUrl: article.imageUrl || article.image || null,
           category: article.category || article.type || 'general',

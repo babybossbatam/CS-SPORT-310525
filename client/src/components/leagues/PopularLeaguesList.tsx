@@ -18,16 +18,6 @@ const CURRENT_POPULAR_LEAGUES = [
   { id: 3, name: 'UEFA Europa League', logo: 'https://media.api-sports.io/football/leagues/3.png', country: 'Europe' },
   { id: 848, name: 'UEFA Conference League', logo: 'https://media.api-sports.io/football/leagues/848.png', country: 'Europe' },
   { id: 5, name: 'UEFA Nations League', logo: 'https://media.api-sports.io/football/leagues/5.png', country: 'Europe' },
-  // World/International Competitions
-  { id: 1, name: 'World Cup', logo: 'https://media.api-sports.io/football/leagues/1.png', country: 'World' },
-  { id: 4, name: 'Euro Championship', logo: 'https://media.api-sports.io/football/leagues/4.png', country: 'World' },
-  { id: 15, name: 'FIFA Club World Cup', logo: 'https://media.api-sports.io/football/leagues/15.png', country: 'World' },
-  { id: 38, name: 'UEFA U21 Championship', logo: 'https://media.api-sports.io/football/leagues/38.png', country: 'World' },
-  { id: 9, name: 'Copa America', logo: 'https://media.api-sports.io/football/leagues/9.png', country: 'World' },
-  { id: 22, name: 'CONCACAF Gold Cup', logo: 'https://media.api-sports.io/football/leagues/22.png', country: 'World' },
-  { id: 6, name: 'Africa Cup of Nations', logo: 'https://media.api-sports.io/football/leagues/6.png', country: 'World' },
-  { id: 7, name: 'Asian Cup', logo: 'https://media.api-sports.io/football/leagues/7.png', country: 'World' },
-  // Domestic Cups
   { id: 137, name: 'Coppa Italia', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Italy' },
   { id: 45, name: 'FA Cup', logo: 'https://media.api-sports.io/football/leagues/45.png', country: 'England' },
   { id: 143, name: 'Copa del Rey', logo: 'https://media.api-sports.io/football/leagues/143.png', country: 'Spain' },

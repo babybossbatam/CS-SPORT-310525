@@ -11,10 +11,7 @@ export { countryCodeMap };
 /**
  * Get country code from country name using the centralized mapping
  */
-export function getCountryCode(countryName: string | null | undefined): string | null {
-  if (!countryName || typeof countryName !== 'string') {
-    return null;
-  }
+export function getCountryCode(countryName: string): string | null {
   const normalizedCountry = countryName.trim();
   let countryCode = countryCodeMap[normalizedCountry];
 

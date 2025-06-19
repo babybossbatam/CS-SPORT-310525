@@ -78,27 +78,25 @@ const HomeTopScorersList = () => {
   const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
 
   // Query to check which leagues have data
-  const { data: leagueDataMap, isLoading: isLoadingLeagues } = useCachedQuery(
-    ['leagues-with-top-scorers-data'],
-    async () => {
+  const { data: leagueDataMap, isLoading: isLoadingLeagues } = useQuery({
+    queryKey: ['leagues-with-data'],
+    staleTime: 2 * 60 * 60 * 1000, // 2 hours cache for top scorers data
+    queryFn: async () => {
       const dataMap = new Map<number, PlayerStatistics[]>();
-
-      console.log('🔍 [HomeTopScorers] Starting league data availability check');
 
       // Check each league for data with retry logic
       for (const league of POPULAR_LEAGUES) {
-        let retries = 2; // Reduced retries
+        let retries = 3;
         while (retries > 0) {
           try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000); // Reduced timeout
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
             
             const response = await fetch(`/api/leagues/${league.id}/topscorers`, {
               signal: controller.signal,
               headers: {
                 'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Cache-Control': 'max-age=7200' // 2 hours browser cache
+                'Content-Type': 'application/json'
               }
             });
             
@@ -108,43 +106,33 @@ const HomeTopScorersList = () => {
               const data: PlayerStatistics[] = await response.json();
               if (data && data.length > 0) {
                 dataMap.set(league.id, data);
-                console.log(`✅ [HomeTopScorers] League ${league.id} (${league.name}) has ${data.length} top scorers`);
-              } else {
-                console.log(`📭 [HomeTopScorers] League ${league.id} (${league.name}) has no top scorers`);
               }
               break; // Success, exit retry loop
             } else if (response.status >= 500) {
               // Server error, retry
               retries--;
               if (retries > 0) {
-                console.warn(`🔄 [HomeTopScorers] Retrying league ${league.id} due to server error`);
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
               }
             } else {
               // Client error (4xx), don't retry
-              console.warn(`❌ [HomeTopScorers] League ${league.id} returned ${response.status}, skipping`);
               break;
             }
           } catch (error) {
             retries--;
-            console.warn(`⚠️ [HomeTopScorers] Failed to check league ${league.id} (${2-retries}/2):`, error);
+            console.warn(`Failed to check data for league ${league.id} (${3-retries}/3):`, error);
             if (retries > 0) {
-              await new Promise(resolve => setTimeout(resolve, 1000));
+              await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
             }
           }
         }
       }
 
-      console.log(`📊 [HomeTopScorers] Completed check for ${POPULAR_LEAGUES.length} leagues, found data for ${dataMap.size} leagues`);
       return dataMap;
     },
-    {
-      maxAge: 4 * 60 * 60 * 1000, // 4 hours cache - top scorers change infrequently
-      backgroundRefresh: false, // Prevent background refresh
-      retry: 1, // Reduced React Query retries
-      retryDelay: 2000
-    }
-  );
+    retry: 2, // React Query level retry
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+  });
 
   // Update available leagues when data is loaded
   useEffect(() => {
@@ -161,40 +149,18 @@ const HomeTopScorersList = () => {
     }
   }, [leagueDataMap, selectedLeague]);
 
-  const { data: topScorers, isLoading } = useCachedQuery(
-    [`top-scorers-league-${selectedLeague}`],
-    async () => {
-      if (!selectedLeague) return [];
-
-      console.log(`🎯 [HomeTopScorers] Fetching top scorers for selected league ${selectedLeague}`);
-      
-      const response = await fetch(`/api/leagues/${selectedLeague}/topscorers`, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Cache-Control': 'max-age=7200'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch top scorers for league ${selectedLeague}`);
-      }
-      
-      const data: PlayerStatistics[] = await response.json();
-      
+  const { data: topScorers, isLoading } = useQuery({
+    queryKey: [`/api/leagues/${selectedLeague}/topscorers`],
+    enabled: !!selectedLeague,
+    staleTime: 2 * 60 * 60 * 1000, // 2 hours - top scorers don't change frequently
+    select: (data: PlayerStatistics[]) => {
       return data.sort((a, b) => {
         const goalsA = a.statistics[0]?.goals?.total || 0;
         const goalsB = b.statistics[0]?.goals?.total || 0;
         return goalsB - goalsA;
       });
-    },
-    {
-      enabled: !!selectedLeague,
-      maxAge: 4 * 60 * 60 * 1000, // 4 hours cache
-      backgroundRefresh: false,
-      retry: 1
     }
-  );
+  });
 
   const getCurrentLeagueIndex = () => {
     return availableLeagues.findIndex(league => league.id === selectedLeague);

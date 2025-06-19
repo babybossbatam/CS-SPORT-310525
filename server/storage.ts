@@ -8,7 +8,7 @@ import {
 } from "@shared/schema";
 import { FixtureResponse, LeagueResponse, NewsItem } from "./types";
 import { db } from "./db";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 // Modify the interface with any CRUD methods needed
 export interface IStorage {
@@ -268,10 +268,10 @@ export class MemStorage implements IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-    private async isPoolAvailable(): Promise<boolean> {
+    private isPoolAvailable(): boolean {
     try {
-      // Check if the database connection pool is still active using Drizzle syntax
-      await db.execute(sql`SELECT 1`);
+      // Check if the database connection pool is still active.
+      db.raw('SELECT 1'); // A simple query to test the connection
       return true;
     } catch (error) {
       console.error('Database pool is not available:', error);
@@ -408,7 +408,7 @@ export class DatabaseStorage implements IStorage {
   // Fixtures
   async getCachedFixture(fixtureId: string): Promise<CachedFixture | undefined> {
     try {
-      if (!(await this.isPoolAvailable())) {
+      if (!this.isPoolAvailable()) {
         console.warn('Database pool not available, skipping cache operation');
         return undefined;
       }
@@ -457,7 +457,7 @@ export class DatabaseStorage implements IStorage {
 
   async createCachedFixture(fixture: InsertCachedFixture): Promise<CachedFixture> {
     try {
-      if (!(await this.isPoolAvailable())) {
+      if (!this.isPoolAvailable()) {
         console.warn('Database pool not available, skipping cache creation');
         throw new Error('Database not available');
       }

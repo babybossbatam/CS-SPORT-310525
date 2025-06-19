@@ -4,7 +4,6 @@ import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { rapidApiService } from "./services/rapidApi";
-import allCountriesRoutes from "./routes/allCountriesRoutes";
 
 
 import sportsradarApi from './services/sportsradarApi';
@@ -20,14 +19,12 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 import { format, addDays, subDays } from 'date-fns';
+// Removing uefaU21Routes import as requested
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
   const apiRouter = express.Router();
   app.use("/api", apiRouter);
-
-  // Mount specialized routes
-  apiRouter.use("/all-countries-fixtures", allCountriesRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
@@ -1249,7 +1246,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  
+  // BetsAPI specific news endpoints
+  apiRouter.get("/news/betsapi/sports/:sportId", async (req: Request, res: Response) => {
+    try {
+      const sportId = parseInt(req.params.sportId);
+      const page = parseInt(req.query.page as string) || 1;
+      const perPage = parseInt(req.query.per_page as string) || 10;
+
+      if (isNaN(sportId)) {
+        return res.status(400).json({ message: "Invalid sport ID" });
+      }
+
+      const articles = await betsApiService.getSportsNews(sportId, page, perPage);
+      const formattedArticles = articles.map((article, index) => 
+        betsApiService.convertToStandardFormat(article, index)
+      );
+
+      res.json(formattedArticles);
+    } catch (error) {
+      console.error("Error fetching BetsAPI sports news:", error);
+      res.status(500).json({ 
+        message: "Failed to fetch sports news from BetsAPI",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
+  apiRouter.get("/news/betsapi/league/:leagueId", async (req: Request, res: Response) => {
+    try {
+      const leagueId = parseInt(req.params.leagueId);
+      const page = parseInt(req.query.page as string) || 1;
+      const perPage = parseInt(req.query.per_page as string) || 10;
+
+      if (isNaN(leagueId)) {
+        return res.status(400).json({ message: "Invalid league ID" });
+      }
+
+      const articles = await betsApiService.getLeagueNews(leagueId, page, perPage);
+      const formattedArticles = articles.map((article, index) => 
+        betsApiService.convertToStandardFormat(article, index)
+      );
+
+      res.json(formattedArticles);
+    } catch (error) {
+      console.error("Error fetching BetsAPI league news:", error);
+      res.status(500).json({ 
+        message: "Failed to fetch league news from BetsAPI",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
 
   // SportsRadar flag endpoint (server-side to avoid CORS)
   apiRouter.get('/sportsradar/flags/:country', async (req: Request, res: Response) => {
@@ -1602,13 +1648,50 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
 
       console.log(`Total fixtures for ${country}: ${allFixtures.length}`);
 
+      // Server-side: Keep all fixtures - let client do precise date filtering
+  // This ensures we capture fixtures from all timezones that might be valid
+  const validatedFixtures = allFixtures.filter(fixture => {
+    try {
+      const apiDateString = fixture.fixture.date;
+      const extractedDate = apiDateString.split('T')[0];
+
+      // Allow fixtures from ±1 day to capture all timezone variations
+      const targetDateObj = new Date(date);
+      const previousDay = new Date(targetDateObj);
+      previousDay.setDate(previousDay.getDate() - 1);
+      const nextDay = new Date(targetDateObj);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      const validDates = [
+        previousDay.toISOString().split('T')[0],
+        date,
+        nextDay.toISOString().split('T')[0]
+      ];
+
+      if (!validDates.includes(extractedDate)) {
+        console.log(`🚫 [Routes] Final validation - rejecting fixture outside date range: {
+  requestedDate: '${date}',
+  apiReturnedDate: '${apiDateString}',
+  extractedDate: '${extractedDate}',
+  fixtureId: ${fixture.fixture.id}
+}`);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error in final date validation:', error);
+      return false;
+    }
+  });
+
       res.json({ 
         success: true, 
-        fixtures: allFixtures,
+        fixtures: validatedFixtures,
         country: country,
         season: season || 2024,
         totalLeagues: countryLeagues.length,
-        totalFixtures: allFixtures.length
+        totalFixtures: validatedFixtures.length
       });
     } catch (error) {
       console.error('Error fetching fixtures by country:', error);
@@ -1619,117 +1702,12 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     }
   });
 
-  // Get all countries fixtures for a specific date
-  apiRouter.get('/fixtures/all-countries/:date', async (req: Request, res: Response) => {
-    try {
-      const { date } = req.params;
-
-      // Validate date format
-      if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        console.log(`❌ [Routes] Invalid date format: ${date}`);
-        return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
-      }
-
-      console.log(`🌍 [Routes] Fetching all countries fixtures for date: ${date}`);
-
-      // Check cache first
-      const cacheKey = `all-countries-fixtures:${date}`;
-      const cachedFixtures = await storage.getCachedFixturesByLeague(cacheKey);
-
-      if (cachedFixtures && cachedFixtures.length > 0) {
-        const now = new Date();
-        const cacheTime = new Date(cachedFixtures[0].timestamp);
-        const cacheAge = now.getTime() - cacheTime.getTime();
-
-        // Use smart cache durations based on date
-        const today = new Date().toISOString().split('T')[0];
-        const isPastDate = date < today;
-        const isToday = date === today;
-
-        const maxCacheAge = isPastDate ? 7 * 24 * 60 * 60 * 1000 : 
-                           isToday ? 2 * 60 * 60 * 1000 : 
-                           12 * 60 * 60 * 1000;
-
-        if (cacheAge < maxCacheAge) {
-          console.log(`✅ [Routes] Returning ${cachedFixtures.length} cached all-countries fixtures for ${date}`);
-          return res.json(cachedFixtures.map(fixture => fixture.data));
-        }
-      }
-
-      // Fetch fixtures using the existing comprehensive date API
-      const allFixtures = await rapidApiService.getFixturesByDate(date, true);
-
-      // Filter and validate fixtures
-      const validFixtures = allFixtures.filter(fixture => {
-        try {
-          // Basic validation
-          if (!fixture?.league?.country || !fixture?.teams) return false;
-          if (!fixture.teams.home?.name || !fixture.teams.away?.name) return false;
-          
-          // Enhanced esports filtering
-          const leagueName = fixture.league.name?.toLowerCase() || '';
-          const homeTeam = fixture.teams.home.name?.toLowerCase() || '';
-          const awayTeam = fixture.teams.away.name?.toLowerCase() || '';
-          
-          const esportsTerms = [
-            'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual',
-            'fifa', 'pro evolution soccer', 'pes', 'efootball', 'e-football'
-          ];
-          
-          const isEsports = esportsTerms.some(term =>
-            leagueName.includes(term) || homeTeam.includes(term) || awayTeam.includes(term)
-          );
-          
-          if (isEsports) return false;
-          
-          // Filter out invalid countries
-          if (!fixture.league.country || 
-              fixture.league.country === null || 
-              fixture.league.country === undefined ||
-              fixture.league.country === '') return false;
-          
-          return true;
-        } catch (error) {
-          console.error('Error validating fixture:', error);
-          return false;
-        }
-      });
-
-      // Cache the results
-      if (validFixtures.length > 0) {
-        for (const fixture of validFixtures) {
-          try {
-            const fixtureId = `${cacheKey}:${fixture.fixture.id}`;
-            await storage.createCachedFixture({
-              fixtureId: fixtureId,
-              data: fixture,
-              league: cacheKey,
-              date: date
-            });
-          } catch (error) {
-            console.error(`Error caching all-countries fixture ${fixture.fixture.id}:`, error);
-          }
-        }
-      }
-
-      console.log(`✅ [Routes] Returning ${validFixtures.length} all-countries fixtures for ${date}`);
-      res.json(validFixtures);
-
-    } catch (error) {
-      console.error('Error fetching all countries fixtures:', error);
-      res.status(500).json({ 
-        error: 'Failed to fetch all countries fixtures',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
   // Debug endpoint to compare fixture data between RapidAPI and SportsRadar
   apiRouter.get('/debug/fixture/:fixtureId/compare', async (req: Request, res: Response) => {
     try {
       const { fixtureId } = req.params;
 
-      console.log(`🔍 [DEBUG] Comparing fixture ${fixtureId} between APIs for status verification`);
+      console.log(`🔍 [DEBUG] Comparing fixture ${fixtureId} between APIs`);
 
       if (!fixtureId || fixtureId.trim() === '') {
         return res.status(400).json({ 
@@ -1769,79 +1747,47 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         console.error(`Error fetching from RapidAPI for fixture ${fixtureId}:`, error);
       }
 
-      // Enhanced SportsRadar API search
+      // Fetch from SportsRadar API
       let sportsRadarData = null;
       let sportsRadarError = null;
       try {
         const sportsRadarKey = process.env.SPORTSRADAR_API_KEY || 'GyxLqseloLhoo4ietUKotcYT89QjqHuYS6xDNAyY';
 
-        if (rapidApiData) {
-          const rapidHomeTeam = rapidApiData.teams?.home?.name || '';
-          const rapidAwayTeam = rapidApiData.teams?.away?.name || '';
-          const matchDate = new Date(rapidApiData.fixture?.date);
+        // Try to find the fixture in SportsRadar by searching live matches first
+        const liveResponse = await fetch(`https://api.sportradar.com/soccer/trial/v4/en/matches/live.json?api_key=${sportsRadarKey}`);
 
-          // Try multiple SportsRadar endpoints
-          const endpoints = [
-            `https://api.sportradar.com/soccer/trial/v4/en/matches/live.json?api_key=${sportsRadarKey}`,
-            `https://api.sportradar.com/soccer/trial/v4/en/matches/${matchDate.toISOString().split('T')[0]}/schedule.json?api_key=${sportsRadarKey}`
-          ];
+        if (liveResponse.ok) {
+          const liveData = await liveResponse.json();
 
-          for (const endpoint of endpoints) {
-            try {
-              const response = await fetch(endpoint);
-              if (response.ok) {
-                const data = await response.json();
-                const matches = data.matches || data.sport_events || [];
+          // Look for the match by team names if we have RapidAPI data
+          if (rapidApiData) {
+            const rapidHomeTeam = rapidApiData.teams?.home?.name || '';
+            const rapidAwayTeam = rapidApiData.teams?.away?.name || '';
 
-                const sportsRadarMatch = matches.find((match: any) => {
-                  const homeTeam = match.home_team?.name || match.competitors?.find((c: any) => c.qualifier === 'home')?.name || '';
-                  const awayTeam = match.away_team?.name || match.competitors?.find((c: any) => c.qualifier === 'away')?.name || '';
-                  
-                  // Enhanced team name matching
-                  const homeMatches = homeTeam.toLowerCase().includes(rapidHomeTeam.toLowerCase().split(' ')[0]) ||
-                                     rapidHomeTeam.toLowerCase().includes(homeTeam.toLowerCase().split(' ')[0]);
-                  const awayMatches = awayTeam.toLowerCase().includes(rapidAwayTeam.toLowerCase().split(' ')[0]) ||
-                                     rapidAwayTeam.toLowerCase().includes(awayTeam.toLowerCase().split(' ')[0]);
-                  
-                  return homeMatches && awayMatches;
-                });
+            const sportsRadarMatch = liveData.matches?.find((match: any) => {
+              const homeTeam = match.home_team?.name || '';
+              const awayTeam = match.away_team?.name || '';
+              return (homeTeam.includes(rapidHomeTeam.split(' ')[0]) && awayTeam.includes(rapidAwayTeam.split(' ')[0])) ||
+                     (homeTeam.includes(rapidAwayTeam.split(' ')[0]) && awayTeam.includes(rapidHomeTeam.split(' ')[0]));
+            });
 
-                if (sportsRadarMatch) {
-                  sportsRadarData = {
-                    ...sportsRadarMatch,
-                    // Normalize status information
-                    normalizedStatus: {
-                      original: sportsRadarMatch.status || sportsRadarMatch.sport_event_status?.status,
-                      isLive: ['live', 'inprogress', '1st_half', '2nd_half', 'halftime'].includes(
-                        (sportsRadarMatch.status || sportsRadarMatch.sport_event_status?.status || '').toLowerCase()
-                      ),
-                      isFinished: ['closed', 'ended', 'finished', 'complete', 'ft'].includes(
-                        (sportsRadarMatch.status || sportsRadarMatch.sport_event_status?.status || '').toLowerCase()
-                      )
-                    }
-                  };
-                  console.log(`✅ Found SportsRadar match: ${homeTeam} vs ${awayTeam} - Status: ${sportsRadarMatch.status || sportsRadarMatch.sport_event_status?.status}`);
-                  break;
-                }
-              }
-            } catch (endpointError) {
-              console.warn(`SportsRadar endpoint failed: ${endpoint}`, endpointError);
-              continue;
+            if (sportsRadarMatch) {
+              sportsRadarData = sportsRadarMatch;
+            } else {
+              sportsRadarError = 'Matching fixture not found in SportsRadar live data';
             }
-          }
-
-          if (!sportsRadarData) {
-            sportsRadarError = `No matching fixture found for ${rapidHomeTeam} vs ${rapidAwayTeam} in SportsRadar`;
+          } else {
+            sportsRadarError = 'Cannot search SportsRadar without RapidAPI data for comparison';
           }
         } else {
-          sportsRadarError = 'Cannot search SportsRadar without RapidAPI data for comparison';
+          sportsRadarError = `SportsRadar API responded with status ${liveResponse.status}`;
         }
       } catch (error) {
         sportsRadarError = error instanceof Error ? error.message : 'Unknown SportsRadar error';
         console.error(`Error fetching from SportsRadar:`, error);
       }
 
-      // Build enhanced comparison response with status verification focus
+      // Build comparison response
       const comparison = {
         fixtureId,
         serverTime: new Date().toISOString(),
@@ -1857,58 +1803,26 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
             awayGoals: rapidApiData.goals?.away,
             date: rapidApiData.fixture?.date,
             elapsed: rapidApiData.fixture?.status?.elapsed,
-            league: rapidApiData.league?.name,
-            isLive: ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(rapidApiData.fixture?.status?.short)
+            league: rapidApiData.league?.name
           } : null
         },
         sportsRadar: {
           available: !!sportsRadarData,
           error: sportsRadarError,
           data: sportsRadarData ? {
-            status: sportsRadarData.status || sportsRadarData.sport_event_status?.status,
-            homeTeam: sportsRadarData.home_team?.name || sportsRadarData.competitors?.find((c: any) => c.qualifier === 'home')?.name,
-            awayTeam: sportsRadarData.away_team?.name || sportsRadarData.competitors?.find((c: any) => c.qualifier === 'away')?.name,
-            homeGoals: sportsRadarData.home_score || sportsRadarData.sport_event_status?.home_score,
-            awayGoals: sportsRadarData.away_score || sportsRadarData.sport_event_status?.away_score,
-            date: sportsRadarData.scheduled || sportsRadarData.start_time,
-            elapsed: sportsRadarData.clock?.minute || sportsRadarData.sport_event_status?.clock?.match_time,
-            league: sportsRadarData.tournament?.name || sportsRadarData.sport_event?.tournament?.name,
-            isLive: sportsRadarData.normalizedStatus?.isLive,
-            isFinished: sportsRadarData.normalizedStatus?.isFinished,
-            normalizedStatus: sportsRadarData.normalizedStatus
+            status: sportsRadarData.status,
+            homeTeam: sportsRadarData.home_team?.name,
+            awayTeam: sportsRadarData.away_team?.name,
+            homeGoals: sportsRadarData.home_score,
+            awayGoals: sportsRadarData.away_score,
+            date: sportsRadarData.scheduled,
+            elapsed: sportsRadarData.clock?.minute,
+            league: sportsRadarData.tournament?.name
           } : null
-        },
-        statusVerification: {
-          rapidApiClaims: rapidApiData ? (['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(rapidApiData.fixture?.status?.short) ? 'LIVE' : 'NOT_LIVE') : 'UNAVAILABLE',
-          sportsRadarClaims: sportsRadarData ? (sportsRadarData.normalizedStatus?.isLive ? 'LIVE' : sportsRadarData.normalizedStatus?.isFinished ? 'FINISHED' : 'UNKNOWN') : 'UNAVAILABLE',
-          consensus: 'UNDETERMINED'
         },
         differences: [] as any[],
         recommendation: ''
       };
-
-      // Determine consensus for status verification
-      if (comparison.rapidApi.available && comparison.sportsRadar.available) {
-        const rapidIsLive = comparison.statusVerification.rapidApiClaims === 'LIVE';
-        const sportsRadarIsLive = comparison.statusVerification.sportsRadarClaims === 'LIVE';
-        const sportsRadarIsFinished = comparison.statusVerification.sportsRadarClaims === 'FINISHED';
-
-        if (rapidIsLive && !sportsRadarIsLive && sportsRadarIsFinished) {
-          comparison.statusVerification.consensus = 'STALE_LIVE_DETECTED';
-          comparison.recommendation = 'RapidAPI shows live but SportsRadar confirms finished - recommend status correction to FT';
-        } else if (rapidIsLive && sportsRadarIsLive) {
-          comparison.statusVerification.consensus = 'GENUINELY_LIVE';
-          comparison.recommendation = 'Both APIs confirm match is live - status is correct';
-        } else if (!rapidIsLive && sportsRadarIsFinished) {
-          comparison.statusVerification.consensus = 'CORRECTLY_FINISHED';
-          comparison.recommendation = 'Both APIs show match is finished - status is correct';
-        } else {
-          comparison.statusVerification.consensus = 'INCONSISTENT';
-          comparison.recommendation = 'APIs show inconsistent status - manual review recommended';
-        }
-      } else {
-        comparison.recommendation = 'Insufficient data for status verification';
-      }
 
       // Compare key fields if both APIs have data
       if (rapidApiData && sportsRadarData) {
@@ -2435,3 +2349,13 @@ async function getCountryFlag(country: string): Promise<string | null> {
 }
 
 import { type NextFunction } from "express";
+
+//Centralized error handler
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+
+    console.error('Route error:', err);
+    res.status(status).json({ message });
+    // Don't throw error to prevent process crash
+  });

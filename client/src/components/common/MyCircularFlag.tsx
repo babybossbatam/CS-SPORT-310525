@@ -29,12 +29,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
-  const getCircleFlagUrl = (teamName: string | null | undefined, fallbackUrl?: string) => {
-    // Add null/undefined check for teamName
-    if (!teamName || typeof teamName !== 'string') {
-      return fallbackUrl || "/assets/fallback-logo.svg";
-    }
-    
+  const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
     // Extract country from team name or use direct country mapping
     const countryCode = getCountryCode(teamName);
 
@@ -116,7 +111,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
   // Fetch next match info if not provided
   useEffect(() => {
-    if (!nextMatchInfo && teamName && isNationalTeam(teamName)) {
+    if (!nextMatchInfo && isNationalTeam(teamName)) {
       // Fetch next match from API
       const fetchNextMatch = async () => {
         try {

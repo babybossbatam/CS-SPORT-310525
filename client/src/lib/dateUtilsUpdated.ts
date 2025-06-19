@@ -317,35 +317,3 @@ export function getRelativeDateDisplayName(dateString: string): string {
     return dateString;
   }
 }
-
-// Format match time for display
-export function formatMatchTime(dateString: string | Date | number | null | undefined): string {
-  if (!dateString) {
-    return 'TBD';
-  }
-
-  try {
-    let date: Date;
-
-    // Handle different input types
-    if (typeof dateString === 'string') {
-      date = parseISO(dateString);
-    } else if (dateString instanceof Date) {
-      date = dateString;
-    } else if (typeof dateString === 'number') {
-      date = new Date(dateString);
-    } else {
-      return 'TBD';
-    }
-
-    // Check for invalid date
-    if (!isValid(date)) {
-      return 'TBD';
-    }
-
-    return format(date, 'h:mm a');
-  } catch (error) {
-    console.error('Error formatting match time:', error);
-    return 'TBD';
-  }
-}

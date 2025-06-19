@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "../ui/card";
 import { Filter, Activity } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { useQuery } from "@tanstack/react-query";
@@ -8,8 +8,6 @@ import { apiRequest } from "@/lib/queryClient";
 import { useTodayPopularFixtures } from "../../hooks/useTodayPopularFixtures";
 import TodayPopularFootballLeaguesNew from "./TodayPopularFootballLeaguesNew";
 import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
-import AllCountriesFixtures from "./AllCountriesFixtures";
-import MyUpdatedMatchbyCountry from "./MyUpdatedMatchbyCountry";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
@@ -424,9 +422,6 @@ export const TodayMatchPageCard = ({
             timeFilterActive={timeFilterActive}
             onMatchCardClick={onMatchCardClick}
           />
-          <AllCountriesFixtures />
-
-
         </>
       )}
     </>

@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
-import MyUpdatedFixtureDateSelection from "@/lib/MyUpdatedFixtureDateSelection";
 // Removed complex date utilities - using simple date filtering now
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import {
@@ -123,8 +122,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [liveElapsedTimes, setLiveElapsedTimes] = useState<Map<number, number>>(new Map());
-  const [liveFixtures, setLiveFixtures] = useState<any[]>([]);
 
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -155,7 +152,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Enhanced leagues by country with tier-based filtering
   const POPULAR_LEAGUES_BY_COUNTRY = {
-    England: [39, 45, 48, 38], // Premier League, FA Cup, EFL Cup, League 38
+    England: [39, 45, 48], // Premier League, FA Cup, EFL Cup
     Spain: [140, 143], // La Liga, Copa del Rey
     Italy: [135, 137], // Serie A, Coppa Italia
     Germany: [78, 81], // Bundesliga, DFB Pokal
@@ -171,8 +168,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
     ...Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat(),
     914, // COSAFA Cup
     16,  // CONCACAF Gold Cup
-    38,  // Premier League (ensure it's included)
-    15,  // FIFA Club World Cup (ensure it's included)
   ];
 
   // Popular teams for match prioritization
@@ -258,88 +253,171 @@ const TodayPopularFootballLeaguesNew: React.FC<
     },
   );
 
-  // Fetch live fixtures for real-time updates (only if selected date is today)
-  const { data: liveFixturesData = [] } = useQuery({
-    queryKey: ["live-fixtures-for-popular-leagues"],
-    queryFn: async () => {
-      console.log("🔴 [TodayPopularLeague] Fetching live fixtures for real-time updates");
-      const response = await apiRequest("GET", "/api/fixtures/live");
-      const data = await response.json();
-      console.log(`🔴 [TodayPopularLeague] Received ${data.length} live fixtures`);
-      return data;
-    },
-    staleTime: 20000, // 20 seconds for faster live updates
-    gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
-    enabled: isToday && enableFetching, // Only fetch live data if viewing today's matches
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchOnReconnect: true,
-    refetchInterval: 30000, // Auto-refresh every 30 seconds
-  });
-
-  // Update live fixtures state
-  useEffect(() => {
-    if (liveFixturesData && liveFixturesData.length > 0) {
-      setLiveFixtures(liveFixturesData);
-    }
-  }, [liveFixturesData]);
-
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
-  // Merge live fixtures with regular fixtures for real-time updates
-  const mergedFixtures = useMemo(() => {
+  // Smart filtering operations
+  const filteredFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
-    // If we have live fixtures and we're viewing today, merge them with regular fixtures
-    if (isToday && liveFixtures.length > 0) {
-      const liveFixtureIds = new Set(liveFixtures.map(f => f.fixture?.id));
-      
-      // Replace fixtures with live data if available, otherwise keep original
-      const merged = fixtures.map(fixture => {
-        if (liveFixtureIds.has(fixture.fixture?.id)) {
-          const liveVersion = liveFixtures.find(lf => lf.fixture?.id === fixture.fixture?.id);
-          if (liveVersion) {
-            console.log(`🔄 [LIVE UPDATE] Updated fixture ${fixture.fixture.id} with live data`);
-            return liveVersion;
-          }
-        }
-        return fixture;
-      });
-
-      return merged;
-    }
-
-    return fixtures;
-  }, [fixtures, liveFixtures, isToday, selectedDate]);
-
-  // Timezone-aware filtering operations using MyUpdatedFixtureDateSelection
-  const filteredFixtures = useMemo(() => {
-    if (!mergedFixtures?.length) return [];
-
     console.log(
-      `🔍 [TIMEZONE FILTER] Processing ${mergedFixtures.length} fixtures for date: ${selectedDate}`,
+      `🔍 [TOMORROW DEBUG] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
     );
 
-    // Debug: Check for League 38 and 15 in the input data
-    const league38Matches = mergedFixtures.filter(f => f.league?.id === 38);
-    const league15Matches = mergedFixtures.filter(f => f.league?.id === 15);
-    console.log(`🔍 [LEAGUE DEBUG] Found ${league38Matches.length} League 38 matches, ${league15Matches.length} League 15 matches in input data`);
+    // Count COSAFA Cup matches in input
+    const cosafaMatches = fixtures.filter(
+      (f) =>
+        f.league?.name?.toLowerCase().includes("cosafa") ||
+        f.teams?.home?.name?.toLowerCase().includes("cosafa") ||
+        f.teams?.away?.name?.toLowerCase().includes("cosafa"),
+    );
+    console.log(
+      `🏆 [COSAFA DEBUG] Found ${cosafaMatches.length} COSAFA Cup matches in input fixtures:`,
+      cosafaMatches.map((m) => ({
+        id: m.fixture?.id,
+        date: m.fixture?.date,
+        status: m.fixture?.status?.short,
+        league: m.league?.name,
+        home: m.teams?.home?.name,
+        away: m.teams?.away?.name,
+      })),
+    );
 
     const startTime = Date.now();
 
-    // Use MyUpdatedFixtureDateSelection for proper timezone-aware filtering
-    const timezoneFilteredFixtures = MyUpdatedFixtureDateSelection.getFixturesForSelectedDate(
-      mergedFixtures,
-      selectedDate
-    );
+    // Determine what type of date is selected
+    const today = new Date();
+    const todayString = format(today, "yyyy-MM-dd");
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowString = format(tomorrow, "yyyy-MM-dd");
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayString = format(yesterday, "yyyy-MM-dd");
 
-    console.log(
-      `✅ [TIMEZONE FILTER] After timezone filtering: ${timezoneFilteredFixtures.length} fixtures remaining`,
-    );
+    const isSelectedTomorrow = selectedDate === tomorrowString;
 
-    // Extract just the fixtures from the processed result
-    const filtered = timezoneFilteredFixtures.map(processed => processed.fixture).filter((fixture) => {
+    const filtered = fixtures.filter((fixture) => {
+      // Apply smart time filtering with selected date context
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+          fixture.fixture.date,
+          fixture.fixture.status.short,
+          selectedDate + "T12:00:00Z", // Pass selected date as context
+        );
+
+        // Check if this match should be included based on the selected date
+        const shouldInclude = (() => {
+          // For today's view, exclude any matches that are from previous days
+          if (selectedDate === todayString) {
+            // Only include matches that are specifically labeled as "today"
+            // Exclude anything from yesterday or other dates
+            if (smartResult.label === "today") return true;
+
+            // Additional check: exclude matches from previous dates regardless of status
+            const fixtureDate = new Date(fixture.fixture.date);
+            const selectedDateObj = new Date(selectedDate);
+            const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+
+            if (fixtureDateString < selectedDate) {
+              console.log(`❌ [DATE FILTER] Excluding yesterday match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${fixtureDateString} < ${selectedDate})`);
+              return false;
+            }
+
+            return false;
+          }
+
+          if (
+            selectedDate === tomorrowString &&
+            smartResult.label === "tomorrow"
+          )
+            return true;
+          if (
+            selectedDate === yesterdayString &&
+            smartResult.label === "yesterday"
+          )
+            return true;
+
+          // Handle custom dates (dates that are not today/tomorrow/yesterday)
+          if (
+            selectedDate !== todayString &&
+            selectedDate !== tomorrowString &&
+            selectedDate !== yesterdayString
+          ) {
+            if (smartResult.label === "custom" && smartResult.isWithinTimeRange)
+              return true;
+          }
+
+          return false;
+        })();
+
+        if (!shouldInclude) {
+          console.log(
+            `❌ [SMART FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            {
+              fixtureDate: fixture.fixture.date,
+              status: fixture.fixture.status.short,
+              reason: smartResult.reason,
+              label: smartResult.label,
+              selectedDate,
+              isWithinTimeRange: smartResult.isWithinTimeRange,
+            },
+          );
+          return false;
+        }
+
+        // Additional safety check: ensure match date matches selected date for strict filtering
+        const fixtureDate = parseISO(fixture.fixture.date);
+        const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+
+        // For today's view, be extra strict about date matching
+        if (selectedDate === todayString && fixtureDateString !== selectedDate) {
+          console.log(
+            `❌ [DATE MISMATCH] Excluding match with wrong date: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            {
+              fixtureDate: fixtureDateString,
+              selectedDate,
+              status: fixture.fixture.status.short,
+              reason: "Date mismatch - not for today"
+            },
+          );
+          return false;
+        }
+
+        // Additional debug for COSAFA Cup matches
+        const isCOSAFAMatch =
+          fixture.league?.name?.toLowerCase().includes("cosafa") ||
+          fixture.teams?.home?.name?.toLowerCase().includes("cosafa") ||
+          fixture.teams?.away?.name?.toLowerCase().includes("cosafa");
+
+        if (isCOSAFAMatch) {
+          console.log(
+            `🏆 [COSAFA SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            {
+              fixtureId: fixture.fixture?.id,
+              fixtureDate: fixture.fixture.date,
+              status: fixture.fixture.status.short,
+              reason: smartResult.reason,
+              label: smartResult.label,
+              selectedDate,
+              isWithinTimeRange: smartResult.isWithinTimeRange,
+              league: fixture.league?.name,
+            },
+          );
+        } else {
+          console.log(
+            `✅ [SMART FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            {
+              fixtureDate: fixture.fixture.date,
+              status: fixture.fixture.status.short,
+              reason: smartResult.reason,
+              label: smartResult.label,
+              selectedDate,
+              isWithinTimeRange: smartResult.isWithinTimeRange,
+            },
+          );
+        }
+      }
 
       // Client-side filtering for popular leagues and countries
       const leagueId = fixture.league?.id;
@@ -400,26 +478,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
         country.includes("europe") ||
         country.includes("international");
 
-      // Always include matches from popular leagues (including League 38 and 15)
-      if (isPopularLeague) {
-        console.log(`✅ [POPULAR LEAGUE] Allowing league ${leagueId}: ${fixture.league.name}`);
-        return true;
-      }
-
-      // Include matches from popular countries
-      if (isFromPopularCountry) {
-        console.log(`✅ [POPULAR COUNTRY] Allowing country ${country}: ${fixture.league.name}`);
-        return true;
-      }
-
-      // Include international competitions
-      if (isInternationalCompetition) {
-        console.log(`✅ [INTERNATIONAL] Allowing international: ${fixture.league.name}`);
-        return true;
-      }
-
-      console.log(`❌ [FILTERED OUT] League ${leagueId}: ${fixture.league.name} (Country: ${country})`);
-      return false;
+      return (
+        isPopularLeague || isFromPopularCountry || isInternationalCompetition
+      );
     });
 
     const finalFiltered = filtered.filter((fixture) => {
@@ -519,33 +580,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
     );
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Filtered ${mergedFixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
+      `🔍 [TOMORROW DEBUG] Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
     );
-
-    // Debug: Check for League 38 and 15 after filtering
-    const finalLeague38 = finalFiltered.filter(f => f.league?.id === 38);
-    const finalLeague15 = finalFiltered.filter(f => f.league?.id === 15);
-    console.log(`🔍 [LEAGUE DEBUG] After filtering: ${finalLeague38.length} League 38 matches, ${finalLeague15.length} League 15 matches remaining`);
-    
-    if (finalLeague38.length > 0) {
-      console.log(`✅ [LEAGUE 38] Matches found:`, finalLeague38.map(m => ({
-        id: m.fixture?.id,
-        date: m.fixture?.date,
-        status: m.fixture?.status?.short,
-        home: m.teams?.home?.name,
-        away: m.teams?.away?.name,
-      })));
-    }
-    
-    if (finalLeague15.length > 0) {
-      console.log(`✅ [LEAGUE 15] Matches found:`, finalLeague15.map(m => ({
-        id: m.fixture?.id,
-        date: m.fixture?.date,
-        status: m.fixture?.status?.short,
-        home: m.teams?.home?.name,
-        away: m.teams?.away?.name,
-      })));
-    }
     console.log(
       `🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`,
       finalCosafaMatches.map((m) => ({
@@ -1014,28 +1050,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
   };
 
-  // Initialize live elapsed times from fixtures
-  useEffect(() => {
-    if (mergedFixtures && mergedFixtures.length > 0) {
-      const newElapsedTimes = new Map();
-      
-      mergedFixtures.forEach(fixture => {
-        if (fixture && fixture.fixture && fixture.fixture.status) {
-          const status = fixture.fixture.status.short;
-          const fixtureId = fixture.fixture.id;
-          
-          // Initialize elapsed times for live matches
-          if (["1H", "2H", "LIVE"].includes(status)) {
-            const currentElapsed = fixture.fixture.status.elapsed || 0;
-            newElapsedTimes.set(fixtureId, currentElapsed);
-          }
-        }
-      });
-      
-      setLiveElapsedTimes(newElapsedTimes);
-    }
-  }, [mergedFixtures]);
-
   // Start with all countries collapsed by default
   useEffect(() => {
     // Reset to collapsed state when selected date changes
@@ -1046,35 +1060,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-      
-      // Update elapsed times for live matches
-      setLiveElapsedTimes(prevTimes => {
-        const newTimes = new Map(prevTimes);
-        let hasUpdates = false;
-
-        // Get all live matches from both regular fixtures and live fixtures
-        const allFixtures = [...(fixtures || []), ...(liveFixtures || [])];
-        
-        allFixtures.forEach(fixture => {
-          if (fixture && fixture.fixture && fixture.fixture.status) {
-            const status = fixture.fixture.status.short;
-            const fixtureId = fixture.fixture.id;
-            
-            // Only update for actively live matches (not halftime)
-            if (["1H", "2H", "LIVE"].includes(status) && status !== "HT") {
-              const currentElapsed = newTimes.get(fixtureId) || fixture.fixture.status.elapsed || 0;
-              newTimes.set(fixtureId, currentElapsed + 1);
-              hasUpdates = true;
-            }
-          }
-        });
-
-        return hasUpdates ? newTimes : prevTimes;
-      });
     }, 60000); // Update every minute
 
     return () => clearInterval(timer);
-  }, [fixtures, liveFixtures]);
+  }, []);
 
   // Clear Venezuela flag cache on component mount to ensure fresh fetch
   useEffect(() => {
@@ -1708,6 +1697,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               <div className="match-status-top">
                                 {(() => {
                                   const status = match.fixture.status.short;
+                                  const elapsed = match.fixture.status.elapsed;
+                                  const matchDate = parseISO(match.fixture.date);
+                                  const now = new Date();
+                                  const minutesSinceKickoff = Math.floor((now.getTime() - matchDate.getTime()) / (1000 * 60));
 
                                   // Live matches status
                                   if (
@@ -1723,17 +1716,105 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         "INT",
                                       ].includes(status)
                                     ) {
-                                      // Use real-time elapsed time if available, otherwise fall back to API
-                                      const realtimeElapsed = liveElapsedTimes.get(match.fixture.id);
-                                      const displayElapsed = realtimeElapsed !== undefined 
-                                        ? realtimeElapsed 
-                                        : match.fixture.status.elapsed || 0;
+                                      let displayText = "";
+
+                                      // Enhanced stale match detection with date validation
+                                      const matchStartDate = parseISO(match.fixture.date);
+                                      const currentDate = new Date();
+                                      const hoursSinceStart = Math.floor((currentDate.getTime() - matchStartDate.getTime()) / (1000 * 60 * 60));
+                                      const daysSinceStart = Math.floor(hoursSinceStart / 24);
+
+                                      const isLikelyStale = (
+                                        // Match is from a previous day and still showing as live
+                                        daysSinceStart >= 1 ||
+                                        // Match has been "live" for more than 3 hours
+                                        minutesSinceKickoff > 180 ||
+                                        // Specific status checks
+                                        (status === "2H" && elapsed >= 100) || // 100+ minutes is definitely stale
+                                        (status === "1H" && elapsed >= 60) || // 60+ minutes in first half is impossible
+                                        (["LIVE", "LIV"].includes(status) && elapsed >= 100) || // Generic live with high elapsed time
+                                        // Match started more than 4 hours ago and still showing as live
+                                        (hoursSinceStart > 4)
+                                      );
+
+                                      if (isLikelyStale) {
+                                        console.log(`🚨 [STALE MATCH] Match ${match.fixture.id}:`, {
+                                          teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
+                                          status: status,
+                                          elapsed: elapsed,
+                                          fixtureDate: match.fixture.date,
+                                          matchStartDate: matchStartDate.toISOString(),
+                                          currentDate: currentDate.toISOString(),
+                                          minutesSinceKickoff: minutesSinceKickoff,
+                                          hoursSinceStart: hoursSinceStart,
+                                          daysSinceStart: daysSinceStart,
+                                          reason: daysSinceStart >= 1 ? 'Match from previous day' : 
+                                                 hoursSinceStart > 4 ? 'Match started over 4 hours ago' :
+                                                 minutesSinceKickoff > 180 ? 'Live for over 3 hours' :
+                                                 'Impossible elapsed time for status'
+                                        });
+                                        // For stale matches, show as "Ended" regardless of API status
+                                        const actualStatus = "Ended";
+
+                                        return (
+                                          <div className="match-status-label status-ended">
+                                            {actualStatus}
+                                          </div>
+                                        );
+                                      }
+
+                                      // Real-time calculation for live matches
+                                      if (status === "HT") {
+                                        displayText = "Halftime";
+                                      } else if (status === "P") {
+                                        displayText = "Penalties";
+                                      } else if (status === "ET") {
+                                        displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
+                                      } else if (status === "BT") {
+                                        displayText = "Break Time";
+                                      } else if (status === "INT") {
+                                        displayText = "Interrupted";
+                                      } else {
+                                        // For LIVE, LIV, 1H, 2H - use real-time calculation when possible
+                                        let currentElapsed = elapsed;
+
+                                        // If we have a valid kickoff time and elapsed time, calculate real-time elapsed
+                                        if (elapsed !== null && elapsed !== undefined && minutesSinceKickoff > 0) {
+                                          // Estimate current time based on when match started
+                                          const estimatedElapsed = Math.max(elapsed, Math.min(minutesSinceKickoff, 95));
+                                          currentElapsed = estimatedElapsed;
+                                        }
+
+                                        if (currentElapsed !== null && currentElapsed !== undefined) {
+                                          // Handle injury/stoppage time more reliably
+                                          const extraTime = match.fixture.status.extra;
+
+                                          if (status === "2H" && currentElapsed >= 90) {
+                                            // Second half injury time
+                                            if (extraTime && extraTime > 0) {
+                                              displayText = `${currentElapsed}'+${extraTime}'`;
+                                            } else {
+                                              displayText = `${currentElapsed}'+`;
+                                            }
+                                          } else if (status === "1H" && currentElapsed >= 45) {
+                                            // First half injury time
+                                            if (extraTime && extraTime > 0) {
+                                              displayText = `${currentElapsed}'+${extraTime}'`;
+                                            } else {
+                                              displayText = `${currentElapsed}'+`;
+                                            }
+                                          } else {
+                                            // Regular time
+                                            displayText = `${currentElapsed}'`;
+                                          }
+                                        } else {
+                                          displayText = "LIVE";
+                                        }
+                                      }
 
                                       return (
                                         <div className="match-status-label status-live">
-                                          {status === "HT"
-                                            ? "Halftime"
-                                            : `${displayElapsed}'`}
+                                          {displayText}
                                         </div>
                                       );
                                     }

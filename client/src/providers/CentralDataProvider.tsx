@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppDispatch } from '@/lib/store';
 import { fixturesActions } from '@/lib/store';
@@ -107,14 +107,14 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     });
   }, [selectedDate, queryClient]);
 
-  const contextValue = useMemo(() => ({
+  const contextValue: CentralDataContextType = {
     fixtures: dateFixtures,
     liveFixtures,
     isLoading: isLoadingDate || isLoadingLive,
     error: dateError?.message || liveError?.message || null,
     refetchLive,
     refetchDate
-  }), [dateFixtures, liveFixtures, isLoadingDate, isLoadingLive, dateError?.message, liveError?.message, refetchLive, refetchDate]);
+  };
 
   return (
     <CentralDataContext.Provider value={contextValue}>
