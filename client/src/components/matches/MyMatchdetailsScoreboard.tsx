@@ -59,14 +59,14 @@ const MyMatchdetailsScoreboard = ({
   };
 
   const displayMatch = match || sampleMatch;
-  
+
   // Debug: Log the match data being received
-  console.log('🎯 [MyMatchdetailsScoreboard] Received match data:', {
+  console.log("🎯 [MyMatchdetailsScoreboard] Received match data:", {
     hasMatch: !!match,
     fixtureId: displayMatch?.fixture?.id,
     teams: `${displayMatch?.teams?.home?.name} vs ${displayMatch?.teams?.away?.name}`,
     status: displayMatch?.fixture?.status?.short,
-    league: displayMatch?.league?.name
+    league: displayMatch?.league?.name,
   });
 
   // Real-time update effect for live matches - using LiveMatchForAllCountry approach
@@ -79,90 +79,118 @@ const MyMatchdetailsScoreboard = ({
     if (isLiveMatch) {
       // Initialize with current elapsed time from API
       setLiveElapsed(displayMatch.fixture.status.elapsed || 0);
-      
-      console.log('🎯 [Live Timer] Starting live updates for match:', {
+
+      console.log("🎯 [Live Timer] Starting live updates for match:", {
         fixtureId: displayMatch.fixture.id,
         teams: `${displayMatch.teams?.home?.name} vs ${displayMatch.teams?.away?.name}`,
         status: status,
-        initialElapsed: displayMatch.fixture.status.elapsed
+        initialElapsed: displayMatch.fixture.status.elapsed,
       });
 
       // Fetch updated elapsed time from API every 30 seconds - similar to LiveMatchForAllCountry
       const timer = setInterval(async () => {
         try {
-          const response = await fetch('/api/fixtures/live');
+          const response = await fetch("/api/fixtures/live");
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
-          
+
           const liveFixtures = await response.json();
-          console.log('🔄 [Live Timer] Fetched live fixtures:', {
+          console.log("🔄 [Live Timer] Fetched live fixtures:", {
             totalFixtures: liveFixtures.length,
             searchingFor: displayMatch.fixture.id,
-            availableIds: liveFixtures.map((f: any) => f.fixture.id)
+            availableIds: liveFixtures.map((f: any) => f.fixture.id),
           });
-          
+
           // Find the current match in live fixtures
           const currentLiveMatch = liveFixtures.find(
-            (fixture: any) => fixture.fixture.id === displayMatch.fixture.id
+            (fixture: any) => fixture.fixture.id === displayMatch.fixture.id,
           );
-          
+
           if (currentLiveMatch) {
-            console.log('✅ [Live Timer] Found current match with updated data:', {
-              id: currentLiveMatch.fixture.id,
-              elapsed: currentLiveMatch.fixture.status.elapsed,
-              status: currentLiveMatch.fixture.status.short,
-              homeScore: currentLiveMatch.goals?.home,
-              awayScore: currentLiveMatch.goals?.away
-            });
-            
+            console.log(
+              "✅ [Live Timer] Found current match with updated data:",
+              {
+                id: currentLiveMatch.fixture.id,
+                elapsed: currentLiveMatch.fixture.status.elapsed,
+                status: currentLiveMatch.fixture.status.short,
+                homeScore: currentLiveMatch.goals?.home,
+                awayScore: currentLiveMatch.goals?.away,
+              },
+            );
+
             // Update elapsed time
-            if (currentLiveMatch.fixture.status.elapsed !== null && 
-                currentLiveMatch.fixture.status.elapsed !== undefined) {
+            if (
+              currentLiveMatch.fixture.status.elapsed !== null &&
+              currentLiveMatch.fixture.status.elapsed !== undefined
+            ) {
               setLiveElapsed(currentLiveMatch.fixture.status.elapsed);
             }
           } else {
-            console.log('❌ [Live Timer] Current match not found in live fixtures - checking if match ended');
-            
+            console.log(
+              "❌ [Live Timer] Current match not found in live fixtures - checking if match ended",
+            );
+
             // If match not found in live fixtures, it might have ended
             // Try to fetch the specific match to check its current status
             try {
-              const specificMatchResponse = await fetch(`/api/fixtures?ids=${displayMatch.fixture.id}`);
+              const specificMatchResponse = await fetch(
+                `/api/fixtures?ids=${displayMatch.fixture.id}`,
+              );
               if (specificMatchResponse.ok) {
                 const specificMatchData = await specificMatchResponse.json();
                 if (specificMatchData.length > 0) {
                   const updatedMatch = specificMatchData[0];
-                  console.log('🔍 [Live Timer] Specific match status:', {
+                  console.log("🔍 [Live Timer] Specific match status:", {
                     id: updatedMatch.fixture.id,
                     status: updatedMatch.fixture.status.short,
-                    elapsed: updatedMatch.fixture.status.elapsed
+                    elapsed: updatedMatch.fixture.status.elapsed,
                   });
-                  
+
                   // If match has ended, stop the timer
-                  if (['FT', 'AET', 'PEN'].includes(updatedMatch.fixture.status.short)) {
-                    console.log('🏁 [Live Timer] Match has ended, stopping updates');
+                  if (
+                    ["FT", "AET", "PEN"].includes(
+                      updatedMatch.fixture.status.short,
+                    )
+                  ) {
+                    console.log(
+                      "🏁 [Live Timer] Match has ended, stopping updates",
+                    );
                     setLiveElapsed(null);
                     clearInterval(timer);
                   }
                 }
               }
             } catch (specificError) {
-              console.error('❌ [Live Timer] Failed to fetch specific match:', specificError);
+              console.error(
+                "❌ [Live Timer] Failed to fetch specific match:",
+                specificError,
+              );
             }
           }
         } catch (error) {
-          console.error('❌ [Live Timer] Failed to fetch live match updates:', error);
+          console.error(
+            "❌ [Live Timer] Failed to fetch live match updates:",
+            error,
+          );
         }
       }, 30000); // 30 second intervals like LiveMatchForAllCountry
 
       return () => {
-        console.log('🛑 [Live Timer] Cleaning up timer for match:', displayMatch.fixture.id);
+        console.log(
+          "🛑 [Live Timer] Cleaning up timer for match:",
+          displayMatch.fixture.id,
+        );
         clearInterval(timer);
       };
     } else {
       setLiveElapsed(null);
     }
-  }, [displayMatch, displayMatch?.fixture?.status?.short, displayMatch?.fixture?.id]);
+  }, [
+    displayMatch,
+    displayMatch?.fixture?.status?.short,
+    displayMatch?.fixture?.id,
+  ]);
 
   const formatDateTime = (dateStr: string) => {
     try {
@@ -195,7 +223,10 @@ const MyMatchdetailsScoreboard = ({
     const isLiveMatch = ["LIVE", "1H", "2H"].includes(status);
     if (isLiveMatch) {
       // Use live elapsed time if available, otherwise fall back to API elapsed time
-      const elapsed = liveElapsed !== null ? liveElapsed : (displayMatch.fixture.status.elapsed || 0);
+      const elapsed =
+        liveElapsed !== null
+          ? liveElapsed
+          : displayMatch.fixture.status.elapsed || 0;
       const timeLabel =
         status === "1H"
           ? `${elapsed}'`
@@ -262,11 +293,11 @@ const MyMatchdetailsScoreboard = ({
       </CardTitle>
       <CardHeader className="text-center"></CardHeader>
 
-      <CardContent className="p-0 m-0">
+      <CardContent className="p-0 m-0 ">
         {/* Teams Section */}
         <div className="flex items-center justify-between">
           {/* Home Team */}
-          <div className="flex flex-col items-center space-y-4 flex-1">
+          <div className="flex flex-col items-center space-y-2 flex-1">
             {displayMatch.league.country === "World" ||
             displayMatch.league.country === "International" ? (
               <MyWorldTeamLogo
@@ -336,13 +367,17 @@ const MyMatchdetailsScoreboard = ({
 
                       // Check if match is today and less than 12 hours away
                       if (matchDay.getTime() === todayDay.getTime()) {
-                        const hoursToMatch = (matchDate.getTime() - today.getTime()) / (1000 * 60 * 60);
-                        
+                        const hoursToMatch =
+                          (matchDate.getTime() - today.getTime()) /
+                          (1000 * 60 * 60);
+
                         if (hoursToMatch > 0 && hoursToMatch <= 12) {
                           // Show countdown timer for matches within 12 hours
                           return (
                             <div className="flex flex-col items-center space-y-1">
-                              <MatchCountdownTimer matchDate={displayMatch.fixture.date} />
+                              <MatchCountdownTimer
+                                matchDate={displayMatch.fixture.date}
+                              />
                             </div>
                           );
                         } else {
@@ -382,15 +417,17 @@ const MyMatchdetailsScoreboard = ({
                         today.getMonth(),
                         today.getDate(),
                       );
-                      
+
                       // Don't show time if countdown timer is displayed
                       if (matchDay.getTime() === todayDay.getTime()) {
-                        const hoursToMatch = (matchDate.getTime() - today.getTime()) / (1000 * 60 * 60);
+                        const hoursToMatch =
+                          (matchDate.getTime() - today.getTime()) /
+                          (1000 * 60 * 60);
                         if (hoursToMatch > 0 && hoursToMatch <= 12) {
                           return ""; // Hide time when countdown is shown
                         }
                       }
-                      
+
                       return format(matchDate, "HH:mm");
                     } catch (error) {
                       return "TBD";
@@ -415,7 +452,7 @@ const MyMatchdetailsScoreboard = ({
           </div>
 
           {/* Away Team */}
-          <div className="flex flex-col items-center space-y-4 flex-1">
+          <div className="flex flex-col items-center space-y-2 flex-1">
             {displayMatch.league.country === "World" ||
             displayMatch.league.country === "International" ? (
               <MyWorldTeamLogo
@@ -455,9 +492,11 @@ const MyMatchdetailsScoreboard = ({
             </span>
           </div>
         </div>
+      </CardContent>
 
-        {/* Navigation Tabs */}
-        <div className="flex space-x-1 py-2 pb-0 border-t px-0">
+      {/* Navigation Tabs */}
+      <Card>
+        <div className="flex space-x-1 pb-0  px-0">
           <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-600 border-b border-blue-500 pb-0 ">
             Match
           </button>
@@ -476,7 +515,7 @@ const MyMatchdetailsScoreboard = ({
             Head to Head
           </button>
         </div>
-      </CardContent>
+      </Card>
     </Card>
   );
 };
