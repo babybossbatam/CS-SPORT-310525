@@ -36,7 +36,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const [videoData, setVideoData] = useState<YouTubeVideo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showVideo, setShowVideo] = useState(false);
+  
 
   // YouTube API Configuration
   const API_KEY = 'AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o';
@@ -122,9 +122,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     });
   };
 
-  const handlePlayVideo = () => {
-    setShowVideo(true);
-  };
+  
 
   const handleOpenInYouTube = () => {
     if (videoData) {
@@ -159,73 +157,40 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           </div>
         )}
 
-        {videoData && !showVideo && (
+        {videoData && (
           <div className="space-y-4">
-            <div className="relative cursor-pointer group" onClick={handlePlayVideo}>
-              <img 
-                src={videoData.snippet.thumbnails.medium.url}
-                alt={videoData.snippet.title}
-                className="w-full h-48 object-cover rounded-lg transition-transform group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                <Play className="h-16 w-16 text-white fill-white" />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <h3 className="font-semibold text-gray-900 line-clamp-2">
-                {videoData.snippet.title}
-              </h3>
-              <div className="flex items-center justify-between text-sm text-gray-500">
-                <span>{videoData.snippet.channelTitle}</span>
-                <span>{formatPublishDate(videoData.snippet.publishedAt)}</span>
-              </div>
-              <div className="flex gap-2 mt-3">
-                <button
-                  onClick={handlePlayVideo}
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                >
-                  <Play className="h-4 w-4" />
-                  Watch Now
-                </button>
-                <button
-                  onClick={handleOpenInYouTube}
-                  className="flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  YouTube
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {videoData && showVideo && (
-          <div className="space-y-4">
+            {/* Embedded Video Player - Default Display */}
             <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
               <iframe
-                className="absolute top-0 left-0 w-full h-full rounded-lg"
-                src={`https://www.youtube.com/embed/${videoData.id.videoId}?autoplay=1`}
+                className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+                src={`https://www.youtube.com/embed/${videoData.id.videoId}?rel=0&modestbranding=1`}
                 title={videoData.snippet.title}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
             </div>
-            <div className="flex justify-between items-center">
-              <button
-                onClick={() => setShowVideo(false)}
-                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-              >
-                ← Back to thumbnail
-              </button>
-              <button
-                onClick={handleOpenInYouTube}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:text-blue-800 transition-colors"
-              >
-                <ExternalLink className="h-4 w-4" />
-                Open in YouTube
-              </button>
+            
+            {/* Video Info and Controls */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-gray-900 line-clamp-2 text-lg">
+                {videoData.snippet.title}
+              </h3>
+              <div className="flex items-center justify-between text-sm text-gray-500">
+                <span className="font-medium">{videoData.snippet.channelTitle}</span>
+                <span>{formatPublishDate(videoData.snippet.publishedAt)}</span>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={handleOpenInYouTube}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Watch on YouTube
+                </button>
+              </div>
             </div>
           </div>
         )}
