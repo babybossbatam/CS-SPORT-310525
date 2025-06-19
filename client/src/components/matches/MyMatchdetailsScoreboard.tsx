@@ -84,18 +84,37 @@ const MyMatchdetailsScoreboard = ({
       const timer = setInterval(async () => {
         try {
           const response = await fetch('/api/fixtures/live');
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
           const liveFixtures = await response.json();
+          console.log('🔄 [Live Update] Fetched live fixtures:', liveFixtures.length);
           
           // Find the current match in live fixtures
           const currentLiveMatch = liveFixtures.find(
             (fixture: any) => fixture.fixture.id === displayMatch.fixture.id
           );
           
-          if (currentLiveMatch && currentLiveMatch.fixture.status.elapsed) {
-            setLiveElapsed(currentLiveMatch.fixture.status.elapsed);
+          if (currentLiveMatch) {
+            console.log('✅ [Live Update] Found current match:', {
+              id: currentLiveMatch.fixture.id,
+              elapsed: currentLiveMatch.fixture.status.elapsed,
+              status: currentLiveMatch.fixture.status.short
+            });
+            
+            if (currentLiveMatch.fixture.status.elapsed !== null && 
+                currentLiveMatch.fixture.status.elapsed !== undefined) {
+              setLiveElapsed(currentLiveMatch.fixture.status.elapsed);
+            }
+          } else {
+            console.log('❌ [Live Update] Current match not found in live fixtures:', {
+              searchingFor: displayMatch.fixture.id,
+              availableFixtures: liveFixtures.map((f: any) => f.fixture.id)
+            });
           }
         } catch (error) {
-          console.error('Failed to fetch live match updates:', error);
+          console.error('❌ [Live Update] Failed to fetch live match updates:', error);
         }
       }, 30000);
 
