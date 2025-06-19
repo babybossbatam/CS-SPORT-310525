@@ -175,12 +175,13 @@ const MatchEndedDetailsCard: React.FC<MatchEndedDetailsCardProps> = ({
               <div className="relative w-full rounded-lg overflow-hidden shadow-lg" style={{ paddingBottom: '56.25%' }}>
                 <iframe
                   className="absolute top-0 left-0 w-full h-full"
-                  src={`https://www.youtube.com/embed/${highlightVideo.id}?rel=0&modestbranding=1`}
+                  src={`https://www.youtube.com/embed/${highlightVideo.id}?autoplay=0&mute=0&controls=1&showinfo=1&rel=0&modestbranding=1&enablejsapi=1&origin=${window.location.origin}`}
                   title={highlightVideo.title}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   referrerPolicy="strict-origin-when-cross-origin"
                   allowFullScreen
+                  loading="lazy"
                 />
               </div>
               <div className="mt-3 p-3 bg-gray-50 rounded-lg">
