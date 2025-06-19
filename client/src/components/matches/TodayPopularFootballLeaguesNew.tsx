@@ -123,6 +123,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [liveElapsedTimes, setLiveElapsedTimes] = useState<Map<number, number>>(new Map());
+  const [liveFixtures, setLiveFixtures] = useState<any[]>([]);
 
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -254,22 +256,77 @@ const TodayPopularFootballLeaguesNew: React.FC<
     },
   );
 
+  // Fetch live fixtures for real-time updates (only if selected date is today)
+  const today = new Date().toISOString().slice(0, 10);
+  const isToday = selectedDate === today;
+
+  const { data: liveFixturesData = [] } = useQuery({
+    queryKey: ["live-fixtures-for-popular-leagues"],
+    queryFn: async () => {
+      console.log("🔴 [TodayPopularLeague] Fetching live fixtures for real-time updates");
+      const response = await apiRequest("GET", "/api/fixtures/live");
+      const data = await response.json();
+      console.log(`🔴 [TodayPopularLeague] Received ${data.length} live fixtures`);
+      return data;
+    },
+    staleTime: 20000, // 20 seconds for faster live updates
+    gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
+    enabled: isToday && enableFetching, // Only fetch live data if viewing today's matches
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
+  });
+
+  // Update live fixtures state
+  useEffect(() => {
+    if (liveFixturesData && liveFixturesData.length > 0) {
+      setLiveFixtures(liveFixturesData);
+    }
+  }, [liveFixturesData]);
+
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
-  // Timezone-aware filtering operations using MyUpdatedFixtureDateSelection
-  const filteredFixtures = useMemo(() => {
+  // Merge live fixtures with regular fixtures for real-time updates
+  const mergedFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
+    // If we have live fixtures and we're viewing today, merge them with regular fixtures
+    if (isToday && liveFixtures.length > 0) {
+      const liveFixtureIds = new Set(liveFixtures.map(f => f.fixture?.id));
+      
+      // Replace fixtures with live data if available, otherwise keep original
+      const merged = fixtures.map(fixture => {
+        if (liveFixtureIds.has(fixture.fixture?.id)) {
+          const liveVersion = liveFixtures.find(lf => lf.fixture?.id === fixture.fixture?.id);
+          if (liveVersion) {
+            console.log(`🔄 [LIVE UPDATE] Updated fixture ${fixture.fixture.id} with live data`);
+            return liveVersion;
+          }
+        }
+        return fixture;
+      });
+
+      return merged;
+    }
+
+    return fixtures;
+  }, [fixtures, liveFixtures, isToday, selectedDate]);
+
+  // Timezone-aware filtering operations using MyUpdatedFixtureDateSelection
+  const filteredFixtures = useMemo(() => {
+    if (!mergedFixtures?.length) return [];
+
     console.log(
-      `🔍 [TIMEZONE FILTER] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
+      `🔍 [TIMEZONE FILTER] Processing ${mergedFixtures.length} fixtures for date: ${selectedDate}`,
     );
 
     const startTime = Date.now();
 
     // Use MyUpdatedFixtureDateSelection for proper timezone-aware filtering
     const timezoneFilteredFixtures = MyUpdatedFixtureDateSelection.getFixturesForSelectedDate(
-      fixtures,
+      mergedFixtures,
       selectedDate
     );
 
@@ -441,7 +498,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     );
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
+      `🔍 [TOMORROW DEBUG] Filtered ${mergedFixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
     );
     console.log(
       `🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`,
@@ -911,6 +968,28 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
   };
 
+  // Initialize live elapsed times from fixtures
+  useEffect(() => {
+    if (mergedFixtures && mergedFixtures.length > 0) {
+      const newElapsedTimes = new Map();
+      
+      mergedFixtures.forEach(fixture => {
+        if (fixture && fixture.fixture && fixture.fixture.status) {
+          const status = fixture.fixture.status.short;
+          const fixtureId = fixture.fixture.id;
+          
+          // Initialize elapsed times for live matches
+          if (["1H", "2H", "LIVE"].includes(status)) {
+            const currentElapsed = fixture.fixture.status.elapsed || 0;
+            newElapsedTimes.set(fixtureId, currentElapsed);
+          }
+        }
+      });
+      
+      setLiveElapsedTimes(newElapsedTimes);
+    }
+  }, [mergedFixtures]);
+
   // Start with all countries collapsed by default
   useEffect(() => {
     // Reset to collapsed state when selected date changes
@@ -921,10 +1000,35 @@ const TodayPopularFootballLeaguesNew: React.FC<
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
+      
+      // Update elapsed times for live matches
+      setLiveElapsedTimes(prevTimes => {
+        const newTimes = new Map(prevTimes);
+        let hasUpdates = false;
+
+        // Get all live matches from both regular fixtures and live fixtures
+        const allFixtures = [...(fixtures || []), ...(liveFixtures || [])];
+        
+        allFixtures.forEach(fixture => {
+          if (fixture && fixture.fixture && fixture.fixture.status) {
+            const status = fixture.fixture.status.short;
+            const fixtureId = fixture.fixture.id;
+            
+            // Only update for actively live matches (not halftime)
+            if (["1H", "2H", "LIVE"].includes(status) && status !== "HT") {
+              const currentElapsed = newTimes.get(fixtureId) || fixture.fixture.status.elapsed || 0;
+              newTimes.set(fixtureId, currentElapsed + 1);
+              hasUpdates = true;
+            }
+          }
+        });
+
+        return hasUpdates ? newTimes : prevTimes;
+      });
     }, 60000); // Update every minute
 
     return () => clearInterval(timer);
-  }, []);
+  }, [fixtures, liveFixtures]);
 
   // Clear Venezuela flag cache on component mount to ensure fresh fetch
   useEffect(() => {
@@ -1573,11 +1677,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         "INT",
                                       ].includes(status)
                                     ) {
+                                      // Use real-time elapsed time if available, otherwise fall back to API
+                                      const realtimeElapsed = liveElapsedTimes.get(match.fixture.id);
+                                      const displayElapsed = realtimeElapsed !== undefined 
+                                        ? realtimeElapsed 
+                                        : match.fixture.status.elapsed || 0;
+
                                       return (
                                         <div className="match-status-label status-live">
                                           {status === "HT"
                                             ? "Halftime"
-                                            : `${match.fixture.status.elapsed || 0}'`}
+                                            : `${displayElapsed}'`}
                                         </div>
                                       );
                                     }
