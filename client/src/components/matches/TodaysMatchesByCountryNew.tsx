@@ -538,7 +538,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [fixtures, selectedDate]);
 
-  // Basic filtering - only use live filter when active, otherwise show all fixtures
+  // Enhanced filtering using smart time filter for accurate date handling
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     // Use the appropriate data source based on filter state
     const allFixtures = liveFilterActive ? liveFixtures : fixtures;
@@ -550,11 +550,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       };
     }
 
-    // Basic filtering - minimal validation only
-    const filtered = allFixtures.filter((fixture: any) => {
+    const filtered: any[] = [];
+    const rejected: Array<{ fixture: any; reason: string }> = [];
+
+    allFixtures.forEach((fixture: any) => {
       // Basic validation
       if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-        return false;
+        rejected.push({ fixture, reason: 'Invalid fixture structure' });
+        return;
       }
 
       // If live filter is active, only show live matches
@@ -563,33 +566,70 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         const isCurrentlyLive = [
           "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
         ].includes(status);
-        return isCurrentlyLive;
+        
+        if (isCurrentlyLive) {
+          filtered.push(fixture);
+        } else {
+          rejected.push({ fixture, reason: 'Not currently live' });
+        }
+        return;
       }
 
-      // For date-based filtering, check if the match is on the selected date
-      if (fixture.fixture.date) {
-        const matchDate = new Date(fixture.fixture.date);
-        const matchDateString = matchDate.toISOString().split('T')[0];
-        return matchDateString === selectedDate;
-      }
+      // For date-based filtering, use smart time filter for accurate date handling
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+          fixture.fixture.date,
+          fixture.fixture.status.short,
+          selectedDate + "T12:00:00Z"
+        );
 
-      return true;
+        // Check if this fixture should be displayed for the selected date
+        const shouldInclude = smartResult.isWithinTimeRange && (
+          (smartResult.label === 'today' && isDateStringToday(selectedDate)) ||
+          (smartResult.label === 'tomorrow' && isDateStringTomorrow(selectedDate)) ||
+          (smartResult.label === 'yesterday' && isDateStringYesterday(selectedDate)) ||
+          (smartResult.label === 'custom' && smartResult.isWithinTimeRange)
+        );
+
+        if (shouldInclude) {
+          filtered.push(fixture);
+          console.log(`✅ [Enhanced Filter] Included fixture:`, {
+            id: fixture.fixture.id,
+            status: fixture.fixture.status.short,
+            date: fixture.fixture.date,
+            selectedDate,
+            smartLabel: smartResult.label,
+            reason: smartResult.reason
+          });
+        } else {
+          rejected.push({ 
+            fixture, 
+            reason: `Smart filter: ${smartResult.reason}` 
+          });
+          console.log(`❌ [Enhanced Filter] Rejected fixture:`, {
+            id: fixture.fixture.id,
+            status: fixture.fixture.status.short,
+            date: fixture.fixture.date,
+            selectedDate,
+            smartLabel: smartResult.label,
+            reason: smartResult.reason
+          });
+        }
+      } else {
+        rejected.push({ fixture, reason: 'Missing date or status' });
+      }
     });
-
-    const rejectedFixtures = allFixtures.filter((f) => !filtered.includes(f));
 
     return {
       validFixtures: filtered,
-      rejectedFixtures: rejectedFixtures.map((f) => ({
-        fixture: f,
-        reason: "Basic filtering applied",
-      })),
+      rejectedFixtures: rejected,
       stats: {
         total: allFixtures.length,
         valid: filtered.length,
-        rejected: allFixtures.length - filtered.length,
+        rejected: rejected.length,
         methods: {
-          "basic-filter": filtered.length,
+          "smart-filter": filtered.length,
+          "live-filter": liveFilterActive ? filtered.length : 0,
         },
       },
     };
