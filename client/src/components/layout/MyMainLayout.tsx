@@ -147,8 +147,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
           {selectedFixture ? (
             <>
               <ScoreDetailsCard currentFixture={selectedFixture} onClose={handleBackToMain} />
-              <MatchDetailCard match={selectedFixture} />
-              {/* Live Action Component */}
+              {/* Live Action Component moved below MyMatchdetailsScoreboard */}
               <div className="mt-4">
                 <MyLiveAction 
                   matchId={selectedFixture?.fixture?.id}
@@ -157,8 +156,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
                   status={selectedFixture?.fixture?.status?.short}
                 />
               </div>
-
-              {/* Removed MatchPredictionsCard component usage */}
+              <MatchDetailCard match={selectedFixture} />
               <MyHighlights 
                 homeTeam={selectedFixture?.teams?.home?.name}
                 awayTeam={selectedFixture?.teams?.away?.name}
