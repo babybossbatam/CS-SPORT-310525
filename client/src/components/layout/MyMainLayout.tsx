@@ -166,18 +166,41 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
                 currentFixture={selectedFixture}
                 onClose={handleBackToMain}
               />
-              <MyLiveAction
-                matchId={selectedFixture?.fixture?.id}
-                homeTeam={selectedFixture?.teams?.home}
-                awayTeam={selectedFixture?.teams?.away}
-                status={selectedFixture?.fixture?.status?.short}
-              />
-              <MyHighlights
-                homeTeam={selectedFixture?.teams?.home?.name}
-                awayTeam={selectedFixture?.teams?.away?.name}
-                leagueName={selectedFixture?.league?.name}
-                matchStatus={selectedFixture?.fixture?.status?.short}
-              />
+              
+              {/* Conditional rendering based on match status */}
+              {(() => {
+                const matchStatus = selectedFixture?.fixture?.status?.short;
+                const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(matchStatus);
+                const isEnded = ["FT", "AET", "PEN"].includes(matchStatus);
+                const isUpcoming = matchStatus === "NS";
+
+                return (
+                  <>
+                    {/* Show MyLiveAction only for live matches */}
+                    {isLive && (
+                      <MyLiveAction
+                        matchId={selectedFixture?.fixture?.id}
+                        homeTeam={selectedFixture?.teams?.home}
+                        awayTeam={selectedFixture?.teams?.away}
+                        status={selectedFixture?.fixture?.status?.short}
+                      />
+                    )}
+                    
+                    {/* Show MyHighlights only for ended matches */}
+                    {isEnded && (
+                      <MyHighlights
+                        homeTeam={selectedFixture?.teams?.home?.name}
+                        awayTeam={selectedFixture?.teams?.away?.name}
+                        leagueName={selectedFixture?.league?.name}
+                        matchStatus={selectedFixture?.fixture?.status?.short}
+                      />
+                    )}
+                    
+                    {/* For upcoming matches, neither component is shown */}
+                  </>
+                );
+              })()}
+              
               <MatchDetailCard match={selectedFixture} />
 
               <MyMatchEvents
