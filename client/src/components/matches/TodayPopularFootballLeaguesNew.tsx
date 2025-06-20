@@ -400,19 +400,23 @@ const TodayPopularFootballLeaguesNew: React.FC<
     // Debug: Check for target leagues in raw data BEFORE any filtering
     targetLeagues.forEach(leagueId => {
       const leagueFixtures = mergedFixtures.filter(f => f.league?.id === leagueId);
-      console.log(`🔍 [RAW DATA DEBUG] League ${leagueId} fixtures in raw merged data:`, {
-        leagueId,
-        count: leagueFixtures.length,
-        fixtures: leagueFixtures.map(f => ({
-          id: f.fixture?.id,
-          date: f.fixture?.date,
-          status: f.fixture?.status?.short,
-          league: f.league?.name,
-          country: f.league?.country,
-          home: f.teams?.home?.name,
-          away: f.teams?.away?.name
-        }))
-      });
+      if (leagueFixtures.length > 0) {
+        console.log(`🔍 [RAW DATA DEBUG] League ${leagueId} fixtures in raw merged data:`, {
+          leagueId,
+          count: leagueFixtures.length,
+          fixtures: leagueFixtures.map(f => ({
+            id: f.fixture?.id,
+            date: f.fixture?.date,
+            status: f.fixture?.status?.short,
+            league: f.league?.name,
+            country: f.league?.country,
+            home: f.teams?.home?.name,
+            away: f.teams?.away?.name
+          }))
+        });
+      } else {
+        console.log(`❌ [RAW DATA DEBUG] League ${leagueId} - NO FIXTURES FOUND in raw merged data`);
+      }
     });
 
     const filtered = mergedFixtures.filter((fixture) => {
@@ -427,7 +431,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
           date: fixture.fixture?.date,
           status: fixture.fixture?.status?.short,
           home: fixture.teams?.home?.name,
-          away: fixture.teams?.away?.name
+          away: fixture.teams?.away?.name,
+          selectedDate: selectedDate
         });
       }
 
@@ -724,19 +729,38 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const targetLeaguesInFinal = [38, 15, 16, 914];
     targetLeaguesInFinal.forEach(leagueId => {
       const leagueFixtures = finalFiltered.filter(f => f.league?.id === leagueId);
-      console.log(`🎯 [FINAL RESULT DEBUG] League ${leagueId} in final filtered result:`, {
-        leagueId,
-        count: leagueFixtures.length,
-        fixtures: leagueFixtures.map(f => ({
-          id: f.fixture?.id,
-          date: f.fixture?.date,
-          status: f.fixture?.status?.short,
-          league: f.league?.name,
-          country: f.league?.country,
-          home: f.teams?.home?.name,
-          away: f.teams?.away?.name
-        }))
-      });
+      if (leagueFixtures.length > 0) {
+        console.log(`🎯 [FINAL RESULT DEBUG] League ${leagueId} in final filtered result:`, {
+          leagueId,
+          count: leagueFixtures.length,
+          fixtures: leagueFixtures.map(f => ({
+            id: f.fixture?.id,
+            date: f.fixture?.date,
+            status: f.fixture?.status?.short,
+            league: f.league?.name,
+            country: f.league?.country,
+            home: f.teams?.home?.name,
+            away: f.teams?.away?.name
+          }))
+        });
+      } else {
+        console.log(`❌ [FINAL RESULT DEBUG] League ${leagueId} - NO FIXTURES in final filtered result for ${selectedDate}`);
+        
+        // Additional debugging: Check if these fixtures exist in the original data but got filtered out
+        const originalLeagueFixtures = mergedFixtures.filter(f => f.league?.id === leagueId);
+        if (originalLeagueFixtures.length > 0) {
+          console.log(`🔍 [FINAL RESULT DEBUG] League ${leagueId} was in original data but filtered out:`, {
+            originalCount: originalLeagueFixtures.length,
+            sampleFixture: originalLeagueFixtures[0] ? {
+              id: originalLeagueFixtures[0].fixture?.id,
+              date: originalLeagueFixtures[0].fixture?.date,
+              status: originalLeagueFixtures[0].fixture?.status?.short,
+              league: originalLeagueFixtures[0].league?.name,
+              country: originalLeagueFixtures[0].league?.country
+            } : null
+          });
+        }
+      }
     });
 
     return finalFiltered;
