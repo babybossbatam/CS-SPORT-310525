@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, MapPin, User, Trophy } from "lucide-react";
@@ -8,7 +7,6 @@ import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
-
 interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
@@ -94,8 +92,7 @@ const MyMatchdetailsScoreboard = ({
         try {
           const response = await fetch("/api/fixtures/live");
           if (!response.ok) {
-            console.error(`HTTP error! status: ${response.status}`);
-            return;
+            throw new Error(`HTTP error! status: ${response.status}`);
           }
 
           const liveFixtures = await response.json();
@@ -236,22 +233,22 @@ const MyMatchdetailsScoreboard = ({
       } else if (status === "ET") {
         displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
       } else {
-        // For LIVE, LIV, 1H, 2H - prioritize live elapsed time from state
-        let currentElapsed = liveElapsed !== null ? liveElapsed : elapsed;
+                                // For LIVE, LIV, 1H, 2H - prioritize live elapsed time from state
+                                let currentElapsed = liveElapsed !== null ? liveElapsed : elapsed;
 
-        if (currentElapsed !== null && currentElapsed !== undefined) {
-          // Handle injury/stoppage time
-          if (status === "2H" && currentElapsed >= 90) {
-            displayText = `${currentElapsed}'+`;
-          } else if (status === "1H" && currentElapsed >= 45) {
-            displayText = `${currentElapsed}'+`;
-          } else {
-            displayText = `${currentElapsed}'`; // This shows elapsed time from RapidAPI
-          }
-        } else {
-          displayText = "LIVE";
-        }
-      }
+                                if (currentElapsed !== null && currentElapsed !== undefined) {
+                                  // Handle injury/stoppage time
+                                  if (status === "2H" && currentElapsed >= 90) {
+                                    displayText = `${currentElapsed}'+`;
+                                  } else if (status === "1H" && currentElapsed >= 45) {
+                                    displayText = `${currentElapsed}'+`;
+                                  } else {
+                                    displayText = `${currentElapsed}'`; // This shows elapsed time from RapidAPI
+                                  }
+                                } else {
+                                  displayText = "LIVE";
+                                }
+                              }
 
       return (
         <Badge
