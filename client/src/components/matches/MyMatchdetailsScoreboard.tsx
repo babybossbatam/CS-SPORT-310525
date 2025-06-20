@@ -233,22 +233,22 @@ const MyMatchdetailsScoreboard = ({
       } else if (status === "ET") {
         displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
       } else {
-        // For LIVE, LIV, 1H, 2H - uses elapsed time from API
-        let currentElapsed = elapsed;
-        
-        if (currentElapsed !== null && currentElapsed !== undefined) {
-          // Handle injury/stoppage time
-          if (status === "2H" && currentElapsed >= 90) {
-            displayText = `${currentElapsed}'+`;
-          } else if (status === "1H" && currentElapsed >= 45) {
-            displayText = `${currentElapsed}'+`;
-          } else {
-            displayText = `${currentElapsed}'`; // This shows elapsed time from RapidAPI
-          }
-        } else {
-          displayText = "LIVE";
-        }
-      }
+                                // For LIVE, LIV, 1H, 2H - prioritize live elapsed time from state
+                                let currentElapsed = liveElapsed !== null ? liveElapsed : elapsed;
+
+                                if (currentElapsed !== null && currentElapsed !== undefined) {
+                                  // Handle injury/stoppage time
+                                  if (status === "2H" && currentElapsed >= 90) {
+                                    displayText = `${currentElapsed}'+`;
+                                  } else if (status === "1H" && currentElapsed >= 45) {
+                                    displayText = `${currentElapsed}'+`;
+                                  } else {
+                                    displayText = `${currentElapsed}'`; // This shows elapsed time from RapidAPI
+                                  }
+                                } else {
+                                  displayText = "LIVE";
+                                }
+                              }
 
       return (
         <Badge

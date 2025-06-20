@@ -1823,8 +1823,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                               } else if (status === "ET") {
                                                 displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
                                               } else {
-                                                // For LIVE, LIV, 1H, 2H - uses elapsed time from API
+                                                // For LIVE, LIV, 1H, 2H - ensure consistent elapsed time from live fixtures
                                                 let currentElapsed = elapsed;
+                                                
+                                                // Check if we have live fixture data for this match to ensure consistency
+                                                const liveMatch = liveFixtures.find((lf: any) => lf.fixture.id === match.fixture.id);
+                                                if (liveMatch && liveMatch.fixture.status.elapsed !== null && liveMatch.fixture.status.elapsed !== undefined) {
+                                                  currentElapsed = liveMatch.fixture.status.elapsed;
+                                                }
                                                 
                                                 if (currentElapsed !== null && currentElapsed !== undefined) {
                                                   // Handle injury/stoppage time
