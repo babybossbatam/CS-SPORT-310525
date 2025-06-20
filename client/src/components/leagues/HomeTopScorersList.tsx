@@ -83,7 +83,7 @@ const HomeTopScorersList = () => {
     async () => {
       const dataMap = new Map<number, PlayerStatistics[]>();
 
-      console.log('🔍 [HomeTopScorers] Starting league data availability check');
+      console.log('🔍 [HomeTopScorers] Starting league data availability check with freshness filtering');
 
       // Check each league for data with retry logic
       for (const league of POPULAR_LEAGUES) {
@@ -98,7 +98,7 @@ const HomeTopScorersList = () => {
               headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'Cache-Control': 'max-age=7200' // 2 hours browser cache
+                'Cache-Control': 'max-age=1800' // 30 minutes browser cache for fresher data
               }
             });
             
@@ -107,8 +107,27 @@ const HomeTopScorersList = () => {
             if (response.ok) {
               const data: PlayerStatistics[] = await response.json();
               if (data && data.length > 0) {
-                dataMap.set(league.id, data);
-                console.log(`✅ [HomeTopScorers] League ${league.id} (${league.name}) has ${data.length} top scorers`);
+                // Filter out data older than 1 month
+                const oneMonthAgo = new Date();
+                oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+                
+                const freshData = data.filter(scorer => {
+                  const seasonYear = scorer.statistics[0]?.league?.season;
+                  if (!seasonYear) return false;
+                  
+                  // Check if the season is recent (within last 2 years to account for ongoing seasons)
+                  const currentYear = new Date().getFullYear();
+                  const isRecentSeason = seasonYear >= currentYear - 1;
+                  
+                  return isRecentSeason;
+                });
+                
+                if (freshData.length > 0) {
+                  dataMap.set(league.id, freshData);
+                  console.log(`✅ [HomeTopScorers] League ${league.id} (${league.name}) has ${freshData.length} fresh top scorers (filtered from ${data.length})`);
+                } else {
+                  console.log(`📭 [HomeTopScorers] League ${league.id} (${league.name}) has no fresh top scorers data`);
+                }
               } else {
                 console.log(`📭 [HomeTopScorers] League ${league.id} (${league.name}) has no top scorers`);
               }
@@ -139,8 +158,8 @@ const HomeTopScorersList = () => {
       return dataMap;
     },
     {
-      maxAge: 4 * 60 * 60 * 1000, // 4 hours cache - top scorers change infrequently
-      backgroundRefresh: false, // Prevent background refresh
+      maxAge: 30 * 60 * 1000, // 30 minutes cache for fresher data
+      backgroundRefresh: true, // Enable background refresh for latest data
       retry: 1, // Reduced React Query retries
       retryDelay: 2000
     }
@@ -172,7 +191,7 @@ const HomeTopScorersList = () => {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Cache-Control': 'max-age=7200'
+          'Cache-Control': 'max-age=1800' // 30 minutes for fresher data
         }
       });
       
@@ -182,7 +201,22 @@ const HomeTopScorersList = () => {
       
       const data: PlayerStatistics[] = await response.json();
       
-      return data.sort((a, b) => {
+      // Filter out data older than 1 month and sort by goals
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      
+      const freshData = data.filter(scorer => {
+        const seasonYear = scorer.statistics[0]?.league?.season;
+        if (!seasonYear) return false;
+        
+        // Check if the season is recent (within last 2 years to account for ongoing seasons)
+        const currentYear = new Date().getFullYear();
+        const isRecentSeason = seasonYear >= currentYear - 1;
+        
+        return isRecentSeason;
+      });
+      
+      return freshData.sort((a, b) => {
         const goalsA = a.statistics[0]?.goals?.total || 0;
         const goalsB = b.statistics[0]?.goals?.total || 0;
         return goalsB - goalsA;
@@ -190,8 +224,8 @@ const HomeTopScorersList = () => {
     },
     {
       enabled: !!selectedLeague,
-      maxAge: 4 * 60 * 60 * 1000, // 4 hours cache
-      backgroundRefresh: false,
+      maxAge: 30 * 60 * 1000, // 30 minutes cache for fresher data
+      backgroundRefresh: true, // Enable background refresh
       retry: 1
     }
   );
