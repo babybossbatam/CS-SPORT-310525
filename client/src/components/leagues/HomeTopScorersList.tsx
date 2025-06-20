@@ -61,130 +61,21 @@ const HomeTopScorersList = () => {
   const [availableLeagues, setAvailableLeagues] = useState<typeof POPULAR_LEAGUES>([]);
   const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
 
-  // Query to check which leagues have data
-  const { data: leagueDataMap, isLoading: isLoadingLeagues } = useCachedQuery(
-    ['leagues-with-top-scorers-data'],
-    async () => {
-      const dataMap = new Map<number, PlayerStatistics[]>();
-
-      console.log('🔍 [HomeTopScorers] Starting league data availability check with more inclusive filtering');
-
-      // Check each league for data with retry logic
-      for (const league of POPULAR_LEAGUES) {
-        let retries = 2; // Reduced retries
-        while (retries > 0) {
-          try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort('Request timeout'), 8000); // Reduced timeout
-
-            const response = await fetch(`/api/leagues/${league.id}/topscorers`, {
-              signal: controller.signal,
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Cache-Control': 'max-age=1800' // 30 minutes browser cache for fresher data
-              }
-            });
-
-            clearTimeout(timeoutId);
-
-            if (response.ok) {
-              const data: PlayerStatistics[] = await response.json();
-              if (data && data.length > 0) {
-                // More inclusive filtering - accept data from current and previous season
-                const currentYear = new Date().getFullYear();
-                const currentMonth = new Date().getMonth() + 1; // 1-12
-
-                // Determine current season based on typical football calendar
-                let currentSeason;
-                if (currentMonth >= 8) {
-                  currentSeason = currentYear; // Aug-Dec: use current year
-                } else {
-                  currentSeason = currentYear - 1; // Jan-July: use previous year
-                }
-
-                const acceptableData = data.filter(scorer => {
-                  const seasonYear = scorer.statistics[0]?.league?.season;
-                  if (!seasonYear) return true; // Include data without season info
-
-                  // Accept current season and previous season data
-                  const isRecentSeason = seasonYear >= (currentSeason - 1);
-
-                  // Exclude very old data (more than 2 years old)
-                  const isVeryOldSeason = seasonYear < (currentYear - 2);
-
-                  return isRecentSeason && !isVeryOldSeason;
-                });
-
-                if (acceptableData.length > 0) {
-                  dataMap.set(league.id, acceptableData);
-                  console.log(`✅ [HomeTopScorers] League ${league.id} (${league.name}) has ${acceptableData.length} top scorers (filtered from ${data.length})`);
-                } else {
-                  // Still include the league even if no recent data, but with empty array
-                  dataMap.set(league.id, []);
-                  console.log(`📭 [HomeTopScorers] League ${league.id} (${league.name}) included with no recent data`);
-                }
-              } else {
-                // Include league even if no data available
-                dataMap.set(league.id, []);
-                console.log(`📭 [HomeTopScorers] League ${league.id} (${league.name}) included with no top scorers`);
-              }
-              break; // Success, exit retry loop
-            } else if (response.status >= 500) {
-              // Server error, retry
-              retries--;
-              if (retries > 0) {
-                console.warn(`🔄 [HomeTopScorers] Retrying league ${league.id} due to server error`);
-                await new Promise(resolve => setTimeout(resolve, 1000));
-              } else {
-                // Include league even after failed retries
-                dataMap.set(league.id, []);
-              }
-            } else {
-              // Client error (4xx), still include the league
-              console.warn(`❌ [HomeTopScorers] League ${league.id} returned ${response.status}, but including anyway`);
-              dataMap.set(league.id, []);
-              break;
-            }
-          } catch (error) {
-            retries--;
-            console.warn(`⚠️ [HomeTopScorers] Failed to check league ${league.id} (${2-retries}/2):`, error);
-            if (retries === 0) {
-              // Include league even after all retries failed
-              dataMap.set(league.id, []);
-            } else {
-              await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-          }
-        }
-      }
-
-      console.log(`📊 [HomeTopScorers] Completed check for ${POPULAR_LEAGUES.length} leagues, included ${dataMap.size} leagues`);
-      return dataMap;
-    },
-    {
-      maxAge: 30 * 60 * 1000, // 30 minutes cache for fresher data
-      backgroundRefresh: true, // Enable background refresh for latest data
-      retry: 1, // Reduced React Query retries
-      retryDelay: 2000
-    }
-  );
+  // Simplified - no need to check which leagues have data, just show all
+  const isLoadingLeagues = false;
 
   // Update available leagues when data is loaded
   useEffect(() => {
-    if (leagueDataMap) {
-      // Now include all leagues since we're storing them all in the map
-      const leagues = POPULAR_LEAGUES.filter(league => leagueDataMap.has(league.id));
-      setAvailableLeagues(leagues);
+    // Always show all popular leagues regardless of data availability
+    setAvailableLeagues(POPULAR_LEAGUES);
 
-      // Set initial selected league if not set
-      if (!selectedLeague && leagues.length > 0) {
-        // Prefer FIFA Club World Cup (ID 15) if available
-        const preferredLeague = leagues.find(league => league.id === 15);
-        setSelectedLeague(preferredLeague ? preferredLeague.id : leagues[0].id);
-      }
+    // Set initial selected league if not set
+    if (!selectedLeague && POPULAR_LEAGUES.length > 0) {
+      // Prefer FIFA Club World Cup (ID 15) if available
+      const preferredLeague = POPULAR_LEAGUES.find(league => league.id === 15);
+      setSelectedLeague(preferredLeague ? preferredLeague.id : POPULAR_LEAGUES[0].id);
     }
-  }, [leagueDataMap, selectedLeague]);
+  }, [selectedLeague]);
 
   const { data: topScorers, isLoading } = useCachedQuery(
     [`top-scorers-league-${selectedLeague}`],
