@@ -95,12 +95,26 @@ app.use((req, res, next) => {
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = 5000;
-  server.listen(port, "0.0.0.0", () => {
-    log(`serving on port ${port}`);
-    console.log(`🌐 Server accessible at: https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.replit.dev/`);
-  }).on('error', (err: any) => {
-    console.error("Failed to start server on port 5000:", err);
-    process.exit(1);
-  });
+  const port = process.env.PORT || 5000;
+  const tryListen = (retryPort: number) => {
+    server.listen(retryPort, "0.0.0.0", () => {
+      log(`serving on port ${retryPort}`);
+    }).on('error', (err: any) => {
+      if (err.code === 'EADDRINUSE' && retryPort < 5010) {
+        log(`Port ${retryPort} in use, trying ${retryPort + 1}`);
+        if (retryPort + 1 <= 5010) {
+            tryListen(retryPort + 1);
+        } else {
+            console.error("Failed to find an open port between 5000 and 5010");
+            // Don't exit immediately, let the process manager handle restarts
+            setTimeout(() => process.exit(1), 1000);
+        }
+      } else {
+        console.error("Failed to start server:", err);
+        // Don't exit immediately, let the process manager handle restarts
+        setTimeout(() => process.exit(1), 1000);
+      }
+    });
+  };
+  tryListen(Number(port));
 })();
