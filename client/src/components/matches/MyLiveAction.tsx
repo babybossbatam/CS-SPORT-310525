@@ -162,20 +162,30 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
     const homeTeam = matchData.teams?.home?.name;
     const awayTeam = matchData.teams?.away?.name;
     
-    const playerNames = [
-      "Mbappé", "Neymar Jr", "Messi", "Benzema", "Vinicius Jr", 
-      "Casemiro", "Modric", "Kroos", "Silva", "Bruno", "Haaland"
-    ];
+    // More realistic player names based on actual teams
+    const getRealisticPlayerNames = (teamName: string) => {
+      if (teamName?.toLowerCase().includes('paris') || teamName?.toLowerCase().includes('psg')) {
+        return ["Mbappé", "Neymar Jr", "Messi", "Marquinhos", "Verratti", "Hakimi"];
+      } else if (teamName?.toLowerCase().includes('botafogo')) {
+        return ["Tiquinho", "Luiz Henrique", "Marlon Freitas", "Bastos", "Almada", "Savarino"];
+      }
+      // Fallback generic names
+      return ["Silva", "Santos", "Oliveira", "Costa", "Pereira", "Ferreira"];
+    };
+    
+    const homePlayerNames = getRealisticPlayerNames(homeTeam);
+    const awayPlayerNames = getRealisticPlayerNames(awayTeam);
     
     const positions = ["Midfielder", "Forward", "Defender", "Goalkeeper"];
     
-    // Generate different types of actions similar to 365scores
+    // More sophisticated action generation
     const actionTypes = [
-      { type: 'freekick', action: 'Free kick', weight: 0.3 },
-      { type: 'corner', action: 'Corner', weight: 0.25 },
+      { type: 'freekick', action: 'Free Kick', weight: 0.25 },
+      { type: 'corner', action: 'Corner Kick', weight: 0.25 },
       { type: 'card', action: 'Yellow Card', weight: 0.15 },
-      { type: 'substitution', action: 'Substitution', weight: 0.2 },
-      { type: 'goal', action: 'Goal', weight: 0.1 }
+      { type: 'substitution', action: 'Substitution', weight: 0.25 },
+      { type: 'goal', action: 'Goal', weight: 0.05 },
+      { type: 'offside', action: 'Offside', weight: 0.05 }
     ];
 
     const randomValue = Math.random();
@@ -184,8 +194,11 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
     for (const actionType of actionTypes) {
       cumulativeWeight += actionType.weight;
       if (randomValue <= cumulativeWeight) {
+        const isHomeTeam = Math.random() > 0.5;
+        const playerNames = isHomeTeam ? homePlayerNames : awayPlayerNames;
+        
         actions.push({
-          team: Math.random() > 0.5 ? "home" : "away",
+          team: isHomeTeam ? "home" : "away",
           action: actionType.action,
           player: playerNames[Math.floor(Math.random() * playerNames.length)],
           position: positions[Math.floor(Math.random() * positions.length)],
@@ -265,53 +278,57 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
           {/* Action Card - 365scores style with real-time data */}
           {currentAction && (
             <div className="absolute top-4 right-4 z-20">
-              <div className="bg-white rounded-lg shadow-lg overflow-hidden min-w-[140px]">
-                {/* Blue header with minute */}
-                <div className="bg-blue-500 text-white px-3 py-1 text-center">
-                  <div className="text-lg font-bold">{currentAction.minute || elapsed}'</div>
-                </div>
-                
-                {/* Player info */}
-                <div className="p-3">
-                  <div className="text-center mb-2">
-                    <div className="text-sm font-semibold text-gray-800 mb-1">
-                      {currentAction.action}
-                    </div>
-                    {currentAction.team !== "neutral" && (
-                      <div className="flex items-center justify-center gap-1 text-xs text-gray-600">
-                        <span className="text-blue-600 font-medium">▲</span>
-                        <span>
-                          {currentAction.team === "home" 
-                            ? homeTeam?.code || homeTeam?.name?.substring(0, 3).toUpperCase()
-                            : awayTeam?.code || awayTeam?.name?.substring(0, 3).toUpperCase()
-                          }
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Player name */}
-                  {currentAction.player && (
-                    <div className="text-xs text-gray-700 text-center font-medium">
-                      {currentAction.player}
-                    </div>
-                  )}
-                  
-                  {/* Position */}
-                  {currentAction.position && (
-                    <div className="text-xs text-gray-500 text-center mt-1">
-                      {currentAction.position}
-                    </div>
-                  )}
-
-                  {/* Real-time indicator */}
-                  <div className="flex justify-center mt-2">
-                    <div className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold flex items-center gap-1">
-                      <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
+              <div className="bg-white rounded-lg shadow-lg overflow-hidden min-w-[160px] max-w-[200px]">
+                {/* Blue header with minute - matching 365scores */}
+                <div className="bg-blue-500 text-white px-4 py-2 text-center relative">
+                  <div className="text-xl font-bold">{currentAction.minute || elapsed}'</div>
+                  {/* Live indicator in header */}
+                  <div className="absolute top-1 right-2">
+                    <div className="bg-red-500 text-white px-1.5 py-0.5 rounded text-xs font-bold">
                       LIVE
                     </div>
                   </div>
                 </div>
+                
+                {/* Main content - cleaner layout */}
+                <div className="p-3 bg-gray-50">
+                  {/* Action type */}
+                  <div className="text-center mb-2">
+                    <div className="text-sm font-bold text-gray-800 mb-1">
+                      {currentAction.action}
+                    </div>
+                  </div>
+                  
+                  {/* Team and direction indicator */}
+                  {currentAction.team !== "neutral" && (
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <span className="text-green-600 font-bold text-lg">▲</span>
+                      <span className="text-sm font-semibold text-gray-700">
+                        {currentAction.team === "home" 
+                          ? homeTeam?.code || homeTeam?.name?.substring(0, 3).toUpperCase()
+                          : awayTeam?.code || awayTeam?.name?.substring(0, 3).toUpperCase()
+                        }
+                      </span>
+                    </div>
+                  )}
+                  
+                  {/* Player info section */}
+                  {currentAction.player && (
+                    <div className="border-t border-gray-200 pt-2">
+                      <div className="text-sm font-semibold text-gray-900 text-center mb-1">
+                        {currentAction.player}
+                      </div>
+                      {currentAction.position && (
+                        <div className="text-xs text-gray-600 text-center">
+                          {currentAction.position}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Bottom accent bar */}
+                <div className="h-1 bg-gradient-to-r from-blue-500 to-green-500"></div>
               </div>
             </div>
           )}
