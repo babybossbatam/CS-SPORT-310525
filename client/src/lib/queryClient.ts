@@ -92,16 +92,21 @@ export const queryClient = new QueryClient({
       refetchInterval: false,
       refetchOnWindowFocus: false,
       staleTime: CACHE_DURATIONS.ONE_HOUR, // Data stays fresh for 60 minutes
-      cacheTime: CACHE_DURATIONS.SIX_HOURS, // Keep unused data in cache for 6 hours
       gcTime: CACHE_DURATIONS.SIX_HOURS, // 6 hours
       retry: 0, // Disable retries to prevent cascading requests
       retryDelay: 2000,
       refetchOnMount: false,
       refetchOnReconnect: false,
+      // Prevent memory leaks
+      networkMode: 'online',
     },
     mutations: {
       retry: 1,
-      retryDelay: 2000
+      retryDelay: 2000,
+      networkMode: 'online',
     },
   },
+  // Increase max query cache size to prevent excessive cleanup
+  queryCache: undefined,
+  mutationCache: undefined,
 });

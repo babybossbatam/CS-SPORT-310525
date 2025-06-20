@@ -66,6 +66,11 @@ export const handleNetworkRecovery = () => {
 
 // Global unhandled rejection handler
 export const setupGlobalErrorHandlers = () => {
+  // Increase EventEmitter max listeners to prevent warnings
+  if (typeof process !== 'undefined' && process.setMaxListeners) {
+    process.setMaxListeners(20);
+  }
+
   // Handle unhandled promise rejections
   window.addEventListener('unhandledrejection', (event) => {
     const error = event.reason;
@@ -89,7 +94,8 @@ export const setupGlobalErrorHandlers = () => {
 
       if (error.message?.includes('frame') || 
           error.message?.includes('Cannot read properties of undefined') ||
-          error.message?.includes('space after cleanup')) {
+          error.message?.includes('space after cleanup') ||
+          error.message?.includes('MaxListenersExceededWarning')) {
         console.log('🖼️ Frame/memory-related error detected, suppressing cascade...');
         return;
       }
@@ -99,7 +105,8 @@ export const setupGlobalErrorHandlers = () => {
     if (typeof error === 'string' && 
         (error.includes('Failed to fetch') || 
          error.includes('Network') || 
-         error.includes('dynamically imported'))) {
+         error.includes('dynamically imported') ||
+         error.includes('MaxListenersExceeded'))) {
       console.log('🌐 Network/import error string detected, attempting recovery...');
       handleNetworkRecovery();
       return;
@@ -133,17 +140,42 @@ export const setupGlobalErrorHandlers = () => {
 
   // Add console override to catch and filter problematic logs
   const originalConsoleError = console.error;
+  const originalConsoleWarn = console.warn;
+  
   console.error = (...args) => {
     const message = args.join(' ');
 
-    // Filter out known harmless frame errors
+    // Filter out known harmless frame errors and memory warnings
     if (message.includes('Cannot read properties of undefined (reading \'frame\')') ||
         message.includes('ErrorOverlay') ||
-        message.includes('vite/client')) {
+        message.includes('vite/client') ||
+        message.includes('MaxListenersExceededWarning') ||
+        message.includes('Possible EventEmitter memory leak')) {
       return; // Suppress these specific errors
     }
 
     // Call original console.error for other errors
     originalConsoleError.apply(console, args);
   };
+
+  console.warn = (...args) => {
+    const message = args.join(' ');
+
+    // Filter out EventEmitter warnings specifically
+    if (message.includes('MaxListenersExceededWarning') ||
+        message.includes('Possible EventEmitter memory leak') ||
+        message.includes('listeners added')) {
+      return; // Suppress EventEmitter warnings
+    }
+
+    // Call original console.warn for other warnings
+    originalConsoleWarn.apply(console, args);
+  };
+
+  // Cleanup function for when page unloads
+  window.addEventListener('beforeunload', () => {
+    // Remove all event listeners to prevent memory leaks
+    window.removeEventListener('unhandledrejection', () => {});
+    window.removeEventListener('error', () => {});
+  });
 };

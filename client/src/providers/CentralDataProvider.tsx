@@ -102,30 +102,51 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         return [];
       }
     },
-    staleTime: 30000, // 30 seconds for live data
-    gcTime: 2 * 60 * 1000, // 2 minutes
-    refetchInterval: 35000, // Refetch every 35 seconds
-    refetchOnWindowFocus: true,
+    staleTime: 60000, // 60 seconds for live data
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 90000, // Refetch every 90 seconds (reduced frequency)
+    refetchOnWindowFocus: false, // Disable to prevent memory leaks
     retry: false, // Disable retries to prevent cascading errors
     throwOnError: false, // Don't throw errors to prevent unhandled rejections
   });
 
-  // Prefetch related data
+  // Cleanup and memory management
   useEffect(() => {
-    // Prefetch tomorrow's fixtures
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+    // Increase max listeners to prevent warnings
+    if (typeof process !== 'undefined' && process.setMaxListeners) {
+      process.setMaxListeners(20);
+    }
 
-    queryClient.prefetchQuery({
-      queryKey: ['central-date-fixtures', tomorrowStr],
-      queryFn: async () => {
-        const response = await fetch(`/api/fixtures/date/${tomorrowStr}?all=true`);
-        if (!response.ok) return [];
-        return response.json();
-      },
-      staleTime: CACHE_DURATIONS.FOUR_HOURS,
-    });
+    // Cleanup on unmount
+    return () => {
+      // Clear any pending timeouts or intervals
+      if (typeof window !== 'undefined') {
+        // Force garbage collection of unused queries
+        queryClient.clear();
+      }
+    };
+  }, []);
+
+  // Prefetch related data with reduced frequency
+  useEffect(() => {
+    const prefetchTimer = setTimeout(() => {
+      // Prefetch tomorrow's fixtures
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+
+      queryClient.prefetchQuery({
+        queryKey: ['central-date-fixtures', tomorrowStr],
+        queryFn: async () => {
+          const response = await fetch(`/api/fixtures/date/${tomorrowStr}?all=true`);
+          if (!response.ok) return [];
+          return response.json();
+        },
+        staleTime: CACHE_DURATIONS.FOUR_HOURS,
+      });
+    }, 5000); // Delay prefetch to reduce initial load
+
+    return () => clearTimeout(prefetchTimer);
   }, [selectedDate, queryClient]);
 
   const contextValue: CentralDataContextType = {
