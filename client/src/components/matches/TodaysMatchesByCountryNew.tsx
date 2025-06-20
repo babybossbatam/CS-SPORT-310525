@@ -1812,11 +1812,37 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 "INT",
                                               ].includes(status)
                                             ) {
+                                              // Real-time calculation for live matches
+                                              let displayText = "LIVE";
+                                              const elapsed = match.fixture.status.elapsed;
+
+                                              if (status === "HT") {
+                                                displayText = "Halftime";
+                                              } else if (status === "P") {
+                                                displayText = "Penalties";
+                                              } else if (status === "ET") {
+                                                displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
+                                              } else {
+                                                // For LIVE, LIV, 1H, 2H - uses elapsed time from API
+                                                let currentElapsed = elapsed;
+                                                
+                                                if (currentElapsed !== null && currentElapsed !== undefined) {
+                                                  // Handle injury/stoppage time
+                                                  if (status === "2H" && currentElapsed >= 90) {
+                                                    displayText = `${currentElapsed}'+`;
+                                                  } else if (status === "1H" && currentElapsed >= 45) {
+                                                    displayText = `${currentElapsed}'+`;
+                                                  } else {
+                                                    displayText = `${currentElapsed}'`; // This shows elapsed time from RapidAPI
+                                                  }
+                                                } else {
+                                                  displayText = "LIVE";
+                                                }
+                                              }
+
                                               return (
                                                 <div className="match-status-label status-live">
-                                                  {status === "HT"
-                                                    ? "Halftime"
-                                                    : `${match.fixture.status.elapsed || 0}'`}
+                                                  {displayText}
                                                 </div>
                                               );
                                             }

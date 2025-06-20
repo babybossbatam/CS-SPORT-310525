@@ -220,26 +220,42 @@ const MyMatchdetailsScoreboard = ({
     };
 
     // For live matches, show elapsed time with pulse animation
-    const isLiveMatch = ["LIVE", "1H", "2H"].includes(status);
+    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
     if (isLiveMatch) {
-      // Use live elapsed time if available, otherwise fall back to API elapsed time
-      const elapsed =
-        liveElapsed !== null
-          ? liveElapsed
-          : displayMatch.fixture.status.elapsed || 0;
-      const timeLabel =
-        status === "1H"
-          ? `${elapsed}'`
-          : status === "2H"
-            ? `${elapsed}'`
-            : "LIVE";
+      // Real-time calculation for live matches
+      let displayText = "LIVE";
+      const elapsed = liveElapsed !== null ? liveElapsed : displayMatch.fixture.status.elapsed;
+
+      if (status === "HT") {
+        displayText = "Halftime";
+      } else if (status === "P") {
+        displayText = "Penalties";
+      } else if (status === "ET") {
+        displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
+      } else {
+        // For LIVE, LIV, 1H, 2H - uses elapsed time from API
+        let currentElapsed = elapsed;
+        
+        if (currentElapsed !== null && currentElapsed !== undefined) {
+          // Handle injury/stoppage time
+          if (status === "2H" && currentElapsed >= 90) {
+            displayText = `${currentElapsed}'+`;
+          } else if (status === "1H" && currentElapsed >= 45) {
+            displayText = `${currentElapsed}'+`;
+          } else {
+            displayText = `${currentElapsed}'`; // This shows elapsed time from RapidAPI
+          }
+        } else {
+          displayText = "LIVE";
+        }
+      }
 
       return (
         <Badge
           variant="destructive"
           className="bg-red-500 text-white font-normal text-[11px] animate-pulse"
         >
-          {timeLabel}
+          {displayText}
         </Badge>
       );
     }
