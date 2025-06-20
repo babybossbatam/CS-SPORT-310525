@@ -2183,7 +2183,8 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         }
 
         // If everything fails, return an empty array
-        return res.json([]);      }
+        return res.json([]);
+      }
     } catch (error) {
       console.error('Error fetching live fixtures:', error);
       res.status(500).json({ message: "Failed to fetch live fixtures" });
@@ -2249,7 +2250,8 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
   });
 
   // Get available countries and their seasons
-  apiRouter.get('/countries', async (req: Request, res: Response) => {    try {
+  apiRouter.get('/countries', async (req: Request, res: Response) => {
+    try {
       console.log('API: Getting available countries and seasons');
 
       const allLeagues = await rapidApiService.getLeagues();
