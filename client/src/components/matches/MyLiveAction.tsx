@@ -27,16 +27,30 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
 
   // Fetch real-time live data with proper cleanup
   useEffect(() => {
-    if (!match) return;
+    if (!match) {
+      console.log('❌ [Live Action] No match data received from MyMatchdetailsScoreboard');
+      return;
+    }
+
+    console.log('🎯 [Live Action] Received match from MyMatchdetailsScoreboard:', {
+      fixtureId: match.fixture?.id,
+      homeTeam: match.teams?.home?.name,
+      awayTeam: match.teams?.away?.name,
+      status: match.fixture?.status?.short,
+      league: match.league?.name
+    });
 
     const status = match?.fixture?.status?.short;
     const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P"].includes(status);
     let mounted = true;
 
     if (isLive) {
+      // Set initial data from the passed match
+      setLiveData(match);
+      
       const fetchLiveData = async () => {
         try {
-          console.log(`🔴 [Live Action] Fetching real-time data for match ${match.fixture.id}`);
+          console.log(`🔴 [Live Action] Fetching real-time data for match ${match.fixture.id} (${match.teams?.home?.name} vs ${match.teams?.away?.name})`);
 
           const response = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
           if (response.ok && mounted) {
@@ -54,21 +68,31 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
               generateLiveEvents(currentMatch, elapsed);
               setLastUpdate(new Date().toLocaleTimeString());
 
-              console.log(`✅ [Live Action] Updated match data:`, {
+              console.log(`✅ [Live Action] Updated match data for ${currentMatch.teams?.home?.name} vs ${currentMatch.teams?.away?.name}:`, {
                 fixtureId: currentMatch.fixture.id,
                 elapsed,
                 homeGoals: currentMatch.goals?.home,
-                awayGoals: currentMatch.goals?.away
+                awayGoals: currentMatch.goals?.away,
+                status: currentMatch.fixture?.status?.short
               });
+            } else {
+              console.log(`⚠️ [Live Action] Match ${match.fixture.id} (${match.teams?.home?.name} vs ${match.teams?.away?.name}) not found in live fixtures, using original data`);
+              // Use the original match data if not found in live fixtures
+              generateLiveEvents(match, match.fixture?.status?.elapsed || 0);
+              setLastUpdate(new Date().toLocaleTimeString());
             }
           }
         } catch (error) {
           if (mounted) {
             console.error('❌ [Live Action] Error fetching live data:', error);
+            // Fallback to using the original match data
+            generateLiveEvents(match, match.fixture?.status?.elapsed || 0);
+            setLastUpdate(new Date().toLocaleTimeString());
           }
         }
       };
 
+      // Initial fetch and setup
       fetchLiveData();
       const interval = setInterval(fetchLiveData, 15000); // Update every 15 seconds
 
@@ -76,6 +100,10 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
         mounted = false;
         clearInterval(interval);
       };
+    } else {
+      console.log(`ℹ️ [Live Action] Match not live (status: ${status}), using static data`);
+      // For non-live matches, use the passed data
+      setLiveData(match);
     }
 
     return () => {
@@ -252,7 +280,7 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
     return colors[type as keyof typeof colors] || "bg-gray-500";
   };
 
-  // Use real match data or fallback to prop data
+  // Use real match data or fallback to prop data - prioritize passed match for team info
   const displayMatch = liveData || match;
   const homeTeam = displayMatch?.teams?.home;
   const awayTeam = displayMatch?.teams?.away;
@@ -260,7 +288,18 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
   const isLive = ["1H", "2H", "LIVE", "LIV"].includes(status);
   const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
 
-  if (!displayMatch || !isLive) {
+  // Debug logging for team display
+  console.log('🎯 [Live Action] Displaying teams:', {
+    homeTeam: homeTeam?.name,
+    awayTeam: awayTeam?.name,
+    fixtureId: displayMatch?.fixture?.id,
+    status,
+    isLive,
+    elapsed,
+    source: liveData ? 'live API' : 'passed match data'
+  });
+
+  if (!displayMatch) {
     return (
       <Card className={`w-full ${className} bg-white border border-gray-200`}>
         <CardHeader className="pb-3">
@@ -269,7 +308,28 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-48">
-          <p className="text-gray-500 text-sm">No live match available</p>
+          <p className="text-gray-500 text-sm">No match data available</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!isLive) {
+    return (
+      <Card className={`w-full ${className} bg-white border border-gray-200`}>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium text-gray-900">
+            Live Action
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-48">
+          <div className="text-center">
+            <p className="text-gray-500 text-sm mb-2">Match not currently live</p>
+            <p className="text-xs text-gray-400">
+              {homeTeam?.name} vs {awayTeam?.name}
+            </p>
+            <p className="text-xs text-gray-400">Status: {status}</p>
+          </div>
         </CardContent>
       </Card>
     );
@@ -279,9 +339,14 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
     <Card className={`w-full ${className} bg-white border border-gray-200 overflow-hidden`}>
       <CardHeader className="pb-2 bg-white">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-medium text-gray-900">
-            Live Action
-          </CardTitle>
+          <div>
+            <CardTitle className="text-sm font-medium text-gray-900">
+              Live Action
+            </CardTitle>
+            <p className="text-xs text-gray-500 mt-1">
+              {homeTeam?.name} vs {awayTeam?.name}
+            </p>
+          </div>
           <Badge variant="destructive" className="animate-pulse">
             LIVE
           </Badge>
