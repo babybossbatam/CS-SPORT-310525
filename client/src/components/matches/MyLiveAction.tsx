@@ -165,47 +165,108 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     };
   }, [matchId, liveData?.fixture?.status?.short]);
 
-  // Animate ball movement with proper cleanup
+  // Enhanced ball animation with continuous movement
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let eventTimeoutId: NodeJS.Timeout;
+    let continuousMovementId: NodeJS.Timeout;
 
+    // Animate to latest event
     if (liveEvents.length > 0) {
       const latestEvent = liveEvents[0];
-      timeoutId = animateBallToEvent(latestEvent);
+      eventTimeoutId = animateBallToEvent(latestEvent);
+    }
+
+    // Start continuous random movement for live feel
+    if (isLive) {
+      continuousMovementId = startContinuousMovement();
     }
 
     return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
+      if (eventTimeoutId) clearTimeout(eventTimeoutId);
+      if (continuousMovementId) clearTimeout(continuousMovementId);
     };
-  }, [liveEvents]);
+  }, [liveEvents, isLive]);
+
+  const startContinuousMovement = (): NodeJS.Timeout => {
+    const moveRandomly = () => {
+      // Generate realistic football field positions
+      const fieldPositions = [
+        { x: 20, y: 30 }, // Left defense
+        { x: 25, y: 50 }, // Left midfield
+        { x: 35, y: 25 }, // Left wing
+        { x: 35, y: 75 }, // Left wing bottom
+        { x: 50, y: 50 }, // Center circle
+        { x: 50, y: 30 }, // Center top
+        { x: 50, y: 70 }, // Center bottom
+        { x: 65, y: 25 }, // Right wing
+        { x: 65, y: 75 }, // Right wing bottom
+        { x: 75, y: 50 }, // Right midfield
+        { x: 80, y: 30 }, // Right defense
+        { x: 40, y: 15 }, // Top penalty area
+        { x: 60, y: 85 }, // Bottom penalty area
+      ];
+
+      // Randomly select a position with some bias towards center
+      const randomPosition = fieldPositions[Math.floor(Math.random() * fieldPositions.length)];
+      
+      // Add slight randomness to the selected position
+      const targetX = randomPosition.x + (Math.random() - 0.5) * 10;
+      const targetY = randomPosition.y + (Math.random() - 0.5) * 10;
+
+      // Ensure ball stays within field bounds
+      const clampedX = Math.max(10, Math.min(90, targetX));
+      const clampedY = Math.max(15, Math.min(85, targetY));
+
+      setBallPosition({ x: clampedX, y: clampedY });
+      setIsAnimating(true);
+
+      // Stop animation after movement
+      setTimeout(() => setIsAnimating(false), 1500);
+
+      // Schedule next movement (every 3-6 seconds for realistic pace)
+      return setTimeout(moveRandomly, 3000 + Math.random() * 3000);
+    };
+
+    return setTimeout(moveRandomly, 2000); // Start after 2 seconds
+  };
 
   const animateBallToEvent = (event: LiveEvent): NodeJS.Timeout => {
     setIsAnimating(true);
 
-    // Calculate ball position based on event type and team
+    // Calculate ball position based on event type and team with more realistic positions
     let targetX = 50, targetY = 50;
 
     switch (event.type) {
       case 'goal':
-        targetX = event.team === 'home' ? 85 : 15;
+        targetX = event.team === 'home' ? 88 : 12;
         targetY = 50;
         break;
       case 'corner':
-        targetX = event.team === 'home' ? 90 : 10;
-        targetY = Math.random() > 0.5 ? 15 : 85;
+        targetX = event.team === 'home' ? 88 : 12;
+        targetY = Math.random() > 0.5 ? 18 : 82;
         break;
       case 'freekick':
-        targetX = event.team === 'home' ? 70 : 30;
-        targetY = 30 + Math.random() * 40;
+        targetX = event.team === 'home' ? 65 + Math.random() * 15 : 20 + Math.random() * 15;
+        targetY = 25 + Math.random() * 50;
+        break;
+      case 'shot':
+        targetX = event.team === 'home' ? 75 + Math.random() * 10 : 15 + Math.random() * 10;
+        targetY = 40 + Math.random() * 20;
+        break;
+      case 'save':
+        targetX = event.team === 'home' ? 15 : 85;
+        targetY = 45 + Math.random() * 10;
         break;
       case 'substitution':
         targetX = event.team === 'home' ? 25 : 75;
-        targetY = 10;
+        targetY = 12;
+        break;
+      case 'foul':
+        targetX = 35 + Math.random() * 30;
+        targetY = 25 + Math.random() * 50;
         break;
       default:
-        targetX = 30 + Math.random() * 40;
+        targetX = 35 + Math.random() * 30;
         targetY = 30 + Math.random() * 40;
     }
 
@@ -213,7 +274,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
     return setTimeout(() => {
       setIsAnimating(false);
-    }, 2000);
+    }, 2500);
   };
 
   const generateLiveEvents = (matchData: any, elapsed: number) => {
@@ -455,20 +516,27 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </svg>
           </div>
 
-          {/* Animated Ball */}
+          {/* Enhanced Animated Ball */}
           <div 
             key={`ball-${ballPosition.x}-${ballPosition.y}`}
-            className={`absolute w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-2000 ease-in-out ${isAnimating ? 'scale-125' : 'scale-100'}`}
+            className={`absolute w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-[1500ms] ease-out ${isAnimating ? 'scale-125 rotate-180' : 'scale-100'}`}
             style={{ 
               left: `${ballPosition.x}%`, 
               top: `${ballPosition.y}%`,
               transform: `translate(-50%, -50%)`,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-              zIndex: 10
+              boxShadow: '0 3px 12px rgba(0,0,0,0.4), 0 1px 4px rgba(255,255,255,0.2) inset',
+              zIndex: 10,
+              background: 'radial-gradient(circle at 30% 30%, #ffffff, #f0f0f0)',
             }}
           >
-            <div className="w-full h-full bg-white rounded-full border-2 border-black flex items-center justify-center">
-              <div className="w-1 h-1 bg-black rounded-full"></div>
+            <div className="w-full h-full bg-white rounded-full border-2 border-black flex items-center justify-center relative overflow-hidden">
+              {/* Soccer ball pattern */}
+              <div className="absolute inset-0 rounded-full">
+                <div className="absolute top-1 left-1 w-1 h-1 bg-black rounded-full"></div>
+                <div className="absolute bottom-1 right-1 w-0.5 h-0.5 bg-black rounded-full"></div>
+              </div>
+              {/* Ball movement blur effect */}
+              <div className={`absolute inset-0 rounded-full ${isAnimating ? 'bg-white opacity-20 animate-pulse' : ''}`}></div>
             </div>
           </div>
 
