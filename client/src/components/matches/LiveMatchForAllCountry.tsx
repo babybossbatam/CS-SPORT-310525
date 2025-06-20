@@ -348,41 +348,40 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     }
   }, [fixtures, refreshInterval]);
 
-  // Apply smart time filtering first - but be more permissive for live matches
+  // For live matches component, we want to show all fixtures that are currently live
+  // or recently finished (within the last 2 hours)
   const filteredFixtures = fixtures.filter((fixture: any) => {
     // Basic validation
     if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
       return false;
     }
 
-    // For live fixtures, we primarily care about the match status rather than strict time filtering
     const status = fixture.fixture.status?.short;
+    
+    // Always include currently live matches
     const isCurrentlyLive = [
       "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
     ].includes(status);
 
-    // Always include currently live matches
     if (isCurrentlyLive) {
+      console.log(`✅ [LiveMatchForAllCountry] Including live match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${status})`);
       return true;
     }
 
-    // For non-live matches, apply time filtering
-    if (fixture.fixture.date && fixture.fixture.status?.short) {
-      const today = new Date();
-      const todayString = format(today, 'yyyy-MM-dd');
-
-      const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-        fixture.fixture.date,
-        fixture.fixture.status.short,
-        todayString + 'T12:00:00Z'
-      );
-
-      // Include matches that are within today's time range
-      if (smartResult.label === 'today' && smartResult.isWithinTimeRange) {
+    // Also include recently finished matches (within 2 hours)
+    const isRecentlyFinished = ["FT", "AET", "PEN"].includes(status);
+    if (isRecentlyFinished && fixture.fixture.date) {
+      const matchDate = new Date(fixture.fixture.date);
+      const now = new Date();
+      const hoursDiff = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+      
+      if (hoursDiff <= 2) {
+        console.log(`✅ [LiveMatchForAllCountry] Including recently finished match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${status}, ${hoursDiff.toFixed(1)}h ago)`);
         return true;
       }
     }
 
+    console.log(`❌ [LiveMatchForAllCountry] Excluding match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${status})`);
     return false;
   });
 
@@ -625,7 +624,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   }
 
   // Check if there are any live matches specifically
-  const hasLiveMatches = fixtures.some((fixture: any) => 
+  const hasLiveMatches = filteredFixtures.some((fixture: any) => 
     ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
   );
 
