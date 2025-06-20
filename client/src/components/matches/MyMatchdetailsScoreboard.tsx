@@ -90,7 +90,19 @@ const MyMatchdetailsScoreboard = ({
       // Fetch updated elapsed time from API every 30 seconds - similar to LiveMatchForAllCountry
       const timer = setInterval(async () => {
         try {
-          const response = await fetch("/api/fixtures/live");
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+          
+          const response = await fetch("/api/fixtures/live", {
+            signal: controller.signal,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          clearTimeout(timeoutId);
+          
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
@@ -134,9 +146,22 @@ const MyMatchdetailsScoreboard = ({
             // If match not found in live fixtures, it might have ended
             // Try to fetch the specific match to check its current status
             try {
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+              
               const specificMatchResponse = await fetch(
                 `/api/fixtures?ids=${displayMatch.fixture.id}`,
+                {
+                  signal: controller.signal,
+                  headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                  }
+                }
               );
+              
+              clearTimeout(timeoutId);
+              
               if (specificMatchResponse.ok) {
                 const specificMatchData = await specificMatchResponse.json();
                 if (specificMatchData.length > 0) {
@@ -162,17 +187,30 @@ const MyMatchdetailsScoreboard = ({
                 }
               }
             } catch (specificError) {
-              console.error(
-                "❌ [Live Timer] Failed to fetch specific match:",
-                specificError,
-              );
+              if (specificError.name === 'AbortError') {
+                console.warn("⏰ [Live Timer] Specific match request timeout");
+              } else if (specificError.message?.includes('Failed to fetch')) {
+                console.warn("🌐 [Live Timer] Network error fetching specific match");
+              } else {
+                console.error(
+                  "❌ [Live Timer] Failed to fetch specific match:",
+                  specificError,
+                );
+              }
             }
           }
         } catch (error) {
-          console.error(
-            "❌ [Live Timer] Failed to fetch live match updates:",
-            error,
-          );
+          // Handle different types of errors gracefully
+          if (error.name === 'AbortError') {
+            console.warn("⏰ [Live Timer] Request timeout - will retry in next interval");
+          } else if (error.message?.includes('Failed to fetch')) {
+            console.warn("🌐 [Live Timer] Network error - will retry in next interval");
+          } else {
+            console.error(
+              "❌ [Live Timer] Failed to fetch live match updates:",
+              error,
+            );
+          }
         }
       }, 30000); // 30 second intervals like LiveMatchForAllCountry
 
