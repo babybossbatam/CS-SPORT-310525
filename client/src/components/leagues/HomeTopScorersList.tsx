@@ -21,19 +21,8 @@ const scrollbarHideStyle = `
 // Import the popular leagues list from PopularLeaguesList component
 import { CURRENT_POPULAR_LEAGUES } from './PopularLeaguesList';
 
-// Filter out domestic leagues, keeping only international competitions
-const POPULAR_LEAGUES = CURRENT_POPULAR_LEAGUES.filter(league => 
-  league.country === 'Europe' || 
-  league.country === 'World' || 
-  league.name.includes('UEFA') || 
-  league.name.includes('FIFA') || 
-  league.name.includes('World Cup') || 
-  league.name.includes('Euro Championship') || 
-  league.name.includes('Copa America') || 
-  league.name.includes('Africa Cup') || 
-  league.name.includes('Asian Cup') || 
-  league.name.includes('CONCACAF')
-);
+// Use the exact same leagues list as PopularLeaguesList without any filtering
+const POPULAR_LEAGUES = CURRENT_POPULAR_LEAGUES;
 
 interface Player {
   id: number;
