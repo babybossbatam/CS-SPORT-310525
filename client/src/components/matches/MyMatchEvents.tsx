@@ -260,7 +260,7 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {filteredEvents.map((event, index) => {
               // Calculate score at this point in time for each event
               const eventsUpToThis = finalEvents.slice(0, finalEvents.findIndex(e => e.id === event.id) + 1);
@@ -269,28 +269,22 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
               const awayGoalsAtTime = goalsUpToThis.filter(e => e.team === 'away').length;
               
               return (
-                <div key={event.id} className="flex gap-4 py-3 border-b border-gray-100 last:border-b-0">
-                  {/* Time column */}
-                  <div className="text-sm font-medium text-gray-600 min-w-[40px] pt-1">
+                <div key={event.id} className="flex items-start gap-4 py-2">
+                  {/* Time column - left aligned */}
+                  <div className="text-sm font-medium text-gray-600 min-w-[40px] flex-shrink-0">
                     {event.time}
                   </div>
                   
-                  {/* Score and description column */}
-                  <div className="flex-1">
-                    {/* Score */}
-                    <div className="text-lg font-bold text-gray-900 mb-1">
-                      {homeGoalsAtTime}-{awayGoalsAtTime}
-                    </div>
-                    
-                    {/* Event description */}
-                    <div className="text-sm text-gray-700">
-                      {event.player} ({event.team === 'home' ? displayHomeTeam : displayAwayTeam}) {event.description}
-                    </div>
+                  {/* Score column - center */}
+                  <div className="text-lg font-bold text-gray-900 min-w-[50px] flex-shrink-0">
+                    {homeGoalsAtTime}-{awayGoalsAtTime}
                   </div>
                   
-                  {/* Event icon */}
-                  <div className="flex items-start pt-1">
-                    {getEventIcon(event.type)}
+                  {/* Player and team info - right side */}
+                  <div className="flex-1 text-sm text-gray-700">
+                    <div className="font-medium">
+                      {event.player} ({event.team === 'home' ? displayHomeTeam : displayAwayTeam}) {event.description}
+                    </div>
                   </div>
                 </div>
               );
