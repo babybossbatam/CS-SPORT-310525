@@ -60,19 +60,19 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
           // For today's view, exclude any matches that are from previous days
           if (selectedDate === todayString) {
             if (smartResult.label === "today") return true;
-            
+
             // Additional check: exclude matches from previous dates regardless of status
             const fixtureDate = new Date(fixture.fixture.date);
             const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-            
+
             if (fixtureDateString < selectedDate) {
               console.log(`❌ [MyMainLayout DATE FILTER] Excluding yesterday match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${fixtureDateString} < ${selectedDate})`);
               return false;
             }
-            
+
             return false;
           }
-          
+
           if (selectedDate === tomorrowString && smartResult.label === "tomorrow") return true;
           if (selectedDate === yesterdayString && smartResult.label === "yesterday") return true;
 
@@ -148,12 +148,17 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
             <>
               <ScoreDetailsCard currentFixture={selectedFixture} onClose={handleBackToMain} />
               <MatchDetailCard match={selectedFixture} />
-              <MyLiveAction 
-                matchId={selectedFixture?.fixture?.id}
-                homeTeam={selectedFixture?.teams?.home}
-                awayTeam={selectedFixture?.teams?.away}
-                status={selectedFixture?.fixture?.status?.short}
-              />
+              {/* Live Action Component */}
+              <div className="mt-4">
+                <MyLiveAction 
+                  matchId={selectedFixture?.fixture?.id}
+                  homeTeam={selectedFixture?.teams?.home}
+                  awayTeam={selectedFixture?.teams?.away}
+                  status={selectedFixture?.fixture?.status?.short}
+                />
+              </div>
+
+              {/* Removed MatchPredictionsCard component usage */}
               <MyHighlights 
                 homeTeam={selectedFixture?.teams?.home?.name}
                 awayTeam={selectedFixture?.teams?.away?.name}
