@@ -89,28 +89,55 @@ const MyMatchdetailsScoreboard = ({
 
       // Fetch updated elapsed time from API every 30 seconds - similar to LiveMatchForAllCountry
       const timer = setInterval(async () => {
-        try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-          
-          const response = await fetch("/api/fixtures/live", {
-            signal: controller.signal,
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            keepalive: false,
-            cache: 'no-cache'
-          });
-          
-          clearTimeout(timeoutId);
-          
-          if (!response.ok) {
-            const errorText = await response.text().catch(() => 'Unknown error');
-            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-          }
+        const fetchLiveFixtures = async (retryCount = 0, maxRetries = 1): Promise<any[]> => {
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+            
+            const response = await fetch("/api/fixtures/live", {
+              signal: controller.signal,
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              keepalive: false,
+              cache: 'no-cache'
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+              const errorText = await response.text().catch(() => 'Unknown error');
+              throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+            }
 
-          const liveFixtures = await response.json();
+            return await response.json();
+          } catch (error) {
+            const isNetworkError = error.name === 'AbortError' || 
+                                  error.message?.includes('Failed to fetch') ||
+                                  error.message?.includes('NetworkError');
+            
+            if (isNetworkError && retryCount < maxRetries) {
+              console.warn(`🔄 [Live Timer] Retrying live fixtures ${retryCount + 1}/${maxRetries}`);
+              
+              // Wait before retry
+              await new Promise(resolve => setTimeout(resolve, 2000));
+              
+              return fetchLiveFixtures(retryCount + 1, maxRetries);
+            }
+            
+            // Return empty array instead of throwing
+            if (isNetworkError) {
+              console.warn("🌐 [Live Timer] Network error, returning empty fixtures");
+              return [];
+            }
+            
+            throw error;
+          }
+        };
+
+        try {
+          const liveFixtures = await fetchLiveFixtures();
           console.log("🔄 [Live Timer] Fetched live fixtures:", {
             totalFixtures: liveFixtures.length,
             searchingFor: displayMatch.fixture.id,
@@ -148,60 +175,80 @@ const MyMatchdetailsScoreboard = ({
 
             // If match not found in live fixtures, it might have ended
             // Try to fetch the specific match to check its current status
-            try {
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 second timeout
-              
-              const specificMatchResponse = await fetch(
-                `/api/fixtures?ids=${displayMatch.fixture.id}`,
-                {
-                  signal: controller.signal,
-                  headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                  },
-                  keepalive: false,
-                  cache: 'no-cache'
-                }
-              );
-              
-              clearTimeout(timeoutId);
-              
-              if (specificMatchResponse.ok) {
-                const specificMatchData = await specificMatchResponse.json();
-                if (specificMatchData.length > 0) {
-                  const updatedMatch = specificMatchData[0];
-                  console.log("🔍 [Live Timer] Specific match status:", {
-                    id: updatedMatch.fixture.id,
-                    status: updatedMatch.fixture.status.short,
-                    elapsed: updatedMatch.fixture.status.elapsed,
-                  });
-
-                  // If match has ended, stop the timer
-                  if (
-                    ["FT", "AET", "PEN"].includes(
-                      updatedMatch.fixture.status.short,
-                    )
-                  ) {
-                    console.log(
-                      "🏁 [Live Timer] Match has ended, stopping updates",
-                    );
-                    setLiveElapsed(null);
-                    clearInterval(timer);
+            const fetchSpecificMatch = async (retryCount = 0, maxRetries = 1): Promise<any[]> => {
+              try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 second timeout
+                
+                const specificMatchResponse = await fetch(
+                  `/api/fixtures?ids=${displayMatch.fixture.id}`,
+                  {
+                    signal: controller.signal,
+                    headers: {
+                      'Accept': 'application/json',
+                      'Content-Type': 'application/json'
+                    },
+                    keepalive: false,
+                    cache: 'no-cache'
                   }
+                );
+                
+                clearTimeout(timeoutId);
+                
+                if (specificMatchResponse.ok) {
+                  return await specificMatchResponse.json();
+                } else {
+                  throw new Error(`HTTP ${specificMatchResponse.status}`);
+                }
+              } catch (error) {
+                const isNetworkError = error.name === 'AbortError' || 
+                                      error.message?.includes('Failed to fetch') ||
+                                      error.message?.includes('NetworkError');
+                
+                if (isNetworkError && retryCount < maxRetries) {
+                  console.warn(`🔄 [Live Timer] Retrying specific match ${retryCount + 1}/${maxRetries}`);
+                  
+                  // Wait before retry
+                  await new Promise(resolve => setTimeout(resolve, 2000));
+                  
+                  return fetchSpecificMatch(retryCount + 1, maxRetries);
+                }
+                
+                // Return empty array instead of throwing
+                if (isNetworkError) {
+                  console.warn("🌐 [Live Timer] Network error fetching specific match, continuing...");
+                  return [];
+                }
+                
+                throw error;
+              }
+            };
+
+            try {
+              const specificMatchData = await fetchSpecificMatch();
+              if (specificMatchData.length > 0) {
+                const updatedMatch = specificMatchData[0];
+                console.log("🔍 [Live Timer] Specific match status:", {
+                  id: updatedMatch.fixture.id,
+                  status: updatedMatch.fixture.status.short,
+                  elapsed: updatedMatch.fixture.status.elapsed,
+                });
+
+                // If match has ended, stop the timer
+                if (
+                  ["FT", "AET", "PEN"].includes(
+                    updatedMatch.fixture.status.short,
+                  )
+                ) {
+                  console.log(
+                    "🏁 [Live Timer] Match has ended, stopping updates",
+                  );
+                  setLiveElapsed(null);
+                  clearInterval(timer);
                 }
               }
             } catch (specificError) {
-              if (specificError.name === 'AbortError') {
-                console.warn("⏰ [Live Timer] Specific match request timeout");
-              } else if (specificError.message?.includes('Failed to fetch')) {
-                console.warn("🌐 [Live Timer] Network error fetching specific match");
-              } else {
-                console.error(
-                  "❌ [Live Timer] Failed to fetch specific match:",
-                  specificError,
-                );
-              }
+              console.warn("⚠️ [Live Timer] Could not fetch specific match, continuing with live updates");
             }
           }
         } catch (error) {

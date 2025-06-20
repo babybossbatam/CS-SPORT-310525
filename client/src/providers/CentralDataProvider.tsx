@@ -38,59 +38,87 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     queryFn: async () => {
       console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${selectedDate}`);
       
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout for date queries
-      
-      try {
-        const response = await fetch(`/api/fixtures/date/${selectedDate}?all=true`, {
-          signal: controller.signal,
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          keepalive: false,
-          cache: 'no-cache'
-        });
+      const fetchWithRetry = async (retryCount = 0, maxRetries = 2): Promise<FixtureResponse[]> => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout for date queries
         
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-          const errorText = await response.text().catch(() => 'Unknown error');
-          throw new Error(`Failed to fetch fixtures: ${response.status} - ${errorText}`);
-        }
-        const data: FixtureResponse[] = await response.json();
+        try {
+          const response = await fetch(`/api/fixtures/date/${selectedDate}?all=true`, {
+            signal: controller.signal,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            keepalive: false,
+            cache: 'no-cache'
+          });
+          
+          clearTimeout(timeoutId);
+          
+          if (!response.ok) {
+            const errorText = await response.text().catch(() => 'Unknown error');
+            throw new Error(`Failed to fetch fixtures: ${response.status} - ${errorText}`);
+          }
+          const data: FixtureResponse[] = await response.json();
 
-      console.log(`📊 [CentralDataProvider] Raw data received: ${data.length} fixtures`);
+          console.log(`📊 [CentralDataProvider] Raw data received: ${data.length} fixtures`);
 
-        // Basic validation only - let components handle their own filtering
-        const basicFiltered = data.filter(fixture => {
-          return fixture?.league && fixture?.teams && fixture?.teams?.home && fixture?.teams?.away;
-        });
+          // Basic validation only - let components handle their own filtering
+          const basicFiltered = data.filter(fixture => {
+            return fixture?.league && fixture?.teams && fixture?.teams?.home && fixture?.teams?.away;
+          });
 
-        console.log(`📊 [CentralDataProvider] After basic filtering: ${basicFiltered.length} fixtures`);
+          console.log(`📊 [CentralDataProvider] After basic filtering: ${basicFiltered.length} fixtures`);
 
-        // Update Redux store with all valid fixtures
-        dispatch(fixturesActions.setFixturesByDate({ 
-          date: selectedDate, 
-          fixtures: basicFiltered 
-        }));
+          // Update Redux store with all valid fixtures
+          dispatch(fixturesActions.setFixturesByDate({ 
+            date: selectedDate, 
+            fixtures: basicFiltered 
+          }));
 
-        return basicFiltered;
-      } catch (error) {
-        clearTimeout(timeoutId);
-        
-        // Handle different types of errors gracefully
-        if (error.name === 'AbortError') {
-          console.warn(`⏰ [CentralDataProvider] Date fixtures request timeout for ${selectedDate}`);
-          throw new Error('Request timeout - please check your connection');
-        } else if (error.message?.includes('Failed to fetch')) {
-          console.warn(`🌐 [CentralDataProvider] Network error fetching fixtures for ${selectedDate}`);
-          throw new Error('Network error - please check your connection');
-        } else {
+          return basicFiltered;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          
+          const isNetworkError = error.name === 'AbortError' || 
+                                error.message?.includes('Failed to fetch') ||
+                                error.message?.includes('NetworkError');
+          
+          if (isNetworkError && retryCount < maxRetries) {
+            console.warn(`🔄 [CentralDataProvider] Retrying ${retryCount + 1}/${maxRetries} for ${selectedDate}`);
+            
+            // Wait before retry with exponential backoff
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 2000));
+            
+            return fetchWithRetry(retryCount + 1, maxRetries);
+          }
+          
+          // After all retries failed, return empty array instead of throwing
+          if (isNetworkError) {
+            console.warn(`🌐 [CentralDataProvider] Network error after ${maxRetries} retries, returning empty fixtures for ${selectedDate}`);
+            
+            // Update Redux store with empty array
+            dispatch(fixturesActions.setFixturesByDate({ 
+              date: selectedDate, 
+              fixtures: [] 
+            }));
+            
+            return [];
+          }
+          
           console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${selectedDate}:`, error);
-          throw error;
+          
+          // Return empty array instead of throwing for any other errors
+          dispatch(fixturesActions.setFixturesByDate({ 
+            date: selectedDate, 
+            fixtures: [] 
+          }));
+          
+          return [];
         }
-      }
+      };
+
+      return fetchWithRetry();
     },
     staleTime: CACHE_DURATIONS.TWO_HOURS,
     gcTime: CACHE_DURATIONS.SIX_HOURS,
@@ -106,49 +134,71 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   } = useQuery({
     queryKey: ['central-live-fixtures'],
     queryFn: async () => {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-      
-      try {
-        const response = await fetch('/api/fixtures/live', {
-          signal: controller.signal,
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          keepalive: false,
-          cache: 'no-cache'
-        });
+      const fetchWithRetry = async (retryCount = 0, maxRetries = 2): Promise<FixtureResponse[]> => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
         
-        clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-          const errorText = await response.text().catch(() => 'Unknown error');
-          throw new Error(`Failed to fetch live fixtures: ${response.status} - ${errorText}`);
-        }
-        const data: FixtureResponse[] = await response.json();
+        try {
+          const response = await fetch('/api/fixtures/live', {
+            signal: controller.signal,
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            keepalive: false,
+            cache: 'no-cache'
+          });
+          
+          clearTimeout(timeoutId);
+          
+          if (!response.ok) {
+            const errorText = await response.text().catch(() => 'Unknown error');
+            throw new Error(`Failed to fetch live fixtures: ${response.status} - ${errorText}`);
+          }
+          const data: FixtureResponse[] = await response.json();
 
-      console.log(`Central cache: Received ${data.length} live fixtures`);
+          console.log(`Central cache: Received ${data.length} live fixtures`);
 
-        // Update Redux store
-        dispatch(fixturesActions.setLiveFixtures(data));
+          // Update Redux store
+          dispatch(fixturesActions.setLiveFixtures(data));
 
-        return data;
-      } catch (error) {
-        clearTimeout(timeoutId);
-        
-        // Handle different types of errors gracefully
-        if (error.name === 'AbortError') {
-          console.warn("⏰ [CentralDataProvider] Live fixtures request timeout");
-          throw new Error('Request timeout - please check your connection');
-        } else if (error.message?.includes('Failed to fetch')) {
-          console.warn("🌐 [CentralDataProvider] Network error fetching live fixtures");
-          throw new Error('Network error - please check your connection');
-        } else {
+          return data;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          
+          const isNetworkError = error.name === 'AbortError' || 
+                                error.message?.includes('Failed to fetch') ||
+                                error.message?.includes('NetworkError');
+          
+          if (isNetworkError && retryCount < maxRetries) {
+            console.warn(`🔄 [CentralDataProvider] Retrying live fixtures ${retryCount + 1}/${maxRetries}`);
+            
+            // Wait before retry
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
+            
+            return fetchWithRetry(retryCount + 1, maxRetries);
+          }
+          
+          // After all retries failed, return empty array instead of throwing
+          if (isNetworkError) {
+            console.warn("🌐 [CentralDataProvider] Network error after retries, returning empty live fixtures");
+            
+            // Update Redux store with empty array
+            dispatch(fixturesActions.setLiveFixtures([]));
+            
+            return [];
+          }
+          
           console.error("❌ [CentralDataProvider] Error fetching live fixtures:", error);
-          throw error;
+          
+          // Return empty array instead of throwing for any other errors
+          dispatch(fixturesActions.setLiveFixtures([]));
+          
+          return [];
         }
-      }
+      };
+
+      return fetchWithRetry();
     },
     staleTime: 30000, // 30 seconds for live data
     gcTime: 2 * 60 * 1000, // 2 minutes

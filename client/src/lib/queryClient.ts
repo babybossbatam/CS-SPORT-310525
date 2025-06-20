@@ -29,11 +29,13 @@ const checkRateLimit = (key: string) => {
   return true;
 };
 
-// API request helper
+// API request helper with retry logic
 export async function apiRequest(
   method: string,
   url: string,
-  data?: unknown | undefined
+  data?: unknown | undefined,
+  retryCount = 0,
+  maxRetries = 2
 ): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
@@ -58,11 +60,25 @@ export async function apiRequest(
   } catch (error) {
     clearTimeout(timeoutId);
     
+    // Implement retry logic for network errors
+    const isNetworkError = error.name === 'AbortError' || 
+                          error.message?.includes('Failed to fetch') ||
+                          error.message?.includes('NetworkError');
+    
+    if (isNetworkError && retryCount < maxRetries) {
+      console.warn(`Network error, retrying ${retryCount + 1}/${maxRetries} for ${method} ${url}`);
+      
+      // Exponential backoff: wait 1s, then 2s, then 4s
+      await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
+      
+      return apiRequest(method, url, data, retryCount + 1, maxRetries);
+    }
+    
     if (error.name === 'AbortError') {
-      console.error(`Request timeout for ${method} ${url}`);
+      console.error(`Request timeout for ${method} ${url} after ${maxRetries} retries`);
       throw new Error(`Request timeout - please check your connection`);
     } else if (error.message?.includes('Failed to fetch')) {
-      console.error(`Network error for ${method} ${url}:`, error);
+      console.error(`Network error for ${method} ${url} after ${maxRetries} retries:`, error);
       throw new Error(`Network error - please check your connection`);
     } else {
       console.error(`API request error for ${method} ${url}:`, error);
@@ -85,21 +101,51 @@ export const getQueryFn: <T>(options: {
       return null as any;
     }
 
-    try {
-      const res = await fetch(queryKey[0] as string, {
-        credentials: "include"
-      });
+    const fetchWithRetry = async (retryCount = 0, maxRetries = 2): Promise<any> => {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
-      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-        return null;
+        const res = await fetch(queryKey[0] as string, {
+          credentials: "include",
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+          return null;
+        }
+
+        await throwIfResNotOk(res);
+        return await res.json();
+      } catch (error) {
+        const isNetworkError = error.name === 'AbortError' || 
+                              error.message?.includes('Failed to fetch') ||
+                              error.message?.includes('NetworkError');
+        
+        if (isNetworkError && retryCount < maxRetries) {
+          console.warn(`Query retry ${retryCount + 1}/${maxRetries} for ${queryKey[0]}`);
+          
+          // Wait before retry with exponential backoff
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
+          
+          return fetchWithRetry(retryCount + 1, maxRetries);
+        }
+        
+        console.error(`Query error for ${queryKey[0]} after ${maxRetries} retries:`, error);
+        
+        // Return empty array for list queries, null for single item queries
+        if (keyString.includes('fixtures') || keyString.includes('live')) {
+          console.warn(`Returning empty array fallback for ${keyString}`);
+          return [];
+        }
+        
+        throw error;
       }
+    };
 
-      await throwIfResNotOk(res);
-      return await res.json();
-    } catch (error) {
-      console.error(`Query error for ${queryKey[0]}:`, error);
-      throw error;
-    }
+    return fetchWithRetry();
   };
 
 // Query client with configurations
