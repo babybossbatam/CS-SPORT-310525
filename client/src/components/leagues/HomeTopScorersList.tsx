@@ -226,12 +226,32 @@ const HomeTopScorersList = () => {
   }, [availableLeagues]);
 
   const scrollLeft = () => {
+    // Move to previous league
+    const currentIndex = getCurrentLeagueIndex();
+    if (currentIndex > 0) {
+      setSelectedLeague(availableLeagues[currentIndex - 1].id);
+    } else {
+      // If at first league, go to last league
+      setSelectedLeague(availableLeagues[availableLeagues.length - 1].id);
+    }
+    
+    // Also handle scrolling
     const scrollAmount = 200;
     const newPosition = Math.max(0, contentPosition - scrollAmount);
     setContentPosition(newPosition);
   };
 
   const scrollRight = () => {
+    // Move to next league
+    const currentIndex = getCurrentLeagueIndex();
+    if (currentIndex < availableLeagues.length - 1) {
+      setSelectedLeague(availableLeagues[currentIndex + 1].id);
+    } else {
+      // If at last league, go to first league
+      setSelectedLeague(availableLeagues[0].id);
+    }
+    
+    // Also handle scrolling
     const scrollAmount = 200;
     const maxScroll = Math.max(0, contentWidth - containerWidth);
     const newPosition = Math.min(maxScroll, contentPosition + scrollAmount);
