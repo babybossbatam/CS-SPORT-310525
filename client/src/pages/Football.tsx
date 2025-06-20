@@ -422,7 +422,7 @@ const Football = () => {
   }
 
   return (
-    <>
+    <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[130px]">
       <Header />
       <SportsCategoryTabs />
       <TournamentHeader 
@@ -478,7 +478,7 @@ const Football = () => {
       </div>
 
       <RegionModal />
-    </>
+    </main>
   );
 };
 
