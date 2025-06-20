@@ -41,6 +41,7 @@ import "../../styles/TodaysMatchByCountryNew.css";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
+import { NoLiveMatchesEmpty } from "./NoLiveMatchesEmpty";
 import { useCentralData } from "../../providers/CentralDataProvider";
 
 // Helper function to shorten team names
@@ -103,6 +104,7 @@ interface LiveMatchByTimeProps {
   liveFilterActive?: boolean;
   timeFilterActive?: boolean;
   liveFixtures?: any[]; // Accept live fixtures as props
+  setLiveFilterActive?: (active: boolean) => void;
 }
 
 const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
@@ -111,6 +113,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   liveFilterActive = false,
   timeFilterActive = false,
   liveFixtures: propsFixtures,
+  setLiveFilterActive,
 }) => {
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
@@ -313,12 +316,21 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
 
   if (!allFixtures.length) {
     return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <Activity className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-gray-500">No live matches available</p>
-        </CardContent>
-      </Card>
+      <>
+        {/* Header Section */}
+        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+          Popular Football Live Score
+        </CardHeader>
+        <div className="bg-gray-100 min-h-[400px]">
+          <NoLiveMatchesEmpty 
+            showBackButton={true}
+            onBackToHome={() => {
+              window.location.href = '/';
+            }}
+            setLiveFilterActive={setLiveFilterActive}
+          />
+        </div>
+      </>
     );
   }
 

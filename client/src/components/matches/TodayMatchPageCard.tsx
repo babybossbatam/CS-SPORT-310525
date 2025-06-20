@@ -380,6 +380,7 @@ export const TodayMatchPageCard = ({
           liveFilterActive={liveFilterActive}
           timeFilterActive={timeFilterActive}
           liveFixtures={sharedLiveFixtures}
+          setLiveFilterActive={setLiveFilterActive}
         />
       ) : liveFilterActive && !timeFilterActive ? (
         // Live only - show LiveMatchForAllCountry
