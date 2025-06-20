@@ -258,8 +258,9 @@ const HomeTopScorersList = () => {
     setContentPosition(newPosition);
   };
 
-  const canScrollLeft = contentPosition > 0;
-  const canScrollRight = contentPosition < (contentWidth - containerWidth);
+  const currentIndex = getCurrentLeagueIndex();
+  const canScrollLeft = currentIndex > 0;
+  const canScrollRight = currentIndex < availableLeagues.length - 1;
 
   // Auto-scroll to selected league when it changes - 365scores style
   useEffect(() => {
