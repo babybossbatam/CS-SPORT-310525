@@ -38,9 +38,19 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const [error, setError] = useState<string | null>(null);
   
 
-  // YouTube API Configuration
+  // YouTube API Configuration with reliable channels
   const API_KEY = 'AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o';
-  const CHANNEL_ID = 'UCaopyJz-EIXOXYXSMOC6c-g';
+  
+  // Multiple reliable channels for football highlights
+  const HIGHLIGHT_CHANNELS = [
+    'UCaopyJz-EIXOXYXSMOC6c-g', // Original channel
+    'UCKlcfZ3svGyESsxQCcV_x5g', // ESPN FC
+    'UC6yW44UGJJBvYTlfC7CRg2Q', // beIN Sports
+    'UCpcTrCXblq78GZrTUTLWeBw', // Sky Sports Football
+    'UCRfhZMRWLBpNnZ5nfKgL4-w', // BT Sport Football
+    'UCq6aw03fnIBFWs2fqgP32pA', // Goal
+    'UCYO_jab_esuFRV4b17AJtAw'  // 3 Players
+  ];
 
   const searchForHighlights = async () => {
     if (!homeTeam || !awayTeam) {
@@ -52,56 +62,127 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     setError(null);
 
     try {
-      // First try to find live video
-      const liveApiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&eventType=live&type=video&key=${API_KEY}`;
-      
-      const liveResponse = await fetch(liveApiUrl);
-      const liveData = await liveResponse.json();
+      // Strategy 1: Search for live videos across all channels
+      for (const channelId of HIGHLIGHT_CHANNELS) {
+        try {
+          const liveApiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&eventType=live&type=video&key=${API_KEY}`;
+          
+          const liveResponse = await fetch(liveApiUrl);
+          const liveData = await liveResponse.json();
 
-      if (liveData.items && liveData.items.length > 0) {
-        // Check if live video matches our teams
-        const liveMatch = liveData.items.find((item: YouTubeVideo) => {
-          const title = item.snippet.title.toLowerCase();
-          return title.includes(homeTeam.toLowerCase()) && title.includes(awayTeam.toLowerCase());
-        });
+          if (liveData.items && liveData.items.length > 0) {
+            const liveMatch = liveData.items.find((item: YouTubeVideo) => {
+              const title = item.snippet.title.toLowerCase();
+              return title.includes(homeTeam.toLowerCase()) && title.includes(awayTeam.toLowerCase());
+            });
 
-        if (liveMatch) {
-          setVideoData(liveMatch);
-          setIsLoading(false);
-          return;
+            if (liveMatch) {
+              setVideoData(liveMatch);
+              setIsLoading(false);
+              return;
+            }
+          }
+        } catch (channelError) {
+          console.warn(`Failed to search live videos on channel ${channelId}:`, channelError);
         }
       }
 
-      // If no live video, search for highlights
-      const query = encodeURIComponent(`${homeTeam} ${awayTeam} highlights ${leagueName || ''}`);
-      const highlightApiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${CHANNEL_ID}&maxResults=10&order=date&type=video&q=${query}&key=${API_KEY}`;
-      
-      const highlightResponse = await fetch(highlightApiUrl);
-      const highlightData = await highlightResponse.json();
+      // Strategy 2: Search for highlights on specific channels first
+      for (const channelId of HIGHLIGHT_CHANNELS) {
+        try {
+          const query = encodeURIComponent(`${homeTeam} ${awayTeam} highlights ${leagueName || ''}`);
+          const highlightApiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=10&order=relevance&type=video&q=${query}&key=${API_KEY}`;
+          
+          const highlightResponse = await fetch(highlightApiUrl);
+          const highlightData = await highlightResponse.json();
 
-      if (highlightData.error) {
-        throw new Error(highlightData.error.message);
-      }
+          if (highlightData.error) {
+            console.warn(`API error for channel ${channelId}:`, highlightData.error.message);
+            continue;
+          }
 
-      if (highlightData.items && highlightData.items.length > 0) {
-        // Find the best match by checking if both team names are in title
-        const perfectMatch = highlightData.items.find((item: YouTubeVideo) => {
-          const title = item.snippet.title.toLowerCase();
-          return title.includes(homeTeam.toLowerCase()) && title.includes(awayTeam.toLowerCase());
-        });
+          if (highlightData.items && highlightData.items.length > 0) {
+            // Find perfect match with both team names
+            const perfectMatch = highlightData.items.find((item: YouTubeVideo) => {
+              const title = item.snippet.title.toLowerCase();
+              return title.includes(homeTeam.toLowerCase()) && title.includes(awayTeam.toLowerCase());
+            });
 
-        if (perfectMatch) {
-          setVideoData(perfectMatch);
-        } else {
-          // Fallback to first result
-          setVideoData(highlightData.items[0]);
+            if (perfectMatch) {
+              setVideoData(perfectMatch);
+              setIsLoading(false);
+              return;
+            }
+
+            // Store first good result as fallback
+            if (!videoData) {
+              const goodMatch = highlightData.items.find((item: YouTubeVideo) => {
+                const title = item.snippet.title.toLowerCase();
+                return title.includes(homeTeam.toLowerCase()) || title.includes(awayTeam.toLowerCase());
+              });
+              if (goodMatch) {
+                setVideoData(goodMatch);
+              }
+            }
+          }
+        } catch (channelError) {
+          console.warn(`Failed to search highlights on channel ${channelId}:`, channelError);
         }
-      } else {
-        setError('No highlight videos found for this match');
       }
+
+      // Strategy 3: General YouTube search if channel-specific searches fail
+      if (!videoData) {
+        try {
+          const generalQuery = encodeURIComponent(`${homeTeam} vs ${awayTeam} highlights ${leagueName || ''}`);
+          const generalApiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&order=relevance&type=video&q=${generalQuery}&key=${API_KEY}`;
+          
+          const generalResponse = await fetch(generalApiUrl);
+          const generalData = await generalResponse.json();
+
+          if (generalData.items && generalData.items.length > 0) {
+            // Find best match from general search
+            const bestMatch = generalData.items.find((item: YouTubeVideo) => {
+              const title = item.snippet.title.toLowerCase();
+              const description = item.snippet.description.toLowerCase();
+              
+              // Check for both teams in title or description
+              const hasHomeTeam = title.includes(homeTeam.toLowerCase()) || description.includes(homeTeam.toLowerCase());
+              const hasAwayTeam = title.includes(awayTeam.toLowerCase()) || description.includes(awayTeam.toLowerCase());
+              
+              return hasHomeTeam && hasAwayTeam;
+            });
+
+            if (bestMatch) {
+              setVideoData(bestMatch);
+            } else {
+              // Last resort: any video mentioning either team
+              const anyMatch = generalData.items.find((item: YouTubeVideo) => {
+                const title = item.snippet.title.toLowerCase();
+                return title.includes(homeTeam.toLowerCase()) || title.includes(awayTeam.toLowerCase());
+              });
+              
+              if (anyMatch) {
+                setVideoData(anyMatch);
+              }
+            }
+          }
+        } catch (generalError) {
+          console.error('General search failed:', generalError);
+        }
+      }
+
+      // If we have data at this point, we're done
+      if (videoData) {
+        setIsLoading(false);
+        return;
+      }
+
+      // If still no results, show helpful error
+      setError(`No highlight videos found for ${homeTeam} vs ${awayTeam}. This match may be too recent or from a less covered league.`);
+      
     } catch (err) {
       console.error('Error fetching highlights:', err);
-      setError('Failed to load highlight videos');
+      setError('Failed to load highlight videos. Please try again later.');
     } finally {
       setIsLoading(false);
     }
@@ -151,9 +232,17 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         )}
 
         {error && (
-          <div className="flex items-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
-            <span className="text-sm text-yellow-800">{error}</span>
+          <div className="flex flex-col items-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg space-y-3">
+            <div className="flex items-center">
+              <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
+              <span className="text-sm text-yellow-800">{error}</span>
+            </div>
+            <button
+              onClick={searchForHighlights}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              Try Again
+            </button>
           </div>
         )}
 
@@ -196,9 +285,23 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         )}
 
         {!isLoading && !error && !videoData && (
-          <div className="text-center p-8 text-gray-500">
+          <div className="text-center p-8 text-gray-500 space-y-4">
             <Play className="h-12 w-12 mx-auto mb-2 text-gray-300" />
             <p>No highlights available for this match</p>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(`${homeTeam} vs ${awayTeam} highlights`)}`, '_blank')}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+              >
+                Search on YouTube
+              </button>
+              <button
+                onClick={searchForHighlights}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
+              >
+                Try Search Again
+              </button>
+            </div>
           </div>
         )}
       </CardContent>
