@@ -10,7 +10,7 @@ interface NoLiveMatchesEmptyProps {
   setLiveFilterActive?: (active: boolean) => void;
 }
 
-const NoLiveMatchesEmpty = ({ 
+export const NoLiveMatchesEmpty = ({ 
   onBackToHome, 
   showBackButton = true,
   title = "No Live Matches",
