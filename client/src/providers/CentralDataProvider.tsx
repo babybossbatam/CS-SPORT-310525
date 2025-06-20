@@ -94,7 +94,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         console.log(`Central cache: Received ${data.length} live fixtures`);
 
         // Update Redux store
-        dispatch(fixturesActions.setLiveFixtures(data));
+        dispatch(fixturesActions.setLiveFixtures(data as any));
 
         return data;
       } catch (error) {
