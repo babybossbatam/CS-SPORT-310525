@@ -1,0 +1,108 @@
+🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Al Ain vs Juventus | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International Object
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Paris Saint Germain vs Botafogo | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International Object
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Trinidad and Tobago vs Haiti | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World Object
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Saudi Arabia vs USA | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World Object
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Al Ain vs Juventus | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Paris Saint Germain vs Botafogo | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Trinidad and Tobago vs Haiti | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Saudi Arabia vs USA | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Al Ain vs Juventus | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Paris Saint Germain vs Botafogo | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Trinidad and Tobago vs Haiti | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Saudi Arabia vs USA | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Al Ain vs Juventus | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Paris Saint Germain vs Botafogo | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Trinidad and Tobago vs Haiti | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Saudi Arabia vs USA | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Al Ain vs Juventus | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Paris Saint Germain vs Botafogo | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Trinidad and Tobago vs Haiti | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Saudi Arabia vs USA | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Al Ain vs Juventus | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Paris Saint Germain vs Botafogo | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Trinidad and Tobago vs Haiti | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Saudi Arabia vs USA | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Al Ain vs Juventus | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Paris Saint Germain vs Botafogo | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Trinidad and Tobago vs Haiti | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Saudi Arabia vs USA | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Al Ain vs Juventus | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Paris Saint Germain vs Botafogo | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Trinidad and Tobago vs Haiti | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Saudi Arabia vs USA | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}leagueId: 22leagueName: "CONCACAF Gold Cup"originalCountry: "World"[[Prototype]]: Object
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Al Ain vs Juventus | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "fifa club world cup" | Paris Saint Germain vs Botafogo | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "fifa club world cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: International {originalCountry: 'World', leagueName: 'FIFA Club World Cup', leagueId: 15}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Trinidad and Tobago vs Haiti | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
+MyPopularLeagueExclusion.ts:69 🌍 [WORLD DEBUG] Checking World league: "concacaf gold cup" | Saudi Arabia vs USA | Country: World
+MyPopularLeagueExclusion.ts:84 ✅ [WORLD DEBUG] Allowing World league: "concacaf gold cup"
+TodayPopularFootballLeaguesNew.tsx:846 🌍 [WORLD DEBUG] Processing for countryKey: World {originalCountry: 'World', leagueName: 'CONCACAF Gold Cup', leagueId: 22}
