@@ -1651,7 +1651,8 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
       const extractedDate = apiDateString.split('T')[0];
 
       // Allow fixtures from ±1 day to capture all timezone variations
-      const targetDateObj = new Date(date);
+      const today = new Date();
+      const targetDateObj = new Date(today);
       const previousDay = new Date(targetDateObj);
       previousDay.setDate(previousDay.getDate() - 1);
       const nextDay = new Date(targetDateObj);
@@ -1659,13 +1660,13 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
 
       const validDates = [
         previousDay.toISOString().split('T')[0],
-        date,
+        today.toISOString().split('T')[0],
         nextDay.toISOString().split('T')[0]
       ];
 
       if (!validDates.includes(extractedDate)) {
         console.log(`🚫 [Routes] Final validation - rejecting fixture outside date range: {
-  requestedDate: '${date}',
+  requestedDate: '${today.toISOString().split('T')[0]}',
   apiReturnedDate: '${apiDateString}',
   extractedDate: '${extractedDate}',
   fixtureId: ${fixture.fixture.id}
