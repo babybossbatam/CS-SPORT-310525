@@ -12,7 +12,7 @@ import { setupGlobalErrorHandlers } from './lib/errorHandler.ts'
   const originalLog = console.log;
 
   // Create comprehensive suppression filter
-  const suppressEventEmitterWarnings = (method, originalMethod, args) => {
+  const suppressEventEmitterWarnings = (method: string, originalMethod: any, args: any[]) => {
     const message = args.join(' ');
     
     // Comprehensive EventEmitter warning patterns

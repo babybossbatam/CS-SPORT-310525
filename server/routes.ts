@@ -1943,7 +1943,15 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
       }
 
       // Compare data
-      const comparison = {
+      const comparison: {
+        fixtureId: any;
+        serverTime: string;
+        cache: any;
+        fresh: any;
+        apiError: any;
+        isOutdated: boolean;
+        differences: any[];
+      } = {
         fixtureId,
         serverTime: new Date().toISOString(),
         cache: cacheInfo,
@@ -1968,11 +1976,11 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
 
         for (const field of fieldsToCompare) {
           try {
-            const cachedValue = field.split('.').reduce((obj, key) => {
+            const cachedValue = field.split('.').reduce((obj: any, key: string) => {
               return (obj && typeof obj === 'object') ? obj[key] : undefined;
             }, cacheInfo.data);
 
-            const freshValue = field.split('.').reduce((obj, key) => {
+            const freshValue = field.split('.').reduce((obj: any, key: string) => {
               return (obj && typeof obj === 'object') ? obj[key] : undefined;
             }, freshData);
 
@@ -2289,7 +2297,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
       // Convert to array and sort
       const countries = Array.from(countriesMap.values()).map(country => ({
         ...country,
-        seasons: Array.from(country.seasons).sort((a, b) => b - a), // Sort seasons descending
+        seasons: Array.from(country.seasons).sort((a: any, b: any) => (b as number) - (a as number)), // Sort seasons descending
         leagueCount: country.leagues.length
       })).sort((a, b) => a.name.localeCompare(b.name));
 
