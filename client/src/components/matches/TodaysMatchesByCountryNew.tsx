@@ -205,6 +205,27 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   });
 
   // Always call hooks in the same order - validate after hooks
+  // Fetch live fixtures for real-time updates
+  const { data: liveFixtures = [] } = useQuery({
+    queryKey: ["live-fixtures-by-country"],
+    queryFn: async () => {
+      console.log("🔴 [TodaysMatchesByCountryNew] Fetching live fixtures");
+      const response = await apiRequest("GET", "/api/fixtures/live");
+      const data = await response.json();
+      console.log(
+        `🔴 [TodaysMatchesByCountryNew] Received ${data.length} live fixtures`,
+      );
+      return data;
+    },
+    staleTime: 20000, // 20 seconds for faster live updates
+    gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
+    enabled: enableFetching,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
+  });
+
   // Fetch all fixtures for the selected date with comprehensive caching
   const { data: fixtures = [], isLoading } = useQuery({
     queryKey: ["all-fixtures-by-date", selectedDate],
@@ -302,6 +323,56 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     refetchOnMount: false,
     refetchOnReconnect: false,
   });
+
+  // Merge live fixture data with cached fixtures for real-time updates
+  const mergedFixtures = useMemo(() => {
+    if (!fixtures?.length) return [];
+    
+    if (!liveFixtures?.length) {
+      console.log(`🔄 [TodaysMatchesByCountryNew] No live fixtures to merge, using cached data`);
+      return fixtures;
+    }
+
+    console.log(`🔄 [TodaysMatchesByCountryNew] Merging ${liveFixtures.length} live fixtures with ${fixtures.length} cached fixtures`);
+
+    // Create a map of live fixtures by ID for fast lookup
+    const liveFixturesMap = new Map();
+    liveFixtures.forEach(liveFixture => {
+      liveFixturesMap.set(liveFixture.fixture.id, liveFixture);
+    });
+
+    // Merge fixtures: use live data if available, otherwise use cached data
+    const merged = fixtures.map(cachedFixture => {
+      const liveFixture = liveFixturesMap.get(cachedFixture.fixture.id);
+      
+      if (liveFixture) {
+        console.log(`🔴 [LIVE UPDATE] Updating fixture ${cachedFixture.fixture.id}: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`, {
+          oldStatus: cachedFixture.fixture.status.short,
+          newStatus: liveFixture.fixture.status.short,
+          oldElapsed: cachedFixture.fixture.status.elapsed,
+          newElapsed: liveFixture.fixture.status.elapsed,
+          oldScore: `${cachedFixture.goals?.home || 0}-${cachedFixture.goals?.away || 0}`,
+          newScore: `${liveFixture.goals?.home || 0}-${liveFixture.goals?.away || 0}`
+        });
+        
+        // Use live fixture data for real-time updates
+        return {
+          ...cachedFixture,
+          fixture: {
+            ...cachedFixture.fixture,
+            status: liveFixture.fixture.status,
+          },
+          goals: liveFixture.goals,
+          score: liveFixture.score,
+        };
+      }
+      
+      return cachedFixture;
+    });
+
+    console.log(`✅ [TodaysMatchesByCountryNew] Merged fixtures completed, ${merged.length} total fixtures`);
+    return merged;
+  }, [fixtures, liveFixtures]);
 
   // Now validate after all hooks are called
   if (!selectedDate) {
@@ -411,13 +482,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Add comprehensive debugging logs for fixture analysis
   useEffect(() => {
-    if (fixtures && fixtures.length > 0) {
+    if (mergedFixtures && mergedFixtures.length > 0) {
       console.log(
-        `🔍 [TodaysMatchesByCountryNew] Analyzing ${fixtures.length} fixtures for date: ${selectedDate}`,
+        `🔍 [TodaysMatchesByCountryNew] Analyzing ${mergedFixtures.length} fixtures for date: ${selectedDate}`,
       );
 
       // Log first few fixtures with detailed info
-      const sampleFixtures = fixtures.slice(0, 5);
+      const sampleFixtures = mergedFixtures.slice(0, 5);
       sampleFixtures.forEach((fixture, index) => {
         console.log(`📊 [TodaysMatchesByCountryNew] Fixture ${index + 1}:`, {
           fixtureId: fixture.fixture?.id,
@@ -434,7 +505,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       });
 
       // Status breakdown
-      const statusBreakdown = fixtures.reduce((acc: any, fixture: any) => {
+      const statusBreakdown = mergedFixtures.reduce((acc: any, fixture: any) => {
         const status = fixture.fixture?.status?.short || "UNKNOWN";
         acc[status] = (acc[status] || 0) + 1;
         return acc;
@@ -446,7 +517,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       );
 
       // Live matches analysis
-      const liveMatches = fixtures.filter((fixture: any) =>
+      const liveMatches = mergedFixtures.filter((fixture: any) =>
         ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
           fixture.fixture?.status?.short,
         ),
@@ -481,7 +552,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
 
       // Country breakdown
-      const countryBreakdown = fixtures.reduce((acc: any, fixture: any) => {
+      const countryBreakdown = mergedFixtures.reduce((acc: any, fixture: any) => {
         const country = fixture.league?.country || "Unknown";
         acc[country] = (acc[country] || 0) + 1;
         return acc;
@@ -495,7 +566,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Time analysis
       const now = new Date();
       const selectedDateObj = new Date(selectedDate);
-      const timeAnalysis = fixtures.map((fixture: any) => {
+      const timeAnalysis = mergedFixtures.map((fixture: any) => {
         const matchDate = new Date(fixture.fixture.date);
         const hoursDiff =
           (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
@@ -520,7 +591,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       // Date filtering analysis
       const dateFilterAnalysis = {
-        totalFixtures: fixtures.length,
+        totalFixtures: mergedFixtures.length,
         selectedDate,
         fixturesOnSelectedDate: timeAnalysis.filter((f) => f.isSelectedDate)
           .length,
@@ -536,12 +607,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         dateFilterAnalysis,
       );
     }
-  }, [fixtures, selectedDate]);
+  }, [mergedFixtures, selectedDate]);
 
   // Enhanced filtering using smart time filter for accurate date handling
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     // Use the appropriate data source based on filter state
-    const allFixtures = liveFilterActive ? liveFixtures : fixtures;
+    const allFixtures = liveFilterActive ? liveFixtures : mergedFixtures;
     if (!allFixtures?.length) {
       return {
         validFixtures: [],
@@ -653,7 +724,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         },
       },
     };
-  }, [fixtures, selectedDate, liveFilterActive, liveFixtures]);
+  }, [mergedFixtures, selectedDate, liveFilterActive, liveFixtures]);
 
   // Log filtering statistics
   console.log(`📊 [MyDateFilter] Filtering Results for ${selectedDate}:`, {

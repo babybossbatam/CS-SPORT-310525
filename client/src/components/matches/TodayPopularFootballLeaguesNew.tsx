@@ -220,6 +220,27 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Check if we have fresh cached data
   const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
 
+  // Fetch live fixtures for real-time updates
+  const { data: liveFixtures = [] } = useQuery({
+    queryKey: ["live-fixtures-popular-leagues"],
+    queryFn: async () => {
+      console.log("🔴 [TodayPopularLeagueNew] Fetching live fixtures");
+      const response = await apiRequest("GET", "/api/fixtures/live");
+      const data = await response.json();
+      console.log(
+        `🔴 [TodayPopularLeagueNew] Received ${data.length} live fixtures`,
+      );
+      return data;
+    },
+    staleTime: 20000, // 20 seconds for faster live updates
+    gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
+    enabled: enableFetching,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchOnReconnect: true,
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
+  });
+
   // Fetch all fixtures for the selected date with smart caching
   const {
     data: fixtures = [],
@@ -253,19 +274,69 @@ const TodayPopularFootballLeaguesNew: React.FC<
     },
   );
 
+  // Merge live fixture data with cached fixtures for real-time updates
+  const mergedFixtures = useMemo(() => {
+    if (!fixtures?.length) return [];
+    
+    if (!liveFixtures?.length) {
+      console.log(`🔄 [TodayPopularLeagueNew] No live fixtures to merge, using cached data`);
+      return fixtures;
+    }
+
+    console.log(`🔄 [TodayPopularLeagueNew] Merging ${liveFixtures.length} live fixtures with ${fixtures.length} cached fixtures`);
+
+    // Create a map of live fixtures by ID for fast lookup
+    const liveFixturesMap = new Map();
+    liveFixtures.forEach(liveFixture => {
+      liveFixturesMap.set(liveFixture.fixture.id, liveFixture);
+    });
+
+    // Merge fixtures: use live data if available, otherwise use cached data
+    const merged = fixtures.map(cachedFixture => {
+      const liveFixture = liveFixturesMap.get(cachedFixture.fixture.id);
+      
+      if (liveFixture) {
+        console.log(`🔴 [LIVE UPDATE] Updating fixture ${cachedFixture.fixture.id}: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`, {
+          oldStatus: cachedFixture.fixture.status.short,
+          newStatus: liveFixture.fixture.status.short,
+          oldElapsed: cachedFixture.fixture.status.elapsed,
+          newElapsed: liveFixture.fixture.status.elapsed,
+          oldScore: `${cachedFixture.goals?.home || 0}-${cachedFixture.goals?.away || 0}`,
+          newScore: `${liveFixture.goals?.home || 0}-${liveFixture.goals?.away || 0}`
+        });
+        
+        // Use live fixture data for real-time updates
+        return {
+          ...cachedFixture,
+          fixture: {
+            ...cachedFixture.fixture,
+            status: liveFixture.fixture.status,
+          },
+          goals: liveFixture.goals,
+          score: liveFixture.score,
+        };
+      }
+      
+      return cachedFixture;
+    });
+
+    console.log(`✅ [TodayPopularLeagueNew] Merged fixtures completed, ${merged.length} total fixtures`);
+    return merged;
+  }, [fixtures, liveFixtures]);
+
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
   // Smart filtering operations
   const filteredFixtures = useMemo(() => {
-    if (!fixtures?.length) return [];
+    if (!mergedFixtures?.length) return [];
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
+      `🔍 [TOMORROW DEBUG] Processing ${mergedFixtures.length} fixtures for date: ${selectedDate}`,
     );
 
     // Count COSAFA Cup matches in input
-    const cosafaMatches = fixtures.filter(
+    const cosafaMatches = mergedFixtures.filter(
       (f) =>
         f.league?.name?.toLowerCase().includes("cosafa") ||
         f.teams?.home?.name?.toLowerCase().includes("cosafa") ||
@@ -297,7 +368,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
     const isSelectedTomorrow = selectedDate === tomorrowString;
 
-    const filtered = fixtures.filter((fixture) => {
+    const filtered = mergedFixtures.filter((fixture) => {
       // Apply smart time filtering with selected date context
       if (fixture.fixture.date && fixture.fixture.status?.short) {
         const smartResult = MySmartTimeFilter.getSmartTimeLabel(
@@ -580,7 +651,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     );
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Filtered ${fixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
+      `🔍 [TOMORROW DEBUG] Filtered ${mergedFixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
     );
     console.log(
       `🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`,
@@ -595,7 +666,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     );
 
     return finalFiltered;
-  }, [fixtures, selectedDate]);
+  }, [mergedFixtures, selectedDate]);
 
   // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = filteredFixtures.reduce(
