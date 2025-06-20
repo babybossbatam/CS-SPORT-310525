@@ -397,6 +397,25 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
     const isSelectedTomorrow = selectedDate === tomorrowString;
 
+    // Debug: Check for target leagues in raw data BEFORE any filtering
+    const targetLeagues = [38, 15, 16, 914];
+    targetLeagues.forEach(leagueId => {
+      const leagueFixtures = mergedFixtures.filter(f => f.league?.id === leagueId);
+      console.log(`🔍 [RAW DATA DEBUG] League ${leagueId} fixtures in raw merged data:`, {
+        leagueId,
+        count: leagueFixtures.length,
+        fixtures: leagueFixtures.map(f => ({
+          id: f.fixture?.id,
+          date: f.fixture?.date,
+          status: f.fixture?.status?.short,
+          league: f.league?.name,
+          country: f.league?.country,
+          home: f.teams?.home?.name,
+          away: f.teams?.away?.name
+        }))
+      });
+    });
+
     const filtered = mergedFixtures.filter((fixture) => {
       // Debug target leagues specifically
       const isTargetLeague = [38, 15, 16, 914].includes(fixture.league?.id);
@@ -507,8 +526,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
       );
 
       if (isTargetLeague) {
-        console.log(`✅ [EXCLUSION RESULT] League ${leagueId} exclusion check:`, {
-          leagueId,
+        console.log(`✅ [EXCLUSION RESULT] League ${fixture.league?.id} exclusion check:`, {
+          leagueId: fixture.league?.id,
           leagueName: fixture.league?.name,
           country: fixture.league?.country,
           shouldExclude,
@@ -520,7 +539,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
       if (shouldExclude) {
         if (isTargetLeague) {
-          console.log(`❌ [EXCLUSION RESULT] League ${leagueId} EXCLUDED by shouldExcludeFromPopularLeagues`);
+          console.log(`❌ [EXCLUSION RESULT] League ${fixture.league?.id} EXCLUDED by shouldExcludeFromPopularLeagues`);
         }
         return false;
       }
@@ -574,8 +593,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const finalDecision = isPopularLeague || isFromPopularCountry || isInternationalCompetition;
 
       if (isTargetLeague) {
-        console.log(`🎯 [FINAL DECISION] League ${leagueId} final filtering result:`, {
-          leagueId,
+        console.log(`🎯 [FINAL DECISION] League ${fixture.league?.id} final filtering result:`, {
+          leagueId: fixture.league?.id,
           leagueName: fixture.league?.name,
           country: fixture.league?.country,
           isPopularLeague,
