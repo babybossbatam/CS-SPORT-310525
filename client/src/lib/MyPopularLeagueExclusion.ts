@@ -192,10 +192,7 @@ export function shouldExcludeFromPopularLeagues(
     return true; // Exclude UEFA Nations League Women
   }
 
-  // SECOND: Check for CONCACAF competitions - always exclude
-  if (league.includes("concacaf")) {
-    return true; // Exclude all CONCACAF competitions
-  }
+  
 
   // THIRD: Check for Asia competitions - always exclude
   if (league.includes("asia")) {
@@ -225,18 +222,20 @@ export function shouldExcludeFromPopularLeagues(
     league.includes("copa sudamericana") ||
     league.includes("libertadores") ||
     league.includes("sudamericana") ||
+    // CONCACAF competitions (now allowed)
+    league.includes("concacaf") ||
+    league.includes("gold cup") ||
     // Youth international tournaments (but exclude women's)
     league.includes("tournoi maurice revello") ||
     league.includes("maurice revello") ||
-    // International competitions (but exclude women's and Asia/CONCACAF qualifications)
+    // International competitions (but exclude women's and Asia qualifications)
     (league.includes("nations league") && !league.includes("women")) ||
     (league.includes("uefa nations league") && !league.includes("women")) ||
     (league.includes("confederation") && !league.includes("women")) ||
     (league.includes("qualifying") &&
       (league.includes("world cup") || league.includes("euro")) &&
       !league.includes("women") &&
-      !league.includes("asia") &&
-      !league.includes("concacaf")) ||
+      !league.includes("asia")) ||
     (league.includes("international") &&
       (league.includes("cup") || league.includes("championship")) &&
       !league.includes("women")) ||
@@ -288,7 +287,6 @@ export function isPopularLeagueSuitable(
   if (
     isMajorInternational &&
     !league.includes("women") &&
-    !league.includes("concacaf") &&
     !league.includes("asia")
   ) {
     return true;
