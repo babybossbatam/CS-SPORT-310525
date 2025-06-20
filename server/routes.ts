@@ -564,11 +564,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (allLeagues && allLeagues.length > 0) {
         const popularLeagues = popularLeagueIds
           .map(({ id, priority }) => {
-            const league = allLeagues.find(l => l.data?.league?.id === id);
-            return league ? { ...league.data, priority } : null;
+            const league = allLeagues.find((l: any) => l.data?.league?.id === id);
+            return league && league.data ? { ...league.data, priority } : null;
           })
-          .filter(Boolean)
-          .sort((a, b) => a.priority - b.priority);
+          .filter((item): item is any => Boolean(item))
+          .sort((a: any, b: any) => (a?.priority || 0) - (b?.priority || 0));
 
         console.log(`API: Returning ${popularLeagues.length} popular leagues from cache`);
         return res.json(popularLeagues);
@@ -578,11 +578,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const leagues = await rapidApiService.getLeagues();
       const popularLeagues = popularLeagueIds
         .map(({ id, priority }) => {
-          const league = leagues.find(l => l.league?.id === id);
+          const league = leagues.find((l: any) => l.league?.id === id);
           return league ? { ...league, priority } : null;
         })
-        .filter(Boolean)
-        .sort((a, b) => a.priority - b.priority);
+        .filter((item): item is any => Boolean(item))
+        .sort((a: any, b: any) => (a?.priority || 0) - (b?.priority || 0));
 
       console.log(`API: Returning ${popularLeagues.length} popular leagues from API`);
       res.json(popularLeagues);
@@ -2112,10 +2112,10 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
       if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
         return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
       }
-    // Get fixtures for the requested date without timezone restrictions
-  // This allows us to capture fixtures from all timezones for the given date
-  const apiFromDate = requestedDate; // Use the date as-is
-  const apiToDate = requestedDate; // Same day
+        // Get fixtures for the requested date without timezone restrictions
+      // This allows us to capture fixtures from all timezones for the given date
+      const apiFromDate = date; // Use the date as-is
+      const apiToDate = date; // Same day
 
       const fixtures = await rapidApiService.getFixturesByDate(date, all === 'true');
       console.log(`Got ${fixtures.length} fixtures ${all === 'true' ? 'from all leagues' : 'from popular leagues'} for date ${date}`);

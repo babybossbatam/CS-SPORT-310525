@@ -80,23 +80,27 @@ export const setupGlobalErrorHandlers = () => {
       if (error.message?.includes('Failed to fetch') || 
           error.message?.includes('not 2xx response') ||
           error.message?.includes('Network Error') ||
-          error.message?.includes('NetworkError')) {
-        console.log('🌐 Network connectivity issue detected, attempting recovery...');
+          error.message?.includes('NetworkError') ||
+          error.message?.includes('dynamically imported module')) {
+        console.log('🌐 Network/import connectivity issue detected, attempting recovery...');
         handleNetworkRecovery();
         return;
       }
 
       if (error.message?.includes('frame') || 
-          error.message?.includes('Cannot read properties of undefined')) {
-        console.log('🖼️ Frame-related error detected, suppressing cascade...');
+          error.message?.includes('Cannot read properties of undefined') ||
+          error.message?.includes('space after cleanup')) {
+        console.log('🖼️ Frame/memory-related error detected, suppressing cascade...');
         return;
       }
     }
 
-    // Handle string errors that might be fetch-related
+    // Handle string errors that might be fetch-related or import-related
     if (typeof error === 'string' && 
-        (error.includes('Failed to fetch') || error.includes('Network'))) {
-      console.log('🌐 Network error string detected, attempting recovery...');
+        (error.includes('Failed to fetch') || 
+         error.includes('Network') || 
+         error.includes('dynamically imported'))) {
+      console.log('🌐 Network/import error string detected, attempting recovery...');
       handleNetworkRecovery();
       return;
     }
