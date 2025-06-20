@@ -36,31 +36,41 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   } = useQuery({
     queryKey: ['central-date-fixtures', selectedDate],
     queryFn: async () => {
-      console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${selectedDate}`);
-      const response = await fetch(`/api/fixtures/date/${selectedDate}?all=true`);
-      if (!response.ok) throw new Error('Failed to fetch fixtures');
-      const data: FixtureResponse[] = await response.json();
+      try {
+        console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${selectedDate}`);
+        const response = await fetch(`/api/fixtures/date/${selectedDate}?all=true`);
+        if (!response.ok) {
+          console.warn(`Date fixtures API returned ${response.status} for ${selectedDate}`);
+          return [];
+        }
+        const data: FixtureResponse[] = await response.json();
 
-      console.log(`📊 [CentralDataProvider] Raw data received: ${data.length} fixtures`);
+        console.log(`📊 [CentralDataProvider] Raw data received: ${data.length} fixtures`);
 
-      // Basic validation only - let components handle their own filtering
-      const basicFiltered = data.filter(fixture => {
-        return fixture?.league && fixture?.teams && fixture?.teams?.home && fixture?.teams?.away;
-      });
+        // Basic validation only - let components handle their own filtering
+        const basicFiltered = data.filter(fixture => {
+          return fixture?.league && fixture?.teams && fixture?.teams?.home && fixture?.teams?.away;
+        });
 
-      console.log(`📊 [CentralDataProvider] After basic filtering: ${basicFiltered.length} fixtures`);
+        console.log(`📊 [CentralDataProvider] After basic filtering: ${basicFiltered.length} fixtures`);
 
-      // Update Redux store with all valid fixtures
-      dispatch(fixturesActions.setFixturesByDate({ 
-        date: selectedDate, 
-        fixtures: basicFiltered 
-      }));
+        // Update Redux store with all valid fixtures
+        dispatch(fixturesActions.setFixturesByDate({ 
+          date: selectedDate, 
+          fixtures: basicFiltered as any
+        }));
 
-      return basicFiltered;
+        return basicFiltered;
+      } catch (error) {
+        console.error(`API request error for GET /api/fixtures/date/${selectedDate}:`, error);
+        return [];
+      }
     },
-    staleTime: CACHE_DURATIONS.TWO_HOURS,
+    staleTime: CACHE_DURATIONS.ONE_HOUR,
     gcTime: CACHE_DURATIONS.SIX_HOURS,
     refetchOnWindowFocus: false,
+    retry: false, // Disable retries to prevent cascading errors
+    throwOnError: false, // Don't throw errors to prevent unhandled rejections
   });
 
   // Single source of truth for live fixtures
@@ -72,21 +82,32 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   } = useQuery({
     queryKey: ['central-live-fixtures'],
     queryFn: async () => {
-      const response = await fetch('/api/fixtures/live');
-      if (!response.ok) throw new Error('Failed to fetch live fixtures');
-      const data: FixtureResponse[] = await response.json();
+      try {
+        console.log(`🔴 [CentralDataProvider] Fetching live fixtures`);
+        const response = await fetch('/api/fixtures/live');
+        if (!response.ok) {
+          console.warn(`Live fixtures API returned ${response.status}`);
+          return [];
+        }
+        const data: FixtureResponse[] = await response.json();
 
-      console.log(`Central cache: Received ${data.length} live fixtures`);
+        console.log(`Central cache: Received ${data.length} live fixtures`);
 
-      // Update Redux store
-      dispatch(fixturesActions.setLiveFixtures(data));
+        // Update Redux store
+        dispatch(fixturesActions.setLiveFixtures(data));
 
-      return data;
+        return data;
+      } catch (error) {
+        console.error(`❌ [Live Timer] Failed to fetch live match updates:`, error);
+        return [];
+      }
     },
     staleTime: 30000, // 30 seconds for live data
     gcTime: 2 * 60 * 1000, // 2 minutes
     refetchInterval: 35000, // Refetch every 35 seconds
     refetchOnWindowFocus: true,
+    retry: false, // Disable retries to prevent cascading errors
+    throwOnError: false, // Don't throw errors to prevent unhandled rejections
   });
 
   // Prefetch related data

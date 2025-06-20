@@ -1257,10 +1257,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid sport ID" });
       }
 
-      const articles = await betsApiService.getSportsNews(sportId, page, perPage);
-      const formattedArticles = articles.map((article, index) => 
-        betsApiService.convertToStandardFormat(article, index)
-      );
+      // BetsAPI service temporarily disabled
+      const formattedArticles: any[] = [];
 
       res.json(formattedArticles);
     } catch (error) {
@@ -1282,10 +1280,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid league ID" });
       }
 
-      const articles = await betsApiService.getLeagueNews(leagueId, page, perPage);
-      const formattedArticles = articles.map((article, index) => 
-        betsApiService.convertToStandardFormat(article, index)
-      );
+      // BetsAPI service temporarily disabled
+      const formattedArticles: any[] = [];
 
       res.json(formattedArticles);
     } catch (error) {
@@ -1434,8 +1430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             headers: {
               'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
               'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            },
-            timeout: 5000
+            }
           });
 
           if (response.ok) {
@@ -1502,7 +1497,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             break;
           }
         } catch (error) {
-          console.warn(`Failed to fetch from ${logoUrl}:`, error.message);
+          console.warn(`Failed to fetch from ${logoUrl}:`, error instanceof Error ? error.message : 'Unknown error');
           continue;
         }
       }
