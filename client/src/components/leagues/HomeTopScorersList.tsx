@@ -267,13 +267,13 @@ const HomeTopScorersList = () => {
         {/* Horizontal scrollable league navigation with navigation buttons */}
         <div className="border-b border-gray-100 bg-gray-50">
           <div className="flex items-center">
-            {/* Left scroll button */}
+            {/* Left navigation button */}
             <Button 
               variant="ghost" 
               size="icon"
               className="h-6 w-6 p-0 ml-2 flex-shrink-0" 
-              onClick={scrollLeft}
-              disabled={!canScrollLeft}
+              onClick={goToPreviousLeague}
+              disabled={availableLeagues.length === 0}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -307,13 +307,13 @@ const HomeTopScorersList = () => {
               ))}
             </div>
 
-            {/* Right scroll button */}
+            {/* Right navigation button */}
             <Button 
               variant="ghost" 
               size="icon"
               className="h-6 w-6 p-0 mr-2 flex-shrink-0" 
-              onClick={scrollRight}
-              disabled={!canScrollRight}
+              onClick={goToNextLeague}
+              disabled={availableLeagues.length === 0}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
