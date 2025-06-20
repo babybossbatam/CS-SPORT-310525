@@ -398,7 +398,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const isSelectedTomorrow = selectedDate === tomorrowString;
 
     // Debug: Check for target leagues in raw data BEFORE any filtering
-    const targetLeagues = [38, 15, 16, 914];
     targetLeagues.forEach(leagueId => {
       const leagueFixtures = mergedFixtures.filter(f => f.league?.id === leagueId);
       console.log(`🔍 [RAW DATA DEBUG] League ${leagueId} fixtures in raw merged data:`, {
