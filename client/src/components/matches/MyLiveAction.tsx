@@ -25,12 +25,13 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>('');
 
-  // Fetch real-time live data
+  // Fetch real-time live data with proper cleanup
   useEffect(() => {
     if (!match) return;
 
     const status = match?.fixture?.status?.short;
     const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P"].includes(status);
+    let mounted = true;
 
     if (isLive) {
       const fetchLiveData = async () => {
@@ -38,14 +39,14 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
           console.log(`🔴 [Live Action] Fetching real-time data for match ${match.fixture.id}`);
 
           const response = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
-          if (response.ok) {
+          if (response.ok && mounted) {
             const liveFixtures = await response.json();
 
             const currentMatch = liveFixtures.find((fixture: any) => 
               fixture.fixture.id === match.fixture.id
             );
 
-            if (currentMatch) {
+            if (currentMatch && mounted) {
               setLiveData(currentMatch);
               const elapsed = currentMatch.fixture.status.elapsed || 0;
 
@@ -62,26 +63,43 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
             }
           }
         } catch (error) {
-          console.error('❌ [Live Action] Error fetching live data:', error);
+          if (mounted) {
+            console.error('❌ [Live Action] Error fetching live data:', error);
+          }
         }
       };
 
       fetchLiveData();
       const interval = setInterval(fetchLiveData, 15000); // Update every 15 seconds
 
-      return () => clearInterval(interval);
+      return () => {
+        mounted = false;
+        clearInterval(interval);
+      };
     }
+
+    return () => {
+      mounted = false;
+    };
   }, [match]);
 
-  // Animate ball movement
+  // Animate ball movement with proper cleanup
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
     if (liveEvents.length > 0) {
       const latestEvent = liveEvents[0];
-      animateBallToEvent(latestEvent);
+      timeoutId = animateBallToEvent(latestEvent);
     }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, [liveEvents]);
 
-  const animateBallToEvent = (event: LiveEvent) => {
+  const animateBallToEvent = (event: LiveEvent): NodeJS.Timeout => {
     setIsAnimating(true);
 
     // Calculate ball position based on event type and team
@@ -111,7 +129,7 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
 
     setBallPosition({ x: targetX, y: targetY });
 
-    setTimeout(() => {
+    return setTimeout(() => {
       setIsAnimating(false);
     }, 2000);
   };
@@ -298,11 +316,12 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
 
           {/* Animated Ball */}
           <div 
-            className={`absolute w-4 h-4 bg-white rounded-full shadow-lg transform transition-all duration-2000 ease-in-out ${isAnimating ? 'scale-125' : 'scale-100'}`}
+            key={`ball-${ballPosition.x}-${ballPosition.y}`}
+            className={`absolute w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-2000 ease-in-out ${isAnimating ? 'scale-125' : 'scale-100'}`}
             style={{ 
               left: `${ballPosition.x}%`, 
               top: `${ballPosition.y}%`,
-              transform: `translate(-50%, -50%) ${isAnimating ? 'scale(1.25)' : 'scale(1)'}`,
+              transform: `translate(-50%, -50%)`,
               boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
               zIndex: 10
             }}
@@ -375,7 +394,7 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
             {liveEvents.length > 0 ? (
               liveEvents.map((event, index) => (
                 <div 
-                  key={event.id} 
+                  key={`${event.id}-${event.timestamp}-${index}`} 
                   className={`flex items-center gap-3 px-4 py-3 border-b border-gray-100 hover:bg-gray-100 transition-colors ${
                     index === 0 ? 'bg-blue-50' : ''
                   }`}
