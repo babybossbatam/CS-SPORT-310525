@@ -107,7 +107,7 @@ const HomeTopScorersList = () => {
             if (response.ok) {
               const data: PlayerStatistics[] = await response.json();
               if (data && data.length > 0) {
-                // Filter out data older than 1 month
+                // Filter out data older than 1 month - check both season and data freshness
                 const oneMonthAgo = new Date();
                 oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
                 
@@ -115,11 +115,26 @@ const HomeTopScorersList = () => {
                   const seasonYear = scorer.statistics[0]?.league?.season;
                   if (!seasonYear) return false;
                   
-                  // Check if the season is recent (within last 2 years to account for ongoing seasons)
+                  // For ongoing seasons, check if the season is current or recent
                   const currentYear = new Date().getFullYear();
-                  const isRecentSeason = seasonYear >= currentYear - 1;
+                  const currentMonth = new Date().getMonth() + 1; // 1-12
                   
-                  return isRecentSeason;
+                  // Determine current season based on typical football calendar
+                  // Most leagues run from August (8) to May (5) of next year
+                  let currentSeason;
+                  if (currentMonth >= 8) {
+                    currentSeason = currentYear; // Aug-Dec: use current year
+                  } else {
+                    currentSeason = currentYear - 1; // Jan-July: use previous year
+                  }
+                  
+                  // Only show data from current season
+                  const isCurrentSeason = seasonYear === currentSeason;
+                  
+                  // Additionally, for extra safety, check if it's a very old season
+                  const isVeryOldSeason = seasonYear < currentYear - 1;
+                  
+                  return isCurrentSeason && !isVeryOldSeason;
                 });
                 
                 if (freshData.length > 0) {
@@ -209,11 +224,26 @@ const HomeTopScorersList = () => {
         const seasonYear = scorer.statistics[0]?.league?.season;
         if (!seasonYear) return false;
         
-        // Check if the season is recent (within last 2 years to account for ongoing seasons)
+        // For ongoing seasons, check if the season is current or recent
         const currentYear = new Date().getFullYear();
-        const isRecentSeason = seasonYear >= currentYear - 1;
+        const currentMonth = new Date().getMonth() + 1; // 1-12
         
-        return isRecentSeason;
+        // Determine current season based on typical football calendar
+        // Most leagues run from August (8) to May (5) of next year
+        let currentSeason;
+        if (currentMonth >= 8) {
+          currentSeason = currentYear; // Aug-Dec: use current year
+        } else {
+          currentSeason = currentYear - 1; // Jan-July: use previous year
+        }
+        
+        // Only show data from current season
+        const isCurrentSeason = seasonYear === currentSeason;
+        
+        // Additionally, for extra safety, check if it's a very old season
+        const isVeryOldSeason = seasonYear < currentYear - 1;
+        
+        return isCurrentSeason && !isVeryOldSeason;
       });
       
       return freshData.sort((a, b) => {
