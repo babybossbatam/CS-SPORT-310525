@@ -7,38 +7,14 @@ import { usePopularLeagueStandings } from '@/lib/MyStandingsCachedNew';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
-import DateNavigator from '@/components/layout/DateNavigator';
-import MatchFilters from '@/components/matches/MatchFilters';
-import FeaturedMatch from '@/components/matches/FeaturedMatch';
-import LeagueMatchCard from '@/components/matches/LeagueMatchCard';
-
-import StatsPanel from '@/components/stats/StatsPanel';
+import MyMainLayout from '@/components/layout/MyMainLayout';
 import RegionModal from '@/components/modals/RegionModal';
-import LeagueCountryFilter from '@/components/leagues/LeagueCountryFilter';
-import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
-import PopularTeamsList from '@/components/teams/PopularTeamsList';
-import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
-import PopularLeagueStandingsCard from '@/components/leagues/PopularLeagueStandingsCard';
-import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
-
-import ChampionsLeagueSchedule from '@/components/leagues/ChampionsLeagueSchedule';
-import PremierLeagueSchedule from '@/components/leagues/PremierLeagueSchedule';
-import SerieASchedule from '@/components/leagues/SerieASchedule';
-import EuropaLeagueSchedule from '@/components/leagues/EuropaLeagueSchedule';
-import ConferenceLeagueSchedule from '@/components/leagues/ConferenceLeagueSchedule';
-import BundesligaSchedule from '@/components/leagues/BundesligaSchedule';
-import { Trophy, Activity, Star } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
-import { getCurrentUTCDateString } from '@/lib/dateUtilsUpdated';
-import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from "wouter";
-
-// Import the new TodayMatchCard component
-import TodayMatchPageCard from '@/components/matches/TodayMatchPageCard';
-import TodaysMatchesByCountryNew from '@/components/matches/TodaysMatchesByCountryNew';
-import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew';
 
 // Cleanup any stale video references
 const cleanupFrames = () => {
@@ -430,52 +406,7 @@ const Football = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
 
-      <div className="bg-[#FDFBF7] rounded-lg py-4" style={{ marginLeft: '150px', marginRight: '150px' }}>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-          {/* Left column (5 columns) */}
-          <div className="lg:col-span-5 space-y-4">
-            {/* New TodayMatchPageCard for testing */}
-            <div>
-              <TodayMatchPageCard 
-                fixtures={fixtures}
-                onMatchClick={handleMatchClick}
-              />
-            </div>
-
-            
-          </div>
-
-          {/* Right column (7 columns) */}
-          <div className="lg:col-span-7 space-y-4">
-            <FeaturedMatch />
-            
-            {/* New optimized featured match component for testing */}
-            <MyHomeFeaturedMatchNew 
-              selectedDate={selectedDate} 
-              maxMatches={8}
-            />
-            
-            <Card className="shadow-md">
-              <CardContent>
-                <HomeTopScorersList />
-              </CardContent>
-            </Card>
-            
-            <LeagueStandingsFilter />
-
-            {/* Popular Leagues and Teams sections */}
-            <div className="grid grid-cols-2 gap-4">
-              <PopularLeaguesList />
-              <Card className="w-full shadow-md">
-                <CardContent className="p-4">
-                  <h3 className="text-sm font-semibold mb-2">Popular Teams</h3>
-                  <PopularTeamsList />
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </div>
-      </div>
+      <MyMainLayout fixtures={fixtures} />
 
       <RegionModal />
     </main>
