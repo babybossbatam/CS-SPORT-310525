@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useCachedQuery } from '@/lib/cachingHelper';
 import { useLocation } from 'wouter';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -60,6 +61,8 @@ const HomeTopScorersList = () => {
   const [, navigate] = useLocation();
   const [availableLeagues, setAvailableLeagues] = useState<typeof POPULAR_LEAGUES>([]);
   const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Simplified - no need to check which leagues have data, just show all
   const isLoadingLeagues = false;
@@ -175,6 +178,33 @@ const HomeTopScorersList = () => {
     return league?.name || 'League';
   };
 
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const scrollAmount = 200; // Adjust scroll distance
+      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const scrollAmount = 200; // Adjust scroll distance
+      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      setScrollPosition(scrollContainerRef.current.scrollLeft);
+    }
+  };
+
+  const canScrollLeft = scrollPosition > 0;
+  const canScrollRight = scrollContainerRef.current 
+    ? scrollPosition < (scrollContainerRef.current.scrollWidth - scrollContainerRef.current.clientWidth)
+    : true;
+
   if (isLoadingLeagues || isLoading || !selectedLeague) {
     return (
       <div className="bg-white rounded-lg border border-gray-200">
@@ -220,29 +250,58 @@ const HomeTopScorersList = () => {
     <>
       <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        {/* Horizontal scrollable league navigation */}
+        {/* Horizontal scrollable league navigation with navigation buttons */}
         <div className="border-b border-gray-100 bg-gray-50">
-          <div className="flex items-center overflow-x-auto scrollbar-hide px-4 py-3 gap-6">
-            {availableLeagues.map((league) => (
-              <button
-                key={league.id}
-                onClick={() => setSelectedLeague(league.id)}
-                className={`flex items-center gap-2 whitespace-nowrap transition-colors ${
-                  selectedLeague === league.id 
-                    ? 'text-blue-600 font-medium' 
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <img 
-                  src={league.logo} 
-                  alt={league.name} 
-                  className="w-4 h-4 object-contain flex-shrink-0" 
-                />
-                <span className="text-sm">
-                  {league.name}
-                </span>
-              </button>
-            ))}
+          <div className="flex items-center">
+            {/* Left scroll button */}
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-6 w-6 p-0 ml-2 flex-shrink-0" 
+              onClick={scrollLeft}
+              disabled={!canScrollLeft}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            {/* Scrollable league container */}
+            <div 
+              ref={scrollContainerRef}
+              onScroll={handleScroll}
+              className="flex items-center overflow-x-auto scrollbar-hide px-2 py-3 gap-6 flex-1"
+            >
+              {availableLeagues.map((league) => (
+                <button
+                  key={league.id}
+                  onClick={() => setSelectedLeague(league.id)}
+                  className={`flex items-center gap-2 whitespace-nowrap transition-colors flex-shrink-0 ${
+                    selectedLeague === league.id 
+                      ? 'text-blue-600 font-medium' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <img 
+                    src={league.logo} 
+                    alt={league.name} 
+                    className="w-4 h-4 object-contain flex-shrink-0" 
+                  />
+                  <span className="text-sm">
+                    {league.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Right scroll button */}
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-6 w-6 p-0 mr-2 flex-shrink-0" 
+              onClick={scrollRight}
+              disabled={!canScrollRight}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
