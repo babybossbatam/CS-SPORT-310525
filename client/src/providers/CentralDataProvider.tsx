@@ -93,28 +93,14 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
             return fetchWithRetry(retryCount + 1, maxRetries);
           }
           
-          // After all retries failed, return empty array instead of throwing
+          // After all retries failed, throw the error so the component can handle it
           if (isNetworkError) {
-            console.warn(`🌐 [CentralDataProvider] Network error after ${maxRetries} retries, returning empty fixtures for ${selectedDate}`);
-            
-            // Update Redux store with empty array
-            dispatch(fixturesActions.setFixturesByDate({ 
-              date: selectedDate, 
-              fixtures: [] 
-            }));
-            
-            return [];
+            console.error(`🌐 [CentralDataProvider] Network error after ${maxRetries} retries for ${selectedDate}`);
+            throw new Error(`Unable to load fixtures for ${selectedDate}. Please check your connection.`);
           }
           
           console.error(`❌ [CentralDataProvider] Error fetching fixtures for ${selectedDate}:`, error);
-          
-          // Return empty array instead of throwing for any other errors
-          dispatch(fixturesActions.setFixturesByDate({ 
-            date: selectedDate, 
-            fixtures: [] 
-          }));
-          
-          return [];
+          throw error;
         }
       };
 
@@ -179,22 +165,14 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
             return fetchWithRetry(retryCount + 1, maxRetries);
           }
           
-          // After all retries failed, return empty array instead of throwing
+          // After all retries failed, throw the error so the component can handle it
           if (isNetworkError) {
-            console.warn("🌐 [CentralDataProvider] Network error after retries, returning empty live fixtures");
-            
-            // Update Redux store with empty array
-            dispatch(fixturesActions.setLiveFixtures([]));
-            
-            return [];
+            console.error("🌐 [CentralDataProvider] Network error after retries for live fixtures");
+            throw new Error("Unable to load live fixtures. Please check your connection.");
           }
           
           console.error("❌ [CentralDataProvider] Error fetching live fixtures:", error);
-          
-          // Return empty array instead of throwing for any other errors
-          dispatch(fixturesActions.setLiveFixtures([]));
-          
-          return [];
+          throw error;
         }
       };
 

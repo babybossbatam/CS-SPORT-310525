@@ -135,10 +135,10 @@ export const getQueryFn: <T>(options: {
         
         console.error(`Query error for ${queryKey[0]} after ${maxRetries} retries:`, error);
         
-        // Return empty array for list queries, null for single item queries
+        // Don't return fallback data for fixture queries - let the error propagate
         if (keyString.includes('fixtures') || keyString.includes('live')) {
-          console.warn(`Returning empty array fallback for ${keyString}`);
-          return [];
+          console.error(`Query failed for ${keyString}, throwing error`);
+          throw new Error(`Failed to load ${keyString.includes('live') ? 'live matches' : 'fixtures'}. Please refresh and try again.`);
         }
         
         throw error;

@@ -126,9 +126,9 @@ const MyMatchdetailsScoreboard = ({
               return fetchLiveFixtures(retryCount + 1, maxRetries);
             }
             
-            // Return empty array instead of throwing
+            // For live timer, continue silently on network errors
             if (isNetworkError) {
-              console.warn("🌐 [Live Timer] Network error, returning empty fixtures");
+              console.warn("🌐 [Live Timer] Network error, skipping this update");
               return [];
             }
             
@@ -214,7 +214,7 @@ const MyMatchdetailsScoreboard = ({
                   return fetchSpecificMatch(retryCount + 1, maxRetries);
                 }
                 
-                // Return empty array instead of throwing
+                // For live timer, continue silently on network errors
                 if (isNetworkError) {
                   console.warn("🌐 [Live Timer] Network error fetching specific match, continuing...");
                   return [];
