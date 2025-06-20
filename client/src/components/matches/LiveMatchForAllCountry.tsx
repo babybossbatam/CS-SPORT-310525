@@ -624,7 +624,12 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     );
   }
 
-  if (!allFixtures.length) {
+  // Check if there are any live matches specifically
+  const hasLiveMatches = fixtures.some((fixture: any) => 
+    ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
+  );
+
+  if (!allFixtures.length || !hasLiveMatches) {
     return (
       <div className="bg-gray-100 min-h-[400px]">
         <NoLiveMatchesEmpty 
