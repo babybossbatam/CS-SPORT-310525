@@ -419,17 +419,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     return colors[type as keyof typeof colors] || "bg-gray-500";
   };
 
-  // Use fetched live data
-  const displayMatch = liveData;
-  const homeTeamData = homeTeam || displayMatch?.teams?.home;
-  const awayTeamData = awayTeam || displayMatch?.teams?.away;
-  const statusData = status || displayMatch?.fixture?.status?.short;
-
-  // Determine if match is currently live - use passed status or fallback to display match
-  const currentStatus = status || displayMatch?.fixture?.status?.short;
-  const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
-  const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
-
   if (isLoading) {
     return (
       <Card className={`w-full ${className} bg-white border border-gray-200`}>
