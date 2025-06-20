@@ -168,7 +168,18 @@ const TodayPopularFootballLeaguesNew: React.FC<
     ...Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat(),
     914, // COSAFA Cup
     16,  // CONCACAF Gold Cup
+    38,  // World Cup - Qualification CONCACAF
+    15,  // FIFA Club World Cup
   ];
+
+  // Debug: Log the popular leagues list
+  console.log('🎯 [POPULAR LEAGUES DEBUG] Full popular leagues list:', POPULAR_LEAGUES);
+  console.log('🎯 [POPULAR LEAGUES DEBUG] Target leagues check:', {
+    league38InList: POPULAR_LEAGUES.includes(38),
+    league15InList: POPULAR_LEAGUES.includes(15),
+    league16InList: POPULAR_LEAGUES.includes(16),
+    league914InList: POPULAR_LEAGUES.includes(914)
+  });
 
   // Popular teams for match prioritization
   const POPULAR_TEAMS = [
@@ -335,6 +346,24 @@ const TodayPopularFootballLeaguesNew: React.FC<
       `🔍 [TOMORROW DEBUG] Processing ${mergedFixtures.length} fixtures for date: ${selectedDate}`,
     );
 
+    // Debug: Check for target leagues in raw data
+    const targetLeagues = [38, 15, 16, 914];
+    targetLeagues.forEach(leagueId => {
+      const leagueFixtures = mergedFixtures.filter(f => f.league?.id === leagueId);
+      console.log(`🔍 [RAW DATA DEBUG] League ${leagueId} fixtures in raw data:`, {
+        count: leagueFixtures.length,
+        fixtures: leagueFixtures.map(f => ({
+          id: f.fixture?.id,
+          date: f.fixture?.date,
+          status: f.fixture?.status?.short,
+          league: f.league?.name,
+          country: f.league?.country,
+          home: f.teams?.home?.name,
+          away: f.teams?.away?.name
+        }))
+      });
+    });
+
     // Count COSAFA Cup matches in input
     const cosafaMatches = mergedFixtures.filter(
       (f) =>
@@ -369,6 +398,21 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const isSelectedTomorrow = selectedDate === tomorrowString;
 
     const filtered = mergedFixtures.filter((fixture) => {
+      // Debug target leagues specifically
+      const isTargetLeague = [38, 15, 16, 914].includes(fixture.league?.id);
+      if (isTargetLeague) {
+        console.log(`🎯 [TARGET LEAGUE DEBUG] Processing league ${fixture.league?.id}:`, {
+          leagueId: fixture.league?.id,
+          leagueName: fixture.league?.name,
+          country: fixture.league?.country,
+          fixtureId: fixture.fixture?.id,
+          date: fixture.fixture?.date,
+          status: fixture.fixture?.status?.short,
+          home: fixture.teams?.home?.name,
+          away: fixture.teams?.away?.name
+        });
+      }
+
       // Apply smart time filtering with selected date context
       if (fixture.fixture.date && fixture.fixture.status?.short) {
         const smartResult = MySmartTimeFilter.getSmartTimeLabel(
@@ -396,25 +440,29 @@ const TodayPopularFootballLeaguesNew: React.FC<
         })();
 
         if (shouldInclude) {
-          console.log(`✅ [Smart Filter] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-            fixtureId: fixture.fixture?.id,
-            fixtureDate: fixture.fixture.date,
-            status: fixture.fixture.status.short,
-            reason: smartResult.reason,
-            label: smartResult.label,
-            selectedDate,
-            isWithinTimeRange: smartResult.isWithinTimeRange,
-          });
+          if (isTargetLeague) {
+            console.log(`✅ [TARGET LEAGUE] Smart filter PASSED for league ${fixture.league?.id}: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+              fixtureId: fixture.fixture?.id,
+              fixtureDate: fixture.fixture.date,
+              status: fixture.fixture.status.short,
+              reason: smartResult.reason,
+              label: smartResult.label,
+              selectedDate,
+              isWithinTimeRange: smartResult.isWithinTimeRange,
+            });
+          }
         } else {
-          console.log(`❌ [Smart Filter] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-            fixtureId: fixture.fixture?.id,
-            fixtureDate: fixture.fixture.date,
-            status: fixture.fixture.status.short,
-            reason: smartResult.reason,
-            label: smartResult.label,
-            selectedDate,
-            isWithinTimeRange: smartResult.isWithinTimeRange,
-          });
+          if (isTargetLeague) {
+            console.log(`❌ [TARGET LEAGUE] Smart filter FAILED for league ${fixture.league?.id}: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+              fixtureId: fixture.fixture?.id,
+              fixtureDate: fixture.fixture.date,
+              status: fixture.fixture.status.short,
+              reason: smartResult.reason,
+              label: smartResult.label,
+              selectedDate,
+              isWithinTimeRange: smartResult.isWithinTimeRange,
+            });
+          }
           return false;
         }
       }
@@ -431,20 +479,49 @@ const TodayPopularFootballLeaguesNew: React.FC<
         (popularCountry) => country.includes(popularCountry.toLowerCase()),
       );
 
+      // Debug target leagues filtering logic
+      if (isTargetLeague) {
+        console.log(`🎯 [POPULAR LEAGUES DEBUG] League ${leagueId} filtering check:`, {
+          leagueId,
+          leagueName: fixture.league?.name,
+          country: fixture.league?.country,
+          countryLower: country,
+          isPopularLeague,
+          isFromPopularCountry,
+          popularLeaguesIncludes: POPULAR_LEAGUES.includes(leagueId),
+          matchingPopularCountry: POPULAR_COUNTRIES_ORDER.find(pc => country.includes(pc.toLowerCase()))
+        });
+      }
+
       // Apply exclusion check FIRST, before checking international competitions
       const leagueName = fixture.league?.name?.toLowerCase() || "";
       const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
       const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
 
       // Early exclusion for women's competitions and other unwanted matches
-      if (
-        shouldExcludeFromPopularLeagues(
-          fixture.league.name,
-          fixture.teams.home.name,
-          fixture.teams.away.name,
-          country,
-        )
-      ) {
+      const shouldExclude = shouldExcludeFromPopularLeagues(
+        fixture.league.name,
+        fixture.teams.home.name,
+        fixture.teams.away.name,
+        country,
+      );
+
+      if (isTargetLeague) {
+        console.log(`✅ [EXCLUSION RESULT] League ${leagueId} exclusion check:`, {
+          leagueId,
+          leagueName: fixture.league?.name,
+          country: fixture.league?.country,
+          shouldExclude,
+          homeTeam: fixture.teams?.home?.name,
+          awayTeam: fixture.teams?.away?.name,
+          exclusionReason: shouldExclude ? 'Contains exclusion terms' : 'Passed exclusion check'
+        });
+      }
+
+      if (shouldExclude) {
+        if (isTargetLeague) {
+          console.log(`❌ [EXCLUSION RESULT] League ${leagueId} EXCLUDED by shouldExcludeFromPopularLeagues`);
+        }
         return false;
       }
 
@@ -478,9 +555,40 @@ const TodayPopularFootballLeaguesNew: React.FC<
         country.includes("europe") ||
         country.includes("international");
 
-      return (
-        isPopularLeague || isFromPopularCountry || isInternationalCompetition
-      );
+      if (isTargetLeague) {
+        console.log(`🌍 [WORLD DEBUG] League ${leagueId} international competition check:`, {
+          leagueId,
+          leagueName: fixture.league?.name,
+          country: fixture.league?.country,
+          isInternationalCompetition,
+          hasWorldInCountry: country.includes("world"),
+          hasEuropeInCountry: country.includes("europe"),
+          hasInternationalInCountry: country.includes("international"),
+          hasConcacafInName: leagueName.includes("concacaf"),
+          hasGoldCupInName: leagueName.includes("gold cup"),
+          hasFifaInName: leagueName.includes("fifa"),
+          hasWorldCupInName: leagueName.includes("world cup")
+        });
+      }
+
+      const finalDecision = isPopularLeague || isFromPopularCountry || isInternationalCompetition;
+
+      if (isTargetLeague) {
+        console.log(`🎯 [FINAL DECISION] League ${leagueId} final filtering result:`, {
+          leagueId,
+          leagueName: fixture.league?.name,
+          country: fixture.league?.country,
+          isPopularLeague,
+          isFromPopularCountry,
+          isInternationalCompetition,
+          finalDecision,
+          reason: finalDecision ? 
+            `${isPopularLeague ? 'Popular League' : ''}${isFromPopularCountry ? ' Popular Country' : ''}${isInternationalCompetition ? ' International Competition' : ''}` :
+            'Not popular league, not from popular country, not international competition'
+        });
+      }
+
+      return finalDecision;
     });
 
     const finalFiltered = filtered.filter((fixture) => {
@@ -593,6 +701,25 @@ const TodayPopularFootballLeaguesNew: React.FC<
         away: m.teams?.away?.name,
       })),
     );
+
+    // Debug: Check final result for target leagues
+    const targetLeaguesInFinal = [38, 15, 16, 914];
+    targetLeaguesInFinal.forEach(leagueId => {
+      const leagueFixtures = finalFiltered.filter(f => f.league?.id === leagueId);
+      console.log(`🎯 [FINAL RESULT DEBUG] League ${leagueId} in final filtered result:`, {
+        leagueId,
+        count: leagueFixtures.length,
+        fixtures: leagueFixtures.map(f => ({
+          id: f.fixture?.id,
+          date: f.fixture?.date,
+          status: f.fixture?.status?.short,
+          league: f.league?.name,
+          country: f.league?.country,
+          home: f.teams?.home?.name,
+          away: f.teams?.away?.name
+        }))
+      });
+    });
 
     return finalFiltered;
   }, [mergedFixtures, selectedDate]);
