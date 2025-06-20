@@ -156,13 +156,13 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
                   status={selectedFixture?.fixture?.status?.short}
                 />
               </div>
-              <MatchDetailCard match={selectedFixture} />
               <MyHighlights 
                 homeTeam={selectedFixture?.teams?.home?.name}
                 awayTeam={selectedFixture?.teams?.away?.name}
                 leagueName={selectedFixture?.league?.name}
                 matchStatus={selectedFixture?.fixture?.status?.short}
               />
+              <MatchDetailCard match={selectedFixture} />
               <MyMatchEvents 
                 homeTeam={selectedFixture?.teams?.home?.name}
                 awayTeam={selectedFixture?.teams?.away?.name}
