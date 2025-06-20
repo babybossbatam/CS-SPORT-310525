@@ -5,6 +5,8 @@ import { useAppDispatch } from '@/lib/store';
 import { fixturesActions } from '@/lib/store';
 import { FixtureResponse } from '@/types/fixtures';
 import { CACHE_DURATIONS } from '@/lib/cacheConfig';
+import { MySmartTimeFilter } from '@/lib/MySmartTimeFilter';
+import { shouldExcludeFixture } from '@/lib/exclusionFilters';
 
 interface CentralDataContextType {
   fixtures: FixtureResponse[];
@@ -37,9 +39,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     queryFn: async () => {
       console.log(`🔄 [CentralDataProvider] Fetching fixtures for ${selectedDate}`);
       const response = await fetch(`/api/fixtures/date/${selectedDate}?all=true`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch fixtures: ${response.status}`);
-      }
+      if (!response.ok) throw new Error('Failed to fetch fixtures');
       const data: FixtureResponse[] = await response.json();
 
       console.log(`📊 [CentralDataProvider] Raw data received: ${data.length} fixtures`);
@@ -74,9 +74,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     queryKey: ['central-live-fixtures'],
     queryFn: async () => {
       const response = await fetch('/api/fixtures/live');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch live fixtures: ${response.status}`);
-      }
+      if (!response.ok) throw new Error('Failed to fetch live fixtures');
       const data: FixtureResponse[] = await response.json();
 
       console.log(`Central cache: Received ${data.length} live fixtures`);
