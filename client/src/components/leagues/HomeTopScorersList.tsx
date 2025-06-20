@@ -97,7 +97,7 @@ const HomeTopScorersList = () => {
     async () => {
       const dataMap = new Map<number, PlayerStatistics[]>();
 
-      console.log('🔍 [HomeTopScorers] Starting league data availability check with freshness filtering');
+      console.log('🔍 [HomeTopScorers] Starting league data availability check with more inclusive filtering');
 
       // Check each league for data with retry logic
       for (const league of POPULAR_LEAGUES) {
@@ -121,44 +121,43 @@ const HomeTopScorersList = () => {
             if (response.ok) {
               const data: PlayerStatistics[] = await response.json();
               if (data && data.length > 0) {
-                // Filter out data older than 1 month - check both season and data freshness
-                const oneMonthAgo = new Date();
-                oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+                // More inclusive filtering - accept data from current and previous season
+                const currentYear = new Date().getFullYear();
+                const currentMonth = new Date().getMonth() + 1; // 1-12
                 
-                const freshData = data.filter(scorer => {
+                // Determine current season based on typical football calendar
+                let currentSeason;
+                if (currentMonth >= 8) {
+                  currentSeason = currentYear; // Aug-Dec: use current year
+                } else {
+                  currentSeason = currentYear - 1; // Jan-July: use previous year
+                }
+                
+                const acceptableData = data.filter(scorer => {
                   const seasonYear = scorer.statistics[0]?.league?.season;
-                  if (!seasonYear) return false;
+                  if (!seasonYear) return true; // Include data without season info
                   
-                  // For ongoing seasons, check if the season is current or recent
-                  const currentYear = new Date().getFullYear();
-                  const currentMonth = new Date().getMonth() + 1; // 1-12
+                  // Accept current season and previous season data
+                  const isRecentSeason = seasonYear >= (currentSeason - 1);
                   
-                  // Determine current season based on typical football calendar
-                  // Most leagues run from August (8) to May (5) of next year
-                  let currentSeason;
-                  if (currentMonth >= 8) {
-                    currentSeason = currentYear; // Aug-Dec: use current year
-                  } else {
-                    currentSeason = currentYear - 1; // Jan-July: use previous year
-                  }
+                  // Exclude very old data (more than 2 years old)
+                  const isVeryOldSeason = seasonYear < (currentYear - 2);
                   
-                  // Only show data from current season
-                  const isCurrentSeason = seasonYear === currentSeason;
-                  
-                  // Additionally, for extra safety, check if it's a very old season
-                  const isVeryOldSeason = seasonYear < currentYear - 1;
-                  
-                  return isCurrentSeason && !isVeryOldSeason;
+                  return isRecentSeason && !isVeryOldSeason;
                 });
                 
-                if (freshData.length > 0) {
-                  dataMap.set(league.id, freshData);
-                  console.log(`✅ [HomeTopScorers] League ${league.id} (${league.name}) has ${freshData.length} fresh top scorers (filtered from ${data.length})`);
+                if (acceptableData.length > 0) {
+                  dataMap.set(league.id, acceptableData);
+                  console.log(`✅ [HomeTopScorers] League ${league.id} (${league.name}) has ${acceptableData.length} top scorers (filtered from ${data.length})`);
                 } else {
-                  console.log(`📭 [HomeTopScorers] League ${league.id} (${league.name}) has no fresh top scorers data`);
+                  // Still include the league even if no recent data, but with empty array
+                  dataMap.set(league.id, []);
+                  console.log(`📭 [HomeTopScorers] League ${league.id} (${league.name}) included with no recent data`);
                 }
               } else {
-                console.log(`📭 [HomeTopScorers] League ${league.id} (${league.name}) has no top scorers`);
+                // Include league even if no data available
+                dataMap.set(league.id, []);
+                console.log(`📭 [HomeTopScorers] League ${league.id} (${league.name}) included with no top scorers`);
               }
               break; // Success, exit retry loop
             } else if (response.status >= 500) {
@@ -167,23 +166,30 @@ const HomeTopScorersList = () => {
               if (retries > 0) {
                 console.warn(`🔄 [HomeTopScorers] Retrying league ${league.id} due to server error`);
                 await new Promise(resolve => setTimeout(resolve, 1000));
+              } else {
+                // Include league even after failed retries
+                dataMap.set(league.id, []);
               }
             } else {
-              // Client error (4xx), don't retry
-              console.warn(`❌ [HomeTopScorers] League ${league.id} returned ${response.status}, skipping`);
+              // Client error (4xx), still include the league
+              console.warn(`❌ [HomeTopScorers] League ${league.id} returned ${response.status}, but including anyway`);
+              dataMap.set(league.id, []);
               break;
             }
           } catch (error) {
             retries--;
             console.warn(`⚠️ [HomeTopScorers] Failed to check league ${league.id} (${2-retries}/2):`, error);
-            if (retries > 0) {
+            if (retries === 0) {
+              // Include league even after all retries failed
+              dataMap.set(league.id, []);
+            } else {
               await new Promise(resolve => setTimeout(resolve, 1000));
             }
           }
         }
       }
 
-      console.log(`📊 [HomeTopScorers] Completed check for ${POPULAR_LEAGUES.length} leagues, found data for ${dataMap.size} leagues`);
+      console.log(`📊 [HomeTopScorers] Completed check for ${POPULAR_LEAGUES.length} leagues, included ${dataMap.size} leagues`);
       return dataMap;
     },
     {
@@ -197,6 +203,7 @@ const HomeTopScorersList = () => {
   // Update available leagues when data is loaded
   useEffect(() => {
     if (leagueDataMap) {
+      // Now include all leagues since we're storing them all in the map
       const leagues = POPULAR_LEAGUES.filter(league => leagueDataMap.has(league.id));
       setAvailableLeagues(leagues);
 
@@ -391,8 +398,9 @@ const HomeTopScorersList = () => {
 
         {/* Players list */}
         <div className="p-4">
-          <div className="space-y-3">
-            {topScorers?.slice(0, 3).map((scorer, index) => {
+          {topScorers && topScorers.length > 0 ? (
+            <div className="space-y-3">
+              {topScorers.slice(0, 3).map((scorer, index) => {
               const playerStats = scorer.statistics[0];
               const goals = playerStats?.goals?.total || 0;
 
@@ -474,8 +482,14 @@ const HomeTopScorersList = () => {
                   </div>
                 </div>
               );
-            })}
-          </div>
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-gray-500">
+              <p className="text-sm">No top scorer data available</p>
+              <p className="text-xs text-gray-400 mt-1">for {getCurrentLeague()?.name}</p>
+            </div>
+          )}
 
           {/* Stats link */}
           <div className="mt-4 pt-3 border-t border-gray-100">
