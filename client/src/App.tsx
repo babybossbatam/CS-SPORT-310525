@@ -15,7 +15,6 @@ import { CentralDataProvider } from "./providers/CentralDataProvider";
 import Footer from "./components/layout/Footer";
 
 const NotFound = lazy(() => import("@/pages/not-found"));
-const Home = lazy(() => import("@/pages/Home"));
 const Football = lazy(() => import("@/pages/Football"));
 const Basketball = lazy(() => import("@/pages/Basketball"));
 const Baseball = lazy(() => import("@/pages/Baseball"));
@@ -35,7 +34,7 @@ const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={Football} />
       <Route path="/football" component={Football} />
       <Route path="/basketball" component={Basketball} />
       <Route path="/baseball" component={Baseball} />
