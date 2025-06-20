@@ -12,7 +12,7 @@ import RegionModal from '@/components/modals/RegionModal';
 import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format, addDays } from 'date-fns';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from "wouter";
 
