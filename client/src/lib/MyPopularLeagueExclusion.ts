@@ -64,20 +64,6 @@ export function shouldExcludeFromPopularLeagues(
   const awayTeam = safeSubstring(awayTeamName, 0).toLowerCase();
   const countryLower = safeSubstring(country || "", 0).toLowerCase();
 
-  // Debug specific leagues we're looking for
-  if (league.includes("uefa u21") || league.includes("fifa club world cup")) {
-    console.log(`🔍 [LEAGUE DEBUG] Checking league: "${leagueName}"`, {
-      leagueName,
-      homeTeamName,
-      awayTeamName,
-      country,
-      league,
-      homeTeam,
-      awayTeam,
-      countryLower
-    });
-  }
-
   // SPECIAL HANDLING FOR WORLD COUNTRY - Add debugging
   if (countryLower === "world") {
     console.log(`🌍 [WORLD DEBUG] Checking World league: "${leagueName}" | ${homeTeamName} vs ${awayTeamName} | Country: ${country}`);

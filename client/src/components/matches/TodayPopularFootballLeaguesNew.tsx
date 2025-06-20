@@ -168,17 +168,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     ...Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat(),
     914, // COSAFA Cup
     16,  // CONCACAF Gold Cup
-    38,  // UEFA U21 Championship - explicitly add
-    15,  // FIFA Club World Cup - explicitly add
   ];
-
-  // Debug: Log if our target leagues are in the popular leagues list
-  console.log(`🎯 [POPULAR LEAGUES DEBUG] Target leagues in POPULAR_LEAGUES:`, {
-    league38InList: POPULAR_LEAGUES.includes(38),
-    league15InList: POPULAR_LEAGUES.includes(15),
-    totalPopularLeagues: POPULAR_LEAGUES.length,
-    popularLeaguesList: POPULAR_LEAGUES
-  });
 
   // Popular teams for match prioritization
   const POPULAR_TEAMS = [
@@ -345,23 +335,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
       `🔍 [TOMORROW DEBUG] Processing ${mergedFixtures.length} fixtures for date: ${selectedDate}`,
     );
 
-    // Debug: Check if target leagues exist in raw data
-    const targetLeagues = mergedFixtures.filter(f => f.league?.id === 38 || f.league?.id === 15);
-    console.log(`🎯 [RAW DATA DEBUG] Target leagues in raw data:`, {
-      totalFixtures: mergedFixtures.length,
-      league38Count: mergedFixtures.filter(f => f.league?.id === 38).length,
-      league15Count: mergedFixtures.filter(f => f.league?.id === 15).length,
-      targetLeagues: targetLeagues.map(f => ({
-        id: f.league?.id,
-        name: f.league?.name,
-        country: f.league?.country,
-        date: f.fixture?.date,
-        status: f.fixture?.status?.short,
-        teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`
-      })),
-      selectedDate
-    });
-
     // Count COSAFA Cup matches in input
     const cosafaMatches = mergedFixtures.filter(
       (f) =>
@@ -396,20 +369,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const isSelectedTomorrow = selectedDate === tomorrowString;
 
     const filtered = mergedFixtures.filter((fixture) => {
-      // Debug specific league IDs we're looking for
-      if (fixture.league?.id === 38 || fixture.league?.id === 15) {
-        console.log(`🎯 [LEAGUE ID DEBUG] Found target league:`, {
-          leagueId: fixture.league?.id,
-          leagueName: fixture.league?.name,
-          country: fixture.league?.country,
-          homeTeam: fixture.teams?.home?.name,
-          awayTeam: fixture.teams?.away?.name,
-          fixtureDate: fixture.fixture?.date,
-          status: fixture.fixture?.status?.short,
-          selectedDate
-        });
-      }
-
       // Apply smart time filtering with selected date context
       if (fixture.fixture.date && fixture.fixture.status?.short) {
         const smartResult = MySmartTimeFilter.getSmartTimeLabel(
@@ -531,37 +490,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
         console.log(`🌍 [POPULAR DEBUG] Processing World league: ${fixture.league.name} | ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
       }
 
-      // Debug specific league IDs before exclusion check
-      if (fixture.league?.id === 38 || fixture.league?.id === 15) {
-        console.log(`🔍 [EXCLUSION CHECK] Before exclusion check for league ${fixture.league?.id}:`, {
-          leagueId: fixture.league?.id,
-          leagueName: fixture.league?.name,
-          country: fixture.league?.country,
-          homeTeam: fixture.teams?.home?.name,
-          awayTeam: fixture.teams?.away?.name
-        });
-      }
-
       // Apply popular league exclusion filters
-      const shouldExclude = shouldExcludeFromPopularLeagues(
-        fixture.league.name,
-        fixture.teams.home.name,
-        fixture.teams.away.name,
-        fixture.league.country,
-      );
-
-      if (shouldExclude) {
-        if (fixture.league?.id === 38 || fixture.league?.id === 15) {
-          console.log(`❌ [EXCLUSION RESULT] League ${fixture.league?.id} (${fixture.league?.name}) was EXCLUDED!`);
-        }
+      if (
+        shouldExcludeFromPopularLeagues(
+          fixture.league.name,
+          fixture.teams.home.name,
+          fixture.teams.away.name,
+          fixture.league.country,
+        )
+      ) {
         if (country === "world") {
           console.log(`❌ [POPULAR DEBUG] World league excluded: ${fixture.league.name}`);
         }
         return false;
-      }
-
-      if (fixture.league?.id === 38 || fixture.league?.id === 15) {
-        console.log(`✅ [EXCLUSION RESULT] League ${fixture.league?.id} (${fixture.league?.name}) passed exclusion check`);
       }
 
       // Additional check for restricted US leagues
