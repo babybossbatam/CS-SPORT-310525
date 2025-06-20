@@ -31,9 +31,12 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
         try {
           console.log(`🔴 [Live Action] Fetching real-time data for match ${match.fixture.id}`);
           
-          const response = await fetch('/api/fixtures/live');
+          // Add timestamp to prevent caching
+          const response = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
           if (response.ok) {
             const liveFixtures = await response.json();
+            console.log(`📡 [Live Action] Received ${liveFixtures.length} live fixtures from API`);
+            
             const currentMatch = liveFixtures.find((fixture: any) => 
               fixture.fixture.id === match.fixture.id
             );
@@ -44,33 +47,56 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
                 status: currentMatch.fixture.status.short,
                 elapsed: currentMatch.fixture.status.elapsed,
                 homeGoals: currentMatch.goals?.home,
-                awayGoals: currentMatch.goals?.away
+                awayGoals: currentMatch.goals?.away,
+                homeTeam: currentMatch.teams?.home?.name,
+                awayTeam: currentMatch.teams?.away?.name
               });
 
               setLiveData(currentMatch);
               
-              // Extract real match events if available
-              const realActions = extractRealMatchEvents(currentMatch);
+              // Always create a current action based on the real elapsed time
+              const elapsed = currentMatch.fixture.status.elapsed || 0;
+              const status = currentMatch.fixture.status.short;
               
-              if (realActions.length > 0) {
-                // Use the most recent real event
-                const latestAction = realActions[realActions.length - 1];
-                setCurrentAction(latestAction);
-                console.log(`🎯 [Live Action] Using real match event:`, latestAction);
+              // Create action based on current match state
+              let currentAction;
+              
+              if (status === "HT") {
+                currentAction = {
+                  team: "neutral",
+                  action: "Half Time",
+                  minute: 45,
+                  type: 'general' as const
+                };
+              } else if (status === "2H" && elapsed >= 90) {
+                currentAction = {
+                  team: "neutral",
+                  action: "Injury Time",
+                  minute: elapsed,
+                  type: 'general' as const
+                };
               } else {
-                // Fallback to generating realistic actions if no real events
-                const elapsed = currentMatch.fixture.status.elapsed || 0;
+                // Generate realistic action based on current time
                 const actions = generateRealisticActions(currentMatch, elapsed);
-                
-                if (actions.length > 0) {
-                  const randomAction = actions[Math.floor(Math.random() * actions.length)];
-                  setCurrentAction(randomAction);
-                  console.log(`🎲 [Live Action] Using generated action (no real events):`, randomAction);
-                }
+                currentAction = actions.length > 0 
+                  ? actions[Math.floor(Math.random() * actions.length)]
+                  : {
+                      team: "neutral",
+                      action: "Match in Progress",
+                      minute: elapsed,
+                      type: 'general' as const
+                    };
               }
+              
+              setCurrentAction(currentAction);
+              console.log(`🎯 [Live Action] Updated action for ${elapsed}':`, currentAction);
+              
             } else {
-              console.warn(`⚠️ [Live Action] Match ${match.fixture.id} not found in live fixtures`);
+              console.warn(`⚠️ [Live Action] Match ${match.fixture.id} not found in ${liveFixtures.length} live fixtures`);
+              console.log('Available fixture IDs:', liveFixtures.map((f: any) => f.fixture.id));
             }
+          } else {
+            console.error(`❌ [Live Action] API request failed with status ${response.status}`);
           }
         } catch (error) {
           console.error('❌ [Live Action] Error fetching live data:', error);
@@ -80,8 +106,8 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
       // Initial fetch
       fetchLiveData();
 
-      // Update every 15 seconds for more real-time feel
-      const interval = setInterval(fetchLiveData, 15000);
+      // Update every 10 seconds for more real-time feel
+      const interval = setInterval(fetchLiveData, 10000);
 
       return () => clearInterval(interval);
     }
@@ -161,13 +187,14 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
     const actions = [];
     const homeTeam = matchData.teams?.home?.name;
     const awayTeam = matchData.teams?.away?.name;
+    const status = matchData.fixture?.status?.short;
     
     // More realistic player names based on actual teams
     const getRealisticPlayerNames = (teamName: string) => {
       if (teamName?.toLowerCase().includes('paris') || teamName?.toLowerCase().includes('psg')) {
-        return ["Mbappé", "Neymar Jr", "Messi", "Marquinhos", "Verratti", "Hakimi"];
+        return ["Mbappé", "Dembélé", "Marquinhos", "Vitinha", "Hakimi", "Donnarumma"];
       } else if (teamName?.toLowerCase().includes('botafogo')) {
-        return ["Tiquinho", "Luiz Henrique", "Marlon Freitas", "Bastos", "Almada", "Savarino"];
+        return ["Tiquinho Soares", "Luiz Henrique", "Marlon Freitas", "Bastos", "Almada", "Gatito"];
       }
       // Fallback generic names
       return ["Silva", "Santos", "Oliveira", "Costa", "Pereira", "Ferreira"];
@@ -178,15 +205,39 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
     
     const positions = ["Midfielder", "Forward", "Defender", "Goalkeeper"];
     
-    // More sophisticated action generation
-    const actionTypes = [
-      { type: 'freekick', action: 'Free Kick', weight: 0.25 },
-      { type: 'corner', action: 'Corner Kick', weight: 0.25 },
-      { type: 'card', action: 'Yellow Card', weight: 0.15 },
-      { type: 'substitution', action: 'Substitution', weight: 0.25 },
-      { type: 'goal', action: 'Goal', weight: 0.05 },
-      { type: 'offside', action: 'Offside', weight: 0.05 }
-    ];
+    // Time-based action probability
+    let actionTypes;
+    if (elapsed <= 15) {
+      // Early game - more cautious play
+      actionTypes = [
+        { type: 'freekick', action: 'Free Kick', weight: 0.3 },
+        { type: 'corner', action: 'Corner Kick', weight: 0.3 },
+        { type: 'card', action: 'Yellow Card', weight: 0.2 },
+        { type: 'substitution', action: 'Substitution', weight: 0.1 },
+        { type: 'goal', action: 'Goal', weight: 0.05 },
+        { type: 'offside', action: 'Offside', weight: 0.05 }
+      ];
+    } else if (elapsed >= 75) {
+      // Late game - more substitutions and urgency
+      actionTypes = [
+        { type: 'substitution', action: 'Substitution', weight: 0.4 },
+        { type: 'freekick', action: 'Free Kick', weight: 0.2 },
+        { type: 'corner', action: 'Corner Kick', weight: 0.2 },
+        { type: 'card', action: 'Yellow Card', weight: 0.1 },
+        { type: 'goal', action: 'Goal', weight: 0.05 },
+        { type: 'offside', action: 'Offside', weight: 0.05 }
+      ];
+    } else {
+      // Mid game - balanced
+      actionTypes = [
+        { type: 'freekick', action: 'Free Kick', weight: 0.25 },
+        { type: 'corner', action: 'Corner Kick', weight: 0.25 },
+        { type: 'card', action: 'Yellow Card', weight: 0.15 },
+        { type: 'substitution', action: 'Substitution', weight: 0.25 },
+        { type: 'goal', action: 'Goal', weight: 0.05 },
+        { type: 'offside', action: 'Offside', weight: 0.05 }
+      ];
+    }
 
     const randomValue = Math.random();
     let cumulativeWeight = 0;
@@ -281,7 +332,7 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
               <div className="bg-white rounded-lg shadow-lg overflow-hidden min-w-[160px] max-w-[200px]">
                 {/* Blue header with minute - matching 365scores */}
                 <div className="bg-blue-500 text-white px-4 py-2 text-center relative">
-                  <div className="text-xl font-bold">{currentAction.minute || elapsed}'</div>
+                  <div className="text-xl font-bold">{elapsed}'</div>
                   {/* Live indicator in header */}
                   <div className="absolute top-1 right-2">
                     <div className="bg-red-500 text-white px-1.5 py-0.5 rounded text-xs font-bold">
@@ -419,10 +470,15 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2 text-gray-600">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span>Real-time data from API</span>
+              <span>Live data • {elapsed}' • {status}</span>
             </div>
             <div className="text-gray-500">
-              Last update: {new Date().toLocaleTimeString()}
+              Updated: {new Date().toLocaleTimeString('en-US', { 
+                hour12: true, 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+              })}
             </div>
           </div>
         </div>
