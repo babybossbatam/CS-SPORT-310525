@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
@@ -150,7 +149,7 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
         {/* Left column (5 columns) */}
         <div className="lg:col-span-5 space-y-4">
           {/* Football-specific TodayMatchPageCard */}
-          <div className="max-h-[600px] overflow-y-auto">
+          <div className="max-h-[800px] overflow-y-auto">
             <TodayMatchPageCard
               fixtures={filteredFixtures}
               onMatchClick={handleMatchClick}
@@ -167,11 +166,20 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
                 currentFixture={selectedFixture}
                 onClose={handleBackToMain}
               />
-              
+
               {/* Conditional rendering based on match status */}
               {(() => {
                 const matchStatus = selectedFixture?.fixture?.status?.short;
-                const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(matchStatus);
+                const isLive = [
+                  "1H",
+                  "2H",
+                  "LIVE",
+                  "LIV",
+                  "HT",
+                  "ET",
+                  "P",
+                  "INT",
+                ].includes(matchStatus);
                 const isEnded = ["FT", "AET", "PEN"].includes(matchStatus);
                 const isUpcoming = matchStatus === "NS";
 
@@ -186,7 +194,7 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
                         status={selectedFixture?.fixture?.status?.short}
                       />
                     )}
-                    
+
                     {/* Show MyHighlights only for ended matches */}
                     {isEnded && (
                       <MyHighlights
@@ -196,12 +204,12 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
                         matchStatus={selectedFixture?.fixture?.status?.short}
                       />
                     )}
-                    
+
                     {/* For upcoming matches, neither component is shown */}
                   </>
                 );
               })()}
-              
+
               <MatchDetailCard match={selectedFixture} />
 
               <MyMatchEvents
