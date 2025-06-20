@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 interface MyLiveActionProps {
-  match?: any;
+  matchId?: number;
   className?: string;
 }
 
@@ -18,98 +18,143 @@ interface LiveEvent {
   timestamp: number;
 }
 
-const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
+const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
   const [liveData, setLiveData] = useState<any>(null);
   const [liveEvents, setLiveEvents] = useState<LiveEvent[]>([]);
   const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
   const [isAnimating, setIsAnimating] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch real-time live data with proper cleanup
+  // Fetch initial match data and real-time updates
   useEffect(() => {
-    if (!match) {
-      console.log('❌ [Live Action] No match data received from MyMatchdetailsScoreboard');
+    if (!matchId) {
+      console.log('❌ [Live Action] No match ID provided');
       return;
     }
 
-    console.log('🎯 [Live Action] Received match from MyMatchdetailsScoreboard:', {
-      fixtureId: match.fixture?.id,
-      homeTeam: match.teams?.home?.name,
-      awayTeam: match.teams?.away?.name,
-      status: match.fixture?.status?.short,
-      league: match.league?.name
-    });
+    console.log('🎯 [Live Action] Received match ID:', matchId);
 
-    const status = match?.fixture?.status?.short;
-    const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P"].includes(status);
     let mounted = true;
+    
+    const fetchMatchData = async () => {
+      try {
+        setIsLoading(true);
+        
+        // First, try to get the match from live fixtures
+        const liveResponse = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
+        if (liveResponse.ok && mounted) {
+          const liveFixtures = await liveResponse.json();
+          const liveMatch = liveFixtures.find((fixture: any) => 
+            fixture.fixture.id === matchId
+          );
 
-    if (isLive) {
-      // Set initial data from the passed match
-      setLiveData(match);
-      
-      const fetchLiveData = async () => {
-        try {
-          console.log(`🔴 [Live Action] Fetching real-time data for match ${match.fixture.id} (${match.teams?.home?.name} vs ${match.teams?.away?.name})`);
-
-          const response = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
-          if (response.ok && mounted) {
-            const liveFixtures = await response.json();
-
-            const currentMatch = liveFixtures.find((fixture: any) => 
-              fixture.fixture.id === match.fixture.id
-            );
-
-            if (currentMatch && mounted) {
-              setLiveData(currentMatch);
-              const elapsed = currentMatch.fixture.status.elapsed || 0;
-
-              // Generate realistic live events based on real match state
-              generateLiveEvents(currentMatch, elapsed);
-              setLastUpdate(new Date().toLocaleTimeString());
-
-              console.log(`✅ [Live Action] Updated match data for ${currentMatch.teams?.home?.name} vs ${currentMatch.teams?.away?.name}:`, {
-                fixtureId: currentMatch.fixture.id,
-                elapsed,
-                homeGoals: currentMatch.goals?.home,
-                awayGoals: currentMatch.goals?.away,
-                status: currentMatch.fixture?.status?.short
-              });
-            } else {
-              console.log(`⚠️ [Live Action] Match ${match.fixture.id} (${match.teams?.home?.name} vs ${match.teams?.away?.name}) not found in live fixtures, using original data`);
-              // Use the original match data if not found in live fixtures
-              generateLiveEvents(match, match.fixture?.status?.elapsed || 0);
-              setLastUpdate(new Date().toLocaleTimeString());
-            }
+          if (liveMatch && mounted) {
+            console.log(`🔴 [Live Action] Found live match:`, {
+              fixtureId: liveMatch.fixture.id,
+              homeTeam: liveMatch.teams?.home?.name,
+              awayTeam: liveMatch.teams?.away?.name,
+              status: liveMatch.fixture?.status?.short,
+              elapsed: liveMatch.fixture?.status?.elapsed
+            });
+            
+            setLiveData(liveMatch);
+            const elapsed = liveMatch.fixture.status.elapsed || 0;
+            generateLiveEvents(liveMatch, elapsed);
+            setLastUpdate(new Date().toLocaleTimeString());
+            setIsLoading(false);
+            return;
           }
-        } catch (error) {
-          if (mounted) {
-            console.error('❌ [Live Action] Error fetching live data:', error);
-            // Fallback to using the original match data
-            generateLiveEvents(match, match.fixture?.status?.elapsed || 0);
+        }
+
+        // If not found in live fixtures, get from specific match endpoint
+        const matchResponse = await fetch(`/api/fixtures?ids=${matchId}`);
+        if (matchResponse.ok && mounted) {
+          const matchData = await matchResponse.json();
+          if (matchData.length > 0) {
+            const match = matchData[0];
+            console.log(`📊 [Live Action] Found match data:`, {
+              fixtureId: match.fixture.id,
+              homeTeam: match.teams?.home?.name,
+              awayTeam: match.teams?.away?.name,
+              status: match.fixture?.status?.short
+            });
+
+            setLiveData(match);
+            const elapsed = match.fixture?.status?.elapsed || 0;
+            generateLiveEvents(match, elapsed);
             setLastUpdate(new Date().toLocaleTimeString());
           }
         }
-      };
+        
+        setIsLoading(false);
+      } catch (error) {
+        if (mounted) {
+          console.error('❌ [Live Action] Error fetching match data:', error);
+          setIsLoading(false);
+        }
+      }
+    };
 
-      // Initial fetch and setup
-      fetchLiveData();
-      const interval = setInterval(fetchLiveData, 15000); // Update every 15 seconds
+    const fetchLiveUpdates = async () => {
+      if (!liveData) return;
 
-      return () => {
-        mounted = false;
-        clearInterval(interval);
-      };
-    } else {
-      console.log(`ℹ️ [Live Action] Match not live (status: ${status}), using static data`);
-      // For non-live matches, use the passed data
-      setLiveData(match);
-    }
+      try {
+        const response = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
+        if (response.ok && mounted) {
+          const liveFixtures = await response.json();
+          const currentMatch = liveFixtures.find((fixture: any) => 
+            fixture.fixture.id === matchId
+          );
+
+          if (currentMatch && mounted) {
+            setLiveData(currentMatch);
+            const elapsed = currentMatch.fixture.status.elapsed || 0;
+            generateLiveEvents(currentMatch, elapsed);
+            setLastUpdate(new Date().toLocaleTimeString());
+
+            console.log(`✅ [Live Action] Real-time update:`, {
+              fixtureId: currentMatch.fixture.id,
+              elapsed,
+              homeGoals: currentMatch.goals?.home,
+              awayGoals: currentMatch.goals?.away,
+              status: currentMatch.fixture?.status?.short
+            });
+          }
+        }
+      } catch (error) {
+        if (mounted) {
+          console.error('❌ [Live Action] Error fetching live updates:', error);
+        }
+      }
+    };
+
+    // Initial fetch
+    fetchMatchData();
+
+    // Set up live updates interval only if match is live
+    let interval: NodeJS.Timeout;
+    const setupLiveUpdates = () => {
+      if (liveData) {
+        const status = liveData.fixture?.status?.short;
+        const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P"].includes(status);
+        
+        if (isLive) {
+          interval = setInterval(fetchLiveUpdates, 15000); // Update every 15 seconds
+          console.log(`🔄 [Live Action] Started live updates for match ${matchId}`);
+        }
+      }
+    };
+
+    // Setup live updates after initial data is loaded
+    const setupTimeout = setTimeout(setupLiveUpdates, 1000);
 
     return () => {
       mounted = false;
+      if (interval) clearInterval(interval);
+      if (setupTimeout) clearTimeout(setupTimeout);
     };
-  }, [match]);
+  }, [matchId, liveData?.fixture?.status?.short]);
 
   // Animate ball movement with proper cleanup
   useEffect(() => {
@@ -280,8 +325,8 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
     return colors[type as keyof typeof colors] || "bg-gray-500";
   };
 
-  // Use real match data or fallback to prop data - prioritize passed match for team info
-  const displayMatch = liveData || match;
+  // Use fetched live data
+  const displayMatch = liveData;
   const homeTeam = displayMatch?.teams?.home;
   const awayTeam = displayMatch?.teams?.away;
   const status = displayMatch?.fixture?.status?.short;
@@ -289,15 +334,32 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
   const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
 
   // Debug logging for team display
-  console.log('🎯 [Live Action] Displaying teams:', {
+  console.log('🎯 [Live Action] Displaying match:', {
+    matchId,
     homeTeam: homeTeam?.name,
     awayTeam: awayTeam?.name,
     fixtureId: displayMatch?.fixture?.id,
     status,
     isLive,
     elapsed,
-    source: liveData ? 'live API' : 'passed match data'
+    isLoading,
+    hasData: !!displayMatch
   });
+
+  if (isLoading) {
+    return (
+      <Card className={`w-full ${className} bg-white border border-gray-200`}>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium text-gray-900">
+            Live Action
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-48">
+          <div className="animate-pulse text-gray-500 text-sm">Loading match data...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!displayMatch) {
     return (
@@ -308,7 +370,9 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-48">
-          <p className="text-gray-500 text-sm">No match data available</p>
+          <p className="text-gray-500 text-sm">
+            {matchId ? `No match data found for ID: ${matchId}` : 'No match ID provided'}
+          </p>
         </CardContent>
       </Card>
     );

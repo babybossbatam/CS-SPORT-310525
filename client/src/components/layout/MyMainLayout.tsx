@@ -148,7 +148,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
             <>
               <ScoreDetailsCard currentFixture={selectedFixture} onClose={handleBackToMain} />
               <MatchDetailCard match={selectedFixture} />
-              <MyLiveAction match={selectedFixture} />
+              <MyLiveAction matchId={selectedFixture?.fixture?.id} />
               <MyHighlights 
                 homeTeam={selectedFixture?.teams?.home?.name}
                 awayTeam={selectedFixture?.teams?.away?.name}
