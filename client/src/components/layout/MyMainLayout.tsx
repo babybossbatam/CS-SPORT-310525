@@ -15,6 +15,7 @@ import MyMatchdetailsScoreboard from "../matches/MyMatchdetailsScoreboard";
 import MatchDetailCard from '@/components/matches/MatchDetailCard';
 import MyHighlights from '@/components/matches/MyHighlights';
 import MyMatchEvents from '@/components/matches/MyMatchEvents';
+import MyLiveAction from '@/components/matches/MyLiveAction';
 import MySmartTimeFilter from '@/lib/MySmartTimeFilter';
 import { format } from 'date-fns';
 
@@ -147,6 +148,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
             <>
               <ScoreDetailsCard currentFixture={selectedFixture} onClose={handleBackToMain} />
               <MatchDetailCard match={selectedFixture} />
+              <MyLiveAction match={selectedFixture} />
               <MyHighlights 
                 homeTeam={selectedFixture?.teams?.home?.name}
                 awayTeam={selectedFixture?.teams?.away?.name}
