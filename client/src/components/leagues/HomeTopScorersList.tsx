@@ -22,8 +22,32 @@ const scrollbarHideStyle = `
 // Import the popular leagues list from PopularLeaguesList component
 import { CURRENT_POPULAR_LEAGUES } from './PopularLeaguesList';
 
-// Use the exact same leagues list as PopularLeaguesList without any filtering
-const POPULAR_LEAGUES = CURRENT_POPULAR_LEAGUES;
+// Reorder leagues to put Saudi Pro League next to FIFA Club World Cup
+const POPULAR_LEAGUES = [
+  { id: 39, name: 'Premier League', logo: 'https://media.api-sports.io/football/leagues/39.png' },
+  { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png' },
+  { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png' },
+  { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png' },
+  { id: 61, name: 'Ligue 1', logo: 'https://media.api-sports.io/football/leagues/61.png' },
+  { id: 2, name: 'UEFA Champions League', logo: 'https://media.api-sports.io/football/leagues/2.png' },
+  { id: 3, name: 'UEFA Europa League', logo: 'https://media.api-sports.io/football/leagues/3.png' },
+  { id: 848, name: 'UEFA Conference League', logo: 'https://media.api-sports.io/football/leagues/848.png' },
+  { id: 5, name: 'UEFA Nations League', logo: 'https://media.api-sports.io/football/leagues/5.png' },
+  { id: 1, name: 'World Cup', logo: 'https://media.api-sports.io/football/leagues/1.png' },
+  { id: 4, name: 'Euro Championship', logo: 'https://media.api-sports.io/football/leagues/4.png' },
+  { id: 15, name: 'FIFA Club World Cup', logo: 'https://media.api-sports.io/football/leagues/15.png' },
+  { id: 307, name: 'Saudi Pro League', logo: 'https://media.api-sports.io/football/leagues/307.png' },
+  { id: 38, name: 'UEFA U21 Championship', logo: 'https://media.api-sports.io/football/leagues/38.png' },
+  { id: 9, name: 'Copa America', logo: 'https://media.api-sports.io/football/leagues/9.png' },
+  { id: 22, name: 'CONCACAF Gold Cup', logo: 'https://media.api-sports.io/football/leagues/22.png' },
+  { id: 6, name: 'Africa Cup of Nations', logo: 'https://media.api-sports.io/football/leagues/6.png' },
+  { id: 16, name: 'Asian Cup', logo: 'https://media.api-sports.io/football/leagues/16.png' },
+  { id: 137, name: 'Coppa Italia', logo: 'https://media.api-sports.io/football/leagues/137.png' },
+  { id: 45, name: 'FA Cup', logo: 'https://media.api-sports.io/football/leagues/45.png' },
+  { id: 143, name: 'Copa del Rey', logo: 'https://media.api-sports.io/football/leagues/143.png' },
+  { id: 81, name: 'DFB Pokal', logo: 'https://media.api-sports.io/football/leagues/81.png' },
+  { id: 233, name: 'Egyptian Premier League', logo: 'https://media.api-sports.io/football/leagues/233.png' }
+];
 
 interface Player {
   id: number;
