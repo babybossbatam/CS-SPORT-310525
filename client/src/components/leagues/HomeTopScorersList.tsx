@@ -205,6 +205,20 @@ const HomeTopScorersList = () => {
     ? scrollPosition < (scrollContainerRef.current.scrollWidth - scrollContainerRef.current.clientWidth)
     : true;
 
+  // Auto-scroll to selected league when it changes
+  useEffect(() => {
+    if (scrollContainerRef.current && selectedLeague) {
+      const selectedButton = scrollContainerRef.current.querySelector(`[data-league-id="${selectedLeague}"]`) as HTMLElement;
+      if (selectedButton) {
+        selectedButton.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    }
+  }, [selectedLeague]);
+
   if (isLoadingLeagues || isLoading || !selectedLeague) {
     return (
       <div className="bg-white rounded-lg border border-gray-200">
@@ -273,11 +287,12 @@ const HomeTopScorersList = () => {
               {availableLeagues.map((league) => (
                 <button
                   key={league.id}
+                  data-league-id={league.id}
                   onClick={() => setSelectedLeague(league.id)}
-                  className={`flex items-center gap-2 whitespace-nowrap transition-colors flex-shrink-0 ${
+                  className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 flex-shrink-0 px-2 py-1 rounded-md ${
                     selectedLeague === league.id 
-                      ? 'text-blue-600 font-medium' 
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'text-blue-600 font-semibold bg-blue-50 border border-blue-200' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
                   <img 
