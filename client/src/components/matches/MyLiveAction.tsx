@@ -165,6 +165,30 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     };
   }, [matchId, liveData?.fixture?.status?.short]);
 
+    // Use fetched live data
+  const displayMatch = liveData;
+  const homeTeamData = homeTeam || displayMatch?.teams?.home;
+  const awayTeamData = awayTeam || displayMatch?.teams?.away;
+  const statusData = status || displayMatch?.fixture?.status?.short;
+
+  // Determine if match is currently live - use passed status or fallback to display match
+  const currentStatus = status || displayMatch?.fixture?.status?.short;
+  const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
+  const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
+
+  // Debug logging for team display
+  console.log('🎯 [Live Action] Displaying match:', {
+    matchId,
+    homeTeam: homeTeamData?.name,
+    awayTeam: awayTeamData?.name,
+    fixtureId: displayMatch?.fixture?.id,
+    status: statusData,
+    isLive,
+    elapsed,
+    isLoading,
+    hasData: !!displayMatch
+  });
+
   // Enhanced ball animation with continuous movement
   useEffect(() => {
     let eventTimeoutId: NodeJS.Timeout;
@@ -208,7 +232,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
       // Randomly select a position with some bias towards center
       const randomPosition = fieldPositions[Math.floor(Math.random() * fieldPositions.length)];
-      
+
       // Add slight randomness to the selected position
       const targetX = randomPosition.x + (Math.random() - 0.5) * 10;
       const targetY = randomPosition.y + (Math.random() - 0.5) * 10;
@@ -406,18 +430,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
   const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
 
-  // Debug logging for team display
-  console.log('🎯 [Live Action] Displaying match:', {
-    matchId,
-    homeTeam: homeTeamData?.name,
-    awayTeam: awayTeamData?.name,
-    fixtureId: displayMatch?.fixture?.id,
-    status: statusData,
-    isLive,
-    elapsed,
-    isLoading,
-    hasData: !!displayMatch
-  });
 
   if (isLoading) {
     return (
