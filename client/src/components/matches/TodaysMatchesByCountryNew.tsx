@@ -566,7 +566,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         const isCurrentlyLive = [
           "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
         ].includes(status);
-        
+
         if (isCurrentlyLive) {
           filtered.push(fixture);
         } else {
@@ -817,6 +817,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (!existingMatch) {
       // Add fixture with safe team data only if it doesn't already exist
       acc[displayCountry].leagues[leagueId].matches.push({
+        ```text
         ...fixture,
         teams: {
           home: {
