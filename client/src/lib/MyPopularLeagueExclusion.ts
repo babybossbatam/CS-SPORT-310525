@@ -1,11 +1,11 @@
 /**
- * Specialized exclusion filters for TodayPopularFootballLeaguesNew component
- * This provides focused filtering specifically for popular league displays
+ * Simplified exclusion filters for TodayPopularFootballLeaguesNew component
+ * Only excludes the most essential unwanted content
  */
 
-// Enhanced exclusion terms specifically for popular leagues display
+// Minimal exclusion terms - only exclude women's competitions
 export const popularLeagueExclusionTerms = [
-  // Women's competitions (comprehensive exclusion)
+  // Women's competitions only
   "women",
   "girls",
   "feminine",
@@ -14,32 +14,11 @@ export const popularLeagueExclusionTerms = [
   "frauen",
   "femenino",
   "women's",
-  "women",
   "uefa nations league - women",
   "uefa nations league women",
   "UEFA Nations League - Women",
 
-  // Only exclude amateur and development leagues (allow youth u17-u23)
-  "amateur",
-  "reserve",
-  "development",
-  "academy",
-  "primavera",
-  "reserves",
-
-  // Non-competitive/exhibition matches (but allow World Friendlies)
-  "test",
-  "exhibition",
-  "testimonial",
-  "charity",
-
-  // Indoor/alternative formats
-  "futsal",
-  "indoor",
-  "beach",
-  "arena",
-
-  // Esports and virtual competitions
+  // Esports and virtual competitions only
   "esoccer",
   "e-soccer",
   "esports",
@@ -48,79 +27,11 @@ export const popularLeagueExclusionTerms = [
   "pes",
   "efootball",
 
-  // Very low-tier regional competitions (for popular leagues display)
-  "oberliga",
-  "oberliga -",
-  "oberliga westfalen",
-  "oberliga baden",
-  "oberliga bayern",
-  "oberliga hessen",
-  "oberliga niedersachsen",
-  "oberliga rheinland",
-  "oberliga schleswig",
-  "oberliga thüringen",
-
-  // Brazilian state leagues (lower-tier regional competitions)
-  "amazonense",
-  "baiano",
-  "carioca",
-  "catarinense",
-  "gaucho",
-  "gaúcho",
-  "goiano",
-  "minero",
-  "mineiro",
-  "paranaense",
-  "copa espírito santo",
-  "espirito santo",
-  "paulista série b",
-  "matogrossense 2",
-  "paraense b1",
-  "copa do nordeste",
-  "copa paulista",
-
-  // Brazilian youth leagues to exclude
-  "brasileiro u17",
-  "brasileiro u20 a",
-  "brasileiro u20 b",
-  "brasiliense u20",
-  "alagoano u20",
-  "paulista - u20",
-  "cearense u20",
-  "estadual junior u20",
-  "paraibano u20",
-
-  // Women's leagues (additional exclusions)
-  "liga femenina",
-
-  // US lower-tier leagues that shouldn't appear in popular leagues
-  "npsl",
-  "usl league pro",
-  "usl pro",
-  "usl w league",
-  "wpsl",
-  "usl league two",
-  "usl championship",
-  "usl league one",
-  "usl super league",
-  "nwsl",
-  "mls next pro",
-
-  // Additional filtering for cleaner popular league display
-  "boys",
-  "kosice",
-
-  // Regional competitions not suitable for popular leagues
-  "cosafa cup",
-
-  // World Cup qualification exclusions for featured matches
-  "world cup - qualification asia",
-  "world cup - qualification concacaf",
-  "qualification asia",
-  "qualification concacaf",
-
-  // CONCACAF competitions exclusion
-  "concacaf",
+  // Indoor/alternative formats only
+  "futsal",
+  "indoor",
+  "beach",
+  "arena"
 ];
 
 // Safe substring function to handle null/undefined values
@@ -133,7 +44,8 @@ function safeSubstring(value: any, start: number, end?: number): string {
 }
 
 /**
- * Main exclusion function for popular leagues display
+ * Simplified exclusion function for popular leagues display
+ * Only excludes women's competitions, esports, and indoor formats
  * @param leagueName League name (will be converted to lowercase)
  * @param homeTeamName Home team name (will be converted to lowercase)
  * @param awayTeamName Away team name (will be converted to lowercase)
@@ -155,7 +67,7 @@ export function shouldExcludeFromPopularLeagues(
   // SPECIAL HANDLING FOR WORLD COUNTRY - Add debugging
   if (countryLower === "world") {
     console.log(`🌍 [WORLD DEBUG] Checking World league: "${leagueName}" | ${homeTeamName} vs ${awayTeamName} | Country: ${country}`);
-    
+
     // For World country, only exclude if it contains explicit exclusion terms
     const hasExclusionTerms = popularLeagueExclusionTerms.some(
       (term) =>
@@ -184,19 +96,12 @@ export function shouldExcludeFromPopularLeagues(
     return true;
   }
 
-  // FIRST: Check for UEFA Nations League Women specifically - always exclude
+  // Check for UEFA Nations League Women specifically - always exclude
   if (
     league.includes("uefa nations league") &&
     (league.includes("women") || league.includes("womens"))
   ) {
     return true; // Exclude UEFA Nations League Women
-  }
-
-  
-
-  // THIRD: Check for Asia competitions - always exclude
-  if (league.includes("asia")) {
-    return true; // Exclude all Asia competitions
   }
 
   // Check if this is a major international competition that should NEVER be excluded
@@ -228,14 +133,13 @@ export function shouldExcludeFromPopularLeagues(
     // Youth international tournaments (but exclude women's)
     league.includes("tournoi maurice revello") ||
     league.includes("maurice revello") ||
-    // International competitions (but exclude women's and Asia qualifications)
+    // International competitions (but exclude women's)
     (league.includes("nations league") && !league.includes("women")) ||
     (league.includes("uefa nations league") && !league.includes("women")) ||
     (league.includes("confederation") && !league.includes("women")) ||
     (league.includes("qualifying") &&
       (league.includes("world cup") || league.includes("euro")) &&
-      !league.includes("women") &&
-      !league.includes("asia")) ||
+      !league.includes("women")) ||
     (league.includes("international") &&
       (league.includes("cup") || league.includes("championship")) &&
       !league.includes("women")) ||
@@ -247,7 +151,7 @@ export function shouldExcludeFromPopularLeagues(
     return false;
   }
 
-  // Check if any exclusion term exists in league or team names
+  // Check if any exclusion term exists in league or team names (minimal list now)
   return popularLeagueExclusionTerms.some(
     (term) =>
       league.includes(term) ||
@@ -286,13 +190,12 @@ export function isPopularLeagueSuitable(
 
   if (
     isMajorInternational &&
-    !league.includes("women") &&
-    !league.includes("asia")
+    !league.includes("women")
   ) {
     return true;
   }
 
-  // Exclude leagues with problematic terms
+  // Exclude leagues with problematic terms (minimal list now)
   const hasExclusionTerms = popularLeagueExclusionTerms.some((term) =>
     league.includes(term),
   );
@@ -308,6 +211,6 @@ export function isRestrictedUSLeague(
   leagueId: number,
   country: string,
 ): boolean {
-  // USA restrictions removed - allow all USA leagues through
+  // No restrictions - allow all USA leagues through
   return false;
 }
