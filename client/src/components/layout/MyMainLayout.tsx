@@ -60,19 +60,19 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
           // For today's view, exclude any matches that are from previous days
           if (selectedDate === todayString) {
             if (smartResult.label === "today") return true;
-            
+
             // Additional check: exclude matches from previous dates regardless of status
             const fixtureDate = new Date(fixture.fixture.date);
             const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-            
+
             if (fixtureDateString < selectedDate) {
               console.log(`❌ [MyMainLayout DATE FILTER] Excluding yesterday match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${fixtureDateString} < ${selectedDate})`);
               return false;
             }
-            
+
             return false;
           }
-          
+
           if (selectedDate === tomorrowString && smartResult.label === "tomorrow") return true;
           if (selectedDate === yesterdayString && smartResult.label === "yesterday") return true;
 
@@ -144,31 +144,45 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
 
         {/* Right column (7 columns) */}
         <div className="lg:col-span-7 space-y-4">
-          {selectedFixture ? (
-            <>
-              <ScoreDetailsCard currentFixture={selectedFixture} onClose={handleBackToMain} />
-              <MatchDetailCard match={selectedFixture} />
-              <MyLiveAction 
-                matchId={selectedFixture?.fixture?.id}
-                homeTeam={selectedFixture?.teams?.home}
-                awayTeam={selectedFixture?.teams?.away}
-                status={selectedFixture?.fixture?.status?.short}
+          {/* Match Details Section */}
+          {selectedFixture && (
+            <div className="space-y-6">
+              {/* Match Scoreboard */}
+              <MyMatchdetailsScoreboard
+                match={selectedFixture}
+                className="mb-6"
               />
-              <MyHighlights 
+
+              {/* Live Action Component - moved below scoreboard */}
+              {selectedFixture?.fixture?.status?.short && 
+              ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P"].includes(selectedFixture.fixture.status.short) && (
+                <MyLiveAction
+                  matchId={selectedFixture?.fixture?.id}
+                  homeTeam={selectedFixture?.teams?.home}
+                  awayTeam={selectedFixture?.teams?.away}
+                  status={selectedFixture?.fixture?.status?.short}
+                  className="mb-6"
+                />
+              )}
+
+              {/* Match Highlights - moved below scoreboard */}
+              <MyHighlights
                 homeTeam={selectedFixture?.teams?.home?.name}
                 awayTeam={selectedFixture?.teams?.away?.name}
                 leagueName={selectedFixture?.league?.name}
                 matchStatus={selectedFixture?.fixture?.status?.short}
               />
+
+              {/* Match Events */}
               <MyMatchEvents 
-                homeTeam={selectedFixture?.teams?.home?.name}
-                awayTeam={selectedFixture?.teams?.away?.name}
-                matchStatus={selectedFixture?.fixture?.status?.short}
-                match={selectedFixture}
+                matchId={selectedFixture?.fixture?.id}
+                homeTeam={selectedFixture?.teams?.home}
+                awayTeam={selectedFixture?.teams?.away}
               />
-            </>
-          ) : (
-            <MyRightContent />
+
+              {/* Match Detail Card */}
+              <MatchDetailCard currentFixture={selectedFixture} />
+            </div>
           )}
         </div>
       </div>
