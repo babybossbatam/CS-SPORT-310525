@@ -382,9 +382,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-48">
-          <p className="text-gray-500 text-sm">
-            {matchId ? `No match data found for ID: ${matchId}` : 'No match ID provided'}
-          </p>
+          <div className="text-center">
+            <p className="text-gray-500 text-sm">
+              {matchId ? `No match data found for ID: ${matchId}` : 'No match ID provided'}
+            </p>
+            {homeTeam && awayTeam && (
+              <p className="text-xs text-gray-400 mt-2">
+                Fallback: {homeTeam?.name} vs {awayTeam?.name}
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
     );
