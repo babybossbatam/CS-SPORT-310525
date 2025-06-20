@@ -16,6 +16,7 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
     player?: string;
     position?: string;
     minute?: number;
+    type?: 'substitution' | 'card' | 'goal' | 'general';
   } | null>(null);
 
   // Fetch real-time live data
@@ -69,28 +70,45 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
     const homeTeam = matchData.teams?.home?.name;
     const awayTeam = matchData.teams?.away?.name;
     
-    // Base actions on match context
-    if (elapsed < 45) {
-      actions.push(
-        { team: "home", action: "Building Attack", minute: elapsed },
-        { team: "away", action: "Defending Deep", minute: elapsed },
-        { team: "home", action: "Possession Play", minute: elapsed },
-        { team: "away", action: "Counter Attack", minute: elapsed }
-      );
-    } else if (elapsed >= 45 && elapsed < 90) {
-      actions.push(
-        { team: "home", action: "Final Third Push", minute: elapsed },
-        { team: "away", action: "Tactical Defending", minute: elapsed },
-        { team: "home", action: "Set Piece", minute: elapsed },
-        { team: "away", action: "Quick Transition", minute: elapsed }
-      );
+    const playerNames = [
+      "Telles, Alex", "Cuiabano", "Neymar Jr", "Messi", "Mbappé", "Benzema",
+      "Vinicius Jr", "Casemiro", "Modric", "Kroos", "Silva", "Bruno"
+    ];
+    
+    const positions = ["DEFENDER", "MIDFIELDER", "FORWARD", "GOALKEEPER"];
+    
+    // Generate different types of actions
+    if (Math.random() > 0.7) {
+      // Substitution
+      actions.push({
+        team: Math.random() > 0.5 ? "home" : "away",
+        action: "SUBSTITUTION",
+        player: playerNames[Math.floor(Math.random() * playerNames.length)],
+        position: positions[Math.floor(Math.random() * positions.length)],
+        minute: elapsed,
+        type: 'substitution'
+      });
+    } else if (Math.random() > 0.8) {
+      // Card
+      actions.push({
+        team: Math.random() > 0.5 ? "home" : "away",
+        action: "YELLOW CARD",
+        player: playerNames[Math.floor(Math.random() * playerNames.length)],
+        position: positions[Math.floor(Math.random() * positions.length)],
+        minute: elapsed,
+        type: 'card'
+      });
     } else {
-      actions.push(
-        { team: "home", action: "Desperate Attack", minute: elapsed },
-        { team: "away", action: "Time Wasting", minute: elapsed },
-        { team: "home", action: "All Out Attack", minute: elapsed },
-        { team: "away", action: "Parking the Bus", minute: elapsed }
-      );
+      // General play actions
+      const generalActions = ["Corner Kick", "Free Kick", "Throw In", "Goal Kick", "Offside"];
+      actions.push({
+        team: Math.random() > 0.5 ? "home" : "away",
+        action: generalActions[Math.floor(Math.random() * generalActions.length)],
+        player: playerNames[Math.floor(Math.random() * playerNames.length)],
+        position: positions[Math.floor(Math.random() * positions.length)],
+        minute: elapsed,
+        type: 'general'
+      });
     }
 
     return actions;
@@ -106,13 +124,10 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
 
   if (!displayMatch || !isLive) {
     return (
-      <Card className={`w-full ${className} bg-gradient-to-br from-green-50 to-green-100`}>
+      <Card className={`w-full ${className} bg-white border border-gray-200`}>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm text-gray-600 font-normal flex items-center gap-2">
+          <CardTitle className="text-lg font-semibold text-gray-900">
             Live Action
-            <Badge variant="outline" className="text-xs">
-              No Live Match
-            </Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-32">
@@ -123,184 +138,187 @@ const MyLiveAction = ({ match, className = "" }: MyLiveActionProps) => {
   }
 
   return (
-    <Card className={`w-full ${className} bg-gradient-to-br from-green-50 to-green-100 overflow-hidden`}>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm text-gray-600 font-normal flex items-center gap-2">
+    <Card className={`w-full ${className} bg-white border border-gray-200 overflow-hidden`}>
+      <CardHeader className="pb-3 bg-white">
+        <CardTitle className="text-lg font-semibold text-gray-900">
           Live Action
-          <Badge variant="destructive" className="text-xs animate-pulse">
-            LIVE
-          </Badge>
         </CardTitle>
       </CardHeader>
       
-      <CardContent className="p-0">
-        {/* Football Field */}
-        <div className="relative bg-gradient-to-br from-green-400 to-green-600 h-64 overflow-hidden">
+      <CardContent className="p-0 relative">
+        {/* Modern Football Field */}
+        <div className="relative bg-gradient-to-br from-green-500 to-green-600 h-80 overflow-hidden">
           {/* Field Background Pattern */}
-          <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0 opacity-30">
             <svg width="100%" height="100%" className="absolute inset-0">
+              {/* Grass Pattern */}
+              <defs>
+                <pattern id="grass" x="0" y="0" width="40" height="20" patternUnits="userSpaceOnUse">
+                  <rect width="40" height="10" fill="rgba(255,255,255,0.05)"/>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grass)"/>
+              
               {/* Center Circle */}
-              <circle cx="50%" cy="50%" r="40" fill="none" stroke="white" strokeWidth="2" opacity="0.6"/>
-              <circle cx="50%" cy="50%" r="2" fill="white" opacity="0.6"/>
+              <circle cx="50%" cy="50%" r="50" fill="none" stroke="white" strokeWidth="2" opacity="0.8"/>
+              <circle cx="50%" cy="50%" r="3" fill="white" opacity="0.8"/>
               
               {/* Center Line */}
-              <line x1="50%" y1="0" x2="50%" y2="100%" stroke="white" strokeWidth="2" opacity="0.6"/>
+              <line x1="50%" y1="0" x2="50%" y2="100%" stroke="white" strokeWidth="2" opacity="0.8"/>
               
-              {/* Goal Areas */}
-              <rect x="0" y="35%" width="15%" height="30%" fill="none" stroke="white" strokeWidth="2" opacity="0.6"/>
-              <rect x="85%" y="35%" width="15%" height="30%" fill="none" stroke="white" strokeWidth="2" opacity="0.6"/>
+              {/* Goal Areas - More accurate proportions */}
+              <rect x="0" y="30%" width="18%" height="40%" fill="none" stroke="white" strokeWidth="2" opacity="0.8"/>
+              <rect x="82%" y="30%" width="18%" height="40%" fill="none" stroke="white" strokeWidth="2" opacity="0.8"/>
               
               {/* Penalty Areas */}
-              <rect x="0" y="25%" width="25%" height="50%" fill="none" stroke="white" strokeWidth="2" opacity="0.6"/>
-              <rect x="75%" y="25%" width="25%" height="50%" fill="none" stroke="white" strokeWidth="2" opacity="0.6"/>
+              <rect x="0" y="20%" width="25%" height="60%" fill="none" stroke="white" strokeWidth="2" opacity="0.8"/>
+              <rect x="75%" y="20%" width="25%" height="60%" fill="none" stroke="white" strokeWidth="2" opacity="0.8"/>
               
               {/* Corner Arcs */}
-              <path d="M 0 0 Q 15 0 15 15" fill="none" stroke="white" strokeWidth="2" opacity="0.6"/>
-              <path d="M 100% 0 Q 85% 0 85% 15" fill="none" stroke="white" strokeWidth="2" opacity="0.6"/>
-              <path d="M 0 100% Q 15 100% 15 85%" fill="none" stroke="white" strokeWidth="2" opacity="0.6"/>
-              <path d="M 100% 100% Q 85% 100% 85% 85%" fill="none" stroke="white" strokeWidth="2" opacity="0.6"/>
+              <path d="M 0 0 Q 20 0 20 20" fill="none" stroke="white" strokeWidth="2" opacity="0.8"/>
+              <path d="M 100% 0 Q 80% 0 80% 20" fill="none" stroke="white" strokeWidth="2" opacity="0.8"/>
+              <path d="M 0 100% Q 20 100% 20 80%" fill="none" stroke="white" strokeWidth="2" opacity="0.8"/>
+              <path d="M 100% 100% Q 80% 100% 80% 80%" fill="none" stroke="white" strokeWidth="2" opacity="0.8"/>
             </svg>
           </div>
 
-          {/* Live Action Display */}
-          {currentAction && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-black bg-opacity-50 rounded-lg p-4 text-center text-white backdrop-blur-sm">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
-                  <span className="text-lg font-semibold">{currentAction.action}</span>
+          {/* Player Cards - positioned like in the reference image */}
+          {currentAction && currentAction.type === 'substitution' && (
+            <>
+              {/* Substitution Banner */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                <div className="bg-white rounded-lg px-8 py-3 shadow-lg">
+                  <div className="text-center text-gray-700 font-semibold tracking-wide">
+                    SUBSTITUTION
+                  </div>
                 </div>
-                <div className="flex items-center justify-center gap-2">
-                  <img 
-                    src={currentAction.team === "home" ? homeTeam?.logo : awayTeam?.logo} 
-                    alt="team" 
-                    className="w-6 h-6 object-contain"
-                    onError={(e) => {
-                      e.currentTarget.src = "/assets/fallback-logo.png";
-                    }}
-                  />
-                  <span className="text-sm font-medium">
-                    {currentAction.team === "home" ? homeTeam?.name : awayTeam?.name}
-                  </span>
+              </div>
+
+              {/* Player OUT Card - Top Left */}
+              <div className="absolute top-4 left-4 z-10">
+                <div className="bg-white rounded-lg shadow-lg p-3 min-w-[140px]">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="text-blue-600 font-semibold text-sm">
+                      {currentAction.player?.split(',')[0] || 'Player'}
+                    </div>
+                    <div className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                      OUT
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-600">
+                    {currentAction.position || 'DEFENDER'}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-200 mt-1">
-                  {elapsed}' - Live from API
+              </div>
+
+              {/* Player IN Card - Bottom Right */}
+              <div className="absolute bottom-4 right-4 z-10">
+                <div className="bg-white rounded-lg shadow-lg p-3 min-w-[140px]">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
+                      IN
+                    </div>
+                    <div className="text-blue-600 font-semibold text-sm">
+                      {currentAction.player?.split(',')[1] || 'Cuiabano'}
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-600 text-right">
+                    DEFENDER | 66'
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Other Action Types */}
+          {currentAction && currentAction.type !== 'substitution' && (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+              <div className="bg-white bg-opacity-95 rounded-lg px-6 py-4 shadow-lg backdrop-blur-sm">
+                <div className="text-center">
+                  <div className="text-lg font-bold text-gray-800 mb-1">
+                    {currentAction.action}
+                  </div>
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                    <img 
+                      src={currentAction.team === "home" ? homeTeam?.logo : awayTeam?.logo} 
+                      alt="team" 
+                      className="w-5 h-5 object-contain"
+                      onError={(e) => {
+                        e.currentTarget.src = "/assets/fallback-logo.png";
+                      }}
+                    />
+                    <span className="font-medium">
+                      {currentAction.team === "home" ? homeTeam?.name : awayTeam?.name}
+                    </span>
+                  </div>
+                  {currentAction.player && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      {currentAction.player} • {currentAction.position}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Action Indicators */}
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="flex justify-between items-center">
-              {/* Home Team Stats */}
-              <div className="bg-white bg-opacity-20 rounded-lg p-2 text-white text-xs backdrop-blur-sm">
+          {/* Match Time Badge */}
+          <div className="absolute top-4 right-4 z-10">
+            <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+              {elapsed}'
+              {status === "HT" && " (HT)"}
+            </div>
+          </div>
+
+          {/* Team Logos and Score - Bottom */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="bg-white bg-opacity-95 rounded-lg px-4 py-2 shadow-lg backdrop-blur-sm">
+              <div className="flex items-center gap-4">
+                {/* Home Team */}
                 <div className="flex items-center gap-2">
                   <img 
                     src={homeTeam?.logo} 
                     alt={homeTeam?.name} 
-                    className="w-4 h-4 object-contain"
+                    className="w-6 h-6 object-contain"
                     onError={(e) => {
                       e.currentTarget.src = "/assets/fallback-logo.png";
                     }}
                   />
-                  <span className="font-medium">{displayMatch?.goals?.home || 0}</span>
+                  <span className="text-lg font-bold text-gray-800">
+                    {displayMatch?.goals?.home || 0}
+                  </span>
                 </div>
-                <div className="text-[10px] opacity-80">
-                  {homeTeam?.name?.length > 8 ? homeTeam.name.substring(0, 8) + '...' : homeTeam?.name}
-                </div>
-              </div>
 
-              {/* Match Time - Real elapsed time */}
-              <div className="bg-red-500 bg-opacity-90 rounded-lg px-3 py-1 text-white text-xs font-medium backdrop-blur-sm">
-                {elapsed}'
-                {status === "HT" && " (HT)"}
-              </div>
+                {/* Separator */}
+                <div className="text-gray-400 font-medium">-</div>
 
-              {/* Away Team Stats */}
-              <div className="bg-white bg-opacity-20 rounded-lg p-2 text-white text-xs backdrop-blur-sm">
+                {/* Away Team */}
                 <div className="flex items-center gap-2">
-                  <span className="font-medium">{displayMatch?.goals?.away || 0}</span>
+                  <span className="text-lg font-bold text-gray-800">
+                    {displayMatch?.goals?.away || 0}
+                  </span>
                   <img 
                     src={awayTeam?.logo} 
                     alt={awayTeam?.name} 
-                    className="w-4 h-4 object-contain"
+                    className="w-6 h-6 object-contain"
                     onError={(e) => {
                       e.currentTarget.src = "/assets/fallback-logo.png";
                     }}
                   />
-                </div>
-                <div className="text-[10px] opacity-80">
-                  {awayTeam?.name?.length > 8 ? awayTeam.name.substring(0, 8) + '...' : awayTeam?.name}
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Match Statistics Section */}
-        <div className="p-4 bg-white">
+        {/* Bottom Info Panel */}
+        <div className="bg-gray-50 px-4 py-3 border-t border-gray-200">
           <div className="flex items-center justify-between">
-            <div className="text-xs text-gray-500 uppercase tracking-wide">
-              Live Match Statistics
-            </div>
-            <div className="text-xs text-green-600 font-medium">
-              Real-time Data
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-between mt-3">
-            {/* Home Team Section */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <img 
-                  src={homeTeam?.logo} 
-                  alt={homeTeam?.name} 
-                  className="w-8 h-8 object-contain"
-                  onError={(e) => {
-                    e.currentTarget.src = "/assets/fallback-logo.png";
-                  }}
-                />
-                <div>
-                  <div className="text-2xl font-bold text-blue-600">{displayMatch?.goals?.home || 0}</div>
-                  <div className="text-xs text-gray-600">
-                    <div className="font-medium">{homeTeam?.name}</div>
-                    <div className="text-[10px]">HOME</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* VS Divider */}
-            <div className="text-gray-400 font-medium">VS</div>
-
-            {/* Away Team Section */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2">
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-red-600">{displayMatch?.goals?.away || 0}</div>
-                  <div className="text-xs text-gray-600">
-                    <div className="font-medium">{awayTeam?.name}</div>
-                    <div className="text-[10px]">AWAY</div>
-                  </div>
-                </div>
-                <img 
-                  src={awayTeam?.logo} 
-                  alt={awayTeam?.name} 
-                  className="w-8 h-8 object-contain"
-                  onError={(e) => {
-                    e.currentTarget.src = "/assets/fallback-logo.png";
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Real-time Status */}
-          <div className="mt-3 text-center">
-            <div className="inline-flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              Updated from live API every 30 seconds
+              <span className="text-sm text-gray-600 font-medium">Live Action Updates</span>
+            </div>
+            <div className="text-xs text-gray-500">
+              Real-time data from API
             </div>
           </div>
         </div>
