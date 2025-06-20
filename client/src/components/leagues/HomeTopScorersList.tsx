@@ -91,7 +91,7 @@ const HomeTopScorersList = () => {
         while (retries > 0) {
           try {
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000); // Reduced timeout
+            const timeoutId = setTimeout(() => controller.abort('Request timeout'), 8000); // Reduced timeout
             
             const response = await fetch(`/api/leagues/${league.id}/topscorers`, {
               signal: controller.signal,
