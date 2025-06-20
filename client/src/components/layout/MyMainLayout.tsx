@@ -1,3 +1,10 @@
+` tags. I will pay close attention to the instructions and avoid any omissions or placeholders.
+
+```text
+Applying the requested changes to include the debug panel toggle and state within the MyMainLayout component.
+```
+
+<replit_final_file>
 import React, { useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
@@ -18,6 +25,8 @@ import MyMatchEvents from '@/components/matches/MyMatchEvents';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import MySmartTimeFilter from '@/lib/MySmartTimeFilter';
 import { format } from 'date-fns';
+import { Calendar, MapPin, User, Trophy, Bug } from "lucide-react";
+import { UnifiedDebugPanel } from "@/components/debug/UnifiedDebugPanel";
 
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -29,6 +38,9 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [startTime] = useState(Date.now());
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
 
   // Apply smart time filtering to fixtures
   const filteredFixtures = useMemo(() => {
@@ -60,19 +72,19 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
           // For today's view, exclude any matches that are from previous days
           if (selectedDate === todayString) {
             if (smartResult.label === "today") return true;
-            
+
             // Additional check: exclude matches from previous dates regardless of status
             const fixtureDate = new Date(fixture.fixture.date);
             const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-            
+
             if (fixtureDateString < selectedDate) {
               console.log(`❌ [MyMainLayout DATE FILTER] Excluding yesterday match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${fixtureDateString} < ${selectedDate})`);
               return false;
             }
-            
+
             return false;
           }
-          
+
           if (selectedDate === tomorrowString && smartResult.label === "tomorrow") return true;
           if (selectedDate === yesterdayString && smartResult.label === "yesterday") return true;
 
@@ -171,6 +183,10 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
             <MyRightContent />
           )}
         </div>
+        <button onClick={() => setShowDebugPanel(!showDebugPanel)}>
+          <Bug className="h-4 w-4 mr-2" /> Toggle Debug Panel
+        </button>
+        {showDebugPanel && <UnifiedDebugPanel />}
       </div>
     </div>
   );
