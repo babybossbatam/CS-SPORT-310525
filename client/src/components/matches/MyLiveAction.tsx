@@ -4,6 +4,9 @@ import { Badge } from "@/components/ui/badge";
 
 interface MyLiveActionProps {
   matchId?: number;
+  homeTeam?: any;
+  awayTeam?: any;
+  status?: string;
   className?: string;
 }
 
@@ -18,7 +21,13 @@ interface LiveEvent {
   timestamp: number;
 }
 
-const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
+const MyLiveAction: React.FC<MyLiveActionProps> = ({ 
+  matchId, 
+  homeTeam,
+  awayTeam,
+  status,
+  className = "" 
+}) => {
   const [liveData, setLiveData] = useState<any>(null);
   const [liveEvents, setLiveEvents] = useState<LiveEvent[]>([]);
   const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
@@ -36,11 +45,11 @@ const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
     console.log('🎯 [Live Action] Received match ID:', matchId);
 
     let mounted = true;
-    
+
     const fetchMatchData = async () => {
       try {
         setIsLoading(true);
-        
+
         // First, try to get the match from live fixtures
         const liveResponse = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
         if (liveResponse.ok && mounted) {
@@ -57,7 +66,7 @@ const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
               status: liveMatch.fixture?.status?.short,
               elapsed: liveMatch.fixture?.status?.elapsed
             });
-            
+
             setLiveData(liveMatch);
             const elapsed = liveMatch.fixture.status.elapsed || 0;
             generateLiveEvents(liveMatch, elapsed);
@@ -86,7 +95,7 @@ const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
             setLastUpdate(new Date().toLocaleTimeString());
           }
         }
-        
+
         setIsLoading(false);
       } catch (error) {
         if (mounted) {
@@ -138,7 +147,7 @@ const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
       if (liveData) {
         const status = liveData.fixture?.status?.short;
         const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P"].includes(status);
-        
+
         if (isLive) {
           interval = setInterval(fetchLiveUpdates, 15000); // Update every 15 seconds
           console.log(`🔄 [Live Action] Started live updates for match ${matchId}`);
@@ -159,7 +168,7 @@ const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
   // Animate ball movement with proper cleanup
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    
+
     if (liveEvents.length > 0) {
       const latestEvent = liveEvents[0];
       timeoutId = animateBallToEvent(latestEvent);
@@ -327,19 +336,22 @@ const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
 
   // Use fetched live data
   const displayMatch = liveData;
-  const homeTeam = displayMatch?.teams?.home;
-  const awayTeam = displayMatch?.teams?.away;
-  const status = displayMatch?.fixture?.status?.short;
-  const isLive = ["1H", "2H", "LIVE", "LIV"].includes(status);
+  const homeTeamData = homeTeam || displayMatch?.teams?.home;
+  const awayTeamData = awayTeam || displayMatch?.teams?.away;
+  const statusData = status || displayMatch?.fixture?.status?.short;
+
+  // Determine if match is currently live - use passed status or fallback to display match
+  const currentStatus = status || displayMatch?.fixture?.status?.short;
+  const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
   const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
 
   // Debug logging for team display
   console.log('🎯 [Live Action] Displaying match:', {
     matchId,
-    homeTeam: homeTeam?.name,
-    awayTeam: awayTeam?.name,
+    homeTeam: homeTeamData?.name,
+    awayTeam: awayTeamData?.name,
     fixtureId: displayMatch?.fixture?.id,
-    status,
+    status: statusData,
     isLive,
     elapsed,
     isLoading,
@@ -390,9 +402,9 @@ const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
           <div className="text-center">
             <p className="text-gray-500 text-sm mb-2">Match not currently live</p>
             <p className="text-xs text-gray-400">
-              {homeTeam?.name} vs {awayTeam?.name}
+              {homeTeamData?.name} vs {awayTeamData?.name}
             </p>
-            <p className="text-xs text-gray-400">Status: {status}</p>
+            <p className="text-xs text-gray-400">Status: {statusData}</p>
           </div>
         </CardContent>
       </Card>
@@ -408,7 +420,7 @@ const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
               Live Action
             </CardTitle>
             <p className="text-xs text-gray-500 mt-1">
-              {homeTeam?.name} vs {awayTeam?.name}
+              {homeTeamData?.name} vs {awayTeamData?.name}
             </p>
           </div>
           <Badge variant="destructive" className="animate-pulse">
@@ -466,15 +478,15 @@ const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
                   <img 
-                    src={homeTeam?.logo} 
-                    alt={homeTeam?.name} 
+                    src={homeTeamData?.logo} 
+                    alt={homeTeamData?.name} 
                     className="w-6 h-6 object-contain"
                     onError={(e) => {
                       e.currentTarget.src = "/assets/fallback-logo.png";
                     }}
                   />
                   <span className="text-xs font-medium text-gray-600">
-                    {homeTeam?.code || homeTeam?.name?.substring(0, 3).toUpperCase()}
+                    {homeTeamData?.code || homeTeamData?.name?.substring(0, 3).toUpperCase()}
                   </span>
                 </div>
 
@@ -486,11 +498,11 @@ const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
 
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-medium text-gray-600">
-                    {awayTeam?.code || awayTeam?.name?.substring(0, 3).toUpperCase()}
+                    {awayTeamData?.code || awayTeamData?.name?.substring(0, 3).toUpperCase()}
                   </span>
                   <img 
-                    src={awayTeam?.logo} 
-                    alt={awayTeam?.name} 
+                    src={awayTeamData?.logo} 
+                    alt={awayTeamData?.name} 
                     className="w-6 h-6 object-contain"
                     onError={(e) => {
                       e.currentTarget.src = "/assets/fallback-logo.png";
@@ -546,8 +558,8 @@ const MyLiveAction = ({ matchId, className = "" }: MyLiveActionProps) => {
                         event.team === 'home' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
                       }`}>
                         {event.team === 'home' 
-                          ? homeTeam?.code || 'HOME'
-                          : awayTeam?.code || 'AWAY'
+                          ? homeTeamData?.code || 'HOME'
+                          : awayTeamData?.code || 'AWAY'
                         }
                       </span>
                     </div>
