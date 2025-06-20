@@ -178,46 +178,64 @@ const HomeTopScorersList = () => {
     return league?.name || 'League';
   };
 
+  // 365scores-style navigation with positioning
+  const [contentPosition, setContentPosition] = useState(0);
+  const [containerWidth, setContainerWidth] = useState(0);
+  const [contentWidth, setContentWidth] = useState(0);
+  
+  // Calculate dimensions on mount and resize
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+        const content = container.querySelector('[data-content]') as HTMLElement;
+        if (content) {
+          setContainerWidth(container.clientWidth);
+          setContentWidth(content.scrollWidth);
+        }
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, [availableLeagues]);
+
   const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      const container = scrollContainerRef.current;
-      const scrollAmount = 200; // Adjust scroll distance
-      container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-    }
+    const scrollAmount = 200;
+    const newPosition = Math.max(0, contentPosition - scrollAmount);
+    setContentPosition(newPosition);
   };
 
   const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      const container = scrollContainerRef.current;
-      const scrollAmount = 200; // Adjust scroll distance
-      container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
+    const scrollAmount = 200;
+    const maxScroll = Math.max(0, contentWidth - containerWidth);
+    const newPosition = Math.min(maxScroll, contentPosition + scrollAmount);
+    setContentPosition(newPosition);
   };
 
-  const handleScroll = () => {
-    if (scrollContainerRef.current) {
-      setScrollPosition(scrollContainerRef.current.scrollLeft);
-    }
-  };
+  const canScrollLeft = contentPosition > 0;
+  const canScrollRight = contentPosition < (contentWidth - containerWidth);
 
-  const canScrollLeft = scrollPosition > 0;
-  const canScrollRight = scrollContainerRef.current 
-    ? scrollPosition < (scrollContainerRef.current.scrollWidth - scrollContainerRef.current.clientWidth)
-    : true;
-
-  // Auto-scroll to selected league when it changes
+  // Auto-scroll to selected league when it changes - 365scores style
   useEffect(() => {
     if (scrollContainerRef.current && selectedLeague) {
-      const selectedButton = scrollContainerRef.current.querySelector(`[data-league-id="${selectedLeague}"]`) as HTMLElement;
+      const container = scrollContainerRef.current;
+      const selectedButton = container.querySelector(`[data-league-id="${selectedLeague}"]`) as HTMLElement;
       if (selectedButton) {
-        selectedButton.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'center'
-        });
+        const buttonLeft = selectedButton.offsetLeft;
+        const buttonWidth = selectedButton.offsetWidth;
+        const containerWidth = container.clientWidth;
+        
+        // Calculate optimal position to center the selected item
+        const targetPosition = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
+        const maxScroll = Math.max(0, contentWidth - containerWidth);
+        const clampedPosition = Math.max(0, Math.min(maxScroll, targetPosition));
+        
+        setContentPosition(clampedPosition);
       }
     }
-  }, [selectedLeague]);
+  }, [selectedLeague, contentWidth, containerWidth]);
 
   if (isLoadingLeagues || isLoading || !selectedLeague) {
     return (
@@ -267,53 +285,71 @@ const HomeTopScorersList = () => {
         {/* Horizontal scrollable league navigation with navigation buttons */}
         <div className="border-b border-gray-100 bg-gray-50">
           <div className="flex items-center">
-            {/* Left navigation button */}
+            {/* Left navigation button - 365scores style */}
             <Button 
               variant="ghost" 
-              size="icon"
-              className="h-6 w-6 p-0 ml-2 flex-shrink-0" 
-              onClick={goToPreviousLeague}
-              disabled={availableLeagues.length === 0}
+              size="sm"
+              className={`h-10 w-8 p-0 ml-1 flex-shrink-0 rounded-md transition-all ${
+                canScrollLeft 
+                  ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
+                  : 'text-gray-300 cursor-not-allowed'
+              }`}
+              onClick={scrollLeft}
+              disabled={!canScrollLeft}
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            {/* Scrollable league container */}
+            {/* 365scores-style scrollable container */}
             <div 
               ref={scrollContainerRef}
-              onScroll={handleScroll}
-              className="flex items-center overflow-x-auto scrollbar-hide px-2 py-3 gap-6 flex-1"
+              className="relative overflow-hidden flex-1"
             >
-              {availableLeagues.map((league) => (
-                <button
-                  key={league.id}
-                  data-league-id={league.id}
-                  onClick={() => setSelectedLeague(league.id)}
-                  className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 flex-shrink-0 px-2 py-1 rounded-md ${
-                    selectedLeague === league.id 
-                      ? 'text-blue-600 font-semibold bg-blue-50 border border-blue-200' 
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  <img 
-                    src={league.logo} 
-                    alt={league.name} 
-                    className="w-4 h-4 object-contain flex-shrink-0" 
-                  />
-                  <span className="text-sm">
-                    {league.name}
-                  </span>
-                </button>
-              ))}
+              <div 
+                data-content
+                className="flex items-center py-3 gap-6 transition-all duration-300 ease-out"
+                style={{ 
+                  transform: `translateX(-${contentPosition}px)`,
+                  width: 'max-content'
+                }}
+              >
+                {availableLeagues.map((league) => (
+                  <button
+                    key={league.id}
+                    data-league-id={league.id}
+                    onClick={() => setSelectedLeague(league.id)}
+                    className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 flex-shrink-0 px-3 py-2 rounded-md min-w-max ${
+                      selectedLeague === league.id 
+                        ? 'text-blue-600 font-semibold bg-blue-50 border border-blue-200 shadow-sm' 
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    }`}
+                  >
+                    <div className="w-5 h-5 flex-shrink-0">
+                      <img 
+                        src={league.logo} 
+                        alt={league.name} 
+                        className="w-full h-full object-contain" 
+                      />
+                    </div>
+                    <span className="text-sm font-medium">
+                      {league.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Right navigation button */}
+            {/* Right navigation button - 365scores style */}
             <Button 
               variant="ghost" 
-              size="icon"
-              className="h-6 w-6 p-0 mr-2 flex-shrink-0" 
-              onClick={goToNextLeague}
-              disabled={availableLeagues.length === 0}
+              size="sm"
+              className={`h-10 w-8 p-0 mr-1 flex-shrink-0 rounded-md transition-all ${
+                canScrollRight 
+                  ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
+                  : 'text-gray-300 cursor-not-allowed'
+              }`}
+              onClick={scrollRight}
+              disabled={!canScrollRight}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
