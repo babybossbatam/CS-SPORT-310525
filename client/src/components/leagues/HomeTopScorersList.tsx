@@ -220,36 +220,30 @@ const HomeTopScorersList = () => {
     <>
       <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        {/* Header with navigation */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50">
-          <button 
-            onClick={goToPreviousLeague}
-            className="p-1 rounded hover:bg-gray-200 transition-colors opacity-70 hover:opacity-100"
-          >
-            <ChevronLeft className="h-4 w-4 text-gray-600" />
-          </button>
-
-          <div className="flex items-center gap-2">
-            {currentLeague && (
-              <>
+        {/* Horizontal scrollable league navigation */}
+        <div className="border-b border-gray-100 bg-gray-50">
+          <div className="flex items-center overflow-x-auto scrollbar-hide px-4 py-3 gap-6">
+            {availableLeagues.map((league) => (
+              <button
+                key={league.id}
+                onClick={() => setSelectedLeague(league.id)}
+                className={`flex items-center gap-2 whitespace-nowrap transition-colors ${
+                  selectedLeague === league.id 
+                    ? 'text-blue-600 font-medium' 
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+              >
                 <img 
-                  src={currentLeague.logo} 
-                  alt={currentLeague.name} 
-                  className="w-4 h-4 object-contain" 
+                  src={league.logo} 
+                  alt={league.name} 
+                  className="w-4 h-4 object-contain flex-shrink-0" 
                 />
-                <span className="text-sm font-medium text-gray-700">
-                  {currentLeague.name}
+                <span className="text-sm">
+                  {league.name}
                 </span>
-              </>
-            )}
+              </button>
+            ))}
           </div>
-
-          <button 
-            onClick={goToNextLeague}
-            className="p-1 rounded hover:bg-gray-200 transition-colors opacity-70 hover:opacity-100"
-          >
-            <ChevronRight className="h-4 w-4 text-gray-600" />
-          </button>
         </div>
 
         {/* Goals title */}
