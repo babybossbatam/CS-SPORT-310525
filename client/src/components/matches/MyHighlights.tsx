@@ -216,30 +216,30 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   }
 
   return (
-    <Card className="w-full shadow-sm border border-gray-200">
-      <CardHeader className="pb-4 pt-4 px-4">
-        <CardTitle className="text-base font-semibold text-gray-900 flex items-center">
-          <Play className="h-4 w-4 mr-2 text-red-600" />
-          Official Highlights
+    <Card className="w-full shadow-md">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-bold flex items-center">
+          <Play className="h-5 w-5 mr-2 text-red-500" />
+          Match Highlights
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-4 pb-4">
+      <CardContent>
         {isLoading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600"></div>
-            <span className="ml-3 text-gray-600 text-sm">Loading highlights...</span>
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-gray-600">Loading highlights...</span>
           </div>
         )}
 
         {error && (
-          <div className="flex flex-col items-center py-6 space-y-3">
+          <div className="flex flex-col items-center p-4 bg-yellow-50 border border-yellow-200 rounded-lg space-y-3">
             <div className="flex items-center">
-              <AlertCircle className="h-4 w-4 text-amber-500 mr-2" />
-              <span className="text-sm text-gray-700">{error}</span>
+              <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
+              <span className="text-sm text-yellow-800">{error}</span>
             </div>
             <button
               onClick={searchForHighlights}
-              className="px-4 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors font-medium"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
             >
               Try Again
             </button>
@@ -247,37 +247,36 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         )}
 
         {videoData && (
-          <div className="space-y-3">
-            {/* Embedded Video Player - 365scores Style */}
-            <div className="relative w-full bg-black rounded-sm overflow-hidden" style={{ paddingBottom: '55.9%' }}>
+          <div className="space-y-4">
+            {/* Embedded Video Player - Default Display */}
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
               <iframe
-                className="absolute top-0 left-0 w-full h-full"
-                src={`https://www.youtube.com/embed/${videoData.id.videoId}?rel=0&modestbranding=1&enablejsapi=1`}
+                className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+                src={`https://www.youtube.com/embed/${videoData.id.videoId}?rel=0&modestbranding=1`}
                 title={videoData.snippet.title}
                 frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                referrerPolicy="strict-origin-when-cross-origin"
               />
             </div>
             
-            {/* Video Info - Simplified */}
-            <div className="space-y-2">
-              <h3 className="font-medium text-gray-800 line-clamp-2 text-sm leading-tight">
+            {/* Video Info and Controls */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-gray-900 line-clamp-2 text-lg">
                 {videoData.snippet.title}
               </h3>
-              <div className="flex items-center justify-between text-xs text-gray-500">
+              <div className="flex items-center justify-between text-sm text-gray-500">
                 <span className="font-medium">{videoData.snippet.channelTitle}</span>
                 <span>{formatPublishDate(videoData.snippet.publishedAt)}</span>
               </div>
               
-              {/* Action Button - Simplified */}
-              <div className="pt-1">
+              {/* Action Buttons */}
+              <div className="flex gap-2 pt-2">
                 <button
                   onClick={handleOpenInYouTube}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors font-medium"
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
                 >
-                  <ExternalLink className="h-3 w-3" />
+                  <ExternalLink className="h-4 w-4" />
                   Watch on YouTube
                 </button>
               </div>
@@ -286,19 +285,19 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         )}
 
         {!isLoading && !error && !videoData && (
-          <div className="text-center py-8 text-gray-500 space-y-4">
-            <Play className="h-10 w-10 mx-auto mb-3 text-gray-300" />
-            <p className="text-sm">No highlights available for this match</p>
+          <div className="text-center p-8 text-gray-500 space-y-4">
+            <Play className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+            <p>No highlights available for this match</p>
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => window.open(`https://www.youtube.com/results?search_query=${encodeURIComponent(`${homeTeam} vs ${awayTeam} highlights`)}`, '_blank')}
-                className="px-4 py-2 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition-colors font-medium"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
               >
                 Search on YouTube
               </button>
               <button
                 onClick={searchForHighlights}
-                className="px-4 py-2 bg-gray-500 text-white rounded text-sm hover:bg-gray-600 transition-colors font-medium"
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
               >
                 Try Search Again
               </button>
