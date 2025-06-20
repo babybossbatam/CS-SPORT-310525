@@ -628,18 +628,34 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
   );
 
-  if (!allFixtures.length || !hasLiveMatches) {
+  console.log(`🔍 [LiveMatchForAllCountry] Live matches check:`, {
+    totalFixtures: fixtures.length,
+    filteredFixtures: filteredFixtures.length,
+    hasLiveMatches,
+    liveFilterActive,
+    allFixturesLength: allFixtures.length
+  });
+
+  // Show no live matches when live filter is active but no live matches found
+  if (liveFilterActive && (!allFixtures.length || !hasLiveMatches)) {
+    console.log(`📺 [LiveMatchForAllCountry] Showing NoLiveMatchesEmpty - no live matches found`);
     return (
-      <div className="bg-gray-100 min-h-[400px]">
-        <NoLiveMatchesEmpty 
-          showBackButton={true}
-          onBackToHome={() => {
-            // Navigate to all matches or home page
-            window.location.href = '/';
-          }}
-          setLiveFilterActive={setLiveFilterActive}
-        />
-      </div>
+      <>
+        {/* Header Section */}
+        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+          Popular Football Live Score
+        </CardHeader>
+        <div className="bg-gray-100 min-h-[400px]">
+          <NoLiveMatchesEmpty 
+            showBackButton={true}
+            onBackToHome={() => {
+              // Navigate to all matches or home page
+              window.location.href = '/';
+            }}
+            setLiveFilterActive={setLiveFilterActive}
+          />
+        </div>
+      </>
     );
   }
 
