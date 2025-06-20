@@ -593,6 +593,26 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
         if (shouldInclude) {
           filtered.push(fixture);
+          // Special debugging for Al Ain vs Juventus match
+          if (fixture.fixture.id === 1321695 || 
+              (fixture.teams?.home?.name?.includes("Al Ain") && fixture.teams?.away?.name?.includes("Juventus")) ||
+              (fixture.teams?.away?.name?.includes("Al Ain") && fixture.teams?.home?.name?.includes("Juventus"))) {
+            console.log(`🏆 [AL AIN vs JUVENTUS] MATCH FOUND - UTC Time from RapidAPI:`, {
+              fixtureId: fixture.fixture.id,
+              utcDateTime: fixture.fixture.date,
+              utcTimestamp: fixture.fixture.timestamp,
+              status: fixture.fixture.status.short,
+              elapsed: fixture.fixture.status.elapsed,
+              homeTeam: fixture.teams?.home?.name,
+              awayTeam: fixture.teams?.away?.name,
+              league: fixture.league?.name,
+              venue: fixture.fixture?.venue?.name,
+              timezone: fixture.fixture?.timezone,
+              periods: fixture.fixture?.periods,
+              rawFixtureObject: fixture.fixture
+            });
+          }
+
           console.log(`✅ [Enhanced Filter] Included fixture:`, {
             id: fixture.fixture.id,
             status: fixture.fixture.status.short,
