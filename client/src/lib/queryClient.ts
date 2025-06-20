@@ -35,19 +35,39 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined
 ): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
   try {
     const res = await fetch(url, {
       method,
-      headers: data ? { "Content-Type": "application/json" } : {},
+      headers: {
+        ...(data ? { "Content-Type": "application/json" } : {}),
+        'Accept': 'application/json'
+      },
       body: data ? JSON.stringify(data) : undefined,
-      credentials: "include"
+      credentials: "include",
+      signal: controller.signal,
+      keepalive: false,
+      cache: 'no-cache'
     });
 
+    clearTimeout(timeoutId);
     await throwIfResNotOk(res);
     return res;
   } catch (error) {
-    console.error(`API request error for ${method} ${url}:`, error);
-    throw error;
+    clearTimeout(timeoutId);
+    
+    if (error.name === 'AbortError') {
+      console.error(`Request timeout for ${method} ${url}`);
+      throw new Error(`Request timeout - please check your connection`);
+    } else if (error.message?.includes('Failed to fetch')) {
+      console.error(`Network error for ${method} ${url}:`, error);
+      throw new Error(`Network error - please check your connection`);
+    } else {
+      console.error(`API request error for ${method} ${url}:`, error);
+      throw error;
+    }
   }
 }
 

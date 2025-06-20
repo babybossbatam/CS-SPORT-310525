@@ -91,20 +91,23 @@ const MyMatchdetailsScoreboard = ({
       const timer = setInterval(async () => {
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+          const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
           
           const response = await fetch("/api/fixtures/live", {
             signal: controller.signal,
             headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json'
-            }
+            },
+            keepalive: false,
+            cache: 'no-cache'
           });
           
           clearTimeout(timeoutId);
           
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text().catch(() => 'Unknown error');
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
           }
 
           const liveFixtures = await response.json();
@@ -147,7 +150,7 @@ const MyMatchdetailsScoreboard = ({
             // Try to fetch the specific match to check its current status
             try {
               const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+              const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 second timeout
               
               const specificMatchResponse = await fetch(
                 `/api/fixtures?ids=${displayMatch.fixture.id}`,
@@ -156,7 +159,9 @@ const MyMatchdetailsScoreboard = ({
                   headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
-                  }
+                  },
+                  keepalive: false,
+                  cache: 'no-cache'
                 }
               );
               

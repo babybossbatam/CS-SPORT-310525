@@ -47,12 +47,17 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
-          }
+          },
+          keepalive: false,
+          cache: 'no-cache'
         });
         
         clearTimeout(timeoutId);
         
-        if (!response.ok) throw new Error(`Failed to fetch fixtures: ${response.status}`);
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => 'Unknown error');
+          throw new Error(`Failed to fetch fixtures: ${response.status} - ${errorText}`);
+        }
         const data: FixtureResponse[] = await response.json();
 
       console.log(`📊 [CentralDataProvider] Raw data received: ${data.length} fixtures`);
@@ -110,12 +115,17 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           headers: {
             'Accept': 'application/json',
             'Content-Type': 'application/json'
-          }
+          },
+          keepalive: false,
+          cache: 'no-cache'
         });
         
         clearTimeout(timeoutId);
         
-        if (!response.ok) throw new Error(`Failed to fetch live fixtures: ${response.status}`);
+        if (!response.ok) {
+          const errorText = await response.text().catch(() => 'Unknown error');
+          throw new Error(`Failed to fetch live fixtures: ${response.status} - ${errorText}`);
+        }
         const data: FixtureResponse[] = await response.json();
 
       console.log(`Central cache: Received ${data.length} live fixtures`);
