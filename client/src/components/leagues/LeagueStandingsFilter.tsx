@@ -242,13 +242,17 @@ const LeagueStandingsFilter = () => {
 
         setPopularLeagues(processedLeagues);
 
-        // Set default selection to World Cup - Qualification Europe (ID 32) if available, otherwise first league
+        // Set default selection to FIFA Club World Cup (ID 15) if available, otherwise fallback
         if (processedLeagues.length > 0) {
           const preferredLeague = processedLeagues.find(
+            (league) => league && league.id === 15 && league.name,
+          );
+          const fallbackLeague = processedLeagues.find(
             (league) => league && league.id === 32 && league.name,
           );
           const defaultLeague =
             preferredLeague ||
+            fallbackLeague ||
             processedLeagues.find(
               (league) => league && league.id && league.name,
             );
@@ -502,9 +506,9 @@ const LeagueStandingsFilter = () => {
         );
         setPopularLeagues(fallbackLeagues);
 
-        // Set default to Premier League
-        setSelectedLeague("39");
-        setSelectedLeagueName("Premier League");
+        // Set default to FIFA Club World Cup
+        setSelectedLeague("15");
+        setSelectedLeagueName("FIFA Club World Cup");
       } finally {
         setLeaguesLoading(false);
       }
