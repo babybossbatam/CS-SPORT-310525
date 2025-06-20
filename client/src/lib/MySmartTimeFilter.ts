@@ -63,12 +63,12 @@ export class MySmartTimeFilter {
       let convertedStatus = matchStatus;
       if (notStartedStatuses.includes(matchStatus)) {
           const now = new Date();
-          
+
           // Only convert to FT if the fixture is actually in the past AND on a past date
           // Don't convert future dates even if the time has passed today
           const fixtureDateOnly = format(fixtureDate, 'yyyy-MM-dd');
           const todayDateOnly = format(now, 'yyyy-MM-dd');
-          
+
           // Only convert if the fixture date is actually before today's date
           if (fixtureDateOnly < todayDateOnly) {
               convertedStatus = 'FT';
@@ -90,7 +90,7 @@ export class MySmartTimeFilter {
       if (isSelectedTomorrow) {
         // Add debug logging for COSAFA Cup matches
         const isCOSAFACup = fixtureDateTime.includes('COSAFA') || matchStatus.includes('COSAFA');
-        
+
         if (notStartedStatuses.includes(convertedStatus)) {
           // 1. NS status: show only if fixture date matches selected date (tomorrow)
           if (fixtureDateString === selectedDateString) {
@@ -155,7 +155,7 @@ export class MySmartTimeFilter {
             selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
           };
         }
-        
+
         // Log if COSAFA Cup match reaches here without being handled
         if (isCOSAFACup) {
           console.log(`🏆 [COSAFA DEBUG] TOMORROW - Match not handled by NS/Finished logic:`, {
@@ -299,17 +299,48 @@ export class MySmartTimeFilter {
           }
         }
 
-        // For live matches on custom dates - show them regardless
-        if (liveStatuses.includes(matchStatus)) {
+      // Live matches - convert to local timezone first, then validate date using our smart labeling system
+      if (liveStatuses.includes(matchStatus)) {
+        // Convert fixture time to local timezone for proper date comparison
+        const fixtureLocalDate = new Date(fixtureDate.getTime());
+        const selectedLocalDate = new Date(selectedDate.getTime());
+
+        // Get date strings in local timezone after conversion
+        const fixtureLocalDateString = format(fixtureLocalDate, 'yyyy-MM-dd');
+        const selectedLocalDateString = format(selectedLocalDate, 'yyyy-MM-dd');
+
+        console.log(`🕐 [LIVE TIMEZONE DEBUG] Live match timezone conversion:`, {
+          originalUTC: fixtureDateTime,
+          selectedUTC: selectedDateTime || 'current time',
+          fixtureLocalDate: format(fixtureLocalDate, 'yyyy-MM-dd HH:mm:ss'),
+          selectedLocalDate: format(selectedLocalDate, 'yyyy-MM-dd HH:mm:ss'),
+          fixtureLocalDateString,
+          selectedLocalDateString,
+          datesMatch: fixtureLocalDateString === selectedLocalDateString
+        });
+
+        // Check if the live match date matches the selected date after timezone conversion
+        if (fixtureLocalDateString === selectedLocalDateString) {
           return {
-            label: 'custom',
-            reason: `Live match on custom date (${selectedDateString})`,
+            label: isSelectedToday ? 'today' : isSelectedTomorrow ? 'tomorrow' : isSelectedYesterday ? 'yesterday' : 'custom',
+            reason: `Live match on ${isSelectedToday ? 'today' : isSelectedTomorrow ? 'tomorrow' : isSelectedYesterday ? 'yesterday' : 'selected date'} after timezone conversion (${fixtureLocalDateString})`,
             isWithinTimeRange: true,
             matchStatus,
-            fixtureTime: format(fixtureDate, 'yyyy/MM/dd HH:mm:ss'),
-            selectedTime: format(selectedDate, 'yyyy/MM/dd HH:mm:ss')
+            fixtureTime: format(fixtureLocalDate, 'yyyy/MM/dd HH:mm:ss'),
+            selectedTime: format(selectedLocalDate, 'yyyy/MM/dd HH:mm:ss')
+          };
+        } else {
+          // Live match on different date after timezone conversion - exclude it
+          return {
+            label: 'custom',
+            reason: `Live match excluded after timezone conversion (${fixtureLocalDateString} ≠ ${selectedLocalDateString}) - belongs to ${fixtureLocalDateString}`,
+            isWithinTimeRange: false,
+            matchStatus,
+            fixtureTime: format(fixtureLocalDate, 'yyyy/MM/dd HH:mm:ss'),
+            selectedTime: format(selectedLocalDate, 'yyyy/MM/dd HH:mm:ss')
           };
         }
+      }
       }
 
       // GENERAL LOGIC FOR TODAY/YESTERDAY CASES (fallback)
