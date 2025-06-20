@@ -288,7 +288,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Merge live fixture data with cached fixtures for real-time updates
   const mergedFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
-    
+
     if (!liveFixtures?.length) {
       console.log(`🔄 [TodayPopularLeagueNew] No live fixtures to merge, using cached data`);
       return fixtures;
@@ -305,7 +305,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     // Merge fixtures: use live data if available, otherwise use cached data
     const merged = fixtures.map(cachedFixture => {
       const liveFixture = liveFixturesMap.get(cachedFixture.fixture.id);
-      
+
       if (liveFixture) {
         console.log(`🔴 [LIVE UPDATE] Updating fixture ${cachedFixture.fixture.id}: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`, {
           oldStatus: cachedFixture.fixture.status.short,
@@ -315,7 +315,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           oldScore: `${cachedFixture.goals?.home || 0}-${cachedFixture.goals?.away || 0}`,
           newScore: `${liveFixture.goals?.home || 0}-${liveFixture.goals?.away || 0}`
         });
-        
+
         // Use live fixture data for real-time updates
         return {
           ...cachedFixture,
@@ -327,7 +327,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           score: liveFixture.score,
         };
       }
-      
+
       return cachedFixture;
     });
 
@@ -449,7 +449,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           if (selectedDate === tomorrowString && smartResult.label === "tomorrow") return true;
           if (selectedDate === todayString && smartResult.label === "today") return true;
           if (selectedDate === yesterdayString && smartResult.label === "yesterday") return true;
-          
+
           // Handle custom dates (dates that are not today/tomorrow/yesterday)
           if (
             selectedDate !== todayString &&
@@ -458,7 +458,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           ) {
             if (smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
           }
-          
+
           return false;
         })();
 
@@ -745,7 +745,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         });
       } else {
         console.log(`❌ [FINAL RESULT DEBUG] League ${leagueId} - NO FIXTURES in final filtered result for ${selectedDate}`);
-        
+
         // Additional debugging: Check if these fixtures exist in the original data but got filtered out
         const originalLeagueFixtures = mergedFixtures.filter(f => f.league?.id === leagueId);
         if (originalLeagueFixtures.length > 0) {
@@ -1988,7 +1988,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       );
                                     }
 
-                                  // Finished matches status
+                                  // All finished match statuses - show score only
                                   if (
                                     [
                                       "FT",
@@ -2001,26 +2001,43 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                       "SUSP",
                                     ].includes(status)
                                   ) {
-                                    return (
-                                      <div className="match-status-label status-ended">                                        {status === "FT"
-                                          ? "Ended"
-                                          : status === "AET"
-                                            ? "Ended (AET)"
-                                            : status === "PEN"
-                                              ? "Ended (Penalties)"
-                                              : status === "AWD"
-                                                ? "Awarded"
-                                                : status === "WO"
-                                                  ? "Walkover"
-                                                  : status === "ABD"
-                                                    ? "Abandoned"
-                                                    : status === "CANC"
-                                                      ? "Cancelled"
-                                                      : status === "SUSP"
-                                                        ? "Suspended"
-                                                        : status}
-                                      </div>
-                                    );
+                                    // Check if we have actual numerical scores
+                                    const homeScore = match.goals.home;
+                                    const awayScore = match.goals.away;
+                                    const hasValidScores =
+                                      homeScore !== null &&
+                                      homeScore !== undefined &&
+                                      awayScore !== null &&
+                                      awayScore !== undefined &&
+                                      !isNaN(Number(homeScore)) &&
+                                      !isNaN(Number(awayScore));
+
+                                    if (hasValidScores) {
+                                      return (
+                                        <div className="match-score-display">
+                                          <span className="score-number">
+                                            {homeScore}
+                                          </span>
+                                          <span className="score-separator">
+                                            -
+                                          </span>
+                                          <span className="score-number">
+                                            {awayScore}
+                                          </span>
+                                        </div>
+                                      );
+                                    } else {
+                                      // Match is finished but no valid score data - show "Ended" for FIFA Club World Cup
+                                      const isFifaClubWorldCup = match.league?.name?.toLowerCase().includes("fifa club world cup");
+                                      return (
+                                        <div
+                                          className="match-time-display"
+                                          style={{ fontSize: "0.882em" }}
+                                        >
+                                          {isFifaClubWorldCup ? "Ended" : format(fixtureDate, "HH:mm")}
+                                        </div>
+                                      );
+                                    }
                                   }
 
                                   // Postponed matches status
@@ -2181,13 +2198,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                           </div>
                                         );
                                       } else {
-                                        // Match is finished but no valid score data
+                                        // Match is finished but no valid score data - show "Ended" for FIFA Club World Cup
+                                        const isFifaClubWorldCup = match.league?.name?.toLowerCase().includes("fifa club world cup");
                                         return (
                                           <div
                                             className="match-time-display"
                                             style={{ fontSize: "0.882em" }}
                                           >
-                                            {format(fixtureDate, "HH:mm")}
+                                            {isFifaClubWorldCup ? "Ended" : format(fixtureDate, "HH:mm")}
                                           </div>
                                         );
                                       }
