@@ -18,41 +18,22 @@ const scrollbarHideStyle = `
   }
 `;
 
-// Popular leagues list - matches PopularLeaguesList component
-const POPULAR_LEAGUES = [
-  { id: 39, name: 'Premier League', logo: 'https://media.api-sports.io/football/leagues/39.png', country: 'England' },
-  { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png', country: 'Spain' },
-  { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png', country: 'Italy' },
-  { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png', country: 'Germany' },
-  { id: 61, name: 'Ligue 1', logo: 'https://media.api-sports.io/football/leagues/61.png', country: 'France' },
-  { id: 2, name: 'UEFA Champions League', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe' },
-  { id: 3, name: 'UEFA Europa League', logo: 'https://media.api-sports.io/football/leagues/3.png', country: 'Europe' },
-  { id: 848, name: 'UEFA Europa Conference League', logo: 'https://media.api-sports.io/football/leagues/848.png', country: 'Europe' },
-  { id: 5, name: 'UEFA Nations League', logo: 'https://media.api-sports.io/football/leagues/5.png', country: 'Europe' },
-  // World/International Competitions
-  { id: 1, name: 'World Cup', logo: 'https://media.api-sports.io/football/leagues/1.png', country: 'World' },
-  { id: 4, name: 'Euro Championship', logo: 'https://media.api-sports.io/football/leagues/4.png', country: 'World' },
-  { id: 15, name: 'FIFA Club World Cup', logo: 'https://media.api-sports.io/football/leagues/15.png', country: 'World' },
-  { id: 16, name: 'CONCACAF Gold Cup', logo: 'https://media.api-sports.io/football/leagues/16.png', country: 'World' },
-  { id: 9, name: 'Copa America', logo: 'https://media.api-sports.io/football/leagues/9.png', country: 'World' },
-  { id: 13, name: 'Africa Cup of Nations', logo: 'https://media.api-sports.io/football/leagues/13.png', country: 'World' },
-  { id: 21, name: 'Asian Cup', logo: 'https://media.api-sports.io/football/leagues/21.png', country: 'World' },
-  // World Cup Qualifications
-  { id: 32, name: 'World Cup - Qualification Europe', logo: 'https://media.api-sports.io/football/leagues/32.png', country: 'World' },
-  { id: 33, name: 'World Cup - Qualification Oceania', logo: 'https://media.api-sports.io/football/leagues/33.png', country: 'World' },
-  { id: 34, name: 'World Cup - Qualification South America', logo: 'https://media.api-sports.io/football/leagues/34.png', country: 'World' },
-  { id: 35, name: 'Asian Cup - Qualification', logo: 'https://media.api-sports.io/football/leagues/35.png', country: 'World' },
-  { id: 36, name: 'Africa Cup of Nations - Qualification', logo: 'https://media.api-sports.io/football/leagues/36.png', country: 'World' },
-  { id: 37, name: 'World Cup - Intercontinental Play-offs', logo: 'https://media.api-sports.io/football/leagues/37.png', country: 'World' },
-  { id: 38, name: 'World Cup - Qualification CONCACAF', logo: 'https://media.api-sports.io/football/leagues/38.png', country: 'World' },
-  // Additional Popular Leagues
-  { id: 45, name: 'FA Cup', logo: 'https://media.api-sports.io/football/leagues/45.png', country: 'England' },
-  { id: 48, name: 'EFL Cup', logo: 'https://media.api-sports.io/football/leagues/48.png', country: 'England' },
-  { id: 143, name: 'Copa del Rey', logo: 'https://media.api-sports.io/football/leagues/143.png', country: 'Spain' },
-  { id: 137, name: 'Coppa Italia', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Italy' },
-  { id: 81, name: 'DFB Pokal', logo: 'https://media.api-sports.io/football/leagues/81.png', country: 'Germany' },
-  { id: 66, name: 'Coupe de France', logo: 'https://media.api-sports.io/football/leagues/66.png', country: 'France' },
-];
+// Import the popular leagues list from PopularLeaguesList component
+import { CURRENT_POPULAR_LEAGUES } from './PopularLeaguesList';
+
+// Filter out domestic leagues, keeping only international competitions
+const POPULAR_LEAGUES = CURRENT_POPULAR_LEAGUES.filter(league => 
+  league.country === 'Europe' || 
+  league.country === 'World' || 
+  league.name.includes('UEFA') || 
+  league.name.includes('FIFA') || 
+  league.name.includes('World Cup') || 
+  league.name.includes('Euro Championship') || 
+  league.name.includes('Copa America') || 
+  league.name.includes('Africa Cup') || 
+  league.name.includes('Asian Cup') || 
+  league.name.includes('CONCACAF')
+);
 
 interface Player {
   id: number;
@@ -106,7 +87,7 @@ const HomeTopScorersList = () => {
           try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort('Request timeout'), 8000); // Reduced timeout
-            
+
             const response = await fetch(`/api/leagues/${league.id}/topscorers`, {
               signal: controller.signal,
               headers: {
@@ -115,16 +96,16 @@ const HomeTopScorersList = () => {
                 'Cache-Control': 'max-age=1800' // 30 minutes browser cache for fresher data
               }
             });
-            
+
             clearTimeout(timeoutId);
-            
+
             if (response.ok) {
               const data: PlayerStatistics[] = await response.json();
               if (data && data.length > 0) {
                 // More inclusive filtering - accept data from current and previous season
                 const currentYear = new Date().getFullYear();
                 const currentMonth = new Date().getMonth() + 1; // 1-12
-                
+
                 // Determine current season based on typical football calendar
                 let currentSeason;
                 if (currentMonth >= 8) {
@@ -132,20 +113,20 @@ const HomeTopScorersList = () => {
                 } else {
                   currentSeason = currentYear - 1; // Jan-July: use previous year
                 }
-                
+
                 const acceptableData = data.filter(scorer => {
                   const seasonYear = scorer.statistics[0]?.league?.season;
                   if (!seasonYear) return true; // Include data without season info
-                  
+
                   // Accept current season and previous season data
                   const isRecentSeason = seasonYear >= (currentSeason - 1);
-                  
+
                   // Exclude very old data (more than 2 years old)
                   const isVeryOldSeason = seasonYear < (currentYear - 2);
-                  
+
                   return isRecentSeason && !isVeryOldSeason;
                 });
-                
+
                 if (acceptableData.length > 0) {
                   dataMap.set(league.id, acceptableData);
                   console.log(`✅ [HomeTopScorers] League ${league.id} (${league.name}) has ${acceptableData.length} top scorers (filtered from ${data.length})`);
@@ -222,7 +203,7 @@ const HomeTopScorersList = () => {
       if (!selectedLeague) return [];
 
       console.log(`🎯 [HomeTopScorers] Fetching top scorers for selected league ${selectedLeague}`);
-      
+
       const response = await fetch(`/api/leagues/${selectedLeague}/topscorers`, {
         headers: {
           'Accept': 'application/json',
@@ -230,25 +211,25 @@ const HomeTopScorersList = () => {
           'Cache-Control': 'max-age=1800' // 30 minutes for fresher data
         }
       });
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch top scorers for league ${selectedLeague}`);
       }
-      
+
       const data: PlayerStatistics[] = await response.json();
-      
+
       // Filter out data older than 1 month and sort by goals
       const oneMonthAgo = new Date();
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-      
+
       const freshData = data.filter(scorer => {
         const seasonYear = scorer.statistics[0]?.league?.season;
         if (!seasonYear) return false;
-        
+
         // For ongoing seasons, check if the season is current or recent
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth() + 1; // 1-12
-        
+
         // Determine current season based on typical football calendar
         // Most leagues run from August (8) to May (5) of next year
         let currentSeason;
@@ -257,16 +238,16 @@ const HomeTopScorersList = () => {
         } else {
           currentSeason = currentYear - 1; // Jan-July: use previous year
         }
-        
+
         // Only show data from current season
         const isCurrentSeason = seasonYear === currentSeason;
-        
+
         // Additionally, for extra safety, check if it's a very old season
         const isVeryOldSeason = seasonYear < currentYear - 1;
-        
+
         return isCurrentSeason && !isVeryOldSeason;
       });
-      
+
       return freshData.sort((a, b) => {
         const goalsA = a.statistics[0]?.goals?.total || 0;
         const goalsB = b.statistics[0]?.goals?.total || 0;
