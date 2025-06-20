@@ -185,28 +185,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Fetch live fixtures with auto-refresh (similar to LiveMatchForAllCountry)
   const { data: liveFixtures = [] } = useQuery({
-    queryKey: ["live-fixtures-all-countries"],
-    queryFn: async () => {
-      console.log("🔴 [TodaysMatchesByCountryNew] Fetching live fixtures");
-      const response = await apiRequest("GET", "/api/fixtures/live");
-      const data = await response.json();
-      console.log(
-        `🔴 [TodaysMatchesByCountryNew] Received ${data.length} live fixtures`,
-      );
-      return data;
-    },
-    staleTime: 20000, // 20 seconds for faster live updates
-    gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
-    enabled: enableFetching,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchOnReconnect: true,
-    refetchInterval: liveFilterActive ? 30000 : false, // Auto-refresh every 30 seconds when live filter is active
-  });
-
-  // Always call hooks in the same order - validate after hooks
-  // Fetch live fixtures for real-time updates
-  const { data: liveFixtures = [] } = useQuery({
     queryKey: ["live-fixtures-by-country"],
     queryFn: async () => {
       console.log("🔴 [TodaysMatchesByCountryNew] Fetching live fixtures");
