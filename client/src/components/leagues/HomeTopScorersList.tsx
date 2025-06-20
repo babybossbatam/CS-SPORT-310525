@@ -36,6 +36,7 @@ const POPULAR_LEAGUES = [
   { id: 1, name: 'World Cup', logo: 'https://media.api-sports.io/football/leagues/1.png' },
   { id: 4, name: 'Euro Championship', logo: 'https://media.api-sports.io/football/leagues/4.png' },
   { id: 15, name: 'FIFA Club World Cup', logo: 'https://media.api-sports.io/football/leagues/15.png' },
+  { id: 34, name: 'World Cup Qualification South America', logo: 'https://media.api-sports.io/football/leagues/34.png' },
   { id: 307, name: 'Saudi Pro League', logo: 'https://media.api-sports.io/football/leagues/307.png' },
   { id: 38, name: 'UEFA U21 Championship', logo: 'https://media.api-sports.io/football/leagues/38.png' },
   { id: 9, name: 'Copa America', logo: 'https://media.api-sports.io/football/leagues/9.png' },
