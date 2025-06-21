@@ -239,9 +239,9 @@ const MyMatchdetailsScoreboard = ({
                                 if (currentElapsed !== null && currentElapsed !== undefined) {
                                   // Handle injury/stoppage time
                                   if (status === "2H" && currentElapsed >= 90) {
-                                    displayText = `${currentElapsed}'+`;
+                                    displayText = `${currentElapsed}'`;
                                   } else if (status === "1H" && currentElapsed >= 45) {
-                                    displayText = `${currentElapsed}'+`;
+                                    displayText = `${currentElapsed}'`;
                                   } else {
                                     displayText = `${currentElapsed}'`; // This shows elapsed time from RapidAPI
                                   }
