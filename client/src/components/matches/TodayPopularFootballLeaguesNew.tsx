@@ -123,6 +123,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [currentTime, setCurrentTime] = useState(new Date());
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
+  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
 
   const dispatch = useDispatch();
@@ -1323,11 +1324,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
     return () => clearInterval(timer);
   }, []);
 
-  // Effect to detect halftime status changes
+  // Effect to detect halftime and fulltime status changes
   useEffect(() => {
     if (!mergedFixtures?.length) return;
 
     const newHalftimeMatches = new Set<number>();
+    const newFulltimeMatches = new Set<number>();
     const currentStatuses = new Map<number, string>();
 
     mergedFixtures.forEach((fixture) => {
@@ -1347,6 +1349,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
         });
         newHalftimeMatches.add(matchId);
       }
+
+      // Check if status just changed to fulltime
+      if (currentStatus === 'FT' && previousStatus && previousStatus !== 'FT') {
+        console.log(`🔵 [FULLTIME FLASH] Match ${matchId} just finished!`, {
+          home: fixture.teams?.home?.name,
+          away: fixture.teams?.away?.name,
+          previousStatus,
+          currentStatus
+        });
+        newFulltimeMatches.add(matchId);
+      }
     });
 
     // Update previous statuses
@@ -1359,6 +1372,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
       // Remove flash after 2 seconds
       setTimeout(() => {
         setHalftimeFlashMatches(new Set());
+      }, 2000);
+    }
+
+    // Trigger flash for new fulltime matches
+    if (newFulltimeMatches.size > 0) {
+      setFulltimeFlashMatches(newFulltimeMatches);
+      
+      // Remove flash after 2 seconds
+      setTimeout(() => {
+        setFulltimeFlashMatches(new Set());
       }, 2000);
     }
   }, [mergedFixtures, previousMatchStatuses]);
@@ -1959,6 +1982,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           key={match.fixture.id}
                           className={`match-card-container group ${
                             halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
+                          } ${
+                            fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
                           }`}
                           onClick={() => onMatchCardClick?.(match)}
                           style={{
