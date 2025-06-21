@@ -196,7 +196,7 @@ const MyMatchdetailsScoreboard = ({
             error,
           );
         }
-      }, 30000); // 30 second intervals like LiveMatchForAllCountry
+      }, 15000); // 15 second intervals for faster updates
 
       return () => {
         console.log(
@@ -263,15 +263,16 @@ const MyMatchdetailsScoreboard = ({
                                 // For LIVE, LIV, 1H, 2H - prioritize live elapsed time from state
                                 let currentElapsed = liveElapsed !== null ? liveElapsed : elapsed;
 
+                                console.log("🔄 [Live Display] Current elapsed time:", {
+                                  liveElapsed,
+                                  apiElapsed: elapsed,
+                                  currentElapsed,
+                                  status: currentStatus,
+                                  fixtureId: displayMatch.fixture.id
+                                });
+
                                 if (currentElapsed !== null && currentElapsed !== undefined) {
-                                  // Handle injury/stoppage time
-                                  if (currentStatus === "2H" && currentElapsed >= 90) {
-                                    displayText = `${currentElapsed}'`;
-                                  } else if (currentStatus === "1H" && currentElapsed >= 45) {
-                                    displayText = `${currentElapsed}'`;
-                                  } else {
-                                    displayText = `${currentElapsed}'`; // This shows elapsed time from RapidAPI
-                                  }
+                                  displayText = `${currentElapsed}'`;
                                 } else {
                                   displayText = "LIVE";
                                 }
@@ -484,15 +485,19 @@ const MyMatchdetailsScoreboard = ({
                   {getStatusBadge(displayMatch.fixture.status.short)}
                 </div>
                 <div className="text-3xl font-semi-bold">
-                  {liveScores ? (
-                    <>
-                      {liveScores.home ?? 0} - {liveScores.away ?? 0}
-                    </>
-                  ) : (
-                    <>
-                      {displayMatch.goals.home ?? 0} - {displayMatch.goals.away ?? 0}
-                    </>
-                  )}
+                  {(() => {
+                    const homeScore = liveScores?.home !== null ? liveScores.home : displayMatch.goals.home;
+                    const awayScore = liveScores?.away !== null ? liveScores.away : displayMatch.goals.away;
+                    
+                    console.log("🔄 [Score Display] Score update:", {
+                      liveScores,
+                      apiScores: {home: displayMatch.goals.home, away: displayMatch.goals.away},
+                      displayedScores: {home: homeScore, away: awayScore},
+                      fixtureId: displayMatch.fixture.id
+                    });
+                    
+                    return `${homeScore ?? 0} - ${awayScore ?? 0}`;
+                  })()}
                 </div>
                 <div className="text-sm text-gray-900 font-semi-bold">
                   {format(new Date(displayMatch.fixture.date), "dd/MM")}
