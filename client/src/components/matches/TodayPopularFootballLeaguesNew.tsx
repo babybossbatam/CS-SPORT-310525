@@ -2055,6 +2055,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   const daysSinceStart = Math.floor(
                                     hoursSinceStart / 24,
                                   );
+                                  const minutesSinceKickoff = Math.floor(
+                                    (currentDate.getTime() -
+                                      matchStartDate.getTime()) /
+                                      (1000 * 60),
+                                  );
 
                                   const isLikelyStale =
                                     // Match is from a previous day and still showing as live
