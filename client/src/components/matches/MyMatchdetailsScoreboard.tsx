@@ -486,8 +486,9 @@ const MyMatchdetailsScoreboard = ({
                 </div>
                 <div className="text-3xl font-semi-bold">
                   {(() => {
-                    const homeScore = liveScores?.home !== null ? liveScores.home : displayMatch.goals?.home;
-                    const awayScore = liveScores?.away !== null ? liveScores.away : displayMatch.goals?.away;
+                    // Use live scores if available and not null/undefined, otherwise fall back to API scores
+                    const homeScore = (liveScores?.home != null) ? liveScores.home : (displayMatch.goals?.home ?? 0);
+                    const awayScore = (liveScores?.away != null) ? liveScores.away : (displayMatch.goals?.away ?? 0);
                     
                     console.log("🔄 [Score Display] Score update:", {
                       liveScores,
@@ -496,7 +497,7 @@ const MyMatchdetailsScoreboard = ({
                       fixtureId: displayMatch.fixture.id
                     });
                     
-                    return `${homeScore ?? 0} - ${awayScore ?? 0}`;
+                    return `${homeScore} - ${awayScore}`;
                   })()}
                 </div>
                 <div className="text-sm text-gray-900 font-semi-bold">
