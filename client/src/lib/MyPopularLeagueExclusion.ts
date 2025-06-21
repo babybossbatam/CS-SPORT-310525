@@ -31,7 +31,20 @@ export const popularLeagueExclusionTerms = [
   "futsal",
   "indoor",
   "beach",
-  "arena"
+  "arena",
+
+  // Brazilian youth and regional leagues
+  "copa paulista",
+  "catarinense u20",
+  "paulista - u20",
+  "brasiliense u20",
+  "alagoano u20",
+
+  // US lower-tier and youth leagues
+  "usl league two",
+  "mls next pro",
+  "wpsl",
+  "usl w league"
 ];
 
 // Safe substring function to handle null/undefined values
