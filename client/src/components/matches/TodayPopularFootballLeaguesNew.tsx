@@ -295,20 +295,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
     },
   );
 
-  // Merge live fixture data with cached fixtures for real-time updates
-  const mergedFixtures = useMemo(() => {
+  // Simple fixture processing: use live data only for live matches, cached data for others
+  const processedFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
+    // If no live fixtures, just return cached data
     if (!liveFixtures?.length) {
-      console.log(
-        `🔄 [TodayPopularLeagueNew] No live fixtures to merge, using cached data`,
-      );
+      console.log(`🔄 [TodayPopularLeagueNew] No live fixtures, using cached data only`);
       return fixtures;
     }
 
-    console.log(
-      `🔄 [TodayPopularLeagueNew] Merging ${liveFixtures.length} live fixtures with ${fixtures.length} cached fixtures`,
-    );
+    console.log(`🔄 [TodayPopularLeagueNew] Processing ${fixtures.length} cached fixtures with ${liveFixtures.length} live fixtures`);
 
     // Create a map of live fixtures by ID for fast lookup
     const liveFixturesMap = new Map();
@@ -316,24 +313,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
       liveFixturesMap.set(liveFixture.fixture.id, liveFixture);
     });
 
-    // Merge fixtures: use live data if available, otherwise use cached data
-    const merged = fixtures.map((cachedFixture) => {
+    // Process fixtures: only update if match is actually live
+    const processed = fixtures.map((cachedFixture) => {
       const liveFixture = liveFixturesMap.get(cachedFixture.fixture.id);
+      
+      // Check if this match is actually live
+      const isLiveMatch = liveFixture && [
+        "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
+      ].includes(liveFixture.fixture.status.short);
 
-      if (liveFixture) {
-        console.log(
-          `🔴 [LIVE UPDATE] Updating fixture ${cachedFixture.fixture.id}: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`,
-          {
-            oldStatus: cachedFixture.fixture.status.short,
-            newStatus: liveFixture.fixture.status.short,
-            oldElapsed: cachedFixture.fixture.status.elapsed,
-            newElapsed: liveFixture.fixture.status.elapsed,
-            oldScore: `${cachedFixture.goals?.home || 0}-${cachedFixture.goals?.away || 0}`,
-            newScore: `${liveFixture.goals?.home || 0}-${liveFixture.goals?.away || 0}`,
-          },
-        );
-
-        // Use live fixture data for real-time updates - merge all live data properly
+      if (isLiveMatch) {
+        console.log(`🔴 [LIVE UPDATE] Using real-time data for live match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`);
+        
+        // Use live data for live matches
         return {
           ...cachedFixture,
           fixture: {
@@ -346,20 +338,19 @@ const TodayPopularFootballLeaguesNew: React.FC<
             },
           },
           goals: {
-            home: liveFixture.goals?.home !== null ? liveFixture.goals.home : cachedFixture.goals?.home,
-            away: liveFixture.goals?.away !== null ? liveFixture.goals.away : cachedFixture.goals?.away,
+            home: liveFixture.goals?.home ?? cachedFixture.goals?.home,
+            away: liveFixture.goals?.away ?? cachedFixture.goals?.away,
           },
           score: liveFixture.score || cachedFixture.score,
         };
       }
 
+      // For non-live matches (upcoming, ended), use cached data
       return cachedFixture;
     });
 
-    console.log(
-      `✅ [TodayPopularLeagueNew] Merged fixtures completed, ${merged.length} total fixtures`,
-    );
-    return merged;
+    console.log(`✅ [TodayPopularLeagueNew] Processed fixtures completed, ${processed.length} total fixtures`);
+    return processed;
   }, [fixtures, liveFixtures]);
 
   // Use the prioritized popular countries list
@@ -367,16 +358,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Smart filtering operations
   const filteredFixtures = useMemo(() => {
-    if (!mergedFixtures?.length) return [];
+    if (!processedFixtures?.length) return [];
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Processing ${mergedFixtures.length} fixtures for date: ${selectedDate}`,
+      `🔍 [TOMORROW DEBUG] Processing ${processedFixtures.length} fixtures for date: ${selectedDate}`,
     );
 
     // Debug: Check for target leagues in raw data
     const targetLeagues = [38, 15, 16, 914];
     targetLeagues.forEach((leagueId) => {
-      const leagueFixtures = mergedFixtures.filter(
+      const leagueFixtures = processedFixtures.filter(
         (f) => f.league?.id === leagueId,
       );
       console.log(
@@ -397,7 +388,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
 
     // Count COSAFA Cup matches in input
-    const cosafaMatches = mergedFixtures.filter(
+    const cosafaMatches = processedFixtures.filter(
       (f) =>
         f.league?.name?.toLowerCase().includes("cosafa") ||
         f.teams?.home?.name?.toLowerCase().includes("cosafa") ||
@@ -458,7 +449,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       }
     });
 
-    const filtered = mergedFixtures.filter((fixture) => {
+    const filtered = processedFixtures.filter((fixture) => {
       // Debug target leagues specifically
       const isTargetLeague = [38, 15, 16, 914].includes(fixture.league?.id);
       if (isTargetLeague) {
@@ -792,7 +783,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     );
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Filtered ${mergedFixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
+      `🔍 [TOMORROW DEBUG] Filtered ${processedFixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
     );
     console.log(
       `🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`,
@@ -835,7 +826,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         );
 
         // Additional debugging: Check if these fixtures exist in the original data but got filtered out
-        const originalLeagueFixtures = mergedFixtures.filter(
+        const originalLeagueFixtures = processedFixtures.filter(
           (f) => f.league?.id === leagueId,
         );
         if (originalLeagueFixtures.length > 0) {
@@ -859,7 +850,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
 
     return finalFiltered;
-  }, [mergedFixtures, selectedDate]);
+  }, [processedFixtures, selectedDate]);
 
   // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = filteredFixtures.reduce(
@@ -1334,13 +1325,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Effect to detect halftime and fulltime status changes
   useEffect(() => {
-    if (!mergedFixtures?.length) return;
+    if (!processedFixtures?.length) return;
 
     const newHalftimeMatches = new Set<number>();
     const newFulltimeMatches = new Set<number>();
     const currentStatuses = new Map<number, string>();
 
-    mergedFixtures.forEach((fixture) => {
+    processedFixtures.forEach((fixture) => {
       const matchId = fixture.fixture.id;
       const currentStatus = fixture.fixture.status.short;
       const previousStatus = previousMatchStatuses.get(matchId);
@@ -1392,7 +1383,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         setFulltimeFlashMatches(new Set());
       }, 2000);
     }
-  }, [mergedFixtures, previousMatchStatuses]);
+  }, [processedFixtures, previousMatchStatuses]);
 
   // Clear Venezuela flag cache on component mount to ensure fresh fetch
   useEffect(() => {
