@@ -241,11 +241,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Check if we have fresh cached data
   const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
 
-  // Fetch live fixtures for real-time updates
+  // Fetch live fixtures for real-time updates (only for live matches)
   const { data: liveFixtures = [] } = useQuery({
     queryKey: ["live-fixtures-popular-leagues"],
     queryFn: async () => {
-      console.log("🔴 [TodayPopularLeagueNew] Fetching live fixtures");
+      console.log("🔴 [TodayPopularLeagueNew] Fetching live fixtures for real-time data");
       const response = await apiRequest("GET", "/api/fixtures/live");
       const data = await response.json();
       console.log(
@@ -295,73 +295,83 @@ const TodayPopularFootballLeaguesNew: React.FC<
     },
   );
 
-  // Simple fixture processing: use live data only for live matches, cached data for others
+  // Intelligent data source selection based on match status
   const processedFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
-    // If no live fixtures, just return cached data
-    if (!liveFixtures?.length) {
-      console.log(`🔄 [TodayPopularLeagueNew] No live fixtures, using cached data only`);
-      return fixtures;
-    }
-
-    console.log(`🔄 [TodayPopularLeagueNew] Processing ${fixtures.length} cached fixtures with ${liveFixtures.length} live fixtures`);
-
-    // Create a map of live fixtures by ID for fast lookup
+    // Create a map of live fixtures for fast lookup
     const liveFixturesMap = new Map();
     liveFixtures.forEach((liveFixture) => {
       liveFixturesMap.set(liveFixture.fixture.id, liveFixture);
     });
 
-    // Process fixtures: only update if match is actually live
-    const processed = fixtures.map((cachedFixture) => {
-      const liveFixture = liveFixturesMap.get(cachedFixture.fixture.id);
-      
-      // Check if this match is actually live
-      const isLiveMatch = liveFixture && [
-        "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
-      ].includes(liveFixture.fixture.status.short);
+    console.log(`🎯 [TodayPopularLeagueNew] Processing ${fixtures.length} fixtures with intelligent data source selection`);
 
-      if (isLiveMatch) {
-        console.log(`🔴 [LIVE UPDATE] Using real-time data for live match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`);
-        
-        // Use live data for live matches
-        return {
-          ...cachedFixture,
-          fixture: {
-            ...cachedFixture.fixture,
-            status: {
-              ...cachedFixture.fixture.status,
-              short: liveFixture.fixture.status.short,
-              long: liveFixture.fixture.status.long,
-              elapsed: liveFixture.fixture.status.elapsed,
-            },
-          },
-          goals: {
-            home: liveFixture.goals?.home ?? cachedFixture.goals?.home,
-            away: liveFixture.goals?.away ?? cachedFixture.goals?.away,
-          },
-          score: liveFixture.score || cachedFixture.score,
-        };
+    const processed = fixtures.map((cachedFixture) => {
+      const fixtureId = cachedFixture.fixture.id;
+      const cachedStatus = cachedFixture.fixture.status.short;
+      const liveFixture = liveFixturesMap.get(fixtureId);
+
+      // 1. LIVE MATCHES: Use real-time data from live API
+      const isCurrentlyLive = [
+        "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
+      ].includes(cachedStatus);
+
+      if (isCurrentlyLive && liveFixture) {
+        console.log(`🔴 [LIVE] Using real-time data for live match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`);
+        return liveFixture; // Pure live data, no merging
       }
 
-      // For non-live matches (upcoming, ended), use cached data
+      // 2. FINISHED MATCHES: Check if just finished (live to finished transition)
+      const isFinished = [
+        "FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"
+      ].includes(cachedStatus);
+
+      if (liveFixture) {
+        const liveStatus = liveFixture.fixture.status.short;
+        const justFinished = [
+          "FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"
+        ].includes(liveStatus);
+
+        if (justFinished && !isFinished) {
+          console.log(`✅ [JUST FINISHED] Using real-time data for just finished match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name} (${cachedStatus} → ${liveStatus})`);
+          // Cache this finished match for future use
+          // The caching will happen automatically through the API layer
+          return liveFixture; // Use fresh finished data
+        }
+      }
+
+      // 3. FINISHED MATCHES (already cached): Use cached data
+      if (isFinished) {
+        console.log(`💾 [CACHED FINISHED] Using cached data for finished match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`);
+        return cachedFixture;
+      }
+
+      // 4. UPCOMING MATCHES: Always use cached data
+      const isUpcoming = ["NS", "TBD", "PST"].includes(cachedStatus);
+      if (isUpcoming) {
+        console.log(`📅 [UPCOMING] Using cached data for upcoming match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`);
+        return cachedFixture;
+      }
+
+      // Default: use cached data
+      console.log(`📦 [DEFAULT] Using cached data for match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name} (${cachedStatus})`);
       return cachedFixture;
     });
 
-    console.log(`✅ [TodayPopularLeagueNew] Processed fixtures completed, ${processed.length} total fixtures`);
+    console.log(`✅ [TodayPopularLeagueNew] Intelligent processing completed: ${processed.length} fixtures`);
     return processed;
   }, [fixtures, liveFixtures]);
 
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
-  // Smart filtering operations
+  // Smart filtering operations with intelligent data source selection
   const filteredFixtures = useMemo(() => {
     if (!processedFixtures?.length) return [];
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Processing ${processedFixtures.length} fixtures for date: ${selectedDate}`,
+      `🔍 [FILTER DEBUG] Processing ${processedFixtures.length} fixtures for date: ${selectedDate} with intelligent data sources`,
     );
 
     // Debug: Check for target leagues in raw data
@@ -833,7 +843,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
           console.log(
             `🔍 [FINAL RESULT DEBUG] League ${leagueId} was in original data but filtered out:`,
             {
-              originalCount: originalLeagueFixtures.length,
+              originalCount: originalLeague```text
+Fixtures.length,
               sampleFixture: originalLeagueFixtures[0]
                 ? {
                     id: originalLeagueFixtures[0].fixture?.id,
@@ -1323,7 +1334,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     return () => clearInterval(timer);
   }, []);
 
-  // Effect to detect halftime and fulltime status changes
+  // Effect to track status changes for flash effects - works with intelligent data flow
   useEffect(() => {
     if (!processedFixtures?.length) return;
 
@@ -1367,7 +1378,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     // Trigger flash for new halftime matches
     if (newHalftimeMatches.size > 0) {
       setHalftimeFlashMatches(newHalftimeMatches);
-      
+
       // Remove flash after 2 seconds
       setTimeout(() => {
         setHalftimeFlashMatches(new Set());
@@ -1377,7 +1388,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     // Trigger flash for new fulltime matches
     if (newFulltimeMatches.size > 0) {
       setFulltimeFlashMatches(newFulltimeMatches);
-      
+
       // Remove flash after 2 seconds
       setTimeout(() => {
         setFulltimeFlashMatches(new Set());
