@@ -308,7 +308,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Merge live fixture data with cached fixtures for real-time updates
   const mergedFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
-    
+
     if (!liveFixtures?.length) {
       console.log(`🔄 [TodaysMatchesByCountryNew] No live fixtures to merge, using cached data`);
       return fixtures;
@@ -325,7 +325,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Merge fixtures: use live data if available, otherwise use cached data
     const merged = fixtures.map(cachedFixture => {
       const liveFixture = liveFixturesMap.get(cachedFixture.fixture.id);
-      
+
       if (liveFixture) {
         console.log(`🔴 [LIVE UPDATE] Updating fixture ${cachedFixture.fixture.id}: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`, {
           oldStatus: cachedFixture.fixture.status.short,
@@ -335,7 +335,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           oldScore: `${cachedFixture.goals?.home || 0}-${cachedFixture.goals?.away || 0}`,
           newScore: `${liveFixture.goals?.home || 0}-${liveFixture.goals?.away || 0}`
         });
-        
+
         // Use live fixture data for real-time updates
         return {
           ...cachedFixture,
@@ -347,7 +347,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           score: liveFixture.score,
         };
       }
-      
+
       return cachedFixture;
     });
 
@@ -399,7 +399,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Trigger flash for new halftime matches
     if (newHalftimeMatches.size > 0) {
       setHalftimeFlashMatches(newHalftimeMatches);
-      
+
       // Remove flash after 2 seconds
       setTimeout(() => {
         setHalftimeFlashMatches(new Set());
@@ -409,7 +409,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Trigger flash for new fulltime matches
     if (newFulltimeMatches.size > 0) {
       setFulltimeFlashMatches(newFulltimeMatches);
-      
+
       // Remove flash after 2 seconds
       setTimeout(() => {
         setFulltimeFlashMatches(new Set());
@@ -712,7 +712,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           if (selectedDate === tomorrowString && smartResult.label === "tomorrow") return true;
           if (selectedDate === todayString && smartResult.label === "today") return true;
           if (selectedDate === yesterdayString && smartResult.label === "yesterday") return true;
-          
+
           // Handle custom dates (dates that are not today/tomorrow/yesterday)
           if (
             selectedDate !== todayString &&
@@ -721,7 +721,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           ) {
             if (smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
           }
-          
+
           return false;
         })();
 
@@ -953,7 +953,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     if (!existingMatch) {
       // Add fixture with safe team data only if it doesn't already exist
       acc[displayCountry].leagues[leagueId].matches.push({
-       
+
         ...fixture,
         teams: {
           home: {
@@ -1945,19 +1945,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                               } else {
                                                 // For LIVE, LIV, 1H, 2H - ensure consistent elapsed time from live fixtures
                                                 let currentElapsed = elapsed;
-                                                
+
                                                 // Check if we have live fixture data for this match to ensure consistency
                                                 const liveMatch = liveFixtures.find((lf: any) => lf.fixture.id === match.fixture.id);
                                                 if (liveMatch && liveMatch.fixture.status.elapsed !== null && liveMatch.fixture.status.elapsed !== undefined) {
                                                   currentElapsed = liveMatch.fixture.status.elapsed;
                                                 }
-                                                
+
                                                 if (currentElapsed !== null && currentElapsed !== undefined) {
                                                   // Handle injury/stoppage time
                                                   if (status === "2H" && currentElapsed >= 90) {
-                                                    displayText = `${currentElapsed}'+`;
+                                                    displayText = `${currentElapsed}'`;
                                                   } else if (status === "1H" && currentElapsed >= 45) {
-                                                    displayText = `${currentElapsed}'+`;
+                                                    displayText = `${currentElapsed}'`;
                                                   } else {
                                                     displayText = `${currentElapsed}'`; // This shows elapsed time from RapidAPI
                                                   }
