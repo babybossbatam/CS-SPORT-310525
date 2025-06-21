@@ -36,6 +36,7 @@ const countryCodeMap: { [key: string]: string } = {
   Scotland: "GB-SCT",
   Wales: "GB-WLS",
   "Northern Ireland": "GB-NIR",
+  "Northern-Ireland": "GB-NIR",
   Spain: "ES",
   Germany: "DE",
   France: "FR",
