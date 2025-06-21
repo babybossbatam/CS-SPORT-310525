@@ -2131,7 +2131,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   } else if (status === "INT") {
                                     displayText = "Interrupted";
                                   } else {
-                                    // For LIVE, LIV, 1H, 2H - use real-time elapsed time from live data
+                                    // For LIVE, LIV, 1H, 2H - use elapsed time from merged data (already includes live updates)
                                     if (
                                       elapsed !== null &&
                                       elapsed !== undefined &&
