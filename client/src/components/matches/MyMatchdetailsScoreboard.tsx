@@ -21,6 +21,8 @@ const MyMatchdetailsScoreboard = ({
   onMatchCardClick,
 }: MyMatchdetailsScoreboardProps) => {
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
+  const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
+  const [liveStatus, setLiveStatus] = useState<string | null>(null);
   // Sample match data for demonstration
   const sampleMatch = {
     fixture: {
@@ -79,6 +81,13 @@ const MyMatchdetailsScoreboard = ({
     if (isLiveMatch) {
       // Initialize with current elapsed time from API
       setLiveElapsed(displayMatch.fixture.status.elapsed || 0);
+      // Initialize with current scores
+      setLiveScores({
+        home: displayMatch.goals.home,
+        away: displayMatch.goals.away
+      });
+      // Initialize with current status
+      setLiveStatus(displayMatch.fixture.status.short);
 
       console.log("🎯 [Live Timer] Starting live updates for match:", {
         fixtureId: displayMatch.fixture.id,
@@ -125,6 +134,19 @@ const MyMatchdetailsScoreboard = ({
               currentLiveMatch.fixture.status.elapsed !== undefined
             ) {
               setLiveElapsed(currentLiveMatch.fixture.status.elapsed);
+            }
+
+            // Update live scores
+            if (currentLiveMatch.goals) {
+              setLiveScores({
+                home: currentLiveMatch.goals.home,
+                away: currentLiveMatch.goals.away
+              });
+            }
+
+            // Update live status
+            if (currentLiveMatch.fixture.status.short) {
+              setLiveStatus(currentLiveMatch.fixture.status.short);
             }
           } else {
             console.log(
@@ -185,6 +207,8 @@ const MyMatchdetailsScoreboard = ({
       };
     } else {
       setLiveElapsed(null);
+      setLiveScores(null);
+      setLiveStatus(null);
     }
   }, [
     displayMatch,
@@ -202,9 +226,12 @@ const MyMatchdetailsScoreboard = ({
   };
 
   const getStatusBadge = (status: string) => {
+    // Use live status if available, otherwise use the original status
+    const currentStatus = liveStatus || status;
+    
     // Check if it's a finished match and determine the appropriate label
     const getFinishedLabel = () => {
-      if (!["FT", "AET", "PEN"].includes(status)) return "Finished";
+      if (!["FT", "AET", "PEN"].includes(currentStatus)) return "Finished";
 
       try {
         const matchDate = new Date(displayMatch.fixture.date);
@@ -220,17 +247,17 @@ const MyMatchdetailsScoreboard = ({
     };
 
     // For live matches, show elapsed time with pulse animation
-    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
+    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentStatus);
     if (isLiveMatch) {
       // Real-time calculation for live matches
       let displayText = "LIVE";
       const elapsed = liveElapsed !== null ? liveElapsed : displayMatch.fixture.status.elapsed;
 
-      if (status === "HT") {
+      if (currentStatus === "HT") {
         displayText = "Halftime";
-      } else if (status === "P") {
+      } else if (currentStatus === "P") {
         displayText = "Penalties";
-      } else if (status === "ET") {
+      } else if (currentStatus === "ET") {
         displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
       } else {
                                 // For LIVE, LIV, 1H, 2H - prioritize live elapsed time from state
@@ -238,9 +265,9 @@ const MyMatchdetailsScoreboard = ({
 
                                 if (currentElapsed !== null && currentElapsed !== undefined) {
                                   // Handle injury/stoppage time
-                                  if (status === "2H" && currentElapsed >= 90) {
+                                  if (currentStatus === "2H" && currentElapsed >= 90) {
                                     displayText = `${currentElapsed}'`;
-                                  } else if (status === "1H" && currentElapsed >= 45) {
+                                  } else if (currentStatus === "1H" && currentElapsed >= 45) {
                                     displayText = `${currentElapsed}'`;
                                   } else {
                                     displayText = `${currentElapsed}'`; // This shows elapsed time from RapidAPI
@@ -268,14 +295,14 @@ const MyMatchdetailsScoreboard = ({
       HT: { label: "Half Time", variant: "outline" as const },
     };
 
-    const config = statusConfig[status as keyof typeof statusConfig] || {
-      label: status,
+    const config = statusConfig[currentStatus as keyof typeof statusConfig] || {
+      label: currentStatus,
       variant: "default" as const,
     };
 
     // Apply gray color for finished matches and upcoming matches
-    const isFinished = ["FT", "AET", "PEN"].includes(status);
-    const isUpcoming = status === "NS";
+    const isFinished = ["FT", "AET", "PEN"].includes(currentStatus);
+    const isUpcoming = currentStatus === "NS";
     const badgeClassName = isFinished
       ? "bg-gray-500 text-white font-normal text-[11px]"
       : isUpcoming
@@ -457,8 +484,15 @@ const MyMatchdetailsScoreboard = ({
                   {getStatusBadge(displayMatch.fixture.status.short)}
                 </div>
                 <div className="text-3xl font-semi-bold">
-                  {displayMatch.goals.home ?? 0} -{" "}
-                  {displayMatch.goals.away ?? 0}
+                  {liveScores ? (
+                    <>
+                      {liveScores.home ?? 0} - {liveScores.away ?? 0}
+                    </>
+                  ) : (
+                    <>
+                      {displayMatch.goals.home ?? 0} - {displayMatch.goals.away ?? 0}
+                    </>
+                  )}
                 </div>
                 <div className="text-sm text-gray-900 font-semi-bold">
                   {format(new Date(displayMatch.fixture.date), "dd/MM")}
