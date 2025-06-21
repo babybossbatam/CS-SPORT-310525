@@ -122,6 +122,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
+  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
 
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -1321,6 +1323,46 @@ const TodayPopularFootballLeaguesNew: React.FC<
     return () => clearInterval(timer);
   }, []);
 
+  // Effect to detect halftime status changes
+  useEffect(() => {
+    if (!mergedFixtures?.length) return;
+
+    const newHalftimeMatches = new Set<number>();
+    const currentStatuses = new Map<number, string>();
+
+    mergedFixtures.forEach((fixture) => {
+      const matchId = fixture.fixture.id;
+      const currentStatus = fixture.fixture.status.short;
+      const previousStatus = previousMatchStatuses.get(matchId);
+
+      currentStatuses.set(matchId, currentStatus);
+
+      // Check if status just changed to halftime
+      if (currentStatus === 'HT' && previousStatus && previousStatus !== 'HT') {
+        console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
+          home: fixture.teams?.home?.name,
+          away: fixture.teams?.away?.name,
+          previousStatus,
+          currentStatus
+        });
+        newHalftimeMatches.add(matchId);
+      }
+    });
+
+    // Update previous statuses
+    setPreviousMatchStatuses(currentStatuses);
+
+    // Trigger flash for new halftime matches
+    if (newHalftimeMatches.size > 0) {
+      setHalftimeFlashMatches(newHalftimeMatches);
+      
+      // Remove flash after 2 seconds
+      setTimeout(() => {
+        setHalftimeFlashMatches(new Set());
+      }, 2000);
+    }
+  }, [mergedFixtures, previousMatchStatuses]);
+
   // Clear Venezuela flag cache on component mount to ensure fresh fetch
   useEffect(() => {
     console.log("🔄 Clearing Venezuela flag cache for fresh fetch...");
@@ -1915,7 +1957,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                       .map((match: any) => (
                         <div
                           key={match.fixture.id}
-                          className="match-card-container group"
+                          className={`match-card-container group ${
+                            halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
+                          }`}
                           onClick={() => onMatchCardClick?.(match)}
                           style={{
                             cursor: onMatchCardClick ? "pointer" : "default",
