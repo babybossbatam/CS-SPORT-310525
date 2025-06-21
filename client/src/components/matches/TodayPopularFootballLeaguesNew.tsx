@@ -422,12 +422,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
     // Debug: Check for target leagues in raw data BEFORE any filtering
     targetLeagues.forEach((leagueId) => {
-      const leagueFixtures = mergedFixtures.filter(
+      const leagueFixtures = processedFixtures.filter(
         (f) => f.league?.id === leagueId,
       );
       if (leagueFixtures.length > 0) {
         console.log(
-          `🔍 [RAW DATA DEBUG] League ${leagueId} fixtures in raw merged data:`,
+          `🔍 [RAW DATA DEBUG] League ${leagueId} fixtures in raw processed data:`,
           {
             leagueId,
             count: leagueFixtures.length,
@@ -444,7 +444,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         );
       } else {
         console.log(
-          `❌ [RAW DATA DEBUG] League ${leagueId} - NO FIXTURES FOUND in raw merged data`,
+          `❌ [RAW DATA DEBUG] League ${leagueId} - NO FIXTURES FOUND in raw processed data`,
         );
       }
     });
