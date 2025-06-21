@@ -333,15 +333,23 @@ const TodayPopularFootballLeaguesNew: React.FC<
           },
         );
 
-        // Use live fixture data for real-time updates
+        // Use live fixture data for real-time updates - merge all live data properly
         return {
           ...cachedFixture,
           fixture: {
             ...cachedFixture.fixture,
-            status: liveFixture.fixture.status,
+            status: {
+              ...cachedFixture.fixture.status,
+              short: liveFixture.fixture.status.short,
+              long: liveFixture.fixture.status.long,
+              elapsed: liveFixture.fixture.status.elapsed,
+            },
           },
-          goals: liveFixture.goals,
-          score: liveFixture.score,
+          goals: {
+            home: liveFixture.goals?.home !== null ? liveFixture.goals.home : cachedFixture.goals?.home,
+            away: liveFixture.goals?.away !== null ? liveFixture.goals.away : cachedFixture.goals?.away,
+          },
+          score: liveFixture.score || cachedFixture.score,
         };
       }
 
@@ -2123,10 +2131,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   } else if (status === "INT") {
                                     displayText = "Interrupted";
                                   } else {
-                                    // For LIVE, LIV, 1H, 2H - use only API elapsed time
+                                    // For LIVE, LIV, 1H, 2H - use real-time elapsed time from live data
                                     if (
                                       elapsed !== null &&
-                                      elapsed !== undefined
+                                      elapsed !== undefined &&
+                                      !isNaN(elapsed)
                                     ) {
                                       displayText = `${elapsed}'`;
                                     } else {
