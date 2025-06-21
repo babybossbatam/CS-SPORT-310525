@@ -2084,22 +2084,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                         status === "2H" &&
                                         currentElapsed >= 90
                                       ) {
-                                        // Second half injury time
-                                        if (extraTime && extraTime > 0) {
-                                          displayText = `${currentElapsed}'+${extraTime}'`;
-                                        } else {
-                                          displayText = `${currentElapsed}'+`;
-                                        }
+                                        // Second half injury time - show only elapsed time
+                                        displayText = `${currentElapsed}'`;
                                       } else if (
                                         status === "1H" &&
                                         currentElapsed >= 45
                                       ) {
-                                        // First half injury time
-                                        if (extraTime && extraTime > 0) {
-                                          displayText = `${currentElapsed}'+${extraTime}'`;
-                                        } else {
-                                          displayText = `${currentElapsed}'+`;
-                                        }
+                                        // First half injury time - show only elapsed time
+                                        displayText = `${currentElapsed}'`;
                                       } else {
                                         // Regular time
                                         displayText = `${currentElapsed}'`;
