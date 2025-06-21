@@ -126,20 +126,23 @@ const HomeTopScorersList = () => {
 
       const data: PlayerStatistics[] = await response.json();
 
-      // Filter out data older than 1 month and sort by goals
-      const oneMonthAgo = new Date();
-      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-
+      // Filter for current/recent season data only
       const freshData = data.filter(scorer => {
         const seasonYear = scorer.statistics[0]?.league?.season;
         if (!seasonYear) return false;
 
-        // For ongoing seasons, check if the season is current or recent
         const currentYear = new Date().getFullYear();
+        
+        // For World Cup Qualification cycles, include current and next year
+        // CONMEBOL WC Qualification runs for 2026 World Cup
+        if (selectedLeague === 34) { // CONMEBOL WC Qualification
+          return seasonYear >= 2024 && seasonYear <= 2026;
+        }
+        
+        // For other competitions, use standard season logic
         const currentMonth = new Date().getMonth() + 1; // 1-12
-
+        
         // Determine current season based on typical football calendar
-        // Most leagues run from August (8) to May (5) of next year
         let currentSeason;
         if (currentMonth >= 8) {
           currentSeason = currentYear; // Aug-Dec: use current year
@@ -147,13 +150,8 @@ const HomeTopScorersList = () => {
           currentSeason = currentYear - 1; // Jan-July: use previous year
         }
 
-        // Only show data from current season
-        const isCurrentSeason = seasonYear === currentSeason;
-
-        // Additionally, for extra safety, check if it's a very old season
-        const isVeryOldSeason = seasonYear < currentYear - 1;
-
-        return isCurrentSeason && !isVeryOldSeason;
+        // Include current season and next season for ongoing competitions
+        return seasonYear >= currentSeason && seasonYear <= currentYear + 1;
       });
 
       return freshData.sort((a, b) => {
