@@ -486,12 +486,12 @@ const MyMatchdetailsScoreboard = ({
                 </div>
                 <div className="text-3xl font-semi-bold">
                   {(() => {
-                    const homeScore = liveScores?.home !== null ? liveScores.home : displayMatch.goals.home;
-                    const awayScore = liveScores?.away !== null ? liveScores.away : displayMatch.goals.away;
+                    const homeScore = liveScores?.home !== null ? liveScores.home : displayMatch.goals?.home;
+                    const awayScore = liveScores?.away !== null ? liveScores.away : displayMatch.goals?.away;
                     
                     console.log("🔄 [Score Display] Score update:", {
                       liveScores,
-                      apiScores: {home: displayMatch.goals.home, away: displayMatch.goals.away},
+                      apiScores: {home: displayMatch.goals?.home, away: displayMatch.goals?.away},
                       displayedScores: {home: homeScore, away: awayScore},
                       fixtureId: displayMatch.fixture.id
                     });
