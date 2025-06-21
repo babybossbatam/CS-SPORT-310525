@@ -2025,12 +2025,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               {(() => {
                                 const status = match.fixture.status.short;
                                 const elapsed = match.fixture.status.elapsed;
-                                const matchDate = parseISO(match.fixture.date);
-                                const now = new Date();
-                                const minutesSinceKickoff = Math.floor(
-                                  (now.getTime() - matchDate.getTime()) /
-                                    (1000 * 60),
-                                );
 
                                 // Live matches status
                                 if (
@@ -2110,7 +2104,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     );
                                   }
 
-                                  // Real-time calculation for live matches
+                                  // Use only API elapsed time - no real-time calculation
                                   if (status === "HT") {
                                     displayText = "Halftime";
                                   } else if (status === "P") {
@@ -2124,47 +2118,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   } else if (status === "INT") {
                                     displayText = "Interrupted";
                                   } else {
-                                    // For LIVE, LIV, 1H, 2H - use real-time calculation when possible
-                                    let currentElapsed = elapsed;
-
-                                    // If we have a valid kickoff time and elapsed time, calculate real-time elapsed
+                                    // For LIVE, LIV, 1H, 2H - use only API elapsed time
                                     if (
                                       elapsed !== null &&
-                                      elapsed !== undefined &&
-                                      minutesSinceKickoff > 0
+                                      elapsed !== undefined
                                     ) {
-                                      // Estimate current time based on when match started
-                                      const estimatedElapsed = Math.max(
-                                        elapsed,
-                                        Math.min(minutesSinceKickoff, 95),
-                                      );
-                                      currentElapsed = estimatedElapsed;
-                                    }
-
-                                    if (
-                                      currentElapsed !== null &&
-                                      currentElapsed !== undefined
-                                    ) {
-                                      // Handle injury/stoppage time more reliably
-                                      const extraTime =
-                                        match.fixture.status.extra;
-
-                                      if (
-                                        status === "2H" &&
-                                        currentElapsed >= 90
-                                      ) {
-                                        // Second half injury time - show only elapsed time
-                                        displayText = `${currentElapsed}'`;
-                                      } else if (
-                                        status === "1H" &&
-                                        currentElapsed >= 45
-                                      ) {
-                                        // First half injury time - show only elapsed time
-                                        displayText = `${currentElapsed}'`;
-                                      } else {
-                                        // Regular time
-                                        displayText = `${currentElapsed}'`;
-                                      }
+                                      displayText = `${elapsed}'`;
                                     } else {
                                       displayText = "LIVE";
                                     }
