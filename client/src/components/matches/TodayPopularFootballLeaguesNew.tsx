@@ -843,9 +843,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
           console.log(
             `🔍 [FINAL RESULT DEBUG] League ${leagueId} was in original data but filtered out:`,
             {
-              originalCount: originalLeague```text
-Fixtures.length,
-              sampleFixture: originalLeagueFixtures[0]
+              originalCount: originalLeagueFixtures.length,
+              ```text
+ures[0]
                 ? {
                     id: originalLeagueFixtures[0].fixture?.id,
                     date: originalLeagueFixtures[0].fixture?.date,
@@ -1792,7 +1792,7 @@ Fixtures.length,
                                   console.log(
                                     `✅ Venezuela flag refreshed to: ${newFlag}`,
                                   );
-                                  // Trigger a re-render if needed
+                                  // Trigger a re-render ifneeded
                                   window.location.reload();
                                 })
                                 .catch((error) => {
