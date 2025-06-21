@@ -44,7 +44,10 @@ export const popularLeagueExclusionTerms = [
   "usl league two",
   "mls next pro",
   "wpsl",
-  "usl w league"
+  "usl w league",
+
+  // Second division leagues
+  "segunda división"
 ];
 
 // Safe substring function to handle null/undefined values
