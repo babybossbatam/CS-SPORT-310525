@@ -142,6 +142,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
     "Brazil",
     "Saudi Arabia",
     "Egypt",
+    "Iraq",
+    "Chile",
     "Colombia",
     "United States",
     "USA",
@@ -159,6 +161,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
     France: [61, 66], // Ligue 1, Coupe de France
     "United Arab Emirates": [301], // UAE Pro League
     Egypt: [233], // Egyptian Premier League (only major league)
+    Iraq: [332], // Iraq League
+    Chile: [265], // Primera Division
     International: [15], // FIFA Club World Cup as separate category
     World: [914, 848, 15], // COSAFA Cup, UEFA Conference League, FIFA Club World Cup
   };
