@@ -151,6 +151,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [hiddenMatches, setHiddenMatches] = useState<Set<number>>(new Set());
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
+  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
   // Initialize flagMap with immediate synchronous values for better rendering
   const [flagMap, setFlagMap] = useState<{ [country: string]: string }>(() => {
     // Pre-populate with synchronous flag URLs to prevent initial undefined state
@@ -351,6 +353,46 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     console.log(`✅ [TodaysMatchesByCountryNew] Merged fixtures completed, ${merged.length} total fixtures`);
     return merged;
   }, [fixtures, liveFixtures]);
+
+  // Effect to detect halftime status changes
+  useEffect(() => {
+    if (!mergedFixtures?.length) return;
+
+    const newHalftimeMatches = new Set<number>();
+    const currentStatuses = new Map<number, string>();
+
+    mergedFixtures.forEach((fixture) => {
+      const matchId = fixture.fixture.id;
+      const currentStatus = fixture.fixture.status.short;
+      const previousStatus = previousMatchStatuses.get(matchId);
+
+      currentStatuses.set(matchId, currentStatus);
+
+      // Check if status just changed to halftime
+      if (currentStatus === 'HT' && previousStatus && previousStatus !== 'HT') {
+        console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
+          home: fixture.teams?.home?.name,
+          away: fixture.teams?.away?.name,
+          previousStatus,
+          currentStatus
+        });
+        newHalftimeMatches.add(matchId);
+      }
+    });
+
+    // Update previous statuses
+    setPreviousMatchStatuses(currentStatuses);
+
+    // Trigger flash for new halftime matches
+    if (newHalftimeMatches.size > 0) {
+      setHalftimeFlashMatches(newHalftimeMatches);
+      
+      // Remove flash after 2 seconds
+      setTimeout(() => {
+        setHalftimeFlashMatches(new Set());
+      }, 2000);
+    }
+  }, [mergedFixtures, previousMatchStatuses]);
 
   // Now validate after all hooks are called
   if (!selectedDate) {
@@ -1805,7 +1847,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   .map((match: any, matchIndex) => (
                                     <div
                                       key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}-${matchIndex}`}
-                                      className="match-card-container group"
+                                      className={`match-card-container group ${
+                                        halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
+                                      }`}
                                       onClick={() => onMatchCardClick?.(match)}
                                       style={{
                                         cursor: onMatchCardClick
