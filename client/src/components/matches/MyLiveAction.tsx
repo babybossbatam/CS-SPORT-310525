@@ -519,7 +519,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           {/* Enhanced Animated Ball */}
           <div 
             key={`ball-${ballPosition.x}-${ballPosition.y}`}
-            className={`absolute w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-[1.5s] ease-out ${isAnimating ? 'scale-125 rotate-180' : 'scale-100'}`}
+            className={`absolute w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-1000 ease-out ${isAnimating ? 'scale-125 rotate-180' : 'scale-100'}`}
             style={{ 
               left: `${ballPosition.x}%`, 
               top: `${ballPosition.y}%`,
