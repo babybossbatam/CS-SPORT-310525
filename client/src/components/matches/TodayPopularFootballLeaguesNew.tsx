@@ -893,7 +893,7 @@ Fixtures.length,
         leagueName.includes("europa") ||
         leagueName.includes("conference")
       ) {
-        console.log(`[UEFA/FIFA DEBUG] Found:`, {
+        console.log("[UEFA/FIFA DEBUG] Found:", {
           leagueId: fixture.league.id,
           leagueName: fixture.league.name,
           country: fixture.league.country,
