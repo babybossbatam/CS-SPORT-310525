@@ -844,8 +844,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
             `🔍 [FINAL RESULT DEBUG] League ${leagueId} was in original data but filtered out:`,
             {
               originalCount: originalLeagueFixtures.length,
-              ```text
-ures[0]
+              sampleFixture: originalLeagueFixtures[0]
                 ? {
                     id: originalLeagueFixtures[0].fixture?.id,
                     date: originalLeagueFixtures[0].fixture?.date,
