@@ -239,6 +239,7 @@ const Home = () => {
         <MyMainLayout fixtures={fixtures || []} />
       </div>
 
+      <Footer />
       <RegionModal />
       <CacheMonitor />
 
