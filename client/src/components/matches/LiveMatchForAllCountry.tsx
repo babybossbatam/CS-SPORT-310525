@@ -460,7 +460,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
           leagueId: league.id,
           originalCountry: country,
           countryKey: countryKey,
-        });ernational";
+        });
         } else if (
           league.name.toLowerCase().includes("conmebol") ||
           league.name.toLowerCase().includes("copa america") ||
