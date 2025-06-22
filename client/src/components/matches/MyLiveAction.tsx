@@ -224,7 +224,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     }
   }, [playByPlayEvents, currentEvent]);
 
-  // Ball movement animation for live matches
+  // Ball movement animation for live matches (optimized)
   useEffect(() => {
     if (!isLive) return;
 
@@ -237,14 +237,13 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         let newDx = ballDirection.dx;
         let newDy = ballDirection.dy;
         
-        // Check for goal areas and generate events
+        // Reduced event generation frequency to improve performance
         const isNearGoal = (newX <= 10 || newX >= 90) && (newY >= 35 && newY <= 65);
-        const isInPenaltyArea = (newX <= 20 || newX >= 80) && (newY >= 25 && newY <= 75);
         
-        // Generate events based on ball position
-        if (isNearGoal && Math.random() < 0.02) { // 2% chance near goal
+        // Generate events based on ball position (reduced frequency)
+        if (isNearGoal && Math.random() < 0.005) { // Reduced from 2% to 0.5%
           const eventType = Math.random() < 0.3 ? 'goal' : Math.random() < 0.6 ? 'shot' : 'save';
-          const team = newX <= 50 ? 'away' : 'home'; // Team attacking goal
+          const team = newX <= 50 ? 'away' : 'home';
           
           const newEvent: PlayByPlayEvent = {
             id: `live_event_${Date.now()}`,
@@ -259,26 +258,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             y: newY
           };
           
-          setPlayByPlayEvents(prev => [newEvent, ...prev.slice(0, 6)]);
+          setPlayByPlayEvents(prev => [newEvent, ...prev.slice(0, 4)]); // Reduced from 6 to 4
           setCurrentEvent(newEvent);
-        } else if (isInPenaltyArea && Math.random() < 0.01) { // 1% chance in penalty area
-          const eventType = Math.random() < 0.5 ? 'foul' : 'corner';
-          const team = Math.random() > 0.5 ? 'home' : 'away';
-          
-          const newEvent: PlayByPlayEvent = {
-            id: `live_event_${Date.now()}`,
-            minute: elapsed,
-            team,
-            type: eventType as any,
-            player: 'Player',
-            description: eventType === 'foul' ? 'Foul in penalty area' : 'Corner kick',
-            timestamp: Date.now(),
-            isRecent: true,
-            x: newX,
-            y: newY
-          };
-          
-          setPlayByPlayEvents(prev => [newEvent, ...prev.slice(0, 6)]);
         }
         
         if (newX <= 5 || newX >= 95) {
@@ -304,19 +285,18 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         
         setBallDirection({ dx: newDx, dy: newDy });
         
-        // Update ball trail with enhanced tracking
+        // Update ball trail with reduced tracking for performance
         setBallTrail(prev => {
           const newTrail = [...prev, { x: newX, y: newY, timestamp: Date.now() }];
-          // Keep last 12 trail points for smoother lines
-          return newTrail.slice(-12);
+          return newTrail.slice(-8); // Reduced from 12 to 8 points
         });
         
         return { x: newX, y: newY };
       });
-    }, 100); // Increased update frequency for smoother movement
+    }, 200); // Reduced frequency from 100ms to 200ms for better performance
 
     return () => clearInterval(ballInterval);
-  }, [isLive, ballDirection, elapsed]);
+  }, [isLive, elapsed]); // Removed ballDirection from dependencies to prevent unnecessary re-renders
 
   // Move ball to event locations when events occur
   useEffect(() => {
