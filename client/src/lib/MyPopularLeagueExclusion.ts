@@ -47,7 +47,36 @@ export const popularLeagueExclusionTerms = [
   "usl w league",
 
   // Second division leagues
-  "segunda división"
+  "segunda división",
+
+  // Brazilian state leagues and lower divisions
+  "paranaense - 2",
+  "mineiro - 2", 
+  "carioca a2",
+  "catarinense - 2",
+  "goiano - 2",
+  "paulista série b",
+  "amazonense - 2",
+  "paraense b1",
+
+  // Brazilian youth leagues
+  "paranaense u20",
+  "mineiro u20",
+  "paraibano u20",
+  "estadual junior u20",
+
+  // Brazilian regional cups
+  "copa espírito santo",
+
+  // South American lower divisions
+  "primera b",
+
+  // Women's leagues (additional)
+  "liga femenina",
+
+  // US lower-tier leagues
+  "usl league one",
+  "npsl"
 ];
 
 // Safe substring function to handle null/undefined values
