@@ -721,7 +721,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   });
 
   // Show loading state while fetching data
-  if (loading) {
+  if (isLoading) {
     return (
       <>
         {/* Header Section */}
