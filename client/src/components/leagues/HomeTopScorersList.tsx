@@ -99,8 +99,8 @@ const HomeTopScorersList = () => {
 
     // Set initial selected league if not set
     if (!selectedLeague && POPULAR_LEAGUES.length > 0) {
-      // Prefer FIFA Club World Cup (ID 15) if available
-      const preferredLeague = POPULAR_LEAGUES.find(league => league.id === 15);
+      // Prefer World Cup Qualification South America (ID 34) if available
+      const preferredLeague = POPULAR_LEAGUES.find(league => league.id === 34);
       setSelectedLeague(preferredLeague ? preferredLeague.id : POPULAR_LEAGUES[0].id);
     }
   }, [selectedLeague]);
