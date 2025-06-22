@@ -461,7 +461,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
           originalCountry: country,
           countryKey: countryKey,
         });
-        } else if (
+        
+        if (
           league.name.toLowerCase().includes("conmebol") ||
           league.name.toLowerCase().includes("copa america") ||
           league.name.toLowerCase().includes("copa libertadores") ||
