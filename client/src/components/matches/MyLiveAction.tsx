@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import MyHighlights from './MyHighlights';
 
@@ -149,8 +150,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
     const ballInterval = setInterval(() => {
       setBallPosition(prev => {
-        let newX = prev.x + ballDirection.dx * 1.2;
-        let newY = prev.y + ballDirection.dy * 1.2;
+        let newX = prev.x + ballDirection.dx * 0.8;
+        let newY = prev.y + ballDirection.dy * 0.8;
 
         let newDx = ballDirection.dx;
         let newDy = ballDirection.dy;
@@ -163,32 +164,32 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         }
 
         // Boundary checks with realistic bouncing
-        if (newX <= 8 || newX >= 92) {
-          newDx = -newDx + (Math.random() - 0.5) * 0.3;
-          newX = Math.max(8, Math.min(92, newX));
+        if (newX <= 10 || newX >= 90) {
+          newDx = -newDx + (Math.random() - 0.5) * 0.2;
+          newX = Math.max(10, Math.min(90, newX));
         }
 
-        if (newY <= 20 || newY >= 80) {
-          newDy = -newDy + (Math.random() - 0.5) * 0.3;
-          newY = Math.max(20, Math.min(80, newY));
+        if (newY <= 25 || newY >= 75) {
+          newDy = -newDy + (Math.random() - 0.5) * 0.2;
+          newY = Math.max(25, Math.min(75, newY));
         }
 
         // Add natural movement variation
-        newDx += (Math.random() - 0.5) * 0.1;
-        newDy += (Math.random() - 0.5) * 0.1;
+        newDx += (Math.random() - 0.5) * 0.05;
+        newDy += (Math.random() - 0.5) * 0.05;
 
         // Limit speed for realistic movement
         const speed = Math.sqrt(newDx * newDx + newDy * newDy);
-        if (speed > 2) {
-          newDx = (newDx / speed) * 2;
-          newDy = (newDy / speed) * 2;
+        if (speed > 1.5) {
+          newDx = (newDx / speed) * 1.5;
+          newDy = (newDy / speed) * 1.5;
         }
 
         setBallDirection({ dx: newDx, dy: newDy });
 
         return { x: newX, y: newY };
       });
-    }, 200);
+    }, 150);
 
     return () => clearInterval(ballInterval);
   }, [isLive]);
@@ -204,7 +205,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         const currentIndex = recentEvents.findIndex(e => e.id === currentEvent?.id);
         const nextIndex = (currentIndex + 1) % recentEvents.length;
         setCurrentEvent(recentEvents[nextIndex]);
-      }, 4000);
+      }, 3000);
 
       return () => clearInterval(eventCycleInterval);
     }
@@ -261,10 +262,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             y = 50;
           } else if (eventType === 'corner') {
             x = isHomeTeam ? 85 : 15;
-            y = Math.random() > 0.5 ? 25 : 75;
+            y = Math.random() > 0.5 ? 30 : 70;
           } else {
             x = isHomeTeam ? 60 + Math.random() * 20 : 20 + Math.random() * 20;
-            y = 30 + Math.random() * 40;
+            y = 35 + Math.random() * 30;
           }
 
           events.push({
@@ -307,17 +308,19 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
   if (isLoading) {
     return (
-      <Card className={`w-full ${className} bg-gradient-to-br from-green-600 to-green-800 border-0 text-white`}>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-white flex items-center gap-2">
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-            Live Action
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center h-64">
-          <div className="animate-pulse text-white text-sm">Loading live action...</div>
-        </CardContent>
-      </Card>
+      <div className={`w-full ${className} max-w-sm mx-auto`}>
+        <div className="bg-green-700 rounded-lg overflow-hidden">
+          <div className="bg-black/20 px-3 py-2 flex items-center justify-between">
+            <Badge className="bg-red-600 hover:bg-red-600 text-white text-xs px-2 py-1">
+              Live Action
+            </Badge>
+            <div className="text-white text-xs">Loading...</div>
+          </div>
+          <div className="h-32 flex items-center justify-center text-white text-sm">
+            Loading live action...
+          </div>
+        </div>
+      </div>
     );
   }
 
@@ -334,123 +337,135 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     }
 
     return (
-      <Card className={`w-full ${className} bg-gradient-to-br from-gray-600 to-gray-800 border-0 text-white`}>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-white">
-            Live Action
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center h-64">
-          <p className="text-white text-sm opacity-80">
+      <div className={`w-full ${className} max-w-sm mx-auto`}>
+        <div className="bg-gray-700 rounded-lg overflow-hidden">
+          <div className="bg-black/20 px-3 py-2 flex items-center justify-between">
+            <Badge className="bg-gray-600 hover:bg-gray-600 text-white text-xs px-2 py-1">
+              Live Action
+            </Badge>
+          </div>
+          <div className="h-32 flex items-center justify-center text-white text-sm">
             {matchId ? `No match data found` : 'No match selected'}
-          </p>
-        </CardContent>
-      </Card>
+          </div>
+        </div>
+      </div>
     );
   }
 
   if (!isLive) {
     return (
-      <Card className={`w-full ${className} bg-gradient-to-br from-gray-600 to-gray-800 border-0 text-white`}>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-white">
-            Live Action
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <p className="text-white text-sm mb-2 opacity-80">Match not live</p>
-            <p className="text-xs text-white opacity-60">
-              {homeTeamData?.name} vs {awayTeamData?.name}
-            </p>
+      <div className={`w-full ${className} max-w-sm mx-auto`}>
+        <div className="bg-gray-700 rounded-lg overflow-hidden">
+          <div className="bg-black/20 px-3 py-2 flex items-center justify-between">
+            <Badge className="bg-gray-600 hover:bg-gray-600 text-white text-xs px-2 py-1">
+              Live Action
+            </Badge>
           </div>
-        </CardContent>
-      </Card>
+          <div className="h-32 flex items-center justify-center text-white text-sm">
+            <div className="text-center">
+              <p className="mb-1">Match not live</p>
+              <p className="text-xs opacity-60">
+                {homeTeamData?.name} vs {awayTeamData?.name}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card className={`w-full ${className} bg-gradient-to-br from-green-600 to-green-800 border-0 text-white overflow-hidden`}>
-      {/* Header */}
-      <CardHeader className="pb-2 px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium text-white">Live Action</span>
-          </div>
-          <Badge variant="secondary" className="text-xs px-3 py-1 bg-red-500 text-white animate-pulse border-0">
-            LIVE
+    <div className={`w-full ${className} live-action-container mx-auto`}>
+      <div className="bg-gradient-to-br from-green-700 to-green-800 rounded-lg overflow-hidden shadow-lg flash-effect">
+        {/* Header - 365scores style */}
+        <div className="bg-black/25 px-3 py-2 flex items-center justify-between border-b border-white/10">
+          <Badge className="bg-red-600 hover:bg-red-600 text-white text-xs px-2 py-1 font-semibold live-pulse">
+            Live Action
           </Badge>
+          <div className="text-white text-xs font-medium opacity-90">
+            {elapsed}'
+          </div>
         </div>
-      </CardHeader>
 
-      {/* Football Field */}
-      <CardContent className="p-4 pb-2">
-        <div className="relative w-full h-80 bg-gradient-to-br from-green-800 via-green-700 to-green-800 rounded-lg overflow-hidden border-2 border-white/20">
-
-          {/* Field Pattern */}
+        {/* Football Field - Compact 365scores style */}
+        <div className="relative h-36 field-overlay overflow-hidden">
+          
+          {/* Field Pattern - More subtle */}
           <div className="absolute inset-0">
-            {/* Grass pattern */}
-            <div className="absolute inset-0 opacity-20">
-              {Array.from({ length: 8 }).map((_, i) => (
+            {/* Grass stripes */}
+            <div className="absolute inset-0 opacity-10">
+              {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
                   className="absolute h-full bg-gradient-to-r from-transparent via-green-600 to-transparent"
                   style={{
-                    width: '12.5%',
-                    left: `${i * 12.5}%`,
-                    opacity: i % 2 === 0 ? 0.3 : 0.1
+                    width: '16.66%',
+                    left: `${i * 16.66}%`,
+                    opacity: i % 2 === 0 ? 0.2 : 0.05
                   }}
                 />
               ))}
             </div>
 
-            {/* Field markings */}
+            {/* Field markings - Simplified */}
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               {/* Outer boundary */}
-              <rect x="5" y="15" width="90" height="70" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.3"/>
-
+              <rect x="8" y="20" width="84" height="60" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
+              
               {/* Center line */}
-              <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(255,255,255,0.6)" strokeWidth="0.3"/>
-
+              <line x1="50" y1="20" x2="50" y2="80" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
+              
               {/* Center circle */}
-              <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.3"/>
-
-              {/* Goal areas */}
-              <rect x="5" y="35" width="8" height="30" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.3"/>
-              <rect x="87" y="35" width="8" height="30" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.3"/>
-
+              <circle cx="50" cy="50" r="10" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
+              
+              {/* Goal areas - Smaller */}
+              <rect x="8" y="40" width="6" height="20" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
+              <rect x="86" y="40" width="6" height="20" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
+              
               {/* Penalty areas */}
-              <rect x="5" y="25" width="18" height="50" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.3"/>
-              <rect x="77" y="25" width="18" height="50" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.3"/>
+              <rect x="8" y="32" width="16" height="36" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
+              <rect x="76" y="32" width="16" height="36" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
             </svg>
           </div>
 
-          {/* Ball */}
+          {/* Ball - 365scores style */}
           <div 
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-200 ease-linear z-30"
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-150 ease-linear z-30"
             style={{
-              left:`${ballPosition.x}%`,
+              left: `${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
             }}
           >
             <div 
-              className="w-4 h-4 bg-white rounded-full shadow-lg"
+              className="w-3 h-3 bg-white rounded-full ball-flash"
               style={{
-                boxShadow: '0 0 8px rgba(255, 255, 255, 0.8)',
                 background: 'radial-gradient(circle at 30% 30%, #ffffff, #f0f0f0)'
               }}
             />
           </div>
 
-          {/* Current Event Overlay */}
-          {currentEvent && (
-            <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
-              <div className="bg-black/70 backdrop-blur-sm rounded-lg px-6 py-4 text-center">
-                <div className="text-white text-lg font-semibold mb-1">
-                  {ballPossession === 'home' ? 'Ball Safe' : 'Ball Safe'}
-                </div>
-                <div className="text-white text-xl font-bold">
+          {/* Team possession overlay - 365scores style */}
+          <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
+            <div className="bg-black/80 backdrop-blur-sm rounded-md px-4 py-2 text-center possession-fade-in border border-white/20">
+              <div className="text-white text-sm font-medium mb-1 opacity-90">
+                Ball Safe
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                {ballPossession === 'home' && homeTeamData?.logo && (
+                  <img 
+                    src={homeTeamData.logo} 
+                    alt={homeTeamData.name}
+                    className="w-4 h-4 object-contain"
+                  />
+                )}
+                {ballPossession === 'away' && awayTeamData?.logo && (
+                  <img 
+                    src={awayTeamData.logo} 
+                    alt={awayTeamData.name}
+                    className="w-4 h-4 object-contain"
+                  />
+                )}
+                <div className="text-white text-sm font-bold tracking-wide">
                   {ballPossession === 'home' 
                     ? getTeamDisplayName('home') 
                     : getTeamDisplayName('away')
@@ -458,11 +473,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 </div>
               </div>
             </div>
-          )}
+          </div>
 
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

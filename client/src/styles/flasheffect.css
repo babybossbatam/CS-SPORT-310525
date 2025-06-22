@@ -1,4 +1,3 @@
-
 /* Flash Effects CSS - Separated from TodaysMatchByCountryNew.css */
 
 /* Flash animation for halftime matches with subtle light pink gradient */
@@ -143,4 +142,98 @@
   100% {
     background: white;
   }
+}
+
+/* 365scores-style Flash Effect Animations */
+@keyframes liveActionPulse {
+  0% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.85; 
+    transform: scale(1.01);
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+}
+
+@keyframes ballGlow {
+  0% { 
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+    transform: scale(1);
+  }
+  50% { 
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+    transform: scale(1.1);
+  }
+  100% { 
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+    transform: scale(1);
+  }
+}
+
+@keyframes liveBadgePulse {
+  0%, 100% {
+    opacity: 1;
+    background-color: rgb(220, 38, 38);
+  }
+  50% {
+    opacity: 0.8;
+    background-color: rgb(239, 68, 68);
+  }
+}
+
+@keyframes possessionFade {
+  0% { 
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.flash-effect {
+  animation: liveActionPulse 3s ease-in-out infinite;
+}
+
+.ball-flash {
+  animation: ballGlow 2s ease-in-out infinite;
+}
+
+.live-pulse {
+  animation: liveBadgePulse 2s ease-in-out infinite;
+}
+
+.possession-fade-in {
+  animation: possessionFade 0.5s ease-out;
+}
+
+/* 365scores responsive styles */
+.live-action-container {
+  max-width: 320px;
+  min-width: 280px;
+}
+
+@media (max-width: 640px) {
+  .live-action-container {
+    max-width: 100%;
+    min-width: 260px;
+  }
+}
+
+/* Field gradient overlay for 365scores look */
+.field-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(22, 101, 52, 0.9) 0%,
+    rgba(21, 128, 61, 0.95) 25%,
+    rgba(22, 163, 74, 0.9) 50%,
+    rgba(21, 128, 61, 0.95) 75%,
+    rgba(22, 101, 52, 0.9) 100%
+  );
 }
