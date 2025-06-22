@@ -57,16 +57,16 @@
 
 @keyframes halftime-flash-fade {
   0% {
-    background: linear-gradient(135deg, #ffb6c1, #ffa0af);
+    background: linear-gradient(135deg, #ffcccb, #ffb6c1);
   }
   25% {
-    background: linear-gradient(135deg, #ffa0af, #ff8a9b);
+    background: linear-gradient(135deg, #ffb6c1, #ffa0af);
   }
   50% {
-    background: linear-gradient(135deg, #ff8a9b, #ffa0af);
+    background: linear-gradient(135deg, #ffa0af, #ffb6c1);
   }
   75% {
-    background: linear-gradient(135deg, #ffa0af, #ffb6c1);
+    background: linear-gradient(135deg, #ffb6c1, #ffcccb);
   }
   100% {
     background: white;
@@ -129,16 +129,16 @@
 
 @keyframes fulltime-flash-fade {
   0% {
-    background: linear-gradient(135deg, #add8e6, #87ceeb);
+    background: linear-gradient(135deg, #e6f3ff, #cce7ff);
   }
   25% {
-    background: linear-gradient(135deg, #87ceeb, #6eb5d1);
+    background: linear-gradient(135deg, #cce7ff, #b3d9ff);
   }
   50% {
-    background: linear-gradient(135deg, #6eb5d1, #87ceeb);
+    background: linear-gradient(135deg, #b3d9ff, #cce7ff);
   }
   75% {
-    background: linear-gradient(135deg, #87ceeb, #add8e6);
+    background: linear-gradient(135deg, #cce7ff, #e6f3ff);
   }
   100% {
     background: white;
