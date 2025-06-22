@@ -21,8 +21,18 @@ interface PlayByPlayEvent {
   description: string;
   timestamp: number;
   isRecent?: boolean;
-  x?: number; // Field position X (0-100%)
-  y?: number; // Field position Y (0-100%)
+  x?: number;
+  y?: number;
+}
+
+interface PlayerPosition {
+  id: string;
+  team: 'home' | 'away';
+  x: number;
+  y: number;
+  number?: string;
+  name?: string;
+  isActive?: boolean;
 }
 
 const MyLiveAction: React.FC<MyLiveActionProps> = ({ 
@@ -43,14 +53,52 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const [ballDirection, setBallDirection] = useState({ dx: 1, dy: 0.5 });
   const [halftimeFlash, setHalftimeFlash] = useState(false);
   const [previousStatus, setPreviousStatus] = useState<string>('');
+  const [playerPositions, setPlayerPositions] = useState<PlayerPosition[]>([]);
+  const [activePlayers, setActivePlayers] = useState<string[]>([]);
+  const [ballPossession, setBallPossession] = useState<'home' | 'away' | null>('home');
 
-  // Determine if match is currently live (calculate early to avoid initialization errors)
+  // Determine if match is currently live
   const displayMatch = liveData;
   const currentStatus = status || displayMatch?.fixture?.status?.short;
   const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
-  
-  // Define elapsed early to avoid initialization errors in useEffect dependencies
   const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
+
+  // Initialize player positions for 365scores style
+  useEffect(() => {
+    if (isLive && displayMatch) {
+      const homePositions: PlayerPosition[] = [
+        // Home team formation (4-4-2)
+        { id: 'h1', team: 'home', x: 15, y: 50, number: '1', name: 'GK' },
+        { id: 'h2', team: 'home', x: 25, y: 25, number: '2', name: 'RB' },
+        { id: 'h3', team: 'home', x: 25, y: 40, number: '5', name: 'CB' },
+        { id: 'h4', team: 'home', x: 25, y: 60, number: '4', name: 'CB' },
+        { id: 'h5', team: 'home', x: 25, y: 75, number: '3', name: 'LB' },
+        { id: 'h6', team: 'home', x: 40, y: 30, number: '6', name: 'RM' },
+        { id: 'h7', team: 'home', x: 40, y: 45, number: '8', name: 'CM' },
+        { id: 'h8', team: 'home', x: 40, y: 55, number: '10', name: 'CM' },
+        { id: 'h9', team: 'home', x: 40, y: 70, number: '7', name: 'LM' },
+        { id: 'h10', team: 'home', x: 55, y: 40, number: '9', name: 'ST' },
+        { id: 'h11', team: 'home', x: 55, y: 60, number: '11', name: 'ST' }
+      ];
+
+      const awayPositions: PlayerPosition[] = [
+        // Away team formation (4-4-2)
+        { id: 'a1', team: 'away', x: 85, y: 50, number: '1', name: 'GK' },
+        { id: 'a2', team: 'away', x: 75, y: 75, number: '2', name: 'LB' },
+        { id: 'a3', team: 'away', x: 75, y: 60, number: '5', name: 'CB' },
+        { id: 'a4', team: 'away', x: 75, y: 40, number: '4', name: 'CB' },
+        { id: 'a5', team: 'away', x: 75, y: 25, number: '3', name: 'RB' },
+        { id: 'a6', team: 'away', x: 60, y: 70, number: '6', name: 'LM' },
+        { id: 'a7', team: 'away', x: 60, y: 55, number: '8', name: 'CM' },
+        { id: 'a8', team: 'away', x: 60, y: 45, number: '10', name: 'CM' },
+        { id: 'a9', team: 'away', x: 60, y: 30, number: '7', name: 'RM' },
+        { id: 'a10', team: 'away', x: 45, y: 60, number: '9', name: 'ST' },
+        { id: 'a11', team: 'away', x: 45, y: 40, number: '11', name: 'ST' }
+      ];
+
+      setPlayerPositions([...homePositions, ...awayPositions]);
+    }
+  }, [isLive, displayMatch]);
 
   // Fetch initial match data and set up real-time updates
   useEffect(() => {
@@ -68,7 +116,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       try {
         setIsLoading(true);
 
-        // First, try to get the match from live fixtures
         const liveResponse = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
         if (liveResponse.ok && mounted) {
           const liveFixtures = await liveResponse.json();
@@ -93,19 +140,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           }
         }
 
-        // If not found in live fixtures, get from specific match endpoint
         const matchResponse = await fetch(`/api/fixtures?ids=${matchId}`);
         if (matchResponse.ok && mounted) {
           const matchData = await matchResponse.json();
           if (matchData.length > 0) {
             const match = matchData[0];
-            console.log(`📊 [Live Action] Found match data:`, {
-              fixtureId: match.fixture.id,
-              homeTeam: match.teams?.home?.name,
-              awayTeam: match.teams?.away?.name,
-              status: match.fixture?.status?.short
-            });
-
             setLiveData(match);
             await generatePlayByPlayEvents(match);
             setLastUpdate(new Date().toLocaleTimeString());
@@ -142,20 +181,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
             setLiveData(currentMatch);
 
-            // Check for halftime transition
             const currentStatus = currentMatch.fixture?.status?.short;
             if (currentStatus === 'HT' && previousStatus && previousStatus !== 'HT') {
-              console.log('🟠 [HALFTIME FLASH] Match just went to halftime!', {
-                home: currentMatch.teams?.home?.name,
-                away: currentMatch.teams?.away?.name,
-                previousStatus,
-                currentStatus
-              });
-              
-              // Trigger halftime flash effect
               setHalftimeFlash(true);
-              
-              // Remove flash after 3 seconds with smooth transition
               setTimeout(() => {
                 setHalftimeFlash(false);
               }, 3000);
@@ -163,20 +191,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             
             setPreviousStatus(currentStatus);
 
-            // Generate new events if time has progressed
             if (currentElapsed > previousElapsed) {
               await generatePlayByPlayEvents(currentMatch, true);
             }
 
             setLastUpdate(new Date().toLocaleTimeString());
-
-            console.log(`✅ [Live Action] Real-time update:`, {
-              fixtureId: currentMatch.fixture.id,
-              elapsed: currentElapsed,
-              homeGoals: currentMatch.goals?.home,
-              awayGoals: currentMatch.goals?.away,
-              status: currentMatch.fixture?.status?.short
-            });
           }
         }
       } catch (error) {
@@ -186,14 +205,12 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       }
     };
 
-    // Initial fetch
     fetchMatchData().then((match) => {
       if (match && mounted) {
         const status = match.fixture?.status?.short;
         const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
 
         if (isLive) {
-          // Set up real-time updates every 5 seconds (faster for live feel)
           updateInterval = setInterval(fetchLiveUpdates, 5000);
           console.log(`🔄 [Live Action] Started real-time updates for match ${matchId}`);
         }
@@ -212,7 +229,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       const latestEvent = playByPlayEvents[0];
       setCurrentEvent(latestEvent);
 
-      // Auto-cycle through recent events every 3 seconds
       const eventCycleInterval = setInterval(() => {
         const recentEvents = playByPlayEvents.slice(0, 3);
         const currentIndex = recentEvents.findIndex(e => e.id === currentEvent?.id);
@@ -224,24 +240,45 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     }
   }, [playByPlayEvents, currentEvent]);
 
-  // Ball movement animation for live matches (optimized)
+  // Enhanced ball movement animation with 365scores style
   useEffect(() => {
     if (!isLive) return;
 
     const ballInterval = setInterval(() => {
       setBallPosition(prev => {
-        let newX = prev.x + ballDirection.dx;
-        let newY = prev.y + ballDirection.dy;
+        let newX = prev.x + ballDirection.dx * 1.5;
+        let newY = prev.y + ballDirection.dy * 1.5;
         
-        // Bounce off field boundaries with some randomness
         let newDx = ballDirection.dx;
         let newDy = ballDirection.dy;
         
-        // Reduced event generation frequency to improve performance
-        const isNearGoal = (newX <= 10 || newX >= 90) && (newY >= 35 && newY <= 65);
+        // Ball possession logic
+        const nearHomePlayer = playerPositions.find(p => 
+          p.team === 'home' && 
+          Math.abs(p.x - newX) < 8 && 
+          Math.abs(p.y - newY) < 8
+        );
         
-        // Generate events based on ball position (reduced frequency)
-        if (isNearGoal && Math.random() < 0.005) { // Reduced from 2% to 0.5%
+        const nearAwayPlayer = playerPositions.find(p => 
+          p.team === 'away' && 
+          Math.abs(p.x - newX) < 8 && 
+          Math.abs(p.y - newY) < 8
+        );
+
+        if (nearHomePlayer) {
+          setBallPossession('home');
+          setActivePlayers([nearHomePlayer.id]);
+        } else if (nearAwayPlayer) {
+          setBallPossession('away');
+          setActivePlayers([nearAwayPlayer.id]);
+        } else {
+          setActivePlayers([]);
+        }
+
+        // Generate events based on ball position
+        const isNearGoal = (newX <= 15 || newX >= 85) && (newY >= 35 && newY <= 65);
+        
+        if (isNearGoal && Math.random() < 0.008) {
           const eventType = Math.random() < 0.3 ? 'goal' : Math.random() < 0.6 ? 'shot' : 'save';
           const team = newX <= 50 ? 'away' : 'home';
           
@@ -250,94 +287,87 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             minute: elapsed,
             team,
             type: eventType as any,
-            player: 'Player',
-            description: eventType === 'goal' ? 'GOAL!' : eventType === 'shot' ? 'Shot saved' : 'Great save',
+            player: nearHomePlayer?.name || nearAwayPlayer?.name || 'Player',
+            description: eventType === 'goal' ? 'GOAL!' : eventType === 'shot' ? 'Shot on target' : 'Great save',
             timestamp: Date.now(),
             isRecent: true,
             x: newX,
             y: newY
           };
           
-          setPlayByPlayEvents(prev => [newEvent, ...prev.slice(0, 4)]); // Reduced from 6 to 4
+          setPlayByPlayEvents(prev => [newEvent, ...prev.slice(0, 4)]);
           setCurrentEvent(newEvent);
         }
         
-        if (newX <= 5 || newX >= 95) {
-          newDx = -newDx + (Math.random() - 0.5) * 0.3;
-          newX = Math.max(5, Math.min(95, newX));
+        // Boundary checks with realistic bouncing
+        if (newX <= 8 || newX >= 92) {
+          newDx = -newDx + (Math.random() - 0.5) * 0.4;
+          newX = Math.max(8, Math.min(92, newX));
         }
         
-        if (newY <= 15 || newY >= 85) {
-          newDy = -newDy + (Math.random() - 0.5) * 0.3;
-          newY = Math.max(15, Math.min(85, newY));
+        if (newY <= 20 || newY >= 80) {
+          newDy = -newDy + (Math.random() - 0.5) * 0.4;
+          newY = Math.max(20, Math.min(80, newY));
         }
         
-        // Add some randomness to direction
-        newDx += (Math.random() - 0.5) * 0.1;
-        newDy += (Math.random() - 0.5) * 0.1;
+        // Add natural movement variation
+        newDx += (Math.random() - 0.5) * 0.15;
+        newDy += (Math.random() - 0.5) * 0.15;
         
-        // Limit speed
+        // Limit speed for realistic movement
         const speed = Math.sqrt(newDx * newDx + newDy * newDy);
-        if (speed > 2) {
-          newDx = (newDx / speed) * 2;
-          newDy = (newDy / speed) * 2;
+        if (speed > 2.5) {
+          newDx = (newDx / speed) * 2.5;
+          newDy = (newDy / speed) * 2.5;
         }
         
         setBallDirection({ dx: newDx, dy: newDy });
         
-        // Update ball trail with reduced tracking for performance
+        // Enhanced ball trail
         setBallTrail(prev => {
           const newTrail = [...prev, { x: newX, y: newY, timestamp: Date.now() }];
-          return newTrail.slice(-8); // Reduced from 12 to 8 points
+          return newTrail.slice(-15);
         });
         
         return { x: newX, y: newY };
       });
-    }, 200); // Reduced frequency from 100ms to 200ms for better performance
+    }, 150);
 
     return () => clearInterval(ballInterval);
-  }, [isLive, elapsed]); // Removed ballDirection from dependencies to prevent unnecessary re-renders
+  }, [isLive, elapsed, playerPositions]);
 
   // Move ball to event locations when events occur
   useEffect(() => {
     if (currentEvent && currentEvent.x && currentEvent.y) {
       setBallPosition({ x: currentEvent.x, y: currentEvent.y });
-      // Clear trail when ball teleports to event
       setBallTrail([]);
     }
   }, [currentEvent]);
 
   const generatePlayByPlayEvents = async (matchData: any, isUpdate: boolean = false) => {
     try {
-      // Fetch real match events from API
       const response = await fetch(`/api/fixtures/${matchData.fixture.id}/events`);
       let realEvents: any[] = [];
       
       if (response.ok) {
         realEvents = await response.json();
-        console.log(`📊 [Live Action] Fetched ${realEvents.length} real events for match ${matchData.fixture.id}:`, realEvents);
-      } else {
-        console.log(`⚠️ [Live Action] No events API available for match ${matchData.fixture.id}, using fallback`);
       }
 
       const homeTeam = matchData.teams?.home;
       const awayTeam = matchData.teams?.away;
       const elapsed = matchData.fixture?.status?.elapsed || 0;
-
       const events: PlayByPlayEvent[] = [];
 
-      // Process real events if available
       if (realEvents.length > 0) {
         const recentEvents = realEvents
           .filter(event => event.time?.elapsed <= elapsed)
-          .slice(-6) // Get last 6 events
-          .reverse(); // Most recent first
+          .slice(-6)
+          .reverse();
 
         recentEvents.forEach((event, index) => {
           const isHomeTeam = event.team?.id === homeTeam?.id;
           const team = isHomeTeam ? 'home' : 'away';
           
-          // Map real event types to our display types
           let eventType = 'attempt';
           let description = event.detail || 'Match event';
           
@@ -353,36 +383,25 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           } else if (event.detail?.toLowerCase().includes('corner')) {
             eventType = 'corner';
             description = 'Corner kick';
-          } else if (event.detail?.toLowerCase().includes('offside')) {
-            eventType = 'offside';
-            description = 'Offside';
-          } else if (event.detail?.toLowerCase().includes('foul')) {
-            eventType = 'foul';
-            description = 'Foul committed';
           } else if (event.detail?.toLowerCase().includes('shot')) {
             eventType = 'shot';
             description = event.detail;
           }
 
-          // Calculate field position based on event type and team
-          let x = 50, y = 50; // Default center
+          let x = 50, y = 50;
           
           if (eventType === 'goal') {
-            x = isHomeTeam ? 95 : 5;
-            y = 40 + Math.random() * 20; // Goal area
+            x = isHomeTeam ? 90 : 10;
+            y = 45 + Math.random() * 10;
           } else if (eventType === 'corner') {
-            x = isHomeTeam ? 95 : 5;
-            y = Math.random() > 0.5 ? 15 : 85; // Corner positions
+            x = isHomeTeam ? 90 : 10;
+            y = Math.random() > 0.5 ? 25 : 75;
           } else if (eventType === 'shot') {
-            x = isHomeTeam ? 75 + Math.random() * 20 : 5 + Math.random() * 20;
-            y = 25 + Math.random() * 50;
-          } else if (eventType === 'foul') {
-            x = 30 + Math.random() * 40; // Midfield
-            y = 20 + Math.random() * 60;
+            x = isHomeTeam ? 75 + Math.random() * 15 : 10 + Math.random() * 15;
+            y = 35 + Math.random() * 30;
           } else {
-            // General field position
-            x = isHomeTeam ? 60 + Math.random() * 30 : 10 + Math.random() * 30;
-            y = 20 + Math.random() * 60;
+            x = isHomeTeam ? 60 + Math.random() * 25 : 15 + Math.random() * 25;
+            y = 25 + Math.random() * 50;
           }
 
           events.push({
@@ -392,7 +411,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             type: eventType as any,
             player: event.player?.name || event.assist?.name || 'Player',
             description,
-            timestamp: Date.now() - (index * 10000), // Spread out timestamps
+            timestamp: Date.now() - (index * 10000),
             isRecent: index === 0 && isUpdate,
             x,
             y
@@ -400,60 +419,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         });
       }
 
-      // If no real events or need to fill up, add some simulated events
-      if (events.length < 3) {
-        const simulatedCount = 3 - events.length;
-        
-        for (let i = 0; i < simulatedCount; i++) {
-          const isHomeTeam = Math.random() > 0.5;
-          const team = isHomeTeam ? 'home' : 'away';
-          
-          const eventTypes = ['shot', 'attempt', 'foul', 'corner'];
-          const selectedType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
-          
-          const descriptions = {
-            shot: ['Shot saved', 'Shot blocked', 'Shot wide'],
-            attempt: ['Attack', 'Close attempt'],
-            foul: ['Foul committed', 'Free kick'],
-            corner: ['Corner kick']
-          };
-          
-          const description = descriptions[selectedType as keyof typeof descriptions][
-            Math.floor(Math.random() * descriptions[selectedType as keyof typeof descriptions].length)
-          ];
-
-          // Position based on event type
-          let x = 50, y = 50;
-          if (selectedType === 'shot') {
-            x = isHomeTeam ? 80 + Math.random() * 15 : 5 + Math.random() * 15;
-          } else if (selectedType === 'corner') {
-            x = isHomeTeam ? 95 : 5;
-            y = Math.random() > 0.5 ? 15 : 85;
-          } else {
-            x = isHomeTeam ? 60 + Math.random() * 25 : 15 + Math.random() * 25;
-          }
-          y = 25 + Math.random() * 50;
-
-          events.push({
-            id: `sim_event_${Date.now()}_${i}`,
-            minute: Math.max(1, elapsed - Math.floor(Math.random() * 10)),
-            team,
-            type: selectedType as any,
-            player: 'Player',
-            description,
-            timestamp: Date.now() - ((events.length + i) * 8000),
-            isRecent: false,
-            x,
-            y
-          });
-        }
-      }
-
-      // Sort by most recent first
       events.sort((a, b) => b.timestamp - a.timestamp);
 
       if (isUpdate) {
-        // Add new events to the beginning, keep only recent ones
         setPlayByPlayEvents(prev => [...events.slice(0, 3), ...prev.slice(0, 4)]);
       } else {
         setPlayByPlayEvents(events);
@@ -461,22 +429,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
     } catch (error) {
       console.error('❌ [Live Action] Error fetching real events:', error);
-      
-      // Fallback to simulated events
-      const events: PlayByPlayEvent[] = [{
-        id: `fallback_${Date.now()}`,
-        minute: matchData.fixture?.status?.elapsed || 45,
-        team: Math.random() > 0.5 ? 'home' : 'away',
-        type: 'attempt',
-        player: 'Player',
-        description: 'Match action',
-        timestamp: Date.now(),
-        isRecent: isUpdate,
-        x: 50 + Math.random() * 30,
-        y: 25 + Math.random() * 50
-      }];
-      
-      setPlayByPlayEvents(events);
     }
   };
 
@@ -503,7 +455,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     return awayTeam?.code || awayTeam?.name?.substring(0, 3).toUpperCase() || 'AWAY';
   };
 
-  // Use fetched live data (displayMatch already defined above)
   const homeTeamData = homeTeam || displayMatch?.teams?.home;
   const awayTeamData = awayTeam || displayMatch?.teams?.away;
   const statusData = status || displayMatch?.fixture?.status?.short;
@@ -517,7 +468,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             Live Action
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-48">
+        <CardContent className="flex items-center justify-center h-64">
           <div className="animate-pulse text-white text-sm">Loading live action...</div>
         </CardContent>
       </Card>
@@ -525,7 +476,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   if (!displayMatch) {
-    // If we have match ID but no data, show highlights (match likely ended)
     if (matchId && homeTeam && awayTeam) {
       return (
         <MyHighlights 
@@ -544,7 +494,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             Live Action
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-48">
+        <CardContent className="flex items-center justify-center h-64">
           <p className="text-white text-sm opacity-80">
             {matchId ? `No match data found` : 'No match selected'}
           </p>
@@ -561,7 +511,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             Live Action
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-48">
+        <CardContent className="flex items-center justify-center h-64">
           <div className="text-center">
             <p className="text-white text-sm mb-2 opacity-80">Match not live</p>
             <p className="text-xs text-white opacity-60">
@@ -596,70 +546,129 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         </div>
       </CardHeader>
 
-      {/* Football Field with Live Events */}
+      {/* Enhanced 365scores Style Football Field */}
       <CardContent className="p-4 pb-2">
-        <div className={`relative w-full h-48 ${
+        <div className={`relative w-full h-80 ${
           halftimeFlash 
-            ? 'bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 border-orange-300/40' 
-            : 'bg-gradient-to-r from-green-700 via-green-600 to-green-700 border-white/20'
-        } rounded-lg overflow-hidden border-2 transition-all duration-1000 ease-in-out`}>
-          {/* Field markings */}
+            ? 'bg-gradient-to-br from-orange-600 via-orange-500 to-orange-600' 
+            : 'bg-gradient-to-br from-green-800 via-green-700 to-green-800'
+        } rounded-lg overflow-hidden border-2 border-white/30 transition-all duration-1000 ease-in-out`}>
+          
+          {/* Field Pattern - 365scores style */}
           <div className="absolute inset-0">
-            {/* Goal areas */}
-            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-4 h-16 border-2 border-white/40 border-l-0"></div>
-            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-4 h-16 border-2 border-white/40 border-r-0"></div>
-            
-            {/* Penalty areas */}
-            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-12 h-24 border-2 border-white/30 border-l-0"></div>
-            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-12 h-24 border-2 border-white/30 border-r-0"></div>
-            
-            {/* Center circle */}
-            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-white/30 rounded-full"></div>
-            
-            {/* Center line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/30"></div>
-            
-            {/* Corner arcs */}
-            <div className="absolute top-0 left-0 w-4 h-4 border-br-2 border-white/30 rounded-br-full"></div>
-            <div className="absolute top-0 right-0 w-4 h-4 border-bl-2 border-white/30 rounded-bl-full"></div>
-            <div className="absolute bottom-0 left-0 w-4 h-4 border-tr-2 border-white/30 rounded-tr-full"></div>
-            <div className="absolute bottom-0 right-0 w-4 h-4 border-tl-2 border-white/30 rounded-tl-full"></div>
+            {/* Grass pattern */}
+            <div className="absolute inset-0 opacity-20">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute h-full bg-gradient-to-r from-transparent via-green-600 to-transparent"
+                  style={{
+                    width: '12.5%',
+                    left: `${i * 12.5}%`,
+                    opacity: i % 2 === 0 ? 0.3 : 0.1
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Enhanced Field markings */}
+            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              {/* Outer boundary */}
+              <rect x="5" y="15" width="90" height="70" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
+              
+              {/* Center line */}
+              <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
+              
+              {/* Center circle */}
+              <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
+              <circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.8)"/>
+              
+              {/* Goal areas */}
+              <rect x="5" y="35" width="8" height="30" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
+              <rect x="87" y="35" width="8" height="30" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
+              
+              {/* Penalty areas */}
+              <rect x="5" y="25" width="18" height="50" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
+              <rect x="77" y="25" width="18" height="50" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
+              
+              {/* Penalty spots */}
+              <circle cx="16" cy="50" r="0.8" fill="rgba(255,255,255,0.8)"/>
+              <circle cx="84" cy="50" r="0.8" fill="rgba(255,255,255,0.8)"/>
+              
+              {/* Corner arcs */}
+              <path d="M 5 15 Q 8 15 8 18" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
+              <path d="M 95 15 Q 92 15 92 18" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
+              <path d="M 5 85 Q 8 85 8 82" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
+              <path d="M 95 85 Q 92 85 92 82" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
+            </svg>
           </div>
 
-          {/* Live Event Markers */}
-          {playByPlayEvents.slice(0, 4).map((event, index) => (
-            <div 
-              key={event.id}
-              className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ${
-                event.id === currentEvent?.id ? 'scale-125 z-20' : 'scale-100 z-10'
+          {/* Player Positions - 365scores style */}
+          {playerPositions.map((player) => (
+            <div
+              key={player.id}
+              className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
+                activePlayers.includes(player.id) ? 'scale-125 z-20' : 'scale-100 z-10'
               }`}
               style={{
-                left: `${event.x}%`,
-                top: `${event.y}%`,
-                opacity: 1 - (index * 0.2)
+                left: `${player.x}%`,
+                top: `${player.y}%`,
               }}
             >
-              <div className={`w-3 h-3 rounded-full flex items-center justify-center text-xs ${
-                event.team === 'home' 
-                  ? 'bg-blue-500 border-2 border-white' 
-                  : 'bg-red-500 border-2 border-white'
-              } ${event.id === currentEvent?.id ? 'animate-pulse' : ''}`}>
-                {event.type === 'goal' ? '⚽' : '●'}
+              <div className={`relative w-4 h-4 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                player.team === 'home' 
+                  ? activePlayers.includes(player.id)
+                    ? 'bg-blue-400 shadow-lg shadow-blue-400/50'
+                    : 'bg-blue-600'
+                  : activePlayers.includes(player.id)
+                    ? 'bg-red-400 shadow-lg shadow-red-400/50'
+                    : 'bg-red-600'
+              }`}>
+                <span className="text-white text-xs leading-none">
+                  {player.number}
+                </span>
+                {activePlayers.includes(player.id) && (
+                  <div className="absolute inset-0 rounded-full animate-ping bg-white/30"></div>
+                )}
               </div>
             </div>
           ))}
 
-          {/* Ball trail with connecting lines */}
-          <svg 
-            className="absolute inset-0 w-full h-full pointer-events-none" 
-            style={{ zIndex: 8 }}
-          >
-            {/* Draw connecting lines between trail points */}
+          {/* Live Event Markers */}
+          {playByPlayEvents.slice(0, 3).map((event, index) => (
+            <div 
+              key={event.id}
+              className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ${
+                event.id === currentEvent?.id ? 'scale-150 z-30' : 'scale-100 z-15'
+              }`}
+              style={{
+                left: `${event.x}%`,
+                top: `${event.y}%`,
+                opacity: 1 - (index * 0.3)
+              }}
+            >
+              <div className={`relative w-6 h-6 rounded-full flex items-center justify-center text-sm border-2 border-white ${
+                event.type === 'goal' 
+                  ? 'bg-yellow-500 animate-bounce'
+                  : event.team === 'home' 
+                    ? 'bg-blue-500' 
+                    : 'bg-red-500'
+              } ${event.id === currentEvent?.id ? 'animate-pulse shadow-lg' : ''}`}>
+                {getEventIcon(event.type)}
+                {event.id === currentEvent?.id && (
+                  <div className="absolute inset-0 rounded-full animate-ping bg-white/40"></div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {/* Enhanced Ball Trail with SVG lines */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ zIndex: 25 }}>
             {ballTrail.length > 1 && ballTrail.map((point, index) => {
               if (index === 0) return null;
               const prevPoint = ballTrail[index - 1];
-              const opacity = Math.max(0.1, 0.6 - (index * 0.05));
-              const strokeWidth = Math.max(1, 3 - (index * 0.2));
+              const opacity = Math.max(0.1, 0.8 - (index * 0.05));
+              const strokeWidth = Math.max(1, 4 - (index * 0.2));
               
               return (
                 <line
@@ -668,179 +677,96 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                   y1={`${prevPoint.y}%`}
                   x2={`${point.x}%`}
                   y2={`${point.y}%`}
-                  stroke="rgba(255, 255, 255, 0.8)"
+                  stroke="rgba(255, 255, 255, 0.9)"
                   strokeWidth={strokeWidth}
                   opacity={opacity}
                   strokeLinecap="round"
                   style={{
-                    filter: 'drop-shadow(0 0 2px rgba(255, 255, 255, 0.5))'
+                    filter: 'drop-shadow(0 0 3px rgba(255, 255, 255, 0.7))'
                   }}
                 />
               );
             })}
-            
-            {/* Draw movement prediction line */}
-            {ballTrail.length > 0 && (
-              <line
-                x1={`${ballPosition.x}%`}
-                y1={`${ballPosition.y}%`}
-                x2={`${Math.min(95, Math.max(5, ballPosition.x + ballDirection.dx * 8))}%`}
-                y2={`${Math.min(85, Math.max(15, ballPosition.y + ballDirection.dy * 8))}%`}
-                stroke="rgba(255, 255, 0, 0.6)"
-                strokeWidth="2"
-                strokeDasharray="4 2"
-                opacity="0.7"
-                strokeLinecap="round"
-              />
-            )}
           </svg>
 
-          {/* Ball trail points */}
-          {ballTrail.map((point, index) => (
-            <div
-              key={`trail-${index}`}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 rounded-full bg-white transition-all duration-200"
-              style={{
-                left: `${point.x}%`,
-                top: `${point.y}%`,
-                width: `${Math.max(2, 6 - index * 0.3)}px`,
-                height: `${Math.max(2, 6 - index * 0.3)}px`,
-                opacity: Math.max(0.1, 0.8 - (index * 0.08)),
-                zIndex: 10 + index,
-                boxShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
-              }}
-            />
-          ))}
-
-          {/* Live moving ball with enhanced effects */}
+          {/* Enhanced Ball with 365scores effects */}
           <div 
             className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100 ease-linear"
             style={{
               left: `${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
-              zIndex: 20
+              zIndex: 30
             }}
           >
-            {/* Outer glow ring */}
-            <div className="absolute w-6 h-6 rounded-full bg-white opacity-20 animate-ping" 
+            {/* Multi-layered glow effect */}
+            <div className="absolute w-8 h-8 rounded-full bg-white opacity-15 animate-ping" 
+                 style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}></div>
+            <div className="absolute w-6 h-6 rounded-full bg-white opacity-25" 
                  style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}></div>
             
-            {/* Middle glow */}
-            <div className="absolute w-4 h-4 rounded-full bg-white opacity-40" 
-                 style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}></div>
-            
-            {/* Ball core */}
+            {/* Ball core with enhanced styling */}
             <div 
-              className="relative w-3 h-3 bg-white rounded-full shadow-lg"
+              className="relative w-4 h-4 bg-white rounded-full shadow-2xl"
               style={{
-                boxShadow: '0 0 8px rgba(255, 255, 255, 0.9), 0 0 16px rgba(255, 255, 255, 0.5), 0 0 24px rgba(255, 255, 255, 0.3)'
+                boxShadow: '0 0 12px rgba(255, 255, 255, 0.9), 0 0 24px rgba(255, 255, 255, 0.6), 0 0 36px rgba(255, 255, 255, 0.3)',
+                background: 'radial-gradient(circle at 30% 30%, #ffffff, #f0f0f0, #e0e0e0)'
               }}
             >
-              {/* Ball pattern */}
-              <div className="absolute inset-0 rounded-full bg-gradient-radial from-white via-gray-100 to-gray-200"></div>
+              {/* Ball pattern lines */}
+              <div className="absolute inset-0 rounded-full">
+                <div className="absolute w-full h-0.5 bg-gray-400 opacity-50 top-1/2 transform -translate-y-1/2 rotate-45"></div>
+                <div className="absolute w-full h-0.5 bg-gray-400 opacity-50 top-1/2 transform -translate-y-1/2 -rotate-45"></div>
+              </div>
               {/* Ball highlight */}
-              <div className="absolute top-0 left-0 w-1 h-1 bg-white rounded-full opacity-80"></div>
+              <div className="absolute top-1 left-1 w-1.5 h-1.5 bg-white rounded-full opacity-90"></div>
             </div>
           </div>
 
-          {/* Enhanced movement direction indicator */}
-          {isLive && (
-            <div
-              className="absolute transform -translate-x-1/2 -translate-y-1/2"
-              style={{
-                left: `${ballPosition.x}%`,
-                top: `${ballPosition.y}%`,
-                zIndex: 19
-              }}
-            >
-              {/* Direction arrow */}
-              <div
-                className="absolute"
-                style={{
-                  width: '24px',
-                  height: '3px',
-                  background: 'linear-gradient(90deg, rgba(255, 255, 100, 0.8) 0%, rgba(255, 255, 100, 0) 100%)',
-                  transformOrigin: 'left center',
-                  transform: `rotate(${Math.atan2(ballDirection.dy, ballDirection.dx) * 180 / Math.PI}deg)`,
-                  borderRadius: '2px'
-                }}
-              >
-                {/* Arrow head */}
-                <div 
-                  className="absolute right-0 top-1/2 transform -translate-y-1/2"
-                  style={{
-                    width: 0,
-                    height: 0,
-                    borderLeft: '4px solid rgba(255, 255, 100, 0.8)',
-                    borderTop: '2px solid transparent',
-                    borderBottom: '2px solid transparent'
-                  }}
-                ></div>
+          {/* Ball possession indicator */}
+          {ballPossession && (
+            <div className="absolute top-2 left-2 z-40">
+              <div className={`px-2 py-1 rounded-full text-xs font-bold text-white ${
+                ballPossession === 'home' ? 'bg-blue-600' : 'bg-red-600'
+              } backdrop-blur-sm bg-opacity-90`}>
+                Ball: {getTeamDisplayName(ballPossession)}
+              </div>
+            </div>
+          )}
+
+          {/* Current Event Display Overlay */}
+          {currentEvent && (
+            <div className="absolute top-2 right-2 z-40">
+              <div className={`px-3 py-2 rounded-lg text-white backdrop-blur-sm ${
+                currentEvent.type === 'goal' 
+                  ? 'bg-yellow-600/90 animate-bounce'
+                  : currentEvent.team === 'home'
+                    ? 'bg-blue-600/90'
+                    : 'bg-red-600/90'
+              } border border-white/30`}>
+                <div className="text-xs font-bold">
+                  {currentEvent.description}
+                </div>
+                <div className="text-xs opacity-80">
+                  {currentEvent.player} • {currentEvent.minute}'
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Current Event Display */}
-        {(currentEvent || halftimeFlash) && (
-          <div className={`mt-4 ${
-            halftimeFlash 
-              ? 'bg-orange-500/30 border border-orange-400/50' 
-              : 'bg-black/20'
-          } rounded-lg p-3 backdrop-blur-sm transition-all duration-500`}>
-            <div className="flex items-center justify-between">
-              {halftimeFlash ? (
-                <div className="flex items-center gap-3 w-full justify-center">
-                  <div className="text-2xl animate-bounce">⏸️</div>
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-white animate-pulse">
-                      HALFTIME BREAK
-                    </div>
-                    <div className="text-sm text-white/80">
-                      First half has ended
-                    </div>
-                  </div>
-                </div>
-              ) : currentEvent ? (
-                <>
-                  <div className="flex items-center gap-3">
-                    <div className="text-lg">{getEventIcon(currentEvent.type)}</div>
-                    <div>
-                      <div className="text-sm font-semibold text-white">
-                        {currentEvent.description}
-                      </div>
-                      <div className="text-xs text-white/80">
-                        {currentEvent.player} • {getTeamDisplayName(currentEvent.team)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-white">
-                      {currentEvent.minute}'
-                    </div>
-                    <div className="text-xs text-white/60 uppercase tracking-wide">
-                      {getTeamDisplayName(currentEvent.team)}
-                    </div>
-                  </div>
-                </>
-              ) : null}
-            </div>
-          </div>
-        )}
-
-        {/* Score Display */}
-        <div className="mt-3 flex items-center justify-center">
+        {/* Enhanced Score Display */}
+        <div className="mt-4 flex items-center justify-center">
           <div className={`${
             halftimeFlash 
               ? 'bg-orange-500/40 border border-orange-400/60' 
               : 'bg-black/30'
-          } rounded-full px-4 py-2 backdrop-blur-sm transition-all duration-500`}>
-            <div className="flex items-center gap-4 text-white">
-              <div className="flex items-center gap-2">
+          } rounded-full px-6 py-3 backdrop-blur-sm transition-all duration-500`}>
+            <div className="flex items-center gap-6 text-white">
+              <div className="flex items-center gap-3">
                 <img 
                   src={homeTeamData?.logo} 
                   alt={homeTeamData?.name}
-                  className="w-5 h-5 object-contain"
+                  className="w-6 h-6 object-contain"
                   onError={(e) => {
                     e.currentTarget.src = "/assets/fallback-logo.png";
                   }}
@@ -850,20 +776,20 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 </span>
               </div>
               
-              <div className="flex items-center gap-2 px-3">
-                <span className="text-xl font-bold">{displayMatch?.goals?.home || 0}</span>
+              <div className="flex items-center gap-3 px-4">
+                <span className="text-2xl font-bold">{displayMatch?.goals?.home || 0}</span>
                 <span className="text-white/60">-</span>
-                <span className="text-xl font-bold">{displayMatch?.goals?.away || 0}</span>
+                <span className="text-2xl font-bold">{displayMatch?.goals?.away || 0}</span>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <span className="text-sm font-medium">
                   {awayTeamData?.code || awayTeamData?.name?.substring(0, 3).toUpperCase()}
                 </span>
                 <img 
                   src={awayTeamData?.logo} 
                   alt={awayTeamData?.name}
-                  className="w-5 h-5 object-contain"
+                  className="w-6 h-6 object-contain"
                   onError={(e) => {
                     e.currentTarget.src = "/assets/fallback-logo.png";
                   }}
@@ -871,13 +797,13 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               </div>
             </div>
             
-            <div className="text-center mt-1">
-              <span className={`text-xs font-medium ${
+            <div className="text-center mt-2">
+              <span className={`text-sm font-medium ${
                 halftimeFlash 
                   ? 'text-orange-200 animate-pulse' 
                   : 'text-white/80'
               } transition-colors duration-500`}>
-                {statusData === 'HT' ? 'HT' : `${elapsed}'`}
+                {statusData === 'HT' ? 'HALFTIME' : `${elapsed}'`}
               </span>
             </div>
           </div>
