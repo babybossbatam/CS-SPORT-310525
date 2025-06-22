@@ -1583,48 +1583,48 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     },
                   );
 
-                  // Priority 1: UEFA Nations League (HIGHEST PRIORITY - must come before all others)
+                  // Priority 1: FIFA Club World Cup (HIGHEST PRIORITY - moved to top)
+                  if (
+                    name.includes("fifa club world cup") ||
+                    name.includes("club world cup")
+                  ) {
+                    console.log(
+                      `✅ [PRIORITY 1] FIFA Club World Cup found: "${leagueData.league?.name}" - TOP PRIORITY`,
+                    );
+                    return 1;
+                  }
+
+                  // Priority 2: UEFA Nations League
                   if (
                     name.includes("uefa nations league") &&
                     !name.includes("women")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 1] UEFA Nations League found: "${leagueData.league?.name}" - TOP PRIORITY`,
+                      `✅ [PRIORITY 2] UEFA Nations League found: "${leagueData.league?.name}"`,
                     );
-                    return 1;
+                    return 2;
                   }
 
-                  // Priority 2: World Cup Qualification South America
+                  // Priority 3: World Cup Qualification South America
                   if (
                     name.includes("world cup") &&
                     name.includes("qualification") &&
                     name.includes("south america")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 2] World Cup Qualification South America found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 3] World Cup Qualification South America found: "${leagueData.league?.name}"`,
                     );
-                    return 2;
+                    return 3;
                   }
 
-                  // Priority 3: World Cup Qualification Europe
+                  // Priority 4: World Cup Qualification Europe
                   if (
                     name.includes("world cup") &&
                     name.includes("qualification") &&
                     name.includes("europe")
                   ) {
                     console.log(
-                      `✅ [PRIORITY 3] World Cup Qualification Europe found: "${leagueData.league?.name}"`,
-                    );
-                    return 3;
-                  }
-
-                  // Priority 4: FIFA Club World Cup (HIGH PRIORITY - before friendlies)
-                  if (
-                    name.includes("fifa club world cup") ||
-                    name.includes("club world cup")
-                  ) {
-                    console.log(
-                      `✅ [PRIORITY 4] FIFA Club World Cup found: "${leagueData.league?.name}"`,
+                      `✅ [PRIORITY 4] World Cup Qualification Europe found: "${leagueData.league?.name}"`,
                     );
                     return 4;
                   }
