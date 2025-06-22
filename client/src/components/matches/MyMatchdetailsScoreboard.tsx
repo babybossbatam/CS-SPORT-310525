@@ -86,14 +86,14 @@ const MyMatchdetailsScoreboard = ({
       const initialElapsed = displayMatch.fixture.status.elapsed || 0;
       setLiveElapsed(initialElapsed);
       setRealTimeElapsed(initialElapsed);
-      
+
       console.log("🎯 [Live Timer] Initializing timer:", {
         fixtureId: displayMatch.fixture.id,
         status: status,
         initialElapsed: initialElapsed,
         teams: `${displayMatch.teams?.home?.name} vs ${displayMatch.teams?.away?.name}`
       });
-      
+
       // Initialize with current scores
       setLiveScores({
         home: displayMatch.goals.home,
@@ -128,96 +128,45 @@ const MyMatchdetailsScoreboard = ({
         }, 60000); // Increment every minute
       }
 
-      // Fetch updated data from API every 30 seconds to sync with server
+      // Set up API sync timer (every 60 seconds to reduce load)
       const apiSyncTimer = setInterval(async () => {
         try {
-          const response = await fetch("/api/fixtures/live");
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
+          console.log("🔄 [Live Timer] Syncing with API...");
 
-          const liveFixtures = await response.json();
-          console.log("🔄 [Live Timer] Syncing with API:", {
-            totalFixtures: liveFixtures.length,
-            searchingFor: displayMatch.fixture.id,
-          });
+          // Get specific match data directly to reduce API calls
+          const specificResponse = await fetch(`/api/fixtures/${displayMatch.fixture.id}`);
+          if (specificResponse.ok) {
+            const specificMatchData = await specificResponse.json();
 
-          // Find the current match in live fixtures
-          const currentLiveMatch = liveFixtures.find(
-            (fixture: any) => fixture.fixture.id === displayMatch.fixture.id,
-          );
+            const currentApiElapsed = specificMatchData.fixture?.status?.elapsed || 0;
 
-          if (currentLiveMatch) {
-            const apiElapsed = currentLiveMatch.fixture.status.elapsed;
-            console.log("✅ [Live Timer] Syncing with API data:", {
-              id: currentLiveMatch.fixture.id,
-              apiElapsed: apiElapsed,
-              realTimeElapsed: realTimeElapsed,
-              status: currentLiveMatch.fixture.status.short,
+            setLiveElapsed(currentApiElapsed);
+            setRealTimeElapsed(currentApiElapsed);
+            setLiveScores({
+              home: specificMatchData.goals?.home || 0,
+              away: specificMatchData.goals?.away || 0
+            });
+            setLiveStatus(specificMatchData.fixture?.status?.short || status);
+
+            console.log("✅ [Live Timer] Updated from API:", {
+              elapsed: currentApiElapsed,
+              status: specificMatchData.fixture?.status?.short,
+              scores: `${specificMatchData.goals?.home || 0}-${specificMatchData.goals?.away || 0}`
             });
 
-            // Sync real-time timer with API if there's a significant difference
-            if (apiElapsed !== null && Math.abs((realTimeElapsed || 0) - apiElapsed) > 2) {
-              console.log("🔄 [Live Timer] Syncing real-time timer with API");
-              setRealTimeElapsed(apiElapsed);
-              setLiveElapsed(apiElapsed);
-            }
-
-            // Update live scores
-            if (currentLiveMatch.goals) {
-              setLiveScores({
-                home: currentLiveMatch.goals.home,
-                away: currentLiveMatch.goals.away
-              });
-            }
-
-            // Update live status
-            if (currentLiveMatch.fixture.status.short) {
-              setLiveStatus(currentLiveMatch.fixture.status.short);
-              
-              // Stop real-time timer if match is now in halftime or penalties
-              if ((currentLiveMatch.fixture.status.short === "HT" || currentLiveMatch.fixture.status.short === "P") && realtimeTimer) {
-                clearInterval(realtimeTimer);
-                realtimeTimer = null;
-              }
-              
-              // Restart real-time timer if match resumed from halftime
-              if ((currentLiveMatch.fixture.status.short === "2H" || currentLiveMatch.fixture.status.short === "ET") && !realtimeTimer) {
-                realtimeTimer = setInterval(() => {
-                  setRealTimeElapsed(prev => prev !== null ? prev + 1 : 0);
-                }, 60000);
-              }
-            }
-          } else {
-            console.log("❌ [Live Timer] Match not found in live fixtures - checking if ended");
-
-            // Check if match has ended
-            try {
-              const specificMatchResponse = await fetch(`/api/fixtures/${displayMatch.fixture.id}`);
-              if (specificMatchResponse.ok) {
-                const specificMatchData = await specificMatchResponse.json();
-                console.log("🔍 [Live Timer] Specific match status:", {
-                  id: specificMatchData.fixture?.id,
-                  status: specificMatchData.fixture?.status?.short,
-                });
-
-                // If match has ended, stop all timers
-                if (["FT", "AET", "PEN"].includes(specificMatchData.fixture?.status?.short || "")) {
-                  console.log("🏁 [Live Timer] Match has ended, stopping all timers");
-                  if (realtimeTimer) clearInterval(realtimeTimer);
-                  clearInterval(apiSyncTimer);
-                  setRealTimeElapsed(null);
-                  setLiveElapsed(null);
-                }
-              }
-            } catch (specificError) {
-              console.error("❌ [Live Timer] Failed to fetch specific match:", specificError);
+            // If match has ended, stop all timers
+            if (["FT", "AET", "PEN"].includes(specificMatchData.fixture?.status?.short || "")) {
+              console.log("🏁 [Live Timer] Match has ended, stopping all timers");
+              if (realtimeTimer) clearInterval(realtimeTimer);
+              clearInterval(apiSyncTimer);
+              setRealTimeElapsed(null);
+              setLiveElapsed(null);
             }
           }
         } catch (error) {
           console.error("❌ [Live Timer] Failed to sync with API:", error);
         }
-      }, 30000); // Sync with API every 30 seconds
+      }, 60000); // Sync with API every 60 seconds
 
       return () => {
         console.log("🛑 [Live Timer] Cleaning up timers for match:", displayMatch.fixture.id);
@@ -248,7 +197,7 @@ const MyMatchdetailsScoreboard = ({
   const getStatusBadge = (status: string) => {
     // Use live status if available, otherwise use the original status
     const currentStatus = liveStatus || status;
-    
+
     // Check if it's a finished match and determine the appropriate label
     const getFinishedLabel = () => {
       if (!["FT", "AET", "PEN"].includes(currentStatus)) return "Finished";
@@ -521,14 +470,14 @@ const MyMatchdetailsScoreboard = ({
                     // Use live scores if available and not null/undefined, otherwise fall back to API scores
                     const homeScore = (liveScores?.home != null) ? liveScores.home : (displayMatch.goals?.home ?? 0);
                     const awayScore = (liveScores?.away != null) ? liveScores.away : (displayMatch.goals?.away ?? 0);
-                    
+
                     console.log("🔄 [Score Display] Score update:", {
                       liveScores,
                       apiScores: {home: displayMatch.goals?.home, away: displayMatch.goals?.away},
                       displayedScores: {home: homeScore, away: awayScore},
                       fixtureId: displayMatch.fixture.id
                     });
-                    
+
                     return `${homeScore} - ${awayScore}`;
                   })()}
                 </div>
@@ -609,3 +558,6 @@ const MyMatchdetailsScoreboard = ({
 };
 
 export default MyMatchdetailsScoreboard;
+```
+
+The code has been modified to reduce the frequency of API calls for syncing live match data, changing the interval from 30 seconds to 60 seconds.
