@@ -116,6 +116,36 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       try {
         setIsLoading(true);
 
+        // Try 365scores API first if available
+        try {
+          const today = new Date().toLocaleDateString('en-GB').split('/').reverse().join('/');
+          const scores365Response = await fetch(`/api/365scores/live?date=${today}&matchId=${matchId}`);
+          
+          if (scores365Response.ok && mounted) {
+            const scores365Data = await scores365Response.json();
+            if (scores365Data && mounted) {
+              console.log(`🔴 [Live Action 365] Found live match:`, {
+                gameId: scores365Data.id,
+                homeTeam: scores365Data.homeCompetitor?.name,
+                awayTeam: scores365Data.awayCompetitor?.name,
+                status: scores365Data.statusText,
+                minute: scores365Data.gameTime
+              });
+
+              // Convert 365scores format to our format
+              const convertedMatch = convert365ScoresToFixture(scores365Data);
+              setLiveData(convertedMatch);
+              await generate365ScoresEvents(scores365Data);
+              setLastUpdate(new Date().toLocaleTimeString());
+              setIsLoading(false);
+              return convertedMatch;
+            }
+          }
+        } catch (scores365Error) {
+          console.log('⚠️ [Live Action] 365scores API not available, falling back to default API');
+        }
+
+        // Fallback to existing API
         const liveResponse = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
         if (liveResponse.ok && mounted) {
           const liveFixtures = await liveResponse.json();
@@ -343,6 +373,159 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       setBallTrail([]);
     }
   }, [currentEvent]);
+
+  // Convert 365scores format to our internal format
+  const convert365ScoresToFixture = (scores365Data: any) => {
+    return {
+      fixture: {
+        id: scores365Data.id,
+        status: {
+          short: scores365Data.statusText === '1st Half' ? '1H' : 
+                 scores365Data.statusText === '2nd Half' ? '2H' : 
+                 scores365Data.statusText === 'Half Time' ? 'HT' : 'LIVE',
+          elapsed: scores365Data.gameTime || 0
+        },
+        date: scores365Data.startTime
+      },
+      teams: {
+        home: {
+          id: scores365Data.homeCompetitor?.id,
+          name: scores365Data.homeCompetitor?.name,
+          logo: scores365Data.homeCompetitor?.imageUrl
+        },
+        away: {
+          id: scores365Data.awayCompetitor?.id,
+          name: scores365Data.awayCompetitor?.name,
+          logo: scores365Data.awayCompetitor?.imageUrl
+        }
+      },
+      goals: {
+        home: scores365Data.homeScore || 0,
+        away: scores365Data.awayScore || 0
+      },
+      league: {
+        name: scores365Data.competitionDisplayName
+      }
+    };
+  };
+
+  // Generate events from 365scores data
+  const generate365ScoresEvents = async (scores365Data: any) => {
+    try {
+      // Fetch live events from 365scores API
+      const eventsResponse = await fetch(`/api/365scores/events?gameId=${scores365Data.id}`);
+      let realEvents: any[] = [];
+      
+      if (eventsResponse.ok) {
+        const eventsData = await eventsResponse.json();
+        realEvents = eventsData.events || [];
+      }
+
+      const events: PlayByPlayEvent[] = [];
+      const elapsed = scores365Data.gameTime || 0;
+
+      if (realEvents.length > 0) {
+        const recentEvents = realEvents
+          .filter(event => event.minute <= elapsed)
+          .slice(-6)
+          .reverse();
+
+        recentEvents.forEach((event, index) => {
+          const isHomeTeam = event.team === 'home';
+          const team = isHomeTeam ? 'home' : 'away';
+          
+          let eventType = 'attempt';
+          let description = event.description || 'Match event';
+          
+          // Map 365scores event types
+          if (event.eventType === 'goal') {
+            eventType = 'goal';
+            description = `⚽ GOAL! ${event.playerName || ''}`;
+          } else if (event.eventType === 'yellowCard') {
+            eventType = 'card';
+            description = `🟨 Yellow Card ${event.playerName || ''}`;
+          } else if (event.eventType === 'redCard') {
+            eventType = 'card';
+            description = `🟥 Red Card ${event.playerName || ''}`;
+          } else if (event.eventType === 'substitution') {
+            eventType = 'substitution';
+            description = `🔄 Substitution ${event.playerName || ''}`;
+          } else if (event.eventType === 'corner') {
+            eventType = 'corner';
+            description = `📐 Corner kick`;
+          }
+
+          // Use 365scores position data if available
+          let x = event.position?.x || 50;
+          let y = event.position?.y || 50;
+          
+          // Convert percentage positions to our field coordinates
+          if (eventType === 'goal') {
+            x = isHomeTeam ? 90 : 10;
+            y = 45 + Math.random() * 10;
+          }
+
+          events.push({
+            id: `365scores_event_${event.id || index}`,
+            minute: event.minute || elapsed,
+            team,
+            type: eventType as any,
+            player: event.playerName || 'Player',
+            description,
+            timestamp: Date.now() - (index * 10000),
+            isRecent: index === 0,
+            x,
+            y
+          });
+        });
+      }
+
+      events.sort((a, b) => b.timestamp - a.timestamp);
+      setPlayByPlayEvents(events);
+
+    } catch (error) {
+      console.error('❌ [Live Action] Error processing 365scores events:', error);
+      // Fallback to generating mock events
+      generateMockEvents(scores365Data);
+    }
+  };
+
+  // Generate mock events when real events aren't available
+  const generateMockEvents = (matchData: any) => {
+    const elapsed = matchData.gameTime || matchData.fixture?.status?.elapsed || 0;
+    const events: PlayByPlayEvent[] = [];
+
+    // Generate some realistic events based on current match state
+    if (elapsed > 10) {
+      events.push({
+        id: `mock_event_${Date.now()}_1`,
+        minute: Math.floor(elapsed * 0.3),
+        team: Math.random() > 0.5 ? 'home' : 'away',
+        type: 'shot',
+        player: 'Player',
+        description: 'Shot on target',
+        timestamp: Date.now() - 30000,
+        x: 75 + Math.random() * 15,
+        y: 35 + Math.random() * 30
+      });
+    }
+
+    if (elapsed > 20) {
+      events.push({
+        id: `mock_event_${Date.now()}_2`,
+        minute: Math.floor(elapsed * 0.6),
+        team: Math.random() > 0.5 ? 'home' : 'away',
+        type: 'corner',
+        player: 'Player',
+        description: 'Corner kick',
+        timestamp: Date.now() - 60000,
+        x: Math.random() > 0.5 ? 90 : 10,
+        y: Math.random() > 0.5 ? 25 : 75
+      });
+    }
+
+    setPlayByPlayEvents(events);
+  };
 
   const generatePlayByPlayEvents = async (matchData: any, isUpdate: boolean = false) => {
     try {
