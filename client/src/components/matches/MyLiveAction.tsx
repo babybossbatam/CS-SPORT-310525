@@ -12,7 +12,7 @@ interface MyLiveActionProps {
 
 interface LiveEvent {
   id: string;
-  type: 'goal' | 'substitution' | 'card' | 'corner' | 'freekick' | 'offside' | 'foul' | 'shot' | 'save';
+  type: 'goal' | 'substitution' | 'card' | 'corner' | 'freekick' | 'offside' | 'foul' | 'shot' | 'save' | 'attack';
   minute: number;
   team: 'home' | 'away';
   player: string;
@@ -31,6 +31,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const [liveData, setLiveData] = useState<any>(null);
   const [liveEvents, setLiveEvents] = useState<LiveEvent[]>([]);
   const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
+  const [attackingTeam, setAttackingTeam] = useState<'home' | 'away' | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -165,7 +166,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     };
   }, [matchId, liveData?.fixture?.status?.short]);
 
-    // Use fetched live data
+  // Use fetched live data
   const displayMatch = liveData;
   const homeTeamData = homeTeam || displayMatch?.teams?.home;
   const awayTeamData = awayTeam || displayMatch?.teams?.away;
@@ -176,20 +177,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
   const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
 
-  // Debug logging for team display
-  console.log('🎯 [Live Action] Displaying match:', {
-    matchId,
-    homeTeam: homeTeamData?.name,
-    awayTeam: awayTeamData?.name,
-    fixtureId: displayMatch?.fixture?.id,
-    status: statusData,
-    isLive,
-    elapsed,
-    isLoading,
-    hasData: !!displayMatch
-  });
-
-  // Enhanced ball animation with continuous movement
+  // Enhanced ball animation with attack indicators
   useEffect(() => {
     let eventTimeoutId: NodeJS.Timeout;
     let continuousMovementId: NodeJS.Timeout;
@@ -198,6 +186,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     if (liveEvents.length > 0) {
       const latestEvent = liveEvents[0];
       eventTimeoutId = animateBallToEvent(latestEvent);
+
+      // Set attacking team for latest attack event
+      if (latestEvent.type === 'attack') {
+        setAttackingTeam(latestEvent.team);
+      }
     }
 
     // Start continuous random movement for live feel
@@ -226,41 +219,35 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         { x: 65, y: 75 }, // Right wing bottom
         { x: 75, y: 50 }, // Right midfield
         { x: 80, y: 30 }, // Right defense
-        { x: 40, y: 15 }, // Top penalty area
-        { x: 60, y: 85 }, // Bottom penalty area
       ];
 
-      // Randomly select a position with some bias towards center
       const randomPosition = fieldPositions[Math.floor(Math.random() * fieldPositions.length)];
-
-      // Add slight randomness to the selected position
       const targetX = randomPosition.x + (Math.random() - 0.5) * 10;
       const targetY = randomPosition.y + (Math.random() - 0.5) * 10;
 
-      // Ensure ball stays within field bounds
       const clampedX = Math.max(10, Math.min(90, targetX));
       const clampedY = Math.max(15, Math.min(85, targetY));
 
       setBallPosition({ x: clampedX, y: clampedY });
       setIsAnimating(true);
 
-      // Stop animation after movement
       setTimeout(() => setIsAnimating(false), 1500);
-
-      // Schedule next movement (every 3-6 seconds for realistic pace)
-      return setTimeout(moveRandomly, 3000 + Math.random() * 3000);
+      return setTimeout(moveRandomly, 4000 + Math.random() * 6000);
     };
 
-    return setTimeout(moveRandomly, 2000); // Start after 2 seconds
+    return setTimeout(moveRandomly, 2000);
   };
 
   const animateBallToEvent = (event: LiveEvent): NodeJS.Timeout => {
     setIsAnimating(true);
 
-    // Calculate ball position based on event type and team with more realistic positions
     let targetX = 50, targetY = 50;
 
     switch (event.type) {
+      case 'attack':
+        targetX = event.team === 'home' ? 75 : 25;
+        targetY = 50;
+        break;
       case 'goal':
         targetX = event.team === 'home' ? 88 : 12;
         targetY = 50;
@@ -269,25 +256,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         targetX = event.team === 'home' ? 88 : 12;
         targetY = Math.random() > 0.5 ? 18 : 82;
         break;
-      case 'freekick':
-        targetX = event.team === 'home' ? 65 + Math.random() * 15 : 20 + Math.random() * 15;
-        targetY = 25 + Math.random() * 50;
-        break;
       case 'shot':
         targetX = event.team === 'home' ? 75 + Math.random() * 10 : 15 + Math.random() * 10;
         targetY = 40 + Math.random() * 20;
-        break;
-      case 'save':
-        targetX = event.team === 'home' ? 15 : 85;
-        targetY = 45 + Math.random() * 10;
-        break;
-      case 'substitution':
-        targetX = event.team === 'home' ? 25 : 75;
-        targetY = 12;
-        break;
-      case 'foul':
-        targetX = 35 + Math.random() * 30;
-        targetY = 25 + Math.random() * 50;
         break;
       default:
         targetX = 35 + Math.random() * 30;
@@ -306,25 +277,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     const awayTeam = matchData.teams?.away;
     const events: LiveEvent[] = [];
 
-    // Get real player names from team data or use realistic fallbacks
     const getRealisticPlayers = (teamName: string) => {
-      if (teamName?.toLowerCase().includes('paris') || teamName?.toLowerCase().includes('psg')) {
+      if (teamName?.toLowerCase().includes('brasil') || teamName?.toLowerCase().includes('brazil')) {
         return [
-          { name: "Kylian Mbappé", position: "Forward" },
-          { name: "Ousmane Dembélé", position: "Winger" },
+          { name: "Vinícius Jr.", position: "Winger" },
+          { name: "Neymar", position: "Forward" },
+          { name: "Casemiro", position: "Midfielder" },
           { name: "Marquinhos", position: "Defender" },
-          { name: "Vitinha", position: "Midfielder" },
-          { name: "Achraf Hakimi", position: "Defender" },
-          { name: "Gianluigi Donnarumma", position: "Goalkeeper" }
-        ];
-      } else if (teamName?.toLowerCase().includes('botafogo')) {
-        return [
-          { name: "Tiquinho Soares", position: "Forward" },
-          { name: "Luiz Henrique", position: "Winger" },
-          { name: "Marlon Freitas", position: "Midfielder" },
-          { name: "Bastos", position: "Defender" },
-          { name: "Almada", position: "Midfielder" },
-          { name: "Gatito Fernández", position: "Goalkeeper" }
+          { name: "Alisson", position: "Goalkeeper" }
         ];
       }
       return [
@@ -335,20 +295,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     const homePlayers = getRealisticPlayers(homeTeam?.name || '');
     const awayPlayers = getRealisticPlayers(awayTeam?.name || '');
 
-    // Generate events based on match progression
     const eventTypes = [
-      { type: 'shot', weight: 0.3, descriptions: ['Shot on target', 'Shot blocked', 'Shot wide'] },
-      { type: 'foul', weight: 0.25, descriptions: ['Foul committed', 'Free kick awarded'] },
-      { type: 'corner', weight: 0.15, descriptions: ['Corner kick awarded'] },
-      { type: 'offside', weight: 0.1, descriptions: ['Offside call'] },
-      { type: 'card', weight: 0.1, descriptions: ['Yellow card', 'Booking'] },
-      { type: 'substitution', weight: 0.05, descriptions: ['Player substitution'] },
-      { type: 'goal', weight: 0.03, descriptions: ['GOAL!', 'Finds the net!'] },
-      { type: 'save', weight: 0.02, descriptions: ['Great save!', 'Keeper denies'] }
+      { type: 'attack', weight: 0.4, descriptions: ['Attacking', 'Building up play', 'Counter attack'] },
+      { type: 'shot', weight: 0.2, descriptions: ['Shot on target', 'Shot blocked'] },
+      { type: 'foul', weight: 0.15, descriptions: ['Foul committed'] },
+      { type: 'corner', weight: 0.1, descriptions: ['Corner kick'] },
+      { type: 'goal', weight: 0.05, descriptions: ['GOAL!'] },
+      { type: 'card', weight: 0.1, descriptions: ['Yellow card'] }
     ];
 
-    // Create 3-5 recent events
-    const numEvents = 3 + Math.floor(Math.random() * 3);
+    const numEvents = 2 + Math.floor(Math.random() * 2);
 
     for (let i = 0; i < numEvents; i++) {
       const isHomeTeam = Math.random() > 0.5;
@@ -356,7 +312,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       const players = isHomeTeam ? homePlayers : awayPlayers;
       const player = players[Math.floor(Math.random() * players.length)];
 
-      // Select event type based on weights
       const random = Math.random();
       let cumulativeWeight = 0;
       let selectedEvent = eventTypes[0];
@@ -369,7 +324,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         }
       }
 
-      const eventMinute = Math.max(1, elapsed - Math.floor(Math.random() * 10));
+      const eventMinute = Math.max(1, elapsed - Math.floor(Math.random() * 5));
       const description = selectedEvent.descriptions[Math.floor(Math.random() * selectedEvent.descriptions.length)];
 
       events.push({
@@ -380,11 +335,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         player: player.name,
         position: player.position,
         details: description,
-        timestamp: Date.now() - (i * 30000) // Events spread over last 30 seconds each
+        timestamp: Date.now() - (i * 30000)
       });
     }
 
-    // Sort by most recent first
     events.sort((a, b) => b.timestamp - a.timestamp);
     setLiveEvents(events);
   };
@@ -399,13 +353,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       offside: "🚩",
       foul: "⚠️",
       shot: "🎯",
-      save: "🥅"
+      save: "🥅",
+      attack: "⚔️"
     };
     return icons[type as keyof typeof icons] || "⚽";
   };
 
   const getEventColor = (type: string) => {
     const colors = {
+      attack: "bg-orange-500",
       goal: "bg-green-500",
       substitution: "bg-blue-500",
       card: "bg-yellow-500",
@@ -480,9 +436,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <CardTitle className="text-sm font-medium text-gray-900">
               Live Action
             </CardTitle>
-            <p className="text-xs text-gray-500 mt-1">
+            {/* <p className="text-xs text-gray-500 mt-1">
               {homeTeamData?.name} vs {awayTeamData?.name}
-            </p>
+            </p> */}
           </div>
           <Badge variant="destructive" className="animate-pulse">
             LIVE
@@ -491,58 +447,77 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       </CardHeader>
 
       <CardContent className="p-0 relative">
-        {/* Enhanced Football Field with animated ball */}
-        <div className="relative bg-gradient-to-br from-green-500 via-green-600 to-green-700 h-64 overflow-hidden">
+        {/* Enhanced Football Field */}
+        <div className="relative bg-gradient-to-br from-green-500 via-green-600 to-green-700 h-80 overflow-hidden">
+          {/* Geometric overlay pattern like the reference */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 border-4 border-white rotate-45"></div>
+            <div className="absolute top-1/2 left-1/4 transform -translate-x-1/2 -translate-y-1/2 w-32 h-64 border-2 border-white rotate-12"></div>
+            <div className="absolute top-1/2 right-1/4 transform translate-x-1/2 -translate-y-1/2 w-32 h-64 border-2 border-white -rotate-12"></div>
+          </div>
+
           {/* Field markings */}
           <div className="absolute inset-0">
-            <svg width="100%" height="100%" className="absolute inset-0" viewBox="0 0 400 260">
+            <svg width="100%" height="100%" className="absolute inset-0" viewBox="0 0 400 320">
               {/* Field outline */}
-              <rect x="0" y="0" width="400" height="260" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2"/>
+              <rect x="10" y="10" width="380" height="300" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2"/>
 
               {/* Center line and circle */}
-              <line x1="200" y1="0" x2="200" y2="260" stroke="rgba(255,255,255,0.8)" strokeWidth="2"/>
-              <circle cx="200" cy="130" r="40" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2"/>
-              <circle cx="200" cy="130" r="2" fill="rgba(255,255,255,0.8)"/>
+              <line x1="200" y1="10" x2="200" y2="310" stroke="rgba(255,255,255,0.6)" strokeWidth="2"/>
+              <circle cx="200" cy="160" r="40" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2"/>
+              <circle cx="200" cy="160" r="2" fill="rgba(255,255,255,0.8)"/>
 
               {/* Penalty areas */}
-              <rect x="0" y="65" width="65" height="130" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2"/>
-              <rect x="0" y="95" width="25" height="70" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2"/>
-              <rect x="335" y="65" width="65" height="130" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2"/>
-              <rect x="375" y="95" width="25" height="70" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2"/>
+              <rect x="10" y="80" width="65" height="160" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2"/>
+              <rect x="10" y="120" width="25" height="80" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2"/>
+              <rect x="325" y="80" width="65" height="160" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2"/>
+              <rect x="365" y="120" width="25" height="80" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2"/>
 
               {/* Goals */}
-              <rect x="0" y="115" width="8" height="30" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.8)" strokeWidth="1"/>
-              <rect x="392" y="115" width="8" height="30" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.8)" strokeWidth="1"/>
+              <rect x="5" y="140" width="10" height="40" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.8)" strokeWidth="1"/>
+              <rect x="385" y="140" width="10" height="40" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.8)" strokeWidth="1"/>
             </svg>
           </div>
 
-          {/* Enhanced Animated Ball */}
+          {/* Attack indicator */}
+          {attackingTeam && (
+            <div className={`absolute top-1/2 ${attackingTeam === 'home' ? 'right-32' : 'left-32'} transform -translate-y-1/2 z-20`}>
+              <div className="bg-black bg-opacity-60 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium">Attacking</span>
+                <span className="text-sm font-bold">
+                  {attackingTeam === 'home' 
+                    ? (homeTeamData?.code || homeTeamData?.name?.substring(0, 8).toUpperCase())
+                    : (awayTeamData?.code || awayTeamData?.name?.substring(0, 8).toUpperCase())
+                  }
+                </span>
+                <img 
+                  src={attackingTeam === 'home' ? homeTeamData?.logo : awayTeamData?.logo} 
+                  alt="Team logo" 
+                  className="w-5 h-5 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Animated Ball */}
           <div 
-            key={`ball-${ballPosition.x}-${ballPosition.y}`}
-            className={`absolute w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-1000 ease-out ${isAnimating ? 'scale-125 rotate-180' : 'scale-100'}`}
+            className={`absolute w-3 h-3 bg-white rounded-full shadow-lg transition-all duration-2000 ease-out ${isAnimating ? 'scale-125' : 'scale-100'} z-10`}
             style={{ 
               left: `${ballPosition.x}%`, 
               top: `${ballPosition.y}%`,
               transform: `translate(-50%, -50%)`,
-              boxShadow: '0 3px 12px rgba(0,0,0,0.4), 0 1px 4px rgba(255,255,255,0.2) inset',
-              zIndex: 10,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
               background: 'radial-gradient(circle at 30% 30%, #ffffff, #f0f0f0)',
             }}
-          >
-            <div className="w-full h-full bg-white rounded-full border-2 border-black flex items-center justify-center relative overflow-hidden">
-              {/* Soccer ball pattern */}
-              <div className="absolute inset-0 rounded-full">
-                <div className="absolute top-1 left-1 w-1 h-1 bg-black rounded-full"></div>
-                <div className="absolute bottom-1 right-1 w-0.5 h-0.5 bg-black rounded-full"></div>
-              </div>
-              {/* Ball movement blur effect */}
-              <div className={`absolute inset-0 rounded-full ${isAnimating ? 'bg-white opacity-20 animate-pulse' : ''}`}></div>
-            </div>
-          </div>
+          />
 
           {/* Score display */}
           <div className="absolute bottom-4 left-4 z-20">
-            <div className="bg-white bg-opacity-95 rounded-lg px-4 py-3 shadow-lg">
+            <div className="bg-black bg-opacity-80 text-white rounded-lg px-4 py-3 shadow-lg">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
                   <img 
@@ -553,19 +528,19 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       e.currentTarget.src = "/assets/fallback-logo.png";
                     }}
                   />
-                  <span className="text-xs font-medium text-gray-600">
+                  <span className="text-xs font-medium">
                     {homeTeamData?.code || homeTeamData?.name?.substring(0, 3).toUpperCase()}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2 text-lg font-bold text-gray-800">
-                  <span className="text-blue-600">{displayMatch?.goals?.home || 0}</span>
+                <div className="flex items-center gap-2 text-lg font-bold">
+                  <span>{displayMatch?.goals?.home || 0}</span>
                   <span className="text-gray-400 text-sm">-</span>
-                  <span className="text-red-500">{displayMatch?.goals?.away || 0}</span>
+                  <span>{displayMatch?.goals?.away || 0}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium text-gray-600">
+                  <span className="text-xs font-medium">
                     {awayTeamData?.code || awayTeamData?.name?.substring(0, 3).toUpperCase()}
                   </span>
                   <img 
@@ -583,15 +558,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
           {/* Match time */}
           <div className="absolute top-4 left-4 z-20">
-            <div className="bg-blue-600 text-white px-3 py-1 rounded-lg font-bold flex items-center gap-2">
-              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <div className="bg-red-600 text-white px-3 py-1 rounded-lg font-bold flex items-center gap-2">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
               {elapsed}'
             </div>
           </div>
         </div>
 
         {/* Live Events Feed - 365scores style */}
-        <div className="bg-gray-50 border-t border-gray-200">
+        {/* <div className="bg-gray-50 border-t border-gray-200">
           <div className="px-4 py-2 border-b border-gray-200">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-gray-800">Match Events</h3>
@@ -643,7 +618,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               </div>
             )}
           </div>
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   );
