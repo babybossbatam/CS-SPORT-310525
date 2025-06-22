@@ -186,26 +186,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     114, 116, 120, 121, 122, 123, 124, 125, 126, 127,
   ]; // Significantly expanded to include major leagues from all continents
 
-  // Fetch live fixtures with auto-refresh (similar to LiveMatchForAllCountry)
-  const { data: liveFixtures = [] } = useQuery({
-    queryKey: ["live-fixtures-by-country"],
-    queryFn: async () => {
-      console.log("🔴 [TodaysMatchesByCountryNew] Fetching live fixtures");
-      const response = await apiRequest("GET", "/api/fixtures/live");
-      const data = await response.json();
-      console.log(
-        `🔴 [TodaysMatchesByCountryNew] Received ${data.length} live fixtures`,
-      );
-      return data;
-    },
-    staleTime: 20000, // 20 seconds for faster live updates
-    gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
-    enabled: enableFetching,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
-    refetchOnReconnect: true,
-    refetchInterval: 30000, // Auto-refresh every 30 seconds
-  });
+  // Removed live fixtures fetching - this component now only handles date-based fixtures
 
   // Fetch all fixtures for the selected date with comprehensive caching
   const { data: fixtures = [], isLoading } = useQuery({
@@ -299,72 +280,23 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     },
     staleTime: 2 * 60 * 1000, // 2 minutes for live data
     gcTime: 30 * 60 * 1000, // 30 minutes garbage collection time
-    enabled: !!selectedDate && enableFetching && !liveFilterActive, // Don't fetch date fixtures when live filter is active
+    enabled: !!selectedDate && enableFetching, // Always fetch date fixtures
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
   });
 
-  // Simple data source selection - NO MIXING OF DATA
+  // Simple fixture processing - only use cached/date-based fixtures
   const processedFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
-    // Create a map of live fixtures for fast lookup
-    const liveFixturesMap = new Map();
-    liveFixtures.forEach((liveFixture) => {
-      liveFixturesMap.set(liveFixture.fixture.id, liveFixture);
-    });
-
     console.log(
-      `🔄 [TodaysMatchesByCountryNew] Processing ${fixtures.length} fixtures with PURE data source selection`,
+      `🔄 [TodaysMatchesByCountryNew] Processing ${fixtures.length} fixtures from date-based API`,
     );
 
-    const processed = fixtures.map((cachedFixture) => {
-      const fixtureId = cachedFixture.fixture.id;
-      const cachedStatus = cachedFixture.fixture.status.short;
-      const liveFixture = liveFixturesMap.get(fixtureId);
-
-      // RULE 1: If match is LIVE and we have live data - use PURE live data
-      const isLiveMatch = [
-        "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
-      ].includes(cachedStatus);
-
-      if (isLiveMatch && liveFixture) {
-        console.log(
-          `🔴 [PURE LIVE] Using pure live data for live match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`,
-        );
-        return liveFixture; // Pure live data - no mixing
-      }
-
-      // RULE 2: If match just finished (recently ended) - use live data if available
-      const isRecentlyFinished = [
-        "FT", "AET", "PEN"
-      ].includes(cachedStatus);
-
-      if (isRecentlyFinished && liveFixture) {
-        const liveStatus = liveFixture.fixture.status.short;
-        const isLiveAlsoFinished = ["FT", "AET", "PEN"].includes(liveStatus);
-
-        if (isLiveAlsoFinished) {
-          console.log(
-            `✅ [RECENTLY FINISHED] Using live data for recently finished match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`,
-          );
-          return liveFixture; // Use fresh finished data
-        }
-      }
-
-      // RULE 3: For all other cases (upcoming, old finished matches) - use PURE cached data
-      console.log(
-        `💾 [PURE CACHED] Using pure cached data for match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name} (${cachedStatus})`,
-      );
-      return cachedFixture; // Pure cached data - no mixing
-    });
-
-    console.log(
-      `✅ [TodaysMatchesByCountryNew] Pure data source selection completed: ${processed.length} fixtures`,
-    );
-    return processed;
-  }, [fixtures, liveFixtures]);
+    // Return fixtures as-is from the date-based API endpoint
+    return fixtures;
+  }, [fixtures]);
 
   // Effect to detect halftime and fulltime status changes
   useEffect(() => {
@@ -665,8 +597,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Enhanced filtering using smart time filter for accurate date handling
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
-    // Use the appropriate data source based on filter state
-    const allFixtures = liveFilterActive ? liveFixtures : processedFixtures;
+    // Use only date-based fixtures
+    const allFixtures = processedFixtures;
     if (!allFixtures?.length) {
       return {
         validFixtures: [],
@@ -695,20 +627,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         return;
       }
 
-      // If live filter is active, only show live matches
-      if (liveFilterActive) {
-        const status = fixture.fixture.status?.short;
-        const isCurrentlyLive = [
-          "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
-        ].includes(status);
-
-        if (isCurrentlyLive) {
-          filtered.push(fixture);
-        } else {
-          rejected.push({ fixture, reason: 'Not currently live' });
-        }
-        return;
-      }
+      // Removed live filter logic - this component only handles date-based filtering
 
       // For date-based filtering, use smart time filter for accurate date handling
       if (fixture.fixture.date && fixture.fixture.status?.short) {
