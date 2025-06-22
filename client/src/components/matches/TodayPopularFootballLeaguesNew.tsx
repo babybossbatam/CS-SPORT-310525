@@ -843,7 +843,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
           console.log(
             `🔍 [FINAL RESULT DEBUG] League ${leagueId} was in original data but filtered out:`,
             {
-              originalCount: originalLeagueFixtures.length,
+              originalCount: original```typescript
+LeagueFixtures.length,
               sampleFixture: originalLeagueFixtures[0]
                 ? {
                     id: originalLeagueFixtures[0].fixture?.id,
@@ -1809,8 +1810,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           "1H",
                           "HT",
                           "2H",
-                          "ET",
-                          "BT",
+                          "ET","BT",
                           "P",
 "INT",
                         ].includes(aStatus);
@@ -2023,38 +2023,35 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     );
                                   }
 
-                                  // Use only the most recent elapsed time from live fixtures
-                                  // Check if this match has more recent live data
-                                  const liveMatch = liveFixtures.find(
-                                    (lf: any) => lf.fixture.id === match.fixture.id
-                                  );
-                                  const currentElapsed = liveMatch?.fixture?.status?.elapsed ?? elapsed;
+                                  
+                                } else {
+                                                // For LIVE, LIV, 1H, 2H - use the most recent elapsed time from live data
+                                                const liveMatch = liveFixtures.find((lf: any) => lf.fixture.id === match.fixture.id);
 
-                                  console.log(`🕐 [ELAPSED TIME DEBUG] Match ${match.fixture.id}:`, {
-                                    teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
-                                    status: status,
-                                    cachedElapsed: elapsed,
-                                    liveElapsed: liveMatch?.fixture?.status?.elapsed,
-                                    finalElapsed: currentElapsed,
-                                    hasLiveData: !!liveMatch
-                                  });
+                                                // Prioritize live fixture data over cached data
+                                                let currentElapsed = elapsed; // Default to cached elapsed
 
-                                  if (status === "HT") {
-                                    displayText = "Halftime";
-                                  } else if (status === "P") {
-                                    displayText = "Penalties";
-                                  } else if (status === "ET") {
-                                    displayText = currentElapsed
-                                      ? `${currentElapsed}' ET`
-                                      : "Extra Time";
-                                  } else if (status === "BT") {
-                                    displayText = "Break Time";
-                                  } else if (status === "INT") {
-                                    displayText = "Interrupted";
-                                  } else {
-                                    // For LIVE, LIV, 1H, 2H - use the most recent elapsed time
-                                    displayText = currentElapsed ? `${currentElapsed}'` : "LIVE";
-                                  }
+                                                if (liveMatch?.fixture?.status?.elapsed !== null && 
+                                                    liveMatch?.fixture?.status?.elapsed !== undefined) {
+                                                  currentElapsed = liveMatch.fixture.status.elapsed;
+                                                }
+
+                                                console.log(`🕐 [ELAPSED TIME DEBUG] TodayPopularFootballLeaguesNew Match ${match.fixture.id}:`, {
+                                                  teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
+                                                  status: status,
+                                                  cachedElapsed: elapsed,
+                                                  liveElapsed: liveMatch?.fixture?.status?.elapsed,
+                                                  finalElapsed: currentElapsed,
+                                                  hasLiveData: !!liveMatch,
+                                                  usingLiveData: liveMatch?.fixture?.status?.elapsed !== null && liveMatch?.fixture?.status?.elapsed !== undefined
+                                                });
+
+                                                if (currentElapsed !== null && currentElapsed !== undefined) {
+                                                  displayText = `${currentElapsed}'`;
+                                                } else {
+                                                  displayText = "LIVE";
+                                                }
+                                              }
 
                                   return (
                                     <div className="match-status-label status-live">
