@@ -420,7 +420,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
   // Filter live matches and update state
   useEffect(() => {
-    if (!liveFixtures || liveFixtures.length === 0) {
+    if (!fixtures || fixtures.length === 0) {
       console.log('🔍 [LiveMatchForAllCountry] No live fixtures available');
       setFilteredFixtures([]);
       setHasLiveMatches(false);
@@ -428,7 +428,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     }
 
     // Filter fixtures that are actually live
-    const actualLiveFixtures = liveFixtures.filter((fixture: any) => {
+    const actualLiveFixtures = fixtures.filter((fixture: any) => {
       const status = fixture.fixture?.status?.short;
       const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
 
@@ -440,7 +440,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     });
 
     console.log('🔍 [LiveMatchForAllCountry] Live matches check:', {
-      totalFixtures: liveFixtures.length,
+      totalFixtures: fixtures.length,
       filteredFixtures: actualLiveFixtures.length,
       hasLiveMatches: actualLiveFixtures.length > 0,
       liveFilterActive,
@@ -449,7 +449,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
     setFilteredFixtures(actualLiveFixtures);
     setHasLiveMatches(actualLiveFixtures.length > 0);
-  }, [liveFixtures?.length, liveFilterActive]);
+  }, [fixtures?.length, liveFilterActive]);
 
   // Group fixtures by country
   const fixturesByCountry = filteredFixtures.reduce((acc: any, fixture: any) => {
