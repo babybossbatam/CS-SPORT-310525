@@ -48,6 +48,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const displayMatch = liveData;
   const currentStatus = status || displayMatch?.fixture?.status?.short;
   const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
+  
+  // Define elapsed early to avoid initialization errors in useEffect dependencies
+  const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
 
   // Fetch initial match data and set up real-time updates
   useEffect(() => {
@@ -524,7 +527,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const homeTeamData = homeTeam || displayMatch?.teams?.home;
   const awayTeamData = awayTeam || displayMatch?.teams?.away;
   const statusData = status || displayMatch?.fixture?.status?.short;
-  const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
 
   if (isLoading) {
     return (
