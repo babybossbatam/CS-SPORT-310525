@@ -212,7 +212,7 @@ const HomeTopScorersList = () => {
   // Calculate dimensions on mount and resize
   useEffect(() => {
     const updateDimensions = () => {
-      if (scrollContainerRef.current) {
+      if (scrollContainerRef.current && availableLeagues.length > 0) {
         const container = scrollContainerRef.current;
         const content = container.querySelector('[data-content]') as HTMLElement;
         if (content) {
@@ -222,15 +222,33 @@ const HomeTopScorersList = () => {
       }
     };
 
-    // Use a small delay to ensure elements are rendered
-    const timer = setTimeout(updateDimensions, 100);
+    // Use a longer delay to ensure all league buttons are rendered
+    const timer = setTimeout(updateDimensions, 200);
     window.addEventListener('resize', updateDimensions);
 
     return () => {
       clearTimeout(timer);
       window.removeEventListener('resize', updateDimensions);
     };
-  }, [availableLeagues]);
+  }, [availableLeagues.length]);
+
+  // Additional effect to update dimensions when selected league changes
+  useEffect(() => {
+    if (selectedLeague && availableLeagues.length > 0) {
+      const timer = setTimeout(() => {
+        if (scrollContainerRef.current) {
+          const container = scrollContainerRef.current;
+          const content = container.querySelector('[data-content]') as HTMLElement;
+          if (content) {
+            setContainerWidth(container.clientWidth);
+            setContentWidth(content.scrollWidth);
+          }
+        }
+      }, 50);
+
+      return () => clearTimeout(timer);
+    }
+  }, [selectedLeague, availableLeagues.length]);
 
   const scrollLeft = () => {
     // Move to previous league
@@ -272,23 +290,37 @@ const HomeTopScorersList = () => {
 
   // Auto-scroll to selected league when it changes - 365scores style
   useEffect(() => {
-    if (scrollContainerRef.current && selectedLeague) {
-      const container = scrollContainerRef.current;
-      const selectedButton = container.querySelector(`[data-league-id="${selectedLeague}"]`) as HTMLElement;
-      if (selectedButton) {
-        const buttonLeft = selectedButton.offsetLeft;
-        const buttonWidth = selectedButton.offsetWidth;
-        const containerWidth = container.clientWidth;
+    if (scrollContainerRef.current && selectedLeague && availableLeagues.length > 0) {
+      // Use requestAnimationFrame to ensure DOM is updated
+      requestAnimationFrame(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
 
-        // Calculate optimal position to center the selected item
-        const targetPosition = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
-        const maxScroll = Math.max(0, contentWidth - containerWidth);
-        const clampedPosition = Math.max(0, Math.min(maxScroll, targetPosition));
+        const selectedButton = container.querySelector(`[data-league-id="${selectedLeague}"]`) as HTMLElement;
+        if (selectedButton) {
+          const buttonLeft = selectedButton.offsetLeft;
+          const buttonWidth = selectedButton.offsetWidth;
+          const containerWidth = container.clientWidth;
+          
+          // Recalculate content width if needed
+          const content = container.querySelector('[data-content]') as HTMLElement;
+          const actualContentWidth = content ? content.scrollWidth : contentWidth;
 
-        setContentPosition(clampedPosition);
-      }
+          // Calculate optimal position to center the selected item
+          const targetPosition = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
+          const maxScroll = Math.max(0, actualContentWidth - containerWidth);
+          const clampedPosition = Math.max(0, Math.min(maxScroll, targetPosition));
+
+          setContentPosition(clampedPosition);
+          
+          // Update content width if it changed
+          if (actualContentWidth !== contentWidth) {
+            setContentWidth(actualContentWidth);
+          }
+        }
+      });
     }
-  }, [selectedLeague, contentWidth, containerWidth]);
+  }, [selectedLeague, availableLeagues.length, contentWidth, containerWidth]);
 
   if (isLoadingLeagues || isLoading || !selectedLeague) {
     return (
