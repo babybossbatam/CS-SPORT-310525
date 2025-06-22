@@ -235,8 +235,8 @@ const Home = () => {
     allLeaguesLength: allLeagues?.length
   });
 
-  // Only show loading skeleton if we have absolutely no data and are actually loading
-  if (leaguesLoading && allLeagues.length === 0 && !fixtures?.length) {
+  // Only show loading skeleton if we're in genuine initial loading state
+  if (isInitialLoad && leaguesLoading && allLeagues.length === 0) {
     return (
       <>
         <Header />
