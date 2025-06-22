@@ -81,7 +81,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             });
 
             setLiveData(liveMatch);
-            generatePlayByPlayEvents(liveMatch);
+            await generatePlayByPlayEvents(liveMatch);
             setLastUpdate(new Date().toLocaleTimeString());
             setIsLoading(false);
             return liveMatch;
@@ -102,7 +102,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             });
 
             setLiveData(match);
-            generatePlayByPlayEvents(match);
+            await generatePlayByPlayEvents(match);
             setLastUpdate(new Date().toLocaleTimeString());
             setIsLoading(false);
             return match;
@@ -139,7 +139,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
             // Generate new events if time has progressed
             if (currentElapsed > previousElapsed) {
-              generatePlayByPlayEvents(currentMatch, true);
+              await generatePlayByPlayEvents(currentMatch, true);
             }
 
             setLastUpdate(new Date().toLocaleTimeString());
@@ -257,122 +257,175 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     }
   }, [currentEvent]);
 
-  const generatePlayByPlayEvents = (matchData: any, isUpdate: boolean = false) => {
-    const homeTeam = matchData.teams?.home;
-    const awayTeam = matchData.teams?.away;
-    const elapsed = matchData.fixture?.status?.elapsed || 0;
-
-    // Event types with realistic probabilities and field positions
-    const eventTypes = [
-      { 
-        type: 'shot', 
-        weight: 0.35, 
-        descriptions: ['Shot blocked', 'Shot saved', 'Shot wide', 'Shot on target'],
-        positions: { near: [75, 85, 90], far: [15, 25, 35] } // Near goal positions
-      },
-      { 
-        type: 'attempt', 
-        weight: 0.25, 
-        descriptions: ['Dangerous attack', 'Close attempt', 'Effort blocked'],
-        positions: { near: [70, 80, 85], far: [20, 30, 40] }
-      },
-      { 
-        type: 'foul', 
-        weight: 0.15, 
-        descriptions: ['Foul committed', 'Free kick awarded', 'Handball'],
-        positions: { near: [40, 50, 60], far: [40, 50, 60] } // Midfield fouls
-      },
-      { 
-        type: 'corner', 
-        weight: 0.08, 
-        descriptions: ['Corner kick'],
-        positions: { near: [95, 95, 95], far: [5, 5, 5] } // Corner positions
-      },
-      { 
-        type: 'offside', 
-        weight: 0.05, 
-        descriptions: ['Offside'],
-        positions: { near: [80, 85, 90], far: [15, 20, 25] }
-      },
-      { 
-        type: 'card', 
-        weight: 0.04, 
-        descriptions: ['Yellow card', 'Caution'],
-        positions: { near: [30, 50, 70], far: [30, 50, 70] }
-      },
-      { 
-        type: 'substitution', 
-        weight: 0.06, 
-        descriptions: ['Substitution'],
-        positions: { near: [50, 50, 50], far: [50, 50, 50] } // Sideline
-      },
-      { 
-        type: 'goal', 
-        weight: 0.02, 
-        descriptions: ['GOAL!', 'Goal scored!'],
-        positions: { near: [95, 95, 95], far: [5, 5, 5] } // Goal line
+  const generatePlayByPlayEvents = async (matchData: any, isUpdate: boolean = false) => {
+    try {
+      // Fetch real match events from API
+      const response = await fetch(`/api/fixtures/${matchData.fixture.id}/events`);
+      let realEvents: any[] = [];
+      
+      if (response.ok) {
+        realEvents = await response.json();
+        console.log(`📊 [Live Action] Fetched ${realEvents.length} real events for match ${matchData.fixture.id}:`, realEvents);
+      } else {
+        console.log(`⚠️ [Live Action] No events API available for match ${matchData.fixture.id}, using fallback`);
       }
-    ];
 
-    const players = {
-      home: ['Forward', 'Midfielder', 'Defender', 'Striker', 'Winger'],
-      away: ['Forward', 'Midfielder', 'Defender', 'Striker', 'Winger']
-    };
+      const homeTeam = matchData.teams?.home;
+      const awayTeam = matchData.teams?.away;
+      const elapsed = matchData.fixture?.status?.elapsed || 0;
 
-    const events: PlayByPlayEvent[] = [];
+      const events: PlayByPlayEvent[] = [];
 
-    // Generate 1-3 recent events
-    const numEvents = 1 + Math.floor(Math.random() * 3);
+      // Process real events if available
+      if (realEvents.length > 0) {
+        const recentEvents = realEvents
+          .filter(event => event.time?.elapsed <= elapsed)
+          .slice(-6) // Get last 6 events
+          .reverse(); // Most recent first
 
-    for (let i = 0; i < numEvents; i++) {
-      const isHomeTeam = Math.random() > 0.5;
-      const team = isHomeTeam ? 'home' : 'away';
-      const teamPlayers = players[team];
-      const player = teamPlayers[Math.floor(Math.random() * teamPlayers.length)];
+        recentEvents.forEach((event, index) => {
+          const isHomeTeam = event.team?.id === homeTeam?.id;
+          const team = isHomeTeam ? 'home' : 'away';
+          
+          // Map real event types to our display types
+          let eventType = 'attempt';
+          let description = event.detail || 'Match event';
+          
+          if (event.type === 'Goal') {
+            eventType = 'goal';
+            description = `GOAL! ${event.detail || ''}`;
+          } else if (event.type === 'Card') {
+            eventType = 'card';
+            description = `${event.detail || 'Yellow'} card`;
+          } else if (event.type === 'subst') {
+            eventType = 'substitution';
+            description = 'Substitution';
+          } else if (event.detail?.toLowerCase().includes('corner')) {
+            eventType = 'corner';
+            description = 'Corner kick';
+          } else if (event.detail?.toLowerCase().includes('offside')) {
+            eventType = 'offside';
+            description = 'Offside';
+          } else if (event.detail?.toLowerCase().includes('foul')) {
+            eventType = 'foul';
+            description = 'Foul committed';
+          } else if (event.detail?.toLowerCase().includes('shot')) {
+            eventType = 'shot';
+            description = event.detail;
+          }
 
-      // Select event type based on weights
-      const random = Math.random();
-      let cumulativeWeight = 0;
-      let selectedEvent = eventTypes[0];
+          // Calculate field position based on event type and team
+          let x = 50, y = 50; // Default center
+          
+          if (eventType === 'goal') {
+            x = isHomeTeam ? 95 : 5;
+            y = 40 + Math.random() * 20; // Goal area
+          } else if (eventType === 'corner') {
+            x = isHomeTeam ? 95 : 5;
+            y = Math.random() > 0.5 ? 15 : 85; // Corner positions
+          } else if (eventType === 'shot') {
+            x = isHomeTeam ? 75 + Math.random() * 20 : 5 + Math.random() * 20;
+            y = 25 + Math.random() * 50;
+          } else if (eventType === 'foul') {
+            x = 30 + Math.random() * 40; // Midfield
+            y = 20 + Math.random() * 60;
+          } else {
+            // General field position
+            x = isHomeTeam ? 60 + Math.random() * 30 : 10 + Math.random() * 30;
+            y = 20 + Math.random() * 60;
+          }
 
-      for (const eventType of eventTypes) {
-        cumulativeWeight += eventType.weight;
-        if (random <= cumulativeWeight) {
-          selectedEvent = eventType;
-          break;
+          events.push({
+            id: `real_event_${event.time?.elapsed}_${index}`,
+            minute: event.time?.elapsed || elapsed,
+            team,
+            type: eventType as any,
+            player: event.player?.name || event.assist?.name || 'Player',
+            description,
+            timestamp: Date.now() - (index * 10000), // Spread out timestamps
+            isRecent: index === 0 && isUpdate,
+            x,
+            y
+          });
+        });
+      }
+
+      // If no real events or need to fill up, add some simulated events
+      if (events.length < 3) {
+        const simulatedCount = 3 - events.length;
+        
+        for (let i = 0; i < simulatedCount; i++) {
+          const isHomeTeam = Math.random() > 0.5;
+          const team = isHomeTeam ? 'home' : 'away';
+          
+          const eventTypes = ['shot', 'attempt', 'foul', 'corner'];
+          const selectedType = eventTypes[Math.floor(Math.random() * eventTypes.length)];
+          
+          const descriptions = {
+            shot: ['Shot saved', 'Shot blocked', 'Shot wide'],
+            attempt: ['Attack', 'Close attempt'],
+            foul: ['Foul committed', 'Free kick'],
+            corner: ['Corner kick']
+          };
+          
+          const description = descriptions[selectedType as keyof typeof descriptions][
+            Math.floor(Math.random() * descriptions[selectedType as keyof typeof descriptions].length)
+          ];
+
+          // Position based on event type
+          let x = 50, y = 50;
+          if (selectedType === 'shot') {
+            x = isHomeTeam ? 80 + Math.random() * 15 : 5 + Math.random() * 15;
+          } else if (selectedType === 'corner') {
+            x = isHomeTeam ? 95 : 5;
+            y = Math.random() > 0.5 ? 15 : 85;
+          } else {
+            x = isHomeTeam ? 60 + Math.random() * 25 : 15 + Math.random() * 25;
+          }
+          y = 25 + Math.random() * 50;
+
+          events.push({
+            id: `sim_event_${Date.now()}_${i}`,
+            minute: Math.max(1, elapsed - Math.floor(Math.random() * 10)),
+            team,
+            type: selectedType as any,
+            player: 'Player',
+            description,
+            timestamp: Date.now() - ((events.length + i) * 8000),
+            isRecent: false,
+            x,
+            y
+          });
         }
       }
 
-      const eventMinute = Math.max(1, elapsed - Math.floor(Math.random() * 8));
-      const description = selectedEvent.descriptions[Math.floor(Math.random() * selectedEvent.descriptions.length)];
+      // Sort by most recent first
+      events.sort((a, b) => b.timestamp - a.timestamp);
 
-      // Determine field position based on team and event type
-      const positionType = isHomeTeam ? 'near' : 'far';
-      const possibleX = selectedEvent.positions[positionType];
-      const x = possibleX[Math.floor(Math.random() * possibleX.length)];
-      const y = 25 + Math.random() * 50; // Random Y position in middle area
+      if (isUpdate) {
+        // Add new events to the beginning, keep only recent ones
+        setPlayByPlayEvents(prev => [...events.slice(0, 3), ...prev.slice(0, 4)]);
+      } else {
+        setPlayByPlayEvents(events);
+      }
 
-      events.push({
-        id: `event_${Date.now()}_${i}`,
-        minute: eventMinute,
-        team,
-        type: selectedEvent.type as any,
-        player,
-        description,
-        timestamp: Date.now() - (i * 8000),
-        isRecent: i === 0 && isUpdate,
-        x: isHomeTeam ? x : 100 - x, // Flip X for away team
-        y
-      });
-    }
-
-    // Sort by most recent first
-    events.sort((a, b) => b.timestamp - a.timestamp);
-
-    if (isUpdate) {
-      // Add new events to the beginning
-      setPlayByPlayEvents(prev => [...events, ...prev.slice(0, 6)]);
-    } else {
+    } catch (error) {
+      console.error('❌ [Live Action] Error fetching real events:', error);
+      
+      // Fallback to simulated events
+      const events: PlayByPlayEvent[] = [{
+        id: `fallback_${Date.now()}`,
+        minute: matchData.fixture?.status?.elapsed || 45,
+        team: Math.random() > 0.5 ? 'home' : 'away',
+        type: 'attempt',
+        player: 'Player',
+        description: 'Match action',
+        timestamp: Date.now(),
+        isRecent: isUpdate,
+        x: 50 + Math.random() * 30,
+        y: 25 + Math.random() * 50
+      }];
+      
       setPlayByPlayEvents(events);
     }
   };

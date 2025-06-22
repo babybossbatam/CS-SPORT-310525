@@ -669,7 +669,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               name: "Germany",
               code: "DE",
               flag: "https://media.api-sports.io/flags/de.svg"
-            }
+            },
           },
           {
             league: {
@@ -764,8 +764,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Calculate current season based on date
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
-      // If we're in the second half of the year, use next year as season
-      const currentSeason = currentMonth >= 7 ? 
+      // If we're in the second half of the year, use next year as season      const currentSeason = currentMonth >= 7 ? 
         currentDate.getFullYear() + 1 : 
         currentDate.getFullYear();
       const season = parseInt(req.query.season as string) || currentSeason;
@@ -2195,8 +2194,6 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     }
   });
 
-
-
   // Get country flag with SportsRadar fallback
   apiRouter.get('/flags/:country', async (req: Request, res: Response) => {
     try {
@@ -2319,6 +2316,29 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
   });
 
   // Removing UEFA U21 routes registration as requested
+
+  // API endpoint to fetch match events
+  apiRouter.get('/fixtures/:id/events', async (req: Request, res: Response) => {
+    try {
+      const fixtureId = parseInt(req.params.id);
+      if (isNaN(fixtureId)) {
+        return res.status(400).json({ error: 'Invalid fixture ID' });
+      }
+
+      const events = await rapidApiService.getFixtureEvents(fixtureId);
+
+      if (!events) {
+        return res.status(404).json({ error: 'Events not found' });
+      }
+
+      console.log(`📊 [Events API] Fetched ${events?.length || 0} events for fixture ${fixtureId}`);
+
+      res.json(events || []);
+    } catch (error) {
+      console.error('❌ Error fetching fixture events:', error);
+      res.status(500).json({ error: 'Failed to fetch fixture events' });
+    }
+  });
 
   // Create HTTP server
   const httpServer = createServer(app);

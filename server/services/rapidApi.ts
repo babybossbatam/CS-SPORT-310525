@@ -700,6 +700,38 @@ export const rapidApiService = {
     }
   },
 
+  async getFixtureEvents(fixtureId: number): Promise<any[] | null> {
+    try {
+      console.log(`📊 [RapidAPI] Fetching events for fixture: ${fixtureId}`);
+
+      const response = await apiClient.get("/fixtures/events", {
+        params: {
+          fixture: fixtureId
+        }
+      });
+
+      if (response.data?.response) {
+        const events = response.data.response;
+        console.log(`✅ [RapidAPI] Found ${events.length} events for fixture ${fixtureId}`);
+
+        // Sort events by time elapsed (most recent first)
+        events.sort((a: any, b: any) => {
+          const timeA = a.time?.elapsed || 0;
+          const timeB = b.time?.elapsed || 0;
+          return timeB - timeA;
+        });
+
+        return events;
+      }
+
+      console.log(`📊 [RapidAPI] No events found for fixture ${fixtureId}`);
+      return [];
+    } catch (error) {
+      console.error(`❌ [RapidAPI] Error fetching events for fixture ${fixtureId}:`, error);
+      return null;
+    }
+  },
+
   /**
    * Get fixtures by league ID and season
    */
