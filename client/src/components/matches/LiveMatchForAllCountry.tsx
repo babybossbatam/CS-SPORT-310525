@@ -720,6 +720,25 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     allFixturesLength: allFixtures.length
   });
 
+  // Show loading state while fetching data
+  if (loading) {
+    return (
+      <>
+        {/* Header Section */}
+        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+          Popular Football Live Score
+        </CardHeader>
+        <div className="bg-gray-100 min-h-[400px] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+            <p className="text-lg font-medium text-gray-700">Loading live matches...</p>
+            <p className="text-sm text-gray-500 mt-2">Please wait while we fetch the latest scores</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   // Show no live matches when live filter is active but no live matches found
   if (liveFilterActive && (!allFixtures.length || !actuallyHasLiveMatches)) {
     console.log(`📺 [LiveMatchForAllCountry] Showing NoLiveMatchesEmpty - no live matches found`);

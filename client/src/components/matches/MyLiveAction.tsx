@@ -403,10 +403,17 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <Badge className="bg-red-600 hover:bg-red-600 text-white text-xs px-2 py-1">
               Live Action
             </Badge>
-            <div className="text-white text-xs">Loading...</div>
+            <div className="text-white text-xs flex items-center">
+              <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent mr-1"></div>
+              Loading...
+            </div>
           </div>
           <div className="h-32 flex items-center justify-center text-white text-sm">
-            Loading live action...
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent mx-auto mb-2"></div>
+              <p>Fetching live action...</p>
+              <p className="text-xs opacity-70 mt-1">Please wait</p>
+            </div>
           </div>
         </div>
       </div>

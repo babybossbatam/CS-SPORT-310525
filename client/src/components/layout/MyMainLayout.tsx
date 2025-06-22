@@ -23,9 +23,10 @@ import { Card, CardContent } from "@/components/ui/card";
 
 interface MyMainLayoutProps {
   fixtures: any[];
+  loading?: boolean;
 }
 
-const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
+const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }) => {
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
@@ -154,6 +155,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures }) => {
               fixtures={filteredFixtures}
               onMatchClick={handleMatchClick}
               onMatchCardClick={handleMatchCardClick}
+              loading={loading}
             />
           </div>
         </div>
