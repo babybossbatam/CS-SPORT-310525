@@ -1925,24 +1925,22 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                               } else if (status === "ET") {
                                                 displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
                                               } else {
-                                                // For LIVE, LIV, 1H, 2H - ensure consistent elapsed time from live fixtures
-                                                let currentElapsed = elapsed;
-
-                                                // Check if we have live fixture data for this match to ensure consistency
+                                                // For LIVE, LIV, 1H, 2H - use only the most recent elapsed time
+                                                // Check if we have live fixture data for this match
                                                 const liveMatch = liveFixtures.find((lf: any) => lf.fixture.id === match.fixture.id);
-                                                if (liveMatch && liveMatch.fixture.status.elapsed !== null && liveMatch.fixture.status.elapsed !== undefined) {
-                                                  currentElapsed = liveMatch.fixture.status.elapsed;
-                                                }
+                                                const currentElapsed = liveMatch?.fixture?.status?.elapsed ?? elapsed;
+
+                                                console.log(`🕐 [ELAPSED TIME DEBUG] TodaysMatchesByCountryNew Match ${match.fixture.id}:`, {
+                                                  teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
+                                                  status: status,
+                                                  cachedElapsed: elapsed,
+                                                  liveElapsed: liveMatch?.fixture?.status?.elapsed,
+                                                  finalElapsed: currentElapsed,
+                                                  hasLiveData: !!liveMatch
+                                                });
 
                                                 if (currentElapsed !== null && currentElapsed !== undefined) {
-                                                  // Handle injury/stoppage time
-                                                  if (status === "2H" && currentElapsed >= 90) {
-                                                    displayText = `${currentElapsed}'`;
-                                                  } else if (status === "1H" && currentElapsed >= 45) {
-                                                    displayText = `${currentElapsed}'`;
-                                                  } else {
-                                                    displayText = `${currentElapsed}'`; // This shows elapsed time from RapidAPI
-                                                  }
+                                                  displayText = `${currentElapsed}'`;
                                                 } else {
                                                   displayText = "LIVE";
                                                 }

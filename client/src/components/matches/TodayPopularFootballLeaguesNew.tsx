@@ -2023,22 +2023,37 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     );
                                   }
 
-                                  // Use only API elapsed time - no real-time calculation
+                                  // Use only the most recent elapsed time from live fixtures
+                                  // Check if this match has more recent live data
+                                  const liveMatch = liveFixtures.find(
+                                    (lf: any) => lf.fixture.id === match.fixture.id
+                                  );
+                                  const currentElapsed = liveMatch?.fixture?.status?.elapsed ?? elapsed;
+
+                                  console.log(`🕐 [ELAPSED TIME DEBUG] Match ${match.fixture.id}:`, {
+                                    teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
+                                    status: status,
+                                    cachedElapsed: elapsed,
+                                    liveElapsed: liveMatch?.fixture?.status?.elapsed,
+                                    finalElapsed: currentElapsed,
+                                    hasLiveData: !!liveMatch
+                                  });
+
                                   if (status === "HT") {
                                     displayText = "Halftime";
                                   } else if (status === "P") {
                                     displayText = "Penalties";
                                   } else if (status === "ET") {
-                                    displayText = elapsed
-                                      ? `${elapsed}' ET`
+                                    displayText = currentElapsed
+                                      ? `${currentElapsed}' ET`
                                       : "Extra Time";
                                   } else if (status === "BT") {
                                     displayText = "Break Time";
                                   } else if (status === "INT") {
                                     displayText = "Interrupted";
                                   } else {
-                                    // For LIVE, LIV, 1H, 2H - use only API elapsed time
-                                    displayText = elapsed ? `${elapsed}'` : "LIVE";
+                                    // For LIVE, LIV, 1H, 2H - use the most recent elapsed time
+                                    displayText = currentElapsed ? `${currentElapsed}'` : "LIVE";
                                   }
 
                                   return (
