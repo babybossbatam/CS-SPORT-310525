@@ -983,7 +983,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           }
 
           console.log(
-            `🌍 [WORLD DEBUG] Processing for countryKey: ${countryKey}`,
+            `[WORLD DEBUG] Processing for countryKey: ${countryKey}`,
             {
               originalCountry: country,
               leagueName: league.name,
