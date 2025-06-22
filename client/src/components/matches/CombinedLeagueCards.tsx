@@ -119,7 +119,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   );
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
-  
+
 
   const dispatch = useDispatch();
   const { toast } = useToast();
@@ -450,29 +450,15 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
             league.name.toLowerCase().includes("copa libertadores") ||
             league.name.toLowerCase().includes("copa sudamericana"))
         ) {
-          // Determine the appropriate country key
-          let countryKey = "World";
-          if (
-            league.name.toLowerCase().includes("fifa club world cup") ||
-            league.name.toLowerCase().includes("club world cup")
-          ) {
-            countryKey = "International";
-          } else if (
-            league.name.toLowerCase().includes("conmebol") ||
-            league.name.toLowerCase().includes("copa america") ||
-            league.name.toLowerCase().includes("copa libertadores") ||
-            league.name.toLowerCase().includes("copa sudamericana")
-          ) {
-            countryKey = "South America";
-          } else if (
-            league.name.toLowerCase().includes("uefa") ||
-            league.name.toLowerCase().includes("europe") ||
-            league.name.toLowerCase().includes("champions") ||
-            league.name.toLowerCase().includes("conference") ||
-            league.name.toLowerCase().includes("nations league")
-          ) {
-            countryKey = "Europe";
-          }
+          // Use the original country from API, or fallback to "World" only for truly missing data
+          let countryKey = country || "World";
+
+          console.log(`[COUNTRY DEBUG] Using original API country in CombinedLeagueCards:`, {
+            leagueName: league.name,
+            leagueId: league.id,
+            originalCountry: country,
+            countryKey: countryKey,
+          });
 
           if (!acc[countryKey]) {
             acc[countryKey] = {
@@ -1338,7 +1324,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
         </CardContent>
       </Card>
 
-      
+
     </>
   );
 };

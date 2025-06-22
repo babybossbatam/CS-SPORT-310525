@@ -452,13 +452,15 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
           league.name.toLowerCase().includes('copa libertadores') ||
           league.name.toLowerCase().includes('copa sudamericana'))) {
         
-        // Determine the appropriate country key
-        let countryKey = "World";
-        if (
-          league.name.toLowerCase().includes("fifa club world cup") ||
-          league.name.toLowerCase().includes("club world cup")
-        ) {
-          countryKey = "International";
+        // Use the original country from API, or fallback to "World" only for truly missing data
+        let countryKey = country || "World";
+        
+        console.log(`[COUNTRY DEBUG] Using original API country in LiveMatchForAllCountry:`, {
+          leagueName: league.name,
+          leagueId: league.id,
+          originalCountry: country,
+          countryKey: countryKey,
+        });ernational";
         } else if (
           league.name.toLowerCase().includes("conmebol") ||
           league.name.toLowerCase().includes("copa america") ||

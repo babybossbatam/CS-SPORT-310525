@@ -843,7 +843,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
           console.log(
             `🔍 [FINAL RESULT DEBUG] League ${leagueId} was in original data but filtered out:`,
             {
-              originalCount: originalLeagueFixtures.length,
+              originalCount: originalLeagueFixtures```text
+.length,
               sampleFixture: originalLeagueFixtures[0]
                 ? {
                     id: originalLeagueFixtures[0].fixture?.id,
@@ -920,118 +921,22 @@ const TodayPopularFootballLeaguesNew: React.FC<
         return acc;
       }
 
-      // Handle fixtures with country="World" or null/undefined country for international competitions
+      // Handle fixtures with null/undefined country - only for truly missing country data
       if (
         !country ||
         country === null ||
         country === undefined ||
         typeof country !== "string" ||
-        country.trim() === "" ||
-        country.toLowerCase() === "unknown" ||
-        country.toLowerCase() === "world"
+        country.trim() === ""
       ) {
-        // Allow World competitions, CONMEBOL, UEFA, CONCACAF and FIFA competitions to pass through
-        if (
-          league.name &&
-          (league.name.toLowerCase().includes("world") ||
-            league.name.toLowerCase().includes("europe") ||
-            league.name.toLowerCase().includes("uefa") ||
-            league.name.toLowerCase().includes("fifa") ||
-            league.name.toLowerCase().includes("fifa club world cup") ||
-            league.name.toLowerCase().includes("champions") ||
-            league.name.toLowerCase().includes("conference") ||
-            // CONCACAF competitions
-            league.name.toLowerCase().includes("concacaf") ||
-            league.name.toLowerCase().includes("gold cup") ||
-            league.name.toLowerCase().includes("concacaf gold cup") ||
-            // Men's International Friendlies only (excludes women's)
-            (league.name.toLowerCase().includes("friendlies") &&
-              !league.name.toLowerCase().includes("women")) ||
-            (league.name.toLowerCase().includes("international") &&
-              !league.name.toLowerCase().includes("women")) ||
-            league.name.toLowerCase().includes("conmebol") ||
-            league.name.toLowerCase().includes("copa america") ||
-            league.name.toLowerCase().includes("copa libertadores") ||
-            league.name.toLowerCase().includes("copa sudamericana") ||
-            country === "World")
-        ) {
-          // Determine the appropriate country key
-          let countryKey = "World";
-          if (
-            league.name.toLowerCase().includes("fifa club world cup") ||
-            league.name.toLowerCase().includes("club world cup")
-          ) {
-            countryKey = "International";
-          } else if (
-            league.name.toLowerCase().includes("conmebol") ||
-            league.name.toLowerCase().includes("copa america") ||
-            league.name.toLowerCase().includes("copa libertadores") ||
-            league.name.toLowerCase().includes("copa sudamericana")
-          ) {
-            countryKey = "South America";
-          } else if (
-            league.name.toLowerCase().includes("uefa") ||
-            league.name.toLowerCase().includes("europe") ||
-            league.name.toLowerCase().includes("champions") ||
-            league.name.toLowerCase().includes("conference") ||
-            league.name.toLowerCase().includes("nations league")
-          ) {
-            countryKey = "Europe";
-          } else if (country === "World") {
-            countryKey = "World";
-          }
-
-          console.log(
-            `[WORLD DEBUG] Processing for countryKey: ${countryKey}`,
-            {
-              originalCountry: country,
-              leagueName: league.name,
-              leagueId: league.id,
-            },
-          );
-
-          if (!acc[countryKey]) {
-            acc[countryKey] = {
-              country: countryKey,
-              flag: getCountryFlagWithFallbackSync(countryKey),
-              leagues: {},
-              hasPopularLeague: true,
-            };
-          }
-          const leagueId = league.id;
-
-          if (!acc[countryKey].leagues[leagueId]) {
-            // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, Europe, South America, World),
-            // consider all leagues as "popular" to show them all
-            const unrestrictedCountries = [
-              "Brazil",
-              "Colombia",
-              "Saudi Arabia",
-              "USA",
-              "United States",
-              "United-States",
-              "US",
-              "United Arab Emirates",
-              "United-Arab-Emirates",
-              "Europe",
-              "South America",
-              "World",
-            ];
-            const isUnrestrictedCountry =
-              unrestrictedCountries.includes(countryKey);
-
-            acc[countryKey].leagues[leagueId] = {
-              league: { ...league, country: countryKey },
-              matches: [],
-              isPopular:
-                POPULAR_LEAGUES.includes(leagueId) || isUnrestrictedCountry,
-              isFriendlies: league.name.toLowerCase().includes("friendlies"),
-            };
-          }
-          acc[countryKey].leagues[leagueId].matches.push(fixture);
-          return acc;
-        }
-
+        // Skip fixtures with truly missing country data
+        console.warn(`[COUNTRY DEBUG] Skipping fixture with missing country data:`, {
+          leagueName: league.name,
+          leagueId: league.id,
+          originalCountry: country,
+          homeTeam: fixture.teams?.home?.name,
+          awayTeam: fixture.teams?.away?.name,
+        });
         return acc;
       }
 
@@ -1907,7 +1812,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           "ET",
                           "BT",
                           "P",
-                          "INT",
+"INT",
                         ].includes(aStatus);
                         const bLive = [
                           "LIVE",
