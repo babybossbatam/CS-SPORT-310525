@@ -224,8 +224,18 @@ const Home = () => {
     };
 
 
-  // Only show loading if we're in initial load state and actually loading
-  if (isInitialLoad && (leaguesLoading || fixturesLoading)) {
+  // Debug logging for loading states
+  console.log('[Home] Loading states:', {
+    isInitialLoad,
+    leaguesLoading,
+    fixturesLoading,
+    isLoading,
+    fixturesLength: fixtures?.length,
+    allLeaguesLength: allLeagues?.length
+  });
+
+  // Show loading if we're in initial load state and actually loading, or if we have no fixtures data
+  if ((isInitialLoad && (leaguesLoading || fixturesLoading)) || (!fixtures?.length && isLoading)) {
     return (
       <>
         <Header />
@@ -427,7 +437,7 @@ const Home = () => {
   }
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <Header />
       <SportsCategoryTabs />
       <TournamentHeader 
@@ -435,19 +445,19 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
 
-      <MyMainLayout fixtures={fixtures} />
+      <div className="flex-1">
+        <MyMainLayout fixtures={fixtures || []} />
+      </div>
 
       <RegionModal />
       <CacheMonitor />
-
 
       {/* Debug Panel */}
       <UnifiedDebugPanel 
         isVisible={showDebugPanel}
         onClose={() => setShowDebugPanel(false)}
       />
-
-    </>
+    </div>
   );
 };
 
