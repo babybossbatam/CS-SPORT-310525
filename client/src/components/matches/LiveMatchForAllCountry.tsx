@@ -436,7 +436,11 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   // Filter live matches and update state
   useEffect(() => {
     if (!fixtures || fixtures.length === 0) {
-      console.log('🔍 [LiveMatchForAllCountry] No live fixtures available');
+      console.log('🔍 [LiveMatchForAllCountry] No live fixtures available', {
+        isLoading,
+        hasFixtures: !!fixtures,
+        fixturesLength: fixtures?.length || 0
+      });
       setFilteredFixtures([]);
       setHasLiveMatches(false);
       return;
@@ -454,17 +458,19 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       return isLive;
     });
 
-    console.log('🔍 [LiveMatchForAllCountry] Live matches check:', {
+    console.log('🔍 [LiveMatchForAllCountry] Live matches filtering result:', {
+      isLoading,
       totalFixtures: fixtures.length,
       filteredFixtures: actualLiveFixtures.length,
       hasLiveMatches: actualLiveFixtures.length > 0,
       liveFilterActive,
-      allFixturesLength: allFixtures?.length || 0
+      allFixturesLength: allFixtures?.length || 0,
+      firstFewStatuses: fixtures.slice(0, 5).map((f: any) => f.fixture?.status?.short)
     });
 
     setFilteredFixtures(actualLiveFixtures);
     setHasLiveMatches(actualLiveFixtures.length > 0);
-  }, [fixtures?.length, liveFilterActive]);
+  }, [fixtures, isLoading, liveFilterActive]);
 
   // Group fixtures by country
   const fixturesByCountry = filteredFixtures.reduce((acc: any, fixture: any) => {
@@ -720,7 +726,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     allFixturesLength: allFixtures.length
   });
 
-  // Show loading state while fetching data (only when actually loading and no data)
+  // Show loading state while fetching data (only when actually loading and no previous data)
   if (isLoading && !fixtures?.length) {
     return (
       <>
@@ -740,8 +746,15 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   }
 
   // Show no live matches when data has been loaded but no live matches found
-  if (!isLoading && liveFilterActive && (!fixtures?.length || !actuallyHasLiveMatches)) {
-    console.log(`📺 [LiveMatchForAllCountry] Showing NoLiveMatchesEmpty - no live matches found`);
+  if (!isLoading && (!fixtures?.length || (liveFilterActive && !actuallyHasLiveMatches))) {
+    console.log(`📺 [LiveMatchForAllCountry] Showing NoLiveMatchesEmpty - no live matches found`, {
+      hasFixtures: !!fixtures?.length,
+      fixturesCount: fixtures?.length || 0,
+      liveFilterActive,
+      actuallyHasLiveMatches,
+      isLoading
+    });
+    
     return (
       <>
         {/* Header Section */}
