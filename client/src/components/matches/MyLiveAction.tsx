@@ -375,60 +375,91 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   return (
-    <div className={`w-full ${className} live-action-container mx-auto`}>
-      <div className="bg-gradient-to-br from-green-700 to-green-800 rounded-lg overflow-hidden shadow-lg flash-effect">
-        {/* Header - 365scores style */}
-        <div className="bg-black/25 px-3 py-2 flex items-center justify-between border-b border-white/10">
-          <Badge className="bg-red-600 hover:bg-red-600 text-white text-xs px-2 py-1 font-semibold live-pulse">
-            Live Action
-          </Badge>
-          <div className="text-white text-xs font-medium opacity-90">
+    <div className={`w-full ${className} live-action-container max-w-md mx-auto`}>
+      <div className="bg-gradient-to-br from-green-700 via-green-750 to-green-800 rounded-xl overflow-hidden shadow-2xl flash-effect border border-green-600/30">
+        {/* Header - Enhanced 365scores style */}
+        <div className="bg-black/30 backdrop-blur-sm px-4 py-3 flex items-center justify-between border-b border-white/15">
+          <div className="flex items-center gap-2">
+            <Badge className="bg-red-600 hover:bg-red-600 text-white text-xs px-2 py-1 font-semibold live-pulse rounded-md">
+              ● LIVE
+            </Badge>
+            <span className="text-white/80 text-xs font-medium">Action</span>
+          </div>
+          <div className="text-white text-sm font-bold opacity-95">
             {elapsed}'
           </div>
         </div>
 
-        {/* Football Field - Compact 365scores style */}
-        <div className="relative h-36 field-overlay overflow-hidden">
+        {/* Football Field - Enhanced 365scores style */}
+        <div className="relative h-40 sm:h-48 field-overlay overflow-hidden bg-gradient-to-br from-green-600 to-green-800">
           
-          {/* Field Pattern - More subtle */}
+          {/* Field Pattern - Enhanced realism */}
           <div className="absolute inset-0">
-            {/* Grass stripes */}
-            <div className="absolute inset-0 opacity-10">
-              {Array.from({ length: 6 }).map((_, i) => (
+            {/* Grass texture overlay */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="w-full h-full bg-gradient-to-b from-green-500/10 via-transparent to-green-900/20"></div>
+            </div>
+            
+            {/* Grass stripes - More pronounced */}
+            <div className="absolute inset-0 opacity-15">
+              {Array.from({ length: 8 }).map((_, i) => (
                 <div
                   key={i}
-                  className="absolute h-full bg-gradient-to-r from-transparent via-green-600 to-transparent"
+                  className="absolute h-full"
                   style={{
-                    width: '16.66%',
-                    left: `${i * 16.66}%`,
-                    opacity: i % 2 === 0 ? 0.2 : 0.05
+                    width: '12.5%',
+                    left: `${i * 12.5}%`,
+                    background: i % 2 === 0 
+                      ? 'linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.3), transparent)'
+                      : 'linear-gradient(90deg, transparent, rgba(21, 128, 61, 0.2), transparent)'
                   }}
                 />
               ))}
             </div>
 
-            {/* Field markings - Simplified */}
+            {/* Field markings - Enhanced visibility */}
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <defs>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="0.5" result="coloredBlur"/>
+                  <feMerge> 
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              
               {/* Outer boundary */}
-              <rect x="8" y="20" width="84" height="60" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
+              <rect x="5" y="15" width="90" height="70" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.5" filter="url(#glow)"/>
               
               {/* Center line */}
-              <line x1="50" y1="20" x2="50" y2="80" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
+              <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(255,255,255,0.6)" strokeWidth="0.5" filter="url(#glow)"/>
               
               {/* Center circle */}
-              <circle cx="50" cy="50" r="10" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
+              <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.5" filter="url(#glow)"/>
+              <circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.8)"/>
               
-              {/* Goal areas - Smaller */}
-              <rect x="8" y="40" width="6" height="20" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
-              <rect x="86" y="40" width="6" height="20" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
+              {/* Goal areas */}
+              <rect x="5" y="37" width="8" height="26" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.5" filter="url(#glow)"/>
+              <rect x="87" y="37" width="8" height="26" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.5" filter="url(#glow)"/>
               
               {/* Penalty areas */}
-              <rect x="8" y="32" width="16" height="36" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
-              <rect x="76" y="32" width="16" height="36" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="0.4"/>
+              <rect x="5" y="28" width="18" height="44" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.5" filter="url(#glow)"/>
+              <rect x="77" y="28" width="18" height="44" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.5" filter="url(#glow)"/>
+              
+              {/* Penalty spots */}
+              <circle cx="17" cy="50" r="0.8" fill="rgba(255,255,255,0.8)"/>
+              <circle cx="83" cy="50" r="0.8" fill="rgba(255,255,255,0.8)"/>
+              
+              {/* Corner arcs */}
+              <path d="M 5 15 Q 8 15 8 18" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.5"/>
+              <path d="M 5 85 Q 8 85 8 82" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.5"/>
+              <path d="M 95 15 Q 92 15 92 18" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.5"/>
+              <path d="M 95 85 Q 92 85 92 82" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="0.5"/>
             </svg>
           </div>
 
-          {/* Ball - 365scores style */}
+          {/* Ball - Enhanced 365scores style with glow */}
           <div 
             className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-150 ease-linear z-30"
             style={{
@@ -436,36 +467,54 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               top: `${ballPosition.y}%`,
             }}
           >
-            <div 
-              className="w-3 h-3 bg-white rounded-full ball-flash"
-              style={{
-                background: 'radial-gradient(circle at 30% 30%, #ffffff, #f0f0f0)'
-              }}
-            />
+            <div className="relative">
+              {/* Ball glow effect */}
+              <div className="absolute inset-0 w-4 h-4 bg-white/50 rounded-full blur-sm scale-150"></div>
+              {/* Ball */}
+              <div 
+                className="relative w-4 h-4 rounded-full shadow-lg"
+                style={{
+                  background: 'radial-gradient(circle at 25% 25%, #ffffff, #f8f8f8, #e0e0e0)',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3), inset -1px -1px 2px rgba(0,0,0,0.2)'
+                }}
+              >
+                {/* Ball pattern */}
+                <div className="absolute inset-0 rounded-full opacity-20">
+                  <div className="absolute top-1 left-1 w-1 h-1 bg-black/30 rounded-full"></div>
+                  <div className="absolute bottom-1 right-1 w-1 h-1 bg-black/30 rounded-full"></div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Team possession overlay - 365scores style */}
+          {/* Team possession overlay - Enhanced 365scores style */}
           <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
-            <div className="bg-black/80 backdrop-blur-sm rounded-md px-4 py-2 text-center possession-fade-in border border-white/20">
-              <div className="text-white text-sm font-medium mb-1 opacity-90">
+            <div className="bg-black/85 backdrop-blur-md rounded-lg px-5 py-3 text-center possession-fade-in border border-white/25 shadow-2xl">
+              <div className="text-white text-sm font-medium mb-2 opacity-95 tracking-wide">
                 Ball Safe
               </div>
-              <div className="flex items-center justify-center gap-2">
+              <div className="flex items-center justify-center gap-3">
                 {ballPossession === 'home' && homeTeamData?.logo && (
-                  <img 
-                    src={homeTeamData.logo} 
-                    alt={homeTeamData.name}
-                    className="w-4 h-4 object-contain"
-                  />
+                  <div className="relative">
+                    <img 
+                      src={homeTeamData.logo} 
+                      alt={homeTeamData.name}
+                      className="w-6 h-6 object-contain rounded-full"
+                    />
+                    <div className="absolute inset-0 rounded-full ring-2 ring-white/30"></div>
+                  </div>
                 )}
                 {ballPossession === 'away' && awayTeamData?.logo && (
-                  <img 
-                    src={awayTeamData.logo} 
-                    alt={awayTeamData.name}
-                    className="w-4 h-4 object-contain"
-                  />
+                  <div className="relative">
+                    <img 
+                      src={awayTeamData.logo} 
+                      alt={awayTeamData.name}
+                      className="w-6 h-6 object-contain rounded-full"
+                    />
+                    <div className="absolute inset-0 rounded-full ring-2 ring-white/30"></div>
+                  </div>
                 )}
-                <div className="text-white text-sm font-bold tracking-wide">
+                <div className="text-white text-base font-bold tracking-wider">
                   {ballPossession === 'home' 
                     ? getTeamDisplayName('home') 
                     : getTeamDisplayName('away')
@@ -474,6 +523,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Match event indicator - if available */}
+          {currentEvent && (
+            <div className="absolute top-2 left-2 z-50">
+              <div className="bg-yellow-500/90 backdrop-blur-sm rounded-md px-2 py-1 text-xs text-black font-semibold shadow-lg animate-pulse">
+                {currentEvent.description}
+              </div>
+            </div>
+          )}
 
         </div>
       </div>

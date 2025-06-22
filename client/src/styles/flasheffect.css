@@ -213,7 +213,155 @@
   animation: possessionFade 0.5s ease-out;
 }
 
-/* 365scores responsive styles */
+/* Live Action Flash Effects - Enhanced 365scores style */
+.flash-effect {
+  animation: enhanced-flash 4s ease-in-out infinite;
+  position: relative;
+}
+
+.flash-effect::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(45deg, 
+    rgba(34, 197, 94, 0.3), 
+    rgba(16, 185, 129, 0.2), 
+    rgba(34, 197, 94, 0.3));
+  border-radius: inherit;
+  z-index: -1;
+  animation: border-glow 3s ease-in-out infinite;
+}
+
+.live-pulse {
+  animation: enhanced-live-pulse 1.8s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+.live-pulse::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent);
+  animation: sweep 2s ease-in-out infinite;
+}
+
+.ball-flash {
+  animation: enhanced-ball-glow 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6));
+}
+
+.possession-fade-in {
+  animation: enhanced-possession-appear 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.field-overlay {
+  position: relative;
+  overflow: hidden;
+}
+
+.field-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, 
+    rgba(255, 255, 255, 0.05) 0%, 
+    transparent 70%);
+  pointer-events: none;
+  animation: field-shimmer 6s ease-in-out infinite;
+}
+
+/* Enhanced Keyframes */
+@keyframes enhanced-flash {
+  0%, 100% { 
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4),
+                inset 0 0 15px rgba(34, 197, 94, 0.1);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.7),
+                inset 0 0 20px rgba(34, 197, 94, 0.2);
+  }
+}
+
+@keyframes border-glow {
+  0%, 100% { 
+    opacity: 0.3;
+    filter: blur(2px);
+  }
+  50% { 
+    opacity: 0.6;
+    filter: blur(1px);
+  }
+}
+
+@keyframes enhanced-live-pulse {
+  0%, 100% { 
+    opacity: 1;
+    transform: scale(1);
+    background-color: #dc2626;
+  }
+  50% { 
+    opacity: 0.9;
+    transform: scale(1.08);
+    background-color: #ef4444;
+  }
+}
+
+@keyframes sweep {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+@keyframes enhanced-ball-glow {
+  0%, 100% { 
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6))
+            drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
+    transform: scale(1);
+  }
+  50% { 
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8))
+            drop-shadow(0 0 12px rgba(255, 255, 255, 0.5));
+    transform: scale(1.1);
+  }
+}
+
+@keyframes enhanced-possession-appear {
+  0% { 
+    opacity: 0;
+    transform: translateY(15px) scale(0.8) rotateX(10deg);
+    filter: blur(3px);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(-2px) scale(1.05) rotateX(0deg);
+    filter: blur(0px);
+  }
+  100% { 
+    opacity: 1;
+    transform: translateY(0) scale(1) rotateX(0deg);
+    filter: blur(0px);
+  }
+}
+
+@keyframes field-shimmer {
+  0%, 100% { 
+    opacity: 0.3;
+    transform: scale(1) rotate(0deg);
+  }
+  50% { 
+    opacity: 0.6;
+    transform: scale(1.1) rotate(1deg);
+  }
+}
+
+/* 365scores-style responsive styles */
 .live-action-container {
   max-width: 320px;
   min-width: 280px;
@@ -224,6 +372,30 @@
     max-width: 100%;
     min-width: 260px;
   }
+}
+
+/* Responsive enhancements */
+@media (max-width: 640px) {
+  .flash-effect::before {
+    inset: -1px;
+  }
+
+  .live-pulse {
+    font-size: 0.75rem;
+  }
+
+  .possession-fade-in {
+    padding: 8px 12px;
+  }
+}
+
+/* Hover states for interactive elements */
+.live-action-container:hover .flash-effect {
+  animation-duration: 2s;
+}
+
+.live-action-container:hover .ball-flash {
+  animation-duration: 1s;
 }
 
 /* Field gradient overlay for 365scores look */
