@@ -850,7 +850,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
     (acc: any, fixture: any) => {
       // Add comprehensive null checks
       if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
-        ```text
         return acc;
       }
 
