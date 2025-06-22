@@ -843,8 +843,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           console.log(
             `🔍 [FINAL RESULT DEBUG] League ${leagueId} was in original data but filtered out:`,
             {
-              originalCount: originalLeagueFixtures```text
-.length,
+              originalCount: originalLeagueFixtures.length,
               sampleFixture: originalLeagueFixtures[0]
                 ? {
                     id: originalLeagueFixtures[0].fixture?.id,
@@ -936,6 +935,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           originalCountry: country,
           homeTeam: fixture.teams?.home?.name,
           awayTeam: fixture.teams?.away?.name,
+          selectedDate: selectedDate,
         });
         return acc;
       }
