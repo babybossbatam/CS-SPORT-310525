@@ -41,6 +41,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
   const [ballTrail, setBallTrail] = useState<{ x: number, y: number, timestamp: number }[]>([]);
   const [ballDirection, setBallDirection] = useState({ dx: 1, dy: 0.5 });
+  const [halftimeFlash, setHalftimeFlash] = useState(false);
+  const [previousStatus, setPreviousStatus] = useState<string>('');
 
   // Determine if match is currently live (calculate early to avoid initialization errors)
   const displayMatch = liveData;
@@ -136,6 +138,27 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             const currentElapsed = currentMatch.fixture?.status?.elapsed || 0;
 
             setLiveData(currentMatch);
+
+            // Check for halftime transition
+            const currentStatus = currentMatch.fixture?.status?.short;
+            if (currentStatus === 'HT' && previousStatus && previousStatus !== 'HT') {
+              console.log('🟠 [HALFTIME FLASH] Match just went to halftime!', {
+                home: currentMatch.teams?.home?.name,
+                away: currentMatch.teams?.away?.name,
+                previousStatus,
+                currentStatus
+              });
+              
+              // Trigger halftime flash effect
+              setHalftimeFlash(true);
+              
+              // Remove flash after 3 seconds with smooth transition
+              setTimeout(() => {
+                setHalftimeFlash(false);
+              }, 3000);
+            }
+            
+            setPreviousStatus(currentStatus);
 
             // Generate new events if time has progressed
             if (currentElapsed > previousElapsed) {
@@ -525,7 +548,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   return (
-    <Card className={`w-full ${className} bg-gradient-to-br from-green-600 to-green-800 border-0 text-white overflow-hidden`}>
+    <Card className={`w-full ${className} ${
+      halftimeFlash 
+        ? 'bg-gradient-to-br from-orange-500 to-orange-700 animate-pulse' 
+        : 'bg-gradient-to-br from-green-600 to-green-800'
+    } border-0 text-white overflow-hidden transition-all duration-1000 ease-in-out`}>
       {/* Header */}
       <CardHeader className="pb-2 px-4 py-3">
         <div className="flex items-center justify-between">
@@ -533,15 +560,23 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
             <span className="text-sm font-medium text-white">Live Action</span>
           </div>
-          <Badge variant="secondary" className="text-xs px-3 py-1 bg-red-500 text-white border-0 animate-pulse">
-            LIVE
+          <Badge variant="secondary" className={`text-xs px-3 py-1 ${
+            halftimeFlash 
+              ? 'bg-orange-500 text-white animate-bounce' 
+              : 'bg-red-500 text-white animate-pulse'
+          } border-0 transition-all duration-500`}>
+            {halftimeFlash ? 'HALFTIME' : 'LIVE'}
           </Badge>
         </div>
       </CardHeader>
 
       {/* Football Field with Live Events */}
       <CardContent className="p-4 pb-2">
-        <div className="relative w-full h-48 bg-gradient-to-r from-green-700 via-green-600 to-green-700 rounded-lg overflow-hidden border-2 border-white/20">
+        <div className={`relative w-full h-48 ${
+          halftimeFlash 
+            ? 'bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 border-orange-300/40' 
+            : 'bg-gradient-to-r from-green-700 via-green-600 to-green-700 border-white/20'
+        } rounded-lg overflow-hidden border-2 transition-all duration-1000 ease-in-out`}>
           {/* Field markings */}
           <div className="absolute inset-0">
             {/* Goal areas */}
@@ -637,35 +672,59 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         </div>
 
         {/* Current Event Display */}
-        {currentEvent && (
-          <div className="mt-4 bg-black/20 rounded-lg p-3 backdrop-blur-sm">
+        {(currentEvent || halftimeFlash) && (
+          <div className={`mt-4 ${
+            halftimeFlash 
+              ? 'bg-orange-500/30 border border-orange-400/50' 
+              : 'bg-black/20'
+          } rounded-lg p-3 backdrop-blur-sm transition-all duration-500`}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="text-lg">{getEventIcon(currentEvent.type)}</div>
-                <div>
-                  <div className="text-sm font-semibold text-white">
-                    {currentEvent.description}
+              {halftimeFlash ? (
+                <div className="flex items-center gap-3 w-full justify-center">
+                  <div className="text-2xl animate-bounce">⏸️</div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-white animate-pulse">
+                      HALFTIME BREAK
+                    </div>
+                    <div className="text-sm text-white/80">
+                      First half has ended
+                    </div>
                   </div>
-                  <div className="text-xs text-white/80">
-                    {currentEvent.player} • {getTeamDisplayName(currentEvent.team)}
+                </div>
+              ) : currentEvent ? (
+                <>
+                  <div className="flex items-center gap-3">
+                    <div className="text-lg">{getEventIcon(currentEvent.type)}</div>
+                    <div>
+                      <div className="text-sm font-semibold text-white">
+                        {currentEvent.description}
+                      </div>
+                      <div className="text-xs text-white/80">
+                        {currentEvent.player} • {getTeamDisplayName(currentEvent.team)}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="text-right">
-                <div className="text-lg font-bold text-white">
-                  {currentEvent.minute}'
-                </div>
-                <div className="text-xs text-white/60 uppercase tracking-wide">
-                  {getTeamDisplayName(currentEvent.team)}
-                </div>
-              </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-white">
+                      {currentEvent.minute}'
+                    </div>
+                    <div className="text-xs text-white/60 uppercase tracking-wide">
+                      {getTeamDisplayName(currentEvent.team)}
+                    </div>
+                  </div>
+                </>
+              ) : null}
             </div>
           </div>
         )}
 
         {/* Score Display */}
         <div className="mt-3 flex items-center justify-center">
-          <div className="bg-black/30 rounded-full px-4 py-2 backdrop-blur-sm">
+          <div className={`${
+            halftimeFlash 
+              ? 'bg-orange-500/40 border border-orange-400/60' 
+              : 'bg-black/30'
+          } rounded-full px-4 py-2 backdrop-blur-sm transition-all duration-500`}>
             <div className="flex items-center gap-4 text-white">
               <div className="flex items-center gap-2">
                 <img 
@@ -703,7 +762,13 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
             
             <div className="text-center mt-1">
-              <span className="text-xs text-white/80 font-medium">{elapsed}'</span>
+              <span className={`text-xs font-medium ${
+                halftimeFlash 
+                  ? 'text-orange-200 animate-pulse' 
+                  : 'text-white/80'
+              } transition-colors duration-500`}>
+                {statusData === 'HT' ? 'HT' : `${elapsed}'`}
+              </span>
             </div>
           </div>
         </div>
