@@ -122,6 +122,9 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   );
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
+  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
+  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
@@ -187,6 +190,68 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
   // Use props data if available, otherwise use fetched data
   const fixtures = propsFixtures || fetchedFixtures;
+
+  // Effect to detect halftime and fulltime status changes
+  useEffect(() => {
+    if (!fixtures?.length) return;
+
+    const newHalftimeMatches = new Set<number>();
+    const newFulltimeMatches = new Set<number>();
+    const currentStatuses = new Map<number, string>();
+
+    fixtures.forEach((fixture) => {
+      const matchId = fixture.fixture.id;
+      const currentStatus = fixture.fixture.status.short;
+      const previousStatus = previousMatchStatuses.get(matchId);
+
+      currentStatuses.set(matchId, currentStatus);
+
+      // Check if status just changed to halftime
+      if (currentStatus === 'HT' && previousStatus && previousStatus !== 'HT') {
+        console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
+          home: fixture.teams?.home?.name,
+          away: fixture.teams?.away?.name,
+          previousStatus,
+          currentStatus
+        });
+        newHalftimeMatches.add(matchId);
+      }
+
+      // Check if status just changed to fulltime
+      if (currentStatus === 'FT' && previousStatus && previousStatus !== 'FT') {
+        console.log(`🔵 [FULLTIME FLASH] Match ${matchId} just finished!`, {
+          home: fixture.teams?.home?.name,
+          away: fixture.teams?.away?.name,
+          previousStatus,
+          currentStatus
+        });
+        newFulltimeMatches.add(matchId);
+      }
+    });
+
+    // Update previous statuses
+    setPreviousMatchStatuses(currentStatuses);
+
+    // Trigger flash for new halftime matches
+    if (newHalftimeMatches.size > 0) {
+      setHalftimeFlashMatches(newHalftimeMatches);
+
+      // Remove flash after 2 seconds
+      setTimeout(() => {
+        setHalftimeFlashMatches(new Set());
+      }, 2000);
+    }
+
+    // Trigger flash for new fulltime matches
+    if (newFulltimeMatches.size > 0) {
+      setFulltimeFlashMatches(newFulltimeMatches);
+
+      // Remove flash after 2 seconds
+      setTimeout(() => {
+        setFulltimeFlashMatches(new Set());
+      }, 2000);
+    }
+  }, [fixtures, previousMatchStatuses]);
 
   // Add comprehensive debugging logs for fixture analysis
   useEffect(() => {
@@ -800,7 +865,11 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                           className="country-matches-container"
                         >
                           <div 
-                            className="match-card-container group"
+                            className={`match-card-container group ${
+                              halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
+                            } ${
+                              fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
+                            }`}
                             onClick={() => {
                               console.log('🔴 [LiveMatchForAllCountry] Match card clicked:', {
                                 fixtureId: match.fixture?.id,
