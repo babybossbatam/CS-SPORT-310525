@@ -289,6 +289,15 @@ main {
   --radius: 0.5rem;
 }
 
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.5), 0 0 10px rgba(239, 68, 68, 0.3);
+  }
+  to {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.8), 0 0 25px rgba(239, 68, 68, 0.4);
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

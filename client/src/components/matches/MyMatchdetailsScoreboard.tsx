@@ -71,7 +71,10 @@ const MyMatchdetailsScoreboard = ({
     league: displayMatch?.league?.name,
   });
 
-  // Real-time update effect for live matches - using LiveMatchForAllCountry approach
+  // State for real-time timer
+  const [realTimeElapsed, setRealTimeElapsed] = useState<number | null>(null);
+
+  // Real-time update effect for live matches with continuous timer
   useEffect(() => {
     if (!displayMatch) return;
 
@@ -80,7 +83,10 @@ const MyMatchdetailsScoreboard = ({
 
     if (isLiveMatch) {
       // Initialize with current elapsed time from API
-      setLiveElapsed(displayMatch.fixture.status.elapsed || 0);
+      const initialElapsed = displayMatch.fixture.status.elapsed || 0;
+      setLiveElapsed(initialElapsed);
+      setRealTimeElapsed(initialElapsed);
+      
       // Initialize with current scores
       setLiveScores({
         home: displayMatch.goals.home,
@@ -89,15 +95,24 @@ const MyMatchdetailsScoreboard = ({
       // Initialize with current status
       setLiveStatus(displayMatch.fixture.status.short);
 
-      console.log("🎯 [Live Timer] Starting live updates for match:", {
+      console.log("🎯 [Live Timer] Starting real-time timer for match:", {
         fixtureId: displayMatch.fixture.id,
         teams: `${displayMatch.teams?.home?.name} vs ${displayMatch.teams?.away?.name}`,
         status: status,
-        initialElapsed: displayMatch.fixture.status.elapsed,
+        initialElapsed: initialElapsed,
       });
 
-      // Fetch updated elapsed time from API every 30 seconds - similar to LiveMatchForAllCountry
-      const timer = setInterval(async () => {
+      // Real-time timer that increments every minute for live matches (not HT)
+      let realtimeTimer: NodeJS.Timeout | null = null;
+      if (status !== "HT" && status !== "P") {
+        realtimeTimer = setInterval(() => {
+          setRealTimeElapsed(prev => prev !== null ? prev + 1 : 0);
+          console.log("⏱️ [Real-time Timer] Incrementing elapsed time");
+        }, 60000); // Increment every minute
+      }
+
+      // Fetch updated data from API every 30 seconds to sync with server
+      const apiSyncTimer = setInterval(async () => {
         try {
           const response = await fetch("/api/fixtures/live");
           if (!response.ok) {
@@ -105,10 +120,9 @@ const MyMatchdetailsScoreboard = ({
           }
 
           const liveFixtures = await response.json();
-          console.log("🔄 [Live Timer] Fetched live fixtures:", {
+          console.log("🔄 [Live Timer] Syncing with API:", {
             totalFixtures: liveFixtures.length,
             searchingFor: displayMatch.fixture.id,
-            availableIds: liveFixtures.map((f: any) => f.fixture.id),
           });
 
           // Find the current match in live fixtures
@@ -117,23 +131,19 @@ const MyMatchdetailsScoreboard = ({
           );
 
           if (currentLiveMatch) {
-            console.log(
-              "✅ [Live Timer] Found current match with updated data:",
-              {
-                id: currentLiveMatch.fixture.id,
-                elapsed: currentLiveMatch.fixture.status.elapsed,
-                status: currentLiveMatch.fixture.status.short,
-                homeScore: currentLiveMatch.goals?.home,
-                awayScore: currentLiveMatch.goals?.away,
-              },
-            );
+            const apiElapsed = currentLiveMatch.fixture.status.elapsed;
+            console.log("✅ [Live Timer] Syncing with API data:", {
+              id: currentLiveMatch.fixture.id,
+              apiElapsed: apiElapsed,
+              realTimeElapsed: realTimeElapsed,
+              status: currentLiveMatch.fixture.status.short,
+            });
 
-            // Update elapsed time
-            if (
-              currentLiveMatch.fixture.status.elapsed !== null &&
-              currentLiveMatch.fixture.status.elapsed !== undefined
-            ) {
-              setLiveElapsed(currentLiveMatch.fixture.status.elapsed);
+            // Sync real-time timer with API if there's a significant difference
+            if (apiElapsed !== null && Math.abs((realTimeElapsed || 0) - apiElapsed) > 2) {
+              console.log("🔄 [Live Timer] Syncing real-time timer with API");
+              setRealTimeElapsed(apiElapsed);
+              setLiveElapsed(apiElapsed);
             }
 
             // Update live scores
@@ -147,66 +157,59 @@ const MyMatchdetailsScoreboard = ({
             // Update live status
             if (currentLiveMatch.fixture.status.short) {
               setLiveStatus(currentLiveMatch.fixture.status.short);
+              
+              // Stop real-time timer if match is now in halftime or penalties
+              if ((currentLiveMatch.fixture.status.short === "HT" || currentLiveMatch.fixture.status.short === "P") && realtimeTimer) {
+                clearInterval(realtimeTimer);
+                realtimeTimer = null;
+              }
+              
+              // Restart real-time timer if match resumed from halftime
+              if ((currentLiveMatch.fixture.status.short === "2H" || currentLiveMatch.fixture.status.short === "ET") && !realtimeTimer) {
+                realtimeTimer = setInterval(() => {
+                  setRealTimeElapsed(prev => prev !== null ? prev + 1 : 0);
+                }, 60000);
+              }
             }
           } else {
-            console.log(
-              "❌ [Live Timer] Current match not found in live fixtures - checking if match ended",
-            );
+            console.log("❌ [Live Timer] Match not found in live fixtures - checking if ended");
 
-            // If match not found in live fixtures, it might have ended
-            // Try to fetch the specific match to check its current status
+            // Check if match has ended
             try {
-              const specificMatchResponse = await fetch(
-                `/api/fixtures?ids=${displayMatch.fixture.id}`,
-              );
+              const specificMatchResponse = await fetch(`/api/fixtures/${displayMatch.fixture.id}`);
               if (specificMatchResponse.ok) {
                 const specificMatchData = await specificMatchResponse.json();
-                if (specificMatchData.length > 0) {
-                  const updatedMatch = specificMatchData[0];
-                  console.log("🔍 [Live Timer] Specific match status:", {
-                    id: updatedMatch.fixture.id,
-                    status: updatedMatch.fixture.status.short,
-                    elapsed: updatedMatch.fixture.status.elapsed,
-                  });
+                console.log("🔍 [Live Timer] Specific match status:", {
+                  id: specificMatchData.fixture?.id,
+                  status: specificMatchData.fixture?.status?.short,
+                });
 
-                  // If match has ended, stop the timer
-                  if (
-                    ["FT", "AET", "PEN"].includes(
-                      updatedMatch.fixture.status.short,
-                    )
-                  ) {
-                    console.log(
-                      "🏁 [Live Timer] Match has ended, stopping updates",
-                    );
-                    setLiveElapsed(null);
-                    clearInterval(timer);
-                  }
+                // If match has ended, stop all timers
+                if (["FT", "AET", "PEN"].includes(specificMatchData.fixture?.status?.short || "")) {
+                  console.log("🏁 [Live Timer] Match has ended, stopping all timers");
+                  if (realtimeTimer) clearInterval(realtimeTimer);
+                  clearInterval(apiSyncTimer);
+                  setRealTimeElapsed(null);
+                  setLiveElapsed(null);
                 }
               }
             } catch (specificError) {
-              console.error(
-                "❌ [Live Timer] Failed to fetch specific match:",
-                specificError,
-              );
+              console.error("❌ [Live Timer] Failed to fetch specific match:", specificError);
             }
           }
         } catch (error) {
-          console.error(
-            "❌ [Live Timer] Failed to fetch live match updates:",
-            error,
-          );
+          console.error("❌ [Live Timer] Failed to sync with API:", error);
         }
-      }, 15000); // 15 second intervals for faster updates
+      }, 30000); // Sync with API every 30 seconds
 
       return () => {
-        console.log(
-          "🛑 [Live Timer] Cleaning up timer for match:",
-          displayMatch.fixture.id,
-        );
-        clearInterval(timer);
+        console.log("🛑 [Live Timer] Cleaning up timers for match:", displayMatch.fixture.id);
+        if (realtimeTimer) clearInterval(realtimeTimer);
+        clearInterval(apiSyncTimer);
       };
     } else {
       setLiveElapsed(null);
+      setRealTimeElapsed(null);
       setLiveScores(null);
       setLiveStatus(null);
     }
@@ -260,10 +263,11 @@ const MyMatchdetailsScoreboard = ({
       } else if (currentStatus === "ET") {
         displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
       } else {
-                                // For LIVE, LIV, 1H, 2H - prioritize live elapsed time from state
-                                let currentElapsed = liveElapsed !== null ? liveElapsed : elapsed;
+                                // For LIVE, LIV, 1H, 2H - use real-time elapsed time for live matches
+                                let currentElapsed = realTimeElapsed !== null ? realTimeElapsed : (liveElapsed !== null ? liveElapsed : elapsed);
 
-                                console.log("🔄 [Live Display] Current elapsed time:", {
+                                console.log("🔄 [Live Display] Real-time elapsed:", {
+                                  realTimeElapsed,
                                   liveElapsed,
                                   apiElapsed: elapsed,
                                   currentElapsed,
@@ -281,9 +285,19 @@ const MyMatchdetailsScoreboard = ({
       return (
         <Badge
           variant="destructive"
-          className="bg-red-500 text-white font-normal text-[11px] animate-pulse"
+          className="bg-red-500 text-white font-normal text-[11px] animate-pulse shadow-lg"
+          style={{
+            animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite, glow 2s ease-in-out infinite alternate",
+            boxShadow: "0 0 10px rgba(239, 68, 68, 0.5)"
+          }}
         >
-          {displayText}
+          <span className="relative">
+            {displayText}
+            <span 
+              className="absolute -top-1 -right-1 w-2 h-2 bg-red-300 rounded-full animate-ping"
+              style={{ animationDuration: "1s" }}
+            />
+          </span>
         </Badge>
       );
     }
