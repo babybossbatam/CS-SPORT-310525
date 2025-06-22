@@ -41,6 +41,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const [ballTrail, setBallTrail] = useState<{ x: number, y: number, timestamp: number }[]>([]);
   const [ballDirection, setBallDirection] = useState({ dx: 1, dy: 0.5 });
 
+  // Determine if match is currently live (calculate early to avoid initialization errors)
+  const displayMatch = liveData;
+  const currentStatus = status || displayMatch?.fixture?.status?.short;
+  const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
+
   // Fetch initial match data and set up real-time updates
   useEffect(() => {
     if (!matchId) {
@@ -394,15 +399,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     return awayTeam?.code || awayTeam?.name?.substring(0, 3).toUpperCase() || 'AWAY';
   };
 
-  // Use fetched live data
-  const displayMatch = liveData;
+  // Use fetched live data (displayMatch already defined above)
   const homeTeamData = homeTeam || displayMatch?.teams?.home;
   const awayTeamData = awayTeam || displayMatch?.teams?.away;
   const statusData = status || displayMatch?.fixture?.status?.short;
-
-  // Determine if match is currently live
-  const currentStatus = status || displayMatch?.fixture?.status?.short;
-  const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
   const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
 
   if (isLoading) {
