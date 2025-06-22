@@ -87,6 +87,13 @@ const MyMatchdetailsScoreboard = ({
       setLiveElapsed(initialElapsed);
       setRealTimeElapsed(initialElapsed);
       
+      console.log("🎯 [Live Timer] Initializing timer:", {
+        fixtureId: displayMatch.fixture.id,
+        status: status,
+        initialElapsed: initialElapsed,
+        teams: `${displayMatch.teams?.home?.name} vs ${displayMatch.teams?.away?.name}`
+      });
+      
       // Initialize with current scores
       setLiveScores({
         home: displayMatch.goals.home,
@@ -106,8 +113,16 @@ const MyMatchdetailsScoreboard = ({
       let realtimeTimer: NodeJS.Timeout | null = null;
       if (status !== "HT" && status !== "P") {
         realtimeTimer = setInterval(() => {
-          setRealTimeElapsed(prev => prev !== null ? prev + 1 : 0);
-          console.log("⏱️ [Real-time Timer] Incrementing elapsed time");
+          setRealTimeElapsed(prev => {
+            const newTime = (prev !== null ? prev : initialElapsed) + 1;
+            console.log("⏱️ [Real-time Timer] Incrementing elapsed time:", {
+              prev: prev,
+              newTime: newTime,
+              status: status,
+              fixtureId: displayMatch.fixture.id
+            });
+            return newTime;
+          });
         }, 60000); // Increment every minute
       }
 
@@ -275,7 +290,7 @@ const MyMatchdetailsScoreboard = ({
                                   fixtureId: displayMatch.fixture.id
                                 });
 
-                                if (currentElapsed !== null && currentElapsed !== undefined) {
+                                if (currentElapsed !== null && currentElapsed !== undefined && currentElapsed > 0) {
                                   displayText = `${currentElapsed}'`;
                                 } else {
                                   displayText = "LIVE";
