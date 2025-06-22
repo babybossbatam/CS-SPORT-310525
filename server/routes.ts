@@ -2131,6 +2131,33 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     }
   });
 
+  // Get match events for a specific fixture
+  apiRouter.get("/fixtures/:id/events", async (req: Request, res: Response) => {
+    try {
+      const fixtureId = parseInt(req.params.id);
+      
+      if (!fixtureId || isNaN(fixtureId)) {
+        return res.status(400).json({ error: 'Invalid fixture ID' });
+      }
+
+      console.log(`📊 [Events API] Fetching events for fixture: ${fixtureId}`);
+      
+      const events = await rapidApiService.getFixtureEvents(fixtureId);
+      
+      if (events === null) {
+        console.log(`❌ [Events API] No events found for fixture ${fixtureId}`);
+        return res.status(404).json({ error: 'Events not found' });
+      }
+
+      console.log(`📊 [Events API] Fetched ${events.length} events for fixture ${fixtureId}`);
+      return res.json(events);
+      
+    } catch (error) {
+      console.error(`❌ [Events API] Error fetching events:`, error);
+      return res.status(500).json({ error: 'Failed to fetch events' });
+    }
+  });
+
   // Get live fixtures (with B365API fallback)
   apiRouter.get("/fixtures/live", async (_req: Request, res: Response) => {
     try {
