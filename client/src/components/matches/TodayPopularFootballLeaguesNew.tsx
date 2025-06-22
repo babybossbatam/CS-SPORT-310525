@@ -842,6 +842,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         if (originalLeagueFixtures.length > 0) {
           console.log(
             `🔍 [FINAL RESULT DEBUG] League ${leagueId} was in original data but filtered out:`,
+```text
             {
               originalCount: originalLeagueFixtures.length,
               sampleFixture: originalLeagueFixtures[0]
@@ -1789,7 +1790,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                               forceRefreshVenezuelaFlag()
                                 .then((newFlag) => {
                                   console.log(
-                                    `✅ Venezuela flag refreshed to: ${newFlag}`,
+                                    `✅ Venezuelaflag refreshed to: ${newFlag}`,
                                   );
                                   // Trigger a re-render ifneeded
                                   window.location.reload();
@@ -2132,16 +2133,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   } else if (status === "INT") {
                                     displayText = "Interrupted";
                                   } else {
-                                    // For LIVE, LIV, 1H, 2H - use elapsed time from merged data (already includes live updates)
-                                    if (
-                                      elapsed !== null &&
-                                      elapsed !== undefined &&
-                                      !isNaN(elapsed)
-                                    ) {
-                                      displayText = `${elapsed}'`;
-                                    } else {
-                                      displayText = "LIVE";
-                                    }
+                                    // For LIVE, LIV, 1H, 2H - use only API elapsed time
+                                    displayText = elapsed ? `${elapsed}'` : "LIVE";
                                   }
 
                                   return (
