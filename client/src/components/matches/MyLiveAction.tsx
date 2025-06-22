@@ -307,6 +307,19 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           .slice(-6)
           .reverse();
 
+        // Only count corner kicks during initial load, not updates
+        if (!isUpdate) {
+          const allCornerEvents = realEvents.filter(event => 
+            event.detail?.toLowerCase().includes('corner') && 
+            event.time?.elapsed <= elapsed
+          );
+          
+          const homeCorners = allCornerEvents.filter(event => event.team?.id === homeTeam?.id).length;
+          const awayCorners = allCornerEvents.filter(event => event.team?.id === awayTeam?.id).length;
+          
+          setCornerKicks({ home: homeCorners, away: awayCorners });
+        }
+
         recentEvents.forEach((event, index) => {
           const isHomeTeam = event.team?.id === homeTeam?.id;
           const team = isHomeTeam ? 'home' : 'away';
@@ -357,8 +370,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             y
           });
 
-          // Count corner kicks from real events
-          if (eventType === 'corner') {
+          // Only increment corner kicks on updates for new corner events
+          if (isUpdate && eventType === 'corner' && index === 0) {
             setCornerKicks(prev => ({
               ...prev,
               [team]: prev[team] + 1
