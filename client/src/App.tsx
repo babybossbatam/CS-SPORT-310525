@@ -109,7 +109,7 @@ function App() {
             selectedDate={new Date().toISOString().slice(0, 10)}
           >
             <Provider store={store}>
-              <Suspense fallback={<div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+              <Suspense fallback={<div></div>}>
                 <AppContent />
               </Suspense>
               <Footer />
