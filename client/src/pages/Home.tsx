@@ -39,6 +39,7 @@ import { useLocation } from "wouter";
 import MyMainLayout from '@/components/layout/MyMainLayout';
 import { Button } from "@/components/ui/button";
 import { UnifiedDebugPanel } from "../components/debug/UnifiedDebugPanel";
+import Footer from '@/components/layout/Footer';
 
 
 
@@ -432,6 +433,7 @@ const Home = () => {
             </div>
           </div>
         </Card>
+        <Footer />
       </>
     );
   }
