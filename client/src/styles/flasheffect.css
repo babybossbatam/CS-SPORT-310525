@@ -1,3 +1,4 @@
+
 /* Flash Effects CSS - Separated from TodaysMatchByCountryNew.css */
 
 /* Flash animation for halftime matches with subtle light pink gradient */
@@ -361,6 +362,84 @@
   }
 }
 
+/* 365scores-style Attack Pattern Animations */
+@keyframes attackAnimation {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  20% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+}
+
+@keyframes attackLineAnimation {
+  0% {
+    stroke-dashoffset: 10;
+    opacity: 0;
+  }
+  50% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -10;
+    opacity: 0.6;
+  }
+}
+
+@keyframes attackArrowAnimation {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+}
+
+.attack-animation {
+  animation: attackAnimation 3s ease-out;
+}
+
+.attack-line-animation {
+  animation: attackLineAnimation 3s ease-out;
+}
+
+.attack-arrow-animation {
+  animation: attackArrowAnimation 3s ease-out;
+}
+
+/* Ball Trail Effect */
+@keyframes ballTrail {
+  0% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+.ball-trail {
+  animation: ballTrail 0.5s ease-out infinite;
+}
+
 /* 365scores-style responsive styles */
 .live-action-container {
   max-width: 320px;
@@ -408,4 +487,13 @@
     rgba(21, 128, 61, 0.95) 75%,
     rgba(22, 101, 52, 0.9) 100%
   );
+}
+
+/* Enhanced Stats Bar */
+.stats-bar-gradient {
+  background: linear-gradient(90deg, 
+    rgba(59, 130, 246, 0.8) 0%, 
+    rgba(59, 130, 246, 0.6) 50%, 
+    rgba(239, 68, 68, 0.6) 50%, 
+    rgba(239, 68, 68, 0.8) 100%);
 }
