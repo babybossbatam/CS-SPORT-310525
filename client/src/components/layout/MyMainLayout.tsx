@@ -16,7 +16,6 @@ import MatchDetailCard from "@/components/matches/MatchDetailCard";
 import MyHighlights from "@/components/matches/MyHighlights";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
 import MyLiveAction from "@/components/matches/MyLiveAction";
-import LiveMatchForAllCountry from "@/components/matches/LiveMatchForAllCountry";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
@@ -150,13 +149,13 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left column (5 columns) */}
         <div className="lg:col-span-5 space-y-4">
-          {/* Live Matches with proper loading and empty states */}
+          {/* New TodayMatchPageCard for testing */}
           <div>
-            <LiveMatchForAllCountry
-              refreshInterval={30000}
-              liveFilterActive={true}
-              timeFilterActive={false}
+            <TodayMatchPageCard
+              fixtures={filteredFixtures}
+              onMatchClick={handleMatchClick}
               onMatchCardClick={handleMatchCardClick}
+              loading={loading}
             />
           </div>
         </div>
