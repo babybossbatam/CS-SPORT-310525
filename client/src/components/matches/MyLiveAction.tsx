@@ -39,7 +39,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const [currentEvent, setCurrentEvent] = useState<PlayByPlayEvent | null>(null);
   const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
   const [ballTrail, setBallTrail] = useState<{ x: number, y: number, timestamp: number }[]>([]);
-  const [ballDirection, setBallDirection] = useState({ dx: 1, dy: 0.5 });
+  const [ballDirection, setBallDirection] = useState({ 
+    dx: 1.2 + (Math.random() - 0.5) * 0.4, 
+    dy: (Math.random() - 0.5) * 1.2 
+  });
 
   // Determine if match is currently live (calculate early to avoid initialization errors)
   const displayMatch = liveData;
@@ -206,29 +209,39 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         let newX = prev.x + ballDirection.dx;
         let newY = prev.y + ballDirection.dy;
         
-        // Bounce off field boundaries with some randomness
+        // Bounce off field boundaries (use full field area)
         let newDx = ballDirection.dx;
         let newDy = ballDirection.dy;
         
-        if (newX <= 5 || newX >= 95) {
-          newDx = -newDx + (Math.random() - 0.5) * 0.3;
-          newX = Math.max(5, Math.min(95, newX));
+        // Bounce off left/right boundaries
+        if (newX <= 2 || newX >= 98) {
+          newDx = -newDx;
+          newX = newX <= 2 ? 2 : 98;
+          // Add slight random variation when bouncing
+          newDy += (Math.random() - 0.5) * 0.2;
         }
         
-        if (newY <= 15 || newY >= 85) {
-          newDy = -newDy + (Math.random() - 0.5) * 0.3;
-          newY = Math.max(15, Math.min(85, newY));
+        // Bounce off top/bottom boundaries  
+        if (newY <= 5 || newY >= 95) {
+          newDy = -newDy;
+          newY = newY <= 5 ? 5 : 95;
+          // Add slight random variation when bouncing
+          newDx += (Math.random() - 0.5) * 0.2;
         }
         
-        // Add some randomness to direction
-        newDx += (Math.random() - 0.5) * 0.1;
-        newDy += (Math.random() - 0.5) * 0.1;
+        // Occasionally change direction randomly to simulate gameplay
+        if (Math.random() < 0.008) { // 0.8% chance each frame
+          newDx += (Math.random() - 0.5) * 0.5;
+          newDy += (Math.random() - 0.5) * 0.5;
+        }
         
-        // Limit speed
-        const speed = Math.sqrt(newDx * newDx + newDy * newDy);
-        if (speed > 2) {
-          newDx = (newDx / speed) * 2;
-          newDy = (newDy / speed) * 2;
+        // Maintain consistent speed
+        const targetSpeed = 1.2 + Math.sin(Date.now() / 2000) * 0.3; // Vary speed slightly
+        const currentSpeed = Math.sqrt(newDx * newDx + newDy * newDy);
+        
+        if (currentSpeed > 0) {
+          newDx = (newDx / currentSpeed) * targetSpeed;
+          newDy = (newDy / currentSpeed) * targetSpeed;
         }
         
         setBallDirection({ dx: newDx, dy: newDy });
@@ -236,16 +249,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         // Update ball trail
         setBallTrail(prev => {
           const newTrail = [...prev, { x: newX, y: newY, timestamp: Date.now() }];
-          // Keep only last 8 trail points
-          return newTrail.slice(-8);
+          // Keep only last 10 trail points for smoother trail
+          return newTrail.slice(-10);
         });
         
         return { x: newX, y: newY };
       });
-    }, 150); // Update every 150ms for smooth movement
+    }, 120); // Slightly faster updates for smoother movement
 
     return () => clearInterval(ballInterval);
-  }, [isLive, ballDirection]);
+  }, [isLive]);
 
   // Move ball to event locations when events occur
   useEffect(() => {
