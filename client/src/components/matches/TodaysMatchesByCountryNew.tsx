@@ -1914,7 +1914,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 "INT",
                                               ].includes(status)
                                             ) {
-                                              // Real-time calculation for live matches
+                                              // Use original API status and elapsed time without modification
                                               let displayText = "LIVE";
                                               const elapsed = match.fixture.status.elapsed;
 
@@ -1924,28 +1924,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 displayText = "Penalties";
                                               } else if (status === "ET") {
                                                 displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
-                                              } else {
-                                                // For LIVE, LIV, 1H, 2H - ensure consistent elapsed time from live fixtures
-                                                let currentElapsed = elapsed;
-
-                                                // Check if we have live fixture data for this match to ensure consistency
-                                                const liveMatch = liveFixtures.find((lf: any) => lf.fixture.id === match.fixture.id);
-                                                if (liveMatch && liveMatch.fixture.status.elapsed !== null && liveMatch.fixture.status.elapsed !== undefined) {
-                                                  currentElapsed = liveMatch.fixture.status.elapsed;
-                                                }
-
-                                                if (currentElapsed !== null && currentElapsed !== undefined) {
-                                                  // Handle injury/stoppage time
-                                                  if (status === "2H" && currentElapsed >= 90) {
-                                                    displayText = `${currentElapsed}'`;
-                                                  } else if (status === "1H" && currentElapsed >= 45) {
-                                                    displayText = `${currentElapsed}'`;
-                                                  } else {
-                                                    displayText = `${currentElapsed}'`; // This shows elapsed time from RapidAPI
-                                                  }
-                                                } else {
-                                                  displayText = "LIVE";
-                                                }
+                                              } else if (elapsed !== null && elapsed !== undefined) {
+                                                displayText = `${elapsed}'`;
                                               }
 
                                               return (
