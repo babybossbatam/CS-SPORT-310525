@@ -30,7 +30,6 @@ const LiveMatches = lazy(() => import("@/pages/LiveMatches"));
 const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
 const NewsPage = lazy(() => import("@/pages/NewsPage"));
 const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
-import Scores365Page from './pages/Scores365Page';
 
 function Router() {
   return (
@@ -56,7 +55,6 @@ function Router() {
       <Route path="/live" component={LiveMatches} />
       <Route path="/news/:id" component={NewsPage} />
       <Route path="/scoreboard-demo" component={ScoreboardDemo} />
-       <Route path="/365scores" component={Scores365Page} />
       <Route component={NotFound} />
     </Switch>
   );

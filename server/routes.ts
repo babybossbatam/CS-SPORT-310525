@@ -2130,33 +2130,6 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     }
   });
 
-  // Get match events for a specific fixture
-  apiRouter.get("/fixtures/:id/events", async (req: Request, res: Response) => {
-    try {
-      const fixtureId = parseInt(req.params.id);
-      
-      if (!fixtureId || isNaN(fixtureId)) {
-        return res.status(400).json({ error: 'Invalid fixture ID' });
-      }
-
-      console.log(`📊 [Events API] Fetching events for fixture: ${fixtureId}`);
-      
-      const events = await rapidApiService.getFixtureEvents(fixtureId);
-      
-      if (events === null) {
-        console.log(`❌ [Events API] No events found for fixture ${fixtureId}`);
-        return res.status(404).json({ error: 'Events not found' });
-      }
-
-      console.log(`📊 [Events API] Fetched ${events.length} events for fixture ${fixtureId}`);
-      return res.json(events);
-      
-    } catch (error) {
-      console.error(`❌ [Events API] Error fetching events:`, error);
-      return res.status(500).json({ error: 'Failed to fetch events' });
-    }
-  });
-
   // Get live fixtures (with B365API fallback)
   apiRouter.get("/fixtures/live", async (_req: Request, res: Response) => {
     try {
@@ -2365,80 +2338,6 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     } catch (error) {
       console.error('❌ Error fetching fixture events:', error);
       res.status(500).json({ error: 'Failed to fetch fixture events' });
-    }
-  });
-
-  // 365scores API endpoints
-  apiRouter.get("/365scores/live", async (req: Request, res: Response) => {
-    try {
-      const { date, matchId } = req.query;
-      
-      console.log(`🎯 [365scores API] Live matches request - date: ${date}, matchId: ${matchId}`);
-      
-      const { scores365ApiService } = await import('./services/365scoresApi');
-      const liveMatches = await scores365ApiService.getLiveMatches(date as string);
-      
-      // If specific matchId is requested, filter for that match
-      if (matchId) {
-        const specificMatch = liveMatches.find(match => match.id === matchId);
-        if (specificMatch) {
-          console.log(`✅ [365scores API] Found specific match: ${specificMatch.homeCompetitor.name} vs ${specificMatch.awayCompetitor.name}`);
-          return res.json(specificMatch);
-        } else {
-          console.log(`❌ [365scores API] Match ${matchId} not found in live matches`);
-          return res.status(404).json({ error: 'Match not found' });
-        }
-      }
-      
-      console.log(`✅ [365scores API] Returning ${liveMatches.length} live matches`);
-      res.json(liveMatches);
-    } catch (error) {
-      console.error('❌ [365scores API] Error in live endpoint:', error);
-      res.status(500).json({ 
-        error: 'Failed to fetch live matches',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
-  apiRouter.get("/365scores/events", async (req: Request, res: Response) => {
-    try {
-      const { gameId } = req.query;
-      
-      if (!gameId) {
-        return res.status(400).json({ error: 'gameId parameter is required' });
-      }
-      
-      console.log(`📊 [365scores API] Events request for game: ${gameId}`);
-      
-      const { scores365ApiService } = await import('./services/365scoresApi');
-      const events = await scores365ApiService.getMatchEvents(gameId as string);
-      
-      console.log(`✅ [365scores API] Returning ${events.length} events for game ${gameId}`);
-      res.json({ events });
-    } catch (error) {
-      console.error('❌ [365scores API] Error in events endpoint:', error);
-      res.status(500).json({ 
-        error: 'Failed to fetch match events',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
-  // 365scores cache management
-  apiRouter.post("/365scores/cache/clear", async (_req: Request, res: Response) => {
-    try {
-      const { scores365ApiService } = await import('./services/365scoresApi');
-      scores365ApiService.clearCache();
-      
-      console.log('🧹 [365scores API] Cache cleared via API');
-      res.json({ success: true, message: 'Cache cleared successfully' });
-    } catch (error) {
-      console.error('❌ [365scores API] Error clearing cache:', error);
-      res.status(500).json({ 
-        error: 'Failed to clear cache',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      });
     }
   });
 
