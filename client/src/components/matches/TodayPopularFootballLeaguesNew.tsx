@@ -842,7 +842,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
         if (originalLeagueFixtures.length > 0) {
           console.log(
             `🔍 [FINAL RESULT DEBUG] League ${leagueId} was in original data but filtered out:`,
-```text
             {
               originalCount: originalLeagueFixtures.length,
               sampleFixture: originalLeagueFixtures[0]
@@ -1792,7 +1791,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   console.log(
                                     `✅ Venezuelaflag refreshed to: ${newFlag}`,
                                   );
-                                  // Trigger a re-render ifneeded
+                                  //                                  // Trigger a re-render ifneeded
                                   window.location.reload();
                                 })
                                 .catch((error) => {
