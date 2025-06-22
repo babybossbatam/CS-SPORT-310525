@@ -315,7 +315,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   }
 
   // Show loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <>
         {/* Header Section */}
