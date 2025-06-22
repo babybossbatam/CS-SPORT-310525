@@ -558,6 +558,5 @@ const MyMatchdetailsScoreboard = ({
 };
 
 export default MyMatchdetailsScoreboard;
-```
 
-The code has been modified to reduce the frequency of API calls for syncing live match data, changing the interval from 30 seconds to 60 seconds.
+//# The code has been modified to reduce the frequency of API calls for syncing live match data, changing the interval from 30 seconds to 60 seconds.
