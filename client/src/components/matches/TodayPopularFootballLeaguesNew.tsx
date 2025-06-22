@@ -295,7 +295,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     },
   );
 
-  // Intelligent data source selection based on match status
+  // Simple data source selection - NO MIXING OF DATA
   const processedFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
@@ -305,61 +305,44 @@ const TodayPopularFootballLeaguesNew: React.FC<
       liveFixturesMap.set(liveFixture.fixture.id, liveFixture);
     });
 
-    console.log(`🎯 [TodayPopularLeagueNew] Processing ${fixtures.length} fixtures with intelligent data source selection`);
+    console.log(`🎯 [TodayPopularLeagueNew] Processing ${fixtures.length} fixtures with PURE data source selection`);
 
     const processed = fixtures.map((cachedFixture) => {
       const fixtureId = cachedFixture.fixture.id;
       const cachedStatus = cachedFixture.fixture.status.short;
       const liveFixture = liveFixturesMap.get(fixtureId);
 
-      // 1. LIVE MATCHES: Use real-time data from live API
-      const isCurrentlyLive = [
+      // RULE 1: If match is LIVE and we have live data - use PURE live data
+      const isLiveMatch = [
         "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
       ].includes(cachedStatus);
 
-      if (isCurrentlyLive && liveFixture) {
-        console.log(`🔴 [LIVE] Using real-time data for live match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`);
-        return liveFixture; // Pure live data, no merging
+      if (isLiveMatch && liveFixture) {
+        console.log(`🔴 [PURE LIVE] Using pure live data for live match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`);
+        return liveFixture; // Pure live data - no mixing
       }
 
-      // 2. FINISHED MATCHES: Check if just finished (live to finished transition)
-      const isFinished = [
-        "FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"
+      // RULE 2: If match just finished (recently ended) - use live data if available
+      const isRecentlyFinished = [
+        "FT", "AET", "PEN"
       ].includes(cachedStatus);
 
-      if (liveFixture) {
+      if (isRecentlyFinished && liveFixture) {
         const liveStatus = liveFixture.fixture.status.short;
-        const justFinished = [
-          "FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"
-        ].includes(liveStatus);
+        const isLiveAlsoFinished = ["FT", "AET", "PEN"].includes(liveStatus);
 
-        if (justFinished && !isFinished) {
-          console.log(`✅ [JUST FINISHED] Using real-time data for just finished match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name} (${cachedStatus} → ${liveStatus})`);
-          // Cache this finished match for future use
-          // The caching will happen automatically through the API layer
+        if (isLiveAlsoFinished) {
+          console.log(`✅ [RECENTLY FINISHED] Using live data for recently finished match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`);
           return liveFixture; // Use fresh finished data
         }
       }
 
-      // 3. FINISHED MATCHES (already cached): Use cached data
-      if (isFinished) {
-        console.log(`💾 [CACHED FINISHED] Using cached data for finished match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`);
-        return cachedFixture;
-      }
-
-      // 4. UPCOMING MATCHES: Always use cached data
-      const isUpcoming = ["NS", "TBD", "PST"].includes(cachedStatus);
-      if (isUpcoming) {
-        console.log(`📅 [UPCOMING] Using cached data for upcoming match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`);
-        return cachedFixture;
-      }
-
-      // Default: use cached data
-      console.log(`📦 [DEFAULT] Using cached data for match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name} (${cachedStatus})`);
-      return cachedFixture;
+      // RULE 3: For all other cases (upcoming, old finished matches) - use PURE cached data
+      console.log(`💾 [PURE CACHED] Using pure cached data for match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name} (${cachedStatus})`);
+      return cachedFixture; // Pure cached data - no mixing
     });
 
-    console.log(`✅ [TodayPopularLeagueNew] Intelligent processing completed: ${processed.length} fixtures`);
+    console.log(`✅ [TodayPopularLeagueNew] Pure data source selection completed: ${processed.length} fixtures`);
     return processed;
   }, [fixtures, liveFixtures]);
 
@@ -867,6 +850,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     (acc: any, fixture: any) => {
       // Add comprehensive null checks
       if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+        ```text
         return acc;
       }
 

@@ -305,65 +305,76 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     refetchOnReconnect: false,
   });
 
-  // Merge live fixture data with cached fixtures for real-time updates
-  const mergedFixtures = useMemo(() => {
+  // Simple data source selection - NO MIXING OF DATA
+  const processedFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
-    if (!liveFixtures?.length) {
-      console.log(`🔄 [TodaysMatchesByCountryNew] No live fixtures to merge, using cached data`);
-      return fixtures;
-    }
-
-    console.log(`🔄 [TodaysMatchesByCountryNew] Merging ${liveFixtures.length} live fixtures with ${fixtures.length} cached fixtures`);
-
-    // Create a map of live fixtures by ID for fast lookup
+    // Create a map of live fixtures for fast lookup
     const liveFixturesMap = new Map();
-    liveFixtures.forEach(liveFixture => {
+    liveFixtures.forEach((liveFixture) => {
       liveFixturesMap.set(liveFixture.fixture.id, liveFixture);
     });
 
-    // Merge fixtures: use live data if available, otherwise use cached data
-    const merged = fixtures.map(cachedFixture => {
-      const liveFixture = liveFixturesMap.get(cachedFixture.fixture.id);
+    console.log(
+      `🔄 [TodaysMatchesByCountryNew] Processing ${fixtures.length} fixtures with PURE data source selection`,
+    );
 
-      if (liveFixture) {
-        console.log(`🔴 [LIVE UPDATE] Updating fixture ${cachedFixture.fixture.id}: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`, {
-          oldStatus: cachedFixture.fixture.status.short,
-          newStatus: liveFixture.fixture.status.short,
-          oldElapsed: cachedFixture.fixture.status.elapsed,
-          newElapsed: liveFixture.fixture.status.elapsed,
-          oldScore: `${cachedFixture.goals?.home || 0}-${cachedFixture.goals?.away || 0}`,
-          newScore: `${liveFixture.goals?.home || 0}-${liveFixture.goals?.away || 0}`
-        });
+    const processed = fixtures.map((cachedFixture) => {
+      const fixtureId = cachedFixture.fixture.id;
+      const cachedStatus = cachedFixture.fixture.status.short;
+      const liveFixture = liveFixturesMap.get(fixtureId);
 
-        // Use live fixture data for real-time updates
-        return {
-          ...cachedFixture,
-          fixture: {
-            ...cachedFixture.fixture,
-            status: liveFixture.fixture.status,
-          },
-          goals: liveFixture.goals,
-          score: liveFixture.score,
-        };
+      // RULE 1: If match is LIVE and we have live data - use PURE live data
+      const isLiveMatch = [
+        "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"
+      ].includes(cachedStatus);
+
+      if (isLiveMatch && liveFixture) {
+        console.log(
+          `🔴 [PURE LIVE] Using pure live data for live match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`,
+        );
+        return liveFixture; // Pure live data - no mixing
       }
 
-      return cachedFixture;
+      // RULE 2: If match just finished (recently ended) - use live data if available
+      const isRecentlyFinished = [
+        "FT", "AET", "PEN"
+      ].includes(cachedStatus);
+
+      if (isRecentlyFinished && liveFixture) {
+        const liveStatus = liveFixture.fixture.status.short;
+        const isLiveAlsoFinished = ["FT", "AET", "PEN"].includes(liveStatus);
+
+        if (isLiveAlsoFinished) {
+          console.log(
+            `✅ [RECENTLY FINISHED] Using live data for recently finished match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name}`,
+          );
+          return liveFixture; // Use fresh finished data
+        }
+      }
+
+      // RULE 3: For all other cases (upcoming, old finished matches) - use PURE cached data
+      console.log(
+        `💾 [PURE CACHED] Using pure cached data for match: ${cachedFixture.teams?.home?.name} vs ${cachedFixture.teams?.away?.name} (${cachedStatus})`,
+      );
+      return cachedFixture; // Pure cached data - no mixing
     });
 
-    console.log(`✅ [TodaysMatchesByCountryNew] Merged fixtures completed, ${merged.length} total fixtures`);
-    return merged;
+    console.log(
+      `✅ [TodaysMatchesByCountryNew] Pure data source selection completed: ${processed.length} fixtures`,
+    );
+    return processed;
   }, [fixtures, liveFixtures]);
 
   // Effect to detect halftime and fulltime status changes
   useEffect(() => {
-    if (!mergedFixtures?.length) return;
+    if (!processedFixtures?.length) return;
 
     const newHalftimeMatches = new Set<number>();
     const newFulltimeMatches = new Set<number>();
     const currentStatuses = new Map<number, string>();
 
-    mergedFixtures.forEach((fixture) => {
+    processedFixtures.forEach((fixture) => {
       const matchId = fixture.fixture.id;
       const currentStatus = fixture.fixture.status.short;
       const previousStatus = previousMatchStatuses.get(matchId);
@@ -415,7 +426,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         setFulltimeFlashMatches(new Set());
       }, 2000);
     }
-  }, [mergedFixtures, previousMatchStatuses]);
+  }, [processedFixtures, previousMatchStatuses]);
 
   // Now validate after all hooks are called
   if (!selectedDate) {
@@ -525,13 +536,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
   // Add comprehensive debugging logs for fixture analysis
   useEffect(() => {
-    if (mergedFixtures && mergedFixtures.length > 0) {
+    if (processedFixtures && processedFixtures.length > 0) {
       console.log(
-        `🔍 [TodaysMatchesByCountryNew] Analyzing ${mergedFixtures.length} fixtures for date: ${selectedDate}`,
+        `🔍 [TodaysMatchesByCountryNew] Analyzing ${processedFixtures.length} fixtures for date: ${selectedDate}`,
       );
 
       // Log first few fixtures with detailed info
-      const sampleFixtures = mergedFixtures.slice(0, 5);
+      const sampleFixtures = processedFixtures.slice(0, 5);
       sampleFixtures.forEach((fixture, index) => {
         console.log(`📊 [TodaysMatchesByCountryNew] Fixture ${index + 1}:`, {
           fixtureId: fixture.fixture?.id,
@@ -548,7 +559,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       });
 
       // Status breakdown
-      const statusBreakdown = mergedFixtures.reduce((acc: any, fixture: any) => {
+      const statusBreakdown = processedFixtures.reduce((acc: any, fixture: any) => {
         const status = fixture.fixture?.status?.short || "UNKNOWN";
         acc[status] = (acc[status] || 0) + 1;
         return acc;
@@ -560,7 +571,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       );
 
       // Live matches analysis
-      const liveMatches = mergedFixtures.filter((fixture: any) =>
+      const liveMatches = processedFixtures.filter((fixture: any) =>
         ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
           fixture.fixture?.status?.short,
         ),
@@ -595,7 +606,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       }
 
       // Country breakdown
-      const countryBreakdown = mergedFixtures.reduce((acc: any, fixture: any) => {
+      const countryBreakdown = processedFixtures.reduce((acc: any, fixture: any) => {
         const country = fixture.league?.country || "Unknown";
         acc[country] = (acc[country] || 0) + 1;
         return acc;
@@ -609,7 +620,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       // Time analysis
       const now = new Date();
       const selectedDateObj = new Date(selectedDate);
-      const timeAnalysis = mergedFixtures.map((fixture: any) => {
+      const timeAnalysis = processedFixtures.map((fixture: any) => {
         const matchDate = new Date(fixture.fixture.date);
         const hoursDiff =
           (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
@@ -634,7 +645,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       // Date filtering analysis
       const dateFilterAnalysis = {
-        totalFixtures: mergedFixtures.length,
+        totalFixtures: processedFixtures.length,
         selectedDate,
         fixturesOnSelectedDate: timeAnalysis.filter((f) => f.isSelectedDate)
           .length,
@@ -650,12 +661,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         dateFilterAnalysis,
       );
     }
-  }, [mergedFixtures, selectedDate]);
+  }, [processedFixtures, selectedDate]);
 
   // Enhanced filtering using smart time filter for accurate date handling
   const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
     // Use the appropriate data source based on filter state
-    const allFixtures = liveFilterActive ? liveFixtures : mergedFixtures;
+    const allFixtures = liveFilterActive ? liveFixtures : processedFixtures;
     if (!allFixtures?.length) {
       return {
         validFixtures: [],
@@ -769,7 +780,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         },
       },
     };
-  }, [mergedFixtures, selectedDate, liveFilterActive, liveFixtures]);
+  }, [processedFixtures, selectedDate, liveFilterActive, liveFixtures]);
 
   // Log filtering statistics
   console.log(`📊 [MyDateFilter] Filtering Results for ${selectedDate}:`, {
@@ -788,7 +799,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     validAfterFiltering: validFixtures.length,
     rejectedCount: rejectedFixtures.length,
     liveMatchesCount: validFixtures.filter((f) =>
-      ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+      ["LIVE", "1H",// Analyze the code and apply pure data source logic to TodaysMatchesByCountryNew
+"HT", "2H", "ET", "BT", "P", "INT"].includes(
         f.fixture?.status?.short,
       ),
     ).length,
@@ -1674,9 +1686,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                         const isFirstLeague = leagueIndex === 0;
 
                         // First league should be expanded by default, rest should be collapsed
-                        const isLeagueExpanded = expandedLeagues.has(leagueKey);
-
-                        return (
+                        const isLeagueExpanded = expandedLeagues.has(leagueKey);return (
                           <div
                             key={leagueData.league.id}
                             className="border-b border-stone-200 last:border-b-0"
@@ -1780,74 +1790,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                   .filter((match: any) => {
                                     // Only filter out hidden matches
                                     return !hiddenMatches.has(match.fixture.id);
-                                  })
-                                  .sort((a: any, b: any) => {
-                                    // Priority order: Live > Ended (Recent) > Upcoming > Ended (Old)
-                                    const aStatus = a.fixture.status.short;
-                                    const bStatus = b.fixture.status.short;
-                                    const aDate = new Date(a.fixture.date).getTime();
-                                    const bDate = new Date(b.fixture.date).getTime();
-                                    const now = new Date().getTime();
-
-                                    // Define status categories
-                                    const aLive = [
-                                      "LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"
-                                    ].includes(aStatus);
-                                    const bLive = [
-                                      "LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"
-                                    ].includes(bStatus);
-
-                                    const aEnded = [
-                                      "FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"
-                                    ].includes(aStatus);
-                                    const bEnded = [
-                                      "FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"
-                                    ].includes(bStatus);
-
-                                    const aUpcoming = aStatus === "NS" || aStatus === "TBD";
-                                    const bUpcoming = bStatus === "NS" || bStatus === "TBD";
-
-                                    // For ended matches, check if they're recent (within 3 hours)
-                                    const aRecentEnded = aEnded && (now - aDate) <= (3 * 60 * 60 * 1000);
-                                    const bRecentEnded = bEnded && (now - bDate) <= (3 * 60 * 60 * 1000);
-
-                                    // Assign priority scores (lower = higher priority)
-                                    let aPriority = 4; // default
-                                    let bPriority = 4; // default
-
-                                    if (aLive) aPriority = 1;
-                                    else if (aRecentEnded) aPriority = 2;
-                                    else if (aUpcoming) aPriority = 3;
-                                    else if (aEnded) aPriority = 4;
-
-                                    if (bLive) bPriority = 1;
-                                    else if (bRecentEnded) bPriority = 2;
-                                    else if (bUpcoming) bPriority = 3;
-                                    else if (bEnded) bPriority = 4;
-
-                                    // First sort by priority
-                                    if (aPriority !== bPriority) {
-                                      return aPriority - bPriority;
-                                    }
-
-                                    // Within same priority, sort by time
-                                    if (aLive && bLive) {
-                                      // Live matches: earliest start time first
-                                      return aDate - bDate;
-                                    }
-
-                                    if ((aRecentEnded && bRecentEnded) || (aEnded && bEnded)) {
-                                      // Ended matches: most recent first
-                                      return bDate - aDate;
-                                    }
-
-                                    if (aUpcoming && bUpcoming) {
-                                      // Upcoming matches: earliest start time first
-                                      return aDate - bDate;
-                                    }
-
-                                    // Default: sort by time
-                                    return aDate - bDate;
                                   })
                                   .map((match: any, matchIndex) => (
                                     <div
