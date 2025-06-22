@@ -1940,7 +1940,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 const status = match.fixture.status.short;
                                 const elapsed = match.fixture.status.elapsed;
 
-                                // Live matches status
+                                // Live matches status - use API data as-is
                                 if (
                                   [
                                     "LIVE",
@@ -1956,74 +1956,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 ) {
                                   let displayText = "";
 
-                                  // Enhanced stale match detection with date validation
-                                  const matchStartDate = parseISO(
-                                    match.fixture.date,
-                                  );
-                                  const currentDate = new Date();
-                                  const hoursSinceStart = Math.floor(
-                                    (currentDate.getTime() -
-                                      matchStartDate.getTime()) /
-                                      (1000 * 60 * 60),
-                                  );
-                                  const daysSinceStart = Math.floor(
-                                    hoursSinceStart / 24,
-                                  );
-                                  const minutesSinceKickoff = Math.floor(
-                                    (currentDate.getTime() -
-                                      matchStartDate.getTime()) /
-                                      (1000 * 60),
-                                  );
-
-                                  const isLikelyStale =
-                                    // Match is from a previous day and still showing as live
-                                    daysSinceStart >= 1 ||
-                                    // Match has been "live" for more than 3 hours
-                                    minutesSinceKickoff > 180 ||
-                                    // Specific status checks
-                                    (status === "2H" && elapsed >= 100) || // 100+ minutes is definitely stale
-                                    (status === "1H" && elapsed >= 60) || // 60+ minutes in first half is impossible
-                                    (["LIVE", "LIV"].includes(status) &&
-                                      elapsed >= 100) || // Generic live with high elapsed time
-                                    // Match started more than 4 hours ago and still showing as live
-                                    hoursSinceStart > 4;
-
-                                  if (isLikelyStale) {
-                                    console.log(
-                                      `🚨 [STALE MATCH] Match ${match.fixture.id}:`,
-                                      {
-                                        teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
-                                        status: status,
-                                        elapsed: elapsed,
-                                        fixtureDate: match.fixture.date,
-                                        matchStartDate:
-                                          matchStartDate.toISOString(),
-                                        currentDate: currentDate.toISOString(),
-                                        minutesSinceKickoff:
-                                          minutesSinceKickoff,
-                                        hoursSinceStart: hoursSinceStart,
-                                        daysSinceStart: daysSinceStart,
-                                        reason:
-                                          daysSinceStart >= 1
-                                            ? "Match from previous day"
-                                            : hoursSinceStart > 4
-                                              ? "Match started over 4 hours ago"
-                                              : minutesSinceKickoff > 180
-                                                ? "Live for over 3 hours"
-                                                : "Impossible elapsed time for status",
-                                      },
-                                    );
-                                    // For stale matches, show as "Ended" regardless of API status
-                                    const actualStatus = "Ended";
-
-                                    return (
-                                      <div className="match-status-label status-ended">
-                                        {actualStatus}
-                                      </div>
-                                    );
-                                  }
-
-                                  // Use only API elapsed time - no real-time calculation
                                   if (status === "HT") {
                                     displayText = "Halftime";
                                   } else if (status === "P") {
@@ -2037,7 +1969,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   } else if (status === "INT") {
                                     displayText = "Interrupted";
                                   } else {
-                                    // For LIVE, LIV, 1H, 2H - use only API elapsed time
+                                    // For LIVE, LIV, 1H, 2H - use API elapsed time
                                     displayText = elapsed ? `${elapsed}'` : "LIVE";
                                   }
 
@@ -2048,7 +1980,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   );
                                 }
 
-                                // All finished match statuses - show score only
+                                // All finished match statuses
                                 if (
                                   [
                                     "FT",
@@ -2063,7 +1995,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                 ) {
                                   return (
                                     <div className="match-status-label status-ended">
-                                      {" "}
                                       {status === "FT"
                                         ? "Ended"
                                         : status === "AET"
