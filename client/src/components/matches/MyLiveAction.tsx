@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -188,7 +187,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 setHalftimeFlash(false);
               }, 3000);
             }
-            
+
             setPreviousStatus(currentStatus);
 
             if (currentElapsed > previousElapsed) {
@@ -248,17 +247,17 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       setBallPosition(prev => {
         let newX = prev.x + ballDirection.dx * 1.5;
         let newY = prev.y + ballDirection.dy * 1.5;
-        
+
         let newDx = ballDirection.dx;
         let newDy = ballDirection.dy;
-        
+
         // Ball possession logic
         const nearHomePlayer = playerPositions.find(p => 
           p.team === 'home' && 
           Math.abs(p.x - newX) < 8 && 
           Math.abs(p.y - newY) < 8
         );
-        
+
         const nearAwayPlayer = playerPositions.find(p => 
           p.team === 'away' && 
           Math.abs(p.x - newX) < 8 && 
@@ -277,11 +276,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
         // Generate events based on ball position
         const isNearGoal = (newX <= 15 || newX >= 85) && (newY >= 35 && newY <= 65);
-        
+
         if (isNearGoal && Math.random() < 0.008) {
           const eventType = Math.random() < 0.3 ? 'goal' : Math.random() < 0.6 ? 'shot' : 'save';
           const team = newX <= 50 ? 'away' : 'home';
-          
+
           const newEvent: PlayByPlayEvent = {
             id: `live_event_${Date.now()}`,
             minute: elapsed,
@@ -294,41 +293,41 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             x: newX,
             y: newY
           };
-          
+
           setPlayByPlayEvents(prev => [newEvent, ...prev.slice(0, 4)]);
           setCurrentEvent(newEvent);
         }
-        
+
         // Boundary checks with realistic bouncing
         if (newX <= 8 || newX >= 92) {
           newDx = -newDx + (Math.random() - 0.5) * 0.4;
           newX = Math.max(8, Math.min(92, newX));
         }
-        
+
         if (newY <= 20 || newY >= 80) {
           newDy = -newDy + (Math.random() - 0.5) * 0.4;
           newY = Math.max(20, Math.min(80, newY));
         }
-        
+
         // Add natural movement variation
         newDx += (Math.random() - 0.5) * 0.15;
         newDy += (Math.random() - 0.5) * 0.15;
-        
+
         // Limit speed for realistic movement
         const speed = Math.sqrt(newDx * newDx + newDy * newDy);
         if (speed > 2.5) {
           newDx = (newDx / speed) * 2.5;
           newDy = (newDy / speed) * 2.5;
         }
-        
+
         setBallDirection({ dx: newDx, dy: newDy });
-        
+
         // Enhanced ball trail
         setBallTrail(prev => {
           const newTrail = [...prev, { x: newX, y: newY, timestamp: Date.now() }];
           return newTrail.slice(-15);
         });
-        
+
         return { x: newX, y: newY };
       });
     }, 150);
@@ -348,7 +347,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     try {
       const response = await fetch(`/api/fixtures/${matchData.fixture.id}/events`);
       let realEvents: any[] = [];
-      
+
       if (response.ok) {
         realEvents = await response.json();
       }
@@ -367,10 +366,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         recentEvents.forEach((event, index) => {
           const isHomeTeam = event.team?.id === homeTeam?.id;
           const team = isHomeTeam ? 'home' : 'away';
-          
+
           let eventType = 'attempt';
           let description = event.detail || 'Match event';
-          
+
           if (event.type === 'Goal') {
             eventType = 'goal';
             description = `GOAL! ${event.detail || ''}`;
@@ -389,7 +388,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           }
 
           let x = 50, y = 50;
-          
+
           if (eventType === 'goal') {
             x = isHomeTeam ? 90 : 10;
             y = 45 + Math.random() * 10;
@@ -486,7 +485,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         />
       );
     }
-    
+
     return (
       <Card className={`w-full ${className} bg-gradient-to-br from-gray-600 to-gray-800 border-0 text-white`}>
         <CardHeader className="pb-3">
@@ -553,7 +552,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             ? 'bg-gradient-to-br from-orange-600 via-orange-500 to-orange-600' 
             : 'bg-gradient-to-br from-green-800 via-green-700 to-green-800'
         } rounded-lg overflow-hidden border-2 border-white/30 transition-all duration-1000 ease-in-out`}>
-          
+
           {/* Field Pattern - 365scores style */}
           <div className="absolute inset-0">
             {/* Grass pattern */}
@@ -575,26 +574,26 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               {/* Outer boundary */}
               <rect x="5" y="15" width="90" height="70" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
-              
+
               {/* Center line */}
               <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
-              
+
               {/* Center circle */}
               <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
               <circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.8)"/>
-              
+
               {/* Goal areas */}
               <rect x="5" y="35" width="8" height="30" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
               <rect x="87" y="35" width="8" height="30" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
-              
+
               {/* Penalty areas */}
               <rect x="5" y="25" width="18" height="50" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
               <rect x="77" y="25" width="18" height="50" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
-              
+
               {/* Penalty spots */}
               <circle cx="16" cy="50" r="0.8" fill="rgba(255,255,255,0.8)"/>
               <circle cx="84" cy="50" r="0.8" fill="rgba(255,255,255,0.8)"/>
-              
+
               {/* Corner arcs */}
               <path d="M 5 15 Q 8 15 8 18" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
               <path d="M 95 15 Q 92 15 92 18" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3"/>
@@ -669,7 +668,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               const prevPoint = ballTrail[index - 1];
               const opacity = Math.max(0.1, 0.8 - (index * 0.05));
               const strokeWidth = Math.max(1, 4 - (index * 0.2));
-              
+
               return (
                 <line
                   key={`trail-line-${index}`}
@@ -693,7 +692,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           <div 
             className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100 ease-linear"
             style={{
-              left: `${ballPosition.x}%`,
+              left:`${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
               zIndex: 30
             }}
@@ -703,7 +702,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                  style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}></div>
             <div className="absolute w-6 h-6 rounded-full bg-white opacity-25" 
                  style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}></div>
-            
+
             {/* Ball core with enhanced styling */}
             <div 
               className="relative w-4 h-4 bg-white rounded-full shadow-2xl"
@@ -775,7 +774,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                   {homeTeamData?.code || homeTeamData?.name?.substring(0, 3).toUpperCase()}
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-3 px-4">
                 <span className="text-2xl font-bold">{displayMatch?.goals?.home || 0}</span>
                 <span className="text-white/60">-</span>
@@ -796,7 +795,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 />
               </div>
             </div>
-            
+
             <div className="text-center mt-2">
               <span className={`text-sm font-medium ${
                 halftimeFlash 
