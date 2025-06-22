@@ -699,7 +699,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         },
       },
     };
-  }, [processedFixtures, selectedDate, liveFilterActive, liveFixtures]);
+  }, [processedFixtures, selectedDate, liveFilterActive]);
 
   // Log filtering statistics
   console.log(`📊 [MyDateFilter] Filtering Results for ${selectedDate}:`, {
