@@ -844,7 +844,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
             `🔍 [FINAL RESULT DEBUG] League ${leagueId} was in original data but filtered out:`,
             {
               originalCount: originalLeagueFixtures.length,
-```python
               sampleFixture: originalLeagueFixtures[0]
                 ? {
                     id: originalLeagueFixtures[0].fixture?.id,
@@ -1792,7 +1791,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   console.log(
                                     `✅ Venezuela flag refreshed to: ${newFlag}`,
                                   );
-                                                                    // Trigger a re-render ifneeded
+                                  // Trigger a re-render ifneeded
                                   window.location.reload();
                                 })
                                 .catch((error) => {
@@ -2133,7 +2132,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                   } else if (status === "INT") {
                                     displayText = "Interrupted";
                                   } else {
-                                    // For LIVE, LIV, 1H, 2H - use elapsed time from API only
+                                    // For LIVE, LIV, 1H, 2H - use elapsed time from merged data (already includes live updates)
                                     if (
                                       elapsed !== null &&
                                       elapsed !== undefined &&
