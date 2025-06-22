@@ -693,20 +693,20 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   }
 
   // Check if there are any live matches specifically
-  const hasLiveMatches = filteredFixtures.some((fixture: any) => 
+  const actuallyHasLiveMatches = filteredFixtures.some((fixture: any) => 
     ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
   );
 
   console.log(`🔍 [LiveMatchForAllCountry] Live matches check:`, {
     totalFixtures: fixtures.length,
     filteredFixtures: filteredFixtures.length,
-    hasLiveMatches,
+    hasLiveMatches: actuallyHasLiveMatches,
     liveFilterActive,
     allFixturesLength: allFixtures.length
   });
 
   // Show no live matches when live filter is active but no live matches found
-  if (liveFilterActive && (!allFixtures.length || !hasLiveMatches)) {
+  if (liveFilterActive && (!allFixtures.length || !actuallyHasLiveMatches)) {
     console.log(`📺 [LiveMatchForAllCountry] Showing NoLiveMatchesEmpty - no live matches found`);
     return (
       <>
