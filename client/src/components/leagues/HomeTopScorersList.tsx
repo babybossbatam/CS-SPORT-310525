@@ -219,9 +219,14 @@ const HomeTopScorersList = () => {
       }
     };
 
-    updateDimensions();
+    // Use a small delay to ensure elements are rendered
+    const timer = setTimeout(updateDimensions, 100);
     window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateDimensions);
+    };
   }, [availableLeagues]);
 
   const scrollLeft = () => {
@@ -257,18 +262,10 @@ const HomeTopScorersList = () => {
     setContentPosition(newPosition);
   };
 
-  const canScrollLeft = contentPosition > 0;
-  const canScrollRight = contentPosition < (contentWidth - containerWidth);
+  const canScrollLeft = contentPosition > 0 && contentWidth > containerWidth;
+  const canScrollRight = contentPosition < (contentWidth - containerWidth) && contentWidth > containerWidth;
 
-  // Debug logging
-  console.log('Navigation state:', {
-    contentPosition,
-    containerWidth,
-    contentWidth,
-    canScrollLeft,
-    canScrollRight,
-    maxScroll: contentWidth - containerWidth
-  });
+  
 
   // Auto-scroll to selected league when it changes - 365scores style
   useEffect(() => {
