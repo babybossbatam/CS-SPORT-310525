@@ -116,7 +116,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       try {
         setIsLoading(true);
 
-        // Try 365scores API first if available
+        // Try our custom 365scores API first
         try {
           const today = new Date().toLocaleDateString('en-GB').split('/').reverse().join('/');
           const scores365Response = await fetch(`/api/365scores/live?date=${today}&matchId=${matchId}`);
@@ -124,7 +124,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           if (scores365Response.ok && mounted) {
             const scores365Data = await scores365Response.json();
             if (scores365Data && mounted) {
-              console.log(`🔴 [Live Action 365] Found live match:`, {
+              console.log(`🔴 [Live Action 365] Found live match via our API:`, {
                 gameId: scores365Data.id,
                 homeTeam: scores365Data.homeCompetitor?.name,
                 awayTeam: scores365Data.awayCompetitor?.name,
@@ -142,7 +142,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             }
           }
         } catch (scores365Error) {
-          console.log('⚠️ [Live Action] 365scores API not available, falling back to default API');
+          console.log('⚠️ [Live Action] Our 365scores API not available, falling back to default API');
         }
 
         // Fallback to existing API
@@ -412,13 +412,17 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   // Generate events from 365scores data
   const generate365ScoresEvents = async (scores365Data: any) => {
     try {
-      // Fetch live events from 365scores API
+      // Fetch live events from our 365scores API
+      console.log(`📊 [Live Action] Fetching events for game ${scores365Data.id} via our API`);
       const eventsResponse = await fetch(`/api/365scores/events?gameId=${scores365Data.id}`);
       let realEvents: any[] = [];
       
       if (eventsResponse.ok) {
         const eventsData = await eventsResponse.json();
         realEvents = eventsData.events || [];
+        console.log(`✅ [Live Action] Retrieved ${realEvents.length} events via our API`);
+      } else {
+        console.log(`⚠️ [Live Action] Events API returned status ${eventsResponse.status}`);
       }
 
       const events: PlayByPlayEvent[] = [];
