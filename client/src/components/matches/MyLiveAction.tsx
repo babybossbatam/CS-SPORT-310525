@@ -602,36 +602,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </svg>
           </div>
 
-          {/* Player Positions - 365scores style */}
-          {playerPositions.map((player) => (
-            <div
-              key={player.id}
-              className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
-                activePlayers.includes(player.id) ? 'scale-125 z-20' : 'scale-100 z-10'
-              }`}
-              style={{
-                left: `${player.x}%`,
-                top: `${player.y}%`,
-              }}
-            >
-              <div className={`relative w-4 h-4 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                player.team === 'home' 
-                  ? activePlayers.includes(player.id)
-                    ? 'bg-blue-400 shadow-lg shadow-blue-400/50'
-                    : 'bg-blue-600'
-                  : activePlayers.includes(player.id)
-                    ? 'bg-red-400 shadow-lg shadow-red-400/50'
-                    : 'bg-red-600'
-              }`}>
-                <span className="text-white text-xs leading-none">
-                  {player.number}
-                </span>
-                {activePlayers.includes(player.id) && (
-                  <div className="absolute inset-0 rounded-full animate-ping bg-white/30"></div>
-                )}
-              </div>
-            </div>
-          ))}
+          
 
           {/* Live Event Markers */}
           {playByPlayEvents.slice(0, 3).map((event, index) => (
@@ -721,100 +692,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           </div>
 
-          {/* Ball possession indicator */}
-          {ballPossession && (
-            <div className="absolute top-2 left-2 z-40">
-              <div className={`px-2 py-1 rounded-full text-xs font-bold text-white ${
-                ballPossession === 'home' ? 'bg-blue-600' : 'bg-red-600'
-              } backdrop-blur-sm bg-opacity-90`}>
-                Ball: {getTeamDisplayName(ballPossession)}
-              </div>
-            </div>
-          )}
+          
 
-          {/* Current Event Display Overlay */}
-          {currentEvent && (
-            <div className="absolute top-2 right-2 z-40">
-              <div className={`px-3 py-2 rounded-lg text-white backdrop-blur-sm ${
-                currentEvent.type === 'goal' 
-                  ? 'bg-yellow-600/90 animate-bounce'
-                  : currentEvent.team === 'home'
-                    ? 'bg-blue-600/90'
-                    : 'bg-red-600/90'
-              } border border-white/30`}>
-                <div className="text-xs font-bold">
-                  {currentEvent.description}
-                </div>
-                <div className="text-xs opacity-80">
-                  {currentEvent.player} • {currentEvent.minute}'
-                </div>
-              </div>
-            </div>
-          )}
+          
         </div>
 
-        {/* Enhanced Score Display */}
-        <div className="mt-4 flex items-center justify-center">
-          <div className={`${
-            halftimeFlash 
-              ? 'bg-orange-500/40 border border-orange-400/60' 
-              : 'bg-black/30'
-          } rounded-full px-6 py-3 backdrop-blur-sm transition-all duration-500`}>
-            <div className="flex items-center gap-6 text-white">
-              <div className="flex items-center gap-3">
-                <img 
-                  src={homeTeamData?.logo} 
-                  alt={homeTeamData?.name}
-                  className="w-6 h-6 object-contain"
-                  onError={(e) => {
-                    e.currentTarget.src = "/assets/fallback-logo.png";
-                  }}
-                />
-                <span className="text-sm font-medium">
-                  {homeTeamData?.code || homeTeamData?.name?.substring(0, 3).toUpperCase()}
-                </span>
-              </div>
-
-              <div className="flex items-center gap-3 px-4">
-                <span className="text-2xl font-bold">{displayMatch?.goals?.home || 0}</span>
-                <span className="text-white/60">-</span>
-                <span className="text-2xl font-bold">{displayMatch?.goals?.away || 0}</span>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium">
-                  {awayTeamData?.code || awayTeamData?.name?.substring(0, 3).toUpperCase()}
-                </span>
-                <img 
-                  src={awayTeamData?.logo} 
-                  alt={awayTeamData?.name}
-                  className="w-6 h-6 object-contain"
-                  onError={(e) => {
-                    e.currentTarget.src = "/assets/fallback-logo.png";
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="text-center mt-2">
-              <span className={`text-sm font-medium ${
-                halftimeFlash 
-                  ? 'text-orange-200 animate-pulse' 
-                  : 'text-white/80'
-              } transition-colors duration-500`}>
-                {statusData === 'HT' ? 'HALFTIME' : `${elapsed}'`}
-              </span>
-            </div>
-          </div>
-        </div>
+        
       </CardContent>
 
-      {/* Footer */}
-      <CardContent className="px-4 py-2 pt-0">
-        <div className="text-xs text-white/60 text-center">
-          Last update: {lastUpdate} • Live updates every 5s
-        </div>
-      </CardContent>
+      
     </Card>
   );
 };
