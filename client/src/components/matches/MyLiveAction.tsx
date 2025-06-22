@@ -39,28 +39,31 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const [currentEvent, setCurrentEvent] = useState<PlayByPlayEvent | null>(null);
   const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
   const [ballTrail, setBallTrail] = useState<{ x: number, y: number, timestamp: number }[]>([]);
-  const [realTimeElapsed, setRealTimeElapsed] = useState<number | null>(null);
+  const [ballDirection, setBallDirection] = useState({ dx: 1, dy: 0.5 });
 
-  // Calculate live status from current data
+  // Determine if match is currently live (calculate early to avoid initialization errors)
   const displayMatch = liveData;
   const currentStatus = status || displayMatch?.fixture?.status?.short;
   const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
 
-  // Effect for initial data fetching only
+  // Fetch initial match data and set up real-time updates
   useEffect(() => {
+    if (!matchId) {
+      console.log('❌ [Live Action] No match ID provided');
+      return;
+    }
+
+    console.log('🎯 [Live Action] Received match ID:', matchId);
+
     let mounted = true;
+    let updateInterval: NodeJS.Timeout;
 
-    const fetchInitialData = async () => {
-      if (!matchId) {
-        setIsLoading(false);
-        return null;
-      }
-
+    const fetchMatchData = async () => {
       try {
         setIsLoading(true);
 
         // First, try to get the match from live fixtures
-        const liveResponse = await fetch(`/api/fixtures/live`);
+        const liveResponse = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
         if (liveResponse.ok && mounted) {
           const liveFixtures = await liveResponse.json();
           const liveMatch = liveFixtures.find((fixture: any) => 
@@ -77,7 +80,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             });
 
             setLiveData(liveMatch);
-            setRealTimeElapsed(liveMatch.fixture?.status?.elapsed || 0);
             generatePlayByPlayEvents(liveMatch);
             setLastUpdate(new Date().toLocaleTimeString());
             setIsLoading(false);
@@ -86,23 +88,23 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         }
 
         // If not found in live fixtures, get from specific match endpoint
-        const matchResponse = await fetch(`/api/fixtures/${matchId}`);
+        const matchResponse = await fetch(`/api/fixtures?ids=${matchId}`);
         if (matchResponse.ok && mounted) {
           const matchData = await matchResponse.json();
-          if (matchData) {
+          if (matchData.length > 0) {
+            const match = matchData[0];
             console.log(`📊 [Live Action] Found match data:`, {
-              fixtureId: matchData.fixture.id,
-              homeTeam: matchData.teams?.home?.name,
-              awayTeam: matchData.teams?.away?.name,
-              status: matchData.fixture?.status?.short
+              fixtureId: match.fixture.id,
+              homeTeam: match.teams?.home?.name,
+              awayTeam: match.teams?.away?.name,
+              status: match.fixture?.status?.short
             });
 
-            setLiveData(matchData);
-            setRealTimeElapsed(matchData.fixture?.status?.elapsed || 0);
-            generatePlayByPlayEvents(matchData);
+            setLiveData(match);
+            generatePlayByPlayEvents(match);
             setLastUpdate(new Date().toLocaleTimeString());
             setIsLoading(false);
-            return matchData;
+            return match;
           }
         }
 
@@ -117,132 +119,65 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       }
     };
 
-    // Initial fetch only
-    fetchInitialData();
-
-    return () => {
-      mounted = false;
-    };
-  }, [matchId]);
-
-  // Real-time timer effect for live matches
-  useEffect(() => {
-    if (!isLive || !displayMatch) {
-      setRealTimeElapsed(null);
-      return;
-    }
-
-    // Initialize with current elapsed time from API
-    const initialElapsed = displayMatch.fixture?.status?.elapsed || 0;
-    setRealTimeElapsed(initialElapsed);
-
-    console.log("🎯 [Live Action] Starting real-time timer:", {
-      fixtureId: displayMatch.fixture.id,
-      status: currentStatus,
-      initialElapsed: initialElapsed,
-      teams: `${displayMatch.teams?.home?.name} vs ${displayMatch.teams?.away?.name}`
-    });
-
-    // Real-time timer that increments every minute for live matches (not HT or P)
-    let realtimeTimer: NodeJS.Timeout | null = null;
-    if (currentStatus !== "HT" && currentStatus !== "P") {
-      realtimeTimer = setInterval(() => {
-        setRealTimeElapsed(prev => {
-          const currentTime = prev !== null ? prev : initialElapsed;
-          const newTime = currentTime + 1;
-          console.log("⏱️ [Live Action] Real-time timer increment:", {
-            prev: currentTime,
-            newTime: newTime,
-            status: currentStatus,
-            fixtureId: displayMatch.fixture.id
-          });
-          return newTime;
-        });
-      }, 60000); // Increment every minute
-    }
-
-    return () => {
-      if (realtimeTimer) {
-        clearInterval(realtimeTimer);
-        console.log("🛑 [Live Action] Cleared real-time timer for match:", displayMatch.fixture.id);
-      }
-    };
-  }, [isLive, displayMatch?.fixture?.id, currentStatus]);
-
-  // Separate effect for live updates with proper interval management
-  useEffect(() => {
-    if (!isLive || !liveData) return;
-
     const fetchLiveUpdates = async () => {
+      if (!liveData) return;
+
       try {
-        const response = await fetch(`/api/fixtures/live`);
-        if (response.ok) {
+        const response = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
+        if (response.ok && mounted) {
           const liveFixtures = await response.json();
           const currentMatch = liveFixtures.find((fixture: any) => 
             fixture.fixture.id === matchId
           );
 
-          if (currentMatch) {
-            console.log(`🔄 [Live Action] Live update:`, {
-              elapsed: currentMatch.fixture?.status?.elapsed,
-              status: currentMatch.fixture?.status?.short,
-              homeScore: currentMatch.goals?.home,
-              awayScore: currentMatch.goals?.away,
-              realTimeElapsed: realTimeElapsed
-            });
+          if (currentMatch && mounted) {
+            const previousElapsed = liveData.fixture?.status?.elapsed || 0;
+            const currentElapsed = currentMatch.fixture?.status?.elapsed || 0;
 
-            // Update match data but keep real-time timer running
             setLiveData(currentMatch);
+
+            // Generate new events if time has progressed
+            if (currentElapsed > previousElapsed) {
+              generatePlayByPlayEvents(currentMatch, true);
+            }
+
             setLastUpdate(new Date().toLocaleTimeString());
 
-            // Sync real-time timer with API occasionally
-            const apiElapsed = currentMatch.fixture?.status?.elapsed || 0;
-            if (realTimeElapsed !== null && Math.abs(realTimeElapsed - apiElapsed) > 2) {
-              console.log("🔄 [Live Action] Syncing timer with API:", {
-                realTime: realTimeElapsed,
-                apiTime: apiElapsed
-              });
-              setRealTimeElapsed(apiElapsed);
-            }
+            console.log(`✅ [Live Action] Real-time update:`, {
+              fixtureId: currentMatch.fixture.id,
+              elapsed: currentElapsed,
+              homeGoals: currentMatch.goals?.home,
+              awayGoals: currentMatch.goals?.away,
+              status: currentMatch.fixture?.status?.short
+            });
           }
         }
       } catch (error) {
-        console.error('❌ [Live Action] Error fetching live updates:', error);
+        if (mounted) {
+          console.error('❌ [Live Action] Error fetching live updates:', error);
+        }
       }
     };
 
-    // Fetch updates every 30 seconds for live matches
-    const liveUpdateInterval = setInterval(fetchLiveUpdates, 30000);
+    // Initial fetch
+    fetchMatchData().then((match) => {
+      if (match && mounted) {
+        const status = match.fixture?.status?.short;
+        const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
+
+        if (isLive) {
+          // Set up real-time updates every 5 seconds (faster for live feel)
+          updateInterval = setInterval(fetchLiveUpdates, 5000);
+          console.log(`🔄 [Live Action] Started real-time updates for match ${matchId}`);
+        }
+      }
+    });
 
     return () => {
-      clearInterval(liveUpdateInterval);
+      mounted = false;
+      if (updateInterval) clearInterval(updateInterval);
     };
-  }, [matchId, isLive, liveData?.fixture?.id, realTimeElapsed]);
-
-  // Ball movement effect with proper cleanup
-  useEffect(() => {
-    if (!isLive || !displayMatch) {
-      return;
-    }
-
-    const moveBall = () => {
-      setBallPosition(prev => {
-        const newX = Math.random() * 85 + 5; // 5% to 90% to stay within bounds
-        const newY = Math.random() * 75 + 10; // 10% to 85% to stay within bounds
-
-        console.log(`⚽ [Ball Movement] Moving ball to: ${newX.toFixed(1)}%, ${newY.toFixed(1)}%`);
-
-        return { x: newX, y: newY };
-      });
-    };
-
-    // Move ball every 8 seconds
-    const ballMoveInterval = setInterval(moveBall, 8000);
-
-    return () => {
-      clearInterval(ballMoveInterval);
-    };
-  }, [isLive, displayMatch?.fixture?.id]);
+  }, [matchId]);
 
   // Auto-update current event display
   useEffect(() => {
@@ -262,6 +197,56 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     }
   }, [playByPlayEvents, currentEvent]);
 
+  // Ball movement animation for live matches
+  useEffect(() => {
+    if (!isLive) return;
+
+    const ballInterval = setInterval(() => {
+      setBallPosition(prev => {
+        let newX = prev.x + ballDirection.dx;
+        let newY = prev.y + ballDirection.dy;
+        
+        // Bounce off field boundaries with some randomness
+        let newDx = ballDirection.dx;
+        let newDy = ballDirection.dy;
+        
+        if (newX <= 5 || newX >= 95) {
+          newDx = -newDx + (Math.random() - 0.5) * 0.3;
+          newX = Math.max(5, Math.min(95, newX));
+        }
+        
+        if (newY <= 15 || newY >= 85) {
+          newDy = -newDy + (Math.random() - 0.5) * 0.3;
+          newY = Math.max(15, Math.min(85, newY));
+        }
+        
+        // Add some randomness to direction
+        newDx += (Math.random() - 0.5) * 0.1;
+        newDy += (Math.random() - 0.5) * 0.1;
+        
+        // Limit speed
+        const speed = Math.sqrt(newDx * newDx + newDy * newDy);
+        if (speed > 2) {
+          newDx = (newDx / speed) * 2;
+          newDy = (newDy / speed) * 2;
+        }
+        
+        setBallDirection({ dx: newDx, dy: newDy });
+        
+        // Update ball trail
+        setBallTrail(prev => {
+          const newTrail = [...prev, { x: newX, y: newY, timestamp: Date.now() }];
+          // Keep only last 8 trail points
+          return newTrail.slice(-8);
+        });
+        
+        return { x: newX, y: newY };
+      });
+    }, 150); // Update every 150ms for smooth movement
+
+    return () => clearInterval(ballInterval);
+  }, [isLive, ballDirection]);
+
   // Move ball to event locations when events occur
   useEffect(() => {
     if (currentEvent && currentEvent.x && currentEvent.y) {
@@ -274,7 +259,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const generatePlayByPlayEvents = (matchData: any, isUpdate: boolean = false) => {
     const homeTeam = matchData.teams?.home;
     const awayTeam = matchData.teams?.away;
-    const elapsed = realTimeElapsed || matchData.fixture?.status?.elapsed || 0;
+    const elapsed = matchData.fixture?.status?.elapsed || 0;
 
     // Event types with realistic probabilities and field positions
     const eventTypes = [
@@ -414,11 +399,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     return awayTeam?.code || awayTeam?.name?.substring(0, 3).toUpperCase() || 'AWAY';
   };
 
-  // Use fetched live data
+  // Use fetched live data (displayMatch already defined above)
   const homeTeamData = homeTeam || displayMatch?.teams?.home;
   const awayTeamData = awayTeam || displayMatch?.teams?.away;
   const statusData = status || displayMatch?.fixture?.status?.short;
-  const currentElapsed = realTimeElapsed || displayMatch?.fixture?.status?.elapsed || 0;
+  const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
 
   if (isLoading) {
     return (
@@ -496,17 +481,17 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             {/* Goal areas */}
             <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-4 h-16 border-2 border-white/40 border-l-0"></div>
             <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-4 h-16 border-2 border-white/40 border-r-0"></div>
-
+            
             {/* Penalty areas */}
             <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-12 h-24 border-2 border-white/30 border-l-0"></div>
             <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-12 h-24 border-2 border-white/30 border-r-0"></div>
-
+            
             {/* Center circle */}
             <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-white/30 rounded-full"></div>
-
+            
             {/* Center line */}
             <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/30"></div>
-
+            
             {/* Corner arcs */}
             <div className="absolute top-0 left-0 w-4 h-4 border-br-2 border-white/30 rounded-br-full"></div>
             <div className="absolute top-0 right-0 w-4 h-4 border-bl-2 border-white/30 rounded-bl-full"></div>
@@ -566,6 +551,23 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             {/* Ball glow effect */}
             <div className="absolute inset-0 rounded-full bg-white animate-pulse opacity-60"></div>
           </div>
+
+          {/* Ball movement line (shows current direction) */}
+          {isLive && (
+            <div
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 opacity-40"
+              style={{
+                left: `${ballPosition.x}%`,
+                top: `${ballPosition.y}%`,
+                width: '20px',
+                height: '2px',
+                background: 'linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%)',
+                transformOrigin: 'left center',
+                transform: `translate(-50%, -50%) rotate(${Math.atan2(ballDirection.dy, ballDirection.dx) * 180 / Math.PI}deg)`,
+                zIndex: 10
+              }}
+            />
+          )}
         </div>
 
         {/* Current Event Display */}
@@ -612,7 +614,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                   {homeTeamData?.code || homeTeamData?.name?.substring(0, 3).toUpperCase()}
                 </span>
               </div>
-
+              
               <div className="flex items-center gap-2 px-3">
                 <span className="text-xl font-bold">{displayMatch?.goals?.home || 0}</span>
                 <span className="text-white/60">-</span>
@@ -633,11 +635,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 />
               </div>
             </div>
-
+            
             <div className="text-center mt-1">
-              <span className="text-xs text-white/80 font-medium">
-                {currentElapsed}'
-              </span>
+              <span className="text-xs text-white/80 font-medium">{elapsed}'</span>
             </div>
           </div>
         </div>
@@ -646,7 +646,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       {/* Footer */}
       <CardContent className="px-4 py-2 pt-0">
         <div className="text-xs text-white/60 text-center">
-          Last update: {lastUpdate} • Live updates every 30s
+          Last update: {lastUpdate} • Live updates every 5s
         </div>
       </CardContent>
     </Card>

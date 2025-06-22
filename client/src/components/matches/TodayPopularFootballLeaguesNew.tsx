@@ -843,8 +843,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
           console.log(
             `🔍 [FINAL RESULT DEBUG] League ${leagueId} was in original data but filtered out:`,
             {
-              originalCount: original```typescript
-LeagueFixtures.length,
+              originalCount: originalLeagueFixtures.length,
               sampleFixture: originalLeagueFixtures[0]
                 ? {
                     id: originalLeagueFixtures[0].fixture?.id,
@@ -930,7 +929,7 @@ LeagueFixtures.length,
         country.trim() === ""
       ) {
         // Skip fixtures with truly missing country data
-        console.warn("[COUNTRY DEBUG] Skipping fixture with missing country data:", {
+        console.warn(`[COUNTRY DEBUG] Skipping fixture with missing country data:`, {
           leagueName: league.name,
           leagueId: league.id,
           originalCountry: country,
@@ -945,7 +944,7 @@ LeagueFixtures.length,
 
       // Handle World country explicitly
       if (validCountry === "World") {
-        console.log("[WORLD DEBUG] Processing World country fixture:", {
+        console.log(`🌍 [WORLD DEBUG] Processing World country fixture:`, {
           leagueName: league.name,
           leagueId: league.id,
           homeTeam: fixture.teams?.home?.name,
@@ -1810,7 +1809,8 @@ LeagueFixtures.length,
                           "1H",
                           "HT",
                           "2H",
-                          "ET","BT",
+                          "ET",
+                          "BT",
                           "P",
 "INT",
                         ].includes(aStatus);
@@ -2023,35 +2023,23 @@ LeagueFixtures.length,
                                     );
                                   }
 
-                                  
-                                } else {
-                                                // For LIVE, LIV, 1H, 2H - use the most recent elapsed time from live data
-                                                const liveMatch = liveFixtures.find((lf: any) => lf.fixture.id === match.fixture.id);
-
-                                                // Prioritize live fixture data over cached data
-                                                let currentElapsed = elapsed; // Default to cached elapsed
-
-                                                if (liveMatch?.fixture?.status?.elapsed !== null && 
-                                                    liveMatch?.fixture?.status?.elapsed !== undefined) {
-                                                  currentElapsed = liveMatch.fixture.status.elapsed;
-                                                }
-
-                                                console.log(`🕐 [ELAPSED TIME DEBUG] TodayPopularFootballLeaguesNew Match ${match.fixture.id}:`, {
-                                                  teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
-                                                  status: status,
-                                                  cachedElapsed: elapsed,
-                                                  liveElapsed: liveMatch?.fixture?.status?.elapsed,
-                                                  finalElapsed: currentElapsed,
-                                                  hasLiveData: !!liveMatch,
-                                                  usingLiveData: liveMatch?.fixture?.status?.elapsed !== null && liveMatch?.fixture?.status?.elapsed !== undefined
-                                                });
-
-                                                if (currentElapsed !== null && currentElapsed !== undefined) {
-                                                  displayText = `${currentElapsed}'`;
-                                                } else {
-                                                  displayText = "LIVE";
-                                                }
-                                              }
+                                  // Use only API elapsed time - no real-time calculation
+                                  if (status === "HT") {
+                                    displayText = "Halftime";
+                                  } else if (status === "P") {
+                                    displayText = "Penalties";
+                                  } else if (status === "ET") {
+                                    displayText = elapsed
+                                      ? `${elapsed}' ET`
+                                      : "Extra Time";
+                                  } else if (status === "BT") {
+                                    displayText = "Break Time";
+                                  } else if (status === "INT") {
+                                    displayText = "Interrupted";
+                                  } else {
+                                    // For LIVE, LIV, 1H, 2H - use only API elapsed time
+                                    displayText = elapsed ? `${elapsed}'` : "LIVE";
+                                  }
 
                                   return (
                                     <div className="match-status-label status-live">
