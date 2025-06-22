@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,8 @@ interface PlayByPlayEvent {
   description: string;
   timestamp: number;
   isRecent?: boolean;
+  x?: number; // Field position X (0-100%)
+  y?: number; // Field position Y (0-100%)
 }
 
 const MyLiveAction: React.FC<MyLiveActionProps> = ({ 
@@ -33,6 +36,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const [lastUpdateId, setLastUpdateId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>('');
+  const [currentEvent, setCurrentEvent] = useState<PlayByPlayEvent | null>(null);
 
   // Fetch initial match data and set up real-time updates
   useEffect(() => {
@@ -154,8 +158,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
 
         if (isLive) {
-          // Set up real-time updates every 10 seconds (like 365scores)
-          updateInterval = setInterval(fetchLiveUpdates, 10000);
+          // Set up real-time updates every 5 seconds (faster for live feel)
+          updateInterval = setInterval(fetchLiveUpdates, 5000);
           console.log(`🔄 [Live Action] Started real-time updates for match ${matchId}`);
         }
       }
@@ -167,32 +171,90 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     };
   }, [matchId]);
 
+  // Auto-update current event display
+  useEffect(() => {
+    if (playByPlayEvents.length > 0) {
+      const latestEvent = playByPlayEvents[0];
+      setCurrentEvent(latestEvent);
+
+      // Auto-cycle through recent events every 3 seconds
+      const eventCycleInterval = setInterval(() => {
+        const recentEvents = playByPlayEvents.slice(0, 3);
+        const currentIndex = recentEvents.findIndex(e => e.id === currentEvent?.id);
+        const nextIndex = (currentIndex + 1) % recentEvents.length;
+        setCurrentEvent(recentEvents[nextIndex]);
+      }, 3000);
+
+      return () => clearInterval(eventCycleInterval);
+    }
+  }, [playByPlayEvents, currentEvent]);
+
   const generatePlayByPlayEvents = (matchData: any, isUpdate: boolean = false) => {
     const homeTeam = matchData.teams?.home;
     const awayTeam = matchData.teams?.away;
     const elapsed = matchData.fixture?.status?.elapsed || 0;
 
-    // 365scores-style event types with realistic probabilities
+    // Event types with realistic probabilities and field positions
     const eventTypes = [
-      { type: 'shot', weight: 0.4, descriptions: ['Shot blocked', 'Shot saved', 'Shot wide', 'Shot on target'] },
-      { type: 'attempt', weight: 0.25, descriptions: ['Attempt blocked', 'Attempt saved', 'Dangerous attack'] },
-      { type: 'foul', weight: 0.15, descriptions: ['Foul', 'Free kick awarded', 'Handball'] },
-      { type: 'corner', weight: 0.08, descriptions: ['Corner kick'] },
-      { type: 'offside', weight: 0.05, descriptions: ['Offside'] },
-      { type: 'card', weight: 0.04, descriptions: ['Yellow card', 'Caution'] },
-      { type: 'substitution', weight: 0.02, descriptions: ['Substitution'] },
-      { type: 'goal', weight: 0.01, descriptions: ['GOAL!', 'Goal scored!'] }
+      { 
+        type: 'shot', 
+        weight: 0.35, 
+        descriptions: ['Shot blocked', 'Shot saved', 'Shot wide', 'Shot on target'],
+        positions: { near: [75, 85, 90], far: [15, 25, 35] } // Near goal positions
+      },
+      { 
+        type: 'attempt', 
+        weight: 0.25, 
+        descriptions: ['Dangerous attack', 'Close attempt', 'Effort blocked'],
+        positions: { near: [70, 80, 85], far: [20, 30, 40] }
+      },
+      { 
+        type: 'foul', 
+        weight: 0.15, 
+        descriptions: ['Foul committed', 'Free kick awarded', 'Handball'],
+        positions: { near: [40, 50, 60], far: [40, 50, 60] } // Midfield fouls
+      },
+      { 
+        type: 'corner', 
+        weight: 0.08, 
+        descriptions: ['Corner kick'],
+        positions: { near: [95, 95, 95], far: [5, 5, 5] } // Corner positions
+      },
+      { 
+        type: 'offside', 
+        weight: 0.05, 
+        descriptions: ['Offside'],
+        positions: { near: [80, 85, 90], far: [15, 20, 25] }
+      },
+      { 
+        type: 'card', 
+        weight: 0.04, 
+        descriptions: ['Yellow card', 'Caution'],
+        positions: { near: [30, 50, 70], far: [30, 50, 70] }
+      },
+      { 
+        type: 'substitution', 
+        weight: 0.06, 
+        descriptions: ['Substitution'],
+        positions: { near: [50, 50, 50], far: [50, 50, 50] } // Sideline
+      },
+      { 
+        type: 'goal', 
+        weight: 0.02, 
+        descriptions: ['GOAL!', 'Goal scored!'],
+        positions: { near: [95, 95, 95], far: [5, 5, 5] } // Goal line
+      }
     ];
 
     const players = {
-      home: ['Player', 'Forward', 'Midfielder', 'Defender'],
-      away: ['Player', 'Forward', 'Midfielder', 'Defender']
+      home: ['Forward', 'Midfielder', 'Defender', 'Striker', 'Winger'],
+      away: ['Forward', 'Midfielder', 'Defender', 'Striker', 'Winger']
     };
 
     const events: PlayByPlayEvent[] = [];
 
-    // Generate 2-4 recent events
-    const numEvents = 2 + Math.floor(Math.random() * 3);
+    // Generate 1-3 recent events
+    const numEvents = 1 + Math.floor(Math.random() * 3);
 
     for (let i = 0; i < numEvents; i++) {
       const isHomeTeam = Math.random() > 0.5;
@@ -213,8 +275,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         }
       }
 
-      const eventMinute = Math.max(1, elapsed - Math.floor(Math.random() * 5));
+      const eventMinute = Math.max(1, elapsed - Math.floor(Math.random() * 8));
       const description = selectedEvent.descriptions[Math.floor(Math.random() * selectedEvent.descriptions.length)];
+
+      // Determine field position based on team and event type
+      const positionType = isHomeTeam ? 'near' : 'far';
+      const possibleX = selectedEvent.positions[positionType];
+      const x = possibleX[Math.floor(Math.random() * possibleX.length)];
+      const y = 25 + Math.random() * 50; // Random Y position in middle area
 
       events.push({
         id: `event_${Date.now()}_${i}`,
@@ -223,17 +291,19 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         type: selectedEvent.type as any,
         player,
         description,
-        timestamp: Date.now() - (i * 15000),
-        isRecent: i === 0 && isUpdate
+        timestamp: Date.now() - (i * 8000),
+        isRecent: i === 0 && isUpdate,
+        x: isHomeTeam ? x : 100 - x, // Flip X for away team
+        y
       });
     }
 
-    // Sort by most recent first (365scores style)
+    // Sort by most recent first
     events.sort((a, b) => b.timestamp - a.timestamp);
 
     if (isUpdate) {
       // Add new events to the beginning
-      setPlayByPlayEvents(prev => [...events, ...prev.slice(0, 8)]);
+      setPlayByPlayEvents(prev => [...events, ...prev.slice(0, 6)]);
     } else {
       setPlayByPlayEvents(events);
     }
@@ -249,7 +319,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       offside: "🚩",
       foul: "⚠️",
       shot: "🎯",
-      attempt: "🎯",
+      attempt: "⚽",
       save: "🥅"
     };
     return icons[type as keyof typeof icons] || "⚽";
@@ -257,7 +327,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
   const getTeamDisplayName = (team: 'home' | 'away') => {
     if (team === 'home') {
-      return homeTeam?.code || awayTeam?.name?.substring(0, 3).toUpperCase() || 'HOME';
+      return homeTeam?.code || homeTeam?.name?.substring(0, 3).toUpperCase() || 'HOME';
     }
     return awayTeam?.code || awayTeam?.name?.substring(0, 3).toUpperCase() || 'AWAY';
   };
@@ -275,14 +345,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
   if (isLoading) {
     return (
-      <Card className={`w-full ${className} bg-white border border-gray-200`}>
+      <Card className={`w-full ${className} bg-gradient-to-br from-green-600 to-green-800 border-0 text-white`}>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-gray-900">
+          <CardTitle className="text-sm font-medium text-white flex items-center gap-2">
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
             Live Action
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-32">
-          <div className="animate-pulse text-gray-500 text-sm">Loading...</div>
+        <CardContent className="flex items-center justify-center h-48">
+          <div className="animate-pulse text-white text-sm">Loading live action...</div>
         </CardContent>
       </Card>
     );
@@ -290,15 +361,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
   if (!displayMatch) {
     return (
-      <Card className={`w-full ${className} bg-white border border-gray-200`}>
+      <Card className={`w-full ${className} bg-gradient-to-br from-gray-600 to-gray-800 border-0 text-white`}>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-gray-900">
+          <CardTitle className="text-sm font-medium text-white">
             Live Action
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-32">
-          <p className="text-gray-500 text-sm">
-            {matchId ? `No match data found for ID: ${matchId}` : 'No match selected'}
+        <CardContent className="flex items-center justify-center h-48">
+          <p className="text-white text-sm opacity-80">
+            {matchId ? `No match data found` : 'No match selected'}
           </p>
         </CardContent>
       </Card>
@@ -307,16 +378,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
   if (!isLive) {
     return (
-      <Card className={`w-full ${className} bg-white border border-gray-200`}>
+      <Card className={`w-full ${className} bg-gradient-to-br from-gray-600 to-gray-800 border-0 text-white`}>
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-gray-900">
+          <CardTitle className="text-sm font-medium text-white">
             Live Action
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-32">
+        <CardContent className="flex items-center justify-center h-48">
           <div className="text-center">
-            <p className="text-gray-500 text-sm mb-2">Match not live</p>
-            <p className="text-xs text-gray-400">
+            <p className="text-white text-sm mb-2 opacity-80">Match not live</p>
+            <p className="text-xs text-white opacity-60">
               {homeTeamData?.name} vs {awayTeamData?.name}
             </p>
           </div>
@@ -326,120 +397,150 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   return (
-    <Card className={`w-full ${className} bg-white border border-gray-200`}>
-      {/* Header - 365scores style */}
-      <CardHeader className="pb-2 px-3 py-2 bg-gray-50 border-b">
+    <Card className={`w-full ${className} bg-gradient-to-br from-green-600 to-green-800 border-0 text-white overflow-hidden`}>
+      {/* Header */}
+      <CardHeader className="pb-2 px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-            <span className="text-xs font-medium text-gray-700">Live Action</span>
+            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium text-white">Live Action</span>
           </div>
-          <Badge variant="destructive" className="text-xs px-2 py-0.5 animate-pulse">
+          <Badge variant="secondary" className="text-xs px-3 py-1 bg-red-500 text-white border-0 animate-pulse">
             LIVE
           </Badge>
         </div>
       </CardHeader>
 
-      {/* Match Score - 365scores compact style */}
-      <CardContent className="px-3 py-2 border-b bg-white">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 flex-1">
-            <img 
-              src={homeTeamData?.logo} 
-              alt={homeTeamData?.name} 
-              className="w-5 h-5 object-contain"
-              onError={(e) => {
-                e.currentTarget.src = "/assets/fallback-logo.png";
-              }}
-            />
-            <span className="text-xs font-medium text-gray-800 truncate">
-              {homeTeamData?.name?.length > 12 
-                ? homeTeamData?.name?.substring(0, 12) + '...' 
-                : homeTeamData?.name
-              }
-            </span>
+      {/* Football Field with Live Events */}
+      <CardContent className="p-4 pb-2">
+        <div className="relative w-full h-48 bg-gradient-to-r from-green-700 via-green-600 to-green-700 rounded-lg overflow-hidden border-2 border-white/20">
+          {/* Field markings */}
+          <div className="absolute inset-0">
+            {/* Goal areas */}
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-4 h-16 border-2 border-white/40 border-l-0"></div>
+            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-4 h-16 border-2 border-white/40 border-r-0"></div>
+            
+            {/* Penalty areas */}
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-12 h-24 border-2 border-white/30 border-l-0"></div>
+            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-12 h-24 border-2 border-white/30 border-r-0"></div>
+            
+            {/* Center circle */}
+            <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 border-2 border-white/30 rounded-full"></div>
+            
+            {/* Center line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/30"></div>
+            
+            {/* Corner arcs */}
+            <div className="absolute top-0 left-0 w-4 h-4 border-br-2 border-white/30 rounded-br-full"></div>
+            <div className="absolute top-0 right-0 w-4 h-4 border-bl-2 border-white/30 rounded-bl-full"></div>
+            <div className="absolute bottom-0 left-0 w-4 h-4 border-tr-2 border-white/30 rounded-tr-full"></div>
+            <div className="absolute bottom-0 right-0 w-4 h-4 border-tl-2 border-white/30 rounded-tl-full"></div>
           </div>
 
-          <div className="flex items-center gap-3 px-3">
-            <div className="text-center">
-              <div className="flex items-center gap-2 text-lg font-bold">
-                <span className="text-blue-600">{displayMatch?.goals?.home || 0}</span>
-                <span className="text-xs text-gray-400">-</span>
-                <span className="text-red-500">{displayMatch?.goals?.away || 0}</span>
+          {/* Live Event Markers */}
+          {playByPlayEvents.slice(0, 4).map((event, index) => (
+            <div 
+              key={event.id}
+              className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ${
+                event.id === currentEvent?.id ? 'scale-125 z-20' : 'scale-100 z-10'
+              }`}
+              style={{
+                left: `${event.x}%`,
+                top: `${event.y}%`,
+                opacity: 1 - (index * 0.2)
+              }}
+            >
+              <div className={`w-3 h-3 rounded-full flex items-center justify-center text-xs ${
+                event.team === 'home' 
+                  ? 'bg-blue-500 border-2 border-white' 
+                  : 'bg-red-500 border-2 border-white'
+              } ${event.id === currentEvent?.id ? 'animate-pulse' : ''}`}>
+                {event.type === 'goal' ? '⚽' : '●'}
               </div>
-              <div className="text-xs text-green-600 font-medium">
-                {elapsed}'
+            </div>
+          ))}
+
+          {/* Ball position indicator */}
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full animate-bounce"></div>
+        </div>
+
+        {/* Current Event Display */}
+        {currentEvent && (
+          <div className="mt-4 bg-black/20 rounded-lg p-3 backdrop-blur-sm">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="text-lg">{getEventIcon(currentEvent.type)}</div>
+                <div>
+                  <div className="text-sm font-semibold text-white">
+                    {currentEvent.description}
+                  </div>
+                  <div className="text-xs text-white/80">
+                    {currentEvent.player} • {getTeamDisplayName(currentEvent.team)}
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-lg font-bold text-white">
+                  {currentEvent.minute}'
+                </div>
+                <div className="text-xs text-white/60 uppercase tracking-wide">
+                  {getTeamDisplayName(currentEvent.team)}
+                </div>
               </div>
             </div>
           </div>
+        )}
 
-          <div className="flex items-center gap-2 flex-1 justify-end">
-            <span className="text-xs font-medium text-gray-800 truncate">
-              {awayTeamData?.name?.length > 12 
-                ? awayTeamData?.name?.substring(0, 12) + '...' 
-                : awayTeamData?.name
-              }
-            </span>
-            <img 
-              src={awayTeamData?.logo} 
-              alt={awayTeamData?.name} 
-              className="w-5 h-5 object-contain"
-              onError={(e) => {
-                e.currentTarget.src = "/assets/fallback-logo.png";
-              }}
-            />
+        {/* Score Display */}
+        <div className="mt-3 flex items-center justify-center">
+          <div className="bg-black/30 rounded-full px-4 py-2 backdrop-blur-sm">
+            <div className="flex items-center gap-4 text-white">
+              <div className="flex items-center gap-2">
+                <img 
+                  src={homeTeamData?.logo} 
+                  alt={homeTeamData?.name}
+                  className="w-5 h-5 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.src = "/assets/fallback-logo.png";
+                  }}
+                />
+                <span className="text-sm font-medium">
+                  {homeTeamData?.code || homeTeamData?.name?.substring(0, 3).toUpperCase()}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-2 px-3">
+                <span className="text-xl font-bold">{displayMatch?.goals?.home || 0}</span>
+                <span className="text-white/60">-</span>
+                <span className="text-xl font-bold">{displayMatch?.goals?.away || 0}</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">
+                  {awayTeamData?.code || awayTeamData?.name?.substring(0, 3).toUpperCase()}
+                </span>
+                <img 
+                  src={awayTeamData?.logo} 
+                  alt={awayTeamData?.name}
+                  className="w-5 h-5 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.src = "/assets/fallback-logo.png";
+                  }}
+                />
+              </div>
+            </div>
+            
+            <div className="text-center mt-1">
+              <span className="text-xs text-white/80 font-medium">{elapsed}'</span>
+            </div>
           </div>
         </div>
       </CardContent>
 
-      {/* Play-by-Play Events - 365scores timeline style */}
-      <CardContent className="p-0 max-h-64 overflow-y-auto">
-        {playByPlayEvents.length > 0 ? (
-          <div className="space-y-0">
-            {playByPlayEvents.map((event, index) => (
-              <div 
-                key={`${event.id}-${event.timestamp}-${index}`} 
-                className={`flex items-center gap-2 px-3 py-2 border-b border-gray-100 hover:bg-gray-50 transition-colors text-xs ${
-                  event.isRecent ? 'bg-blue-50 border-l-2 border-l-blue-500' : ''
-                }`}
-              >
-                {/* Time */}
-                <div className="w-8 text-green-600 font-bold text-xs">
-                  {event.minute}'
-                </div>
-
-                {/* Event Icon */}
-                <div className="w-4 text-center">
-                  {getEventIcon(event.type)}
-                </div>
-
-                {/* Event Description */}
-                <div className="flex-1 text-gray-800 font-medium">
-                  {event.description}
-                </div>
-
-                {/* Team Badge */}
-                <div className={`px-2 py-0.5 rounded text-xs font-medium ${
-                  event.team === 'home' 
-                    ? 'bg-blue-100 text-blue-700' 
-                    : 'bg-red-100 text-red-700'
-                }`}>
-                  {getTeamDisplayName(event.team)}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="px-3 py-6 text-center text-gray-500 text-xs">
-            <div className="animate-pulse">Loading live events...</div>
-          </div>
-        )}
-      </CardContent>
-
-      {/* Footer - Last update timestamp */}
-      <CardContent className="px-3 py-1 bg-gray-50 border-t">
-        <div className="text-xs text-gray-500 text-center">
-          Last update: {lastUpdate}
+      {/* Footer */}
+      <CardContent className="px-4 py-2 pt-0">
+        <div className="text-xs text-white/60 text-center">
+          Last update: {lastUpdate} • Live updates every 5s
         </div>
       </CardContent>
     </Card>
