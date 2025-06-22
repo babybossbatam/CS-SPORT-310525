@@ -3,7 +3,7 @@
 
 /* Flash animation for halftime matches with subtle light pink gradient */
 .country-matches-container .match-card-container.halftime-flash {
-  animation: halftime-flash-fade 2s ease-in-out;
+  animation: halftime-flash-fade 3s ease-in-out;
   position: relative;
   overflow: hidden;
 }
@@ -17,12 +17,12 @@
   bottom: 0;
   background: linear-gradient(90deg, 
     transparent 0%, 
-    rgba(255, 228, 230, 0.6) 20%, 
-    rgba(255, 218, 221, 0.7) 50%, 
-    rgba(255, 228, 230, 0.6) 80%, 
+    rgba(255, 182, 193, 0.8) 20%, 
+    rgba(255, 160, 175, 0.9) 50%, 
+    rgba(255, 182, 193, 0.8) 80%, 
     transparent 100%
   );
-  animation: slide-gradient-halftime 2s ease-in-out;
+  animation: slide-gradient-halftime 3s ease-in-out;
   z-index: 1;
   pointer-events: none;
 }
@@ -33,15 +33,20 @@
     right: 100%;
     opacity: 0;
   }
-  25% {
+  15% {
+    left: -50%;
+    right: 50%;
+    opacity: 0.7;
+  }
+  50% {
     left: 0%;
     right: 0%;
     opacity: 1;
   }
-  75% {
-    left: 0%;
-    right: 0%;
-    opacity: 1;
+  85% {
+    left: 50%;
+    right: -50%;
+    opacity: 0.7;
   }
   100% {
     left: 100%;
@@ -52,10 +57,16 @@
 
 @keyframes halftime-flash-fade {
   0% {
-    background: linear-gradient(135deg, #ffe4e6, #fecaca);
+    background: linear-gradient(135deg, #ffb6c1, #ffa0af);
+  }
+  25% {
+    background: linear-gradient(135deg, #ffa0af, #ff8a9b);
   }
   50% {
-    background: linear-gradient(135deg, #fecaca, #fed7d7);
+    background: linear-gradient(135deg, #ff8a9b, #ffa0af);
+  }
+  75% {
+    background: linear-gradient(135deg, #ffa0af, #ffb6c1);
   }
   100% {
     background: white;
@@ -64,7 +75,7 @@
 
 /* Flash animation for fulltime matches with subtle light blue gradient */
 .country-matches-container .match-card-container.fulltime-flash {
-  animation: fulltime-flash-fade 2s ease-in-out;
+  animation: fulltime-flash-fade 3s ease-in-out;
   position: relative;
   overflow: hidden;
 }
@@ -78,12 +89,12 @@
   bottom: 0;
   background: linear-gradient(90deg, 
     transparent 0%, 
-    rgba(219, 234, 254, 0.6) 20%, 
-    rgba(191, 219, 254, 0.7) 50%, 
-    rgba(219, 234, 254, 0.6) 80%, 
+    rgba(173, 216, 230, 0.8) 20%, 
+    rgba(135, 206, 250, 0.9) 50%, 
+    rgba(173, 216, 230, 0.8) 80%, 
     transparent 100%
   );
-  animation: slide-gradient-fulltime 2s ease-in-out;
+  animation: slide-gradient-fulltime 3s ease-in-out;
   z-index: 1;
   pointer-events: none;
 }
@@ -94,15 +105,20 @@
     right: 100%;
     opacity: 0;
   }
-  25% {
+  15% {
+    left: -50%;
+    right: 50%;
+    opacity: 0.7;
+  }
+  50% {
     left: 0%;
     right: 0%;
     opacity: 1;
   }
-  75% {
-    left: 0%;
-    right: 0%;
-    opacity: 1;
+  85% {
+    left: 50%;
+    right: -50%;
+    opacity: 0.7;
   }
   100% {
     left: 100%;
@@ -113,10 +129,16 @@
 
 @keyframes fulltime-flash-fade {
   0% {
-    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    background: linear-gradient(135deg, #add8e6, #87ceeb);
+  }
+  25% {
+    background: linear-gradient(135deg, #87ceeb, #6eb5d1);
   }
   50% {
-    background: linear-gradient(135deg, #bfdbfe, #93c5fd);
+    background: linear-gradient(135deg, #6eb5d1, #87ceeb);
+  }
+  75% {
+    background: linear-gradient(135deg, #87ceeb, #add8e6);
   }
   100% {
     background: white;

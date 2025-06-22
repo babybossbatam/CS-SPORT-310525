@@ -207,52 +207,66 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
       currentStatuses.set(matchId, currentStatus);
 
-      // Check if status just changed to halftime
-      if (currentStatus === 'HT' && previousStatus && previousStatus !== 'HT') {
-        console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
-          home: fixture.teams?.home?.name,
-          away: fixture.teams?.away?.name,
-          previousStatus,
-          currentStatus
-        });
-        newHalftimeMatches.add(matchId);
-      }
+      // Only check for changes if we have a previous status (not on first load)
+      if (previousStatus && previousStatus !== currentStatus) {
+        // Check if status just changed to halftime
+        if (currentStatus === 'HT') {
+          console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
+          newHalftimeMatches.add(matchId);
+        }
 
-      // Check if status just changed to fulltime
-      if (currentStatus === 'FT' && previousStatus && previousStatus !== 'FT') {
-        console.log(`🔵 [FULLTIME FLASH] Match ${matchId} just finished!`, {
-          home: fixture.teams?.home?.name,
-          away: fixture.teams?.away?.name,
-          previousStatus,
-          currentStatus
-        });
-        newFulltimeMatches.add(matchId);
+        // Check if status just changed to fulltime
+        if (currentStatus === 'FT') {
+          console.log(`🔵 [FULLTIME FLASH] Match ${matchId} just finished!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
+          newFulltimeMatches.add(matchId);
+        }
+
+        // Check for goal changes (when score changes but status stays the same)
+        if (['1H', '2H', 'LIVE'].includes(currentStatus) && ['1H', '2H', 'LIVE'].includes(previousStatus)) {
+          // You could add goal flash detection here if needed
+          console.log(`⚽ [POTENTIAL GOAL] Match ${matchId} score might have changed`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            score: `${fixture.goals?.home || 0}-${fixture.goals?.away || 0}`,
+            status: currentStatus
+          });
+        }
       }
     });
 
-    // Update previous statuses
+    // Update previous statuses AFTER checking for changes
     setPreviousMatchStatuses(currentStatuses);
 
     // Trigger flash for new halftime matches
     if (newHalftimeMatches.size > 0) {
       setHalftimeFlashMatches(newHalftimeMatches);
 
-      // Remove flash after 2 seconds
+      // Remove flash after 3 seconds (increased duration)
       setTimeout(() => {
         setHalftimeFlashMatches(new Set());
-      }, 2000);
+      }, 3000);
     }
 
     // Trigger flash for new fulltime matches
     if (newFulltimeMatches.size > 0) {
       setFulltimeFlashMatches(newFulltimeMatches);
 
-      // Remove flash after 2 seconds
+      // Remove flash after 3 seconds (increased duration)
       setTimeout(() => {
         setFulltimeFlashMatches(new Set());
-      }, 2000);
+      }, 3000);
     }
-  }, [fixtures, previousMatchStatuses]);
+  }, [fixtures]);
 
   // Add comprehensive debugging logs for fixture analysis
   useEffect(() => {
@@ -733,13 +747,44 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     <>
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        {liveFilterActive && timeFilterActive
-          ? "Popular Football Live Score"
-          : liveFilterActive && !timeFilterActive
-            ? "Popular Football Live Score"
-            : !liveFilterActive && timeFilterActive
-              ? "All Matches by Time"
-              : "Popular Football Live Score"}
+        <div className="flex justify-between items-center w-full">
+          <span>
+            {liveFilterActive && timeFilterActive
+              ? "Popular Football Live Score"
+              : liveFilterActive && !timeFilterActive
+                ? "Popular Football Live Score"
+                : !liveFilterActive && timeFilterActive
+                  ? "All Matches by Time"
+                  : "Popular Football Live Score"}
+          </span>
+          {/* Test Flash Effect Buttons - Remove these after testing */}
+          <div className="flex gap-2">
+            <button 
+              onClick={() => {
+                const firstMatchId = filteredFixtures[0]?.fixture?.id;
+                if (firstMatchId) {
+                  setHalftimeFlashMatches(new Set([firstMatchId]));
+                  setTimeout(() => setHalftimeFlashMatches(new Set()), 3000);
+                }
+              }}
+              className="px-2 py-1 text-xs bg-pink-200 rounded"
+            >
+              Test HT Flash
+            </button>
+            <button 
+              onClick={() => {
+                const firstMatchId = filteredFixtures[0]?.fixture?.id;
+                if (firstMatchId) {
+                  setFulltimeFlashMatches(new Set([firstMatchId]));
+                  setTimeout(() => setFulltimeFlashMatches(new Set()), 3000);
+                }
+              }}
+              className="px-2 py-1 text-xs bg-blue-200 rounded"
+            >
+              Test FT Flash
+            </button>
+          </div>
+        </div>
       </CardHeader>
       {/* Create individual league cards from all countries */}
       {processedCountries.flatMap((countryData: any, countryIndex: number) =>
