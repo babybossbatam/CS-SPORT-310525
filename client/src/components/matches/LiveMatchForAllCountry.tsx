@@ -720,8 +720,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     allFixturesLength: allFixtures.length
   });
 
-  // Show loading state while fetching data
-  if (isLoading) {
+  // Show loading state while fetching data (only when actually loading and no data)
+  if (isLoading && !fixtures?.length) {
     return (
       <>
         {/* Header Section */}
@@ -739,8 +739,8 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     );
   }
 
-  // Show no live matches when live filter is active but no live matches found
-  if (liveFilterActive && (!allFixtures.length || !actuallyHasLiveMatches)) {
+  // Show no live matches when data has been loaded but no live matches found
+  if (!isLoading && liveFilterActive && (!fixtures?.length || !actuallyHasLiveMatches)) {
     console.log(`📺 [LiveMatchForAllCountry] Showing NoLiveMatchesEmpty - no live matches found`);
     return (
       <>
