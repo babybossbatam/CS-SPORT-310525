@@ -930,7 +930,7 @@ LeagueFixtures.length,
         country.trim() === ""
       ) {
         // Skip fixtures with truly missing country data
-        console.warn(`[COUNTRY DEBUG] Skipping fixture with missing country data:`, {
+        console.warn("[COUNTRY DEBUG] Skipping fixture with missing country data:", {
           leagueName: league.name,
           leagueId: league.id,
           originalCountry: country,
