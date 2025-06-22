@@ -132,16 +132,16 @@ const HomeTopScorersList = () => {
         if (!seasonYear) return false;
 
         const currentYear = new Date().getFullYear();
-        
+
         // For World Cup Qualification cycles, include current and next year
         // CONMEBOL WC Qualification runs for 2026 World Cup
         if (selectedLeague === 34) { // CONMEBOL WC Qualification
           return seasonYear >= 2024 && seasonYear <= 2026;
         }
-        
+
         // For other competitions, use standard season logic
         const currentMonth = new Date().getMonth() + 1; // 1-12
-        
+
         // Determine current season based on typical football calendar
         let currentSeason;
         if (currentMonth >= 8) {
@@ -162,9 +162,12 @@ const HomeTopScorersList = () => {
     },
     {
       enabled: !!selectedLeague,
-      maxAge: 30 * 60 * 1000, // 30 minutes cache for fresher data
-      backgroundRefresh: true, // Enable background refresh
-      retry: 1
+      maxAge: 2 * 60 * 60 * 1000, // 2 hours cache for better performance
+      backgroundRefresh: true,
+      retry: 1,
+      staleTime: 1 * 60 * 60 * 1000, // 1 hour stale time - use cached data for faster loading
+      refetchOnWindowFocus: false, // Prevent unnecessary refetches
+      refetchOnMount: false // Use cached data on mount
     }
   );
 
@@ -205,7 +208,7 @@ const HomeTopScorersList = () => {
   const [contentPosition, setContentPosition] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
-  
+
   // Calculate dimensions on mount and resize
   useEffect(() => {
     const updateDimensions = () => {
@@ -222,7 +225,7 @@ const HomeTopScorersList = () => {
     // Use a small delay to ensure elements are rendered
     const timer = setTimeout(updateDimensions, 100);
     window.addEventListener('resize', updateDimensions);
-    
+
     return () => {
       clearTimeout(timer);
       window.removeEventListener('resize', updateDimensions);
@@ -238,7 +241,7 @@ const HomeTopScorersList = () => {
       // If at first league, go to last league
       setSelectedLeague(availableLeagues[availableLeagues.length - 1].id);
     }
-    
+
     // Also handle scrolling
     const scrollAmount = 200;
     const newPosition = Math.max(0, contentPosition - scrollAmount);
@@ -254,7 +257,7 @@ const HomeTopScorersList = () => {
       // If at last league, go to first league
       setSelectedLeague(availableLeagues[0].id);
     }
-    
+
     // Also handle scrolling
     const scrollAmount = 200;
     const maxScroll = Math.max(0, contentWidth - containerWidth);
@@ -265,7 +268,7 @@ const HomeTopScorersList = () => {
   const canScrollLeft = contentPosition > 0 && contentWidth > containerWidth;
   const canScrollRight = contentPosition < (contentWidth - containerWidth) && contentWidth > containerWidth;
 
-  
+
 
   // Auto-scroll to selected league when it changes - 365scores style
   useEffect(() => {
@@ -276,12 +279,12 @@ const HomeTopScorersList = () => {
         const buttonLeft = selectedButton.offsetLeft;
         const buttonWidth = selectedButton.offsetWidth;
         const containerWidth = container.clientWidth;
-        
+
         // Calculate optimal position to center the selected item
         const targetPosition = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
         const maxScroll = Math.max(0, contentWidth - containerWidth);
         const clampedPosition = Math.max(0, Math.min(maxScroll, targetPosition));
-        
+
         setContentPosition(clampedPosition);
       }
     }
@@ -322,6 +325,36 @@ const HomeTopScorersList = () => {
           ))}
         </div>
       </div>
+    );
+  }
+
+  if (isLoading && !topScorers) {
+    return (
+      <>
+        <div className="flex items-center justify-between mb-4">
+          <div className="h-6 w-32 bg-gray-200 animate-pulse rounded"></div>
+          <div className="h-8 w-8 bg-gray-200 animate-pulse rounded"></div>
+        </div>
+        <div className="space-y-3">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded bg-gray-200 animate-pulse"></div>
+                <div className="space-y-1">
+                  <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
+                  <div className="h-3 w-16 bg-gray-200 animate-pulse rounded"></div>
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="h-6 w-8 bg-gray-200 animate-pulse rounded"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 pt-3 border-t border-gray-100">
+          <div className="h-5 w-32 bg-gray-200 animate-pulse rounded mx-auto"></div>
+        </div>
+      </>
     );
   }
 

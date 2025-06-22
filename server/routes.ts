@@ -844,8 +844,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cacheTime = new Date(cachedTopScorers.timestamp);
         const cacheAge = now.getTime() - cacheTime.getTime();
 
-        // Use 15 minute cache for top scorers to ensure fresh data
-        if (cacheAge < 15 * 60 * 1000) {
+        // Use 2 hour cache for top scorers for better performance
+        if (cacheAge < 2 * 60 * 60 * 1000) {
           console.log(`Using cached top scorers for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
           return res.json(cachedTopScorers.data);
         }
