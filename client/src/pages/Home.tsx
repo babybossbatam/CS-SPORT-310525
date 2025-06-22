@@ -3,7 +3,6 @@ import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
 import MyMainLayout from '@/components/layout/MyMainLayout';
-import Footer from '@/components/layout/Footer';
 import RegionModal from '@/components/modals/RegionModal';
 import { Trophy } from 'lucide-react';
 
@@ -21,7 +20,6 @@ const Home = () => {
         <MyMainLayout fixtures={[]} />
       </div>
 
-      <Footer />
       <RegionModal />
     </div>
   );
