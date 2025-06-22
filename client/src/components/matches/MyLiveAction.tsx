@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import MyHighlights from './MyHighlights';
 
 interface MyLiveActionProps {
   matchId?: number;
@@ -422,6 +423,18 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   if (!displayMatch) {
+    // If we have match ID but no data, show highlights (match likely ended)
+    if (matchId && homeTeam && awayTeam) {
+      return (
+        <MyHighlights 
+          matchId={matchId}
+          homeTeam={homeTeam?.name || homeTeam}
+          awayTeam={awayTeam?.name || awayTeam}
+          className={className}
+        />
+      );
+    }
+    
     return (
       <Card className={`w-full ${className} bg-gradient-to-br from-gray-600 to-gray-800 border-0 text-white`}>
         <CardHeader className="pb-3">
