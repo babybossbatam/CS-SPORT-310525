@@ -234,6 +234,50 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         let newDx = ballDirection.dx;
         let newDy = ballDirection.dy;
         
+        // Check for goal areas and generate events
+        const isNearGoal = (newX <= 10 || newX >= 90) && (newY >= 35 && newY <= 65);
+        const isInPenaltyArea = (newX <= 20 || newX >= 80) && (newY >= 25 && newY <= 75);
+        
+        // Generate events based on ball position
+        if (isNearGoal && Math.random() < 0.02) { // 2% chance near goal
+          const eventType = Math.random() < 0.3 ? 'goal' : Math.random() < 0.6 ? 'shot' : 'save';
+          const team = newX <= 50 ? 'away' : 'home'; // Team attacking goal
+          
+          const newEvent: PlayByPlayEvent = {
+            id: `live_event_${Date.now()}`,
+            minute: elapsed,
+            team,
+            type: eventType as any,
+            player: 'Player',
+            description: eventType === 'goal' ? 'GOAL!' : eventType === 'shot' ? 'Shot saved' : 'Great save',
+            timestamp: Date.now(),
+            isRecent: true,
+            x: newX,
+            y: newY
+          };
+          
+          setPlayByPlayEvents(prev => [newEvent, ...prev.slice(0, 6)]);
+          setCurrentEvent(newEvent);
+        } else if (isInPenaltyArea && Math.random() < 0.01) { // 1% chance in penalty area
+          const eventType = Math.random() < 0.5 ? 'foul' : 'corner';
+          const team = Math.random() > 0.5 ? 'home' : 'away';
+          
+          const newEvent: PlayByPlayEvent = {
+            id: `live_event_${Date.now()}`,
+            minute: elapsed,
+            team,
+            type: eventType as any,
+            player: 'Player',
+            description: eventType === 'foul' ? 'Foul in penalty area' : 'Corner kick',
+            timestamp: Date.now(),
+            isRecent: true,
+            x: newX,
+            y: newY
+          };
+          
+          setPlayByPlayEvents(prev => [newEvent, ...prev.slice(0, 6)]);
+        }
+        
         if (newX <= 5 || newX >= 95) {
           newDx = -newDx + (Math.random() - 0.5) * 0.3;
           newX = Math.max(5, Math.min(95, newX));
@@ -257,19 +301,19 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         
         setBallDirection({ dx: newDx, dy: newDy });
         
-        // Update ball trail
+        // Update ball trail with enhanced tracking
         setBallTrail(prev => {
           const newTrail = [...prev, { x: newX, y: newY, timestamp: Date.now() }];
-          // Keep only last 8 trail points
-          return newTrail.slice(-8);
+          // Keep last 12 trail points for smoother lines
+          return newTrail.slice(-12);
         });
         
         return { x: newX, y: newY };
       });
-    }, 150); // Update every 150ms for smooth movement
+    }, 100); // Increased update frequency for smoother movement
 
     return () => clearInterval(ballInterval);
-  }, [isLive, ballDirection]);
+  }, [isLive, ballDirection, elapsed]);
 
   // Move ball to event locations when events occur
   useEffect(() => {
@@ -623,7 +667,53 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           ))}
 
-          {/* Ball trail */}
+          {/* Ball trail with connecting lines */}
+          <svg 
+            className="absolute inset-0 w-full h-full pointer-events-none" 
+            style={{ zIndex: 8 }}
+          >
+            {/* Draw connecting lines between trail points */}
+            {ballTrail.length > 1 && ballTrail.map((point, index) => {
+              if (index === 0) return null;
+              const prevPoint = ballTrail[index - 1];
+              const opacity = Math.max(0.1, 0.6 - (index * 0.05));
+              const strokeWidth = Math.max(1, 3 - (index * 0.2));
+              
+              return (
+                <line
+                  key={`trail-line-${index}`}
+                  x1={`${prevPoint.x}%`}
+                  y1={`${prevPoint.y}%`}
+                  x2={`${point.x}%`}
+                  y2={`${point.y}%`}
+                  stroke="rgba(255, 255, 255, 0.8)"
+                  strokeWidth={strokeWidth}
+                  opacity={opacity}
+                  strokeLinecap="round"
+                  style={{
+                    filter: 'drop-shadow(0 0 2px rgba(255, 255, 255, 0.5))'
+                  }}
+                />
+              );
+            })}
+            
+            {/* Draw movement prediction line */}
+            {ballTrail.length > 0 && (
+              <line
+                x1={`${ballPosition.x}%`}
+                y1={`${ballPosition.y}%`}
+                x2={`${Math.min(95, Math.max(5, ballPosition.x + ballDirection.dx * 8))}%`}
+                y2={`${Math.min(85, Math.max(15, ballPosition.y + ballDirection.dy * 8))}%`}
+                stroke="rgba(255, 255, 0, 0.6)"
+                strokeWidth="2"
+                strokeDasharray="4 2"
+                opacity="0.7"
+                strokeLinecap="round"
+              />
+            )}
+          </svg>
+
+          {/* Ball trail points */}
           {ballTrail.map((point, index) => (
             <div
               key={`trail-${index}`}
@@ -631,43 +721,81 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               style={{
                 left: `${point.x}%`,
                 top: `${point.y}%`,
-                width: `${Math.max(2, 6 - index)}px`,
-                height: `${Math.max(2, 6 - index)}px`,
-                opacity: Math.max(0.1, 0.8 - (index * 0.1)),
-                zIndex: 5 + index
+                width: `${Math.max(2, 6 - index * 0.3)}px`,
+                height: `${Math.max(2, 6 - index * 0.3)}px`,
+                opacity: Math.max(0.1, 0.8 - (index * 0.08)),
+                zIndex: 10 + index,
+                boxShadow: '0 0 4px rgba(255, 255, 255, 0.6)'
               }}
             />
           ))}
 
-          {/* Live moving ball */}
+          {/* Live moving ball with enhanced effects */}
           <div 
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg transition-all duration-150 ease-linear"
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100 ease-linear"
             style={{
               left: `${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
-              zIndex: 15,
-              boxShadow: '0 0 8px rgba(255, 255, 255, 0.8), 0 0 12px rgba(255, 255, 255, 0.4)'
+              zIndex: 20
             }}
           >
-            {/* Ball glow effect */}
-            <div className="absolute inset-0 rounded-full bg-white animate-pulse opacity-60"></div>
+            {/* Outer glow ring */}
+            <div className="absolute w-6 h-6 rounded-full bg-white opacity-20 animate-ping" 
+                 style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}></div>
+            
+            {/* Middle glow */}
+            <div className="absolute w-4 h-4 rounded-full bg-white opacity-40" 
+                 style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}></div>
+            
+            {/* Ball core */}
+            <div 
+              className="relative w-3 h-3 bg-white rounded-full shadow-lg"
+              style={{
+                boxShadow: '0 0 8px rgba(255, 255, 255, 0.9), 0 0 16px rgba(255, 255, 255, 0.5), 0 0 24px rgba(255, 255, 255, 0.3)'
+              }}
+            >
+              {/* Ball pattern */}
+              <div className="absolute inset-0 rounded-full bg-gradient-radial from-white via-gray-100 to-gray-200"></div>
+              {/* Ball highlight */}
+              <div className="absolute top-0 left-0 w-1 h-1 bg-white rounded-full opacity-80"></div>
+            </div>
           </div>
 
-          {/* Ball movement line (shows current direction) */}
+          {/* Enhanced movement direction indicator */}
           {isLive && (
             <div
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 opacity-40"
+              className="absolute transform -translate-x-1/2 -translate-y-1/2"
               style={{
                 left: `${ballPosition.x}%`,
                 top: `${ballPosition.y}%`,
-                width: '20px',
-                height: '2px',
-                background: 'linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%)',
-                transformOrigin: 'left center',
-                transform: `translate(-50%, -50%) rotate(${Math.atan2(ballDirection.dy, ballDirection.dx) * 180 / Math.PI}deg)`,
-                zIndex: 10
+                zIndex: 19
               }}
-            />
+            >
+              {/* Direction arrow */}
+              <div
+                className="absolute"
+                style={{
+                  width: '24px',
+                  height: '3px',
+                  background: 'linear-gradient(90deg, rgba(255, 255, 100, 0.8) 0%, rgba(255, 255, 100, 0) 100%)',
+                  transformOrigin: 'left center',
+                  transform: `rotate(${Math.atan2(ballDirection.dy, ballDirection.dx) * 180 / Math.PI}deg)`,
+                  borderRadius: '2px'
+                }}
+              >
+                {/* Arrow head */}
+                <div 
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2"
+                  style={{
+                    width: 0,
+                    height: 0,
+                    borderLeft: '4px solid rgba(255, 255, 100, 0.8)',
+                    borderTop: '2px solid transparent',
+                    borderBottom: '2px solid transparent'
+                  }}
+                ></div>
+              </div>
+            </div>
           )}
         </div>
 
