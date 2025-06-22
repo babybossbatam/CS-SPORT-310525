@@ -79,7 +79,7 @@ const MyMatchdetailsScoreboard = ({
     if (!displayMatch) return;
 
     const status = displayMatch.fixture.status.short;
-    const isLiveMatch = ["1H", "2H", "LIVE", "HT", "ET", "P"].includes(status);
+    const isLiveMatch = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "BT", "INT"].includes(status);
 
     if (isLiveMatch) {
       // Initialize with current elapsed time from API
@@ -109,18 +109,20 @@ const MyMatchdetailsScoreboard = ({
         initialElapsed: initialElapsed,
       });
 
-      // Real-time timer that increments every minute for live matches (not HT)
+      // Real-time timer that increments every minute for live matches (not HT or P)
       let realtimeTimer: NodeJS.Timeout | null = null;
       if (status !== "HT" && status !== "P") {
         realtimeTimer = setInterval(() => {
           setRealTimeElapsed(prev => {
-            const newTime = (prev !== null ? prev : initialElapsed) + 1;
+            const currentTime = prev !== null ? prev : initialElapsed;
+            const newTime = currentTime + 1;
             console.log("⏱️ [Real-time Timer] Incrementing elapsed time:", {
-              prev: prev,
+              prev: currentTime,
               newTime: newTime,
               status: status,
               fixtureId: displayMatch.fixture.id
             });
+            setLiveElapsed(newTime); // Also update liveElapsed for consistency
             return newTime;
           });
         }, 60000); // Increment every minute
@@ -290,7 +292,8 @@ const MyMatchdetailsScoreboard = ({
                                   fixtureId: displayMatch.fixture.id
                                 });
 
-                                if (currentElapsed !== null && currentElapsed !== undefined && currentElapsed > 0) {
+                                // Always show the timer if we have elapsed time data
+                                if (currentElapsed !== null && currentElapsed !== undefined) {
                                   displayText = `${currentElapsed}'`;
                                 } else {
                                   displayText = "LIVE";
