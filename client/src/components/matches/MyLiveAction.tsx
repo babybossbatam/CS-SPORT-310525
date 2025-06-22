@@ -37,6 +37,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string>('');
   const [currentEvent, setCurrentEvent] = useState<PlayByPlayEvent | null>(null);
+  const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
+  const [ballTrail, setBallTrail] = useState<{ x: number, y: number, timestamp: number }[]>([]);
+  const [ballDirection, setBallDirection] = useState({ dx: 1, dy: 0.5 });
 
   // Fetch initial match data and set up real-time updates
   useEffect(() => {
@@ -188,6 +191,65 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       return () => clearInterval(eventCycleInterval);
     }
   }, [playByPlayEvents, currentEvent]);
+
+  // Ball movement animation for live matches
+  useEffect(() => {
+    if (!isLive) return;
+
+    const ballInterval = setInterval(() => {
+      setBallPosition(prev => {
+        let newX = prev.x + ballDirection.dx;
+        let newY = prev.y + ballDirection.dy;
+        
+        // Bounce off field boundaries with some randomness
+        let newDx = ballDirection.dx;
+        let newDy = ballDirection.dy;
+        
+        if (newX <= 5 || newX >= 95) {
+          newDx = -newDx + (Math.random() - 0.5) * 0.3;
+          newX = Math.max(5, Math.min(95, newX));
+        }
+        
+        if (newY <= 15 || newY >= 85) {
+          newDy = -newDy + (Math.random() - 0.5) * 0.3;
+          newY = Math.max(15, Math.min(85, newY));
+        }
+        
+        // Add some randomness to direction
+        newDx += (Math.random() - 0.5) * 0.1;
+        newDy += (Math.random() - 0.5) * 0.1;
+        
+        // Limit speed
+        const speed = Math.sqrt(newDx * newDx + newDy * newDy);
+        if (speed > 2) {
+          newDx = (newDx / speed) * 2;
+          newDy = (newDy / speed) * 2;
+        }
+        
+        setBallDirection({ dx: newDx, dy: newDy });
+        
+        // Update ball trail
+        setBallTrail(prev => {
+          const newTrail = [...prev, { x: newX, y: newY, timestamp: Date.now() }];
+          // Keep only last 8 trail points
+          return newTrail.slice(-8);
+        });
+        
+        return { x: newX, y: newY };
+      });
+    }, 150); // Update every 150ms for smooth movement
+
+    return () => clearInterval(ballInterval);
+  }, [isLive, ballDirection]);
+
+  // Move ball to event locations when events occur
+  useEffect(() => {
+    if (currentEvent && currentEvent.x && currentEvent.y) {
+      setBallPosition({ x: currentEvent.x, y: currentEvent.y });
+      // Clear trail when ball teleports to event
+      setBallTrail([]);
+    }
+  }, [currentEvent]);
 
   const generatePlayByPlayEvents = (matchData: any, isUpdate: boolean = false) => {
     const homeTeam = matchData.teams?.home;
@@ -460,8 +522,52 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           ))}
 
-          {/* Ball position indicator */}
-          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full animate-bounce"></div>
+          {/* Ball trail */}
+          {ballTrail.map((point, index) => (
+            <div
+              key={`trail-${index}`}
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 rounded-full bg-white transition-all duration-200"
+              style={{
+                left: `${point.x}%`,
+                top: `${point.y}%`,
+                width: `${Math.max(2, 6 - index)}px`,
+                height: `${Math.max(2, 6 - index)}px`,
+                opacity: Math.max(0.1, 0.8 - (index * 0.1)),
+                zIndex: 5 + index
+              }}
+            />
+          ))}
+
+          {/* Live moving ball */}
+          <div 
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg transition-all duration-150 ease-linear"
+            style={{
+              left: `${ballPosition.x}%`,
+              top: `${ballPosition.y}%`,
+              zIndex: 15,
+              boxShadow: '0 0 8px rgba(255, 255, 255, 0.8), 0 0 12px rgba(255, 255, 255, 0.4)'
+            }}
+          >
+            {/* Ball glow effect */}
+            <div className="absolute inset-0 rounded-full bg-white animate-pulse opacity-60"></div>
+          </div>
+
+          {/* Ball movement line (shows current direction) */}
+          {isLive && (
+            <div
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 opacity-40"
+              style={{
+                left: `${ballPosition.x}%`,
+                top: `${ballPosition.y}%`,
+                width: '20px',
+                height: '2px',
+                background: 'linear-gradient(90deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%)',
+                transformOrigin: 'left center',
+                transform: `translate(-50%, -50%) rotate(${Math.atan2(ballDirection.dy, ballDirection.dx) * 180 / Math.PI}deg)`,
+                zIndex: 10
+              }}
+            />
+          )}
         </div>
 
         {/* Current Event Display */}
