@@ -764,8 +764,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Calculate current season based on date
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
-      // If we're in the second half of```tool_code
- the year, use next year as season
+      // If we're in the second half of the year, use next year as season
       const currentSeason = currentMonth >= 7 ? 
         currentDate.getFullYear() + 1 : 
         currentDate.getFullYear();
