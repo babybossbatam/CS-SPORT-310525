@@ -945,7 +945,7 @@ LeagueFixtures.length,
 
       // Handle World country explicitly
       if (validCountry === "World") {
-        console.log(`🌍 [WORLD DEBUG] Processing World country fixture:`, {
+        console.log("[WORLD DEBUG] Processing World country fixture:", {
           leagueName: league.name,
           leagueId: league.id,
           homeTeam: fixture.teams?.home?.name,
