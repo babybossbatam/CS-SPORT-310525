@@ -189,15 +189,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         if (newX <= 8 || newX >= 92) {
           newDx = -newDx + (Math.random() - 0.5) * 0.3;
           newX = Math.max(8, Math.min(92, newX));
-          
-          // Corner kick logic
-          if ((newY <= 30 || newY >= 70) && Math.random() > 0.7) {
-            if (newX <= 8) {
-              setCornerKicks(prev => ({ ...prev, away: prev.away + 1 }));
-            } else {
-              setCornerKicks(prev => ({ ...prev, home: prev.home + 1 }));
-            }
-          }
         }
 
         if (newY <= 20 || newY >= 80) {
@@ -335,10 +326,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           } else if (event.detail?.toLowerCase().includes('corner')) {
             eventType = 'corner';
             description = 'Corner';
-            setCornerKicks(prev => ({
-              ...prev,
-              [team]: prev[team] + 1
-            }));
           } else if (event.detail?.toLowerCase().includes('shot')) {
             eventType = 'shot';
             description = 'Shot';
@@ -369,6 +356,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             x,
             y
           });
+
+          // Count corner kicks from real events
+          if (eventType === 'corner') {
+            setCornerKicks(prev => ({
+              ...prev,
+              [team]: prev[team] + 1
+            }));
+          }
         });
       }
 
@@ -636,11 +631,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           {/* Enhanced Team possession overlay */}
           <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
             {currentAttack && (
-              <div className="bg-black/90 backdrop-blur-md rounded-xl px-6 py-4 text-center possession-fade-in border border-white/30 shadow-2xl">
-                <div className="text-white text-sm font-medium mb-2 opacity-95 tracking-wide">
+              <div className="bg-black/40 backdrop-blur-sm rounded-xl px-4 py-2 text-center possession-fade-in border border-white/20 shadow-lg">
+                <div className="text-white text-xs font-medium mb-1 opacity-80 tracking-wide">
                   {currentAttack.intensity === 'dangerous' ? 'Dangerous Attack' : 'Attack'}
                 </div>
-                <div className="flex items-center justify-center gap-3">
+                <div className="flex items-center justify-center gap-2">
                   {currentAttack.team === 'home' && homeTeamData?.logo && (
                     <div className="relative">
                       <img 
@@ -661,7 +656,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       <div className="absolute inset-0 rounded-full ring-2 ring-red-400"></div>
                     </div>
                   )}
-                  <div className="text-white text-base font-bold tracking-wider">
+                  <div className="text-white text-sm font-semibold tracking-wide opacity-90">
                     {currentAttack.team === 'home' 
                       ? getTeamDisplayName('home') 
                       : getTeamDisplayName('away')
