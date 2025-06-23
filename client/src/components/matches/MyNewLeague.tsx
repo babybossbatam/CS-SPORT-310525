@@ -191,7 +191,11 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   // Filter matches to show matches for the selected date
   const selectedDateFixtures = fixtures.filter(f => {
     const matchDate = new Date(f.fixture.date);
-    const matchDateString = matchDate.toISOString().split('T')[0]; // Get YYYY-MM-DD format
+    // Extract just the date part for comparison (YYYY-MM-DD format)
+    const year = matchDate.getFullYear();
+    const month = String(matchDate.getMonth() + 1).padStart(2, '0');
+    const day = String(matchDate.getDate()).padStart(2, '0');
+    const matchDateString = `${year}-${month}-${day}`;
     return matchDateString === selectedDate;
   });
 
