@@ -845,7 +845,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
       // Only show popular leagues (365scores approach)
       if (!isPopularLeague) {
-        return false;
+        return acc;
       }
 
       console.log(`[LEAGUE DEBUG] Processing popular league:`, {
