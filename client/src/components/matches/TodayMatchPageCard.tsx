@@ -45,7 +45,7 @@ export const TodayMatchPageCard = ({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
   const calendarRef = useRef<HTMLDivElement>(null);
-  
+
 
 
 
@@ -206,11 +206,11 @@ export const TodayMatchPageCard = ({
     onMatchCardClick?.(fixture);
   };
 
-    
+
 
   return (
     <>
-            
+
 
       <Card className="shadow-md w-full">
         <div className="flex items-center justify-between h-9 p-4">
@@ -417,13 +417,6 @@ export const TodayMatchPageCard = ({
       ) : (
         // Neither filter active - show default view
         <>
-          <TodayPopularFootballLeaguesNew
-            selectedDate={selectedDate}
-            timeFilterActive={timeFilterActive}
-            showTop20={timeFilterActive}
-            liveFilterActive={liveFilterActive}
-            onMatchCardClick={onMatchCardClick}
-          />
           <MyNewLeague
             selectedDate={selectedDate}
             timeFilterActive={false}
@@ -432,6 +425,13 @@ export const TodayMatchPageCard = ({
             onMatchCardClick={handleMatchCardClick}
             useUTCOnly={true}
           />
+          <TodayPopularFootballLeaguesNew
+            selectedDate={selectedDate}
+            timeFilterActive={timeFilterActive}
+            showTop20={timeFilterActive}
+            liveFilterActive={liveFilterActive}
+            onMatchCardClick={onMatchCardClick}
+          />
           <TodaysMatchesByCountryNew
             selectedDate={selectedDate}
             liveFilterActive={liveFilterActive}
@@ -439,8 +439,9 @@ export const TodayMatchPageCard = ({
             onMatchCardClick={onMatchCardClick}
           />
         </>
-      )}
-    </>
+      )
+    }
+</>
   );
 };
 
