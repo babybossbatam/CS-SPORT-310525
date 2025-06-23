@@ -1,0 +1,33 @@
+🔍 [logoCache.ts:getCached] Cache lookup for key: flag_bolivarian_republic_of 
+Object {found: false, cacheSize: 35}
+❌ [logoCache.ts:getCached] Cache miss for key: flag_bolivarian_republic_of
+🔍 [logoCache.ts:getCached] Cache lookup for key: flag_ve 
+Object {found: false, cacheSize: 35}
+❌ [logoCache.ts:getCached] Cache miss for key: flag_ve
+🔍 [logoCache.ts:getCached] Cache lookup for key: flag_ven 
+Object {found: false, cacheSize: 35}
+❌ [logoCache.ts:getCached] Cache miss for key: flag_ven
+🗑️ Cleared 1 Venezuela flags from localStorage
+💾 [logoCache.ts:setCached] Setting cache for key: flag_venezuela 
+Object {url: "https://flagcdn.com/w40/ve.png", source: "cleanup-fix", verified: true, timestamp: 1750659723709}
+✅ Re-cached Venezuela flag with normalized key: flag_venezuela
+🔄 Force refreshing Venezuela flag...
+🗑️ Cleared all Venezuela-related flags from localStorage
+💾 [logoCache.ts:setCached] Setting cache for key: flag_venezuela 
+Object {url: "https://flagcdn.com/w40/ve.png", source: "manual-venezuela-fix", verified: true, timestamp: 1750659723710}
+✅ Manually set Venezuela flag to: https://flagcdn.com/w40/ve.png
+🧹 Clearing all flag cache...
+🗑️ Cleared all flags from localStorage
+✅ All flag cache cleared
+🧹 Cleared all flag cache including fallback flags
+🔄 Loading leagues with World Cup qualification support...
+Fetching fresh league data...
+✅ Venezuela flag refreshed to: https://flagcdn.com/w40/ve.png
+📋 [Cache Check] all-fixtures-by-date-2025-06-23: 
+Object {hasExistingData: false, dataAge: null, maxAge: 7200000, shouldUseCache: undefined, forceRefresh: false}
+📊 [TodayMatchPageCard] Got 0 fixtures for 2025-06-23
+🎯 [POPULAR LEAGUES DEBUG] Full popular leagues list: 
+(23) [39, 140, 135, 78, 61, 2, 3, 848, 5, 1, 4, 15, 38, 9, 22, 6, 7, 137, 45, 143, 81, 307, 233]
+🎯 [POPULAR LEAGUES DEBUG] Target leagues check: 
+Object {league38InList: true, league15InList: true, league16InList: false, league914InList: false}
+📋 [Cache Check] all-fixtures-by-date-2025-06-23
