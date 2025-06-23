@@ -13,6 +13,7 @@ import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
 import MyNewPopularLeague from "./MyNewPopularLeague";
 import EnhancementLeague from "./EnhancementLeague";
+import MyNewLeague from "./MyNewLeague";
 
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { format, parseISO, addDays, subDays } from "date-fns";
@@ -424,6 +425,14 @@ export const TodayMatchPageCard = ({
             onMatchCardClick={onMatchCardClick}
           />
           <EnhancementLeague
+            selectedDate={selectedDate}
+            timeFilterActive={false}
+            showTop10={false}
+            liveFilterActive={false}
+            onMatchCardClick={handleMatchCardClick}
+            useUTCOnly={true}
+          />
+          <MyNewLeague
             selectedDate={selectedDate}
             timeFilterActive={false}
             showTop10={false}
