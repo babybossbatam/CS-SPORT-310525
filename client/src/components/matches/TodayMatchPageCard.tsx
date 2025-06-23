@@ -416,10 +416,11 @@ export const TodayMatchPageCard = ({
           />
           <EnhancementLeague
             selectedDate={selectedDate}
-            timeFilterActive={timeFilterActive}
-            showTop10={timeFilterActive}
-            liveFilterActive={liveFilterActive}
+            timeFilterActive={false}
+            showTop10={false}
+            liveFilterActive={false}
             onMatchCardClick={handleMatchCardClick}
+            useUTCOnly={true}
           />
           <TodaysMatchesByCountryNew
             selectedDate={selectedDate}

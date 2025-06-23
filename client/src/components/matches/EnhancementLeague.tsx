@@ -75,7 +75,7 @@ const EnhancementLeague: React.FC<EnhancementLeagueProps> = ({
   showTop10 = false,
   liveFilterActive = false,
   onMatchCardClick,
-  useUTCOnly = false, // Default to timezone-aware filtering
+  useUTCOnly = true, // Default to UTC-only filtering for consistency
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
