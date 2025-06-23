@@ -96,6 +96,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Madagascar: "mg",
       Mongolia: "mn",
       Mexico: "mx",
+      Nigeria: "ng",
       "United States": "us",
       Canada: "ca",
       Japan: "jp",
