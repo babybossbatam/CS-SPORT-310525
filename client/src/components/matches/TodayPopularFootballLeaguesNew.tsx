@@ -893,7 +893,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
       return acc;
     },
-    {},
+    {} as Record<string, any>
   );
 
   // Convert league groups to array and sort by league priority (365scores style)
