@@ -58,6 +58,7 @@ export const popularLeagueExclusionTerms = [
   "paulista série b",
   "amazonense - 2",
   "paraense b1",
+  "matogrossense 2",
 
   // Brazilian youth leagues
   "paranaense u20",
