@@ -1,8 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardContent } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { Trophy, Clock, Calendar, MapPin } from "lucide-react";
+
+import React, { useState, useEffect, useMemo } from "react";
+import { Card, CardContent, CardHeader } from "../ui/card";
+import { Star, Calendar } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { format, parseISO, isValid } from "date-fns";
+import { safeSubstring } from "@/lib/dateUtilsUpdated";
+import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
+import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
+import "../../styles/MyLogoPositioning.css";
 
 interface MyNewLeagueProps {
   selectedDate: string;
@@ -27,10 +32,12 @@ interface FixtureData {
   };
   teams: {
     home: {
+      id?: number;
       name: string;
       logo?: string;
     };
     away: {
+      id?: number;
       name: string;
       logo?: string;
     };
@@ -44,6 +51,12 @@ interface FixtureData {
     name: string;
     logo?: string;
     country: string;
+  };
+  score?: {
+    penalty?: {
+      home: number | null;
+      away: number | null;
+    };
   };
 }
 
@@ -71,6 +84,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const [leagueInfo, setLeagueInfo] = useState<LeagueData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
 
   // Using league ID 38 and 15 as specified in checkSpecificLeagueMatches.ts
   const leagueIds = [38, 15];
@@ -143,39 +157,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     fetchLeagueData();
   }, []);
 
-  const getMatchStatusBadge = (status: string, elapsed?: number) => {
-    const liveStatuses = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P'];
-
-    if (liveStatuses.includes(status)) {
-      return (
-        <Badge variant="destructive" className="text-xs animate-pulse">
-          {status === 'LIVE' ? 'LIVE' : status}
-          {elapsed && ` ${elapsed}'`}
-        </Badge>
-      );
-    }
-
-    if (['FT', 'AET', 'PEN'].includes(status)) {
-      return <Badge variant="secondary" className="text-xs">Ended</Badge>;
-    }
-
-    if (status === 'NS') {
-      return null; // Don't show any badge for upcoming matches
-    }
-
-    return <Badge variant="outline" className="text-xs">{status}</Badge>;
-  };
-
-  const formatMatchTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   // Debug logging
   console.log('MyNewLeague - All fixtures:', fixtures.length);
   fixtures.forEach(f => {
@@ -236,20 +217,44 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
   const totalMatches = Object.values(matchesByLeague).reduce((sum, group) => sum + group.matches.length, 0);
 
+  const toggleStarMatch = (matchId: number) => {
+    setStarredMatches((prev) => {
+      const newStarred = new Set(prev);
+      if (newStarred.has(matchId)) {
+        newStarred.delete(matchId);
+      } else {
+        newStarred.add(matchId);
+      }
+      return newStarred;
+    });
+  };
+
   if (loading) {
     return (
-      <Card className="mb-4">
-        <CardHeader className="p-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-blue-600" />
-              <span className="font-medium">My New League</span>
-            </div>
-            <Badge className="bg-blue-100 text-blue-700 text-xs">Loading...</Badge>
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-center gap-2">
+            <div className="h-4 w-4 rounded-full bg-gray-200 animate-pulse" />
+            <div className="h-4 w-48 bg-gray-200 animate-pulse rounded" />
           </div>
+          <div className="h-3 w-40 bg-gray-200 animate-pulse rounded" />
         </CardHeader>
-        <CardContent className="p-3">
-          <div className="text-center py-4 text-gray-500">Loading matches...</div>
+        <CardContent className="p-0">
+          <div className="space-y-0">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="border-b border-gray-100 last:border-b-0">
+                <div className="p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-6 h-4 bg-gray-200 animate-pulse rounded-sm" />
+                    <div className="h-4 w-24 bg-gray-200 animate-pulse rounded" />
+                    <div className="h-4 w-8 bg-gray-200 animate-pulse rounded" />
+                    <div className="h-5 w-12 bg-gray-200 animate-pulse rounded-full" />
+                  </div>
+                  <div className="h-4 w-4 bg-gray-200 animate-pulse rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     );
@@ -257,17 +262,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
   if (error) {
     return (
-      <Card className="mb-4">
-        <CardHeader className="p-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-red-600" />
-              <span className="font-medium">My New League</span>
-            </div>
-            <Badge variant="destructive" className="text-xs">Error</Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="p-3">
+      <Card>
+        <CardContent className="p-6 text-center">
           <div className="text-center py-4 text-red-500">{error}</div>
         </CardContent>
       </Card>
@@ -276,149 +272,352 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
   if (totalMatches === 0) {
     return (
-      <Card className="mb-4">
-        <CardHeader className="p-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Trophy className="h-5 w-5 text-gray-500" />
-              <span className="font-medium">My New League</span>
-            </div>
-            <Badge variant="outline" className="text-xs">No Matches</Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="p-3">
-          <div className="text-center py-4 text-gray-500">No matches available</div>
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+          <p className="text-gray-500">No matches available for this date</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <>
+      {/* Header Section */}
+      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+        My New League
+      </CardHeader>
+
+      {/* Create individual league cards */}
       {Object.values(matchesByLeague).map((leagueGroup) => {
-        const liveMatchesCount = leagueGroup.matches.filter(f => 
-          ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P'].includes(f.fixture.status.short)
-        ).length;
-
         return (
-          <Card key={leagueGroup.league.id} className="bg-white shadow-md rounded-lg mb-4">
-            <CardHeader className="p-4 border-b border-gray-100">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {leagueGroup.league.logo ? (
-                    <img
-                      src={leagueGroup.league.logo}
-                      alt={leagueGroup.league.name}
-                      className="w-6 h-6 object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
-                      }}
-                    />
-                  ) : (
-                    <Trophy className="h-6 w-6 text-blue-600" />
-                  )}
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-gray-900">{leagueGroup.league.name}</span>
-                    <span className="text-xs text-gray-500">{leagueGroup.league.country}</span>
-                  </div>
-                </div>
-                <div className="flex gap-2 items-center">
-                  {liveMatchesCount > 0 && (
-                    <Badge variant="destructive" className="text-xs animate-pulse px-2 py-1">
-                      {liveMatchesCount} Live
-                    </Badge>
-                  )}
-                  <Badge className="bg-blue-100 text-blue-700 text-xs px-2 py-1">
-                    {leagueGroup.matches.length} Match{leagueGroup.matches.length !== 1 ? 'es' : ''}
-                  </Badge>
-                </div>
-              </div>
-            </CardHeader>
+          <Card
+            key={`mynewleague-${leagueGroup.league.id}`}
+            className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing"
+          >
+            {/* League Header */}
+            {!timeFilterActive && (
+              <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200">
+                {/* League Star Toggle Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleStarMatch(leagueGroup.league.id);
+                  }}
+                  className="transition-colors"
+                  title={`${starredMatches.has(leagueGroup.league.id) ? "Remove from" : "Add to"} favorites`}
+                >
+                  <Star
+                    className={`h-5 w-5 transition-all ${
+                      starredMatches.has(leagueGroup.league.id)
+                        ? "text-green-500 fill-green-500"
+                        : "text-green-300"
+                    }`}
+                  />
+                </button>
 
-            <CardContent className="p-0">
-              <div className="divide-y divide-gray-100">
-                {leagueGroup.matches.map((fixture) => (
-                  <div
-                    key={fixture.fixture.id}
-                    onClick={() => onMatchCardClick(fixture)}
-                    className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                <img
+                  src={leagueGroup.league.logo || "/assets/fallback-logo.svg"}
+                  alt={leagueGroup.league.name || "Unknown League"}
+                  className="w-6 h-6 object-contain rounded-full"
+                  style={{ backgroundColor: "transparent" }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                  }}
+                />
+                <div className="flex flex-col flex-1">
+                  <span
+                    className="font-semibold text-gray-800"
+                    style={{
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                      fontSize: "13.3px",
+                    }}
                   >
-                    <div className="flex items-center text-xs text-gray-500 mb-3">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      <span>{formatMatchTime(fixture.fixture.date)}</span>
-                      {fixture.fixture.venue?.name && (
-                        <>
-                          <span className="mx-2">•</span>
-                          <MapPin className="h-3 w-3 mr-1" />
-                          <span>{fixture.fixture.venue.name}</span>
-                        </>
-                      )}
-                      {getMatchStatusBadge(fixture.fixture.status.short, fixture.fixture.status.elapsed) && (
-                        <>
-                          <span className="mx-2">•</span>
-                          {getMatchStatusBadge(fixture.fixture.status.short, fixture.fixture.status.elapsed)}
-                        </>
-                      )}
-                    </div>
-                    
-                    <div className="grid grid-cols-7 items-center gap-2">
-                      <div className="col-span-3 flex items-center justify-end space-x-3">
-                        <span className="font-medium text-right text-gray-900">{fixture.teams.home.name}</span>
-                        {fixture.teams.home.logo ? (
-                          <img 
-                            src={fixture.teams.home.logo}
-                            alt={fixture.teams.home.name}
-                            className="h-6 w-6 object-contain"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
-                            }}
-                          />
-                        ) : (
-                          <div className="h-6 w-6 bg-gray-200 rounded flex items-center justify-center">
-                            <span className="text-xs text-gray-500">T</span>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="col-span-1 flex justify-center">
-                        <span className={`px-3 py-1 rounded font-semibold text-sm ${
-                          fixture.fixture.status.short === "NS" 
-                            ? "bg-gray-100 text-gray-700" 
-                            : "bg-gray-800 text-white"
-                        }`}>
-                          {fixture.fixture.status.short === "NS" 
-                            ? "vs"
-                            : `${fixture.goals.home} - ${fixture.goals.away}`
+                    {safeSubstring(leagueGroup.league.name, 0) || "Unknown League"}
+                  </span>
+                  <span
+                    className="text-gray-600"
+                    style={{
+                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                      fontSize: "13.3px",
+                    }}
+                  >
+                    {leagueGroup.league.country || "Unknown Country"}
+                  </span>
+                </div>
+                <div className="flex gap-1">
+                  <span
+                    className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium"
+                    style={{ fontSize: "calc(0.75rem * 0.85)" }}
+                  >
+                    {leagueGroup.matches.length} Match{leagueGroup.matches.length !== 1 ? 'es' : ''}
+                  </span>
+                </div>
+              </CardContent>
+            )}
+
+            {/* Matches */}
+            <div className="match-cards-wrapper">
+              {leagueGroup.matches
+                .slice(0, timeFilterActive && showTop10 ? 10 : undefined)
+                .sort((a: any, b: any) => {
+                  const now = new Date();
+                  const aDate = parseISO(a.fixture.date);
+                  const bDate = parseISO(b.fixture.date);
+                  const aStatus = a.fixture.status.short;
+                  const bStatus = b.fixture.status.short;
+
+                  if (!isValid(aDate) || !isValid(bDate)) {
+                    return 0;
+                  }
+
+                  const aTime = aDate.getTime();
+                  const bTime = bDate.getTime();
+                  const nowTime = now.getTime();
+
+                  // Live matches first
+                  const aLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
+                  const bLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
+
+                  if (aLive && !bLive) return -1;
+                  if (!aLive && bLive) return 1;
+
+                  // Then by time proximity
+                  const aDistance = Math.abs(aTime - nowTime);
+                  const bDistance = Math.abs(bTime - nowTime);
+                  return aDistance - bDistance;
+                })
+                .map((match: any) => (
+                  <div
+                    key={match.fixture.id}
+                    className="match-card-container group"
+                    onClick={() => onMatchCardClick?.(match)}
+                    style={{
+                      cursor: onMatchCardClick ? "pointer" : "default",
+                    }}
+                  >
+                    {/* Star Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleStarMatch(match.fixture.id);
+                      }}
+                      className="match-star-button"
+                      title="Add to favorites"
+                    >
+                      <Star
+                        className={`match-star-icon ${
+                          starredMatches.has(match.fixture.id) ? "starred" : ""
+                        }`}
+                      />
+                    </button>
+
+                    {/* Match content container */}
+                    <div className="match-three-grid-container">
+                      {/* Top Grid: Match Status */}
+                      <div className="match-status-top">
+                        {(() => {
+                          const status = match.fixture.status.short;
+                          const elapsed = match.fixture.status.elapsed;
+
+                          if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                            let displayText = "";
+                            if (status === "HT") {
+                              displayText = "Halftime";
+                            } else if (status === "P") {
+                              displayText = "Penalties";
+                            } else if (status === "ET") {
+                              displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
+                            } else if (status === "BT") {
+                              displayText = "Break Time";
+                            } else if (status === "INT") {
+                              displayText = "Interrupted";
+                            } else {
+                              displayText = elapsed ? `${elapsed}'` : "LIVE";
+                            }
+
+                            return (
+                              <div className="match-status-label status-live">
+                                {displayText}
+                              </div>
+                            );
                           }
-                        </span>
+
+                          if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                            return (
+                              <div className="match-status-label status-ended">
+                                {status === "FT" ? "Ended" : status}
+                              </div>
+                            );
+                          }
+
+                          if (status === "TBD") {
+                            return (
+                              <div className="match-status-label status-upcoming">
+                                Time TBD
+                              </div>
+                            );
+                          }
+
+                          return null;
+                        })()}
                       </div>
-                      
-                      <div className="col-span-3 flex items-center space-x-3">
-                        {fixture.teams.away.logo ? (
-                          <img 
-                            src={fixture.teams.away.logo}
-                            alt={fixture.teams.away.name}
-                            className="h-6 w-6 object-contain"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+
+                      {/* Middle Grid: Main match content */}
+                      <div className="match-content-container">
+                        {/* Home Team Name */}
+                        <div
+                          className={`home-team-name ${
+                            match.goals.home !== null &&
+                            match.goals.away !== null &&
+                            match.goals.home > match.goals.away
+                              ? "winner"
+                              : ""
+                          }`}
+                        >
+                          {shortenTeamName(match.teams.home.name) || "Unknown Team"}
+                        </div>
+
+                        {/* Home team logo */}
+                        <div className="home-team-logo-container">
+                          <MyWorldTeamLogo
+                            teamName={match.teams.home.name}
+                            teamLogo={
+                              match.teams.home.id
+                                ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                : "/assets/fallback-logo.svg"
+                            }
+                            alt={match.teams.home.name}
+                            size="34px"
+                            className="popular-leagues-size"
+                            leagueContext={{
+                              name: leagueGroup.league.name,
+                              country: leagueGroup.league.country,
                             }}
                           />
-                        ) : (
-                          <div className="h-6 w-6 bg-gray-200 rounded flex items-center justify-center">
-                            <span className="text-xs text-gray-500">T</span>
-                          </div>
-                        )}
-                        <span className="font-medium text-gray-900">{fixture.teams.away.name}</span>
+                        </div>
+
+                        {/* Score/Time Center */}
+                        <div className="match-score-container">
+                          {(() => {
+                            const status = match.fixture.status.short;
+                            const fixtureDate = parseISO(match.fixture.date);
+
+                            if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                              return (
+                                <div className="match-score-display">
+                                  <span className="score-number">{match.goals.home ?? 0}</span>
+                                  <span className="score-separator">-</span>
+                                  <span className="score-number">{match.goals.away ?? 0}</span>
+                                </div>
+                              );
+                            }
+
+                            if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                              const homeScore = match.goals.home;
+                              const awayScore = match.goals.away;
+                              const hasValidScores =
+                                homeScore !== null &&
+                                homeScore !== undefined &&
+                                awayScore !== null &&
+                                awayScore !== undefined &&
+                                !isNaN(Number(homeScore)) &&
+                                !isNaN(Number(awayScore));
+
+                              if (hasValidScores) {
+                                return (
+                                  <div className="match-score-display">
+                                    <span className="score-number">{homeScore}</span>
+                                    <span className="score-separator">-</span>
+                                    <span className="score-number">{awayScore}</span>
+                                  </div>
+                                );
+                              } else {
+                                return (
+                                  <div className="match-time-display" style={{ fontSize: "0.882em" }}>
+                                    {format(fixtureDate, "HH:mm")}
+                                  </div>
+                                );
+                              }
+                            }
+
+                            return (
+                              <div className="match-time-display" style={{ fontSize: "0.882em" }}>
+                                {status === "TBD" ? "TBD" : format(fixtureDate, "HH:mm")}
+                              </div>
+                            );
+                          })()}
+                        </div>
+
+                        {/* Away team logo */}
+                        <div className="away-team-logo-container">
+                          <MyWorldTeamLogo
+                            teamName={match.teams.away.name}
+                            teamLogo={
+                              match.teams.away.id
+                                ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                : "/assets/fallback-logo.svg"
+                            }
+                            alt={match.teams.away.name}
+                            size="34px"
+                            className="popular-leagues-size"
+                            leagueContext={{
+                              name: leagueGroup.league.name,
+                              country: leagueGroup.league.country,
+                            }}
+                          />
+                        </div>
+
+                        {/* Away Team Name */}
+                        <div
+                          className={`away-team-name ${
+                            match.goals.home !== null &&
+                            match.goals.away !== null &&
+                            match.goals.away > match.goals.home
+                              ? "winner"
+                              : ""
+                          }`}
+                        >
+                          {shortenTeamName(match.teams.away.name) || "Unknown Team"}
+                        </div>
+                      </div>
+
+                      {/* Bottom Grid: Penalty Result Status */}
+                      <div className="match-penalty-bottom">
+                        {(() => {
+                          const status = match.fixture.status.short;
+                          const isPenaltyMatch = status === "PEN";
+                          const penaltyHome = match.score?.penalty?.home;
+                          const penaltyAway = match.score?.penalty?.away;
+                          const hasPenaltyScores =
+                            penaltyHome !== null &&
+                            penaltyHome !== undefined &&
+                            penaltyAway !== null &&
+                            penaltyAway !== undefined;
+
+                          if (isPenaltyMatch && hasPenaltyScores) {
+                            const winnerText =
+                              penaltyHome > penaltyAway
+                                ? `${shortenTeamName(match.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
+                                : `${shortenTeamName(match.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
+
+                            return (
+                              <div className="penalty-result-display">
+                                <span className="penalty-winner">{winnerText}</span>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                       </div>
                     </div>
                   </div>
                 ))}
-              </div>
-            </CardContent>
+            </div>
           </Card>
         );
       })}
-    </div>
+    </>
   );
 };
 
