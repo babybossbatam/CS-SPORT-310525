@@ -17,6 +17,31 @@ export interface SimpleDateFilterResult {
 export class SimpleDateFilter {
   
   /**
+   * Extract UTC date part only (no timezone conversion)
+   */
+  static extractUTCDateOnly(dateTimeString: string): string {
+    try {
+      if (!dateTimeString) return '';
+      
+      // Simply extract the date part before 'T' for UTC comparison
+      if (dateTimeString.includes('T')) {
+        return dateTimeString.split('T')[0];
+      }
+      
+      // Handle date-only strings
+      const date = parseISO(dateTimeString);
+      if (isValid(date)) {
+        return format(date, 'yyyy-MM-dd');
+      }
+      
+      return dateTimeString;
+    } catch (error) {
+      console.error('Error extracting UTC date:', error);
+      return '';
+    }
+  }
+
+  /**
    * Extract date part from datetime string, but convert to local timezone first
    */
   static extractLocalDate(dateTimeString: string): string {
@@ -91,6 +116,71 @@ export class SimpleDateFilter {
       selectedDate: targetDate,
       fixtureLocalDate,
       fixtureUTCDate
+    };
+  }
+
+  /**
+   * Simple UTC date match without timezone conversion
+   * Just compares the UTC date part with selected date
+   */
+  static isFixtureOnDateUTCOnly(fixtureDateTime: string, targetDate: string): SimpleDateFilterResult {
+    const fixtureUTCDate = this.extractUTCDateOnly(fixtureDateTime);
+    const isMatch = fixtureUTCDate === targetDate;
+    
+    const reason = isMatch 
+      ? `UTC date match: ${fixtureUTCDate} = ${targetDate}` 
+      : `UTC date mismatch: ${fixtureUTCDate} ≠ ${targetDate}`;
+    
+    return {
+      isMatch,
+      reason,
+      fixtureDate: fixtureUTCDate,
+      selectedDate: targetDate,
+      fixtureLocalDate: fixtureUTCDate, // Same as UTC for this method
+      fixtureUTCDate
+    };
+  }
+
+  /**
+   * Filter fixtures for a specific date using UTC only (no timezone conversion)
+   */
+  static filterFixturesForDateUTCOnly(fixtures: any[], selectedDate: string): {
+    validFixtures: any[];
+    rejectedFixtures: Array<{ fixture: any; reason: string }>;
+    stats: {
+      total: number;
+      valid: number;
+      rejected: number;
+      timezoneConversions: number;
+    };
+  } {
+    const validFixtures: any[] = [];
+    const rejectedFixtures: Array<{ fixture: any; reason: string }> = [];
+
+    fixtures.forEach(fixture => {
+      if (!fixture?.fixture?.date) {
+        rejectedFixtures.push({ fixture, reason: 'No fixture date' });
+        return;
+      }
+
+      const result = this.isFixtureOnDateUTCOnly(fixture.fixture.date, selectedDate);
+      
+      if (result.isMatch) {
+        validFixtures.push(fixture);
+      } else {
+        rejectedFixtures.push({ fixture, reason: result.reason });
+      }
+    });
+
+    return {
+      validFixtures,
+      rejectedFixtures,
+      stats: {
+        total: fixtures.length,
+        valid: validFixtures.length,
+        rejected: rejectedFixtures.length,
+        timezoneConversions: 0 // No timezone conversions in UTC-only mode
+      }
     };
   }
 

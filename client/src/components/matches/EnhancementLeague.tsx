@@ -66,6 +66,7 @@ interface EnhancementLeagueProps {
   showTop10?: boolean;
   liveFilterActive?: boolean;
   onMatchCardClick?: (fixture: any) => void;
+  useUTCOnly?: boolean; // New prop to control date filtering method
 }
 
 const EnhancementLeague: React.FC<EnhancementLeagueProps> = ({
@@ -74,6 +75,7 @@ const EnhancementLeague: React.FC<EnhancementLeagueProps> = ({
   showTop10 = false,
   liveFilterActive = false,
   onMatchCardClick,
+  useUTCOnly = false, // Default to timezone-aware filtering
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(new Set());
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
@@ -122,19 +124,23 @@ const EnhancementLeague: React.FC<EnhancementLeagueProps> = ({
     },
   );
 
-  // Process fixtures with timezone conversion
+  // Process fixtures with timezone conversion or UTC-only (configurable)
   const processedFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
     console.log(`🎯 [EnhancementLeague] Processing ${fixtures.length} fixtures`);
 
-    // Apply timezone-aware date filtering
-    const filterResult = SimpleDateFilter.filterFixturesForDate(fixtures, selectedDate);
+    // Use the prop to determine filtering method
     
-    console.log(`🌍 [ENHANCEMENT TIMEZONE] Results for ${selectedDate}:`, {
+    const filterResult = useUTCOnly 
+      ? SimpleDateFilter.filterFixturesForDateUTCOnly(fixtures, selectedDate)
+      : SimpleDateFilter.filterFixturesForDate(fixtures, selectedDate);
+    
+    console.log(`🌍 [ENHANCEMENT ${useUTCOnly ? 'UTC-ONLY' : 'TIMEZONE'}] Results for ${selectedDate}:`, {
       total: filterResult.stats.total,
       valid: filterResult.stats.valid,
       rejected: filterResult.stats.rejected,
+      method: useUTCOnly ? 'UTC-only' : 'Timezone-aware'
     });
 
     return filterResult.validFixtures;
