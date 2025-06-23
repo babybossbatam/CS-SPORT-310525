@@ -188,15 +188,18 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Filter matches for the selected date
-  const selectedDateFixtures = fixtures.filter(f => {
+  // Filter matches to only show June 23rd matches
+  const june23Fixtures = fixtures.filter(f => {
     const matchDate = new Date(f.fixture.date);
-    const fixtureDate = matchDate.toISOString().split('T')[0]; // Get YYYY-MM-DD format
-    return fixtureDate === selectedDate;
+    const matchDateString = matchDate.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    });
+    return matchDateString === 'Jun 23';
   });
 
   // Group matches by league ID
-  const matchesByLeague = selectedDateFixtures.reduce((acc, fixture) => {
+  const matchesByLeague = june23Fixtures.reduce((acc, fixture) => {
     const leagueId = fixture.league.id;
     if (!acc[leagueId]) {
       acc[leagueId] = {
