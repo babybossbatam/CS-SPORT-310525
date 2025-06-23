@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
-import { Card } from "../ui/card";
+import { Card, CardHeader, CardContent } from "../ui/card";
 import { Filter, Activity } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { useQuery } from "@tanstack/react-query";
@@ -26,6 +26,7 @@ import {
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
 import { SimpleFetchingLeagues, getTodayLeagueFixtures } from "@/lib/simpleFetchingLeagues";
+import { Scores365StyleFetcher, compareWithTargetLeagues } from "@/lib/scores365StyleFetcher";
 
 
 interface TodayMatchPageCardProps {
@@ -45,6 +46,7 @@ export const TodayMatchPageCard = ({
   const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
   const calendarRef = useRef<HTMLDivElement>(null);
   const [debugLeagueData, setDebugLeagueData] = useState<any>(null);
+  const [scores365Comparison, setScores365Comparison] = useState<any>(null);
 
 
 
@@ -205,7 +207,7 @@ export const TodayMatchPageCard = ({
     onMatchCardClick?.(fixture);
   };
 
-    // Debug effect for leagues 38 and 15
+    // Debug effect for leagues 38 and 15 with 365scores comparison
     useEffect(() => {
       const debugTargetLeagues = async () => {
         try {
@@ -245,6 +247,20 @@ export const TodayMatchPageCard = ({
             analysis: result.analysis,
             selectedDate
           });
+
+          // 365scores-style comparison
+          console.log(`🏆 [TodayMatchPageCard] Running 365scores-style comparison...`);
+          const comparison = await compareWithTargetLeagues(selectedDate);
+          
+          console.log(`📊 [TodayMatchPageCard] 365scores vs Target Leagues:`, {
+            majorGames: comparison.comparison.majorGamesCount,
+            targetLeagues: comparison.comparison.targetLeaguesCount,
+            overlap: comparison.comparison.overlap,
+            uniqueToMajor: comparison.comparison.uniqueToMajor,
+            uniqueToTarget: comparison.comparison.uniqueToTarget
+          });
+
+          setScores365Comparison(comparison);
   
         } catch (error) {
           console.error(`❌ [TodayMatchPageCard] Error debugging target leagues:`, error);
@@ -285,6 +301,34 @@ export const TodayMatchPageCard = ({
             </div>
             <div className="text-blue-700">
               <strong>Analysis:</strong> {debugLeagueData.analysis.correctDateMatches} correct, {debugLeagueData.analysis.wrongDateMatches} timezone issues
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 365scores-style Comparison */}
+      {scores365Comparison && (
+        <Card className="mb-4 border-green-200 bg-green-50">
+          <CardHeader className="pb-2">
+            <div className="text-sm font-semibold text-green-800">
+              🏆 365scores Style vs Target Leagues Comparison
+            </div>
+          </CardHeader>
+          <CardContent className="text-xs space-y-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <strong>Major Games (365scores style):</strong> {scores365Comparison.comparison.majorGamesCount}
+                <div className="text-gray-600">Champions League, Premier League, etc.</div>
+              </div>
+              <div>
+                <strong>Target Leagues (38 & 15):</strong> {scores365Comparison.comparison.targetLeaguesCount}
+                <div className="text-gray-600">UEFA U21 & FIFA Club World Cup</div>
+              </div>
+            </div>
+            <div className="text-green-700">
+              <strong>Overlap:</strong> {scores365Comparison.comparison.overlap} matches found in both | 
+              <strong> Unique to Major:</strong> {scores365Comparison.comparison.uniqueToMajor} | 
+              <strong> Unique to Target:</strong> {scores365Comparison.comparison.uniqueToTarget}
             </div>
           </CardContent>
         </Card>
