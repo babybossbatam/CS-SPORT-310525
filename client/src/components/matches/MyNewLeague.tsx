@@ -474,12 +474,19 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                               ? "winner"
                               : ""
                           }`}
+                          style={{
+                            paddingRight: "0.75rem",
+                            textAlign: "right",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap"
+                          }}
                         >
                           {shortenTeamName(match.teams.home.name) || "Unknown Team"}
                         </div>
 
                         {/* Home team logo */}
-                        <div className="home-team-logo-container">
+                        <div className="home-team-logo-container" style={{ padding: "0 0.5rem" }}>
                           <MyWorldTeamLogo
                             teamName={match.teams.home.name}
                             teamLogo={
@@ -550,7 +557,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                         </div>
 
                         {/* Away team logo */}
-                        <div className="away-team-logo-container">
+                        <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
                           <MyWorldTeamLogo
                             teamName={match.teams.away.name}
                             teamLogo={
@@ -577,6 +584,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                               ? "winner"
                               : ""
                           }`}
+                          style={{
+                            paddingLeft: "0.75rem",
+                            textAlign: "left",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap"
+                          }}
                         >
                           {shortenTeamName(match.teams.away.name) || "Unknown Team"}
                         </div>
