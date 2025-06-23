@@ -8,7 +8,6 @@ import RegionModal from '@/components/modals/RegionModal';
 import { Trophy } from 'lucide-react';
 import TodayPopularFootballLeaguesNew from "@/components/matches/TodayPopularFootballLeaguesNew";
 import TodaysMatchesByCountryNew from "@/components/matches/TodaysMatchesByCountryNew";
-import EnhancementLeague from "@/components/matches/EnhancementLeague";
 
 const Home = () => {
   const [selectedDate, setSelectedDate] = React.useState(new Date());
@@ -35,15 +34,6 @@ const Home = () => {
               selectedDate={selectedDate}
               timeFilterActive={timeFilterActive}
               showTop20={showTop20}
-              liveFilterActive={liveFilterActive}
-              onMatchCardClick={handleMatchCardClick}
-            />
-
-            {/* Enhancement Leagues Section */}
-            <EnhancementLeague
-              selectedDate={selectedDate}
-              timeFilterActive={timeFilterActive}
-              showTop10={showTop20}
               liveFilterActive={liveFilterActive}
               onMatchCardClick={handleMatchCardClick}
             />
