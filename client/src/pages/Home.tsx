@@ -6,8 +6,20 @@ import MyMainLayout from '@/components/layout/MyMainLayout';
 import Footer from '@/components/layout/Footer';
 import RegionModal from '@/components/modals/RegionModal';
 import { Trophy } from 'lucide-react';
+import TodayPopularFootballLeaguesNew from "@/components/matches/TodayPopularFootballLeaguesNew";
+import TodaysMatchesByCountryNew from "@/components/matches/TodaysMatchesByCountryNew";
+import EnhancementLeague from "@/components/matches/EnhancementLeague";
 
 const Home = () => {
+  const [selectedDate, setSelectedDate] = React.useState(new Date());
+  const [timeFilterActive, setTimeFilterActive] = React.useState(false);
+  const [showTop20, setShowTop20] = React.useState(false);
+  const [liveFilterActive, setLiveFilterActive] = React.useState(false);
+
+  const handleMatchCardClick = (match) => {
+    console.log("Match card clicked:", match);
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -18,7 +30,24 @@ const Home = () => {
       />
 
       <div className="flex-1">
-        <MyMainLayout fixtures={[]} />
+        <MyMainLayout fixtures={[]} >
+            <TodayPopularFootballLeaguesNew
+              selectedDate={selectedDate}
+              timeFilterActive={timeFilterActive}
+              showTop20={showTop20}
+              liveFilterActive={liveFilterActive}
+              onMatchCardClick={handleMatchCardClick}
+            />
+
+            {/* Enhancement Leagues Section */}
+            <EnhancementLeague
+              selectedDate={selectedDate}
+              timeFilterActive={timeFilterActive}
+              showTop10={showTop20}
+              liveFilterActive={liveFilterActive}
+              onMatchCardClick={handleMatchCardClick}
+            />
+        </MyMainLayout>
       </div>
 
       <Footer />
