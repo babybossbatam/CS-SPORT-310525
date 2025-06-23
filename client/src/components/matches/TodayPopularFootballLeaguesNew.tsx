@@ -282,15 +282,24 @@ const TodayPopularFootballLeaguesNew: React.FC<
     },
   );
 
-  // Simple fixture processing - only use cached/date-based fixtures
+  // Smart fixture processing with timezone conversion
   const processedFixtures = useMemo(() => {
     if (!fixtures?.length) return [];
 
     console.log(`🎯 [TodayPopularLeagueNew] Processing ${fixtures.length} fixtures from date-based API`);
 
-    // Return fixtures as-is from the date-based API endpoint
-    return fixtures;
-  }, [fixtures]);
+    // Apply timezone-aware date filtering
+    const filterResult = SimpleDateFilter.filterFixturesForDate(fixtures, selectedDate);
+    
+    console.log(`🌍 [TIMEZONE FILTERING] Results for ${selectedDate}:`, {
+      total: filterResult.stats.total,
+      valid: filterResult.stats.valid,
+      rejected: filterResult.stats.rejected,
+      timezoneConversions: filterResult.stats.timezoneConversions
+    });
+
+    return filterResult.validFixtures;
+  }, [fixtures, selectedDate]);
 
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
@@ -300,8 +309,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
     if (!processedFixtures?.length) return [];
 
     console.log(
-      `🔍 [FILTER DEBUG] Processing ${processedFixtures.length} fixtures for date: ${selectedDate} with intelligent data sources`,
+      `🔍 [FILTER DEBUG] Processing ${processedFixtures.length} fixtures for date: ${selectedDate} with timezone-aware filtering`,
     );
+
+    // Debug a few sample fixtures to show timezone conversion
+    if (processedFixtures.length > 0) {
+      const sampleFixtures = processedFixtures.slice(0, 3);
+      sampleFixtures.forEach(fixture => {
+        SimpleDateFilter.debugTimezoneConversion(fixture.fixture.date, selectedDate);
+      });
+    }
 
     // Debug: Check for target leagues in raw data
     const targetLeagues = [38, 15, 16, 914];
