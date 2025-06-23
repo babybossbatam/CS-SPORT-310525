@@ -48,6 +48,16 @@ const ENHANCEMENT_LEAGUES = [
   { id: 71, name: "Serie A", country: "Brazil", priority: 10 },
   { id: 128, name: "Primera División", country: "Argentina", priority: 11 },
   { id: 318, name: "J1 League", country: "Japan", priority: 12 },
+  
+  // Additional popular leagues that might have matches
+  { id: 6, name: "UEFA Nations League", country: "Europe", priority: 13 },
+  { id: 894, name: "Asian Cup Women - Qualification", country: "World", priority: 14 },
+  { id: 276, name: "FKF Premier League", country: "Kenya", priority: 15 },
+  { id: 195, name: "Victoria NPL", country: "Australia", priority: 16 },
+  { id: 369, name: "Super League", country: "Uzbekistan", priority: 17 },
+  { id: 584, name: "Premier League", country: "Libya", priority: 18 },
+  { id: 402, name: "Sudani Premier League", country: "Sudan", priority: 19 },
+  { id: 391, name: "Super League", country: "Malawi", priority: 20 },
 ];
 
 interface EnhancementLeagueProps {
@@ -132,14 +142,39 @@ const EnhancementLeague: React.FC<EnhancementLeagueProps> = ({
 
   // Filter for enhancement leagues only
   const enhancementFixtures = useMemo(() => {
-    if (!processedFixtures?.length) return [];
+    if (!processedFixtures?.length) {
+      console.log(`🔧 [EnhancementLeague] No processed fixtures available`);
+      return [];
+    }
 
     const enhancementLeagueIds = ENHANCEMENT_LEAGUES.map(league => league.id);
+    console.log(`🔧 [EnhancementLeague] Looking for enhancement league IDs:`, enhancementLeagueIds);
+
+    // Debug: Check what leagues are available in processed fixtures
+    const availableLeagues = new Set();
+    processedFixtures.forEach(fixture => {
+      if (fixture.league?.id) {
+        availableLeagues.add(`${fixture.league.id}: ${fixture.league.name} (${fixture.league.country})`);
+      }
+    });
+    console.log(`🔧 [EnhancementLeague] Available leagues in processed fixtures:`, Array.from(availableLeagues).slice(0, 10));
 
     const filtered = processedFixtures.filter((fixture) => {
       // Only include enhancement leagues
       const leagueId = fixture.league?.id;
-      return enhancementLeagueIds.includes(leagueId);
+      const isEnhancement = enhancementLeagueIds.includes(leagueId);
+      
+      if (isEnhancement) {
+        console.log(`✅ [EnhancementLeague] Found enhancement league match:`, {
+          leagueId,
+          leagueName: fixture.league?.name,
+          country: fixture.league?.country,
+          home: fixture.teams?.home?.name,
+          away: fixture.teams?.away?.name
+        });
+      }
+      
+      return isEnhancement;
     });
 
     console.log(`🔧 [EnhancementLeague] Filtered ${processedFixtures.length} to ${filtered.length} enhancement league fixtures`);
