@@ -198,22 +198,42 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     return matchDateString === 'Jun 23';
   });
 
-  // Group matches by status (only June 23rd matches)
-  const liveMatches = june23Fixtures.filter(f => 
-    ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P'].includes(f.fixture.status.short)
-  );
+  // Group matches by league ID
+  const matchesByLeague = june23Fixtures.reduce((acc, fixture) => {
+    const leagueId = fixture.league.id;
+    if (!acc[leagueId]) {
+      acc[leagueId] = {
+        league: fixture.league,
+        matches: []
+      };
+    }
+    acc[leagueId].matches.push(fixture);
+    return acc;
+  }, {} as Record<number, { league: any; matches: FixtureData[] }>);
 
-  const upcomingMatches = june23Fixtures.filter(f => 
-    f.fixture.status.short === 'NS' && new Date(f.fixture.date) > new Date()
-  ).sort((a, b) => 
-    new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
-  ).slice(0, 8);
+  // Sort matches within each league by status and date
+  Object.values(matchesByLeague).forEach(leagueGroup => {
+    leagueGroup.matches.sort((a, b) => {
+      // First sort by status priority (live > upcoming > finished)
+      const statusPriority = (status: string) => {
+        if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P'].includes(status)) return 1;
+        if (status === 'NS') return 2;
+        return 3;
+      };
+      
+      const aPriority = statusPriority(a.fixture.status.short);
+      const bPriority = statusPriority(b.fixture.status.short);
+      
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority;
+      }
+      
+      // Then sort by date
+      return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
+    });
+  });
 
-  const recentMatches = june23Fixtures.filter(f => 
-    ['FT', 'AET', 'PEN'].includes(f.fixture.status.short)
-  ).sort((a, b) => 
-    new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
-  ).slice(0, 5);
+  const totalMatches = Object.values(matchesByLeague).reduce((sum, group) => sum + group.matches.length, 0);
 
   if (loading) {
     return (
@@ -253,9 +273,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     );
   }
 
-  const allMatches = [...liveMatches, ...upcomingMatches, ...recentMatches];
-
-  if (allMatches.length === 0) {
+  if (totalMatches === 0) {
     return (
       <Card className="mb-4">
         <CardHeader className="p-3">
@@ -275,81 +293,92 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   }
 
   return (
-    <Card className="mb-4">
-      <CardHeader className="p-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {leagueInfo?.league?.logo ? (
-              <img
-                src={leagueInfo.league.logo}
-                alt={leagueInfo.league.name}
-                className="w-5 h-5 object-contain"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
-                }}
-              />
-            ) : (
-              <Trophy className="h-5 w-5 text-blue-600" />
-            )}
-            <span className="font-medium">
-              {leagueInfo?.league?.name || "My New League"}
-            </span>
-          </div>
-          <div className="flex gap-1">
-            {liveMatches.length > 0 && (
-              <Badge variant="destructive" className="text-xs animate-pulse">
-                {liveMatches.length} Live
-              </Badge>
-            )}
-            <Badge className="bg-blue-100 text-blue-700 text-xs">
-              {allMatches.length} Total
-            </Badge>
-          </div>
-        </div>
-      </CardHeader>
+    <div className="space-y-4">
+      {Object.values(matchesByLeague).map((leagueGroup) => {
+        const liveMatchesCount = leagueGroup.matches.filter(f => 
+          ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P'].includes(f.fixture.status.short)
+        ).length;
 
-      <CardContent className="p-0">
-        <div className="space-y-0">
-          {allMatches.map((fixture) => (
-            <div
-              key={fixture.fixture.id}
-              onClick={() => onMatchCardClick(fixture)}
-              className="p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
-            >
+        return (
+          <Card key={leagueGroup.league.id} className="mb-4">
+            <CardHeader className="p-3">
               <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="text-sm font-medium">
-                      {fixture.teams.home.name} vs {fixture.teams.away.name}
-                    </div>
-                    {getMatchStatusBadge(fixture.fixture.status.short, fixture.fixture.status.elapsed)}
-                  </div>
-
-                  <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />
-                      {formatMatchTime(fixture.fixture.date)}
-                    </div>
-                    {fixture.fixture.venue?.name && (
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {fixture.fixture.venue.name}
-                      </div>
-                    )}
-                  </div>
+                <div className="flex items-center gap-2">
+                  {leagueGroup.league.logo ? (
+                    <img
+                      src={leagueGroup.league.logo}
+                      alt={leagueGroup.league.name}
+                      className="w-5 h-5 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                      }}
+                    />
+                  ) : (
+                    <Trophy className="h-5 w-5 text-blue-600" />
+                  )}
+                  <span className="font-medium">{leagueGroup.league.name}</span>
+                  <Badge variant="outline" className="text-xs">
+                    {leagueGroup.league.country}
+                  </Badge>
                 </div>
-
-                {(fixture.goals.home !== null && fixture.goals.away !== null) && (
-                  <div className="text-lg font-bold text-gray-900 ml-4">
-                    {fixture.goals.home} - {fixture.goals.away}
-                  </div>
-                )}
+                <div className="flex gap-1">
+                  {liveMatchesCount > 0 && (
+                    <Badge variant="destructive" className="text-xs animate-pulse">
+                      {liveMatchesCount} Live
+                    </Badge>
+                  )}
+                  <Badge className="bg-blue-100 text-blue-700 text-xs">
+                    {leagueGroup.matches.length} Match{leagueGroup.matches.length !== 1 ? 'es' : ''}
+                  </Badge>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            </CardHeader>
+
+            <CardContent className="p-0">
+              <div className="space-y-0">
+                {leagueGroup.matches.map((fixture) => (
+                  <div
+                    key={fixture.fixture.id}
+                    onClick={() => onMatchCardClick(fixture)}
+                    className="p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="text-sm font-medium">
+                            {fixture.teams.home.name} vs {fixture.teams.away.name}
+                          </div>
+                          {getMatchStatusBadge(fixture.fixture.status.short, fixture.fixture.status.elapsed)}
+                        </div>
+
+                        <div className="flex items-center gap-4 text-xs text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {formatMatchTime(fixture.fixture.date)}
+                          </div>
+                          {fixture.fixture.venue?.name && (
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {fixture.fixture.venue.name}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {(fixture.goals.home !== null && fixture.goals.away !== null) && (
+                        <div className="text-lg font-bold text-gray-900 ml-4">
+                          {fixture.goals.home} - {fixture.goals.away}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
   );
 };
 
