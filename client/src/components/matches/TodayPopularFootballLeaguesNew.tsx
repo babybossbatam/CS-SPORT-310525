@@ -166,8 +166,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
     Egypt: [233], // Egyptian Premier League (only major league)
     Iraq: [332], // Iraq League
     Chile: [265], // Primera Division
-    International: [15], // FIFA Club World Cup as separate category
-    World: [914, 848, 15], // COSAFA Cup, UEFA Conference League, FIFA Club World Cup
+    Brazil: [71, 72, 73], // Serie A, Serie B, Copa do Brasil
+    Colombia: [239, 240], // Primera A, Copa Colombia
+    "Saudi Arabia": [307], // Pro League
+    USA: [253, 254], // MLS, MLS Cup
+    "United States": [253, 254], // MLS, MLS Cup
+    US: [253, 254], // MLS, MLS Cup
+    // International competitions
+    World: [1, 2, 3, 4, 5, 15, 16, 17, 914, 38], // Champions League, Europa, Conference, World Cup, FIFA Club World Cup, CONCACAF Gold Cup, COSAFA Cup, World Cup Qualification
+    Europe: [1, 2, 3, 4, 5, 848], // UEFA competitions
+    International: [15, 16, 17], // FIFA competitions
   };
 
   // Flatten popular leagues for backward compatibility and add COSAFA Cup and CONCACAF Gold Cup
@@ -843,15 +851,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
         return acc;
       }
 
-      // Handle fixtures with null/undefined country - only for truly missing country data
-      if (
-        !country ||
-        country === null ||
-        country === undefined ||
-        typeof country !== "string" ||
-        country.trim() === ""
-      ) {
-        // Skip fixtures with truly missing country data
+      // Handle fixtures with null/undefined country
+      if (!country || typeof country !== "string" || country.trim() === "") {
         console.warn(`[COUNTRY DEBUG] Skipping fixture with missing country data:`, {
           leagueName: league.name,
           leagueId: league.id,
@@ -864,25 +865,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
       }
 
       const validCountry = country.trim();
-
-      // Handle World country explicitly
-      if (validCountry === "World") {
-        console.log(`🌍 [WORLD DEBUG] Processing World country fixture:`, {
-          leagueName: league.name,
-          leagueId: league.id,
-          homeTeam: fixture.teams?.home?.name,
-          awayTeam: fixture.teams?.away?.name,
-        });
-      }
-
-      // Only allow valid country names, World, and Europe
-      if (
-        validCountry !== "World" &&
-        validCountry !== "Europe" &&
-        validCountry.length === 0
-      ) {
-        return acc;
-      }
 
       const leagueId = league.id;
       if (!acc[country]) {
@@ -899,47 +881,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const isPopularForCountry = countryPopularLeagues.includes(leagueId);
       const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
 
-      // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World),
-      // consider all leagues as "popular" to show them all
-      const unrestrictedCountries = [
-        "Brazil",
-        "Colombia",
-        "Saudi Arabia",
-        "USA",
-        "United States",
-        "United-States",
-        "US",
-        "United Arab Emirates",
-        "United-Arab-Emirates",
-        "Europe",
-        "South America",
-        "World",
-      ];
-      const isUnrestrictedCountry = unrestrictedCountries.includes(country);
-
-      if (isPopularForCountry || isGloballyPopular || isUnrestrictedCountry) {
+      // Mark country as having popular leagues if any league qualifies
+      if (isPopularForCountry || isGloballyPopular) {
         acc[country].hasPopularLeague = true;
       }
 
       if (!acc[country].leagues[leagueId]) {
-        // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World),
-        // consider all leagues as "popular" to show them all
-        const unrestrictedCountries = [
-          "Brazil",
-          "Colombia",
-          "Saudi Arabia",
-          "USA",
-          "United States",
-          "United-States",
-          "US",
-          "United Arab Emirates",
-          "United-Arab-Emirates",
-          "Europe",
-          "South America",
-          "World",
-        ];
-        const isUnrestrictedCountry = unrestrictedCountries.includes(country);
-
         acc[country].leagues[leagueId] = {
           league: {
             ...league,
@@ -948,9 +895,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
               "https://media.api-sports.io/football/leagues/1.png",
           },
           matches: [],
-          isPopular:
-            isPopularForCountry || isGloballyPopular || isUnrestrictedCountry,
-          isPopularForCountry: isPopularForCountry || isUnrestrictedCountry,
+          isPopular: isPopularForCountry || isGloballyPopular,
+          isPopularForCountry: isPopularForCountry,
           isFriendlies: league.name.toLowerCase().includes("friendlies"),
         };
       }
