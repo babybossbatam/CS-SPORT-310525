@@ -395,9 +395,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
   const getTeamDisplayName = (team: 'home' | 'away') => {
     if (team === 'home') {
-      return homeTeam?.code || homeTeam?.name?.substring(0, 3).toUpperCase() || 'HOME';
+      return homeTeam?.name || 'HOME';
     }
-    return awayTeam?.code || awayTeam?.name?.substring(0, 3).toUpperCase() || 'AWAY';
+    return awayTeam?.name || 'AWAY';
   };
 
   const homeTeamData = homeTeam || displayMatch?.teams?.home;
