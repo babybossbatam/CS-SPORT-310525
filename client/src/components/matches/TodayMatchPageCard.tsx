@@ -25,8 +25,7 @@ import {
   shouldExcludeFromPopularLeagues,
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
-import { SimpleFetchingLeagues, getTodayLeagueFixtures } from "@/lib/simpleFetchingLeagues";
-import { Scores365StyleFetcher, compareWithTargetLeagues } from "@/lib/scores365StyleFetcher";
+
 
 
 interface TodayMatchPageCardProps {
@@ -45,8 +44,7 @@ export const TodayMatchPageCard = ({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
   const calendarRef = useRef<HTMLDivElement>(null);
-  const [debugLeagueData, setDebugLeagueData] = useState<any>(null);
-  const [scores365Comparison, setScores365Comparison] = useState<any>(null);
+  
 
 
 
@@ -207,202 +205,11 @@ export const TodayMatchPageCard = ({
     onMatchCardClick?.(fixture);
   };
 
-    // Debug effect for leagues 38 and 15 with 365scores comparison
-    useEffect(() => {
-      const debugTargetLeagues = async () => {
-        try {
-          console.log(`🔍 [TodayMatchPageCard] Debugging leagues 38 and 15 for date: ${selectedDate}`);
-  
-          const result = await getTodayLeagueFixtures(selectedDate);
-  
-          if (!result || !result.allFoundFixtures) {
-            console.warn(`⚠️ [TodayMatchPageCard] No valid result from getTodayLeagueFixtures`);
-            return;
-          }
-  
-          console.log(`📊 [TodayMatchPageCard] League 38 & 15 Debug Results:`, {
-            todayFixtures: result.todayFixtures?.length || 0,
-            allFoundFixtures: result.allFoundFixtures?.length || 0,
-            analysis: result.analysis || {}
-          });
-  
-          // Check specifically for leagues 38 and 15 with safe filtering
-          const league38Fixtures = result.allFoundFixtures.filter(f => 
-            f && f.league && f.league.id === 38
-          ) || [];
-          
-          const league15Fixtures = result.allFoundFixtures.filter(f => 
-            f && f.league && f.league.id === 15
-          ) || [];
-  
-          console.log(`🎯 [TodayMatchPageCard] League 38 (UEFA U21) fixtures:`, league38Fixtures.map(f => {
-            try {
-              return {
-                id: f.fixture?.id || 'N/A',
-                date: f.fixture?.date || 'N/A',
-                localDate: f.fixture?.date ? format(parseISO(f.fixture.date), 'yyyy-MM-dd HH:mm') : 'N/A',
-                teams: `${f.teams?.home?.name || 'Unknown'} vs ${f.teams?.away?.name || 'Unknown'}`,
-                status: f.fixture?.status?.short || 'N/A'
-              };
-            } catch (mapError) {
-              console.warn('Error mapping league 38 fixture:', mapError, f);
-              return { error: 'Mapping failed', fixture: f };
-            }
-          }));
-  
-          console.log(`🏆 [TodayMatchPageCard] League 15 (FIFA Club World Cup) fixtures:`, league15Fixtures.map(f => {
-            try {
-              return {
-                id: f.fixture?.id || 'N/A',
-                date: f.fixture?.date || 'N/A',
-                localDate: f.fixture?.date ? format(parseISO(f.fixture.date), 'yyyy-MM-dd HH:mm') : 'N/A',
-                teams: `${f.teams?.home?.name || 'Unknown'} vs ${f.teams?.away?.name || 'Unknown'}`,
-                status: f.fixture?.status?.short || 'N/A'
-              };
-            } catch (mapError) {
-              console.warn('Error mapping league 15 fixture:', mapError, f);
-              return { error: 'Mapping failed', fixture: f };
-            }
-          }));
-  
-          setDebugLeagueData({
-            league38: league38Fixtures,
-            league15: league15Fixtures,
-            analysis: result.analysis || {},
-            selectedDate
-          });
-
-          // 365scores-style comparison with error handling
-          try {
-            console.log(`🏆 [TodayMatchPageCard] Running 365scores-style comparison...`);
-            const comparison = await compareWithTargetLeagues(selectedDate);
-            
-            if (comparison && comparison.comparison) {
-              console.log(`📊 [TodayMatchPageCard] 365scores vs Target Leagues:`, {
-                majorGames: comparison.comparison.majorGamesCount || 0,
-                targetLeagues: comparison.comparison.targetLeaguesCount || 0,
-                overlap: comparison.comparison.overlap || 0,
-                uniqueToMajor: comparison.comparison.uniqueToMajor || 0,
-                uniqueToTarget: comparison.comparison.uniqueToTarget || 0
-              });
-
-              setScores365Comparison(comparison);
-            } else {
-              console.warn(`⚠️ [TodayMatchPageCard] Invalid comparison result`);
-            }
-          } catch (comparisonError) {
-            console.error(`❌ [TodayMatchPageCard] Error in 365scores comparison:`, comparisonError);
-          }
-  
-        } catch (error) {
-          console.error(`❌ [TodayMatchPageCard] Error debugging target leagues:`, error);
-          // Reset debug states on error
-          setDebugLeagueData(null);
-          setScores365Comparison(null);
-        }
-      };
-  
-      // Add a small delay to ensure other useEffects have completed
-      const timeoutId = setTimeout(debugTargetLeagues, 100);
-      
-      return () => clearTimeout(timeoutId);
-    }, [selectedDate]);
+    
 
   return (
     <>
-            {/* Debug Section for Leagues 38 & 15 */}
-            {debugLeagueData && (
-        <Card className="mb-4 border-blue-200 bg-blue-50">
-          <CardHeader className="pb-2">
-            <div className="text-sm font-semibold text-blue-800">
-              🔍 Debug: Leagues 38 & 15 for {selectedDate}
-            </div>
-          </CardHeader>
-          <CardContent className="text-xs space-y-2">
-            <div>
-              <strong>League 38 (UEFA U21):</strong> {debugLeagueData.league38?.length || 0} fixtures found
-              {debugLeagueData.league38?.map((fixture: any, index: number) => {
-                try {
-                  const fixtureId = fixture.fixture?.id || `temp-${index}`;
-                  const homeTeam = fixture.teams?.home?.name || 'Unknown';
-                  const awayTeam = fixture.teams?.away?.name || 'Unknown';
-                  const fixtureDate = fixture.fixture?.date;
-                  const status = fixture.fixture?.status?.short || 'N/A';
-                  
-                  return (
-                    <div key={fixtureId} className="ml-2 text-gray-600">
-                      {index + 1}. {homeTeam} vs {awayTeam} 
-                      ({fixtureDate ? format(parseISO(fixtureDate), 'yyyy-MM-dd HH:mm') : 'Invalid Date'}) [{status}]
-                    </div>
-                  );
-                } catch (renderError) {
-                  return (
-                    <div key={`error-${index}`} className="ml-2 text-red-600">
-                      {index + 1}. Error rendering fixture
-                    </div>
-                  );
-                }
-              }) || []}
-            </div>
-            <div>
-              <strong>League 15 (FIFA Club World Cup):</strong> {debugLeagueData.league15?.length || 0} fixtures found
-              {debugLeagueData.league15?.map((fixture: any, index: number) => {
-                try {
-                  const fixtureId = fixture.fixture?.id || `temp-${index}`;
-                  const homeTeam = fixture.teams?.home?.name || 'Unknown';
-                  const awayTeam = fixture.teams?.away?.name || 'Unknown';
-                  const fixtureDate = fixture.fixture?.date;
-                  const status = fixture.fixture?.status?.short || 'N/A';
-                  
-                  return (
-                    <div key={fixtureId} className="ml-2 text-gray-600">
-                      {index + 1}. {homeTeam} vs {awayTeam} 
-                      ({fixtureDate ? format(parseISO(fixtureDate), 'yyyy-MM-dd HH:mm') : 'Invalid Date'}) [{status}]
-                    </div>
-                  );
-                } catch (renderError) {
-                  return (
-                    <div key={`error-${index}`} className="ml-2 text-red-600">
-                      {index + 1}. Error rendering fixture
-                    </div>
-                  );
-                }
-              }) || []}
-            </div>
-            <div className="text-blue-700">
-              <strong>Analysis:</strong> {debugLeagueData.analysis?.correctDateMatches || 0} correct, {debugLeagueData.analysis?.wrongDateMatches || 0} timezone issues
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* 365scores-style Comparison */}
-      {scores365Comparison && scores365Comparison.comparison && (
-        <Card className="mb-4 border-green-200 bg-green-50">
-          <CardHeader className="pb-2">
-            <div className="text-sm font-semibold text-green-800">
-              🏆 365scores Style vs Target Leagues Comparison
-            </div>
-          </CardHeader>
-          <CardContent className="text-xs space-y-2">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <strong>Major Games (365scores style):</strong> {scores365Comparison.comparison.majorGamesCount || 0}
-                <div className="text-gray-600">Champions League, Premier League, etc.</div>
-              </div>
-              <div>
-                <strong>Target Leagues (38 & 15):</strong> {scores365Comparison.comparison.targetLeaguesCount || 0}
-                <div className="text-gray-600">UEFA U21 & FIFA Club World Cup</div>
-              </div>
-            </div>
-            <div className="text-green-700">
-              <strong>Overlap:</strong> {scores365Comparison.comparison.overlap || 0} matches found in both | 
-              <strong> Unique to Major:</strong> {scores365Comparison.comparison.uniqueToMajor || 0} | 
-              <strong> Unique to Target:</strong> {scores365Comparison.comparison.uniqueToTarget || 0}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+            
 
       <Card className="shadow-md w-full">
         <div className="flex items-center justify-between h-9 p-4">
