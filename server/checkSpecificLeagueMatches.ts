@@ -121,24 +121,16 @@ async function checkMultipleLeagues(leagueIds: number[], season: number = 2025) 
 
 // Main execution
 async function main() {
-  // You can specify any league ID from your list here
+  // Check the requested leagues
   const leagueIdsToCheck = [
-    2,    // UEFA Champions League
-    3,    // UEFA Europa League
-    39,   // Premier League
-    140,  // La Liga
-    135,  // Serie A
-    78,   // Bundesliga
-    // Add any other league IDs you want to check
+    38,   // UEFA U21 Championship
+    15,   // FIFA Club World Cup
   ];
 
-  console.log('🚀 Starting League Match Checker...');
+  console.log('🚀 Starting League Match Checker for requested leagues...');
   
-  // Check specific league (example)
-  await checkLeagueMatches(2); // Champions League
-  
-  // Or check multiple leagues
-  // await checkMultipleLeagues(leagueIdsToCheck);
+  // Check multiple leagues
+  await checkMultipleLeagues(leagueIdsToCheck);
   
   console.log('\n✅ League check completed!');
 }
