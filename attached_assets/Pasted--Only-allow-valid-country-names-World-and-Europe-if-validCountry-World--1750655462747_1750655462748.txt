@@ -1,0 +1,64 @@
+ // Only allow valid country names, World, and Europe
+      if (
+        validCountry !== "World" &&
+        validCountry !== "Europe" &&
+        validCountry.length === 0
+      ) {
+        return acc;
+      }
+
+      const leagueId = league.id;
+      if (!acc[country]) {
+        acc[country] = {
+          country,
+          flag: getCountryFlagWithFallbackSync(country, league.flag),
+          leagues: {},
+          hasPopularLeague: false,
+        };
+      }
+
+      // Check if this is a popular league for this country
+      const countryPopularLeagues = POPULAR_LEAGUES_BY_COUNTRY[country] || [];
+      const isPopularForCountry = countryPopularLeagues.includes(leagueId);
+      const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
+
+      // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World),
+      // consider all leagues as "popular" to show them all
+      const unrestrictedCountries = [
+        "Brazil",
+        "Colombia",
+        "Saudi Arabia",
+        "USA",
+        "United States",
+        "United-States",
+        "US",
+        "United Arab Emirates",
+        "United-Arab-Emirates",
+        "Europe",
+        "South America",
+        "World",
+      ];
+      const isUnrestrictedCountry = unrestrictedCountries.includes(country);
+
+      if (isPopularForCountry || isGloballyPopular || isUnrestrictedCountry) {
+        acc[country].hasPopularLeague = true;
+      }
+
+      if (!acc[country].leagues[leagueId]) {
+        // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World),
+        // consider all leagues as "popular" to show them all
+        const unrestrictedCountries = [
+          "Brazil",
+          "Colombia",
+          "Saudi Arabia",
+          "USA",
+          "United States",
+          "United-States",
+          "US",
+          "United Arab Emirates",
+          "United-Arab-Emirates",
+          "Europe",
+          "South America",
+          "World",
+        ];
+        const isUnrestrictedCountry = unrestrictedCountries.includes(country);
