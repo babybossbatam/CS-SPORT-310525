@@ -26,6 +26,7 @@ import {
   POPULAR_COUNTRIES,
   isLiveMatch,
 } from "@/lib/matchFilters";
+import { CURRENT_POPULAR_LEAGUES } from "../leagues/PopularLeaguesList";
 import {
   getCountryFlagWithFallbackSync,
   clearVenezuelaFlagCache,
@@ -178,6 +179,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
     38, // World Cup - Qualification CONCACAF
     15, // FIFA Club World Cup
   ];
+
+  // Function to get league details by ID
+  const getLeagueDetails = (leagueId: number) => {
+    return CURRENT_POPULAR_LEAGUES.find(league => league.id === leagueId);
+  };
 
   // Debug: Log the popular leagues list
   console.log(
@@ -1306,6 +1312,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     style={{ fontSize: "calc(0.75rem * 0.85)" }}
                   >
                     Popular
+                  </span>
+                  {/* Display League ID for debugging/reference */}
+                  <span
+                    className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium"
+                    style={{ fontSize: "calc(0.75rem * 0.85)" }}
+                    title={`League ID: ${leagueData.league.id}`}
+                  >
+                    ID: {leagueData.league.id}
                   </span>
                 </div>
               </CardContent>
