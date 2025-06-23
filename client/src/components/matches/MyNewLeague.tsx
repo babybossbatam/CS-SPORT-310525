@@ -190,9 +190,18 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
   // Filter matches to show matches for the selected date
   const selectedDateFixtures = fixtures.filter(f => {
-    const matchDate = new Date(f.fixture.date);
-    const matchDateString = matchDate.toISOString().split('T')[0]; // YYYY-MM-DD format
-    return matchDateString === selectedDate;
+    // Simple string comparison - if fixture date starts with selected date, include it
+    const fixtureDate = f.fixture.date; // e.g., "2025-06-24T03:00:00+00:00"
+    const matchDate = fixtureDate.substring(0, 10); // Extract "2025-06-24"
+    
+    console.log(`MyNewLeague - Date filtering: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+      originalDate: f.fixture.date,
+      extractedDate: matchDate,
+      selectedDate,
+      matches: matchDate === selectedDate
+    });
+    
+    return matchDate === selectedDate;
   });
 
   // Group matches by league ID
