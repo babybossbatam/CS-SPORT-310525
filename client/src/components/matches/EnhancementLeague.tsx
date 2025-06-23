@@ -31,33 +31,37 @@ import "../../styles/MyLogoPositioning.css";
 
 // Enhancement leagues - leagues that are popular but not in the main popular leagues list
 const ENHANCEMENT_LEAGUES = [
+  // Youth/International competitions
+  { id: 38, name: "UEFA U21 Championship", country: "Europe", priority: 1 },
+  { id: 15, name: "FIFA Club World Cup", country: "World", priority: 2 },
+  
   // Additional European competitions
-  { id: 16, name: "Copa America", country: "South America", priority: 1 },
-  { id: 17, name: "CONCACAF Gold Cup", country: "World", priority: 2 },
-  { id: 914, name: "COSAFA Cup", country: "World", priority: 3 },
-  { id: 480, name: "Olympic Football Tournament", country: "World", priority: 4 },
+  { id: 16, name: "Copa America", country: "South America", priority: 3 },
+  { id: 17, name: "CONCACAF Gold Cup", country: "World", priority: 4 },
+  { id: 914, name: "COSAFA Cup", country: "World", priority: 5 },
+  { id: 480, name: "Olympic Football Tournament", country: "World", priority: 6 },
   
   // Additional domestic leagues
-  { id: 144, name: "Eredivisie", country: "Netherlands", priority: 5 },
-  { id: 203, name: "Primeira Liga", country: "Portugal", priority: 6 },
-  { id: 235, name: "Russian Premier League", country: "Russia", priority: 7 },
-  { id: 88, name: "Pro League", country: "Belgium", priority: 8 },
+  { id: 144, name: "Eredivisie", country: "Netherlands", priority: 7 },
+  { id: 203, name: "Primeira Liga", country: "Portugal", priority: 8 },
+  { id: 235, name: "Russian Premier League", country: "Russia", priority: 9 },
+  { id: 88, name: "Pro League", country: "Belgium", priority: 10 },
   
   // Emerging leagues
-  { id: 218, name: "Liga MX", country: "Mexico", priority: 9 },
-  { id: 71, name: "Serie A", country: "Brazil", priority: 10 },
-  { id: 128, name: "Primera División", country: "Argentina", priority: 11 },
-  { id: 318, name: "J1 League", country: "Japan", priority: 12 },
+  { id: 218, name: "Liga MX", country: "Mexico", priority: 11 },
+  { id: 71, name: "Serie A", country: "Brazil", priority: 12 },
+  { id: 128, name: "Primera División", country: "Argentina", priority: 13 },
+  { id: 318, name: "J1 League", country: "Japan", priority: 14 },
   
   // Additional popular leagues that might have matches
-  { id: 6, name: "UEFA Nations League", country: "Europe", priority: 13 },
-  { id: 894, name: "Asian Cup Women - Qualification", country: "World", priority: 14 },
-  { id: 276, name: "FKF Premier League", country: "Kenya", priority: 15 },
-  { id: 195, name: "Victoria NPL", country: "Australia", priority: 16 },
-  { id: 369, name: "Super League", country: "Uzbekistan", priority: 17 },
-  { id: 584, name: "Premier League", country: "Libya", priority: 18 },
-  { id: 402, name: "Sudani Premier League", country: "Sudan", priority: 19 },
-  { id: 391, name: "Super League", country: "Malawi", priority: 20 },
+  { id: 6, name: "UEFA Nations League", country: "Europe", priority: 15 },
+  { id: 894, name: "Asian Cup Women - Qualification", country: "World", priority: 16 },
+  { id: 276, name: "FKF Premier League", country: "Kenya", priority: 17 },
+  { id: 195, name: "Victoria NPL", country: "Australia", priority: 18 },
+  { id: 369, name: "Super League", country: "Uzbekistan", priority: 19 },
+  { id: 584, name: "Premier League", country: "Libya", priority: 20 },
+  { id: 402, name: "Sudani Premier League", country: "Sudan", priority: 21 },
+  { id: 391, name: "Super League", country: "Malawi", priority: 22 },
 ];
 
 interface EnhancementLeagueProps {
