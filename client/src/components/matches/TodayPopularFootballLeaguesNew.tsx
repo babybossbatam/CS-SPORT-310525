@@ -785,27 +785,25 @@ const TodayPopularFootballLeaguesNew: React.FC<
     return finalFiltered;
   }, [processedFixtures, selectedDate]);
 
-  // Group fixtures by country and league, with special handling for Friendlies
-  const fixturesByCountry = filteredFixtures.reduce(
+  // Group fixtures by league directly (365scores style) - no country grouping
+  const fixturesByLeague = filteredFixtures.reduce(
     (acc: any, fixture: any) => {
       // Add comprehensive null checks
       if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
         return acc;
       }
 
-      // Ensure league has required properties
       const league = fixture.league;
       if (!league.id || !league.name) {
         console.warn("Invalid league data:", league);
         return acc;
       }
 
-      const country = league.country;
-
-      // Use centralized exclusion filter
+      const leagueId = league.id;
       const leagueName = league.name?.toLowerCase() || "";
       const homeTeamName = fixture.teams?.home?.name || "";
       const awayTeamName = fixture.teams?.away?.name || "";
+      const country = league.country;
 
       // Debug: Log UEFA/FIFA competitions
       if (
@@ -826,7 +824,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         });
       }
 
-      // Check if fixture should be excluded using popular league specialized filter
+      // Apply exclusion filters
       if (
         shouldExcludeFromPopularLeagues(
           leagueName,
@@ -838,131 +836,47 @@ const TodayPopularFootballLeaguesNew: React.FC<
         return acc;
       }
 
-      // Additional check for restricted US leagues
       if (isRestrictedUSLeague(league.id, country)) {
         return acc;
       }
 
-      // Handle fixtures with null/undefined country - only for truly missing country data
-      if (
-        !country ||
-        country === null ||
-        country === undefined ||
-        typeof country !== "string" ||
-        country.trim() === ""
-      ) {
-        // Skip fixtures with truly missing country data
-        console.warn(`[COUNTRY DEBUG] Skipping fixture with missing country data:`, {
-          leagueName: league.name,
-          leagueId: league.id,
-          originalCountry: country,
-          homeTeam: fixture.teams?.home?.name,
-          awayTeam: fixture.teams?.away?.name,
-          selectedDate: selectedDate,
-        });
-        return acc;
+      // Check if this league is in our popular leagues list
+      const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+
+      // Only show popular leagues (365scores approach)
+      if (!isPopularLeague) {
+        return false;
       }
 
-      const validCountry = country.trim();
+      console.log(`[LEAGUE DEBUG] Processing popular league:`, {
+        leagueId,
+        leagueName: league.name,
+        country: league.country,
+        homeTeam: fixture.teams?.home?.name,
+        awayTeam: fixture.teams?.away?.name,
+      });
 
-      // Handle World country explicitly
-      if (validCountry === "World") {
-        console.log(`🌍 [WORLD DEBUG] Processing World country fixture:`, {
-          leagueName: league.name,
-          leagueId: league.id,
-          homeTeam: fixture.teams?.home?.name,
-          awayTeam: fixture.teams?.away?.name,
-        });
-      }
-
-      // Only allow valid country names, World, and Europe
-      if (
-        validCountry !== "World" &&
-        validCountry !== "Europe" &&
-        validCountry.length === 0
-      ) {
-        return acc;
-      }
-
-      const leagueId = league.id;
-      if (!acc[country]) {
-        acc[country] = {
-          country,
-          flag: getCountryFlagWithFallbackSync(country, league.flag),
-          leagues: {},
-          hasPopularLeague: false,
-        };
-      }
-
-      // Check if this is a popular league for this country
-      const countryPopularLeagues = POPULAR_LEAGUES_BY_COUNTRY[country] || [];
-      const isPopularForCountry = countryPopularLeagues.includes(leagueId);
-      const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
-
-      // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World),
-      // consider all leagues as "popular" to show them all
-      const unrestrictedCountries = [
-        "Brazil",
-        "Colombia",
-        "Saudi Arabia",
-        "USA",
-        "United States",
-        "United-States",
-        "US",
-        "United Arab Emirates",
-        "United-Arab-Emirates",
-        "Europe",
-        "South America",
-        "World",
-      ];
-      const isUnrestrictedCountry = unrestrictedCountries.includes(country);
-
-      if (isPopularForCountry || isGloballyPopular || isUnrestrictedCountry) {
-        acc[country].hasPopularLeague = true;
-      }
-
-      if (!acc[country].leagues[leagueId]) {
-        // For unrestricted countries (Brazil, Colombia, Saudi Arabia, USA, UAE, Europe, South America, World),
-        // consider all leagues as "popular" to show them all
-        const unrestrictedCountries = [
-          "Brazil",
-          "Colombia",
-          "Saudi Arabia",
-          "USA",
-          "United States",
-          "United-States",
-          "US",
-          "United Arab Emirates",
-          "United-Arab-Emirates",
-          "Europe",
-          "South America",
-          "World",
-        ];
-        const isUnrestrictedCountry = unrestrictedCountries.includes(country);
-
-        acc[country].leagues[leagueId] = {
+      // Create league group if it doesn't exist
+      if (!acc[leagueId]) {
+        acc[leagueId] = {
           league: {
             ...league,
-            logo:
-              league.logo ||
-              "https://media.api-sports.io/football/leagues/1.png",
+            logo: league.logo || "https://media.api-sports.io/football/leagues/1.png",
           },
           matches: [],
-          isPopular:
-            isPopularForCountry || isGloballyPopular || isUnrestrictedCountry,
-          isPopularForCountry: isPopularForCountry || isUnrestrictedCountry,
-          isFriendlies: league.name.toLowerCase().includes("friendlies"),
+          isPopular: true,
+          isFriendlies: leagueName.includes("friendlies"),
         };
       }
 
-      // Validate team data before adding
+      // Validate and add match data
       if (
         fixture.teams.home &&
         fixture.teams.away &&
         fixture.teams.home.name &&
         fixture.teams.away.name
       ) {
-        acc[country].leagues[leagueId].matches.push({
+        acc[leagueId].matches.push({
           ...fixture,
           teams: {
             home: {
@@ -982,113 +896,94 @@ const TodayPopularFootballLeaguesNew: React.FC<
     {},
   );
 
-  // Filter to show only popular countries with badge system
-  const filteredCountries = Object.values(fixturesByCountry).filter(
-    (countryData: any) => {
-      return countryData.hasPopularLeague;
-    },
-  );
+  // Convert league groups to array and sort by league priority (365scores style)
+  const sortedLeagues = useMemo(() => {
+    const leaguesArray = Object.values(fixturesByLeague);
+    
+    return leaguesArray.sort((a: any, b: any) => {
+      const aLeagueId = a.league.id;
+      const bLeagueId = b.league.id;
+      const aLeagueName = (a.league.name || "").toLowerCase();
+      const bLeagueName = (b.league.name || "").toLowerCase();
+      const aCountry = a.league.country || "";
+      const bCountry = b.league.country || "";
 
-  // Sort countries by the POPULAR_COUNTRIES_ORDER
-  const sortedCountries = useMemo(() => {
-    return filteredCountries.sort((a: any, b: any) => {
-      const getPopularCountryIndex = (country: string) => {
-        if (!country) return 999;
-        const index = POPULAR_COUNTRIES_ORDER.findIndex(
-          (pc) =>
-            safeSubstring(country, 0).toLowerCase() ===
-            safeSubstring(pc, 0).toLowerCase(),
-        );
-        return index === -1 ? 999 : index;
-      };
-
-      const aPopularIndex = getPopularCountryIndex(a.country);
-      const bPopularIndex = getPopularCountryIndex(b.country);
-
-      const aIsPopularCountry = aPopularIndex !== 999;
-      const bIsPopularCountry = bPopularIndex !== 999;
-
-      // Check if countries are World or Europe (International competitions)
-      const aIsWorldOrEurope = a.country === "World" || a.country === "Europe";
-      const bIsWorldOrEurope = b.country === "World" || b.country === "Europe";
-
-      // Priority order: Popular countries with badge leagues first
+      // Priority 1: FIFA Club World Cup (highest priority)
       if (
-        aIsPopularCountry &&
-        a.hasPopularLeague &&
-        (!bIsPopularCountry || !b.hasPopularLeague)
-      )
-        return -1;
+        aLeagueName.includes("fifa club world cup") ||
+        aLeagueName.includes("club world cup")
+      ) return -1;
       if (
-        bIsPopularCountry &&
-        b.hasPopularLeague &&
-        (!aIsPopularCountry || !a.hasPopularLeague)
-      )
-        return 1;
+        bLeagueName.includes("fifa club world cup") ||
+        bLeagueName.includes("club world cup")
+      ) return 1;
 
-      // Both are popular countries with badge leagues - sort by priority order
-      if (
-        aIsPopularCountry &&
-        a.hasPopularLeague &&
-        bIsPopularCountry &&
-        b.hasPopularLeague
-      ) {
-        return aPopularIndex - bPopularIndex;
-      }
+      // Priority 2: UEFA competitions
+      const aIsUEFA = aLeagueName.includes("champions league") || 
+                     aLeagueName.includes("europa league") || 
+                     aLeagueName.includes("conference league");
+      const bIsUEFA = bLeagueName.includes("champions league") || 
+                     bLeagueName.includes("europa league") || 
+                     bLeagueName.includes("conference league");
+      
+      if (aIsUEFA && !bIsUEFA) return -1;
+      if (!aIsUEFA && bIsUEFA) return 1;
 
-      // Default to alphabetical sorting for other cases
-      const countryA = a.country || "";
-      const countryB = b.country || "";
-      return countryA.localeCompare(countryB);
+      // Priority 3: Top 5 European leagues
+      const topLeagues = [39, 140, 135, 78, 61]; // Premier League, La Liga, Serie A, Bundesliga, Ligue 1
+      const aIsTop = topLeagues.includes(aLeagueId);
+      const bIsTop = topLeagues.includes(bLeagueId);
+      
+      if (aIsTop && !bIsTop) return -1;
+      if (!aIsTop && bIsTop) return 1;
+
+      // Priority 4: International competitions (World, Nations League, etc.)
+      const aIsInternational = aCountry === "World" || aCountry === "Europe" || 
+                              aLeagueName.includes("nations league") ||
+                              aLeagueName.includes("world cup") ||
+                              aLeagueName.includes("friendlies");
+      const bIsInternational = bCountry === "World" || bCountry === "Europe" || 
+                              bLeagueName.includes("nations league") ||
+                              bLeagueName.includes("world cup") ||
+                              bLeagueName.includes("friendlies");
+      
+      if (aIsInternational && !bIsInternational) return -1;
+      if (!aIsInternational && bIsInternational) return 1;
+
+      // Default: Sort by league name alphabetically
+      return aLeagueName.localeCompare(bLeagueName);
     });
-  }, [filteredCountries]);
+  }, [fixturesByLeague]);
 
-  // Time filtering is now just for additional time-based sorting when active
-  const timeFilteredCountries = useMemo(() => {
-    // Smart filtering is already applied in filteredFixtures, so just return sorted countries
-    // timeFilterActive now only affects sorting/prioritization, not inclusion/exclusion
-    return sortedCountries;
-  }, [sortedCountries]);
+  // Apply live filters to leagues directly
+  const liveFilteredLeagues = useMemo(() => {
+    if (!liveFilterActive) return sortedLeagues;
 
-  // Apply live filters
-  const liveFilteredCountries = useMemo(() => {
-    if (!liveFilterActive) return timeFilteredCountries;
+    return sortedLeagues
+      .map((leagueData: any) => {
+        const updatedMatches = leagueData.matches.filter((match: any) => {
+          return (
+            match.fixture.status.short === "LIV" ||
+            match.fixture.status.short === "HT"
+          );
+        });
 
-    return timeFilteredCountries
-      .map((countryData) => {
-        const updatedLeagues = Object.entries(countryData.leagues).reduce(
-          (acc: any, [leagueId, leagueData]: any) => {
-            const updatedMatches = leagueData.matches.filter((match: any) => {
-              return (
-                match.fixture.status.short === "LIV" ||
-                match.fixture.status.short === "HT"
-              );
-            });
-
-            if (updatedMatches.length > 0) {
-              acc[leagueId] = {
-                ...leagueData,
-                matches: updatedMatches,
-              };
-            }
-            return acc;
-          },
-          {},
-        );
-
-        return {
-          ...countryData,
-          leagues: updatedLeagues,
-        };
+        if (updatedMatches.length > 0) {
+          return {
+            ...leagueData,
+            matches: updatedMatches,
+          };
+        }
+        return null;
       })
-      .filter((countryData) => Object.keys(countryData.leagues).length > 0);
-  }, [timeFilteredCountries, liveFilterActive]);
+      .filter(Boolean);
+  }, [sortedLeagues, liveFilterActive]);
 
-  // Apply top 20 filters (by default)
-  const top20FilteredCountries = useMemo(() => {
-    if (!showTop20) return liveFilteredCountries;
-    return liveFilteredCountries.slice(0, 20);
-  }, [liveFilteredCountries, showTop20]);
+  // Apply top 20 filters to leagues
+  const finalFilteredLeagues = useMemo(() => {
+    if (!showTop20) return liveFilteredLeagues;
+    return liveFilteredLeagues.slice(0, 20);
+  }, [liveFilteredLeagues, showTop20]);
   const toggleCountry = useCallback((country: string) => {
     setExpandedCountries((prev) => {
       const newExpanded = new Set(prev);
@@ -1337,377 +1232,89 @@ const TodayPopularFootballLeaguesNew: React.FC<
         {getHeaderTitle()}
       </CardHeader>
 
-      {/* Create individual league cards from all countries */}
+      {/* Create individual league cards (365scores style) */}
 
-      {top20FilteredCountries.flatMap(
-        (countryData: any, countryIndex: number) =>
-          Object.values(countryData.leagues)
-            .sort((a: any, b: any) => {
-              // Debug: Log all World leagues before sorting
-              if (countryData.country === "World") {
-                console.log(
-                  `🌍 [WORLD DEBUG] All World leagues before sorting:`,
-                  Object.values(countryData.leagues).map((league: any) => ({
-                    id: league.league?.id,
-                    name: league.league?.name,
-                    isFriendlies: league.isFriendlies,
-                    matchCount: league.matches?.length,
-                  })),
-                );
-              }
-
-              // Check for UEFA Nations League - Women first (lowest priority)
-              const aIsWomensNationsLeague =
-                a.league.name?.toLowerCase().includes("uefa nations league") &&
-                a.league.name?.toLowerCase().includes("women");
-              const bIsWomensNationsLeague =
-                b.league.name?.toLowerCase().includes("uefa nations league") &&
-                b.league.name?.toLowerCase().includes("women");
-
-              if (aIsWomensNationsLeague && !bIsWomensNationsLeague) return 1; // a goes to bottom
-              if (!aIsWomensNationsLeague && bIsWomensNationsLeague) return -1; // b goes to bottom
-              if (aIsWomensNationsLeague && bIsWomensNationsLeague) return 0; // both same priority
-
-              // Prioritize leagues that are popular for this specific country
-              if (a.isPopularForCountry && !b.isPopularForCountry) return -1;
-              if (!a.isPopularForCountry && b.isPopularForCountry) return 1;
-
-              // Then globally popular leagues
-              if (a.isPopular && !b.isPopular) return -1;
-              if (!a.isPopular && b.isPopular) return 1;
-
-              // Custom sorting for World leagues
-              if (countryData.country === "World") {
-                console.log(`🌍 [WORLD SORTING DEBUG] Sorting World leagues:`, {
-                  leagueA: {
-                    name: a.league?.name,
-                    isFriendlies: a.isFriendlies,
-                    matchCount: a.matches?.length,
-                  },
-                  leagueB: {
-                    name: b.league?.name,
-                    isFriendlies: b.isFriendlies,
-                    matchCount: b.matches?.length,
-                  },
-                });
-
-                const getWorldLeaguePriority = (leagueData: any) => {
-                  const name = (leagueData.league?.name || "").toLowerCase();
-                  // Check if it's marked as friendlies or contains friendlies in name
-                  const isFriendlies =
-                    leagueData.isFriendlies || name.includes("friendlies");
-
-                  console.log(
-                    `🔍 [PRIORITY CHECK] League: "${leagueData.league?.name}"`,
-                    {
-                      nameToLower: name,
-                      isFriendlies,
-                      leagueDataIsFriendlies: leagueData.isFriendlies,
-                      nameIncludesFriendlies: name.includes("friendlies"),
-                      nameIncludesUefaNationsLeague: name.includes(
-                        "uefa nations league",
-                      ),
-                      exactNameMatch: name === "uefa nations league",
-                    },
-                  );
-
-                  // Priority 1: FIFA Club World Cup (HIGHEST PRIORITY - moved to top)
-                  if (
-                    name.includes("fifa club world cup") ||
-                    name.includes("club world cup")
-                  ) {
-                    console.log(
-                      `✅ [PRIORITY 1] FIFA Club World Cup found: "${leagueData.league?.name}" - TOP PRIORITY`,
-                    );
-                    return 1;
-                  }
-
-                  // Priority 2: UEFA Nations League
-                  if (
-                    name.includes("uefa nations league") &&
-                    !name.includes("women")
-                  ) {
-                    console.log(
-                      `✅ [PRIORITY 2] UEFA Nations League found: "${leagueData.league?.name}"`,
-                    );
-                    return 2;
-                  }
-
-                  // Priority 3: World Cup Qualification South America
-                  if (
-                    name.includes("world cup") &&
-                    name.includes("qualification") &&
-                    name.includes("south america")
-                  ) {
-                    console.log(
-                      `✅ [PRIORITY 3] World Cup Qualification South America found: "${leagueData.league?.name}"`,
-                    );
-                    return 3;
-                  }
-
-                  // Priority 4: World Cup Qualification Europe
-                  if (
-                    name.includes("world cup") &&
-                    name.includes("qualification") &&
-                    name.includes("europe")
-                  ) {
-                    console.log(
-                      `✅ [PRIORITY 4] World Cup Qualification Europe found: "${leagueData.league?.name}"`,
-                    );
-                    return 4;
-                  }
-
-                  // Priority 5: Friendlies (but exclude UEFA Nations League and women's matches)
-                  if (
-                    isFriendlies &&
-                    !name.includes("uefa nations league") &&
-                    !name.includes("women")
-                  ) {
-                    console.log(
-                      `✅ [PRIORITY 5] Friendlies found: "${leagueData.league?.name}"`,
-                    );
-                    return 5;
-                  }
-
-                  // Priority 6: World Cup Qualification Asia
-                  if (
-                    name.includes("world cup") &&
-                    name.includes("qualification") &&
-                    name.includes("asia")
-                  ) {
-                    console.log(
-                      `✅ [PRIORITY 6] World Cup Qualification Asia found: "${leagueData.league?.name}"`,
-                    );
-                    return 6;
-                  }
-
-                  // Priority 7: World Cup Qualification CONCACAF
-                  if (
-                    name.includes("world cup") &&
-                    name.includes("qualification") &&
-                    name.includes("concacaf")
-                  ) {
-                    console.log(
-                      `✅ [PRIORITY 7] World Cup Qualification CONCACAF found: "${leagueData.league?.name}"`,
-                    );
-                    return 7;
-                  }
-
-                  // Priority 8: Tournoi Maurice Revello
-                  if (name.includes("tournoi maurice revello")) {
-                    console.log(
-                      `✅ [PRIORITY 8] Tournoi Maurice Revello found: "${leagueData.league?.name}"`,
-                    );
-                    return 8;
-                  }
-
-                  console.log(
-                    `❌ [PRIORITY 999] No priority match for: "${leagueData.league?.name}"`,
-                  );
-                  return 999; // Other leagues go to bottom
-                };
-
-                const aPriority = getWorldLeaguePriority(a);
-                const bPriority = getWorldLeaguePriority(b);
-
-                console.log(`🎯 [FINAL PRIORITY] Comparison result:`, {
-                  leagueA: a.league?.name,
-                  priorityA: aPriority,
-                  leagueB: b.league?.name,
-                  priorityB: bPriority,
-                  sortResult: aPriority - bPriority,
-                });
-
-                if (aPriority !== bPriority) {
-                  return aPriority - bPriority;
-                }
-
-                // If same priority, sort alphabetically by league name
-                const aName = a.league?.name || "";
-                const bName = b.league?.name || "";
-                console.log(
-                  `📝 [ALPHABETICAL] Same priority, sorting alphabetically:`,
-                  {
-                    aName,
-                    bName,
-                    result: aName.localeCompare(bName),
-                  },
-                );
-                return aName.localeCompare(bName);
-              }
-
-              // For non-World countries, no additional sorting after popularity checks
-              return 0;
-            })
-            .map((leagueData: any, leagueIndex: number) => {
-              const isFirstCard = countryIndex === 0 && leagueIndex === 0;
-              return (
-                <Card
-                  key={`${countryData.country}-${leagueData.league.id}`}
-                  className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing"
+      {finalFilteredLeagues.map((leagueData: any, leagueIndex: number) => {
+        const isFirstCard = leagueIndex === 0;
+        return (
+          <Card
+            key={`league-${leagueData.league.id}`}
+            className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing"
+          >
+            {/* League Header - Always show unless time filter is active */}
+            {!timeFilterActive && (
+              <CardContent className="flex items-center gap-2 p-2  bg-white border-b border-gray-200">
+                {/* League Star Toggle Button */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleStarMatch(leagueData.league.id);
+                  }}
+                  className="transition-colors"
+                  title={`${starredMatches.has(leagueData.league.id) ? "Remove from" : "Add to"} favorites`}
                 >
-                  {/* League Header - Always show unless time filter is active */}
-                  {!timeFilterActive && (
-                    <CardContent className="flex items-center gap-2 p-2  bg-white border-b border-gray-200">
-                      {/* League Star Toggle Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleStarMatch(leagueData.league.id);
-                        }}
-                        className="transition-colors"
-                        title={`${starredMatches.has(leagueData.league.id) ? "Remove from" : "Add to"} favorites`}
-                      >
-                        <Star
-                          className={`h-5 w-5 transition-all ${
-                            starredMatches.has(leagueData.league.id)
-                              ? "text-blue-500 fill-blue-500"
-                              : "text-blue-300"
-                          }`}
-                        />
-                      </button>
+                  <Star
+                    className={`h-5 w-5 transition-all ${
+                      starredMatches.has(leagueData.league.id)
+                        ? "text-blue-500 fill-blue-500"
+                        : "text-blue-300"
+                    }`}
+                  />
+                </button>
 
-                      <img
-                        src={
-                          leagueData.league.logo || "/assets/fallback-logo.svg"
-                        }
-                        alt={leagueData.league.name || "Unknown League"}
-                        className="w-6 h-6 object-contain rounded-full"
-                        style={{ backgroundColor: "transparent" }}
-                        onError={(e) => {
-                          console.log(
-                            `🚨 League logo failed for: ${leagueData.league.name} in ${leagueData.league.country}`,
-                          );
-                          (e.target as HTMLImageElement).src =
-                            "/assets/fallback-logo.svg";
-                        }}
-                        onLoad={() => {
-                          // Debug Venezuela specifically
-                          if (leagueData.league.country === "Venezuela") {
-                            console.log(`🇻🇪 Venezuela league detected:`, {
-                              country: leagueData.league.country,
-                              leagueName: leagueData.league.name,
-                              logo: leagueData.league.logo,
-                              flag: countryData.flag,
-                              expectedVenezuelaFlag:
-                                "https://flagcdn.com/w40/ve.png",
-                              flagFromSync:
-                                getCountryFlagWithFallbackSync("Venezuela"),
-                              flagCacheKey: `flag_venezuela`,
-                              countryCodeMapping: "VE", // Should be VE for Venezuela
-                            });
+                <img
+                  src={
+                    leagueData.league.logo || "/assets/fallback-logo.svg"
+                  }
+                  alt={leagueData.league.name || "Unknown League"}
+                  className="w-6 h-6 object-contain rounded-full"
+                  style={{ backgroundColor: "transparent" }}
+                  onError={(e) => {
+                    console.log(
+                      `🚨 League logo failed for: ${leagueData.league.name} in ${leagueData.league.country}`,
+                    );
+                    (e.target as HTMLImageElement).src =
+                      "/assets/fallback-logo.svg";
+                  }}
+                />
+                <div className="flex flex-col flex-1">
+                  <span
+                    className="font-semibold text-gray-800"
+                    style={{
+                      fontFamily:
+                        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                      fontSize: "13.3px",
+                    }}
+                  >
+                    {safeSubstring(leagueData.league.name, 0) ||
+                      "Unknown League"}
+                  </span>
+                  <span
+                    className="text-gray-600"
+                    style={{
+                      fontFamily:
+                        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                      fontSize: "13.3px",
+                    }}
+                  >
+                    {leagueData.league.country || "Unknown Country"}
+                  </span>
+                </div>
+                <div className="flex gap-1">
+                  <span
+                    className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium"
+                    style={{ fontSize: "calc(0.75rem * 0.85)" }}
+                  >
+                    Popular
+                  </span>
+                </div>
+              </CardContent>
+            )}
+            {/* Matches - Show for all leagues */}
 
-                            // Check if Venezuela flag is wrong (Colombia flag)
-                            if (
-                              countryData.flag &&
-                              (countryData.flag.includes("/co.png") ||
-                                countryData.flag.includes("/co."))
-                            ) {
-                              console.log(
-                                `🚨 Venezuela flag cache corruption detected! Using Colombia flag: ${countryData.flag}`,
-                              );
-                              console.log(
-                                `🔧 Attempting to clear and refresh Venezuela flag...`,
-                              );
-
-                              // Clear the corrupted cache and force refresh
-                              clearVenezuelaFlagCache();
-
-                              // Force refresh the flag asynchronously
-                              forceRefreshVenezuelaFlag()
-                                .then((newFlag) => {
-                                  console.log(
-                                    `✅ Venezuelaflag refreshed to: ${newFlag}`,
-                                  );
-                                  //                                  // Trigger a re-render ifneeded
-                                  window.location.reload();
-                                })
-                                .catch((error) => {
-                                  console.error(
-                                    `❌ Failed to refresh Venezuela flag:`,
-                                    error,
-                                  );
-                                });
-                            }
-
-                            // Force correct Venezuela flag if wrong
-                            if (
-                              !countryData.flag.includes("/ve.png") &&
-                              !countryData.flag.includes("/ve.")
-                            ) {
-                              console.log(
-                                `🔧 Forcing correct Venezuela flag...`,
-                              );
-                              const correctFlag =
-                                "https://flagcdn.com/w40/ve.png";
-                              console.log(
-                                `🇻🇪 Setting Venezuela flag to: ${correctFlag}`,
-                              );
-                              // Force update the flag in the data
-                              countryData.flag = correctFlag;
-                            }
-
-                            // Check if Venezuela flag is cached incorrectly
-                            const debugCountryFlagMapping = (
-                              country: string,
-                            ) => {
-                              console.log(
-                                `🔍 Venezuela Debug - Flag mapping for: "${country}"`,
-                              );
-                              console.log(
-                                `🔍 Venezuela Debug - Country code: VE`,
-                              );
-                              console.log(
-                                `🔍 Venezuela Debug - Expected URL: https://flagcdn.com/w40/ve.png`,
-                              );
-                              console.log(
-                                `🔍 Venezuela Debug - Current flag from countryData: ${countryData.flag}`,
-                              );
-                            };
-                            debugCountryFlagMapping("Venezuela");
-                          }
-                        }}
-                      />
-                      <div className="flex flex-col flex-1">
-                        <span
-                          className="font-semibold text-gray-800"
-                          style={{
-                            fontFamily:
-                              "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                            fontSize: "13.3px",
-                          }}
-                        >
-                          {safeSubstring(leagueData.league.name, 0) ||
-                            "Unknown League"}
-                        </span>
-                        <span
-                          className="text-gray-600"
-                          style={{
-                            fontFamily:
-                              "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                            fontSize: "13.3px",
-                          }}
-                        >
-                          {leagueData.league.country || "Unknown Country"}
-                        </span>
-                      </div>
-                      <div className="flex gap-1">
-                        {leagueData.isPopular &&
-                          !leagueData.isPopularForCountry && (
-                            <span
-                              className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium"
-                              style={{ fontSize: "calc(0.75rem * 0.85)" }}
-                            >
-                              Popular
-                            </span>
-                          )}
-                      </div>
-                    </CardContent>
-                  )}
-                  {/* Matches - Show for all leagues */}
-
-                  <div className="match-cards-wrapper">
-                    {leagueData.matches
+            <div className="match-cards-wrapper">
+              {leagueData.matches
+            .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
                       .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
                       .sort((a: any, b: any) => {
                         const now = new Date();
@@ -2211,11 +1818,10 @@ const TodayPopularFootballLeaguesNew: React.FC<
                           </div>
                         </div>
                       ))}
-                  </div>
-                </Card>
-              );
-            }),
-      )}
+            </div>
+          </Card>
+        );
+      })}
     </>
   );
 };
