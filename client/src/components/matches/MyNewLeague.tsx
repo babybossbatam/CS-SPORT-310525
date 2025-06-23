@@ -161,7 +161,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     }
     
     if (status === 'NS') {
-      return <Badge variant="outline" className="text-xs">Upcoming</Badge>;
+      return null; // Don't show any badge for upcoming matches
     }
     
     return <Badge variant="outline" className="text-xs">{status}</Badge>;
