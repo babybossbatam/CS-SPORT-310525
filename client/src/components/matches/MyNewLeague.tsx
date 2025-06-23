@@ -87,9 +87,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
         for (const leagueId of leagueIds) {
           try {
+            console.log(`MyNewLeague - Fetching data for league ${leagueId}`);
+            
             // Fetch league info
             const leagueResponse = await apiRequest("GET", `/api/leagues/${leagueId}`);
             const leagueData = await leagueResponse.json();
+            console.log(`MyNewLeague - League ${leagueId} info:`, leagueData);
             
             if (!primaryLeagueInfo) {
               primaryLeagueInfo = leagueData;
@@ -98,9 +101,30 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             // Fetch fixtures for the league
             const fixturesResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures`);
             const fixturesData = await fixturesResponse.json();
+            console.log(`MyNewLeague - League ${leagueId} fixtures count:`, fixturesData?.length || 0);
             
             if (Array.isArray(fixturesData)) {
-              allFixtures.push(...fixturesData);
+              // Filter for Club World Cup matches specifically
+              const filteredFixtures = fixturesData.filter(fixture => {
+                const isClubWorldCup = fixture.league?.name?.toLowerCase().includes('club world cup') ||
+                                     fixture.league?.name?.toLowerCase().includes('fifa club world cup');
+                const isRelevantMatch = fixture.teams?.home?.name === 'Juventus' || 
+                                       fixture.teams?.away?.name === 'Juventus' ||
+                                       fixture.teams?.home?.name === 'Wydad AC' || 
+                                       fixture.teams?.away?.name === 'Wydad AC';
+                
+                console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
+                  teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+                  league: fixture.league?.name,
+                  status: fixture.fixture?.status?.short,
+                  isClubWorldCup,
+                  isRelevantMatch
+                });
+                
+                return true; // Show all matches for now to debug
+              });
+              
+              allFixtures.push(...filteredFixtures);
             }
           } catch (leagueError) {
             console.warn(`Failed to fetch data for league ${leagueId}:`, leagueError);
@@ -132,8 +156,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       );
     }
     
-    if (status === 'FT') {
-      return <Badge variant="secondary" className="text-xs">FT</Badge>;
+    if (['FT', 'AET', 'PEN'].includes(status)) {
+      return <Badge variant="secondary" className="text-xs">Ended</Badge>;
     }
     
     if (status === 'NS') {
@@ -153,6 +177,18 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   };
 
+  // Debug logging
+  console.log('MyNewLeague - All fixtures:', fixtures.length);
+  fixtures.forEach(f => {
+    console.log('Fixture:', {
+      id: f.fixture.id,
+      teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+      status: f.fixture.status.short,
+      league: f.league.name,
+      date: f.fixture.date
+    });
+  });
+
   // Group matches by status
   const liveMatches = fixtures.filter(f => 
     ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P'].includes(f.fixture.status.short)
@@ -162,13 +198,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     f.fixture.status.short === 'NS' && new Date(f.fixture.date) > new Date()
   ).sort((a, b) => 
     new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
-  ).slice(0, 5);
+  ).slice(0, 8); // Increased from 5 to 8
   
   const recentMatches = fixtures.filter(f => 
-    f.fixture.status.short === 'FT'
+    ['FT', 'AET', 'PEN'].includes(f.fixture.status.short) // Added more ended statuses
   ).sort((a, b) => 
     new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
-  ).slice(0, 3);
+  ).slice(0, 5); // Increased from 3 to 5
 
   if (loading) {
     return (
