@@ -446,7 +446,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                           if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
                             return (
                               <div className="match-status-label status-ended">
-                                {status === "FT" ? "Ended" : status}
+                                {status === "FT" ? "Ended" : status === "AET" ? "After Extra Time" : status}
                               </div>
                             );
                           }
