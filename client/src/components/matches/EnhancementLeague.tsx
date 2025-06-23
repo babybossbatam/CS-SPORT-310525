@@ -140,7 +140,8 @@ const EnhancementLeague: React.FC<EnhancementLeagueProps> = ({
       total: filterResult.stats.total,
       valid: filterResult.stats.valid,
       rejected: filterResult.stats.rejected,
-      method: useUTCOnly ? 'UTC-only' : 'Timezone-aware'
+      method: useUTCOnly ? 'UTC-only (consistent date grouping)' : 'Timezone-aware (may show matches on different dates)',
+      explanation: useUTCOnly ? 'Matches grouped by UTC date - consistent globally' : 'Matches grouped by local date - varies by timezone'
     });
 
     return filterResult.validFixtures;
@@ -155,6 +156,7 @@ const EnhancementLeague: React.FC<EnhancementLeagueProps> = ({
 
     const enhancementLeagueIds = ENHANCEMENT_LEAGUES.map(league => league.id);
     console.log(`🔧 [EnhancementLeague] Looking for enhancement league IDs:`, enhancementLeagueIds);
+    console.log(`🔧 [EnhancementLeague] Using ${useUTCOnly ? 'UTC-only' : 'timezone-aware'} filtering - this ensures matches scheduled for ${selectedDate} UTC appear on ${selectedDate} for all users globally`);
 
     // Debug: Check what leagues are available in processed fixtures
     const availableLeagues = new Set();
@@ -289,12 +291,14 @@ const EnhancementLeague: React.FC<EnhancementLeagueProps> = ({
     });
   };
 
-  // Format the time for display
+  // Format the time for display - always show in user's local timezone for user experience
   const formatMatchTime = (dateString: string | null | undefined) => {
     try {
       if (!dateString) return "--:--";
-      const date = new Date(dateString);
-      return format(date, "HH:mm");
+      // Parse UTC time and display in user's local timezone
+      const utcDate = parseISO(dateString);
+      if (!isValid(utcDate)) return "--:--";
+      return format(utcDate, "HH:mm");
     } catch (error) {
       console.error("Error formatting match time:", error);
       return "--:--";
