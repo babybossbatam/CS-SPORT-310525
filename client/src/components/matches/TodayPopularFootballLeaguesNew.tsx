@@ -26,6 +26,7 @@ import {
   POPULAR_COUNTRIES,
   isLiveMatch,
 } from "@/lib/matchFilters";
+import { CURRENT_POPULAR_LEAGUES } from "../leagues/PopularLeaguesList";
 import {
   getCountryFlagWithFallbackSync,
   clearVenezuelaFlagCache,
@@ -155,6 +156,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
     "United-Arab-Emirates",
   ];
 
+  // Extract league IDs from the popular leagues list component
+  const POPULAR_LEAGUE_IDS = CURRENT_POPULAR_LEAGUES.map(league => league.id);
+  
   // Enhanced leagues by country with tier-based filtering
   const POPULAR_LEAGUES_BY_COUNTRY = {
     England: [39, 45, 48], // Premier League, FA Cup, EFL Cup
@@ -178,14 +182,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
     International: [15, 16, 17], // FIFA competitions
   };
 
-  // Flatten popular leagues for backward compatibility and add COSAFA Cup and CONCACAF Gold Cup
-  const POPULAR_LEAGUES = [
-    ...Object.values(POPULAR_LEAGUES_BY_COUNTRY).flat(),
-    914, // COSAFA Cup
-    16, // CONCACAF Gold Cup
-    38, // World Cup - Qualification CONCACAF
-    15, // FIFA Club World Cup
-  ];
+  // Use popular leagues from PopularLeaguesList component as primary source
+  const POPULAR_LEAGUES = POPULAR_LEAGUE_IDS;
 
   // Debug: Log the popular leagues list
   console.log(
@@ -484,8 +482,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const leagueId = fixture.league?.id;
       const country = fixture.league?.country?.toLowerCase() || "";
 
-      // Check if it's a popular league
-      const isPopularLeague = POPULAR_LEAGUES.includes(leagueId);
+      // Check if it's a popular league from our curated list
+      const isPopularLeague = POPULAR_LEAGUE_IDS.includes(leagueId);
 
       // Check if it's from a popular country
       const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(
@@ -716,6 +714,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
         return true;
       }
 
+      // Always include leagues from our popular leagues list
+      if (POPULAR_LEAGUE_IDS.includes(leagueId)) {
+        console.log(`✅ [POPULAR LEAGUE] Including popular league: ${fixture.league.name} (ID: ${leagueId})`);
+        return true;
+      }
+
       // Check if it's a popular country
       const matchingCountry = POPULAR_COUNTRIES.find((country) =>
         countryName.includes(country.toLowerCase()),
@@ -894,7 +898,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       // Check if this is a popular league for this country
       const countryPopularLeagues = POPULAR_LEAGUES_BY_COUNTRY[country] || [];
       const isPopularForCountry = countryPopularLeagues.includes(leagueId);
-      const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
+      const isGloballyPopular = POPULAR_LEAGUE_IDS.includes(leagueId);
 
       // Mark country as having popular leagues if any league qualifies
       if (isPopularForCountry || isGloballyPopular) {
