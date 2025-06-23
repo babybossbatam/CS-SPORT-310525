@@ -511,13 +511,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
         );
       }
 
-      // Apply exclusion check FIRST, before checking international competitions
+      // Apply exclusion check FIRST, but skip for key international competitions
       const leagueName = fixture.league?.name?.toLowerCase() || "";
       const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
       const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
 
-      // Early exclusion for women's competitions and other unwanted matches
-      const shouldExclude = shouldExcludeFromPopularLeagues(
+      // Check if this is a key international competition that should never be excluded
+      const isKeyInternationalCompetition = [1, 2, 3, 4, 5, 15, 16, 17, 914, 38, 848].includes(leagueId);
+
+      // Early exclusion for women's competitions and other unwanted matches (but skip key international competitions)
+      const shouldExclude = !isKeyInternationalCompetition && shouldExcludeFromPopularLeagues(
         fixture.league.name,
         fixture.teams.home.name,
         fixture.teams.away.name,
@@ -531,12 +534,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
             leagueId: fixture.league?.id,
             leagueName: fixture.league?.name,
             country: fixture.league?.country,
+            isKeyInternationalCompetition,
             shouldExclude,
             homeTeam: fixture.teams?.home?.name,
             awayTeam: fixture.teams?.away?.name,
             exclusionReason: shouldExclude
               ? "Contains exclusion terms"
-              : "Passed exclusion check",
+              : isKeyInternationalCompetition 
+                ? "Key international competition - bypassed exclusion"
+                : "Passed exclusion check",
           },
         );
       }
@@ -552,11 +558,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
       // Check if it's an international competition (after exclusion check)
       const isInternationalCompetition =
+        // Direct league ID check for international competitions
+        [1, 2, 3, 4, 5, 15, 16, 17, 914, 38, 848].includes(leagueId) ||
         // UEFA competitions (but women's already excluded above)
         leagueName.includes("champions league") ||
         leagueName.includes("europa league") ||
         leagueName.includes("conference league") ||
         leagueName.includes("uefa") ||
+        leagueName.includes("euro u21") ||
+        leagueName.includes("uefa u21") ||
         // FIFA competitions
         leagueName.includes("world cup") ||
         leagueName.includes("fifa club world cup") ||
@@ -663,14 +673,18 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const leagueId = fixture.league.id;
       const leagueNameLower = fixture.league.name?.toLowerCase() || "";
 
-      // Check for international competitions first
+      // Check for international competitions first - use direct league ID check
       const isInternationalCompetition =
+        // Direct league ID check for key international competitions
+        [1, 2, 3, 4, 5, 15, 16, 17, 914, 38, 848].includes(leagueId) ||
         // UEFA competitions
         leagueNameLower.includes("champions league") ||
         leagueNameLower.includes("europa league") ||
         leagueNameLower.includes("conference league") ||
         leagueNameLower.includes("uefa") ||
         leagueNameLower.includes("euro") ||
+        leagueNameLower.includes("euro u21") ||
+        leagueNameLower.includes("uefa u21") ||
         // FIFA competitions
         leagueNameLower.includes("world cup") ||
         leagueNameLower.includes("fifa club world cup") ||
@@ -698,6 +712,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
       // Allow all international competitions through
       if (isInternationalCompetition) {
+        console.log(`🌍 [INTERNATIONAL DEBUG] Allowing international competition: League ${leagueId} - ${fixture.league.name}`);
         return true;
       }
 
