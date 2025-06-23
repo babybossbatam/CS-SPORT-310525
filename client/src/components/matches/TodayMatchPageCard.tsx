@@ -25,6 +25,8 @@ import {
   shouldExcludeFromPopularLeagues,
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
+import { SimpleFetchingLeagues, getTodayLeagueFixtures } from "@/lib/simpleFetchingLeagues";
+
 
 interface TodayMatchPageCardProps {
   fixtures: any[];
@@ -42,6 +44,9 @@ export const TodayMatchPageCard = ({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
   const calendarRef = useRef<HTMLDivElement>(null);
+  const [debugLeagueData, setDebugLeagueData] = useState<any>(null);
+
+
 
   // Close calendar when clicking outside
   useEffect(() => {
@@ -200,8 +205,91 @@ export const TodayMatchPageCard = ({
     onMatchCardClick?.(fixture);
   };
 
+    // Debug effect for leagues 38 and 15
+    useEffect(() => {
+      const debugTargetLeagues = async () => {
+        try {
+          console.log(`🔍 [TodayMatchPageCard] Debugging leagues 38 and 15 for date: ${selectedDate}`);
+  
+          const result = await getTodayLeagueFixtures(selectedDate);
+  
+          console.log(`📊 [TodayMatchPageCard] League 38 & 15 Debug Results:`, {
+            todayFixtures: result.todayFixtures.length,
+            allFoundFixtures: result.allFoundFixtures.length,
+            analysis: result.analysis
+          });
+  
+          // Check specifically for leagues 38 and 15
+          const league38Fixtures = result.allFoundFixtures.filter(f => f.league.id === 38);
+          const league15Fixtures = result.allFoundFixtures.filter(f => f.league.id === 15);
+  
+          console.log(`🎯 [TodayMatchPageCard] League 38 (UEFA U21) fixtures:`, league38Fixtures.map(f => ({
+            id: f.fixture.id,
+            date: f.fixture.date,
+            localDate: format(parseISO(f.fixture.date), 'yyyy-MM-dd HH:mm'),
+            teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+            status: f.fixture.status.short
+          })));
+  
+          console.log(`🏆 [TodayMatchPageCard] League 15 (FIFA Club World Cup) fixtures:`, league15Fixtures.map(f => ({
+            id: f.fixture.id,
+            date: f.fixture.date,
+            localDate: format(parseISO(f.fixture.date), 'yyyy-MM-dd HH:mm'),
+            teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+            status: f.fixture.status.short
+          })));
+  
+          setDebugLeagueData({
+            league38: league38Fixtures,
+            league15: league15Fixtures,
+            analysis: result.analysis,
+            selectedDate
+          });
+  
+        } catch (error) {
+          console.error(`❌ [TodayMatchPageCard] Error debugging target leagues:`, error);
+        }
+      };
+  
+      debugTargetLeagues();
+    }, [selectedDate]);
+
   return (
     <>
+            {/* Debug Section for Leagues 38 & 15 */}
+            {debugLeagueData && (
+        <Card className="mb-4 border-blue-200 bg-blue-50">
+          <CardHeader className="pb-2">
+            <div className="text-sm font-semibold text-blue-800">
+              🔍 Debug: Leagues 38 & 15 for {selectedDate}
+            </div>
+          </CardHeader>
+          <CardContent className="text-xs space-y-2">
+            <div>
+              <strong>League 38 (UEFA U21):</strong> {debugLeagueData.league38.length} fixtures found
+              {debugLeagueData.league38.map((fixture: any, index: number) => (
+                <div key={fixture.fixture.id} className="ml-2 text-gray-600">
+                  {index + 1}. {fixture.teams.home.name} vs {fixture.teams.away.name} 
+                  ({format(parseISO(fixture.fixture.date), 'yyyy-MM-dd HH:mm')}) [{fixture.fixture.status.short}]
+                </div>
+              ))}
+            </div>
+            <div>
+              <strong>League 15 (FIFA Club World Cup):</strong> {debugLeagueData.league15.length} fixtures found
+              {debugLeagueData.league15.map((fixture: any, index: number) => (
+                <div key={fixture.fixture.id} className="ml-2 text-gray-600">
+                  {index + 1}. {fixture.teams.home.name} vs {fixture.teams.away.name} 
+                  ({format(parseISO(fixture.fixture.date), 'yyyy-MM-dd HH:mm')}) [{fixture.fixture.status.short}]
+                </div>
+              ))}
+            </div>
+            <div className="text-blue-700">
+              <strong>Analysis:</strong> {debugLeagueData.analysis.correctDateMatches} correct, {debugLeagueData.analysis.wrongDateMatches} timezone issues
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="shadow-md w-full">
         <div className="flex items-center justify-between h-9 p-4">
           <button
