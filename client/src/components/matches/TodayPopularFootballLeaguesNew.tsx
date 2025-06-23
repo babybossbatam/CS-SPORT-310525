@@ -854,7 +854,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       ) {
         // For leagues without country, use "International" as fallback
         const fallbackCountry = "International";
-        
+
         if (!acc[leagueId]) {
           acc[leagueId] = {
             league: {
@@ -881,29 +881,20 @@ const TodayPopularFootballLeaguesNew: React.FC<
         }
 
         if (!acc[leagueId]) {
-          // Check if this is a popular league
+          // Simplified: Check if this is a popular league (globally or by country)
           const countryPopularLeagues = POPULAR_LEAGUES_BY_COUNTRY[validCountry] || [];
-          const isPopularForCountry = countryPopularLeagues.includes(leagueId);
-          const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
+          const isPopularForCountry = countryPopularLeagues.includes(leagueId);        const isGloballyPopular = POPULAR_LEAGUES.includes(leagueId);
 
-          // For unrestricted countries, consider all leagues as "popular"
-          const unrestrictedCountries = [
-            "Brazil", "Colombia", "Saudi Arabia", "USA", "United States", "United-States", "US",
-            "United Arab Emirates", "United-Arab-Emirates", "Europe", "South America", "World",
-          ];
-          const isUnrestrictedCountry = unrestrictedCountries.includes(validCountry);
-
-          acc[leagueId] = {
-            league: {
-              ...league,
-              logo: league.logo || "https://media.api-sports.io/football/leagues/1.png",
-            },
-            matches: [],
-            isPopular: isPopularForCountry || isGloballyPopular || isUnrestrictedCountry,
-            isPopularForCountry: isPopularForCountry || isUnrestrictedCountry,
-            isFriendlies: league.name.toLowerCase().includes("friendlies"),
-          };
-        }
+        acc[leagueId] = {
+          league: {
+            ...league,
+            logo: league.logo || "https://media.api-sports.io/football/leagues/1.png",
+          },
+          matches: [],
+          isPopular: isPopularForCountry || isGloballyPopular,
+          isPopularForCountry: isPopularForCountry,
+          isFriendlies: league.name.toLowerCase().includes("friendlies"),
+        };
       }
 
       // Validate team data before adding
@@ -953,14 +944,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
       // Priority 1: UEFA competitions (Champions League, Europa League, etc.)
       const aUefa = aName.includes("champions league") || aName.includes("europa league") || aName.includes("conference league") || aName.includes("uefa");
       const bUefa = bName.includes("champions league") || bName.includes("europa league") || bName.includes("conference league") || bName.includes("uefa");
-      
+
       if (aUefa && !bUefa) return -1;
       if (!aUefa && bUefa) return 1;
 
       // Priority 2: FIFA competitions (Club World Cup, World Cup Qualifications)
       const aFifa = aName.includes("fifa") || aName.includes("club world cup") || aName.includes("world cup");
       const bFifa = bName.includes("fifa") || bName.includes("club world cup") || bName.includes("world cup");
-      
+
       if (aFifa && !bFifa) return -1;
       if (!aFifa && bFifa) return 1;
 
@@ -968,14 +959,14 @@ const TodayPopularFootballLeaguesNew: React.FC<
       const majorLeagues = ["premier league", "la liga", "serie a", "bundesliga", "ligue 1"];
       const aMajor = majorLeagues.some(league => aName.includes(league));
       const bMajor = majorLeagues.some(league => bName.includes(league));
-      
+
       if (aMajor && !bMajor) return -1;
       if (!aMajor && bMajor) return 1;
 
       // Priority 4: International friendlies
       const aFriendlies = aName.includes("friendlies");
       const bFriendlies = bName.includes("friendlies");
-      
+
       if (aFriendlies && !bFriendlies) return 1; // Friendlies go lower
       if (!aFriendlies && bFriendlies) return -1;
 
@@ -1327,7 +1318,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   </div>
                 </CardContent>
               )}
-              
+
               {/* Matches - Show for all leagues */}
               <div className="match-cards-wrapper">
                 {leagueData.matches
