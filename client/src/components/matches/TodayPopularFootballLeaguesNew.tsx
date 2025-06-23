@@ -2203,8 +2203,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   </div>
                 </Card>
               );
-            }),
-      )}
+            }
+          )}
+      </div>
     </>
   );
 };
