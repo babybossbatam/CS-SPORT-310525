@@ -188,22 +188,32 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Group matches by status
-  const liveMatches = fixtures.filter(f => 
+  // Filter matches to only show June 23rd matches
+  const june23Fixtures = fixtures.filter(f => {
+    const matchDate = new Date(f.fixture.date);
+    const matchDateString = matchDate.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric' 
+    });
+    return matchDateString === 'Jun 23';
+  });
+
+  // Group matches by status (only June 23rd matches)
+  const liveMatches = june23Fixtures.filter(f => 
     ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P'].includes(f.fixture.status.short)
   );
 
-  const upcomingMatches = fixtures.filter(f => 
+  const upcomingMatches = june23Fixtures.filter(f => 
     f.fixture.status.short === 'NS' && new Date(f.fixture.date) > new Date()
   ).sort((a, b) => 
     new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
-  ).slice(0, 8); // Increased from 5 to 8
+  ).slice(0, 8);
 
-  const recentMatches = fixtures.filter(f => 
-    ['FT', 'AET', 'PEN'].includes(f.fixture.status.short) // Added more ended statuses
+  const recentMatches = june23Fixtures.filter(f => 
+    ['FT', 'AET', 'PEN'].includes(f.fixture.status.short)
   ).sort((a, b) => 
     new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
-  ).slice(0, 5); // Increased from 3 to 5
+  ).slice(0, 5);
 
   if (loading) {
     return (
