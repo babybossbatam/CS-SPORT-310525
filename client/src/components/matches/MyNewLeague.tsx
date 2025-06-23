@@ -301,34 +301,34 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         ).length;
 
         return (
-          <Card key={leagueGroup.league.id} className="mb-4">
-            <CardHeader className="p-3">
+          <Card key={leagueGroup.league.id} className="bg-white shadow-md rounded-lg mb-4">
+            <CardHeader className="p-4 border-b border-gray-100">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   {leagueGroup.league.logo ? (
                     <img
                       src={leagueGroup.league.logo}
                       alt={leagueGroup.league.name}
-                      className="w-5 h-5 object-contain"
+                      className="w-6 h-6 object-contain"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
                       }}
                     />
                   ) : (
-                    <Trophy className="h-5 w-5 text-blue-600" />
+                    <Trophy className="h-6 w-6 text-blue-600" />
                   )}
-                  <span className="font-medium">{leagueGroup.league.name}</span>
-                  <Badge variant="outline" className="text-xs">
-                    {leagueGroup.league.country}
-                  </Badge>
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-gray-900">{leagueGroup.league.name}</span>
+                    <span className="text-xs text-gray-500">{leagueGroup.league.country}</span>
+                  </div>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-2 items-center">
                   {liveMatchesCount > 0 && (
-                    <Badge variant="destructive" className="text-xs animate-pulse">
+                    <Badge variant="destructive" className="text-xs animate-pulse px-2 py-1">
                       {liveMatchesCount} Live
                     </Badge>
                   )}
-                  <Badge className="bg-blue-100 text-blue-700 text-xs">
+                  <Badge className="bg-blue-100 text-blue-700 text-xs px-2 py-1">
                     {leagueGroup.matches.length} Match{leagueGroup.matches.length !== 1 ? 'es' : ''}
                   </Badge>
                 </div>
@@ -336,41 +336,80 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             </CardHeader>
 
             <CardContent className="p-0">
-              <div className="space-y-0">
+              <div className="divide-y divide-gray-100">
                 {leagueGroup.matches.map((fixture) => (
                   <div
                     key={fixture.fixture.id}
                     onClick={() => onMatchCardClick(fixture)}
-                    className="p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors"
+                    className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="text-sm font-medium">
-                            {fixture.teams.home.name} vs {fixture.teams.away.name}
-                          </div>
-                          {getMatchStatusBadge(fixture.fixture.status.short, fixture.fixture.status.elapsed)}
-                        </div>
-
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {formatMatchTime(fixture.fixture.date)}
-                          </div>
-                          {fixture.fixture.venue?.name && (
-                            <div className="flex items-center gap-1">
-                              <MapPin className="h-3 w-3" />
-                              {fixture.fixture.venue.name}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {(fixture.goals.home !== null && fixture.goals.away !== null) && (
-                        <div className="text-lg font-bold text-gray-900 ml-4">
-                          {fixture.goals.home} - {fixture.goals.away}
-                        </div>
+                    <div className="flex items-center text-xs text-gray-500 mb-3">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      <span>{formatMatchTime(fixture.fixture.date)}</span>
+                      {fixture.fixture.venue?.name && (
+                        <>
+                          <span className="mx-2">•</span>
+                          <MapPin className="h-3 w-3 mr-1" />
+                          <span>{fixture.fixture.venue.name}</span>
+                        </>
                       )}
+                      {getMatchStatusBadge(fixture.fixture.status.short, fixture.fixture.status.elapsed) && (
+                        <>
+                          <span className="mx-2">•</span>
+                          {getMatchStatusBadge(fixture.fixture.status.short, fixture.fixture.status.elapsed)}
+                        </>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-7 items-center gap-2">
+                      <div className="col-span-3 flex items-center justify-end space-x-3">
+                        <span className="font-medium text-right text-gray-900">{fixture.teams.home.name}</span>
+                        {fixture.teams.home.logo ? (
+                          <img 
+                            src={fixture.teams.home.logo}
+                            alt={fixture.teams.home.name}
+                            className="h-6 w-6 object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                            }}
+                          />
+                        ) : (
+                          <div className="h-6 w-6 bg-gray-200 rounded flex items-center justify-center">
+                            <span className="text-xs text-gray-500">T</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="col-span-1 flex justify-center">
+                        <span className={`px-3 py-1 rounded font-semibold text-sm ${
+                          fixture.fixture.status.short === "NS" 
+                            ? "bg-gray-100 text-gray-700" 
+                            : "bg-gray-800 text-white"
+                        }`}>
+                          {fixture.fixture.status.short === "NS" 
+                            ? "vs"
+                            : `${fixture.goals.home} - ${fixture.goals.away}`
+                          }
+                        </span>
+                      </div>
+                      
+                      <div className="col-span-3 flex items-center space-x-3">
+                        {fixture.teams.away.logo ? (
+                          <img 
+                            src={fixture.teams.away.logo}
+                            alt={fixture.teams.away.name}
+                            className="h-6 w-6 object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                            }}
+                          />
+                        ) : (
+                          <div className="h-6 w-6 bg-gray-200 rounded flex items-center justify-center">
+                            <span className="text-xs text-gray-500">T</span>
+                          </div>
+                        )}
+                        <span className="font-medium text-gray-900">{fixture.teams.away.name}</span>
+                      </div>
                     </div>
                   </div>
                 ))}
