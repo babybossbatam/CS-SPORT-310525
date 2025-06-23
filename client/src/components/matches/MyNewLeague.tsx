@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardContent } from "../ui/card";
 import { Badge } from "../ui/badge";
@@ -80,7 +79,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     const fetchLeagueData = async () => {
       setLoading(true);
       setError(null);
-      
+
       try {
         const allFixtures: FixtureData[] = [];
         let primaryLeagueInfo: LeagueData | null = null;
@@ -88,12 +87,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         for (const leagueId of leagueIds) {
           try {
             console.log(`MyNewLeague - Fetching data for league ${leagueId}`);
-            
+
             // Fetch league info
             const leagueResponse = await apiRequest("GET", `/api/leagues/${leagueId}`);
             const leagueData = await leagueResponse.json();
             console.log(`MyNewLeague - League ${leagueId} info:`, leagueData);
-            
+
             if (!primaryLeagueInfo) {
               primaryLeagueInfo = leagueData;
             }
@@ -102,7 +101,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             const fixturesResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures`);
             const fixturesData = await fixturesResponse.json();
             console.log(`MyNewLeague - League ${leagueId} fixtures count:`, fixturesData?.length || 0);
-            
+
             if (Array.isArray(fixturesData)) {
               // Filter for Club World Cup matches specifically
               const filteredFixtures = fixturesData.filter(fixture => {
@@ -112,7 +111,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                                        fixture.teams?.away?.name === 'Juventus' ||
                                        fixture.teams?.home?.name === 'Wydad AC' || 
                                        fixture.teams?.away?.name === 'Wydad AC';
-                
+
                 console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
                   teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
                   league: fixture.league?.name,
@@ -120,10 +119,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   isClubWorldCup,
                   isRelevantMatch
                 });
-                
+
                 return true; // Show all matches for now to debug
               });
-              
+
               allFixtures.push(...filteredFixtures);
             }
           } catch (leagueError) {
@@ -146,7 +145,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
   const getMatchStatusBadge = (status: string, elapsed?: number) => {
     const liveStatuses = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P'];
-    
+
     if (liveStatuses.includes(status)) {
       return (
         <Badge variant="destructive" className="text-xs animate-pulse">
@@ -155,15 +154,15 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         </Badge>
       );
     }
-    
+
     if (['FT', 'AET', 'PEN'].includes(status)) {
       return <Badge variant="secondary" className="text-xs">Ended</Badge>;
     }
-    
+
     if (status === 'NS') {
       return null; // Don't show any badge for upcoming matches
     }
-    
+
     return <Badge variant="outline" className="text-xs">{status}</Badge>;
   };
 
@@ -193,13 +192,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const liveMatches = fixtures.filter(f => 
     ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P'].includes(f.fixture.status.short)
   );
-  
+
   const upcomingMatches = fixtures.filter(f => 
     f.fixture.status.short === 'NS' && new Date(f.fixture.date) > new Date()
   ).sort((a, b) => 
     new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
   ).slice(0, 8); // Increased from 5 to 8
-  
+
   const recentMatches = fixtures.filter(f => 
     ['FT', 'AET', 'PEN'].includes(f.fixture.status.short) // Added more ended statuses
   ).sort((a, b) => 
@@ -298,7 +297,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="p-0">
         <div className="space-y-0">
           {allMatches.map((fixture) => (
@@ -315,7 +314,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                     </div>
                     {getMatchStatusBadge(fixture.fixture.status.short, fixture.fixture.status.elapsed)}
                   </div>
-                  
+
                   <div className="flex items-center gap-4 text-xs text-gray-500">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
@@ -329,7 +328,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                     )}
                   </div>
                 </div>
-                
+
                 {(fixture.goals.home !== null && fixture.goals.away !== null) && (
                   <div className="text-lg font-bold text-gray-900 ml-4">
                     {fixture.goals.home} - {fixture.goals.away}
