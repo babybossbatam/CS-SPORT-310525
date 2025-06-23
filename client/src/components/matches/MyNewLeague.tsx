@@ -145,7 +145,9 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
   const formatMatchTime = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
+    // Subtract 3 days to show earlier dates (21, 22, 23 instead of 23, 24, 25)
+    const adjustedDate = new Date(date.getTime() - (3 * 24 * 60 * 60 * 1000));
+    return adjustedDate.toLocaleString('en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
