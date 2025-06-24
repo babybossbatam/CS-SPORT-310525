@@ -95,7 +95,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
   const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
 
-  // Using league ID 38 and 15 as specified in checkSpecificLeagueMatches.ts
+  // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
   const leagueIds = [38, 15];
 
   useEffect(() => {
@@ -223,15 +223,18 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     {} as Record<number, { league: any; matches: FixtureData[] }>,
   );
 
-  // Sort matches within each league by status and date
+  // Sort matches within each league by status priority: live > ended > upcoming
   Object.values(matchesByLeague).forEach((leagueGroup) => {
     leagueGroup.matches.sort((a, b) => {
-      // First sort by status priority (live > upcoming > finished)
+      // First sort by status priority (live > ended > upcoming)
       const statusPriority = (status: string) => {
-        if (["LIVE", "1H", "2H", "HT", "ET", "BT", "P"].includes(status))
-          return 1;
-        if (status === "NS") return 2;
-        return 3;
+        if (["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status))
+          return 1; // Live matches first
+        if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status))
+          return 2; // Ended matches second
+        if (["NS", "TBD"].includes(status))
+          return 3; // Upcoming matches third
+        return 4; // Other statuses last
       };
 
       const aPriority = statusPriority(a.fixture.status.short);
@@ -241,7 +244,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         return aPriority - bPriority;
       }
 
-      // Then sort by date
+      // Within same status category, sort by date
       return (
         new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
       );
@@ -414,8 +417,21 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         Popular Football Leagues
       </CardHeader>
 
-      {/* Create individual league cards */}
-      {Object.values(matchesByLeague).map((leagueGroup) => {
+      {/* Create individual league cards - prioritize league 38 first, then 15 */}
+      {Object.values(matchesByLeague)
+        .sort((a, b) => {
+          // League 38 (UEFA U21) first priority
+          if (a.league.id === 38 && b.league.id !== 38) return -1;
+          if (a.league.id !== 38 && b.league.id === 38) return 1;
+          
+          // League 15 (FIFA Club World Cup) second priority
+          if (a.league.id === 15 && b.league.id !== 15) return -1;
+          if (a.league.id !== 15 && b.league.id === 15) return 1;
+          
+          // For other leagues, maintain original order
+          return 0;
+        })
+        .map((leagueGroup) => {
         return (
           <Card
             key={`mynewleague-${leagueGroup.league.id}`}
