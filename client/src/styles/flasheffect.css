@@ -23,25 +23,22 @@
 
 @keyframes slide-from-both-ends-halftime {
   0% {
-    transform: scaleX(0);
-    opacity: 0;
+    transform: scaleX(1);
+    opacity: 0.50;
   }
+
   25% {
     transform: scaleX(0.5);
-    opacity: 0.8;
+    opacity: 0.25;
   }
+
   50% {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-  75% {
-    transform: scaleX(0.7);
-    opacity: 0.8;
-  }
-  100% {
     transform: scaleX(0);
-    opacity: 0;
+    opacity: 0.15;
   }
+
+  
+
 }
 
 /* Flash animation for fulltime matches with soft blue only */
@@ -57,7 +54,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(135, 206, 235, 0.8);
+  background: rgb(171, 222, 242, 0.8);
   animation: slide-from-both-ends-fulltime 3s ease-in-out;
   z-index: 1;
   pointer-events: none;
@@ -67,25 +64,20 @@
 
 @keyframes slide-from-both-ends-fulltime {
   0% {
-    transform: scaleX(0);
+    transform: scaleX(1);
     opacity: 0;
   }
+
   25% {
     transform: scaleX(0.5);
     opacity: 0.8;
   }
+
   50% {
-    transform: scaleX(1);
+    transform: scaleX(0);
     opacity: 1;
   }
-  75% {
-    transform: scaleX(0.7);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scaleX(0);
-    opacity: 0;
-  }
+
 }
 
 /* Flash animation for goal matches with soft green only */
@@ -101,7 +93,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(144, 238, 144, 0.8);
+  background: rgb(199, 255, 199, 0.8);
   animation: slide-from-both-ends-goal 2s ease-in-out;
   z-index: 1;
   pointer-events: none;
@@ -114,60 +106,63 @@
     transform: scaleX(0);
     opacity: 0;
   }
+
   25% {
     transform: scaleX(0.5);
     opacity: 0.8;
   }
+
   50% {
     transform: scaleX(1);
     opacity: 1;
   }
-  75% {
-    transform: scaleX(0.7);
-    opacity: 0.8;
-  }
-  100% {
-    transform: scaleX(0);
-    opacity: 0;
-  }
+
+
 }
 
 /* 365scores-style Flash Effect Animations */
 @keyframes liveActionPulse {
-  0% { 
-    opacity: 1; 
+  0% {
+    opacity: 1;
     transform: scale(1);
   }
-  50% { 
-    opacity: 0.85; 
+
+  50% {
+    opacity: 0.85;
     transform: scale(1.01);
   }
-  100% { 
-    opacity: 1; 
+
+  100% {
+    opacity: 1;
     transform: scale(1);
   }
 }
 
 @keyframes ballGlow {
-  0% { 
+  0% {
     box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
     transform: scale(1);
   }
-  50% { 
+
+  50% {
     box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
     transform: scale(1.1);
   }
-  100% { 
+
+  100% {
     box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
     transform: scale(1);
   }
 }
 
 @keyframes liveBadgePulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     background-color: rgb(220, 38, 38);
   }
+
   50% {
     opacity: 0.8;
     background-color: rgb(239, 68, 68);
@@ -175,11 +170,12 @@
 }
 
 @keyframes possessionFade {
-  0% { 
+  0% {
     opacity: 0;
     transform: translateY(10px);
   }
-  100% { 
+
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
@@ -211,10 +207,10 @@
   content: '';
   position: absolute;
   inset: -2px;
-  background: linear-gradient(45deg, 
-    rgba(34, 197, 94, 0.3), 
-    rgba(16, 185, 129, 0.2), 
-    rgba(34, 197, 94, 0.3));
+  background: linear-gradient(45deg,
+      rgba(34, 197, 94, 0.3),
+      rgba(16, 185, 129, 0.2),
+      rgba(34, 197, 94, 0.3));
   border-radius: inherit;
   z-index: -1;
   animation: border-glow 3s ease-in-out infinite;
@@ -233,10 +229,10 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(255, 255, 255, 0.2), 
-    transparent);
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent);
   animation: sweep 2s ease-in-out infinite;
 }
 
@@ -258,43 +254,52 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, 
-    rgba(255, 255, 255, 0.05) 0%, 
-    transparent 70%);
+  background: radial-gradient(ellipse at center,
+      rgba(255, 255, 255, 0.05) 0%,
+      transparent 70%);
   pointer-events: none;
   animation: field-shimmer 6s ease-in-out infinite;
 }
 
 /* Enhanced Keyframes */
 @keyframes enhanced-flash {
-  0%, 100% { 
+
+  0%,
+  100% {
     box-shadow: 0 0 15px rgba(34, 197, 94, 0.4),
-                inset 0 0 15px rgba(34, 197, 94, 0.1);
+      inset 0 0 15px rgba(34, 197, 94, 0.1);
   }
-  50% { 
+
+  50% {
     box-shadow: 0 0 30px rgba(34, 197, 94, 0.7),
-                inset 0 0 20px rgba(34, 197, 94, 0.2);
+      inset 0 0 20px rgba(34, 197, 94, 0.2);
   }
 }
 
 @keyframes border-glow {
-  0%, 100% { 
+
+  0%,
+  100% {
     opacity: 0.3;
     filter: blur(2px);
   }
-  50% { 
+
+  50% {
     opacity: 0.6;
     filter: blur(1px);
   }
 }
 
 @keyframes enhanced-live-pulse {
-  0%, 100% { 
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
     background-color: #dc2626;
   }
-  50% { 
+
+  50% {
     opacity: 0.9;
     transform: scale(1.08);
     background-color: #ef4444;
@@ -302,36 +307,47 @@
 }
 
 @keyframes sweep {
-  0% { left: -100%; }
-  50% { left: 100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+
+  50% {
+    left: 100%;
+  }
+
+  100% {
+    left: 100%;
+  }
 }
 
 @keyframes enhanced-ball-glow {
-  0%, 100% { 
-    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6))
-            drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
+
+  0%,
+  100% {
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 6px rgba(255, 255, 255, 0.3));
     transform: scale(1);
   }
-  50% { 
-    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8))
-            drop-shadow(0 0 12px rgba(255, 255, 255, 0.5));
+
+  50% {
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.5));
     transform: scale(1.1);
   }
 }
 
 @keyframes enhanced-possession-appear {
-  0% { 
+  0% {
     opacity: 0;
     transform: translateY(15px) scale(0.8) rotateX(10deg);
     filter: blur(3px);
   }
+
   60% {
     opacity: 0.8;
     transform: translateY(-2px) scale(1.05) rotateX(0deg);
     filter: blur(0px);
   }
-  100% { 
+
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1) rotateX(0deg);
     filter: blur(0px);
@@ -339,11 +355,14 @@
 }
 
 @keyframes field-shimmer {
-  0%, 100% { 
+
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1) rotate(0deg);
   }
-  50% { 
+
+  50% {
     opacity: 0.6;
     transform: scale(1.1) rotate(1deg);
   }
@@ -355,10 +374,12 @@
     opacity: 0;
     transform: scale(0.8);
   }
+
   20% {
     opacity: 0.8;
     transform: scale(1.1);
   }
+
   100% {
     opacity: 0.3;
     transform: scale(1);
@@ -370,10 +391,12 @@
     stroke-dashoffset: 10;
     opacity: 0;
   }
+
   50% {
     stroke-dashoffset: 0;
     opacity: 1;
   }
+
   100% {
     stroke-dashoffset: -10;
     opacity: 0.6;
@@ -385,10 +408,12 @@
     opacity: 0;
     transform: scale(0.5);
   }
+
   70% {
     opacity: 1;
     transform: scale(1.2);
   }
+
   100% {
     opacity: 0.8;
     transform: scale(1);
@@ -413,10 +438,12 @@
     opacity: 0.6;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.3;
     transform: scale(1.2);
   }
+
   100% {
     opacity: 0;
     transform: scale(0.8);
@@ -462,23 +489,21 @@
 
 /* Field gradient overlay for 365scores look */
 .field-overlay {
-  background: linear-gradient(
-    135deg,
-    rgba(22, 101, 52, 0.9) 0%,
-    rgba(21, 128, 61, 0.95) 25%,
-    rgba(22, 163, 74, 0.9) 50%,
-    rgba(21, 128, 61, 0.95) 75%,
-    rgba(22, 101, 52, 0.9) 100%
-  );
+  background: linear-gradient(135deg,
+      rgba(22, 101, 52, 0.9) 0%,
+      rgba(21, 128, 61, 0.95) 25%,
+      rgba(22, 163, 74, 0.9) 50%,
+      rgba(21, 128, 61, 0.95) 75%,
+      rgba(22, 101, 52, 0.9) 100%);
 }
 
 /* Enhanced Stats Bar */
 .stats-bar-gradient {
-  background: linear-gradient(90deg, 
-    rgba(59, 130, 246, 0.8) 0%, 
-    rgba(59, 130, 246, 0.6) 50%, 
-    rgba(239, 68, 68, 0.6) 50%, 
-    rgba(239, 68, 68, 0.8) 100%);
+  background: linear-gradient(90deg,
+      rgba(59, 130, 246, 0.8) 0%,
+      rgba(59, 130, 246, 0.6) 50%,
+      rgba(239, 68, 68, 0.6) 50%,
+      rgba(239, 68, 68, 0.8) 100%);
 }
 
 /* Corner Kick Animations */
@@ -487,10 +512,12 @@
     stroke-dashoffset: 20;
     opacity: 0;
   }
+
   50% {
     stroke-dashoffset: 0;
     opacity: 1;
   }
+
   100% {
     stroke-dashoffset: -20;
     opacity: 0.7;
@@ -502,10 +529,12 @@
     opacity: 0;
     transform: scale(0.5);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.3);
   }
+
   100% {
     opacity: 0.9;
     transform: scale(1);
@@ -517,10 +546,12 @@
     opacity: 0;
     fill-opacity: 0;
   }
+
   50% {
     opacity: 0.8;
     fill-opacity: 0.2;
   }
+
   100% {
     opacity: 0.4;
     fill-opacity: 0.1;
@@ -554,25 +585,30 @@
     min-width: 300px;
   }
 }
+
 @keyframes goalFlash {
-  0% { 
+  0% {
     background-color: rgba(34, 197, 94, 0.3);
     border-color: #22c55e;
     transform: scale(1.02);
   }
-  25% { 
+
+  25% {
     background-color: rgba(34, 197, 94, 0.6);
     transform: scale(1.05);
   }
-  50% { 
+
+  50% {
     background-color: rgba(34, 197, 94, 0.8);
     transform: scale(1.03);
   }
-  75% { 
+
+  75% {
     background-color: rgba(34, 197, 94, 0.4);
     transform: scale(1.02);
   }
-  100% { 
+
+  100% {
     background-color: transparent;
     border-color: initial;
     transform: scale(1);
@@ -594,16 +630,18 @@
 }
 
 @keyframes halftimeFlash {
-  0% { 
+  0% {
     background-color: rgba(249, 115, 22, 0.2);
     border-color: #f97316;
     transform: scale(1.01);
   }
-  50% { 
+
+  50% {
     background-color: rgba(249, 115, 22, 0.4);
     transform: scale(1.03);
   }
-  100% { 
+
+  100% {
     background-color: transparent;
     border-color: initial;
     transform: scale(1);
@@ -611,16 +649,18 @@
 }
 
 @keyframes fulltimeFlash {
-  0% { 
+  0% {
     background-color: rgba(59, 130, 246, 0.2);
     border-color: #3b82f6;
     transform: scale(1.01);
   }
-  50% { 
+
+  50% {
     background-color: rgba(59, 130, 246, 0.4);
     transform: scale(1.03);
   }
-  100% { 
+
+  100% {
     background-color: transparent;
     border-color: initial;
     transform: scale(1);
@@ -629,16 +669,20 @@
 
 /* Fulltime flash animation */
 .match-card-container.fulltime-flash {
-  background-color: #3b82f6 !important; /* Blue background */
+  background-color: #3b82f6 !important;
+  /* Blue background */
   animation: fulltime-flash-fade 2s ease-out forwards;
 }
 
 @keyframes fulltime-flash-fade {
   0% {
-    background-color: #3b82f6; /* Blue */
+    background-color: #3b82f6;
+    /* Blue */
   }
+
   100% {
-    background-color: white; /* Back to normal */
+    background-color: white;
+    /* Back to normal */
   }
 }
 
@@ -655,11 +699,10 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, 
-    rgba(144, 238, 144, 0.9) 0%, 
-    rgba(144, 238, 144, 0.7) 50%, 
-    rgba(144, 238, 144, 0.9) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(144, 238, 144, 0.9) 0%,
+      rgba(144, 238, 144, 0.7) 50%,
+      rgba(144, 238, 144, 0.9) 100%);
   animation: slide-from-both-ends-goal 2s ease-in-out;
   z-index: 1;
   pointer-events: none;
@@ -672,18 +715,22 @@
     transform: scaleX(0);
     opacity: 0;
   }
+
   25% {
     transform: scaleX(0.5);
     opacity: 0.8;
   }
+
   50% {
     transform: scaleX(1);
     opacity: 1;
   }
+
   75% {
     transform: scaleX(0.7);
     opacity: 0.8;
   }
+
   100% {
     transform: scaleX(0);
     opacity: 0;
@@ -692,9 +739,12 @@
 
 @keyframes goal-flash-fade {
   0% {
-    background-color: #10b981; /* Green */
+    background-color: #10b981;
+    /* Green */
   }
+
   100% {
-    background-color: white; /* Back to normal */
+    background-color: white;
+    /* Back to normal */
   }
 }
