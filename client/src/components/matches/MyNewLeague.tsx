@@ -643,7 +643,15 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
                               if (hasValidScores) {
                                 return (
-                                  <div className="match-score-display">FC Porto1-2Al Ahly</div>
+                                  <div className="match-score-display">
+                                    <span className="score-number">
+                                      {homeScore}
+                                    </span>
+                                    <span className="score-separator">-</span>
+                                    <span className="score-number">
+                                      {awayScore}
+                                    </span>
+                                  </div>
                                 );
                               } else {
                                 return (
