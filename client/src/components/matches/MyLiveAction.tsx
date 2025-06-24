@@ -479,94 +479,64 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   return (
-    <div className={`w-full ${className} live-action-container max-w-lg mx-auto`}>
-      <div className="bg-gradient-to-br from-green-700 via-green-750 to-green-800 rounded-xl overflow-hidden shadow-2xl flash-effect border border-green-600/30">
-        {/* Header */}
-        <div className="bg-black/30 backdrop-blur-sm px-4 py-3 flex items-center justify-between border-b border-white/15">
+    <div className={`w-full ${className} live-action-container max-w-sm mx-auto`}>
+      <div className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+        {/* Header - 365scores style */}
+        <div className="bg-gray-50 px-3 py-2 flex items-center justify-between border-b border-gray-200">
           <div className="flex items-center gap-2">
-            <Badge className="bg-red-600 hover:bg-red-600 text-white text-xs px-2 py-1 font-semibold live-pulse rounded-md">
-              ● LIVE
-            </Badge>
-            <span className="text-white/80 text-xs font-medium">Action</span>
+            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+            <span className="text-gray-700 text-xs font-medium uppercase tracking-wide">Live Action</span>
           </div>
-          <div className="text-white text-sm font-bold opacity-95">
+          <div className="text-gray-600 text-xs font-medium">
             {elapsed}'
           </div>
         </div>
 
-        {/* Enhanced Football Field - Made Bigger */}
-        <div className="relative h-72 sm:h-80 field-overlay overflow-hidden bg-gradient-to-br from-green-700 via-green-800 to-green-900">
+        {/* Clean Football Field - 365scores style */}
+        <div className="relative h-48 bg-gradient-to-br from-green-500 to-green-600 overflow-hidden">
           
-          {/* Geometric Shadow Pattern */}
+          {/* Clean grass pattern */}
           <div className="absolute inset-0">
-            {/* Dark geometric shadow */}
-            <div className="absolute inset-0">
-              <div 
-                className="absolute h-full bg-gradient-to-r from-transparent via-black/40 to-transparent transform -skew-x-12"
-                style={{
-                  width: '60%',
-                  left: '20%',
-                  background: 'linear-gradient(45deg, transparent 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.8) 50%, rgba(0,0,0,0.6) 70%, transparent 100%)'
-                }}
-              />
-            </div>
-            
-            {/* Grass texture with vertical stripes */}
-            <div className="absolute inset-0 opacity-20">
-              {Array.from({ length: 16 }).map((_, i) => (
+            {/* Subtle grass stripes */}
+            <div className="absolute inset-0 opacity-30">
+              {Array.from({ length: 12 }).map((_, i) => (
                 <div
                   key={i}
                   className="absolute h-full"
                   style={{
-                    width: '6.25%',
-                    left: `${i * 6.25}%`,
+                    width: '8.33%',
+                    left: `${i * 8.33}%`,
                     background: i % 2 === 0 
-                      ? 'linear-gradient(180deg, rgba(34, 197, 94, 0.3), rgba(21, 128, 61, 0.1))'
-                      : 'linear-gradient(180deg, rgba(21, 128, 61, 0.2), rgba(34, 197, 94, 0.05))'
+                      ? 'rgba(255, 255, 255, 0.05)'
+                      : 'rgba(0, 0, 0, 0.05)'
                   }}
                 />
               ))}
             </div>
 
-            {/* Field markings - Enhanced 365scores style */}
+            {/* Clean field markings - 365scores style */}
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <defs>
-                <filter id="fieldGlow">
-                  <feGaussianBlur stdDeviation="0.3" result="coloredBlur"/>
-                  <feMerge> 
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              
               {/* Outer boundary */}
-              <rect x="5" y="15" width="90" height="70" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
+              <rect x="8" y="20" width="84" height="60" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="0.3"/>
               
               {/* Center line */}
-              <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
+              <line x1="50" y1="20" x2="50" y2="80" stroke="rgba(255,255,255,0.7)" strokeWidth="0.3"/>
               
               {/* Center circle */}
-              <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
-              <circle cx="50" cy="50" r="0.8" fill="rgba(255,255,255,0.9)"/>
+              <circle cx="50" cy="50" r="10" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="0.3"/>
+              <circle cx="50" cy="50" r="0.5" fill="rgba(255,255,255,0.8)"/>
               
               {/* Goal areas */}
-              <rect x="5" y="37" width="8" height="26" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
-              <rect x="87" y="37" width="8" height="26" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
+              <rect x="8" y="40" width="6" height="20" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="0.3"/>
+              <rect x="86" y="40" width="6" height="20" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="0.3"/>
               
               {/* Penalty areas */}
-              <rect x="5" y="28" width="18" height="44" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
-              <rect x="77" y="28" width="18" height="44" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
+              <rect x="8" y="32" width="14" height="36" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="0.3"/>
+              <rect x="78" y="32" width="14" height="36" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="0.3"/>
               
               {/* Penalty spots */}
-              <circle cx="17" cy="50" r="0.6" fill="rgba(255,255,255,0.9)"/>
-              <circle cx="83" cy="50" r="0.6" fill="rgba(255,255,255,0.9)"/>
-              
-              {/* Corner arcs */}
-              <path d="M 5 15 Q 8 15 8 18" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4"/>
-              <path d="M 5 85 Q 8 85 8 82" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4"/>
-              <path d="M 95 15 Q 92 15 92 18" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4"/>
-              <path d="M 95 85 Q 92 85 92 82" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4"/>
+              <circle cx="19" cy="50" r="0.4" fill="rgba(255,255,255,0.8)"/>
+              <circle cx="81" cy="50" r="0.4" fill="rgba(255,255,255,0.8)"/>
             </svg>
           </div>
 
@@ -669,73 +639,48 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           )}
 
-          {/* Enhanced Ball */}
+          {/* Clean Ball - 365scores style */}
           <div 
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100 ease-linear z-30"
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-200 ease-linear z-30"
             style={{
               left: `${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
             }}
           >
-            <div className="relative">
-              {/* Ball trail effect */}
-              <div className="absolute inset-0 w-5 h-5 bg-white/30 rounded-full blur-md scale-125 ball-trail"></div>
-              
-              {/* Ball shadow */}
-              <div className="absolute top-1 left-1 w-4 h-4 bg-black/20 rounded-full blur-sm"></div>
-              
-              {/* Enhanced Ball */}
-              <div 
-                className="relative w-4 h-4 rounded-full shadow-lg ball-flash"
-                style={{
-                  background: 'radial-gradient(circle at 30% 30%, #ffffff, #f8f8f8, #e8e8e8, #d0d0d0)',
-                  boxShadow: '0 3px 6px rgba(0,0,0,0.4), inset -1px -1px 3px rgba(0,0,0,0.3)'
-                }}
-              >
-                {/* Ball pattern */}
-                <div className="absolute inset-0 rounded-full">
-                  <div className="absolute top-1 left-1 w-1 h-1 bg-black/40 rounded-full"></div>
-                  <div className="absolute bottom-0.5 right-0.5 w-0.5 h-0.5 bg-black/30 rounded-full"></div>
-                  <div className="absolute top-1.5 right-1 w-0.5 h-1.5 bg-black/20 rounded-full transform rotate-45"></div>
-                </div>
-              </div>
-            </div>
+            <div className="w-3 h-3 bg-white rounded-full shadow-md border border-gray-300"></div>
           </div>
 
-          {/* Enhanced Team possession overlay */}
+          {/* Clean Team possession overlay - 365scores style */}
           <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
             {currentAttack && (
-              <div className="bg-black/50 backdrop-blur-sm rounded-lg px-6 py-3 text-center possession-fade-in border border-white/30 shadow-2xl">
-                <div className="text-white text-sm font-bold mb-2 opacity-90 tracking-wider uppercase">
+              <div className="bg-white/95 backdrop-blur-sm rounded-md px-4 py-2 text-center shadow-lg border border-gray-200">
+                <div className="text-gray-700 text-xs font-medium mb-1">
                   {currentAttack.intensity === 'dangerous' ? 'Dangerous Attack' : 'Attack'}
                 </div>
-                <div className="flex items-center justify-center gap-3">
-                  <div className="text-white text-lg font-bold tracking-wide opacity-95 uppercase">
+                <div className="flex items-center justify-center gap-2">
+                  <img
+                    src={currentAttack.team === 'home' ? homeTeamData?.logo : awayTeamData?.logo}
+                    alt={currentAttack.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
+                    className="w-5 h-5 object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = '/assets/fallback-logo.svg';
+                    }}
+                  />
+                  <div className="text-gray-800 text-sm font-semibold">
                     {currentAttack.team === 'home' 
                       ? getTeamDisplayName('home') 
                       : getTeamDisplayName('away')
                     }
-                  </div>
-                  {/* Team Logo */}
-                  <div className="w-8 h-8 bg-white/90 rounded-sm flex items-center justify-center shadow-lg border border-white/20">
-                    <img
-                      src={currentAttack.team === 'home' ? homeTeamData?.logo : awayTeamData?.logo}
-                      alt={currentAttack.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
-                      className="w-6 h-6 object-contain"
-                      onError={(e) => {
-                        e.currentTarget.src = '/assets/fallback-logo.svg';
-                      }}
-                    />
                   </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Event indicator */}
+          {/* Event indicator - 365scores style */}
           {currentEvent && currentEvent.type !== 'attack' && (
-            <div className="absolute top-3 left-3 z-50">
-              <div className="bg-yellow-500/90 backdrop-blur-sm rounded-md px-3 py-1.5 text-xs text-black font-semibold shadow-lg animate-pulse">
+            <div className="absolute top-2 left-2 z-50">
+              <div className="bg-blue-500 text-white rounded px-2 py-1 text-xs font-medium shadow-sm">
                 {currentEvent.description}
               </div>
             </div>
@@ -743,36 +688,31 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
         </div>
 
-        {/* AVG. CORNERS Section */}
-        <div className="bg-white px-4 py-3 border-t border-gray-200">
-          <div className="text-center text-gray-600 text-xs font-medium mb-3 tracking-wide uppercase">
-            AVG. CORNERS
+        {/* Corners Section - 365scores style */}
+        <div className="bg-gray-50 px-3 py-2 border-t border-gray-200">
+          <div className="text-center text-gray-500 text-xs font-medium mb-2 uppercase tracking-wide">
+            Corners
           </div>
           
           <div className="flex items-center justify-between">
             {/* Home Team */}
-            <div className="flex items-center gap-3">
-              {/* Team Logo */}
-              <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center shadow-sm border border-gray-200">
-                <img
-                  src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
-                  alt={homeTeamData?.name || 'Home Team'}
-                  className="w-6 h-6 object-contain"
-                  onError={(e) => {
-                    e.currentTarget.src = '/assets/fallback-logo.svg';
-                  }}
-                />
-              </div>
-              
-              {/* Corner Count */}
-              <div className="text-2xl font-bold text-blue-600">
-                {cornerKicks.home}.0
+            <div className="flex items-center gap-2">
+              <img
+                src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
+                alt={homeTeamData?.name || 'Home Team'}
+                className="w-6 h-6 object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = '/assets/fallback-logo.svg';
+                }}
+              />
+              <div className="text-lg font-bold text-gray-800">
+                {cornerKicks.home}
               </div>
             </div>
             
-            {/* Progress Bar */}
-            <div className="flex-1 mx-4">
-              <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+            {/* Simple Progress Bar */}
+            <div className="flex-1 mx-3">
+              <div className="h-1 bg-gray-300 rounded-full overflow-hidden">
                 <div className="h-full flex">
                   <div 
                     className="bg-blue-500 transition-all duration-500"
@@ -788,33 +728,21 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                   ></div>
                 </div>
               </div>
-              {/* Progress indicator dot */}
-              <div 
-                className="w-3 h-3 bg-white border-2 border-gray-400 rounded-full -mt-2 transition-all duration-500"
-                style={{ 
-                  marginLeft: `${(cornerKicks.home / Math.max(cornerKicks.home + cornerKicks.away, 1)) * 100 - 6}%` 
-                }}
-              ></div>
             </div>
             
             {/* Away Team */}
-            <div className="flex items-center gap-3">
-              {/* Corner Count */}
-              <div className="text-2xl font-bold text-red-600">
-                {cornerKicks.away}.0
+            <div className="flex items-center gap-2">
+              <div className="text-lg font-bold text-gray-800">
+                {cornerKicks.away}
               </div>
-              
-              {/* Team Logo */}
-              <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center shadow-sm border border-gray-200">
-                <img
-                  src={awayTeamData?.logo || '/assets/fallback-logo.svg'}
-                  alt={awayTeamData?.name || 'Away Team'}
-                  className="w-6 h-6 object-contain"
-                  onError={(e) => {
-                    e.currentTarget.src = '/assets/fallback-logo.svg';
-                  }}
-                />
-              </div>
+              <img
+                src={awayTeamData?.logo || '/assets/fallback-logo.svg'}
+                alt={awayTeamData?.name || 'Away Team'}
+                className="w-6 h-6 object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = '/assets/fallback-logo.svg';
+                }}
+              />
             </div>
           </div>
         </div>
