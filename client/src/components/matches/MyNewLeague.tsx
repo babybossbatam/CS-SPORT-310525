@@ -97,6 +97,25 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         const allFixtures: FixtureData[] = [];
         let primaryLeagueInfo: LeagueData | null = null;
 
+        // Step 1: Fetch live fixtures first (no cache, real-time data)
+        try {
+          console.log(`MyNewLeague - Fetching live fixtures (real-time)`);
+          const liveResponse = await apiRequest("GET", "/api/fixtures/live");
+          const liveData = await liveResponse.json();
+          
+          if (Array.isArray(liveData)) {
+            // Filter live fixtures by target league IDs
+            const relevantLiveFixtures = liveData.filter((fixture) => 
+              leagueIds.includes(fixture.league?.id)
+            );
+            console.log(`MyNewLeague - Found ${relevantLiveFixtures.length} live fixtures from target leagues`);
+            allFixtures.push(...relevantLiveFixtures);
+          }
+        } catch (liveError) {
+          console.warn("Failed to fetch live fixtures:", liveError);
+        }
+
+        // Step 2: Fetch league-specific data for each target league
         for (const leagueId of leagueIds) {
           try {
             console.log(`MyNewLeague - Fetching data for league ${leagueId}`);
@@ -113,7 +132,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               primaryLeagueInfo = leagueData;
             }
 
-            // Fetch fixtures for the league
+            // Fetch fixtures for the league (cached data for non-live matches)
             const fixturesResponse = await apiRequest(
               "GET",
               `/api/leagues/${leagueId}/fixtures`,
@@ -125,33 +144,35 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             );
 
             if (Array.isArray(fixturesData)) {
-              // Filter for Club World Cup matches specifically
-              const filteredFixtures = fixturesData.filter((fixture) => {
-                const isClubWorldCup =
-                  fixture.league?.name
-                    ?.toLowerCase()
-                    .includes("club world cup") ||
-                  fixture.league?.name
-                    ?.toLowerCase()
-                    .includes("fifa club world cup");
-                const isRelevantMatch =
-                  fixture.teams?.home?.name === "Juventus" ||
-                  fixture.teams?.away?.name === "Juventus" ||
-                  fixture.teams?.home?.name === "Wydad AC" ||
-                  fixture.teams?.away?.name === "Wydad AC";
-
-                console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
-                  teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-                  league: fixture.league?.name,
-                  status: fixture.fixture?.status?.short,
-                  isClubWorldCup,
-                  isRelevantMatch,
-                });
-
-                return true; // Show all matches for now to debug
+              // Separate fixtures by status
+              const endedFixtures = fixturesData.filter((fixture) => {
+                const status = fixture.fixture?.status?.short;
+                const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
+                
+                // Only add if not already in live fixtures
+                const alreadyInLive = allFixtures.some(f => f.fixture.id === fixture.fixture.id);
+                
+                return isEnded && !alreadyInLive;
               });
 
-              allFixtures.push(...filteredFixtures);
+              const upcomingFixtures = fixturesData.filter((fixture) => {
+                const status = fixture.fixture?.status?.short;
+                const isUpcoming = ["NS", "TBD"].includes(status);
+                
+                // Only add if not already in live fixtures
+                const alreadyInLive = allFixtures.some(f => f.fixture.id === fixture.fixture.id);
+                
+                return isUpcoming && !alreadyInLive;
+              });
+
+              console.log(`MyNewLeague - League ${leagueId} breakdown:`, {
+                ended: endedFixtures.length,
+                upcoming: upcomingFixtures.length,
+                alreadyInLive: fixturesData.length - endedFixtures.length - upcomingFixtures.length
+              });
+
+              // Add ended and upcoming fixtures
+              allFixtures.push(...endedFixtures, ...upcomingFixtures);
             }
           } catch (leagueError) {
             console.warn(
@@ -172,6 +193,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     };
 
     fetchLeagueData();
+    
+    // Set up interval to refresh live fixtures every 10 seconds
+    const intervalId = setInterval(() => {
+      fetchLeagueData();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   // Debug logging
