@@ -468,18 +468,10 @@ export const rapidApiService = {
   },
 
   /**
-   * Get live fixtures with B365API fallback
+   * Get live fixtures - ALWAYS fetch fresh data for live matches
    */
   async getLiveFixtures(): Promise<FixtureResponse[]> {
-    const cacheKey = "fixtures-live";
-    const cached = fixturesCache.get(cacheKey);
-
-    const now = Date.now();
-    // Very short cache time for live fixtures (10 seconds) for Pro subscription
-    if (cached && now - cached.timestamp < 10 * 1000) {
-      console.log(`🔄 [PRO API] Using cached live fixtures (age: ${Math.round((now - cached.timestamp) / 1000)}s)`);
-      return cached.data;
-    }
+    // NO CACHE for live fixtures - always fetch fresh data for accuracy
 
     try {
       console.log(
@@ -588,12 +580,9 @@ export const rapidApiService = {
         );
 
         console.log(
-          `RapidAPI: Retrieved ${response.data.response.length} live fixtures, ${filteredLiveFixtures.length} after filtering`,
+          `🔴 [LIVE API] Retrieved ${response.data.response.length} live fixtures, ${filteredLiveFixtures.length} after filtering (NO CACHE - always fresh)`,
         );
-        fixturesCache.set(cacheKey, {
-          data: filteredLiveFixtures,
-          timestamp: now,
-        });
+        // NO CACHING for live fixtures - always return fresh data
         return filteredLiveFixtures;
       }
 

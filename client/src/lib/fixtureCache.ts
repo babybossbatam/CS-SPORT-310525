@@ -60,8 +60,13 @@ class FixtureCache {
     const fixtureDate = new Date(fixture.fixture.date).getTime();
     const status = fixture.fixture.status.short;
 
-    // Live or about to start - short cache
-    if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT', 'NS'].includes(status)) {
+    // Live matches - NO CACHE (return 0 to force fresh fetch)
+    if (['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+      return 0; // No caching for live matches
+    }
+
+    // Upcoming matches within 2 hours - short cache
+    if (status === 'NS') {
       const minutesToKickoff = (fixtureDate - now) / (1000 * 60);
       if (minutesToKickoff <= 120) { // Within 2 hours of kickoff
         return FIXTURE_CACHE_CONFIG.LIVE_CACHE_DURATION;
@@ -167,9 +172,23 @@ class FixtureCache {
   }
 
   /**
+   * Check if a fixture is live and should bypass cache
+   */
+  private isLiveFixture(fixture: FixtureResponse): boolean {
+    const status = fixture.fixture.status.short;
+    return ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status);
+  }
+
+  /**
    * Check if cached data is still valid
    */
   private isValidCache(cachedItem: CachedFixture): boolean {
+    // Live fixtures should never use cache
+    if (this.isLiveFixture(cachedItem.fixture)) {
+      console.log(`🔴 [fixtureCache] Live fixture ${cachedItem.fixture.fixture.id} bypassing cache`);
+      return false;
+    }
+
     const now = Date.now();
     const age = now - cachedItem.timestamp;
     const maxAge = this.getCacheDuration(cachedItem.fixture);
@@ -241,9 +260,15 @@ class FixtureCache {
   }
 
   /**
-   * Cache a single fixture
+   * Cache a single fixture (but skip live fixtures)
    */
   cacheFixture(fixture: FixtureResponse, source: string = 'api'): void {
+    // Don't cache live fixtures - they need real-time updates
+    if (this.isLiveFixture(fixture)) {
+      console.log(`🔴 [fixtureCache] Skipping cache for live fixture ${fixture.fixture.id} (${fixture.fixture.status.short})`);
+      return;
+    }
+
     const key = this.generateKey(fixture.fixture.id);
     const cachedItem: CachedFixture = {
       fixture,
@@ -254,17 +279,30 @@ class FixtureCache {
     this.cache.set(key, cachedItem);
     this.stats.size = this.cache.size;
 
-    console.log(`💾 [fixtureCache] Cached fixture ${fixture.fixture.id} (${source})`);
+    console.log(`💾 [fixtureCache] Cached non-live fixture ${fixture.fixture.id} (${source})`);
     this.cleanup();
   }
 
   /**
-   * Cache fixtures for a specific date
+   * Cache fixtures for a specific date (excluding live fixtures)
    */
   cacheFixturesForDate(date: string, fixtures: FixtureResponse[], source: string = 'api'): void {
+    // Separate live and non-live fixtures
+    const liveFixtures = fixtures.filter(f => this.isLiveFixture(f));
+    const nonLiveFixtures = fixtures.filter(f => !this.isLiveFixture(f));
+
+    if (liveFixtures.length > 0) {
+      console.log(`🔴 [fixtureCache] Skipping cache for ${liveFixtures.length} live fixtures in date ${date}`);
+    }
+
+    if (nonLiveFixtures.length === 0) {
+      console.log(`⚠️ [fixtureCache] No non-live fixtures to cache for date ${date}`);
+      return;
+    }
+
     const key = this.generateKey(date, 'date', date);
     const cachedItem: CachedFixture = {
-      fixture: fixtures as any,
+      fixture: nonLiveFixtures as any,
       timestamp: Date.now(),
       source
     };
@@ -272,13 +310,13 @@ class FixtureCache {
     this.cache.set(key, cachedItem);
     this.stats.size = this.cache.size;
 
-    console.log(`💾 [fixtureCache] Cached ${fixtures.length} fixtures for date ${date} (${source})`);
+    console.log(`💾 [fixtureCache] Cached ${nonLiveFixtures.length} non-live fixtures for date ${date} (${source}, skipped ${liveFixtures.length} live)`);
 
     // Store in persistent cache if it's a past date with finished matches
-    this.storeInPersistentCache(date, fixtures);
+    this.storeInPersistentCache(date, nonLiveFixtures);
 
-    // Also cache individual fixtures
-    fixtures.forEach(fixture => {
+    // Also cache individual non-live fixtures
+    nonLiveFixtures.forEach(fixture => {
       this.cacheFixture(fixture, `date_batch_${source}`);
     });
 

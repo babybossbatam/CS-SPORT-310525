@@ -207,24 +207,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const fixtures = await rapidApiService.getLiveFixtures();
         console.log(`Retrieved ${fixtures.length} live fixtures from RapidAPI`);
 
-        // Cache the live fixtures
-        for (const fixture of fixtures) {
-          try {
-            const fixtureId = fixture.fixture.id.toString();
-            const existingFixture = await storage.getCachedFixture(fixtureId);
+        // NO CACHING for live fixtures - they need real-time updates
+        console.log(`🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`);
 
-            if (existingFixture) {
-              await storage.updateCachedFixture(fixtureId, fixture);
-            } else {
-              await storage.createCachedFixture({
-                fixtureId: fixtureId,
-                date: new Date().toISOString().split('T')[0],
-                league: fixture.league.id.toString(),
-                data: fixture
-              });
+        // Only cache ended matches from the live response
+        const endedMatches = fixtures.filter(fixture => 
+          ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC'].includes(fixture.fixture.status.short)
+        );
+
+        if (endedMatches.length > 0) {
+          console.log(`💾 [LIVE API] Caching ${endedMatches.length} ended matches from live response`);
+          for (const fixture of endedMatches) {
+            try {
+              const fixtureId = fixture.fixture.id.toString();
+              const existingFixture = await storage.getCachedFixture(fixtureId);
+
+              if (existingFixture) {
+                await storage.updateCachedFixture(fixtureId, fixture);
+              } else {
+                await storage.createCachedFixture({
+                  fixtureId: fixtureId,
+                  date: new Date().toISOString().split('T')[0],
+                  league: fixture.league.id.toString(),
+                  data: fixture
+                });
+              }
+            } catch (cacheError) {
+              console.error(`Error caching ended fixture ${fixture.fixture.id}:`, cacheError);
             }
-          } catch (cacheError) {
-            console.error(`Error caching live fixture ${fixture.fixture.id}:`, cacheError);
           }
         }
 
@@ -232,30 +242,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (rapidApiError) {
         console.error('RapidAPI error for live fixtures:', rapidApiError);
 
-        // If both APIs fail, try to return cached live fixtures from today
-        try {
-          const todayDate = new Date().toISOString().split('T')[0];
-          const cachedFixtures = await storage.getCachedFixturesByDate(todayDate);
-          const liveFixtures = cachedFixtures
-            .filter((fixture: CachedFixture) => {
-              const fixtureData = fixture.data as any;
-              return fixtureData && fixtureData.fixture && 
-                (fixtureData.fixture.status.short === 'LIVE' || 
-                fixtureData.fixture.status.short === '1H' || 
-                fixtureData.fixture.status.short === '2H' || 
-                fixtureData.fixture.status.short === 'HT');
-            })
-            .map((fixture: CachedFixture) => fixture.data);
-
-          if (liveFixtures.length > 0) {
-            console.log(`Using ${liveFixtures.length} cached live fixtures`);
-            return res.json(liveFixtures);
-          }
-        } catch (cacheError) {
-          console.error('Error retrieving cached live fixtures:', cacheError);
-        }
-
-        // If everything fails, return an empty array
+        // If API fails, return empty array for live fixtures - no stale cache for live matches
+        console.log(`❌ [LIVE API] RapidAPI failed for live fixtures - returning empty array (no stale cache for live data)`);
         return res.json([]);
       }
     } catch (error) {
@@ -770,7 +758,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currentDate.getFullYear();
       const season = parseInt(req.query.season as string) || currentSeason;
 
-      if (isNaN(id) || !req.params.id || req.params.id.trim() === '') {
+      if (isNaN(id) || !req.params.id || req.```text
+params.id.trim() === '') {
         return res.status(400).json({ message: 'Invalid league ID' });
       }
 
@@ -1541,8 +1530,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const urlDecoded = decodeURIComponent(teamId);
         const teamIdMatch = urlDecoded.match(/\/teams\/(\d+)\.png/);
         if (teamIdMatch && teamIdMatch[1]) {
-          teamId = teamIdMatch[1];
-        } else {
+          teamId = teamIdMatch[1];        } else {
           console.warn(`Could not extract team ID from URL: ${urlDecoded}`);
           return res.status(400).json({ error: 'Invalid team ID format' });
         }
@@ -2138,24 +2126,34 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         const fixtures = await rapidApiService.getLiveFixtures();
         console.log(`Retrieved ${fixtures.length} live fixtures from RapidAPI`);
 
-        // Cache the live fixtures
-        for (const fixture of fixtures) {
-          try {
-            const fixtureId = fixture.fixture.id.toString();
-            const existingFixture = await storage.getCachedFixture(fixtureId);
+        // NO CACHING for live fixtures - they need real-time updates
+        console.log(`🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`);
 
-            if (existingFixture) {
-              await storage.updateCachedFixture(fixtureId, fixture);
-            } else {
-              await storage.createCachedFixture({
-                fixtureId: fixtureId,
-                date: new Date().toISOString().split('T')[0],
-                league: fixture.league.id.toString(),
-                data: fixture
-              });
+        // Only cache ended matches from the live response
+        const endedMatches = fixtures.filter(fixture => 
+          ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC'].includes(fixture.fixture.status.short)
+        );
+
+        if (endedMatches.length > 0) {
+          console.log(`💾 [LIVE API] Caching ${endedMatches.length} ended matches from live response`);
+          for (const fixture of endedMatches) {
+            try {
+              const fixtureId = fixture.fixture.id.toString();
+              const existingFixture = await storage.getCachedFixture(fixtureId);
+
+              if (existingFixture) {
+                await storage.updateCachedFixture(fixtureId, fixture);
+              } else {
+                await storage.createCachedFixture({
+                  fixtureId: fixtureId,
+                  date: new Date().toISOString().split('T')[0],
+                  league: fixture.league.id.toString(),
+                  data: fixture
+                });
+              }
+            } catch (cacheError) {
+              console.error(`Error caching ended fixture ${fixture.fixture.id}:`, cacheError);
             }
-          } catch (cacheError) {
-            console.error(`Error caching live fixture ${fixture.fixture.id}:`, cacheError);
           }
         }
 
@@ -2163,30 +2161,8 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
       } catch (rapidApiError) {
         console.error('RapidAPI error for live fixtures:', rapidApiError);
 
-        // If both APIs fail, try to return cached live fixtures from today
-        try {
-          const todayDate = new Date().toISOString().split('T')[0];
-          const cachedFixtures = await storage.getCachedFixturesByDate(todayDate);
-          const liveFixtures = cachedFixtures
-            .filter((fixture: CachedFixture) => {
-              const fixtureData = fixture.data as any;
-              return fixtureData && fixtureData.fixture && 
-                (fixtureData.fixture.status.short === 'LIVE' || 
-                fixtureData.fixture.status.short === '1H' || 
-                fixtureData.fixture.status.short === '2H' || 
-                fixtureData.fixture.status.short === 'HT');
-            })
-            .map((fixture: CachedFixture) => fixture.data);
-
-          if (liveFixtures.length > 0) {
-            console.log(`Using ${liveFixtures.length} cached live fixtures`);
-            return res.json(liveFixtures);
-          }
-        } catch (cacheError) {
-          console.error('Error retrieving cached live fixtures:', cacheError);
-        }
-
-        // If everything fails, return an empty array
+        // If API fails, return empty array for live fixtures - no stale cache for live matches
+        console.log(`❌ [LIVE API] RapidAPI failed for live fixtures - returning empty array (no stale cache for live data)`);
         return res.json([]);
       }
     } catch (error) {
