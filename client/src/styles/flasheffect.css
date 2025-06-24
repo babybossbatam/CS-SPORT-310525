@@ -4,7 +4,7 @@
 .country-matches-container .match-card-container.halftime-flash {
   position: relative;
   overflow: hidden;
-  background-color: #fafafa !important;
+  background-color: #ffffff !important;
   /* Solid orange background */
 }
 
@@ -15,9 +15,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: #FAEBD7;
+  background: #ffd9a8;
   animation: slide-from-both-ends-halftime 5s linear;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
   transform: scaleX(0);
   transform-origin: center;
@@ -26,36 +26,25 @@
 @keyframes slide-from-both-ends-halftime {
   0% {
     transform: scaleX(1);
-    opacity: 0.25;
+    opacity: 0.1;
   }
 
   25% {
     transform: scaleX(0.5);
-    opacity: 0.50;
+    opacity: 0.5;
   }
 
   50% {
     transform: scaleX(0);
-    opacity: 0.75;
-  }
-
-  75% {
-    transform: scaleX(0);
     opacity: 1;
   }
-
-  100% {
-    transform: scaleX(0);
-    opacity: 1.25;
-  }
-
-
 }
 
 /* Flash animation for fulltime matches with soft blue only */
 .country-matches-container .match-card-container.fulltime-flash {
   position: relative;
   overflow: hidden;
+  background-color: #ffffff !important;
 }
 
 .country-matches-container .match-card-container.fulltime-flash::before {
@@ -65,9 +54,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: #AFEEEE;
+  background: #a5cbfd;
   animation: slide-from-both-ends-fulltime 3s linear;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
   transform: scaleX(0);
   transform-origin: center;
@@ -76,17 +65,17 @@
 @keyframes slide-from-both-ends-fulltime {
   0% {
     transform: scaleX(1);
-    opacity: 0.25;
+    opacity: 0.1;
   }
 
   25% {
     transform: scaleX(0.5);
-    opacity: 0.50;
+    opacity: 0.5;
   }
 
   50% {
     transform: scaleX(0);
-    opacity: 0.75;
+    opacity: 1;
   }
 
 }
@@ -95,6 +84,7 @@
 .country-matches-container .match-card-container.goal-flash {
   position: relative;
   overflow: hidden;
+  background-color: #ffffff !important;
 }
 
 .country-matches-container .match-card-container.goal-flash::before {
@@ -104,9 +94,9 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: #98FB98;
+  background: #d6ffd6;
   animation: slide-from-both-ends-goal 2s ease-in-out;
-  z-index: 1;
+  z-index: 0;
   pointer-events: none;
   transform: scaleX(0);
   transform-origin: center;
@@ -114,17 +104,17 @@
 
 @keyframes slide-from-both-ends-goal {
   0% {
-    transform: scaleX(0);
-    opacity: 0;
+    transform: scaleX(1);
+    opacity: 0.1;
   }
 
   25% {
     transform: scaleX(0.5);
-    opacity: 0.8;
+    opacity: 0.5;
   }
 
   50% {
-    transform: scaleX(1);
+    transform: scaleX(0);
     opacity: 1;
   }
 
