@@ -55,7 +55,7 @@
   right: 0;
   bottom: 0;
   background: #a5cbfd;
-  animation: slide-from-both-ends-fulltime 3s linear;
+  animation: slide-from-both-ends-fulltime 5s linear;
   z-index: 0;
   pointer-events: none;
   transform: scaleX(0);
@@ -95,7 +95,7 @@
   right: 0;
   bottom: 0;
   background: #d6ffd6;
-  animation: slide-from-both-ends-goal 2s ease-in-out;
+  animation: slide-from-both-ends-goal 4s linear;
   z-index: 0;
   pointer-events: none;
   transform: scaleX(0);
