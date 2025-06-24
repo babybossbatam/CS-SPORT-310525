@@ -4,6 +4,8 @@
 .country-matches-container .match-card-container.halftime-flash {
   position: relative;
   overflow: hidden;
+  background-color: #FAEBD7 !important;
+  /* Solid orange background */
 }
 
 .country-matches-container .match-card-container.halftime-flash::before {
@@ -13,8 +15,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: #FFC595;
-  animation: slide-from-both-ends-halftime 3s linear;
+  background: #ffffff;
+  animation: slide-from-both-ends-halftime 5s ease-in;
   z-index: 1;
   pointer-events: none;
   transform: scaleX(0);
@@ -24,18 +26,30 @@
 @keyframes slide-from-both-ends-halftime {
   0% {
     transform: scaleX(1);
-    opacity: 0.25;
+    opacity: 1;
   }
 
   25% {
-    transform: scaleX(0.5);
-    opacity: 0.50;
+    transform: scaleX(0.75);
+    opacity: 0.75;
   }
 
   50% {
-    transform: scaleX(0);
-    opacity: 0.75;
+    transform: scaleX(0.5);
+    opacity: 0.25;
   }
+
+  75% {
+    transform: scaleX(0.25);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scaleX(0);
+    opacity: 1.25;
+  }
+
+
 }
 
 /* Flash animation for fulltime matches with soft blue only */
