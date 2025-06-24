@@ -97,6 +97,51 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         const allFixtures: FixtureData[] = [];
         let primaryLeagueInfo: LeagueData | null = null;
 
+        // Step 1: Fetch live fixtures first
+        try {
+          console.log(`MyNewLeague - Fetching live fixtures`);
+          const liveResponse = await apiRequest("GET", "/api/fixtures/live");
+          const liveData = await liveResponse.json();
+          console.log(`MyNewLeague - Live fixtures count:`, liveData?.length || 0);
+
+          if (Array.isArray(liveData)) {
+            // Filter live fixtures for our target leagues (38, 15) or relevant teams
+            const filteredLiveFixtures = liveData.filter((fixture) => {
+              const isTargetLeague = leagueIds.includes(fixture.league?.id);
+              const isRelevantMatch =
+                fixture.teams?.home?.name === "Juventus" ||
+                fixture.teams?.away?.name === "Juventus" ||
+                fixture.teams?.home?.name === "Wydad AC" ||
+                fixture.teams?.away?.name === "Wydad AC" ||
+                fixture.teams?.home?.name === "FC Porto" ||
+                fixture.teams?.away?.name === "FC Porto" ||
+                fixture.teams?.home?.name === "Al Ahly" ||
+                fixture.teams?.away?.name === "Al Ahly";
+
+              const isLiveOrRecentlyFinished = [
+                "LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT",
+                "FT", "AET", "PEN"
+              ].includes(fixture.fixture?.status?.short);
+
+              console.log(`MyNewLeague - Live Fixture ${fixture.fixture.id}:`, {
+                teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+                league: fixture.league?.name,
+                status: fixture.fixture?.status?.short,
+                isTargetLeague,
+                isRelevantMatch,
+                isLiveOrRecentlyFinished,
+              });
+
+              return (isTargetLeague || isRelevantMatch) && isLiveOrRecentlyFinished;
+            });
+
+            allFixtures.push(...filteredLiveFixtures);
+          }
+        } catch (liveError) {
+          console.warn("Failed to fetch live fixtures:", liveError);
+        }
+
+        // Step 2: Fetch league fixtures for ended and upcoming matches
         for (const leagueId of leagueIds) {
           try {
             console.log(`MyNewLeague - Fetching data for league ${leagueId}`);
@@ -125,30 +170,37 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             );
 
             if (Array.isArray(fixturesData)) {
-              // Filter for Club World Cup matches specifically
+              // Filter for ended and upcoming matches only (exclude live/recently finished ones)
               const filteredFixtures = fixturesData.filter((fixture) => {
-                const isClubWorldCup =
-                  fixture.league?.name
-                    ?.toLowerCase()
-                    .includes("club world cup") ||
-                  fixture.league?.name
-                    ?.toLowerCase()
-                    .includes("fifa club world cup");
+                const isEndedMatch = [
+                  "AWD", "WO", "ABD", "CANC", "SUSP"
+                ].includes(fixture.fixture?.status?.short);
+                
+                const isUpcomingMatch = [
+                  "NS", "TBD"
+                ].includes(fixture.fixture?.status?.short);
+
                 const isRelevantMatch =
                   fixture.teams?.home?.name === "Juventus" ||
                   fixture.teams?.away?.name === "Juventus" ||
                   fixture.teams?.home?.name === "Wydad AC" ||
-                  fixture.teams?.away?.name === "Wydad AC";
+                  fixture.teams?.away?.name === "Wydad AC" ||
+                  fixture.teams?.home?.name === "FC Porto" ||
+                  fixture.teams?.away?.name === "FC Porto" ||
+                  fixture.teams?.home?.name === "Al Ahly" ||
+                  fixture.teams?.away?.name === "Al Ahly";
 
-                console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
+                console.log(`MyNewLeague - League Fixture ${fixture.fixture.id}:`, {
                   teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
                   league: fixture.league?.name,
                   status: fixture.fixture?.status?.short,
-                  isClubWorldCup,
+                  isEndedMatch,
+                  isUpcomingMatch,
                   isRelevantMatch,
                 });
 
-                return true; // Show all matches for now to debug
+                // Only include ended or upcoming matches (not live ones, as they're handled above)
+                return (isEndedMatch || isUpcomingMatch) && isRelevantMatch;
               });
 
               allFixtures.push(...filteredFixtures);
