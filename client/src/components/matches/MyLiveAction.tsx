@@ -167,60 +167,61 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     };
   }, [matchId]);
 
-  // Enhanced ball movement with attack patterns
+  // More realistic ball movement with smoother patterns
   useEffect(() => {
     if (!isLive) return;
 
     const ballInterval = setInterval(() => {
       setBallPosition(prev => {
-        let newX = prev.x + ballDirection.dx * 1.2;
-        let newY = prev.y + ballDirection.dy * 1.2;
+        let newX = prev.x + ballDirection.dx * 0.8; // Slower, more realistic
+        let newY = prev.y + ballDirection.dy * 0.8;
 
         let newDx = ballDirection.dx;
         let newDy = ballDirection.dy;
 
-        // Determine ball possession and attack intensity
-        if (newX < 50) {
+        // Determine ball possession more naturally
+        if (newX < 45) {
           setBallPossession('home');
-          // Generate attack pattern for home team
-          if (Math.random() > 0.85) {
+          // Less frequent attack patterns
+          if (Math.random() > 0.95) {
             generateAttackPattern('home', newX, newY);
           }
-        } else {
+        } else if (newX > 55) {
           setBallPossession('away');
-          // Generate attack pattern for away team
-          if (Math.random() > 0.85) {
+          if (Math.random() > 0.95) {
             generateAttackPattern('away', newX, newY);
           }
+        } else {
+          setBallPossession(null); // Neutral zone
         }
 
-        // Enhanced boundary physics
-        if (newX <= 8 || newX >= 92) {
-          newDx = -newDx + (Math.random() - 0.5) * 0.3;
-          newX = Math.max(8, Math.min(92, newX));
+        // Smoother boundary physics
+        if (newX <= 10 || newX >= 90) {
+          newDx = -newDx * 0.8 + (Math.random() - 0.5) * 0.2;
+          newX = Math.max(10, Math.min(90, newX));
         }
 
-        if (newY <= 20 || newY >= 80) {
-          newDy = -newDy + (Math.random() - 0.5) * 0.3;
-          newY = Math.max(20, Math.min(80, newY));
+        if (newY <= 25 || newY >= 75) {
+          newDy = -newDy * 0.8 + (Math.random() - 0.5) * 0.2;
+          newY = Math.max(25, Math.min(75, newY));
         }
 
-        // Natural variation
-        newDx += (Math.random() - 0.5) * 0.08;
-        newDy += (Math.random() - 0.5) * 0.08;
+        // Gentler variation
+        newDx += (Math.random() - 0.5) * 0.04;
+        newDy += (Math.random() - 0.5) * 0.04;
 
-        // Speed control
+        // Conservative speed control
         const speed = Math.sqrt(newDx * newDx + newDy * newDy);
-        if (speed > 2) {
-          newDx = (newDx / speed) * 2;
-          newDy = (newDy / speed) * 2;
+        if (speed > 1.5) {
+          newDx = (newDx / speed) * 1.5;
+          newDy = (newDy / speed) * 1.5;
         }
 
         setBallDirection({ dx: newDx, dy: newDy });
 
         return { x: newX, y: newY };
       });
-    }, 120);
+    }, 200); // Slower update rate
 
     return () => clearInterval(ballInterval);
   }, [isLive]);
@@ -279,26 +280,29 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     }, 3000);
   };
 
-  // Auto-update current event display
+  // Auto-update current event display - show latest event and hold it longer
   useEffect(() => {
     if (playByPlayEvents.length > 0) {
       const latestEvent = playByPlayEvents[0];
       setCurrentEvent(latestEvent);
 
-      const eventCycleInterval = setInterval(() => {
-        const recentEvents = playByPlayEvents.slice(0, 3);
-        if (recentEvents.length > 0) {
-          const currentIndex = recentEvents.findIndex(e => e.id === currentEvent?.id);
-          const nextIndex = (currentIndex + 1) % recentEvents.length;
-          setCurrentEvent(recentEvents[nextIndex]);
-        }
-      }, 4000);
+      // Only cycle if there are multiple recent events, and do it less frequently
+      if (playByPlayEvents.length > 1) {
+        const eventCycleInterval = setInterval(() => {
+          const recentEvents = playByPlayEvents.slice(0, 2); // Only show 2 most recent
+          if (recentEvents.length > 1) {
+            const currentIndex = recentEvents.findIndex(e => e.id === currentEvent?.id);
+            const nextIndex = (currentIndex + 1) % recentEvents.length;
+            setCurrentEvent(recentEvents[nextIndex]);
+          }
+        }, 8000); // Longer interval - 8 seconds
 
-      return () => {
-        clearInterval(eventCycleInterval);
-      };
+        return () => {
+          clearInterval(eventCycleInterval);
+        };
+      }
     }
-  }, [playByPlayEvents.length]); // Remove currentEvent from dependencies to prevent infinite loop
+  }, [playByPlayEvents.length])
 
   const generatePlayByPlayEvents = async (matchData: any, isUpdate: boolean = false) => {
     try {
@@ -317,7 +321,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       if (realEvents.length > 0) {
         const recentEvents = realEvents
           .filter(event => event.time?.elapsed <= elapsed)
-          .slice(-6)
+          .slice(-3)
           .reverse();
 
         // Only count corner kicks during initial load, not updates
@@ -342,7 +346,13 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
           if (event.type === 'Goal') {
             eventType = 'goal';
-            description = `GOAL! ${event.detail || ''}`;
+            // Clean up goal description - remove redundant "Normal Goal" text
+            const goalDetail = event.detail || '';
+            if (goalDetail.toLowerCase().includes('normal goal')) {
+              description = 'GOAL!';
+            } else {
+              description = goalDetail.includes('Goal') ? goalDetail : `${goalDetail} Goal`;
+            }
           } else if (event.type === 'Card') {
             eventType = 'card';
             description = `${event.detail || 'Yellow'} Card`;
@@ -351,10 +361,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             description = 'Substitution';
           } else if (event.detail?.toLowerCase().includes('corner')) {
             eventType = 'corner';
-            description = 'Corner';
+            description = 'Corner Kick';
           } else if (event.detail?.toLowerCase().includes('shot')) {
             eventType = 'shot';
-            description = 'Shot';
+            description = event.detail;
           }
 
           let x = 50, y = 50;
@@ -635,36 +645,37 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           </div>
 
-          {/* 365scores style event overlays */}
+          {/* More contextual event display */}
           {currentEvent && (
             <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
               <div className="bg-surfaceSecondary backdrop-blur-md rounded-lg px-6 py-4 text-center shadow-lg border border-dividerPrimary max-w-sm event-overlay">
                 <div className="text-textSecondary text-xs font-medium uppercase tracking-wider mb-2">
-                  {currentEvent.type === 'goal' ? 'GOAL!' : 
-                   currentEvent.type === 'substitution' ? 'SUBSTITUTION' :
-                   currentEvent.type === 'card' ? 'CARD' :
-                   currentEvent.type === 'corner' ? 'CORNER KICK' :
-                   currentEvent.type === 'shot' ? 'SHOT' :
-                   'MATCH EVENT'}
+                  {currentEvent.type === 'goal' ? '⚽ GOAL!' : 
+                   currentEvent.type === 'substitution' ? '🔄 SUBSTITUTION' :
+                   currentEvent.type === 'card' ? '🟨 CARD' :
+                   currentEvent.type === 'corner' ? '🚩 CORNER' :
+                   currentEvent.type === 'shot' ? '🎯 SHOT' :
+                   '⚽ LIVE'}
                 </div>
                 <div className="text-textPrimary text-sm font-bold mb-2">
                   {currentEvent.description}
                 </div>
-                {currentEvent.player !== 'Team' && (
-                  <div className="flex items-center justify-center gap-2">
-                    <img
-                      src={currentEvent.team === 'home' ? homeTeamData?.logo : awayTeamData?.logo}
-                      alt={currentEvent.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
-                      className="w-4 h-4 object-contain"
-                      onError={(e) => {
-                        e.currentTarget.src = '/assets/fallback-logo.svg';
-                      }}
-                    />
-                    <div className="text-textSecondary text-xs font-medium">
-                      {currentEvent.player}
-                    </div>
+                <div className="flex items-center justify-center gap-2">
+                  <img
+                    src={currentEvent.team === 'home' ? homeTeamData?.logo : awayTeamData?.logo}
+                    alt={currentEvent.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
+                    className="w-4 h-4 object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = '/assets/fallback-logo.svg';
+                    }}
+                  />
+                  <div className="text-textSecondary text-xs font-medium">
+                    {currentEvent.player !== 'Team' ? currentEvent.player : getTeamDisplayName(currentEvent.team)}
                   </div>
-                )}
+                  <div className="text-textSecondary text-xs">
+                    {currentEvent.minute}'
+                  </div>
+                </div>
               </div>
             </div>
           )}
