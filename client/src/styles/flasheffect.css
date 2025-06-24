@@ -1,8 +1,7 @@
 /* Flash Effects CSS - Separated from TodaysMatchByCountryNew.css */
 
-/* Flash animation for halftime matches with subtle light pink gradient */
+/* Flash animation for halftime matches with soft orange only */
 .country-matches-container .match-card-container.halftime-flash {
-  animation: halftime-flash-fade 3s ease-in-out;
   position: relative;
   overflow: hidden;
 }
@@ -49,23 +48,7 @@
   }
 }
 
-@keyframes halftime-flash-fade {
-  0% {
-    background: linear-gradient(135deg, #ffcccb, #ffb6c1);
-  }
-  25% {
-    background: linear-gradient(135deg, #ffb6c1, #ffa0af);
-  }
-  50% {
-    background: linear-gradient(135deg, #ffa0af, #ffb6c1);
-  }
-  75% {
-    background: linear-gradient(135deg, #ffb6c1, #ffcccb);
-  }
-  100% {
-    background: white;
-  }
-}
+
 
 /* Flash animation for fulltime matches with subtle light blue gradient */
 .country-matches-container .match-card-container.fulltime-flash {
