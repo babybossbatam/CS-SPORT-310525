@@ -88,6 +88,115 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   // Using league ID 38 and 15 as specified in checkSpecificLeagueMatches.ts
   const leagueIds = [38, 15];
 
+  // Function to update match status and scores
+  const updateMatchStatusAndScores = async (matches: FixtureData[]) => {
+    try {
+      // Separate matches by status
+      const liveMatches = matches.filter(match => {
+        const status = match.fixture.status.short;
+        return ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
+      });
+
+      const recentlyFinishedMatches = matches.filter(match => {
+        const status = match.fixture.status.short;
+        return ["FT", "AET", "PEN"].includes(status);
+      });
+
+      const endedMatches = matches.filter(match => {
+        const status = match.fixture.status.short;
+        return ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
+      });
+
+      const upcomingMatches = matches.filter(match => {
+        const status = match.fixture.status.short;
+        return ["NS", "TBD"].includes(status);
+      });
+
+      // Get live fixtures for live and recently finished matches
+      if (liveMatches.length > 0 || recentlyFinishedMatches.length > 0) {
+        try {
+          const liveResponse = await apiRequest("GET", "/api/fixtures/live");
+          const liveData = await liveResponse.json();
+          
+          if (Array.isArray(liveData)) {
+            // Update live matches
+            liveMatches.forEach(match => {
+              const liveMatch = liveData.find(live => live.fixture.id === match.fixture.id);
+              if (liveMatch) {
+                match.fixture.status = liveMatch.fixture.status;
+                match.goals = liveMatch.goals;
+                if (liveMatch.score?.penalty) {
+                  match.score = { ...match.score, penalty: liveMatch.score.penalty };
+                }
+              }
+            });
+
+            // Update recently finished matches
+            recentlyFinishedMatches.forEach(match => {
+              const liveMatch = liveData.find(live => live.fixture.id === match.fixture.id);
+              if (liveMatch) {
+                match.fixture.status = liveMatch.fixture.status;
+                match.goals = liveMatch.goals;
+                if (liveMatch.score?.penalty) {
+                  match.score = { ...match.score, penalty: liveMatch.score.penalty };
+                }
+              }
+            });
+          }
+        } catch (liveError) {
+          console.warn("Failed to fetch live fixtures:", liveError);
+        }
+      }
+
+      // Get league fixtures for ended and upcoming matches
+      if (endedMatches.length > 0 || upcomingMatches.length > 0) {
+        for (const leagueId of leagueIds) {
+          try {
+            const leagueResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures`);
+            const leagueData = await leagueResponse.json();
+            
+            if (Array.isArray(leagueData)) {
+              // Update ended matches
+              endedMatches.forEach(match => {
+                if (match.league.id === leagueId) {
+                  const leagueMatch = leagueData.find(league => league.fixture.id === match.fixture.id);
+                  if (leagueMatch) {
+                    match.fixture.status = leagueMatch.fixture.status;
+                    match.goals = leagueMatch.goals;
+                    if (leagueMatch.score?.penalty) {
+                      match.score = { ...match.score, penalty: leagueMatch.score.penalty };
+                    }
+                  }
+                }
+              });
+
+              // Update upcoming matches
+              upcomingMatches.forEach(match => {
+                if (match.league.id === leagueId) {
+                  const leagueMatch = leagueData.find(league => league.fixture.id === match.fixture.id);
+                  if (leagueMatch) {
+                    match.fixture.status = leagueMatch.fixture.status;
+                    match.goals = leagueMatch.goals;
+                    if (leagueMatch.score?.penalty) {
+                      match.score = { ...match.score, penalty: leagueMatch.score.penalty };
+                    }
+                  }
+                }
+              });
+            }
+          } catch (leagueError) {
+            console.warn(`Failed to fetch fixtures for league ${leagueId}:`, leagueError);
+          }
+        }
+      }
+
+      return matches;
+    } catch (error) {
+      console.error("Error updating match status and scores:", error);
+      return matches;
+    }
+  };
+
   useEffect(() => {
     const fetchLeagueData = async () => {
       setLoading(true);
@@ -162,7 +271,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         }
 
         setLeagueInfo(primaryLeagueInfo);
-        setFixtures(allFixtures);
+        
+        // Update status and scores for all fixtures
+        const updatedFixtures = await updateMatchStatusAndScores(allFixtures);
+        setFixtures(updatedFixtures);
       } catch (err) {
         console.error("Error fetching league data:", err);
         setError("Failed to load league data");
@@ -172,7 +284,25 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     };
 
     fetchLeagueData();
-  }, []);
+
+    // Set up periodic updates for live matches
+    const interval = setInterval(async () => {
+      if (fixtures.length > 0) {
+        const hasLiveMatches = fixtures.some(match => {
+          const status = match.fixture.status.short;
+          return ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
+        });
+
+        if (hasLiveMatches) {
+          console.log("MyNewLeague - Updating live match scores...");
+          const updatedFixtures = await updateMatchStatusAndScores(fixtures);
+          setFixtures([...updatedFixtures]); // Force re-render with new array reference
+        }
+      }
+    }, 30000); // Update every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [fixtures]);
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
