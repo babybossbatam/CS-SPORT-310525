@@ -245,17 +245,9 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       }
 
       // Within same status category, sort by date
-      if (aPriority === 2) {
-        // For ended matches, show most recent first (descending order)
-        return (
-          new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime()
-        );
-      } else {
-        // For live and upcoming matches, show earliest first (ascending order)
-        return (
-          new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
-        );
-      }
+      return (
+        new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
+      );
     });
   });
 
