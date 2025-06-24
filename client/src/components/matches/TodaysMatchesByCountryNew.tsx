@@ -188,7 +188,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     114, 116, 120, 121, 122, 123, 124, 125, 126, 127,
   ]; // Significantly expanded to include major leagues from all continents
 
-  // Removed live fixtures fetching - this component now only handles date-based fixtures
+  // Fetch live fixtures for real-time updates (no caching)
+  const { data: liveFixtures = [], isLoading: isLiveLoading } = useQuery({
+    queryKey: ["live-fixtures"],
+    queryFn: async () => {
+      console.log(`🔴 [TodaysMatchesByCountryNew] Fetching live fixtures (no cache)`);
+      const response = await apiRequest("GET", "/api/fixtures/live");
+      const data = await response.json();
+      console.log(`✅ [TodaysMatchesByCountryNew] Received ${data?.length || 0} live fixtures`);
+      return data;
+    },
+    enabled: enableFetching,
+    refetchInterval: 30000, // Refresh every 30 seconds for live matches
+    staleTime: 0, // Always consider live data stale to force refetch
+    gcTime: 0, // Don't cache live data
+  });
 
   // Fetch all fixtures for the selected date with comprehensive caching
   const { data: fixtures = [], isLoading } = useQuery({
@@ -320,22 +334,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     return mergedFixtures;
   }, [fixtures, liveFixtures]);
-
-  // Fetch live fixtures for real-time updates (no caching)
-  const { data: liveFixtures = [], isLoading: isLiveLoading } = useQuery({
-    queryKey: ["live-fixtures"],
-    queryFn: async () => {
-      console.log(`🔴 [TodaysMatchesByCountryNew] Fetching live fixtures (no cache)`);
-      const response = await apiRequest("GET", "/api/fixtures/live");
-      const data = await response.json();
-      console.log(`✅ [TodaysMatchesByCountryNew] Received ${data?.length || 0} live fixtures`);
-      return data;
-    },
-    enabled: enableFetching,
-    refetchInterval: 30000, // Refresh every 30 seconds for live matches
-    staleTime: 0, // Always consider live data stale to force refetch
-    gcTime: 0, // Don't cache live data
-  });
 
   // Enhanced effect to detect status and score changes with flash effects
   useEffect(() => {
