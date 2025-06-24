@@ -195,17 +195,38 @@ const HomeTopScorersList = () => {
     // Always show all popular leagues regardless of data availability
     setAvailableLeagues(POPULAR_LEAGUES);
 
-    // Set initial selected league if not set
+    // Set initial selected league if not set and persist it
     if (!selectedLeague && POPULAR_LEAGUES.length > 0) {
       // Prefer World Cup Qualification South America (ID 34) if available
       const preferredLeague = POPULAR_LEAGUES.find(
         (league) => league.id === 34,
       );
-      setSelectedLeague(
-        preferredLeague ? preferredLeague.id : POPULAR_LEAGUES[0].id,
-      );
+      const initialLeague = preferredLeague ? preferredLeague.id : POPULAR_LEAGUES[0].id;
+      setSelectedLeague(initialLeague);
+      
+      // Store in sessionStorage to persist across refreshes
+      sessionStorage.setItem('homeTopScorers_selectedLeague', initialLeague.toString());
     }
-  }, []); // Remove selectedLeague dependency to prevent infinite loops
+  }, []);
+
+  // Restore selected league from sessionStorage on mount
+  useEffect(() => {
+    const storedLeague = sessionStorage.getItem('homeTopScorers_selectedLeague');
+    if (storedLeague && !selectedLeague) {
+      const leagueId = parseInt(storedLeague, 10);
+      // Verify the league still exists in our list
+      if (POPULAR_LEAGUES.find(league => league.id === leagueId)) {
+        setSelectedLeague(leagueId);
+      }
+    }
+  }, []);
+
+  // Store selected league in sessionStorage when it changes
+  useEffect(() => {
+    if (selectedLeague) {
+      sessionStorage.setItem('homeTopScorers_selectedLeague', selectedLeague.toString());
+    }
+  }, [selectedLeague]);
 
   const {
     data: topScorers,
@@ -324,53 +345,65 @@ const HomeTopScorersList = () => {
   const [containerWidth, setContainerWidth] = useState(0);
   const [contentWidth, setContentWidth] = useState(0);
 
-  // Calculate dimensions on mount and resize
+  // Calculate dimensions on mount and resize with better timing
   useEffect(() => {
     const updateDimensions = () => {
       if (scrollContainerRef.current && availableLeagues.length > 0) {
         const container = scrollContainerRef.current;
-        const content = container.querySelector(
-          "[data-content]",
-        ) as HTMLElement;
+        const content = container.querySelector("[data-content]") as HTMLElement;
         if (content) {
-          setContainerWidth(container.clientWidth);
-          setContentWidth(content.scrollWidth);
+          // Use requestAnimationFrame to ensure accurate measurements
+          requestAnimationFrame(() => {
+            setContainerWidth(container.clientWidth);
+            setContentWidth(content.scrollWidth);
+          });
         }
       }
     };
 
-    // Use a longer delay to ensure all league buttons are rendered
-    const timer = setTimeout(updateDimensions, 200);
+    // Initial dimension calculation with multiple attempts for better reliability
+    const initialTimer = setTimeout(updateDimensions, 100);
+    const fallbackTimer = setTimeout(updateDimensions, 300);
+    
     window.addEventListener("resize", updateDimensions);
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(initialTimer);
+      clearTimeout(fallbackTimer);
       window.removeEventListener("resize", updateDimensions);
     };
   }, [availableLeagues.length]);
 
-  // Additional effect to update dimensions when selected league changes
+  // Update dimensions when selected league changes
   useEffect(() => {
-    if (selectedLeague && availableLeagues.length > 0) {
-      const timer = setTimeout(() => {
-        if (scrollContainerRef.current) {
-          const container = scrollContainerRef.current;
-          const content = container.querySelector(
-            "[data-content]",
-          ) as HTMLElement;
-          if (content) {
+    if (selectedLeague && availableLeagues.length > 0 && scrollContainerRef.current) {
+      const updateDimensions = () => {
+        const container = scrollContainerRef.current;
+        const content = container?.querySelector("[data-content]") as HTMLElement;
+        if (container && content) {
+          requestAnimationFrame(() => {
             setContainerWidth(container.clientWidth);
             setContentWidth(content.scrollWidth);
-          }
+          });
         }
-      }, 50);
+      };
 
-      return () => clearTimeout(timer);
+      // Multiple timing attempts to catch the DOM updates
+      const timer1 = setTimeout(updateDimensions, 0);
+      const timer2 = setTimeout(updateDimensions, 50);
+      const timer3 = setTimeout(updateDimensions, 150);
+
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+        clearTimeout(timer3);
+      };
     }
   }, [selectedLeague, availableLeagues.length]);
 
   const scrollLeft = () => {
-    // Move to previous league
+    if (availableLeagues.length === 0) return;
+    
     const currentIndex = getCurrentLeagueIndex();
     if (currentIndex > 0) {
       setSelectedLeague(availableLeagues[currentIndex - 1].id);
@@ -381,7 +414,8 @@ const HomeTopScorersList = () => {
   };
 
   const scrollRight = () => {
-    // Move to next league
+    if (availableLeagues.length === 0) return;
+    
     const currentIndex = getCurrentLeagueIndex();
     if (currentIndex < availableLeagues.length - 1) {
       setSelectedLeague(availableLeagues[currentIndex + 1].id);
@@ -394,53 +428,75 @@ const HomeTopScorersList = () => {
   const canScrollLeft = availableLeagues.length > 0;
   const canScrollRight = availableLeagues.length > 0;
 
-  // Auto-scroll to selected league when it changes - 365scores style
+  // Auto-scroll to selected league when it changes with improved timing
   useEffect(() => {
-    if (
-      scrollContainerRef.current &&
-      selectedLeague &&
-      availableLeagues.length > 0
-    ) {
-      // Use requestAnimationFrame to ensure DOM is updated
-      requestAnimationFrame(() => {
-        const container = scrollContainerRef.current;
-        if (!container) return;
-
-        const selectedButton = container.querySelector(
-          `[data-league-id="${selectedLeague}"]`,
-        ) as HTMLElement;
-        if (selectedButton) {
-          const buttonLeft = selectedButton.offsetLeft;
-          const buttonWidth = selectedButton.offsetWidth;
-          const containerWidth = container.clientWidth;
-
-          // Recalculate content width if needed
-          const content = container.querySelector(
-            "[data-content]",
-          ) as HTMLElement;
-          const actualContentWidth = content
-            ? content.scrollWidth
-            : contentWidth;
-
-          // Calculate optimal position to center the selected item
-          const targetPosition =
-            buttonLeft - containerWidth / 2 + buttonWidth / 2;
-          const maxScroll = Math.max(0, actualContentWidth - containerWidth);
-          const clampedPosition = Math.max(
-            0,
-            Math.min(maxScroll, targetPosition),
-          );
-
-          setContentPosition(clampedPosition);
-
-          // Update content width if it changed
-          if (actualContentWidth !== contentWidth) {
-            setContentWidth(actualContentWidth);
-          }
-        }
-      });
+    if (!scrollContainerRef.current || !selectedLeague || availableLeagues.length === 0) {
+      return;
     }
-  }, [selectedLeague, availableLeagues.length, contentWidth, containerWidth]);
+
+    const scrollToSelectedLeague = () => {
+      const container = scrollContainerRef.current;
+      if (!container) return;
+
+      const selectedButton = container.querySelector(
+        `[data-league-id="${selectedLeague}"]`,
+      ) as HTMLElement;
+      
+      if (!selectedButton) {
+        // Button not found, try again after a short delay
+        return false;
+      }
+
+      const buttonLeft = selectedButton.offsetLeft;
+      const buttonWidth = selectedButton.offsetWidth;
+      const containerWidth = container.clientWidth;
+
+      // Get fresh content width
+      const content = container.querySelector("[data-content]") as HTMLElement;
+      const actualContentWidth = content ? content.scrollWidth : 0;
+
+      if (actualContentWidth === 0) {
+        // Content not ready, try again
+        return false;
+      }
+
+      // Calculate optimal position to center the selected item
+      const targetPosition = buttonLeft - containerWidth / 2 + buttonWidth / 2;
+      const maxScroll = Math.max(0, actualContentWidth - containerWidth);
+      const clampedPosition = Math.max(0, Math.min(maxScroll, targetPosition));
+
+      // Update state
+      setContentPosition(clampedPosition);
+      
+      if (actualContentWidth !== contentWidth) {
+        setContentWidth(actualContentWidth);
+      }
+
+      return true; // Success
+    };
+
+    // Try multiple times with increasing delays to handle different rendering scenarios
+    const attemptScroll = (attempt = 0) => {
+      const maxAttempts = 5;
+      const delays = [0, 50, 150, 300, 500];
+
+      if (attempt >= maxAttempts) return;
+
+      const timer = setTimeout(() => {
+        requestAnimationFrame(() => {
+          const success = scrollToSelectedLeague();
+          if (!success && attempt < maxAttempts - 1) {
+            attemptScroll(attempt + 1);
+          }
+        });
+      }, delays[attempt]);
+
+      return () => clearTimeout(timer);
+    };
+
+    const cleanup = attemptScroll();
+    return cleanup;
+  }, [selectedLeague, availableLeagues.length]);
 
   if (isLoadingLeagues || !selectedLeague) {
     return (
