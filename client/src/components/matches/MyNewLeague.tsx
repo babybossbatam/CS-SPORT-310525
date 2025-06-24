@@ -287,22 +287,25 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
     // Set up periodic updates for live matches
     const interval = setInterval(async () => {
-      if (fixtures.length > 0) {
-        const hasLiveMatches = fixtures.some(match => {
+      setFixtures(currentFixtures => {
+        const hasLiveMatches = currentFixtures.some(match => {
           const status = match.fixture.status.short;
           return ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
         });
 
         if (hasLiveMatches) {
           console.log("MyNewLeague - Updating live match scores...");
-          const updatedFixtures = await updateMatchStatusAndScores(fixtures);
-          setFixtures([...updatedFixtures]); // Force re-render with new array reference
+          updateMatchStatusAndScores(currentFixtures).then(updatedFixtures => {
+            setFixtures([...updatedFixtures]); // Force re-render with new array reference
+          });
         }
-      }
+        
+        return currentFixtures; // Return current state unchanged
+      });
     }, 30000); // Update every 30 seconds
 
     return () => clearInterval(interval);
-  }, [fixtures]);
+  }, [leagueIds]);
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
