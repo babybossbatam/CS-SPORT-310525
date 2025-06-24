@@ -15,9 +15,9 @@
   right: 0;
   bottom: 0;
   background: linear-gradient(90deg, 
-    rgba(255, 182, 193, 0.9) 0%, 
-    rgba(255, 182, 193, 0.7) 50%, 
-    rgba(255, 182, 193, 0.9) 100%
+    rgba(255, 165, 79, 0.9) 0%, 
+    rgba(255, 165, 79, 0.7) 50%, 
+    rgba(255, 165, 79, 0.9) 100%
   );
   animation: slide-from-both-ends-halftime 3s ease-in-out;
   z-index: 1;
@@ -82,9 +82,9 @@
   right: 0;
   bottom: 0;
   background: linear-gradient(90deg, 
-    rgba(173, 216, 230, 0.9) 0%, 
-    rgba(173, 216, 230, 0.7) 50%, 
-    rgba(173, 216, 230, 0.9) 100%
+    rgba(135, 206, 235, 0.9) 0%, 
+    rgba(135, 206, 235, 0.7) 50%, 
+    rgba(135, 206, 235, 0.9) 100%
   );
   animation: slide-from-both-ends-fulltime 3s ease-in-out;
   z-index: 1;
@@ -658,9 +658,9 @@
   right: 0;
   bottom: 0;
   background: linear-gradient(90deg, 
-    rgba(34, 197, 94, 0.9) 0%, 
-    rgba(34, 197, 94, 0.7) 50%, 
-    rgba(34, 197, 94, 0.9) 100%
+    rgba(144, 238, 144, 0.9) 0%, 
+    rgba(144, 238, 144, 0.7) 50%, 
+    rgba(144, 238, 144, 0.9) 100%
   );
   animation: slide-from-both-ends-goal 2s ease-in-out;
   z-index: 1;
