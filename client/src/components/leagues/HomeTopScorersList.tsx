@@ -1,10 +1,10 @@
-import { useState, useRef, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useCachedQuery } from '@/lib/cachingHelper';
-import { useLocation } from 'wouter';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useCachedQuery } from "@/lib/cachingHelper";
+import { useLocation } from "wouter";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
@@ -20,34 +20,130 @@ const scrollbarHideStyle = `
 `;
 
 // Import the popular leagues list from PopularLeaguesList component
-import { CURRENT_POPULAR_LEAGUES } from './PopularLeaguesList';
+import { CURRENT_POPULAR_LEAGUES } from "./PopularLeaguesList";
 
 // Reorder leagues to put Saudi Pro League next to FIFA Club World Cup
 const POPULAR_LEAGUES = [
-  { id: 39, name: 'Premier League', logo: 'https://media.api-sports.io/football/leagues/39.png' },
-  { id: 140, name: 'La Liga', logo: 'https://media.api-sports.io/football/leagues/140.png' },
-  { id: 135, name: 'Serie A', logo: 'https://media.api-sports.io/football/leagues/135.png' },
-  { id: 78, name: 'Bundesliga', logo: 'https://media.api-sports.io/football/leagues/78.png' },
-  { id: 61, name: 'Ligue 1', logo: 'https://media.api-sports.io/football/leagues/61.png' },
-  { id: 2, name: 'UEFA Champions League', logo: 'https://media.api-sports.io/football/leagues/2.png' },
-  { id: 3, name: 'UEFA Europa League', logo: 'https://media.api-sports.io/football/leagues/3.png' },
-  { id: 848, name: 'UEFA Conference League', logo: 'https://media.api-sports.io/football/leagues/848.png' },
-  { id: 5, name: 'UEFA Nations League', logo: 'https://media.api-sports.io/football/leagues/5.png' },
-  { id: 1, name: 'World Cup', logo: 'https://media.api-sports.io/football/leagues/1.png' },
-  { id: 4, name: 'Euro Championship', logo: 'https://media.api-sports.io/football/leagues/4.png' },
-  { id: 15, name: 'FIFA Club World Cup', logo: 'https://media.api-sports.io/football/leagues/15.png' },
-  { id: 34, name: 'World Cup Qualification South America', logo: 'https://media.api-sports.io/football/leagues/34.png' },
-  { id: 307, name: 'Saudi Pro League', logo: 'https://media.api-sports.io/football/leagues/307.png' },
-  { id: 38, name: 'UEFA U21 Championship', logo: 'https://media.api-sports.io/football/leagues/38.png' },
-  { id: 9, name: 'Copa America', logo: 'https://media.api-sports.io/football/leagues/9.png' },
-  { id: 22, name: 'CONCACAF Gold Cup', logo: 'https://media.api-sports.io/football/leagues/22.png' },
-  { id: 6, name: 'Africa Cup of Nations', logo: 'https://media.api-sports.io/football/leagues/6.png' },
-  { id: 16, name: 'Asian Cup', logo: 'https://media.api-sports.io/football/leagues/16.png' },
-  { id: 137, name: 'Coppa Italia', logo: 'https://media.api-sports.io/football/leagues/137.png' },
-  { id: 45, name: 'FA Cup', logo: 'https://media.api-sports.io/football/leagues/45.png' },
-  { id: 143, name: 'Copa del Rey', logo: 'https://media.api-sports.io/football/leagues/143.png' },
-  { id: 81, name: 'DFB Pokal', logo: 'https://media.api-sports.io/football/leagues/81.png' },
-  { id: 233, name: 'Egyptian Premier League', logo: 'https://media.api-sports.io/football/leagues/233.png' }
+  {
+    id: 39,
+    name: "Premier League",
+    logo: "https://media.api-sports.io/football/leagues/39.png",
+  },
+  {
+    id: 140,
+    name: "La Liga",
+    logo: "https://media.api-sports.io/football/leagues/140.png",
+  },
+  {
+    id: 135,
+    name: "Serie A",
+    logo: "https://media.api-sports.io/football/leagues/135.png",
+  },
+  {
+    id: 78,
+    name: "Bundesliga",
+    logo: "https://media.api-sports.io/football/leagues/78.png",
+  },
+  {
+    id: 61,
+    name: "Ligue 1",
+    logo: "https://media.api-sports.io/football/leagues/61.png",
+  },
+  {
+    id: 2,
+    name: "UEFA Champions League",
+    logo: "https://media.api-sports.io/football/leagues/2.png",
+  },
+  {
+    id: 3,
+    name: "UEFA Europa League",
+    logo: "https://media.api-sports.io/football/leagues/3.png",
+  },
+  {
+    id: 848,
+    name: "UEFA Conference League",
+    logo: "https://media.api-sports.io/football/leagues/848.png",
+  },
+  {
+    id: 5,
+    name: "UEFA Nations League",
+    logo: "https://media.api-sports.io/football/leagues/5.png",
+  },
+  {
+    id: 1,
+    name: "World Cup",
+    logo: "https://media.api-sports.io/football/leagues/1.png",
+  },
+  {
+    id: 4,
+    name: "Euro Championship",
+    logo: "https://media.api-sports.io/football/leagues/4.png",
+  },
+  {
+    id: 15,
+    name: "FIFA Club World Cup",
+    logo: "https://media.api-sports.io/football/leagues/15.png",
+  },
+  {
+    id: 34,
+    name: "World Cup Qualification South America",
+    logo: "https://media.api-sports.io/football/leagues/34.png",
+  },
+  {
+    id: 307,
+    name: "Saudi Pro League",
+    logo: "https://media.api-sports.io/football/leagues/307.png",
+  },
+  {
+    id: 38,
+    name: "UEFA U21 Championship",
+    logo: "https://media.api-sports.io/football/leagues/38.png",
+  },
+  {
+    id: 9,
+    name: "Copa America",
+    logo: "https://media.api-sports.io/football/leagues/9.png",
+  },
+  {
+    id: 22,
+    name: "CONCACAF Gold Cup",
+    logo: "https://media.api-sports.io/football/leagues/22.png",
+  },
+  {
+    id: 6,
+    name: "Africa Cup of Nations",
+    logo: "https://media.api-sports.io/football/leagues/6.png",
+  },
+  {
+    id: 16,
+    name: "Asian Cup",
+    logo: "https://media.api-sports.io/football/leagues/16.png",
+  },
+  {
+    id: 137,
+    name: "Coppa Italia",
+    logo: "https://media.api-sports.io/football/leagues/137.png",
+  },
+  {
+    id: 45,
+    name: "FA Cup",
+    logo: "https://media.api-sports.io/football/leagues/45.png",
+  },
+  {
+    id: 143,
+    name: "Copa del Rey",
+    logo: "https://media.api-sports.io/football/leagues/143.png",
+  },
+  {
+    id: 81,
+    name: "DFB Pokal",
+    logo: "https://media.api-sports.io/football/leagues/81.png",
+  },
+  {
+    id: 233,
+    name: "Egyptian Premier League",
+    logo: "https://media.api-sports.io/football/leagues/233.png",
+  },
 ];
 
 interface Player {
@@ -84,7 +180,9 @@ interface PlayerStatistics {
 
 const HomeTopScorersList = () => {
   const [, navigate] = useLocation();
-  const [availableLeagues, setAvailableLeagues] = useState<typeof POPULAR_LEAGUES>([]);
+  const [availableLeagues, setAvailableLeagues] = useState<
+    typeof POPULAR_LEAGUES
+  >([]);
   const [selectedLeague, setSelectedLeague] = useState<number | null>(null);
   const [scrollPosition, setScrollPosition] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -100,35 +198,50 @@ const HomeTopScorersList = () => {
     // Set initial selected league if not set
     if (!selectedLeague && POPULAR_LEAGUES.length > 0) {
       // Prefer World Cup Qualification South America (ID 34) if available
-      const preferredLeague = POPULAR_LEAGUES.find(league => league.id === 34);
-      setSelectedLeague(preferredLeague ? preferredLeague.id : POPULAR_LEAGUES[0].id);
+      const preferredLeague = POPULAR_LEAGUES.find(
+        (league) => league.id === 34,
+      );
+      setSelectedLeague(
+        preferredLeague ? preferredLeague.id : POPULAR_LEAGUES[0].id,
+      );
     }
   }, []); // Remove selectedLeague dependency to prevent infinite loops
 
-  const { data: topScorers, isLoading, error } = useCachedQuery(
+  const {
+    data: topScorers,
+    isLoading,
+    error,
+  } = useCachedQuery(
     [`top-scorers-league-${selectedLeague}`],
     async () => {
       if (!selectedLeague) return [];
 
-      console.log(`🎯 [HomeTopScorers] Fetching top scorers for selected league ${selectedLeague}`);
+      console.log(
+        `🎯 [HomeTopScorers] Fetching top scorers for selected league ${selectedLeague}`,
+      );
 
-      const response = await fetch(`/api/leagues/${selectedLeague}/topscorers`, {
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'Cache-Control': 'max-age=3600' // 1 hour cache
-        }
-      });
+      const response = await fetch(
+        `/api/leagues/${selectedLeague}/topscorers`,
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            "Cache-Control": "max-age=3600", // 1 hour cache
+          },
+        },
+      );
 
       if (!response.ok) {
-        console.warn(`Failed to fetch top scorers for league ${selectedLeague}: ${response.status}`);
+        console.warn(
+          `Failed to fetch top scorers for league ${selectedLeague}: ${response.status}`,
+        );
         return [];
       }
 
       const data: PlayerStatistics[] = await response.json();
 
       // Filter for current/recent season data only
-      const freshData = data.filter(scorer => {
+      const freshData = data.filter((scorer) => {
         const seasonYear = scorer.statistics[0]?.league?.season;
         if (!seasonYear) return false;
 
@@ -136,7 +249,8 @@ const HomeTopScorersList = () => {
 
         // For World Cup Qualification cycles, include current and next year
         // CONMEBOL WC Qualification runs for 2026 World Cup
-        if (selectedLeague === 34) { // CONMEBOL WC Qualification
+        if (selectedLeague === 34) {
+          // CONMEBOL WC Qualification
           return seasonYear >= 2024 && seasonYear <= 2026;
         }
 
@@ -168,16 +282,16 @@ const HomeTopScorersList = () => {
       retry: 1,
       staleTime: 2 * 60 * 60 * 1000, // 2 hour stale time - use cached data longer
       refetchOnWindowFocus: false, // Prevent unnecessary refetches
-      refetchOnMount: false // Use cached data on mount
-    }
+      refetchOnMount: false, // Use cached data on mount
+    },
   );
 
   const getCurrentLeagueIndex = () => {
-    return availableLeagues.findIndex(league => league.id === selectedLeague);
+    return availableLeagues.findIndex((league) => league.id === selectedLeague);
   };
 
   const getCurrentLeague = () => {
-    return availableLeagues.find(league => league.id === selectedLeague);
+    return availableLeagues.find((league) => league.id === selectedLeague);
   };
 
   const goToPreviousLeague = () => {
@@ -201,8 +315,8 @@ const HomeTopScorersList = () => {
   };
 
   const getLeagueDisplayName = (leagueId: number) => {
-    const league = availableLeagues.find(l => l.id === leagueId);
-    return league?.name || 'League';
+    const league = availableLeagues.find((l) => l.id === leagueId);
+    return league?.name || "League";
   };
 
   // 365scores-style navigation with positioning
@@ -215,7 +329,9 @@ const HomeTopScorersList = () => {
     const updateDimensions = () => {
       if (scrollContainerRef.current && availableLeagues.length > 0) {
         const container = scrollContainerRef.current;
-        const content = container.querySelector('[data-content]') as HTMLElement;
+        const content = container.querySelector(
+          "[data-content]",
+        ) as HTMLElement;
         if (content) {
           setContainerWidth(container.clientWidth);
           setContentWidth(content.scrollWidth);
@@ -225,11 +341,11 @@ const HomeTopScorersList = () => {
 
     // Use a longer delay to ensure all league buttons are rendered
     const timer = setTimeout(updateDimensions, 200);
-    window.addEventListener('resize', updateDimensions);
+    window.addEventListener("resize", updateDimensions);
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('resize', updateDimensions);
+      window.removeEventListener("resize", updateDimensions);
     };
   }, [availableLeagues.length]);
 
@@ -239,7 +355,9 @@ const HomeTopScorersList = () => {
       const timer = setTimeout(() => {
         if (scrollContainerRef.current) {
           const container = scrollContainerRef.current;
-          const content = container.querySelector('[data-content]') as HTMLElement;
+          const content = container.querySelector(
+            "[data-content]",
+          ) as HTMLElement;
           if (content) {
             setContainerWidth(container.clientWidth);
             setContentWidth(content.scrollWidth);
@@ -276,33 +394,45 @@ const HomeTopScorersList = () => {
   const canScrollLeft = availableLeagues.length > 0;
   const canScrollRight = availableLeagues.length > 0;
 
-
-
   // Auto-scroll to selected league when it changes - 365scores style
   useEffect(() => {
-    if (scrollContainerRef.current && selectedLeague && availableLeagues.length > 0) {
+    if (
+      scrollContainerRef.current &&
+      selectedLeague &&
+      availableLeagues.length > 0
+    ) {
       // Use requestAnimationFrame to ensure DOM is updated
       requestAnimationFrame(() => {
         const container = scrollContainerRef.current;
         if (!container) return;
 
-        const selectedButton = container.querySelector(`[data-league-id="${selectedLeague}"]`) as HTMLElement;
+        const selectedButton = container.querySelector(
+          `[data-league-id="${selectedLeague}"]`,
+        ) as HTMLElement;
         if (selectedButton) {
           const buttonLeft = selectedButton.offsetLeft;
           const buttonWidth = selectedButton.offsetWidth;
           const containerWidth = container.clientWidth;
-          
+
           // Recalculate content width if needed
-          const content = container.querySelector('[data-content]') as HTMLElement;
-          const actualContentWidth = content ? content.scrollWidth : contentWidth;
+          const content = container.querySelector(
+            "[data-content]",
+          ) as HTMLElement;
+          const actualContentWidth = content
+            ? content.scrollWidth
+            : contentWidth;
 
           // Calculate optimal position to center the selected item
-          const targetPosition = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
+          const targetPosition =
+            buttonLeft - containerWidth / 2 + buttonWidth / 2;
           const maxScroll = Math.max(0, actualContentWidth - containerWidth);
-          const clampedPosition = Math.max(0, Math.min(maxScroll, targetPosition));
+          const clampedPosition = Math.max(
+            0,
+            Math.min(maxScroll, targetPosition),
+          );
 
           setContentPosition(clampedPosition);
-          
+
           // Update content width if it changed
           if (actualContentWidth !== contentWidth) {
             setContentWidth(actualContentWidth);
@@ -386,18 +516,18 @@ const HomeTopScorersList = () => {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-md border border-gray-200 overflow-hidden">
         {/* Horizontal scrollable league navigation with navigation buttons */}
-        <div className="border-b border-gray-100 bg-gray-50">
+        <div className="border-b ">
           <div className="flex items-center">
             {/* Left navigation button - 365scores style */}
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
-              className={`h-10 w-8 p-0 ml-1 flex-shrink-0 rounded-md transition-all ${
-                canScrollLeft 
-                  ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
-                  : 'text-gray-300 cursor-not-allowed'
+              className={`h-10 w-8 p-0 ml-1 flex-shrink-0  transition-all ${
+                canScrollLeft
+                  ? "text-gray-700  hover:bg-bg-white-100"
+                  : "text-gray-300 cursor-not-allowed"
               }`}
               onClick={scrollLeft}
               disabled={!canScrollLeft}
@@ -406,16 +536,16 @@ const HomeTopScorersList = () => {
             </Button>
 
             {/* 365scores-style scrollable container */}
-            <div 
+            <div
               ref={scrollContainerRef}
               className="relative overflow-hidden flex-1"
             >
-              <div 
+              <div
                 data-content
                 className="flex items-center py-3 gap-6 transition-all duration-300 ease-out"
-                style={{ 
+                style={{
                   transform: `translateX(-${contentPosition}px)`,
-                  width: 'max-content'
+                  width: "max-content",
                 }}
               >
                 {availableLeagues.map((league) => (
@@ -423,35 +553,33 @@ const HomeTopScorersList = () => {
                     key={league.id}
                     data-league-id={league.id}
                     onClick={() => setSelectedLeague(league.id)}
-                    className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 flex-shrink-0 px-3 py-2 rounded-md min-w-max ${
-                      selectedLeague === league.id 
-                        ? 'text-blue-600 font-semibold bg-blue-50 border border-blue-200' 
-                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                    className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 flex-shrink-0 px-3 py-2  min-w-max ${
+                      selectedLeague === league.id
+                        ? "text-gray-700 font-md"
+                        : "text-gray-400 hover:text-gray-900 "
                     }`}
                   >
                     <div className="w-5 h-5 flex-shrink-0">
-                      <img 
-                        src={league.logo} 
-                        alt={league.name} 
-                        className="w-full h-full object-contain" 
+                      <img
+                        src={league.logo}
+                        alt={league.name}
+                        className="w-full h-full object-contain"
                       />
                     </div>
-                    <span className="text-sm font-medium">
-                      {league.name}
-                    </span>
+                    <span className="text-sm font-medium">{league.name}</span>
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Right navigation button - 365scores style */}
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="sm"
-              className={`h-10 w-8 p-0 mr-1 flex-shrink-0 rounded-md transition-all ${
-                canScrollRight 
-                  ? 'text-gray-600 hover:text-gray-900 hover:bg-gray-100' 
-                  : 'text-gray-300 cursor-not-allowed'
+              className={`h-10 w-8 p-0 mr-1 flex-shrink-0  transition-all  ${
+                canScrollRight
+                  ? "text-gray-700  hover:bg-bg-white-100"
+                  : "text-gray-700 cursor-not-allowed"
               }`}
               onClick={scrollRight}
               disabled={!canScrollRight}
@@ -487,108 +615,127 @@ const HomeTopScorersList = () => {
           ) : error ? (
             <div className="text-center py-6 text-gray-500">
               <p className="text-sm">Failed to load top scorers</p>
-              <p className="text-xs text-gray-400 mt-1">for {getCurrentLeague()?.name}</p>
+              <p className="text-xs text-gray-400 mt-1">
+                for {getCurrentLeague()?.name}
+              </p>
             </div>
           ) : topScorers && topScorers.length > 0 ? (
             <div className="space-y-3">
               {topScorers.slice(0, 3).map((scorer, index) => {
-              const playerStats = scorer.statistics[0];
-              const goals = playerStats?.goals?.total || 0;
+                const playerStats = scorer.statistics[0];
+                const goals = playerStats?.goals?.total || 0;
 
-              // Try to get more specific position information
-              const rawPosition = scorer.player.position || playerStats?.games?.position || '';
+                // Try to get more specific position information
+                const rawPosition =
+                  scorer.player.position || playerStats?.games?.position || "";
 
-              // Map generic positions to more specific ones based on player data
-              const getSpecificPosition = (pos: string) => {
-                if (!pos) return '';
+                // Map generic positions to more specific ones based on player data
+                const getSpecificPosition = (pos: string) => {
+                  if (!pos) return "";
 
-                // Convert common generic positions to more specific ones
-                const positionMap: { [key: string]: string } = {
-                  'Attacker': 'Forward',
-                  'Midfielder': 'Midfielder',
-                  'Defender': 'Defender',
-                  'Goalkeeper': 'Goalkeeper'
+                  // Convert common generic positions to more specific ones
+                  const positionMap: { [key: string]: string } = {
+                    Attacker: "Forward",
+                    Midfielder: "Midfielder",
+                    Defender: "Defender",
+                    Goalkeeper: "Goalkeeper",
+                  };
+
+                  // If it's already specific, return as is
+                  if (
+                    pos.includes("Left") ||
+                    pos.includes("Right") ||
+                    pos.includes("Central") ||
+                    pos.includes("Centre")
+                  ) {
+                    return pos;
+                  }
+
+                  // Otherwise use the mapped version or original
+                  return positionMap[pos] || pos;
                 };
 
-                // If it's already specific, return as is
-                if (pos.includes('Left') || pos.includes('Right') || pos.includes('Central') || pos.includes('Centre')) {
-                  return pos;
+                const position = getSpecificPosition(rawPosition);
+                const country =
+                  playerStats?.team?.name || playerStats?.league?.country || "";
+
+                // Debug logging to see what position data is available
+                if (index === 0) {
+                  console.log("🔍 Player position data:", {
+                    playerName: scorer.player.name,
+                    playerPosition: scorer.player.position,
+                    gamesPosition: playerStats?.games?.position,
+                    finalPosition: position,
+                    fullPlayerData: scorer.player,
+                    fullStatsData: playerStats,
+                  });
                 }
 
-                // Otherwise use the mapped version or original
-                return positionMap[pos] || pos;
-              };
+                return (
+                  <div
+                    key={scorer.player.id}
+                    className="flex items-center gap-3"
+                  >
+                    <Avatar className="h-12 w-12 rounded-full overflow-hidden border border-gray-200">
+                      <AvatarImage
+                        src={scorer.player.photo}
+                        alt={scorer.player.name}
+                        className="object-cover object-center scale-110"
+                      />
+                      <AvatarFallback className="text-xs">
+                        {scorer.player.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
 
-              const position = getSpecificPosition(rawPosition);
-              const country = playerStats?.team?.name || playerStats?.league?.country || '';
-
-              // Debug logging to see what position data is available
-              if (index === 0) {
-                console.log('🔍 Player position data:', {
-                  playerName: scorer.player.name,
-                  playerPosition: scorer.player.position,
-                  gamesPosition: playerStats?.games?.position,
-                  finalPosition: position,
-                  fullPlayerData: scorer.player,
-                  fullStatsData: playerStats
-                });
-              }
-
-              return (
-                <div key={scorer.player.id} className="flex items-center gap-3">
-                  <Avatar className="h-12 w-12 rounded-full overflow-hidden border border-gray-200">
-                    <AvatarImage 
-                      src={scorer.player.photo} 
-                      alt={scorer.player.name}
-                      className="object-cover object-center scale-110" 
-                    />
-                    <AvatarFallback className="text-xs">
-                      {scorer.player.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-semibold text-sm text-gray-900 truncate">
-                        {scorer.player.name}
-                      </h4>
-                      {position && (
-                        <span className="text-xs text-gray-500 font-medium">
-                          {position.charAt(0).toUpperCase() + position.slice(1)}
-                        </span>
-                      )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-semibold text-sm text-gray-900 truncate">
+                          {scorer.player.name}
+                        </h4>
+                        {position && (
+                          <span className="text-xs text-gray-500 font-medium">
+                            {position.charAt(0).toUpperCase() +
+                              position.slice(1)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 truncate">
+                        {country}
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-500 truncate">
-                      {country}
-                    </p>
-                  </div>
 
-                  <div className="text-center flex-shrink-0">
-                    <div className="text-lg font-bold text-gray-900">
-                      {goals}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Goals
+                    <div className="text-center flex-shrink-0">
+                      <div className="text-lg font-bold text-gray-900">
+                        {goals}
+                      </div>
+                      <div className="text-xs text-gray-500">Goals</div>
                     </div>
                   </div>
-                </div>
-              );
+                );
               })}
             </div>
           ) : (
             <div className="text-center py-6 text-gray-500">
               <p className="text-sm">No top scorer data available</p>
-              <p className="text-xs text-gray-400 mt-1">for {getCurrentLeague()?.name}</p>
+              <p className="text-xs text-gray-400 mt-1">
+                for {getCurrentLeague()?.name}
+              </p>
             </div>
           )}
 
           {/* Stats link */}
           <div className="mt-4 pt-3 border-t border-gray-100">
-            <button 
+            <button
               className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium group"
               onClick={() => navigate(`/league/${selectedLeague}/stats`)}
             >
-              <span className="hover:underline transition-all duration-200">{getLeagueDisplayName(selectedLeague)} Stats</span>
+              <span className="hover:underline transition-all duration-200">
+                {getLeagueDisplayName(selectedLeague)} Stats
+              </span>
             </button>
           </div>
         </div>
