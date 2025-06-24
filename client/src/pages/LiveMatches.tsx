@@ -46,8 +46,8 @@ const LiveMatches = () => {
     
     fetchLiveFixtures();
     
-    // Poll for live updates every 30 minutes (1,800,000 ms)
-    const intervalId = setInterval(fetchLiveFixtures, 1800000);
+    // Poll for live updates every 10 seconds for real-time experience
+    const intervalId = setInterval(fetchLiveFixtures, 10000);
     
     return () => clearInterval(intervalId);
   }, [dispatch, toast]);
