@@ -1,10 +1,11 @@
 /* Flash Effects CSS - Separated from TodaysMatchByCountryNew.css */
 
-/* Flash animation for halftime matches with smooth transition */
+/* Flash animation for halftime matches with soft orange only */
 .country-matches-container .match-card-container.halftime-flash {
   position: relative;
   overflow: hidden;
-  animation: halftime-background-transition 3s ease-out forwards;
+  background-color: #fafafa !important;
+  /* Solid orange background */
 }
 
 .country-matches-container .match-card-container.halftime-flash::before {
@@ -14,63 +15,47 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, #ff6b35 0%, #ff6b35 100%);
-  animation: slide-close-from-both-ends-halftime 3s ease-out forwards;
+  background: #FAEBD7;
+  animation: slide-from-both-ends-halftime 5s linear;
   z-index: 1;
   pointer-events: none;
-  transform: scaleX(1);
+  transform: scaleX(0);
   transform-origin: center;
 }
 
-@keyframes halftime-background-transition {
+@keyframes slide-from-both-ends-halftime {
   0% {
-    background-color: white;
+    transform: scaleX(1);
+    opacity: 0.25;
   }
-  20% {
-    background-color: #ffe8d9;
-  }
-  40% {
-    background-color: #ffcc99;
-  }
-  60% {
-    background-color: #ff9966;
-  }
-  80% {
-    background-color: #ff6b35;
-  }
-  100% {
-    background-color: white;
-  }
-}
 
-@keyframes slide-close-from-both-ends-halftime {
-  0% {
-    transform: scaleX(1);
-    opacity: 0.9;
+  25% {
+    transform: scaleX(0.5);
+    opacity: 0.50;
   }
-  30% {
-    transform: scaleX(1);
-    opacity: 0.8;
+
+  50% {
+    transform: scaleX(0);
+    opacity: 0.75;
   }
-  60% {
-    transform: scaleX(0.6);
-    opacity: 0.6;
+
+  75% {
+    transform: scaleX(0);
+    opacity: 1;
   }
-  80% {
-    transform: scaleX(0.2);
-    opacity: 0.3;
-  }
+
   100% {
     transform: scaleX(0);
-    opacity: 0;
+    opacity: 1.25;
   }
+
+
 }
 
-/* Flash animation for fulltime matches with smooth transition */
+/* Flash animation for fulltime matches with soft blue only */
 .country-matches-container .match-card-container.fulltime-flash {
   position: relative;
   overflow: hidden;
-  animation: fulltime-background-transition 3s ease-out forwards;
 }
 
 .country-matches-container .match-card-container.fulltime-flash::before {
@@ -80,56 +65,30 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, #3b82f6 0%, #3b82f6 100%);
-  animation: slide-close-from-both-ends-fulltime 3s ease-out forwards;
+  background: #AFEEEE;
+  animation: slide-from-both-ends-fulltime 3s linear;
   z-index: 1;
   pointer-events: none;
-  transform: scaleX(1);
+  transform: scaleX(0);
   transform-origin: center;
 }
 
-@keyframes fulltime-background-transition {
+@keyframes slide-from-both-ends-fulltime {
   0% {
-    background-color: white;
+    transform: scaleX(1);
+    opacity: 0.25;
   }
-  20% {
-    background-color: #e6f2ff;
-  }
-  40% {
-    background-color: #b3d9ff;
-  }
-  60% {
-    background-color: #80bfff;
-  }
-  80% {
-    background-color: #3b82f6;
-  }
-  100% {
-    background-color: white;
-  }
-}
 
-@keyframes slide-close-from-both-ends-fulltime {
-  0% {
-    transform: scaleX(1);
-    opacity: 0.8;
-  }
-  30% {
-    transform: scaleX(1);
-    opacity: 0.7;
-  }
-  60% {
+  25% {
     transform: scaleX(0.5);
-    opacity: 0.5;
+    opacity: 0.50;
   }
-  80% {
-    transform: scaleX(0.15);
-    opacity: 0.2;
-  }
-  100% {
+
+  50% {
     transform: scaleX(0);
-    opacity: 0;
+    opacity: 0.75;
   }
+
 }
 
 /* Flash animation for goal matches with soft green only */
