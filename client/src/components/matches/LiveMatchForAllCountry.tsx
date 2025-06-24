@@ -753,7 +753,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       actuallyHasLiveMatches,
       isLoading
     });
-    
+
     return (
       <Card className="mt-4">
         <CardHeader className="flex items-start gap-2 p-3 bg-white border border-stone-200 font-semibold">
@@ -789,32 +789,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                     : "Popular Football Live Score"}
             </span>
             {/* Test Flash Effect Buttons - Remove these after testing */}
-            <div className="flex gap-2">
-              <button 
-                onClick={() => {
-                  const firstMatchId = filteredFixtures[0]?.fixture?.id;
-                  if (firstMatchId) {
-                    setHalftimeFlashMatches(new Set([firstMatchId]));
-                    setTimeout(() => setHalftimeFlashMatches(new Set()), 3000);
-                  }
-                }}
-                className="px-2 py-1 text-xs bg-pink-200 rounded"
-              >
-                Test HT Flash
-              </button>
-              <button 
-                onClick={() => {
-                  const firstMatchId = filteredFixtures[0]?.fixture?.id;
-                  if (firstMatchId) {
-                    setFulltimeFlashMatches(new Set([firstMatchId]));
-                    setTimeout(() => setFulltimeFlashMatches(new Set()), 3000);
-                  }
-                }}
-                className="px-2 py-1 text-xs bg-blue-200 rounded"
-              >
-                Test FT Flash
-              </button>
-            </div>
           </div>
         </CardHeader>
       </Card>
@@ -841,7 +815,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
               "ligue 1",
             ];
 
-            const aIsTopTier = topTierLeagues.some((league) =>
+            const aIsTopTier = topTierLeagues.some((league)=>
               aLeagueName.includes(league),
             );
             const bIsTopTier = topTierLeagues.some((league) =>
