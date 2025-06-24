@@ -13,7 +13,7 @@ interface LazyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
 const LazyImage: React.FC<LazyImageProps> = ({
   src,
   alt,
-  fallbackSrc = "/assets/fallback-logo.svg",
+  fallbackSrc = "/assets/no-logo-available.png",
   placeholder,
   rootMargin = '50px',
   threshold = 0.1,
