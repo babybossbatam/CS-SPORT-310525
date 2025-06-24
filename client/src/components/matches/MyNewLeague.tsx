@@ -411,7 +411,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     <>
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        My New League
+        Popular Football Leagues
       </CardHeader>
 
       {/* Create individual league cards */}
