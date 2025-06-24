@@ -85,12 +85,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
-  
+
   // Flash animation states
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
   const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
   const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
-  
+
   // Status and score tracking for flash effects
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
   const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
@@ -244,7 +244,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         return aPriority - bPriority;
       }
 
-      // Within same status category, sort by date
+      // Within same status category, sort by date in ascending order (earliest first)
       return (
         new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
       );
@@ -423,11 +423,11 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           // League 38 (UEFA U21) first priority
           if (a.league.id === 38 && b.league.id !== 38) return -1;
           if (a.league.id !== 38 && b.league.id === 38) return 1;
-          
+
           // League 15 (FIFA Club World Cup) second priority
           if (a.league.id === 15 && b.league.id !== 15) return -1;
           if (a.league.id !== 15 && b.league.id === 15) return 1;
-          
+
           // For other leagues, maintain original order
           return 0;
         })
