@@ -1147,23 +1147,20 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                     // Check if this is FIFA Club World Cup (club competition, not national teams)
                                     const isFifaClubWorldCup = leagueData.league.name?.toLowerCase().includes("fifa club world cup");
 
-                                    // Use circular flag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup
+                                    // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup
                                     if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup) {
                                       return (
-                                        <div className="flag-circle">
-                                          <LazyImage
-                                            src={
-                                              match.teams.home.id
-                                                ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                                : "/assets/fallback-logo.svg"
-                                            }
-                                            alt={match.teams.home.name}
-                                            title={match.teams.home.name}
-                                            className="team-logo"
-                                            style={{ backgroundColor: "transparent" }}
-                                          />
-                                          <div className="gloss"></div>
-                                        </div>
+                                        <MyCircularFlag
+                                          teamName={match.teams.home.name || ""}
+                                          fallbackUrl={
+                                            match.teams.home.id
+                                              ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                              : "/assets/fallback-logo.svg"
+                                          }
+                                          alt={match.teams.home.name}
+                                          size="34px"
+                                          className="popular-leagues-size"
+                                        />
                                       );
                                     }
 
