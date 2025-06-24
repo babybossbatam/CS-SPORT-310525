@@ -727,26 +727,25 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
   });
 
   // Show loading state while fetching data (only when actually loading and no previous data)
-  if (isLoading && !fixtures?.length) {
+  if (isLoading && (!fixtures || fixtures.length === 0)) {
     return (
-      <>
-        {/* Header Section */}
-        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+      <Card className="mt-4">
+        <CardHeader className="flex items-start gap-2 p-3 bg-white border border-stone-200 font-semibold">
           Popular Football Live Score
         </CardHeader>
-        <div className="bg-gray-100 min-h-[400px] flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
-            <p className="text-lg font-medium text-gray-700">Loading live matches...</p>
-            <p className="text-sm text-gray-500 mt-2">Please wait while we fetch the latest scores</p>
+        <CardContent className="p-8">
+          <div className="flex flex-col items-center justify-center min-h-[300px] text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mb-4"></div>
+            <p className="text-lg font-medium text-gray-700 mb-2">Loading live matches...</p>
+            <p className="text-sm text-gray-500">Please wait while we fetch the latest scores</p>
           </div>
-        </div>
-      </>
+        </CardContent>
+      </Card>
     );
   }
 
   // Show no live matches when data has been loaded but no live matches found
-  if (!isLoading && (!fixtures?.length || (liveFilterActive && !actuallyHasLiveMatches))) {
+  if (!isLoading && (!fixtures?.length || !actuallyHasLiveMatches)) {
     console.log(`📺 [LiveMatchForAllCountry] Showing NoLiveMatchesEmpty - no live matches found`, {
       hasFixtures: !!fixtures?.length,
       fixturesCount: fixtures?.length || 0,
@@ -756,12 +755,11 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     });
     
     return (
-      <>
-        {/* Header Section */}
-        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+      <Card className="mt-4">
+        <CardHeader className="flex items-start gap-2 p-3 bg-white border border-stone-200 font-semibold">
           Popular Football Live Score
         </CardHeader>
-        <div className="bg-gray-100 min-h-[400px]">
+        <CardContent className="p-0">
           <NoLiveMatchesEmpty 
             showBackButton={true}
             onBackToHome={() => {
@@ -770,54 +768,56 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
             }}
             setLiveFilterActive={setLiveFilterActive}
           />
-        </div>
-      </>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <>
+    <div className="mt-4">
       {/* Header Section */}
-      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        <div className="flex justify-between items-center w-full">
-          <span>
-            {liveFilterActive && timeFilterActive
-              ? "Popular Football Live Score"
-              : liveFilterActive && !timeFilterActive
+      <Card>
+        <CardHeader className="flex items-start gap-2 p-3 bg-white border border-stone-200 font-semibold">
+          <div className="flex justify-between items-center w-full">
+            <span>
+              {liveFilterActive && timeFilterActive
                 ? "Popular Football Live Score"
-                : !liveFilterActive && timeFilterActive
-                  ? "All Matches by Time"
-                  : "Popular Football Live Score"}
-          </span>
-          {/* Test Flash Effect Buttons - Remove these after testing */}
-          <div className="flex gap-2">
-            <button 
-              onClick={() => {
-                const firstMatchId = filteredFixtures[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setHalftimeFlashMatches(new Set([firstMatchId]));
-                  setTimeout(() => setHalftimeFlashMatches(new Set()), 3000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-pink-200 rounded"
-            >
-              Test HT Flash
-            </button>
-            <button 
-              onClick={() => {
-                const firstMatchId = filteredFixtures[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setFulltimeFlashMatches(new Set([firstMatchId]));
-                  setTimeout(() => setFulltimeFlashMatches(new Set()), 3000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-blue-200 rounded"
-            >
-              Test FT Flash
-            </button>
+                : liveFilterActive && !timeFilterActive
+                  ? "Popular Football Live Score"
+                  : !liveFilterActive && timeFilterActive
+                    ? "All Matches by Time"
+                    : "Popular Football Live Score"}
+            </span>
+            {/* Test Flash Effect Buttons - Remove these after testing */}
+            <div className="flex gap-2">
+              <button 
+                onClick={() => {
+                  const firstMatchId = filteredFixtures[0]?.fixture?.id;
+                  if (firstMatchId) {
+                    setHalftimeFlashMatches(new Set([firstMatchId]));
+                    setTimeout(() => setHalftimeFlashMatches(new Set()), 3000);
+                  }
+                }}
+                className="px-2 py-1 text-xs bg-pink-200 rounded"
+              >
+                Test HT Flash
+              </button>
+              <button 
+                onClick={() => {
+                  const firstMatchId = filteredFixtures[0]?.fixture?.id;
+                  if (firstMatchId) {
+                    setFulltimeFlashMatches(new Set([firstMatchId]));
+                    setTimeout(() => setFulltimeFlashMatches(new Set()), 3000);
+                  }
+                }}
+                className="px-2 py-1 text-xs bg-blue-200 rounded"
+              >
+                Test FT Flash
+              </button>
+            </div>
           </div>
-        </div>
-      </CardHeader>
+        </CardHeader>
+      </Card>
       {/* Create individual league cards from all countries */}
       {processedCountries.flatMap((countryData: any, countryIndex: number) =>
         Object.values(countryData.leagues)
@@ -1342,7 +1342,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
             );
           }),
       )}
-    </>
+    </div>
   );
 };
 
