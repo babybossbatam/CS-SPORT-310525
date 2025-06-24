@@ -1,4 +1,3 @@
-
 /* Flash Effects CSS - Separated from TodaysMatchByCountryNew.css */
 
 /* Flash animation for halftime matches with subtle light pink gradient */
@@ -462,10 +461,6 @@
   .live-pulse {
     font-size: 0.75rem;
   }
-
-  .possession-fade-in {
-    padding: 8px 12px;
-  }
 }
 
 /* Hover states for interactive elements */
@@ -496,4 +491,78 @@
     rgba(59, 130, 246, 0.6) 50%, 
     rgba(239, 68, 68, 0.6) 50%, 
     rgba(239, 68, 68, 0.8) 100%);
+}
+
+/* Corner Kick Animations */
+@keyframes cornerArcAnimation {
+  0% {
+    stroke-dashoffset: 20;
+    opacity: 0;
+  }
+  50% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -20;
+    opacity: 0.7;
+  }
+}
+
+@keyframes cornerFlagAnimation {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+  100% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+}
+
+@keyframes cornerAreaHighlight {
+  0% {
+    opacity: 0;
+    fill-opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+    fill-opacity: 0.2;
+  }
+  100% {
+    opacity: 0.4;
+    fill-opacity: 0.1;
+  }
+}
+
+.corner-arc-animation {
+  animation: cornerArcAnimation 2s ease-out infinite;
+}
+
+.corner-flag-animation {
+  animation: cornerFlagAnimation 2s ease-out;
+}
+
+.corner-area-highlight {
+  animation: cornerAreaHighlight 2s ease-out;
+}
+
+/* Responsive enhancements */
+@media (max-width: 640px) {
+  .flash-effect::before {
+    inset: -1px;
+  }
+
+  .live-pulse {
+    font-size: 0.75rem;
+  }
+
+  .live-action-container {
+    max-width: 100%;
+    min-width: 300px;
+  }
 }

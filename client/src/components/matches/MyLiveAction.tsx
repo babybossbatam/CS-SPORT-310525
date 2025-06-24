@@ -479,7 +479,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   return (
-    <div className={`w-full ${className} live-action-container max-w-md mx-auto`}>
+    <div className={`w-full ${className} live-action-container max-w-lg mx-auto`}>
       <div className="bg-gradient-to-br from-green-700 via-green-750 to-green-800 rounded-xl overflow-hidden shadow-2xl flash-effect border border-green-600/30">
         {/* Header */}
         <div className="bg-black/30 backdrop-blur-sm px-4 py-3 flex items-center justify-between border-b border-white/15">
@@ -494,8 +494,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
         </div>
 
-        {/* Enhanced Football Field */}
-        <div className="relative h-56 sm:h-64 field-overlay overflow-hidden bg-gradient-to-br from-green-700 via-green-800 to-green-900">
+        {/* Enhanced Football Field - Made Bigger */}
+        <div className="relative h-72 sm:h-80 field-overlay overflow-hidden bg-gradient-to-br from-green-700 via-green-800 to-green-900">
           
           {/* Geometric Shadow Pattern */}
           <div className="absolute inset-0">
@@ -620,6 +620,55 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           ))}
 
+          {/* Corner Kick Visualization */}
+          {currentEvent && currentEvent.type === 'corner' && (
+            <div className="absolute inset-0 pointer-events-none z-25">
+              <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                  <filter id="cornerGlow">
+                    <feGaussianBlur stdDeviation="0.5" result="coloredBlur"/>
+                    <feMerge> 
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                
+                {/* Corner kick arc - dotted line from corner to penalty area */}
+                <path
+                  d={`M ${currentEvent.x} ${currentEvent.y} Q ${currentEvent.x! + (currentEvent.team === 'home' ? 15 : -15)} ${currentEvent.y! - 10} ${currentEvent.x! + (currentEvent.team === 'home' ? 20 : -20)} ${50}`}
+                  fill="none"
+                  stroke="rgba(255,255,255,0.9)"
+                  strokeWidth="0.8"
+                  strokeDasharray="2,1.5"
+                  filter="url(#cornerGlow)"
+                  className="corner-arc-animation"
+                />
+                
+                {/* Corner flag indicator */}
+                <circle
+                  cx={currentEvent.x}
+                  cy={currentEvent.y}
+                  r="1.2"
+                  fill="rgba(255,255,255,0.95)"
+                  className="corner-flag-animation"
+                />
+                
+                {/* Corner area highlight */}
+                <rect
+                  x={currentEvent.team === 'home' ? 87 : 5}
+                  y={currentEvent.y! > 50 ? 70 : 15}
+                  width="8"
+                  height="15"
+                  fill="rgba(255,255,255,0.15)"
+                  stroke="rgba(255,255,255,0.6)"
+                  strokeWidth="0.3"
+                  className="corner-area-highlight"
+                />
+              </svg>
+            </div>
+          )}
+
           {/* Enhanced Ball */}
           <div 
             className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100 ease-linear z-30"
@@ -689,66 +738,65 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
         </div>
 
-        {/* Last 5 Matches Section */}
+        {/* AVG. CORNERS Section */}
         <div className="bg-white px-4 py-3 border-t border-gray-200">
           <div className="text-center text-gray-600 text-xs font-medium mb-3 tracking-wide uppercase">
-            LAST 5 MATCHES
+            AVG. CORNERS
           </div>
           
           <div className="flex items-center justify-between">
-            {/* Home Team Results */}
-            <div className="flex items-center gap-2">
+            {/* Home Team */}
+            <div className="flex items-center gap-3">
               {/* Jersey Icon */}
-              <div className="w-6 h-6 bg-pink-200 rounded-sm flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-4 h-4 text-pink-600" fill="currentColor">
+              <div className="w-8 h-8 bg-pink-200 rounded-sm flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-5 h-5 text-pink-600" fill="currentColor">
                   <path d="M16,2A2,2 0 0,1 18,4V8A2,2 0 0,1 16,10H15V22H9V10H8A2,2 0 0,1 6,8V4A2,2 0 0,1 8,2H9.5C10,1.5 10.5,1 12,1C13.5,1 14,1.5 14.5,2H16M8,4V8H9V4H8M15,4V8H16V4H15Z" />
                 </svg>
               </div>
               
-              {/* Results */}
-              <div className="flex gap-1">
-                <div className="w-6 h-6 rounded bg-gray-400 flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">D</span>
-                </div>
-                <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">W</span>
-                </div>
-                <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">W</span>
-                </div>
-                <div className="w-6 h-6 rounded bg-gray-400 flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">D</span>
-                </div>
-                <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">W</span>
-                </div>
+              {/* Corner Count */}
+              <div className="text-2xl font-bold text-blue-600">
+                {cornerKicks.home}.0
               </div>
             </div>
             
-            {/* Away Team Results */}
-            <div className="flex items-center gap-2">
-              {/* Results */}
-              <div className="flex gap-1">
-                <div className="w-6 h-6 rounded bg-red-500 flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">L</span>
+            {/* Progress Bar */}
+            <div className="flex-1 mx-4">
+              <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-full flex">
+                  <div 
+                    className="bg-blue-500 transition-all duration-500"
+                    style={{ 
+                      width: `${(cornerKicks.home / Math.max(cornerKicks.home + cornerKicks.away, 1)) * 100}%` 
+                    }}
+                  ></div>
+                  <div 
+                    className="bg-red-500 transition-all duration-500"
+                    style={{ 
+                      width: `${(cornerKicks.away / Math.max(cornerKicks.home + cornerKicks.away, 1)) * 100}%` 
+                    }}
+                  ></div>
                 </div>
-                <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">W</span>
-                </div>
-                <div className="w-6 h-6 rounded bg-red-500 flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">L</span>
-                </div>
-                <div className="w-6 h-6 rounded bg-gray-400 flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">D</span>
-                </div>
-                <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">W</span>
-                </div>
+              </div>
+              {/* Progress indicator dot */}
+              <div 
+                className="w-3 h-3 bg-white border-2 border-gray-400 rounded-full -mt-2 transition-all duration-500"
+                style={{ 
+                  marginLeft: `${(cornerKicks.home / Math.max(cornerKicks.home + cornerKicks.away, 1)) * 100 - 6}%` 
+                }}
+              ></div>
+            </div>
+            
+            {/* Away Team */}
+            <div className="flex items-center gap-3">
+              {/* Corner Count */}
+              <div className="text-2xl font-bold text-red-600">
+                {cornerKicks.away}.0
               </div>
               
               {/* Jersey Icon */}
-              <div className="w-6 h-6 bg-green-100 rounded-sm flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-4 h-4 text-green-600" fill="currentColor">
+              <div className="w-8 h-8 bg-green-100 rounded-sm flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-5 h-5 text-green-600" fill="currentColor">
                   <path d="M16,2A2,2 0 0,1 18,4V8A2,2 0 0,1 16,10H15V22H9V10H8A2,2 0 0,1 6,8V4A2,2 0 0,1 8,2H9.5C10,1.5 10.5,1 12,1C13.5,1 14,1.5 14.5,2H16M8,4V8H9V4H8M15,4V8H16V4H15Z" />
                 </svg>
               </div>
