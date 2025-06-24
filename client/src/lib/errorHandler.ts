@@ -119,6 +119,14 @@ export const setupGlobalErrorHandlers = () => {
 
     console.error('🚨 Global error:', error);
 
+    // Handle DOM manipulation errors
+    if (event.error?.message?.includes('removeChild') || 
+        event.error?.message?.includes('The node to be removed is not a child')) {
+      console.warn('DOM manipulation error caught and suppressed:', event.error);
+      event.preventDefault();
+      return false;
+    }
+
     // Prevent frame-related errors from crashing the app
     if (error?.message?.includes('frame') || 
         error?.message?.includes('ErrorOverlay') ||
@@ -141,7 +149,7 @@ export const setupGlobalErrorHandlers = () => {
   // Add console override to catch and filter problematic logs
   const originalConsoleError = console.error;
   const originalConsoleWarn = console.warn;
-  
+
   console.error = (...args) => {
     const message = args.join(' ');
 

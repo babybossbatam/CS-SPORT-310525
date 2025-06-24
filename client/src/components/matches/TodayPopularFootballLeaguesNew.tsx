@@ -158,7 +158,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Extract league IDs from the popular leagues list component
   const POPULAR_LEAGUE_IDS = CURRENT_POPULAR_LEAGUES.map(league => league.id);
-  
+
   // Enhanced leagues by country with tier-based filtering
   const POPULAR_LEAGUES_BY_COUNTRY = {
     England: [39, 45, 48], // Premier League, FA Cup, EFL Cup
@@ -290,7 +290,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
     // Apply timezone-aware date filtering
     const filterResult = SimpleDateFilter.filterFixturesForDate(fixtures, selectedDate);
-    
+
     console.log(`🌍 [TIMEZONE FILTERING] Results for ${selectedDate}:`, {
       total: filterResult.stats.total,
       valid: filterResult.stats.valid,
@@ -833,7 +833,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   const fixturesByCountry = filteredFixtures.reduce(
     (acc: any, fixture: any) => {
       // Add comprehensive null checks
-      if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+      if (!fixture || !fixture.league || !fixture.fixture|| !fixture.teams) {
         return acc;
       }
 

@@ -154,7 +154,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
     return () => {
       mounted = false;
-      if (updateInterval) clearInterval(updateInterval);
+      if (updateInterval) {
+        clearInterval(updateInterval);
+      }
+      // Clean up state to prevent DOM manipulation errors
+      setLiveData(null);
+      setPlayByPlayEvents([]);
+      setCurrentEvent(null);
+      setAttackPatterns([]);
+      setCurrentAttack(null);
     };
   }, [matchId]);
 
@@ -278,14 +286,18 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
       const eventCycleInterval = setInterval(() => {
         const recentEvents = playByPlayEvents.slice(0, 3);
-        const currentIndex = recentEvents.findIndex(e => e.id === currentEvent?.id);
-        const nextIndex = (currentIndex + 1) % recentEvents.length;
-        setCurrentEvent(recentEvents[nextIndex]);
+        if (recentEvents.length > 0) {
+          const currentIndex = recentEvents.findIndex(e => e.id === currentEvent?.id);
+          const nextIndex = (currentIndex + 1) % recentEvents.length;
+          setCurrentEvent(recentEvents[nextIndex]);
+        }
       }, 4000);
 
-      return () => clearInterval(eventCycleInterval);
+      return () => {
+        clearInterval(eventCycleInterval);
+      };
     }
-  }, [playByPlayEvents, currentEvent]);
+  }, [playByPlayEvents.length]); // Remove currentEvent from dependencies to prevent infinite loop
 
   const generatePlayByPlayEvents = async (matchData: any, isUpdate: boolean = false) => {
     try {
