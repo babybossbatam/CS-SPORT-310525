@@ -259,11 +259,140 @@
   }
 }
 
-/* Enhanced shadows */
+/* Premium shadows and effects */
 .live-action-container .shadow-lg {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .live-action-container .shadow-sm {
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Premium pro style enhancements */
+.premium-pro-style {
+  position: relative;
+}
+
+.premium-pro-style::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ef4444, #10b981, #3b82f6);
+  background-size: 400% 400%;
+  border-radius: 14px;
+  z-index: -1;
+  animation: premiumBorder 4s ease-in-out infinite;
+  opacity: 0.3;
+}
+
+@keyframes premiumBorder {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Premium field animations */
+.grass-stripe {
+  transition: all 0.5s ease-in-out;
+}
+
+.grass-stripe:hover {
+  transform: scale(1.02);
+}
+
+/* Premium ball trail effect */
+.premium-pro-style .ball-trail {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: ballTrail 0.3s ease-out forwards;
+}
+
+@keyframes ballTrail {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+/* Premium event overlay animations */
+.event-overlay {
+  animation: eventPulse 0.5s ease-out;
+}
+
+@keyframes eventPulse {
+  0% {
+    transform: scale(0.8) rotate(-2deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) rotate(1deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Premium attack pattern animations */
+.attack-animation {
+  animation: attackPulse 2s ease-in-out infinite;
+}
+
+@keyframes attackPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.1);
+  }
+}
+
+.attack-line-animation {
+  stroke-dasharray: 4, 2;
+  animation: dashMove 1s linear infinite;
+}
+
+@keyframes dashMove {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 6;
+  }
+}
+
+.attack-arrow-animation {
+  animation: arrowPulse 1s ease-in-out infinite;
+}
+
+@keyframes arrowPulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Premium radial gradient utility */
+.bg-gradient-radial {
+  background: radial-gradient(circle, var(--tw-gradient-stops));
 }

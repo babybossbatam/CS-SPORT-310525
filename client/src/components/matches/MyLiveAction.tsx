@@ -494,85 +494,112 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   return (
-    <div className={`w-full ${className} live-action-container scores365-style`}>
-      <div className="bg-surfaceSecondary rounded-lg overflow-hidden shadow-sm border border-dividerPrimary">
-        {/* Header - 365scores style */}
-        <div className="bg-surfacePrimary px-4 py-3 border-b border-dividerPrimary">
+    <div className={`w-full ${className} live-action-container premium-pro-style`}>
+      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl overflow-hidden shadow-2xl border border-slate-700/50 backdrop-blur-sm">
+        {/* Premium Header */}
+        <div className="bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-blue-600/10 px-6 py-4 border-b border-slate-700/50 backdrop-blur-sm">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-accentPrimary rounded-full animate-pulse"></div>
-              <span className="text-textPrimary text-sm font-medium uppercase tracking-wide">Live Action</span>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-3 h-3 bg-gradient-to-r from-red-500 to-red-600 rounded-full animate-pulse shadow-lg"></div>
+                <div className="absolute inset-0 w-3 h-3 bg-red-500 rounded-full animate-ping opacity-20"></div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-white text-sm font-bold tracking-wider">LIVE ACTION</span>
+                <span className="text-slate-400 text-xs font-medium">Real-time match visualization</span>
+              </div>
             </div>
-            <div className="text-textSecondary text-xs font-medium">
-              {elapsed}'
+            <div className="flex items-center gap-3">
+              <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                {elapsed}'
+              </div>
+              <div className="w-2 h-8 bg-gradient-to-b from-green-400 to-green-600 rounded-full opacity-60 animate-pulse"></div>
             </div>
           </div>
         </div>
 
-        {/* 365scores style Football Field */}
-        <div className="relative h-80 bg-gradient-to-br from-green-600 via-green-500 to-green-600 overflow-hidden">
+        {/* Premium Football Field */}
+        <div className="relative h-96 bg-gradient-to-br from-emerald-800 via-green-600 to-emerald-800 overflow-hidden shadow-inner">
+          
+          {/* Premium ambient lighting overlay */}
+          <div className="absolute inset-0 bg-gradient-radial from-transparent via-green-500/5 to-black/20"></div>
+          <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/5 to-transparent"></div>
 
-          {/* Professional grass pattern */}
+          {/* Premium grass pattern with depth */}
           <div className="absolute inset-0">
             <div className="absolute inset-0">
-              {Array.from({ length: 16 }).map((_, i) => (
+              {Array.from({ length: 20 }).map((_, i) => (
                 <div
                   key={i}
-                  className="absolute h-full grass-stripe transition-opacity duration-300"
+                  className="absolute h-full grass-stripe transition-all duration-500 hover:opacity-80"
                   style={{
-                    width: '6.25%',
-                    left: `${i * 6.25}%`,
+                    width: '5%',
+                    left: `${i * 5}%`,
                     background: i % 2 === 0 
-                      ? 'linear-gradient(90deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.08) 100%)'
-                      : 'linear-gradient(90deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.08) 100%)'
+                      ? 'linear-gradient(90deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 25%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0.06) 75%, rgba(255,255,255,0.12) 100%)'
+                      : 'linear-gradient(90deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.06) 25%, rgba(0,0,0,0.03) 50%, rgba(0,0,0,0.06) 75%, rgba(0,0,0,0.12) 100%)',
+                    boxShadow: i % 2 === 0 ? 'inset 0 0 20px rgba(255,255,255,0.02)' : 'inset 0 0 20px rgba(0,0,0,0.02)'
                   }}
                 />
               ))}
             </div>
+            
+            {/* Stadium lighting effects */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/5"></div>
+            <div className="absolute top-0 left-1/4 w-1/2 h-1/4 bg-gradient-radial from-white/10 to-transparent rounded-full blur-3xl"></div>
 
-            {/* Field markings - 365scores precision */}
+            {/* Premium field markings with advanced lighting */}
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
-                <filter id="fieldGlow">
-                  <feGaussianBlur stdDeviation="0.2" result="coloredBlur"/>
+                <filter id="premiumGlow">
+                  <feGaussianBlur stdDeviation="0.3" result="coloredBlur"/>
+                  <feColorMatrix values="1 1 1 0 0  1 1 1 0 0  1 1 1 0 0  0 0 0 1 0" result="whiteGlow"/>
                   <feMerge> 
-                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="whiteGlow"/>
                     <feMergeNode in="SourceGraphic"/>
                   </feMerge>
                 </filter>
+                <filter id="shadowEffect">
+                  <feDropShadow dx="0" dy="1" stdDeviation="1" floodColor="rgba(0,0,0,0.3)"/>
+                </filter>
+                <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.6)" />
+                  <stop offset="50%" stopColor="rgba(255,255,255,0.95)" />
+                  <stop offset="100%" stopColor="rgba(255,255,255,0.6)" />
+                </linearGradient>
               </defs>
 
               {/* Outer boundary */}
-              <rect x="5" y="15" width="90" height="70" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
+              <rect x="5" y="15" width="90" height="70" fill="none" stroke="url(#lineGradient)" strokeWidth="0.6" filter="url(#premiumGlow)"/>
 
               {/* Center line */}
-              <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
+              <line x1="50" y1="15" x2="50" y2="85" stroke="url(#lineGradient)" strokeWidth="0.6" filter="url(#premiumGlow)"/>
 
               {/* Center circle */}
-              <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
-              <circle cx="50" cy="50" r="0.6" fill="rgba(255,255,255,0.95)"/>
+              <circle cx="50" cy="50" r="12" fill="none" stroke="url(#lineGradient)" strokeWidth="0.6" filter="url(#premiumGlow)"/>
+              <circle cx="50" cy="50" r="0.8" fill="rgba(255,255,255,0.95)" filter="url(#shadowEffect)"/>
 
               {/* Goal areas */}
-              <rect x="5" y="38" width="8" height="24" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
-              <rect x="87" y="38" width="8" height="24" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
+              <rect x="5" y="38" width="8" height="24" fill="none" stroke="url(#lineGradient)" strokeWidth="0.6" filter="url(#premiumGlow)"/>
+              <rect x="87" y="38" width="8" height="24" fill="none" stroke="url(#lineGradient)" strokeWidth="0.6" filter="url(#premiumGlow)"/>
 
               {/* Penalty areas */}
-              <rect x="5" y="28" width="18" height="44" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
-              <rect x="77" y="28" width="18" height="44" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
+              <rect x="5" y="28" width="18" height="44" fill="none" stroke="url(#lineGradient)" strokeWidth="0.6" filter="url(#premiumGlow)"/>
+              <rect x="77" y="28" width="18" height="44" fill="none" stroke="url(#lineGradient)" strokeWidth="0.6" filter="url(#premiumGlow)"/>
 
               {/* Penalty spots */}
-              <circle cx="17" cy="50" r="0.5" fill="rgba(255,255,255,0.95)"/>
-              <circle cx="83" cy="50" r="0.5" fill="rgba(255,255,255,0.95)"/>
+              <circle cx="17" cy="50" r="0.6" fill="rgba(255,255,255,0.95)" filter="url(#shadowEffect)"/>
+              <circle cx="83" cy="50" r="0.6" fill="rgba(255,255,255,0.95)" filter="url(#shadowEffect)"/>
 
               {/* Corner arcs */}
-              <path d="M 7 15 A 2 2 0 0 1 5 17" stroke="rgba(255,255,255,0.95)" strokeWidth="0.4" fill="none" filter="url(#fieldGlow)"/>
-              <path d="M 93 15 A 2 2 0 0 0 95 17" stroke="rgba(255,255,255,0.95)" strokeWidth="0.4" fill="none" filter="url(#fieldGlow)"/>
-              <path d="M 7 85 A 2 2 0 0 0 5 83" stroke="rgba(255,255,255,0.95)" strokeWidth="0.4" fill="none" filter="url(#fieldGlow)"/>
-              <path d="M 93 85 A 2 2 0 0 1 95 83" stroke="rgba(255,255,255,0.95)" strokeWidth="0.4" fill="none" filter="url(#fieldGlow)"/>
+              <path d="M 7 15 A 2 2 0 0 1 5 17" stroke="url(#lineGradient)" strokeWidth="0.5" fill="none" filter="url(#premiumGlow)"/>
+              <path d="M 93 15 A 2 2 0 0 0 95 17" stroke="url(#lineGradient)" strokeWidth="0.5" fill="none" filter="url(#premiumGlow)"/>
+              <path d="M 7 85 A 2 2 0 0 0 5 83" stroke="url(#lineGradient)" strokeWidth="0.5" fill="none" filter="url(#premiumGlow)"/>
+              <path d="M 93 85 A 2 2 0 0 1 95 83" stroke="url(#lineGradient)" strokeWidth="0.5" fill="none" filter="url(#premiumGlow)"/>
 
-              {/* Goal posts */}
-              <rect x="4" y="45" width="1" height="10" fill="rgba(255,255,255,0.95)"/>
-              <rect x="95" y="45" width="1" height="10" fill="rgba(255,255,255,0.95)"/>
+              {/* Premium Goal posts */}
+              <rect x="4" y="45" width="1.2" height="10" fill="rgba(255,255,255,0.95)" filter="url(#shadowEffect)"/>
+              <rect x="94.8" y="45" width="1.2" height="10" fill="rgba(255,255,255,0.95)" filter="url(#shadowEffect)"/>
             </svg>
           </div>
 
@@ -618,61 +645,94 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           ))}
 
-          {/* Ball with realistic movement */}
+          {/* Premium 3D Ball with enhanced physics */}
           <div 
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-150 ease-out z-30"
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-200 ease-out z-30"
             style={{
               left: `${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
             }}
           >
             <div className="relative">
-              <div className="absolute w-4 h-2 bg-black/20 rounded-full blur-sm" 
-                   style={{ left: '-8px', top: '8px' }}></div>
+              {/* Enhanced shadow */}
+              <div className="absolute w-6 h-3 bg-black/30 rounded-full blur-md transform rotate-3" 
+                   style={{ left: '-12px', top: '12px' }}></div>
               
-              <div className="w-4 h-4 bg-gradient-to-br from-white via-gray-100 to-gray-200 rounded-full shadow-lg border border-gray-300 relative">
+              {/* Premium ball design */}
+              <div className="w-5 h-5 bg-gradient-to-br from-white via-gray-50 to-gray-200 rounded-full shadow-2xl border border-gray-300 relative overflow-hidden">
+                {/* Ball texture */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/20 to-transparent"></div>
                 <div className="absolute inset-0 rounded-full">
-                  <div className="absolute w-1 h-1 bg-gray-400 rounded-full top-1 left-1"></div>
-                  <div className="absolute w-0.5 h-0.5 bg-gray-400 rounded-full bottom-1 right-1"></div>
+                  <div className="absolute w-1.5 h-1.5 bg-gray-500 rounded-full top-1 left-1 opacity-60"></div>
+                  <div className="absolute w-1 h-1 bg-gray-400 rounded-full bottom-1 right-1 opacity-40"></div>
+                  <div className="absolute w-0.5 h-0.5 bg-gray-600 rounded-full top-2 right-1.5 opacity-50"></div>
                 </div>
                 
+                {/* Premium possession indicator */}
                 {ballPossession && (
-                  <div className={`absolute inset-0 rounded-full animate-pulse ${
-                    ballPossession === 'home' ? 'ring-2 ring-blue-400' : 'ring-2 ring-red-400'
-                  }`}></div>
+                  <div className="absolute -inset-1">
+                    <div className={`w-7 h-7 rounded-full animate-pulse ${
+                      ballPossession === 'home' 
+                        ? 'ring-2 ring-blue-400 bg-blue-400/10' 
+                        : 'ring-2 ring-red-400 bg-red-400/10'
+                    }`}></div>
+                    <div className={`absolute inset-0 w-7 h-7 rounded-full animate-ping opacity-20 ${
+                      ballPossession === 'home' ? 'bg-blue-400' : 'bg-red-400'
+                    }`}></div>
+                  </div>
                 )}
               </div>
             </div>
           </div>
 
-          {/* More contextual event display */}
+          {/* Premium event overlay */}
           {currentEvent && (
             <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-              <div className="bg-surfaceSecondary backdrop-blur-md rounded-lg px-6 py-4 text-center shadow-lg border border-dividerPrimary max-w-sm event-overlay">
-                <div className="text-textSecondary text-xs font-medium uppercase tracking-wider mb-2">
-                  {currentEvent.type === 'goal' ? '⚽ GOAL!' : 
-                   currentEvent.type === 'substitution' ? '🔄 SUBSTITUTION' :
-                   currentEvent.type === 'card' ? '🟨 CARD' :
-                   currentEvent.type === 'corner' ? '🚩 CORNER' :
-                   currentEvent.type === 'shot' ? '🎯 SHOT' :
-                   '⚽ LIVE'}
+              <div className="bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl rounded-2xl px-8 py-6 text-center shadow-2xl border border-slate-600/50 max-w-sm event-overlay transform animate-in fade-in-0 zoom-in-95 duration-300">
+                {/* Premium event type badge */}
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-4 ${
+                  currentEvent.type === 'goal' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' :
+                  currentEvent.type === 'substitution' ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white' :
+                  currentEvent.type === 'card' ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white' :
+                  currentEvent.type === 'corner' ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white' :
+                  currentEvent.type === 'shot' ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white' :
+                  'bg-gradient-to-r from-slate-500 to-slate-600 text-white'
+                }`}>
+                  <span className="text-lg">
+                    {currentEvent.type === 'goal' ? '⚽' : 
+                     currentEvent.type === 'substitution' ? '🔄' :
+                     currentEvent.type === 'card' ? '🟨' :
+                     currentEvent.type === 'corner' ? '🚩' :
+                     currentEvent.type === 'shot' ? '🎯' :
+                     '⚽'}
+                  </span>
+                  <span className="uppercase tracking-wider">
+                    {currentEvent.type === 'goal' ? 'GOAL!' : 
+                     currentEvent.type === 'substitution' ? 'SUBSTITUTION' :
+                     currentEvent.type === 'card' ? 'CARD' :
+                     currentEvent.type === 'corner' ? 'CORNER' :
+                     currentEvent.type === 'shot' ? 'SHOT' :
+                     'LIVE'}
+                  </span>
                 </div>
-                <div className="text-textPrimary text-sm font-bold mb-2">
+                
+                <div className="text-white text-lg font-bold mb-4">
                   {currentEvent.description}
                 </div>
-                <div className="flex items-center justify-center gap-2">
+                
+                <div className="flex items-center justify-center gap-3 bg-slate-800/50 rounded-lg px-4 py-3">
                   <img
                     src={currentEvent.team === 'home' ? homeTeamData?.logo : awayTeamData?.logo}
                     alt={currentEvent.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
-                    className="w-4 h-4 object-contain"
+                    className="w-6 h-6 object-contain rounded-full"
                     onError={(e) => {
                       e.currentTarget.src = '/assets/fallback-logo.svg';
                     }}
                   />
-                  <div className="text-textSecondary text-xs font-medium">
+                  <div className="text-slate-300 text-sm font-medium">
                     {currentEvent.player !== 'Team' ? currentEvent.player : getTeamDisplayName(currentEvent.team)}
                   </div>
-                  <div className="text-textSecondary text-xs">
+                  <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-2 py-1 rounded-full text-xs font-bold">
                     {currentEvent.minute}'
                   </div>
                 </div>
@@ -721,58 +781,67 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
         </div>
 
-        {/* Corners Section - 365scores style */}
-        <div className="bg-surfacePrimary px-4 py-3 border-t border-dividerPrimary">
-          <div className="text-center text-textSecondary text-xs font-medium mb-3 uppercase tracking-wide">
-            Corners
+        {/* Premium Corners Section */}
+        <div className="bg-gradient-to-r from-slate-800/80 via-slate-700/80 to-slate-800/80 px-6 py-4 border-t border-slate-600/50 backdrop-blur-sm">
+          <div className="text-center text-slate-300 text-sm font-bold mb-4 uppercase tracking-wider">
+            🚩 Corner Kicks
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img
-                src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
-                alt={homeTeamData?.name || 'Home Team'}
-                className="w-6 h-6 object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = '/assets/fallback-logo.svg';
-                }}
-              />
-              <div className="text-lg font-bold text-textPrimary">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <img
+                  src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
+                  alt={homeTeamData?.name || 'Home Team'}
+                  className="w-8 h-8 object-contain rounded-full border-2 border-blue-400/50 shadow-lg"
+                  onError={(e) => {
+                    e.currentTarget.src = '/assets/fallback-logo.svg';
+                  }}
+                />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border border-white"></div>
+              </div>
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 rounded-lg text-xl font-bold shadow-lg min-w-[50px] text-center">
                 {cornerKicks.home}
               </div>
             </div>
 
-            <div className="flex-1 mx-4">
-              <div className="h-1 bg-dividerPrimary rounded-full overflow-hidden">
+            <div className="flex-1 mx-6">
+              <div className="h-3 bg-slate-600/50 rounded-full overflow-hidden shadow-inner">
                 <div className="h-full flex">
                   <div 
-                    className="bg-accentPrimary transition-all duration-500"
+                    className="bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-700 ease-out shadow-lg"
                     style={{ 
                       width: `${(cornerKicks.home / Math.max(cornerKicks.home + cornerKicks.away, 1)) * 100}%` 
                     }}
                   ></div>
                   <div 
-                    className="bg-dangerPrimary transition-all duration-500"
+                    className="bg-gradient-to-r from-red-400 to-red-600 transition-all duration-700 ease-out shadow-lg"
                     style={{ 
                       width: `${(cornerKicks.away / Math.max(cornerKicks.home + cornerKicks.away, 1)) * 100}%` 
                     }}
                   ></div>
                 </div>
               </div>
+              <div className="text-center text-slate-400 text-xs mt-2 font-medium">
+                Total: {cornerKicks.home + cornerKicks.away}
+              </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="text-lg font-bold text-textPrimary">
+            <div className="flex items-center gap-4">
+              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-2 rounded-lg text-xl font-bold shadow-lg min-w-[50px] text-center">
                 {cornerKicks.away}
               </div>
-              <img
-                src={awayTeamData?.logo || '/assets/fallback-logo.svg'}
-                alt={awayTeamData?.name || 'Away Team'}
-                className="w-6 h-6 object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = '/assets/fallback-logo.svg';
-                }}
-              />
+              <div className="relative">
+                <img
+                  src={awayTeamData?.logo || '/assets/fallback-logo.svg'}
+                  alt={awayTeamData?.name || 'Away Team'}
+                  className="w-8 h-8 object-contain rounded-full border-2 border-red-400/50 shadow-lg"
+                  onError={(e) => {
+                    e.currentTarget.src = '/assets/fallback-logo.svg';
+                  }}
+                />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-white"></div>
+              </div>
             </div>
           </div>
         </div>
