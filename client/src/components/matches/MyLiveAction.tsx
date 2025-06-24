@@ -495,22 +495,34 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         </div>
 
         {/* Enhanced Football Field */}
-        <div className="relative h-48 sm:h-56 field-overlay overflow-hidden bg-gradient-to-br from-green-600 to-green-800">
+        <div className="relative h-56 sm:h-64 field-overlay overflow-hidden bg-gradient-to-br from-green-700 via-green-800 to-green-900">
           
-          {/* Enhanced Field Pattern */}
+          {/* Geometric Shadow Pattern */}
           <div className="absolute inset-0">
+            {/* Dark geometric shadow */}
+            <div className="absolute inset-0">
+              <div 
+                className="absolute h-full bg-gradient-to-r from-transparent via-black/40 to-transparent transform -skew-x-12"
+                style={{
+                  width: '60%',
+                  left: '20%',
+                  background: 'linear-gradient(45deg, transparent 0%, rgba(0,0,0,0.6) 30%, rgba(0,0,0,0.8) 50%, rgba(0,0,0,0.6) 70%, transparent 100%)'
+                }}
+              />
+            </div>
+            
             {/* Grass texture with vertical stripes */}
-            <div className="absolute inset-0 opacity-30">
-              {Array.from({ length: 12 }).map((_, i) => (
+            <div className="absolute inset-0 opacity-20">
+              {Array.from({ length: 16 }).map((_, i) => (
                 <div
                   key={i}
                   className="absolute h-full"
                   style={{
-                    width: '8.33%',
-                    left: `${i * 8.33}%`,
+                    width: '6.25%',
+                    left: `${i * 6.25}%`,
                     background: i % 2 === 0 
-                      ? 'linear-gradient(180deg, rgba(34, 197, 94, 0.4), rgba(21, 128, 61, 0.2))'
-                      : 'linear-gradient(180deg, rgba(21, 128, 61, 0.3), rgba(34, 197, 94, 0.1))'
+                      ? 'linear-gradient(180deg, rgba(34, 197, 94, 0.3), rgba(21, 128, 61, 0.1))'
+                      : 'linear-gradient(180deg, rgba(21, 128, 61, 0.2), rgba(34, 197, 94, 0.05))'
                   }}
                 />
               ))}
@@ -644,36 +656,22 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           {/* Enhanced Team possession overlay */}
           <div className="absolute inset-0 flex items-center justify-center z-40 pointer-events-none">
             {currentAttack && (
-              <div className="bg-black/40 backdrop-blur-sm rounded-xl px-4 py-2 text-center possession-fade-in border border-white/20 shadow-lg">
-                <div className="text-white text-xs font-medium mb-1 opacity-80 tracking-wide">
+              <div className="bg-black/50 backdrop-blur-sm rounded-lg px-6 py-3 text-center possession-fade-in border border-white/30 shadow-2xl">
+                <div className="text-white text-sm font-bold mb-2 opacity-90 tracking-wider uppercase">
                   {currentAttack.intensity === 'dangerous' ? 'Dangerous Attack' : 'Attack'}
                 </div>
-                <div className="flex items-center justify-center gap-2">
-                  {currentAttack.team === 'home' && homeTeamData?.logo && (
-                    <div className="relative">
-                      <img 
-                        src={homeTeamData.logo} 
-                        alt={homeTeamData.name}
-                        className="w-7 h-7 object-contain rounded-full"
-                      />
-                      <div className="absolute inset-0 rounded-full ring-2 ring-blue-400"></div>
-                    </div>
-                  )}
-                  {currentAttack.team === 'away' && awayTeamData?.logo && (
-                    <div className="relative">
-                      <img 
-                        src={awayTeamData.logo} 
-                        alt={awayTeamData.name}
-                        className="w-7 h-7 object-contain rounded-full"
-                      />
-                      <div className="absolute inset-0 rounded-full ring-2 ring-red-400"></div>
-                    </div>
-                  )}
-                  <div className="text-white text-sm font-semibold tracking-wide opacity-90">
+                <div className="flex items-center justify-center gap-3">
+                  <div className="text-white text-lg font-bold tracking-wide opacity-95 uppercase">
                     {currentAttack.team === 'home' 
                       ? getTeamDisplayName('home') 
                       : getTeamDisplayName('away')
                     }
+                  </div>
+                  {/* Jersey Icon */}
+                  <div className="w-8 h-8 bg-white/90 rounded-sm flex items-center justify-center shadow-lg">
+                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-gray-700" fill="currentColor">
+                      <path d="M16,2A2,2 0 0,1 18,4V8A2,2 0 0,1 16,10H15V22H9V10H8A2,2 0 0,1 6,8V4A2,2 0 0,1 8,2H9.5C10,1.5 10.5,1 12,1C13.5,1 14,1.5 14.5,2H16M8,4V8H9V4H8M15,4V8H16V4H15Z" />
+                    </svg>
                   </div>
                 </div>
               </div>
@@ -691,41 +689,69 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
         </div>
 
-        {/* Corner Kicks Stats Bar - 365scores style */}
-        <div className="bg-white/10 backdrop-blur-sm px-4 py-2 border-t border-white/10">
-          <div className="flex items-center justify-between text-xs">
+        {/* Last 5 Matches Section */}
+        <div className="bg-white px-4 py-3 border-t border-gray-200">
+          <div className="text-center text-gray-600 text-xs font-medium mb-3 tracking-wide uppercase">
+            LAST 5 MATCHES
+          </div>
+          
+          <div className="flex items-center justify-between">
+            {/* Home Team Results */}
             <div className="flex items-center gap-2">
-              {homeTeamData?.logo && (
-                <img src={homeTeamData.logo} alt="" className="w-4 h-4 object-contain rounded-full" />
-              )}
-              <span className="text-white font-semibold">{cornerKicks.home}</span>
-            </div>
-            
-            <div className="flex-1 mx-4">
-              <div className="text-center text-white/70 text-xs mb-1 font-medium">CORNER KICKS</div>
-              <div className="relative h-1 bg-white/20 rounded-full overflow-hidden">
-                {/* Home team corner kicks bar */}
-                <div 
-                  className="absolute left-0 top-0 h-full bg-blue-500 transition-all duration-500"
-                  style={{ 
-                    width: `${Math.min(50, (cornerKicks.home / Math.max(1, cornerKicks.home + cornerKicks.away)) * 50)}%` 
-                  }}
-                ></div>
-                {/* Away team corner kicks bar */}
-                <div 
-                  className="absolute right-0 top-0 h-full bg-red-500 transition-all duration-500"
-                  style={{ 
-                    width: `${Math.min(50, (cornerKicks.away / Math.max(1, cornerKicks.home + cornerKicks.away)) * 50)}%` 
-                  }}
-                ></div>
+              {/* Jersey Icon */}
+              <div className="w-6 h-6 bg-pink-200 rounded-sm flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 text-pink-600" fill="currentColor">
+                  <path d="M16,2A2,2 0 0,1 18,4V8A2,2 0 0,1 16,10H15V22H9V10H8A2,2 0 0,1 6,8V4A2,2 0 0,1 8,2H9.5C10,1.5 10.5,1 12,1C13.5,1 14,1.5 14.5,2H16M8,4V8H9V4H8M15,4V8H16V4H15Z" />
+                </svg>
+              </div>
+              
+              {/* Results */}
+              <div className="flex gap-1">
+                <div className="w-6 h-6 rounded bg-gray-400 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">D</span>
+                </div>
+                <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">W</span>
+                </div>
+                <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">W</span>
+                </div>
+                <div className="w-6 h-6 rounded bg-gray-400 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">D</span>
+                </div>
+                <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">W</span>
+                </div>
               </div>
             </div>
             
+            {/* Away Team Results */}
             <div className="flex items-center gap-2">
-              <span className="text-white font-semibold">{cornerKicks.away}</span>
-              {awayTeamData?.logo && (
-                <img src={awayTeamData.logo} alt="" className="w-4 h-4 object-contain rounded-full" />
-              )}
+              {/* Results */}
+              <div className="flex gap-1">
+                <div className="w-6 h-6 rounded bg-red-500 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">L</span>
+                </div>
+                <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">W</span>
+                </div>
+                <div className="w-6 h-6 rounded bg-red-500 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">L</span>
+                </div>
+                <div className="w-6 h-6 rounded bg-gray-400 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">D</span>
+                </div>
+                <div className="w-6 h-6 rounded bg-blue-500 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">W</span>
+                </div>
+              </div>
+              
+              {/* Jersey Icon */}
+              <div className="w-6 h-6 bg-green-100 rounded-sm flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 text-green-600" fill="currentColor">
+                  <path d="M16,2A2,2 0 0,1 18,4V8A2,2 0 0,1 16,10H15V22H9V10H8A2,2 0 0,1 6,8V4A2,2 0 0,1 8,2H9.5C10,1.5 10.5,1 12,1C13.5,1 14,1.5 14.5,2H16M8,4V8H9V4H8M15,4V8H16V4H15Z" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>

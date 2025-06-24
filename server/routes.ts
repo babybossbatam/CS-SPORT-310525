@@ -758,8 +758,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         currentDate.getFullYear();
       const season = parseInt(req.query.season as string) || currentSeason;
 
-      if (isNaN(id) || !req.params.id || req.```text
-params.id.trim() === '') {
+      if (isNaN(id) || !req.params.id ||req.params.id.trim() === '') {
         return res.status(400).json({ message: 'Invalid league ID' });
       }
 
@@ -1530,7 +1529,7 @@ params.id.trim() === '') {
         const urlDecoded = decodeURIComponent(teamId);
         const teamIdMatch = urlDecoded.match(/\/teams\/(\d+)\.png/);
         if (teamIdMatch && teamIdMatch[1]) {
-          teamId = teamIdMatch[1];        } else {
+          teamId = teamIdMatch[1];                } else {
           console.warn(`Could not extract team ID from URL: ${urlDecoded}`);
           return res.status(400).json({ error: 'Invalid team ID format' });
         }
