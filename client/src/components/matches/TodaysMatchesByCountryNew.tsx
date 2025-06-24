@@ -288,21 +288,61 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     refetchOnReconnect: false,
   });
 
-  // Simple fixture processing - only use cached/date-based fixtures
+  // Smart fixture processing with live data merge
   const processedFixtures = useMemo(() => {
-    if (!fixtures?.length) return [];
+    const dateFixtures = fixtures || [];
+    const liveFixturesData = liveFixtures || [];
+    
+    console.log(`🔄 [TodaysMatchesByCountryNew] Processing ${dateFixtures.length} date-based fixtures + ${liveFixturesData.length} live fixtures`);
 
-    console.log(
-      `🔄 [TodaysMatchesByCountryNew] Processing ${fixtures.length} fixtures from date-based API`,
-    );
+    // Create a map to track fixtures by ID (live data takes precedence)
+    const fixtureMap = new Map();
+    
+    // First add date-based fixtures
+    dateFixtures.forEach(fixture => {
+      fixtureMap.set(fixture.fixture.id, {
+        ...fixture,
+        dataSource: 'cached'
+      });
+    });
+    
+    // Then overlay live fixtures (they override cached data)
+    liveFixturesData.forEach(fixture => {
+      fixtureMap.set(fixture.fixture.id, {
+        ...fixture,
+        dataSource: 'live'
+      });
+    });
 
-    // Return fixtures as-is from the date-based API endpoint
-    return fixtures;
-  }, [fixtures]);
+    const mergedFixtures = Array.from(fixtureMap.values());
+    
+    console.log(`🔄 [DATA MERGE] Combined ${mergedFixtures.length} total fixtures (${liveFixturesData.length} live, ${dateFixtures.length - liveFixturesData.length} cached)`);
+
+    return mergedFixtures;
+  }, [fixtures, liveFixtures]);
+
+  // Fetch live fixtures for real-time updates (no caching)
+  const { data: liveFixtures = [], isLoading: isLiveLoading } = useQuery({
+    queryKey: ["live-fixtures"],
+    queryFn: async () => {
+      console.log(`🔴 [TodaysMatchesByCountryNew] Fetching live fixtures (no cache)`);
+      const response = await apiRequest("GET", "/api/fixtures/live");
+      const data = await response.json();
+      console.log(`✅ [TodaysMatchesByCountryNew] Received ${data?.length || 0} live fixtures`);
+      return data;
+    },
+    enabled: enableFetching,
+    refetchInterval: 30000, // Refresh every 30 seconds for live matches
+    staleTime: 0, // Always consider live data stale to force refetch
+    gcTime: 0, // Don't cache live data
+  });
 
   // Enhanced effect to detect status and score changes with flash effects
   useEffect(() => {
-    if (!processedFixtures?.length) return;
+    // Combine live and date-based fixtures for status tracking
+    const allFixtures = [...(liveFixtures || []), ...(processedFixtures || [])];
+    
+    if (!allFixtures?.length) return;
 
     const newHalftimeMatches = new Set<number>();
     const newFulltimeMatches = new Set<number>();
@@ -310,7 +350,15 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     const currentStatuses = new Map<number, string>();
     const currentScores = new Map<number, {home: number, away: number}>();
 
-    processedFixtures.forEach((fixture) => {
+    // Deduplicate fixtures by ID (live data takes precedence)
+    const fixtureMap = new Map();
+    allFixtures.forEach(fixture => {
+      if (!fixtureMap.has(fixture.fixture.id)) {
+        fixtureMap.set(fixture.fixture.id, fixture);
+      }
+    });
+
+    Array.from(fixtureMap.values()).forEach((fixture) => {
       const matchId = fixture.fixture.id;
       const currentStatus = fixture.fixture.status.short;
       const previousStatus = previousMatchStatuses.get(matchId);
@@ -385,7 +433,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       setFulltimeFlashMatches(newFulltimeMatches);
       setTimeout(() => setFulltimeFlashMatches(new Set()), 2000);
     }
-  }, [processedFixtures, previousMatchStatuses, previousMatchScores]);
+  }, [liveFixtures, processedFixtures, previousMatchStatuses, previousMatchScores]);
 
   // Now validate after all hooks are called
   if (!selectedDate) {

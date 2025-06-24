@@ -284,14 +284,38 @@ const TodayPopularFootballLeaguesNew: React.FC<
     },
   );
 
-  // Smart fixture processing with timezone conversion
+  // Smart fixture processing with timezone conversion and live data merge
   const processedFixtures = useMemo(() => {
-    if (!fixtures?.length) return [];
+    const dateFixtures = fixtures || [];
+    const liveFixturesData = liveFixtures || [];
+    
+    console.log(`🎯 [TodayPopularLeagueNew] Processing ${dateFixtures.length} date-based fixtures + ${liveFixturesData.length} live fixtures`);
 
-    console.log(`🎯 [TodayPopularLeagueNew] Processing ${fixtures.length} fixtures from date-based API`);
+    // Create a map to track fixtures by ID (live data takes precedence)
+    const fixtureMap = new Map();
+    
+    // First add date-based fixtures
+    dateFixtures.forEach(fixture => {
+      fixtureMap.set(fixture.fixture.id, {
+        ...fixture,
+        dataSource: 'cached'
+      });
+    });
+    
+    // Then overlay live fixtures (they override cached data)
+    liveFixturesData.forEach(fixture => {
+      fixtureMap.set(fixture.fixture.id, {
+        ...fixture,
+        dataSource: 'live'
+      });
+    });
+
+    const mergedFixtures = Array.from(fixtureMap.values());
+    
+    console.log(`🔄 [DATA MERGE] Combined ${mergedFixtures.length} total fixtures (${liveFixturesData.length} live, ${dateFixtures.length - liveFixturesData.length} cached)`);
 
     // Apply timezone-aware date filtering
-    const filterResult = SimpleDateFilter.filterFixturesForDate(fixtures, selectedDate);
+    const filterResult = SimpleDateFilter.filterFixturesForDate(mergedFixtures, selectedDate);
 
     console.log(`🌍 [TIMEZONE FILTERING] Results for ${selectedDate}:`, {
       total: filterResult.stats.total,
@@ -301,7 +325,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
 
     return filterResult.validFixtures;
-  }, [fixtures, selectedDate]);
+  }, [fixtures, liveFixtures, selectedDate]);
 
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
@@ -1145,9 +1169,31 @@ const TodayPopularFootballLeaguesNew: React.FC<
     return () => clearInterval(timer);
   }, []);
 
+  // Fetch live fixtures for real-time updates (no caching)
+  const {
+    data: liveFixtures = [],
+    isLoading: isLiveLoading,
+  } = useQuery({
+    queryKey: ["live-fixtures"],
+    queryFn: async () => {
+      console.log(`🔴 [TodayPopularLeagueNew] Fetching live fixtures (no cache)`);
+      const response = await apiRequest("GET", "/api/fixtures/live");
+      const data = await response.json();
+      console.log(`✅ [TodayPopularLeagueNew] Received ${data?.length || 0} live fixtures`);
+      return data;
+    },
+    enabled: enableFetching,
+    refetchInterval: 30000, // Refresh every 30 seconds for live matches
+    staleTime: 0, // Always consider live data stale to force refetch
+    gcTime: 0, // Don't cache live data
+  });
+
   // Enhanced effect to track status and score changes for flash effects
   useEffect(() => {
-    if (!processedFixtures?.length) return;
+    // Combine live and date-based fixtures for status tracking
+    const allFixtures = [...(liveFixtures || []), ...(processedFixtures || [])];
+    
+    if (!allFixtures?.length) return;
 
     const newHalftimeMatches = new Set<number>();
     const newFulltimeMatches = new Set<number>();
@@ -1155,7 +1201,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const currentStatuses = new Map<number, string>();
     const currentScores = new Map<number, {home: number, away: number}>();
 
-    processedFixtures.forEach((fixture) => {
+    // Deduplicate fixtures by ID (live data takes precedence)
+    const fixtureMap = new Map();
+    allFixtures.forEach(fixture => {
+      if (!fixtureMap.has(fixture.fixture.id)) {
+        fixtureMap.set(fixture.fixture.id, fixture);
+      }
+    });
+
+    Array.from(fixtureMap.values()).forEach((fixture) => {
       const matchId = fixture.fixture.id;
       const currentStatus = fixture.fixture.status.short;
       const previousStatus = previousMatchStatuses.get(matchId);
@@ -1230,7 +1284,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       setFulltimeFlashMatches(newFulltimeMatches);
       setTimeout(() => setFulltimeFlashMatches(new Set()), 2000);
     }
-  }, [processedFixtures, previousMatchStatuses, previousMatchScores]);
+  }, [liveFixtures, processedFixtures, previousMatchStatuses, previousMatchScores]);
 
   // Clear Venezuela flag cache on component mount to ensure fresh fetch
   useEffect(() => {
