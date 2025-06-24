@@ -13,11 +13,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, 
-    rgba(255, 197, 149, 0.9) 0%, 
-    rgba(255, 197, 149, 0.7) 50%, 
-    rgba(255, 197, 149, 0.9) 100%
-  );
+  background: rgba(255, 197, 149, 0.8);
   animation: slide-from-both-ends-halftime 3s ease-in-out;
   z-index: 1;
   pointer-events: none;
@@ -48,11 +44,8 @@
   }
 }
 
-
-
-/* Flash animation for fulltime matches with subtle light blue gradient */
+/* Flash animation for fulltime matches with soft blue only */
 .country-matches-container .match-card-container.fulltime-flash {
-  animation: fulltime-flash-fade 3s ease-in-out;
   position: relative;
   overflow: hidden;
 }
@@ -64,11 +57,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(90deg, 
-    rgba(135, 206, 235, 0.9) 0%, 
-    rgba(135, 206, 235, 0.7) 50%, 
-    rgba(135, 206, 235, 0.9) 100%
-  );
+  background: rgba(135, 206, 235, 0.8);
   animation: slide-from-both-ends-fulltime 3s ease-in-out;
   z-index: 1;
   pointer-events: none;
@@ -99,21 +88,47 @@
   }
 }
 
-@keyframes fulltime-flash-fade {
+/* Flash animation for goal matches with soft green only */
+.country-matches-container .match-card-container.goal-flash {
+  position: relative;
+  overflow: hidden;
+}
+
+.country-matches-container .match-card-container.goal-flash::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(144, 238, 144, 0.8);
+  animation: slide-from-both-ends-goal 2s ease-in-out;
+  z-index: 1;
+  pointer-events: none;
+  transform: scaleX(0);
+  transform-origin: center;
+}
+
+@keyframes slide-from-both-ends-goal {
   0% {
-    background: linear-gradient(135deg, #e6f3ff, #cce7ff);
+    transform: scaleX(0);
+    opacity: 0;
   }
   25% {
-    background: linear-gradient(135deg, #cce7ff, #b3d9ff);
+    transform: scaleX(0.5);
+    opacity: 0.8;
   }
   50% {
-    background: linear-gradient(135deg, #b3d9ff, #cce7ff);
+    transform: scaleX(1);
+    opacity: 1;
   }
   75% {
-    background: linear-gradient(135deg, #cce7ff, #e6f3ff);
+    transform: scaleX(0.7);
+    opacity: 0.8;
   }
   100% {
-    background: white;
+    transform: scaleX(0);
+    opacity: 0;
   }
 }
 
