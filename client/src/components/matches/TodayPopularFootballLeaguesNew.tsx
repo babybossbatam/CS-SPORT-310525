@@ -249,26 +249,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Check if we have fresh cached data
   const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
 
-  // Fetch live fixtures for real-time updates (no caching)
-  const {
-    data: liveFixtures = [],
-    isLoading: isLiveLoading,
-  } = useQuery({
-    queryKey: ["live-fixtures"],
-    queryFn: async () => {
-      console.log(`🔴 [TodayPopularLeagueNew] Fetching live fixtures (no cache)`);
-      const response = await apiRequest("GET", "/api/fixtures/live");
-      const data = await response.json();
-      console.log(`✅ [TodayPopularLeagueNew] Received ${data?.length || 0} live fixtures`);
-      return data;
-    },
-    enabled: enableFetching,
-    refetchInterval: 30000, // Refresh every 30 seconds for live matches
-    staleTime: 0, // Always consider live data stale to force refetch
-    gcTime: 0, // Don't cache live data
-  });
-
-  // Fetch all fixtures for the selected date with smart caching
+  // Fetch all fixtures for the selected date - simple approach like MyNewLeague
   const {
     data: fixtures = [],
     isLoading,
@@ -301,48 +282,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
     },
   );
 
-  // Smart fixture processing with timezone conversion and live data merge
+  // Simple fixture processing like MyNewLeague
   const processedFixtures = useMemo(() => {
     const dateFixtures = fixtures || [];
-    const liveFixturesData = liveFixtures || [];
-    
-    console.log(`🎯 [TodayPopularLeagueNew] Processing ${dateFixtures.length} date-based fixtures + ${liveFixturesData.length} live fixtures`);
-
-    // Create a map to track fixtures by ID (live data takes precedence)
-    const fixtureMap = new Map();
-    
-    // First add date-based fixtures
-    dateFixtures.forEach(fixture => {
-      fixtureMap.set(fixture.fixture.id, {
-        ...fixture,
-        dataSource: 'cached'
-      });
-    });
-    
-    // Then overlay live fixtures (they override cached data)
-    liveFixturesData.forEach(fixture => {
-      fixtureMap.set(fixture.fixture.id, {
-        ...fixture,
-        dataSource: 'live'
-      });
-    });
-
-    const mergedFixtures = Array.from(fixtureMap.values());
-    
-    console.log(`🔄 [DATA MERGE] Combined ${mergedFixtures.length} total fixtures (${liveFixturesData.length} live, ${dateFixtures.length - liveFixturesData.length} cached)`);
-
-    // Apply timezone-aware date filtering
-    const filterResult = SimpleDateFilter.filterFixturesForDate(mergedFixtures, selectedDate);
-
-    console.log(`🌍 [TIMEZONE FILTERING] Results for ${selectedDate}:`, {
-      total: filterResult.stats.total,
-      valid: filterResult.stats.valid,
-      rejected: filterResult.stats.rejected,
-      timezoneConversions: filterResult.stats.timezoneConversions
-    });
-
-    return filterResult.validFixtures;
-  }, [fixtures, liveFixtures, selectedDate]);
+    console.log(`🎯 [TodayPopularLeagueNew] Processing ${dateFixtures.length} fixtures`);
+    return dateFixtures;
+  }, [fixtures]);
 
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
@@ -1186,103 +1131,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     return () => clearInterval(timer);
   }, []);
 
-  // Enhanced effect to track status and score changes for flash effects
-  useEffect(() => {
-    // Combine live and date-based fixtures for status tracking
-    const allFixtures = [...(liveFixtures || []), ...(processedFixtures || [])];
-    
-    if (!allFixtures?.length) return;
-
-    const newHalftimeMatches = new Set<number>();
-    const newFulltimeMatches = new Set<number>();
-    const newGoalMatches = new Set<number>();
-    const currentStatuses = new Map<number, string>();
-    const currentScores = new Map<number, {home: number, away: number}>();
-
-    // Deduplicate fixtures by ID (live data takes precedence)
-    const fixtureMap = new Map();
-    allFixtures.forEach(fixture => {
-      if (!fixtureMap.has(fixture.fixture.id)) {
-        fixtureMap.set(fixture.fixture.id, fixture);
-      }
-    });
-
-    Array.from(fixtureMap.values()).forEach((fixture) => {
-      const matchId = fixture.fixture.id;
-      const currentStatus = fixture.fixture.status.short;
-      const previousStatus = previousMatchStatuses.get(matchId);
-      
-      const currentHomeScore = fixture.goals?.home ?? 0;
-      const currentAwayScore = fixture.goals?.away ?? 0;
-      const previousScore = previousMatchScores.get(matchId);
-
-      currentStatuses.set(matchId, currentStatus);
-      currentScores.set(matchId, {home: currentHomeScore, away: currentAwayScore});
-
-      // Check for score changes (goals) in live matches
-      if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT'].includes(currentStatus) && previousScore) {
-        const totalGoalsNow = currentHomeScore + currentAwayScore;
-        const totalGoalsBefore = previousScore.home + previousScore.away;
-        
-        if (totalGoalsNow > totalGoalsBefore) {
-          console.log(`⚽ [GOAL FLASH] Goal scored in match ${matchId}!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            previousScore: `${previousScore.home}-${previousScore.away}`,
-            currentScore: `${currentHomeScore}-${currentAwayScore}`,
-            status: currentStatus
-          });
-          newGoalMatches.add(matchId);
-        }
-      }
-
-      // Check if status just changed to halftime
-      if (currentStatus === 'HT' && previousStatus && previousStatus !== 'HT') {
-        console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
-          home: fixture.teams?.home?.name,
-          away: fixture.teams?.away?.name,
-          previousStatus,
-          currentStatus,
-          score: `${currentHomeScore}-${currentAwayScore}`
-        });
-        newHalftimeMatches.add(matchId);
-      }
-
-      // Check if status just changed to fulltime
-      if (currentStatus === 'FT' && previousStatus && previousStatus !== 'FT') {
-        console.log(`🔵 [FULLTIME FLASH] Match ${matchId} just finished!`, {
-          home: fixture.teams?.home?.name,
-          away: fixture.teams?.away?.name,
-          previousStatus,
-          currentStatus,
-          finalScore: `${currentHomeScore}-${currentAwayScore}`
-        });
-        newFulltimeMatches.add(matchId);
-      }
-    });
-
-    // Update previous statuses and scores
-    setPreviousMatchStatuses(currentStatuses);
-    setPreviousMatchScores(currentScores);
-
-    // Trigger flash for goals
-    if (newGoalMatches.size > 0) {
-      setGoalFlashMatches(newGoalMatches);
-      setTimeout(() => setGoalFlashMatches(new Set()), 3000); // 3 seconds for goals
-    }
-
-    // Trigger flash for new halftime matches
-    if (newHalftimeMatches.size > 0) {
-      setHalftimeFlashMatches(newHalftimeMatches);
-      setTimeout(() => setHalftimeFlashMatches(new Set()), 2000);
-    }
-
-    // Trigger flash for new fulltime matches
-    if (newFulltimeMatches.size > 0) {
-      setFulltimeFlashMatches(newFulltimeMatches);
-      setTimeout(() => setFulltimeFlashMatches(new Set()), 2000);
-    }
-  }, [liveFixtures, processedFixtures, previousMatchStatuses, previousMatchScores]);
+  
 
   // Clear Venezuela flag cache on component mount to ensure fresh fetch
   useEffect(() => {
