@@ -815,6 +815,24 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
             >
               Test FT Flash
             </button>
+            <button 
+              onClick={() => {
+                const firstMatchId = filteredFixtures[0]?.fixture?.id;
+                if (firstMatchId) {
+                  // Create a temporary goal flash state since it's not implemented in this component yet
+                  const matchCardElement = document.querySelector(`[data-fixture-id="${firstMatchId}"]`);
+                  if (matchCardElement) {
+                    matchCardElement.classList.add('goal-flash');
+                    setTimeout(() => {
+                      matchCardElement.classList.remove('goal-flash');
+                    }, 2000);
+                  }
+                }
+              }}
+              className="px-2 py-1 text-xs bg-green-200 rounded"
+            >
+              Test Goal Flash
+            </button>
           </div>
         </div>
       </CardHeader>
@@ -949,6 +967,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                             } ${
                               fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
                             }`}
+                            data-fixture-id={match.fixture.id}
                             onClick={() => {
                               console.log('🔴 [LiveMatchForAllCountry] Match card clicked:', {
                                 fixtureId: match.fixture?.id,
