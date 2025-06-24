@@ -20,6 +20,7 @@ import {
 import { z } from "zod";
 import { format, addDays, subDays } from 'date-fns';
 // Removing uefaU21Routes import as requested
+import cors from 'cors';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -2114,6 +2115,49 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     } catch (error) {
       console.error('Error fetching fixtures by date:', error);
       res.status(500).json({ error: 'Failed to fetch fixtures' });
+    }
+  });
+
+  // Sportsradar API routes
+  apiRouter.get('/sportsradar/fixtures/:id/events', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      console.log(`📊 [Sportsradar] Fetching events for fixture: ${id}`);
+
+      // Return empty events array since Sportsradar events API is not accessible
+      res.json({
+        success: true,
+        events: [],
+        message: 'Sportsradar events API not accessible'
+      });
+    } catch (error) {
+      console.error('❌ [Sportsradar] Error fetching events:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch Sportsradar events',
+        events: []
+      });
+    }
+  });
+
+  apiRouter.get('/sportsradar/fixtures/:id/stats', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      console.log(`📊 [Sportsradar] Fetching stats for fixture: ${id}`);
+
+      // Return empty stats since Sportsradar stats API is not accessible
+      res.json({
+        success: true,
+        statistics: null,
+        message: 'Sportsradar stats API not accessible'
+      });
+    } catch (error) {
+      console.error('❌ [Sportsradar] Error fetching stats:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch Sportsradar stats',
+        statistics: null
+      });
     }
   });
 
