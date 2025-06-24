@@ -939,8 +939,6 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        ```
-Single line description: Removing explicit `fallbackSrc` from `LazyImage` components to enforce the universal default fallback.
                         toggleStarMatch(match.fixture.id);
                       }}
                       className="match-star-button"
