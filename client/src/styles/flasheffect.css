@@ -14,9 +14,9 @@
   right: 0;
   bottom: 0;
   background: linear-gradient(90deg, 
-    rgba(255, 165, 79, 0.9) 0%, 
-    rgba(255, 165, 79, 0.7) 50%, 
-    rgba(255, 165, 79, 0.9) 100%
+    rgba(255, 197, 149, 0.9) 0%, 
+    rgba(255, 197, 149, 0.7) 50%, 
+    rgba(255, 197, 149, 0.9) 100%
   );
   animation: slide-from-both-ends-halftime 3s ease-in-out;
   z-index: 1;
