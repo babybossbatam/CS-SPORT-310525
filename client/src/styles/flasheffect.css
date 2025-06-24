@@ -1,19 +1,11 @@
 /* Flash Effects CSS - Separated from TodaysMatchByCountryNew.css */
-```
 
-```css
-/* Flash Effects CSS - Separated from TodaysMatchByCountryNew.css */
-```
-
-```css
 /* Flash animation for halftime matches with soft orange only */
 .country-matches-container .match-card-container.halftime-flash {
   position: relative;
   overflow: hidden;
 }
-```
 
-```css
 .country-matches-container .match-card-container.halftime-flash::before {
   content: '';
   position: absolute;
@@ -28,34 +20,36 @@
   transform: scaleX(0);
   transform-origin: center;
 }
-```
 
-```css
 @keyframes slide-from-both-ends-halftime {
   0% {
-    clip-path: inset(0 50% 0 50%);
+    transform: scaleX(0);
     opacity: 0;
   }
+  25% {
+    transform: scaleX(0.5);
+    opacity: 0.8;
+  }
   50% {
-    clip-path: inset(0 0% 0 0%);
+    transform: scaleX(1);
     opacity: 1;
   }
+  75% {
+    transform: scaleX(0.7);
+    opacity: 0.8;
+  }
   100% {
-    clip-path: inset(0 0% 0 0%);
+    transform: scaleX(0);
     opacity: 0;
   }
 }
-```
 
-```css
 /* Flash animation for fulltime matches with soft blue only */
 .country-matches-container .match-card-container.fulltime-flash {
   position: relative;
   overflow: hidden;
 }
-```
 
-```css
 .country-matches-container .match-card-container.fulltime-flash::before {
   content: '';
   position: absolute;
@@ -70,34 +64,36 @@
   transform: scaleX(0);
   transform-origin: center;
 }
-```
 
-```css
 @keyframes slide-from-both-ends-fulltime {
   0% {
-    clip-path: inset(0 50% 0 50%);
+    transform: scaleX(0);
     opacity: 0;
   }
+  25% {
+    transform: scaleX(0.5);
+    opacity: 0.8;
+  }
   50% {
-    clip-path: inset(0 0% 0 0%);
+    transform: scaleX(1);
     opacity: 1;
   }
+  75% {
+    transform: scaleX(0.7);
+    opacity: 0.8;
+  }
   100% {
-    clip-path: inset(0 0% 0 0%);
+    transform: scaleX(0);
     opacity: 0;
   }
 }
-```
 
-```css
 /* Flash animation for goal matches with soft green only */
 .country-matches-container .match-card-container.goal-flash {
   position: relative;
   overflow: hidden;
 }
-```
 
-```css
 .country-matches-container .match-card-container.goal-flash::before {
   content: '';
   position: absolute;
@@ -112,26 +108,30 @@
   transform: scaleX(0);
   transform-origin: center;
 }
-```
 
-```css
 @keyframes slide-from-both-ends-goal {
   0% {
-    clip-path: inset(0 50% 0 50%);
+    transform: scaleX(0);
     opacity: 0;
   }
+  25% {
+    transform: scaleX(0.5);
+    opacity: 0.8;
+  }
   50% {
-    clip-path: inset(0 0% 0 0%);
+    transform: scaleX(1);
     opacity: 1;
   }
+  75% {
+    transform: scaleX(0.7);
+    opacity: 0.8;
+  }
   100% {
-    clip-path: inset(0 0% 0 0%);
+    transform: scaleX(0);
     opacity: 0;
   }
 }
-```
 
-```css
 /* 365scores-style Flash Effect Animations */
 @keyframes liveActionPulse {
   0% { 
@@ -147,9 +147,7 @@
     transform: scale(1);
   }
 }
-```
 
-```css
 @keyframes ballGlow {
   0% { 
     box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
@@ -164,9 +162,7 @@
     transform: scale(1);
   }
 }
-```
 
-```css
 @keyframes liveBadgePulse {
   0%, 100% {
     opacity: 1;
@@ -177,9 +173,7 @@
     background-color: rgb(239, 68, 68);
   }
 }
-```
 
-```css
 @keyframes possessionFade {
   0% { 
     opacity: 0;
@@ -190,41 +184,29 @@
     transform: translateY(0);
   }
 }
-```
 
-```css
 .flash-effect {
   animation: liveActionPulse 3s ease-in-out infinite;
 }
-```
 
-```css
 .ball-flash {
   animation: ballGlow 2s ease-in-out infinite;
 }
-```
 
-```css
 .live-pulse {
   animation: liveBadgePulse 2s ease-in-out infinite;
 }
-```
 
-```css
 .possession-fade-in {
   animation: possessionFade 0.5s ease-out;
 }
-```
 
-```css
 /* Live Action Flash Effects - Enhanced 365scores style */
 .flash-effect {
   animation: enhanced-flash 4s ease-in-out infinite;
   position: relative;
 }
-```
 
-```css
 .flash-effect::before {
   content: '';
   position: absolute;
@@ -237,17 +219,13 @@
   z-index: -1;
   animation: border-glow 3s ease-in-out infinite;
 }
-```
 
-```css
 .live-pulse {
   animation: enhanced-live-pulse 1.8s ease-in-out infinite;
   position: relative;
   overflow: hidden;
 }
-```
 
-```css
 .live-pulse::before {
   content: '';
   position: absolute;
@@ -261,29 +239,21 @@
     transparent);
   animation: sweep 2s ease-in-out infinite;
 }
-```
 
-```css
 .ball-flash {
   animation: enhanced-ball-glow 2s ease-in-out infinite;
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6));
 }
-```
 
-```css
 .possession-fade-in {
   animation: enhanced-possession-appear 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-```
 
-```css
 .field-overlay {
   position: relative;
   overflow: hidden;
 }
-```
 
-```css
 .field-overlay::before {
   content: '';
   position: absolute;
@@ -294,9 +264,7 @@
   pointer-events: none;
   animation: field-shimmer 6s ease-in-out infinite;
 }
-```
 
-```css
 /* Enhanced Keyframes */
 @keyframes enhanced-flash {
   0%, 100% { 
@@ -308,9 +276,7 @@
                 inset 0 0 20px rgba(34, 197, 94, 0.2);
   }
 }
-```
 
-```css
 @keyframes border-glow {
   0%, 100% { 
     opacity: 0.3;
@@ -321,9 +287,7 @@
     filter: blur(1px);
   }
 }
-```
 
-```css
 @keyframes enhanced-live-pulse {
   0%, 100% { 
     opacity: 1;
@@ -336,17 +300,13 @@
     background-color: #ef4444;
   }
 }
-```
 
-```css
 @keyframes sweep {
   0% { left: -100%; }
   50% { left: 100%; }
   100% { left: 100%; }
 }
-```
 
-```css
 @keyframes enhanced-ball-glow {
   0%, 100% { 
     filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6))
@@ -359,9 +319,7 @@
     transform: scale(1.1);
   }
 }
-```
 
-```css
 @keyframes enhanced-possession-appear {
   0% { 
     opacity: 0;
@@ -379,9 +337,7 @@
     filter: blur(0px);
   }
 }
-```
 
-```css
 @keyframes field-shimmer {
   0%, 100% { 
     opacity: 0.3;
@@ -392,9 +348,7 @@
     transform: scale(1.1) rotate(1deg);
   }
 }
-```
 
-```css
 /* 365scores-style Attack Pattern Animations */
 @keyframes attackAnimation {
   0% {
@@ -410,9 +364,7 @@
     transform: scale(1);
   }
 }
-```
 
-```css
 @keyframes attackLineAnimation {
   0% {
     stroke-dashoffset: 10;
@@ -427,9 +379,7 @@
     opacity: 0.6;
   }
 }
-```
 
-```css
 @keyframes attackArrowAnimation {
   0% {
     opacity: 0;
@@ -444,27 +394,19 @@
     transform: scale(1);
   }
 }
-```
 
-```css
 .attack-animation {
   animation: attackAnimation 3s ease-out;
 }
-```
 
-```css
 .attack-line-animation {
   animation: attackLineAnimation 3s ease-out;
 }
-```
 
-```css
 .attack-arrow-animation {
   animation: attackArrowAnimation 3s ease-out;
 }
-```
 
-```css
 /* Ball Trail Effect */
 @keyframes ballTrail {
   0% {
@@ -480,32 +422,24 @@
     transform: scale(0.8);
   }
 }
-```
 
-```css
 .ball-trail {
   animation: ballTrail 0.5s ease-out infinite;
 }
-```
 
-```css
 /* 365scores-style responsive styles */
 .live-action-container {
   max-width: 320px;
   min-width: 280px;
 }
-```
 
-```css
 @media (max-width: 640px) {
   .live-action-container {
     max-width: 100%;
     min-width: 260px;
   }
 }
-```
 
-```css
 /* Responsive enhancements */
 @media (max-width: 640px) {
   .flash-effect::before {
@@ -516,22 +450,16 @@
     font-size: 0.75rem;
   }
 }
-```
 
-```css
 /* Hover states for interactive elements */
 .live-action-container:hover .flash-effect {
   animation-duration: 2s;
 }
-```
 
-```css
 .live-action-container:hover .ball-flash {
   animation-duration: 1s;
 }
-```
 
-```css
 /* Field gradient overlay for 365scores look */
 .field-overlay {
   background: linear-gradient(
@@ -543,9 +471,7 @@
     rgba(22, 101, 52, 0.9) 100%
   );
 }
-```
 
-```css
 /* Enhanced Stats Bar */
 .stats-bar-gradient {
   background: linear-gradient(90deg, 
@@ -554,9 +480,7 @@
     rgba(239, 68, 68, 0.6) 50%, 
     rgba(239, 68, 68, 0.8) 100%);
 }
-```
 
-```css
 /* Corner Kick Animations */
 @keyframes cornerArcAnimation {
   0% {
@@ -572,9 +496,7 @@
     opacity: 0.7;
   }
 }
-```
 
-```css
 @keyframes cornerFlagAnimation {
   0% {
     opacity: 0;
@@ -589,9 +511,7 @@
     transform: scale(1);
   }
 }
-```
 
-```css
 @keyframes cornerAreaHighlight {
   0% {
     opacity: 0;
@@ -606,27 +526,19 @@
     fill-opacity: 0.1;
   }
 }
-```
 
-```css
 .corner-arc-animation {
   animation: cornerArcAnimation 2s ease-out infinite;
 }
-```
 
-```css
 .corner-flag-animation {
   animation: cornerFlagAnimation 2s ease-out;
 }
-```
 
-```css
 .corner-area-highlight {
   animation: cornerAreaHighlight 2s ease-out;
 }
-```
 
-```css
 /* Responsive enhancements */
 @media (max-width: 640px) {
   .flash-effect::before {
@@ -642,9 +554,6 @@
     min-width: 300px;
   }
 }
-```
-
-```css
 @keyframes goalFlash {
   0% { 
     background-color: rgba(34, 197, 94, 0.3);
@@ -669,29 +578,21 @@
     transform: scale(1);
   }
 }
-```
 
-```css
 .goal-flash {
   animation: goalFlash 3s ease-in-out;
   border: 2px solid #22c55e;
 }
-```
 
-```css
 /* Enhanced existing flash effects */
 .halftime-flash {
   animation: halftimeFlash 2s ease-in-out;
 }
-```
 
-```css
 .fulltime-flash {
   animation: fulltimeFlash 2s ease-in-out;
 }
-```
 
-```css
 @keyframes halftimeFlash {
   0% { 
     background-color: rgba(249, 115, 22, 0.2);
@@ -708,9 +609,7 @@
     transform: scale(1);
   }
 }
-```
 
-```css
 @keyframes fulltimeFlash {
   0% { 
     background-color: rgba(59, 130, 246, 0.2);
@@ -727,17 +626,13 @@
     transform: scale(1);
   }
 }
-```
 
-```css
 /* Fulltime flash animation */
 .match-card-container.fulltime-flash {
   background-color: #3b82f6 !important; /* Blue background */
   animation: fulltime-flash-fade 2s ease-out forwards;
 }
-```
 
-```css
 @keyframes fulltime-flash-fade {
   0% {
     background-color: #3b82f6; /* Blue */
@@ -746,17 +641,13 @@
     background-color: white; /* Back to normal */
   }
 }
-```
 
-```css
 /* Goal flash animation */
 .match-card-container.goal-flash {
   position: relative;
   animation: goal-flash-fade 2s ease-out forwards;
 }
-```
 
-```css
 .match-card-container.goal-flash::before {
   content: '';
   position: absolute;
@@ -775,9 +666,7 @@
   transform: scaleX(0);
   transform-origin: center;
 }
-```
 
-```css
 @keyframes slide-from-both-ends-goal {
   0% {
     transform: scaleX(0);
@@ -800,9 +689,7 @@
     opacity: 0;
   }
 }
-```
 
-```css
 @keyframes goal-flash-fade {
   0% {
     background-color: #10b981; /* Green */
