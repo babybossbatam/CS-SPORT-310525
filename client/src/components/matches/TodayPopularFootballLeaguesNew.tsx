@@ -1186,25 +1186,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch live fixtures for real-time updates (no caching)
-  const {
-    data: liveFixtures = [],
-    isLoading: isLiveLoading,
-  } = useQuery({
-    queryKey: ["live-fixtures"],
-    queryFn: async () => {
-      console.log(`🔴 [TodayPopularLeagueNew] Fetching live fixtures (no cache)`);
-      const response = await apiRequest("GET", "/api/fixtures/live");
-      const data = await response.json();
-      console.log(`✅ [TodayPopularLeagueNew] Received ${data?.length || 0} live fixtures`);
-      return data;
-    },
-    enabled: enableFetching,
-    refetchInterval: 30000, // Refresh every 30 seconds for live matches
-    staleTime: 0, // Always consider live data stale to force refetch
-    gcTime: 0, // Don't cache live data
-  });
-
   // Enhanced effect to track status and score changes for flash effects
   useEffect(() => {
     // Combine live and date-based fixtures for status tracking
