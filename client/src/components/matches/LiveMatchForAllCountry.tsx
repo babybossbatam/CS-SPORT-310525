@@ -754,7 +754,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       actuallyHasLiveMatches,
       isLoading
     });
-    
+
     return (
       <>
         {/* Header Section */}
@@ -1161,7 +1161,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                             title={match.teams.home.name}
                                             className="team-logo"
                                             style={{ backgroundColor: "transparent" }}
-                                            fallbackSrc="/assets/fallback-logo.svg"
                                           />
                                           <div className="gloss"></div>
                                         </div>
@@ -1180,7 +1179,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                         title={match.teams.home.name}
                                         className="team-logo"
                                         style={{ backgroundColor: "transparent" }}
-                                        fallbackSrc="/assets/fallback-logo.svg"
                                       />
                                     );
                                   })()}
@@ -1327,7 +1325,6 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                           filter:
                                             "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
                                         }}
-                                        fallbackSrc="/assets/fallback-logo.svg"
                                       />
                                     );
                                   })()}

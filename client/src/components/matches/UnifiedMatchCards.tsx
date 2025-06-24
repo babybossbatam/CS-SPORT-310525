@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Star } from "lucide-react";
@@ -38,7 +37,7 @@ const UnifiedMatchCards: React.FC<UnifiedMatchCardsProps> = ({
   // Combine and deduplicate matches from all sources
   const allMatches = useMemo(() => {
     const matchMap = new Map();
-    
+
     // Add live matches first (higher priority)
     liveMatches.forEach(match => {
       if (match.fixture?.id) {
@@ -192,7 +191,6 @@ const UnifiedMatchCards: React.FC<UnifiedMatchCardsProps> = ({
                             title={match.teams.home.name}
                             className="team-logo"
                             style={{ backgroundColor: "transparent" }}
-                            fallbackSrc="/assets/fallback-logo.svg"
                           />
                           <div className="gloss"></div>
                         </div>
@@ -207,7 +205,6 @@ const UnifiedMatchCards: React.FC<UnifiedMatchCardsProps> = ({
                           title={match.teams.home.name}
                           className="team-logo"
                           style={{ backgroundColor: "transparent" }}
-                          fallbackSrc="/assets/fallback-logo.svg"
                         />
                       )}
                     </div>
@@ -313,7 +310,6 @@ const UnifiedMatchCards: React.FC<UnifiedMatchCardsProps> = ({
                             title={match.teams.away.name}
                             className="team-logo"
                             style={{ backgroundColor: "transparent" }}
-                            fallbackSrc="/assets/fallback-logo.svg"
                           />
                           <div className="gloss"></div>
                         </div>
@@ -328,7 +324,6 @@ const UnifiedMatchCards: React.FC<UnifiedMatchCardsProps> = ({
                           title={match.teams.away.name}
                           className="team-logo"
                           style={{ backgroundColor: "transparent" }}
-                          fallbackSrc="/assets/fallback-logo.svg"
                         />
                       )}
                     </div>

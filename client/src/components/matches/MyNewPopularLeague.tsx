@@ -306,19 +306,19 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
         // For today's view, exclude any matches that are from previous days
         if (selectedDate === todayString) {
           if (smartResult.label === "today") return true;
-          
+
           // Additional check: exclude matches from previous dates regardless of status
           const fixtureDate = new Date(fixture.fixture.date);
           const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-          
+
           if (fixtureDateString < selectedDate) {
             console.log(`❌ [MyNewPopularLeague DATE FILTER] Excluding yesterday match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${fixtureDateString} < ${selectedDate})`);
             return false;
           }
-          
+
           return false;
         }
-        
+
         if (selectedDate === tomorrowString && smartResult.label === "tomorrow") return true;
         if (selectedDate === yesterdayString && smartResult.label === "yesterday") return true;
 
@@ -352,7 +352,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
       // Additional safety check: ensure match date matches selected date for strict filtering
       const fixtureDate = parseISO(fixture.fixture.date);
       const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-      
+
       if (selectedDate === todayString && fixtureDateString !== selectedDate) {
         console.log(
           `❌ [MyNewPopularLeague DATE MISMATCH] Excluding match with wrong date: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
@@ -679,11 +679,11 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                         const upcomingMatches = competition.matches
                           .filter(match => match.fixture.status.short === "NS" || match.fixture.status.short === "TBD")
                           .sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
-                        
+
                         if (upcomingMatches.length > 0) {
                           // Convert UTC time to Asia/Manila timezone
                           const firstMatchDate = parseISO(upcomingMatches[0].fixture.date);
-                          
+
                           // Create a date in Asia/Manila timezone
                           const manilaTime = new Intl.DateTimeFormat('en-US', {
                             timeZone: 'Asia/Manila',
@@ -691,10 +691,10 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                             minute: '2-digit',
                             hour12: false
                           }).format(firstMatchDate);
-                          
+
                           return manilaTime;
                         }
-                        
+
                         // If no upcoming matches, show the first match time
                         const firstMatch = competition.matches[0];
                         const firstMatchDate = parseISO(firstMatch.fixture.date);
@@ -704,7 +704,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                           minute: '2-digit',
                           hour12: false
                         }).format(firstMatchDate);
-                        
+
                         return manilaTime;
                       })()}
                     </span>
@@ -822,7 +822,8 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                     if (aUpcoming && bUpcoming) {
                       // Sort by time distance from now (nearest first)
                       const aDistance = Math.abs(aTime - nowTime);
-                      const bDistance = Math.abs(bTime - nowTime);
+                      ```
+      const bDistance = Math.abs(bTime - nowTime);
                       return aDistance - bDistance;
                     }
 
@@ -847,7 +848,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                     if (competition.name.includes("U21") || competition.name.includes("FIFA") || competition.name.includes("World Cup")) {
                       const matchDate = parseISO(match.fixture.date);
                       const localDate = format(matchDate, "yyyy-MM-dd");
-                      
+
                       console.log(`🏆 [${competition.name}] Match found:`, {
                         id: match.fixture.id,
                         originalDate: match.fixture.date,
@@ -935,7 +936,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
 
                               // For FIFA Club World Cup, be more lenient with live status
                               const isFifaMatch = competition.name.includes("FIFA Club World Cup");
-                              
+
                               // Smart status detection - if match was supposed to start more than 4 hours ago
                               // and still shows live status, treat it as finished (extended for FIFA matches)
                               const isLikelyFinished = isFifaMatch ? timeDiffMinutes > 240 : timeDiffMinutes > 150; // 4 hours for FIFA, 2.5 for others
@@ -1073,7 +1074,7 @@ return null;
                                     filter:
                                       "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
                                   }}
-                                  fallbackSrc="/assets/fallback-logo.svg"
+                                  
                                 />
                               )}
                             </div>
@@ -1235,7 +1236,7 @@ return null;
                                     filter:
                                       "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
                                   }}
-                                  fallbackSrc="/assets/fallback-logo.svg"
+                                  
                                 />
                               )}
                             </div>
