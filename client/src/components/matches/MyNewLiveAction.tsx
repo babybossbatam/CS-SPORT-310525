@@ -82,8 +82,10 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
       try {
         setIsLoading(true);
         
-        // Fetch live events from Sportsradar API
+        // Try Sportsradar API first
         const eventsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/events`);
+        let hasEvents = false;
+        
         if (eventsResponse.ok && mounted) {
           const eventsData = await eventsResponse.json();
           
@@ -91,28 +93,104 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
             setLiveEvents(eventsData.events);
             setCurrentEvent(eventsData.events[0]);
             setLastAction(`${eventsData.events[0].type} - ${eventsData.events[0].description}`);
-          } else {
-            // Fallback: simulate basic live data
-            setLastAction('Live match in progress');
+            hasEvents = true;
           }
         }
 
-        // Fetch live stats from Sportsradar API
+        // If no events from Sportsradar, try SoccersAPI
+        if (!hasEvents) {
+          try {
+            const soccersEventsResponse = await fetch(`/api/soccersapi/matches/${matchId}/events`);
+            if (soccersEventsResponse.ok && mounted) {
+              const soccersEventsData = await soccersEventsResponse.json();
+              
+              if (soccersEventsData.success && soccersEventsData.events && soccersEventsData.events.length > 0) {
+                // Convert SoccersAPI events to our format
+                const convertedEvents = soccersEventsData.events.map((event: any) => ({
+                  id: event.id || `event-${Date.now()}`,
+                  time: { minute: event.minute || 0 },
+                  type: event.type || 'action',
+                  team: event.team || 'home',
+                  player: { name: event.player || 'Unknown' },
+                  description: event.text || event.description || 'Live action'
+                }));
+                
+                setLiveEvents(convertedEvents);
+                setCurrentEvent(convertedEvents[0]);
+                setLastAction(`${convertedEvents[0].type} - ${convertedEvents[0].description}`);
+                hasEvents = true;
+                console.log(`✅ [SoccersAPI] Retrieved ${convertedEvents.length} live events`);
+              }
+            }
+          } catch (soccersError) {
+            console.warn('⚠️ [SoccersAPI] Events fallback failed:', soccersError);
+          }
+        }
+
+        // Final fallback: simulate basic live data
+        if (!hasEvents) {
+          setLastAction('Live match in progress');
+        }
+
+        // Try Sportsradar API first
         const statsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/stats`);
+        let hasStats = false;
+        
         if (statsResponse.ok && mounted) {
           const statsData = await statsResponse.json();
           
           if (statsData.success && statsData.statistics) {
             setLiveStats(statsData.statistics);
-          } else {
-            // Fallback: simulate basic stats
-            setLiveStats({
-              possession: { home: 50, away: 50 },
-              shots: { home: 0, away: 0 },
-              corners: { home: 0, away: 0 },
-              fouls: { home: 0, away: 0 }
-            });
+            hasStats = true;
           }
+        }
+
+        // If no stats from Sportsradar, try SoccersAPI
+        if (!hasStats) {
+          try {
+            const soccersStatsResponse = await fetch(`/api/soccersapi/matches/${matchId}/stats`);
+            if (soccersStatsResponse.ok && mounted) {
+              const soccersStatsData = await soccersStatsResponse.json();
+              
+              if (soccersStatsData.success && soccersStatsData.statistics) {
+                // Convert SoccersAPI stats to our format
+                const convertedStats = {
+                  possession: {
+                    home: soccersStatsData.statistics.possession_home || 50,
+                    away: soccersStatsData.statistics.possession_away || 50
+                  },
+                  shots: {
+                    home: soccersStatsData.statistics.shots_home || 0,
+                    away: soccersStatsData.statistics.shots_away || 0
+                  },
+                  corners: {
+                    home: soccersStatsData.statistics.corners_home || 0,
+                    away: soccersStatsData.statistics.corners_away || 0
+                  },
+                  fouls: {
+                    home: soccersStatsData.statistics.fouls_home || 0,
+                    away: soccersStatsData.statistics.fouls_away || 0
+                  }
+                };
+                
+                setLiveStats(convertedStats);
+                hasStats = true;
+                console.log(`✅ [SoccersAPI] Retrieved live statistics`);
+              }
+            }
+          } catch (soccersError) {
+            console.warn('⚠️ [SoccersAPI] Stats fallback failed:', soccersError);
+          }
+        }
+
+        // Final fallback: simulate basic stats
+        if (!hasStats) {
+          setLiveStats({
+            possession: { home: 50, away: 50 },
+            shots: { home: 0, away: 0 },
+            corners: { home: 0, away: 0 },
+            fouls: { home: 0, away: 0 }
+          });
         }
 
         setIsLoading(false);

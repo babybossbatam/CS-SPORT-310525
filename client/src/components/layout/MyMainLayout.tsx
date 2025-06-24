@@ -17,6 +17,7 @@ import MyHighlights from "@/components/matches/MyHighlights";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
 import MyLiveAction from "@/components/matches/MyLiveAction";
 import MyNewLiveAction from "@/components/matches/MyNewLiveAction";
+import SoccersApiLiveAction from '../matches/SoccersApiLiveAction';
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
@@ -169,7 +170,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                 currentFixture={selectedFixture}
                 onClose={handleBackToMain}
               />
-              
+
               {/* Conditional rendering based on match status */}
               {(() => {
                 const matchStatus = selectedFixture?.fixture?.status?.short;
@@ -194,9 +195,17 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                           awayTeam={selectedFixture?.teams?.away}
                           status={selectedFixture?.fixture?.status?.short}
                         />
+
+                        <SoccersApiLiveAction
+                          matchId={selectedFixture?.fixture?.id}
+                          homeTeam={selectedFixture?.teams?.home}
+                          awayTeam={selectedFixture?.teams?.away}
+                          status={selectedFixture?.fixture?.status?.short}
+                          className="mt-4"
+                        />
                       </>
                     )}
-                    
+
                     {/* Show MyHighlights only for ended matches */}
                     {isEnded && (
                       <MyHighlights
@@ -206,12 +215,12 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                         matchStatus={selectedFixture?.fixture?.status?.short}
                       />
                     )}
-                    
+
                     {/* For upcoming matches, neither component is shown */}
                   </>
                 );
               })()}
-              
+
               <MatchDetailCard match={selectedFixture} />
 
               <MyMatchEvents

@@ -7,6 +7,7 @@ import { rapidApiService } from "./services/rapidApi";
 
 
 import sportsradarApi from './services/sportsradarApi';
+import soccersApi from './services/soccersApi';
 import { supabaseService } from "./services/supabase";
 import { 
   insertUserSchema, 
@@ -2157,6 +2158,133 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         success: false,
         error: 'Failed to fetch Sportsradar stats',
         statistics: null
+      });
+    }
+  });
+
+  // SoccersAPI routes for live action data
+  apiRouter.get('/soccersapi/leagues', async (req: Request, res: Response) => {
+    try {
+      console.log('🏈 [SoccersAPI] Fetching leagues');
+      const leagues = await soccersApi.getLeagues();
+      res.json({
+        success: true,
+        data: leagues,
+        count: leagues.length
+      });
+    } catch (error) {
+      console.error('❌ [SoccersAPI] Error fetching leagues:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch SoccersAPI leagues',
+        data: []
+      });
+    }
+  });
+
+  apiRouter.get('/soccersapi/live', async (req: Request, res: Response) => {
+    try {
+      console.log('🔴 [SoccersAPI] Fetching live matches');
+      const liveMatches = await soccersApi.getLiveMatches();
+      res.json({
+        success: true,
+        data: liveMatches,
+        count: liveMatches.length
+      });
+    } catch (error) {
+      console.error('❌ [SoccersAPI] Error fetching live matches:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch SoccersAPI live matches',
+        data: []
+      });
+    }
+  });
+
+  apiRouter.get('/soccersapi/matches/:id', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      console.log(`📋 [SoccersAPI] Fetching match details for: ${id}`);
+      
+      const matchDetails = await soccersApi.getMatchDetails(id);
+      
+      if (matchDetails) {
+        res.json({
+          success: true,
+          data: matchDetails
+        });
+      } else {
+        res.status(404).json({
+          success: false,
+          error: 'Match not found'
+        });
+      }
+    } catch (error) {
+      console.error('❌ [SoccersAPI] Error fetching match details:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch SoccersAPI match details'
+      });
+    }
+  });
+
+  apiRouter.get('/soccersapi/matches/:id/events', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      console.log(`⚽ [SoccersAPI] Fetching events for match: ${id}`);
+      
+      const events = await soccersApi.getMatchEvents(id);
+      res.json({
+        success: true,
+        events: events,
+        count: events.length
+      });
+    } catch (error) {
+      console.error('❌ [SoccersAPI] Error fetching match events:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch SoccersAPI match events',
+        events: []
+      });
+    }
+  });
+
+  apiRouter.get('/soccersapi/matches/:id/stats', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      console.log(`📊 [SoccersAPI] Fetching statistics for match: ${id}`);
+      
+      const stats = await soccersApi.getMatchStatistics(id);
+      res.json({
+        success: true,
+        statistics: stats
+      });
+    } catch (error) {
+      console.error('❌ [SoccersAPI] Error fetching match statistics:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch SoccersAPI match statistics',
+        statistics: null
+      });
+    }
+  });
+
+  apiRouter.get('/soccersapi/matches/:id/lineups', async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);
+      
+      const lineups = await soccersApi.getMatchLineups(id);
+      res.json({
+        success: true,
+        lineups: lineups
+      });
+    } catch (error) {
+      console.error('❌ [SoccersAPI] Error fetching match lineups:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Failed to fetch SoccersAPI match lineups',
+        lineups: null
       });
     }
   });
