@@ -103,9 +103,9 @@ const HomeTopScorersList = () => {
       const preferredLeague = POPULAR_LEAGUES.find(league => league.id === 34);
       setSelectedLeague(preferredLeague ? preferredLeague.id : POPULAR_LEAGUES[0].id);
     }
-  }, [selectedLeague]);
+  }, []); // Remove selectedLeague dependency to prevent infinite loops
 
-  const { data: topScorers, isLoading } = useCachedQuery(
+  const { data: topScorers, isLoading, error } = useCachedQuery(
     [`top-scorers-league-${selectedLeague}`],
     async () => {
       if (!selectedLeague) return [];
@@ -116,12 +116,13 @@ const HomeTopScorersList = () => {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Cache-Control': 'max-age=1800' // 30 minutes for fresher data
+          'Cache-Control': 'max-age=3600' // 1 hour cache
         }
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch top scorers for league ${selectedLeague}`);
+        console.warn(`Failed to fetch top scorers for league ${selectedLeague}: ${response.status}`);
+        return [];
       }
 
       const data: PlayerStatistics[] = await response.json();
@@ -162,10 +163,10 @@ const HomeTopScorersList = () => {
     },
     {
       enabled: !!selectedLeague,
-      maxAge: 2 * 60 * 60 * 1000, // 2 hours cache for better performance
-      backgroundRefresh: true,
+      maxAge: 4 * 60 * 60 * 1000, // 4 hours cache for better performance
+      backgroundRefresh: false, // Disable background refresh to reduce API calls
       retry: 1,
-      staleTime: 1 * 60 * 60 * 1000, // 1 hour stale time - use cached data for faster loading
+      staleTime: 2 * 60 * 60 * 1000, // 2 hour stale time - use cached data longer
       refetchOnWindowFocus: false, // Prevent unnecessary refetches
       refetchOnMount: false // Use cached data on mount
     }
@@ -259,11 +260,6 @@ const HomeTopScorersList = () => {
       // If at first league, go to last league
       setSelectedLeague(availableLeagues[availableLeagues.length - 1].id);
     }
-
-    // Also handle scrolling
-    const scrollAmount = 200;
-    const newPosition = Math.max(0, contentPosition - scrollAmount);
-    setContentPosition(newPosition);
   };
 
   const scrollRight = () => {
@@ -275,16 +271,10 @@ const HomeTopScorersList = () => {
       // If at last league, go to first league
       setSelectedLeague(availableLeagues[0].id);
     }
-
-    // Also handle scrolling
-    const scrollAmount = 200;
-    const maxScroll = Math.max(0, contentWidth - containerWidth);
-    const newPosition = Math.min(maxScroll, contentPosition + scrollAmount);
-    setContentPosition(newPosition);
   };
 
-  const canScrollLeft = contentPosition > 0 && contentWidth > containerWidth;
-  const canScrollRight = contentPosition < (contentWidth - containerWidth) && contentWidth > containerWidth;
+  const canScrollLeft = availableLeagues.length > 0;
+  const canScrollRight = availableLeagues.length > 0;
 
 
 
@@ -322,7 +312,7 @@ const HomeTopScorersList = () => {
     }
   }, [selectedLeague, availableLeagues.length, contentWidth, containerWidth]);
 
-  if (isLoadingLeagues || isLoading || !selectedLeague) {
+  if (isLoadingLeagues || !selectedLeague) {
     return (
       <div className="bg-white rounded-lg border border-gray-200">
         {/* Header skeleton */}
@@ -435,8 +425,8 @@ const HomeTopScorersList = () => {
                     onClick={() => setSelectedLeague(league.id)}
                     className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 flex-shrink-0 px-3 py-2 rounded-md min-w-max ${
                       selectedLeague === league.id 
-                        ? 'text-gray-900 font-semibold' 
-                        : 'text-gray-400 hover:text-gray-900 hover:bg-gray-100'
+                        ? 'text-blue-600 font-semibold bg-blue-50 border border-blue-200' 
+                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                     }`}
                   >
                     <div className="w-5 h-5 flex-shrink-0">
@@ -478,7 +468,28 @@ const HomeTopScorersList = () => {
 
         {/* Players list */}
         <div className="p-4">
-          {topScorers && topScorers.length > 0 ? (
+          {isLoading ? (
+            <div className="space-y-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded-full bg-gray-200 animate-pulse" />
+                  <div className="flex-1 space-y-1">
+                    <div className="h-4 w-32 bg-gray-200 animate-pulse rounded" />
+                    <div className="h-3 w-24 bg-gray-200 animate-pulse rounded" />
+                  </div>
+                  <div className="text-right">
+                    <div className="h-6 w-6 bg-gray-200 animate-pulse rounded" />
+                    <div className="h-3 w-8 bg-gray-200 animate-pulse rounded mt-1" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-6 text-gray-500">
+              <p className="text-sm">Failed to load top scorers</p>
+              <p className="text-xs text-gray-400 mt-1">for {getCurrentLeague()?.name}</p>
+            </div>
+          ) : topScorers && topScorers.length > 0 ? (
             <div className="space-y-3">
               {topScorers.slice(0, 3).map((scorer, index) => {
               const playerStats = scorer.statistics[0];
