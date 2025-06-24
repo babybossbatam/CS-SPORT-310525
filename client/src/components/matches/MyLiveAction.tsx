@@ -716,11 +716,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       : getTeamDisplayName('away')
                     }
                   </div>
-                  {/* Jersey Icon */}
-                  <div className="w-8 h-8 bg-white/90 rounded-sm flex items-center justify-center shadow-lg">
-                    <svg viewBox="0 0 24 24" className="w-6 h-6 text-gray-700" fill="currentColor">
-                      <path d="M16,2A2,2 0 0,1 18,4V8A2,2 0 0,1 16,10H15V22H9V10H8A2,2 0 0,1 6,8V4A2,2 0 0,1 8,2H9.5C10,1.5 10.5,1 12,1C13.5,1 14,1.5 14.5,2H16M8,4V8H9V4H8M15,4V8H16V4H15Z" />
-                    </svg>
+                  {/* Team Logo */}
+                  <div className="w-8 h-8 bg-white/90 rounded-sm flex items-center justify-center shadow-lg border border-white/20">
+                    <img
+                      src={currentAttack.team === 'home' ? homeTeamData?.logo : awayTeamData?.logo}
+                      alt={currentAttack.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
+                      className="w-6 h-6 object-contain"
+                      onError={(e) => {
+                        e.currentTarget.src = '/assets/fallback-logo.svg';
+                      }}
+                    />
                   </div>
                 </div>
               </div>
@@ -747,11 +752,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           <div className="flex items-center justify-between">
             {/* Home Team */}
             <div className="flex items-center gap-3">
-              {/* Jersey Icon */}
-              <div className="w-8 h-8 bg-pink-200 rounded-sm flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 text-pink-600" fill="currentColor">
-                  <path d="M16,2A2,2 0 0,1 18,4V8A2,2 0 0,1 16,10H15V22H9V10H8A2,2 0 0,1 6,8V4A2,2 0 0,1 8,2H9.5C10,1.5 10.5,1 12,1C13.5,1 14,1.5 14.5,2H16M8,4V8H9V4H8M15,4V8H16V4H15Z" />
-                </svg>
+              {/* Team Logo */}
+              <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center shadow-sm border border-gray-200">
+                <img
+                  src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
+                  alt={homeTeamData?.name || 'Home Team'}
+                  className="w-6 h-6 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.src = '/assets/fallback-logo.svg';
+                  }}
+                />
               </div>
               
               {/* Corner Count */}
@@ -794,11 +804,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 {cornerKicks.away}.0
               </div>
               
-              {/* Jersey Icon */}
-              <div className="w-8 h-8 bg-green-100 rounded-sm flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-5 h-5 text-green-600" fill="currentColor">
-                  <path d="M16,2A2,2 0 0,1 18,4V8A2,2 0 0,1 16,10H15V22H9V10H8A2,2 0 0,1 6,8V4A2,2 0 0,1 8,2H9.5C10,1.5 10.5,1 12,1C13.5,1 14,1.5 14.5,2H16M8,4V8H9V4H8M15,4V8H16V4H15Z" />
-                </svg>
+              {/* Team Logo */}
+              <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center shadow-sm border border-gray-200">
+                <img
+                  src={awayTeamData?.logo || '/assets/fallback-logo.svg'}
+                  alt={awayTeamData?.name || 'Away Team'}
+                  className="w-6 h-6 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.src = '/assets/fallback-logo.svg';
+                  }}
+                />
               </div>
             </div>
           </div>
