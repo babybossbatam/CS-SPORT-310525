@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -116,35 +117,28 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       if (!liveData) return;
 
       try {
-        // Use direct fixture endpoint for faster updates
-        const response = await fetch(`/api/fixtures/${liveData.fixture.id}?_t=${Date.now()}`);
+        const response = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
         if (response.ok && mounted) {
-          const updatedMatch = await response.json();
+          const liveFixtures = await response.json();
+          const currentMatch = liveFixtures.find((fixture: any) => 
+            fixture.fixture.id === matchId
+          );
 
-          if (updatedMatch && mounted) {
-            // Check if there are actual changes to avoid unnecessary re-renders
-            const hasScoreChanged = 
-              updatedMatch.goals?.home !== liveData.goals?.home ||
-              updatedMatch.goals?.away !== liveData.goals?.away;
+          if (currentMatch && mounted) {
+            const previousElapsed = liveData.fixture?.status?.elapsed || 0;
+            const currentElapsed = currentMatch.fixture?.status?.elapsed || 0;
 
-            const hasStatusChanged = 
-              updatedMatch.fixture?.status?.short !== liveData.fixture?.status?.short ||
-              updatedMatch.fixture?.status?.elapsed !== liveData.fixture?.status?.elapsed;
+            setLiveData(currentMatch);
 
-            if (hasScoreChanged || hasStatusChanged) {
-              console.log('🔄 [Live Action] Live data updated:', {
-                scores: `${updatedMatch.goals?.home}-${updatedMatch.goals?.away}`,
-                status: updatedMatch.fixture?.status?.short,
-                elapsed: updatedMatch.fixture?.status?.elapsed
-              });
-
-              setLiveData(updatedMatch);
-              await generatePlayByPlayEvents(updatedMatch);
+            if (currentElapsed > previousElapsed) {
+              await generatePlayByPlayEvents(currentMatch, true);
             }
           }
         }
       } catch (error) {
-        console.error('❌ [Live Action] Error fetching live updates:', error);
+        if (mounted) {
+          console.error('❌ [Live Action] Error fetching live updates:', error);
+        }
       }
     };
 
@@ -635,13 +629,13 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <div className="relative">
               <div className="absolute w-4 h-2 bg-black/20 rounded-full blur-sm" 
                    style={{ left: '-8px', top: '8px' }}></div>
-
+              
               <div className="w-4 h-4 bg-gradient-to-br from-white via-gray-100 to-gray-200 rounded-full shadow-lg border border-gray-300 relative">
                 <div className="absolute inset-0 rounded-full">
                   <div className="absolute w-1 h-1 bg-gray-400 rounded-full top-1 left-1"></div>
                   <div className="absolute w-0.5 h-0.5 bg-gray-400 rounded-full bottom-1 right-1"></div>
                 </div>
-
+                
                 {ballPossession && (
                   <div className={`absolute inset-0 rounded-full animate-pulse ${
                     ballPossession === 'home' ? 'ring-2 ring-blue-400' : 'ring-2 ring-red-400'

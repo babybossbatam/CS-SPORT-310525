@@ -30,7 +30,7 @@ const apiClient = axios.create({
 });
 
 // Improved cache control with shorter duration for live data
-const LIVE_DATA_CACHE_DURATION = 8 * 1000; // 8 seconds for live data (faster updates for better UX)
+const LIVE_DATA_CACHE_DURATION = 15 * 1000; // 15 seconds for live data (more frequent updates for Pro tier)
 const TODAY_CACHE_DURATION = 60 * 60 * 1000; // 1 hour for today (reduced frequency)
 const FUTURE_CACHE_DURATION = 12 * 60 * 60 * 1000; // 12 hours for future dates (schedules rarely change)
 const PAST_CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days for past dates (stable data)

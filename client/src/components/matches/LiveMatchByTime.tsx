@@ -108,7 +108,7 @@ interface LiveMatchByTimeProps {
 }
 
 const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
-  refreshInterval = 10000,
+  refreshInterval = 30000,
   isTimeFilterActive = false,
   liveFilterActive = false,
   timeFilterActive = false,
