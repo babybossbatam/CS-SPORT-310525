@@ -7,6 +7,7 @@ import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import "../../styles/MyLogoPositioning.css";
+import "../../styles/flasheffect.css";
 
 interface MyNewLeagueProps {
   selectedDate: string;
@@ -84,6 +85,15 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+  
+  // Flash animation states
+  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
+  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
+  const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
+  
+  // Status and score tracking for flash effects
+  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
+  const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
 
   // Using league ID 38 and 15 as specified in checkSpecificLeagueMatches.ts
   const leagueIds = [38, 15];
@@ -254,6 +264,96 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       return newStarred;
     });
   };
+
+  // Enhanced effect to detect status and score changes with flash effects
+  useEffect(() => {
+    if (!fixtures?.length) return;
+
+    const newHalftimeMatches = new Set<number>();
+    const newFulltimeMatches = new Set<number>();
+    const newGoalMatches = new Set<number>();
+    const currentStatuses = new Map<number, string>();
+    const currentScores = new Map<number, {home: number, away: number}>();
+
+    fixtures.forEach((fixture) => {
+      const matchId = fixture.fixture.id;
+      const currentStatus = fixture.fixture.status.short;
+      const previousStatus = previousMatchStatuses.get(matchId);
+      const currentScore = {
+        home: fixture.goals.home ?? 0,
+        away: fixture.goals.away ?? 0
+      };
+      const previousScore = previousMatchScores.get(matchId);
+
+      currentStatuses.set(matchId, currentStatus);
+      currentScores.set(matchId, currentScore);
+
+      // Only check for changes if we have a previous status (not on first load)
+      if (previousStatus && previousStatus !== currentStatus) {
+        // Check if status just changed to halftime
+        if (currentStatus === 'HT') {
+          console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
+          newHalftimeMatches.add(matchId);
+        }
+
+        // Check if status just changed to fulltime
+        if (currentStatus === 'FT') {
+          console.log(`🔵 [FULLTIME FLASH] Match ${matchId} just finished!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
+          newFulltimeMatches.add(matchId);
+        }
+      }
+
+      // Check for goal changes
+      if (previousScore && 
+          (currentScore.home !== previousScore.home || currentScore.away !== previousScore.away)) {
+        console.log(`⚽ [GOAL FLASH] Match ${matchId} score changed!`, {
+          home: fixture.teams?.home?.name,
+          away: fixture.teams?.away?.name,
+          previousScore,
+          currentScore
+        });
+        newGoalMatches.add(matchId);
+      }
+    });
+
+    // Update previous statuses and scores for next comparison
+    setPreviousMatchStatuses(currentStatuses);
+    setPreviousMatchScores(currentScores);
+
+    // Trigger flash for new halftime matches
+    if (newHalftimeMatches.size > 0) {
+      setHalftimeFlashMatches(newHalftimeMatches);
+      setTimeout(() => {
+        setHalftimeFlashMatches(new Set());
+      }, 3000);
+    }
+
+    // Trigger flash for new fulltime matches
+    if (newFulltimeMatches.size > 0) {
+      setFulltimeFlashMatches(newFulltimeMatches);
+      setTimeout(() => {
+        setFulltimeFlashMatches(new Set());
+      }, 3000);
+    }
+
+    // Trigger flash for new goal matches
+    if (newGoalMatches.size > 0) {
+      setGoalFlashMatches(newGoalMatches);
+      setTimeout(() => {
+        setGoalFlashMatches(new Set());
+      }, 2000);
+    }
+  }, [fixtures]);
 
   if (loading) {
     return (
@@ -438,10 +538,20 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   const bDistance = Math.abs(bTime - nowTime);
                   return aDistance - bDistance;
                 })
-                .map((match: any) => (
+                .map((match: any) => {
+                  const matchId = match.fixture.id;
+                  const isHalftimeFlash = halftimeFlashMatches.has(matchId);
+                  const isFulltimeFlash = fulltimeFlashMatches.has(matchId);
+                  const isGoalFlash = goalFlashMatches.has(matchId);
+
+                  return (
                   <div
                     key={match.fixture.id}
-                    className="match-card-container group"
+                    className={`match-card-container group ${
+                      isHalftimeFlash ? 'halftime-flash' : 
+                      isFulltimeFlash ? 'fulltime-flash' :
+                      isGoalFlash ? 'goal-flash' : ''
+                    }`}
                     onClick={() => onMatchCardClick?.(match)}
                     style={{
                       cursor: onMatchCardClick ? "pointer" : "default",
@@ -754,7 +864,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                       </div>
                     </div>
                   </div>
-                ))}
+                );
+                })}
             </div>
           </Card>
         );

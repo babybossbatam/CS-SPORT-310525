@@ -638,3 +638,33 @@
     transform: scale(1);
   }
 }
+
+/* Fulltime flash animation */
+.match-card-container.fulltime-flash {
+  background-color: #3b82f6 !important; /* Blue background */
+  animation: fulltime-flash-fade 2s ease-out forwards;
+}
+
+@keyframes fulltime-flash-fade {
+  0% {
+    background-color: #3b82f6; /* Blue */
+  }
+  100% {
+    background-color: white; /* Back to normal */
+  }
+}
+
+/* Goal flash animation */
+.match-card-container.goal-flash {
+  background-color: #10b981 !important; /* Green background */
+  animation: goal-flash-fade 2s ease-out forwards;
+}
+
+@keyframes goal-flash-fade {
+  0% {
+    background-color: #10b981; /* Green */
+  }
+  100% {
+    background-color: white; /* Back to normal */
+  }
+}
