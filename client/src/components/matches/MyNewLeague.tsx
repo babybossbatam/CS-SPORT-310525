@@ -193,13 +193,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     };
 
     fetchLeagueData();
-    
-    // Set up interval to refresh live fixtures every 10 seconds
-    const intervalId = setInterval(() => {
-      fetchLeagueData();
-    }, 10000);
-
-    return () => clearInterval(intervalId);
   }, []);
 
   // Debug logging
