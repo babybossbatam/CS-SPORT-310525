@@ -596,7 +596,7 @@ const HomeTopScorersList = () => {
       <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
       <div className="bg-white rounded-md border border-gray-200 overflow-hidden">
         {/* Goals title */}
-        <div className="px-4 py-3 border-b border-gray-100">
+        <div className="px-4 py-1 border-b border-gray-100">
           <h3 className="text-sm font-semibold text-gray-900 text-center">
             Goals
           </h3>
@@ -671,13 +671,6 @@ const HomeTopScorersList = () => {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-        </div>
-
-        {/* Goals title */}
-        <div className="px-4 py-3 border-b border-gray-100">
-          <h3 className="text-sm font-semibold text-gray-900 text-center">
-            Goals
-          </h3>
         </div>
 
         {/* Players list */}
