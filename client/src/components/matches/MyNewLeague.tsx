@@ -84,9 +84,15 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
 
   // Using league ID 38 and 15 as specified in checkSpecificLeagueMatches.ts
   const leagueIds = [38, 15];
+
+  // Manual refresh function
+  const refreshData = () => {
+    setLastUpdate(new Date());
+  };
 
   useEffect(() => {
     const fetchLeagueData = async () => {
@@ -152,7 +158,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                 // Only add if not already in live fixtures
                 const alreadyInLive = allFixtures.some(f => f.fixture.id === fixture.fixture.id);
                 
-                return isEnded && !alreadyInLive;
+                // Include recently ended matches (within last 3 hours)
+                const fixtureDate = new Date(fixture.fixture.date);
+                const hoursAgo = (new Date().getTime() - fixtureDate.getTime()) / (1000 * 60 * 60);
+                const isRecentlyEnded = isEnded && hoursAgo <= 3;
+                
+                return (isEnded || isRecentlyEnded) && !alreadyInLive;
               });
 
               const upcomingFixtures = fixturesData.filter((fixture) => {
@@ -193,7 +204,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     };
 
     fetchLeagueData();
-  }, []);
+  }, [selectedDate, lastUpdate]);
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
