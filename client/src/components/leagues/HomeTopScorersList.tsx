@@ -595,6 +595,12 @@ const HomeTopScorersList = () => {
     <>
       <style dangerouslySetInnerHTML={{ __html: scrollbarHideStyle }} />
       <div className="bg-white rounded-md border border-gray-200 overflow-hidden">
+        {/* Goals title */}
+        <div className="px-4 py-3 border-b border-gray-100">
+          <h3 className="text-sm font-semibold text-gray-900 text-center">
+            Goals
+          </h3>
+        </div>
         {/* Horizontal scrollable league navigation with navigation buttons */}
         <div className="border-b ">
           <div className="flex items-center">
