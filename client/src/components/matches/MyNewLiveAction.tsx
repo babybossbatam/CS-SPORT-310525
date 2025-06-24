@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import '../../styles/liveaction.css';
@@ -63,226 +63,222 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
   const [currentEvent, setCurrentEvent] = useState<SportsradarEvent | null>(null);
   const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
   const [lastAction, setLastAction] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
 
-  // Determine if match is currently live
-  const currentStatus = status;
-  const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
+  // Memoize the live status check to prevent unnecessary re-renders
+  const isLive = useMemo(() => {
+    return status && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
+  }, [status]);
 
-  // Fetch Sportsradar live data
+  // Memoize team data to prevent unnecessary re-renders
+  const homeTeamData = useMemo(() => homeTeam, [homeTeam]);
+  const awayTeamData = useMemo(() => awayTeam, [awayTeam]);
+
+  // Fetch Sportsradar data with proper error handling and cleanup
+  const fetchSportsradarData = useCallback(async () => {
+    if (!matchId || !isLive) {
+      console.log('❌ [Sportsradar Live Action] No match ID or match not live');
+      return;
+    }
+
+    let isMounted = true;
+    const controller = new AbortController();
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Set a reasonable timeout
+      const timeoutId = setTimeout(() => {
+        controller.abort();
+        if (isMounted) {
+          console.warn('⏰ [Sportsradar] Request timeout');
+          setError('Request timeout');
+          setIsLoading(false);
+        }
+      }, 8000);
+
+      let hasEvents = false;
+      let hasStats = false;
+
+      // Try Sportsradar API first
+      try {
+        const eventsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/events`, {
+          signal: controller.signal
+        });
+        
+        if (eventsResponse.ok && isMounted) {
+          const eventsData = await eventsResponse.json();
+          
+          if (eventsData.success && eventsData.events && eventsData.events.length > 0) {
+            setLiveEvents(eventsData.events);
+            setCurrentEvent(eventsData.events[0]);
+            setLastAction(`${eventsData.events[0].type} - ${eventsData.events[0].description}`);
+            hasEvents = true;
+            console.log(`✅ [Sportsradar] Retrieved ${eventsData.events.length} events`);
+          }
+        }
+      } catch (sportsradarError: any) {
+        if (sportsradarError.name !== 'AbortError') {
+          console.warn('⚠️ [Sportsradar] Events API failed:', sportsradarError.message);
+        }
+      }
+
+      // Try Sportsradar stats API
+      try {
+        const statsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/stats`, {
+          signal: controller.signal
+        });
+        
+        if (statsResponse.ok && isMounted) {
+          const statsData = await statsResponse.json();
+          
+          if (statsData.success && statsData.statistics) {
+            setLiveStats(statsData.statistics);
+            hasStats = true;
+            console.log(`✅ [Sportsradar] Retrieved live statistics`);
+          }
+        }
+      } catch (sportsradarStatsError: any) {
+        if (sportsradarStatsError.name !== 'AbortError') {
+          console.warn('⚠️ [Sportsradar] Stats API failed:', sportsradarStatsError.message);
+        }
+      }
+
+      // Fallback to SoccersAPI if Sportsradar fails
+      if (!hasEvents && isMounted && !controller.signal.aborted) {
+        try {
+          const soccersEventsResponse = await fetch(`/api/soccersapi/matches/${matchId}/events`, {
+            signal: controller.signal
+          });
+          
+          if (soccersEventsResponse.ok) {
+            const soccersEventsData = await soccersEventsResponse.json();
+            
+            if (soccersEventsData.success && soccersEventsData.events && soccersEventsData.events.length > 0) {
+              const convertedEvents = soccersEventsData.events.map((event: any, index: number) => ({
+                id: event.id || `event-${index}`,
+                time: { minute: event.minute || 0 },
+                type: event.type || 'action',
+                team: event.team || 'home',
+                player: { name: event.player || 'Unknown', id: event.player_id || `player-${index}` },
+                description: event.text || event.description || 'Live action'
+              }));
+              
+              setLiveEvents(convertedEvents);
+              setCurrentEvent(convertedEvents[0]);
+              setLastAction(`${convertedEvents[0].type} - ${convertedEvents[0].description}`);
+              hasEvents = true;
+              console.log(`✅ [SoccersAPI] Retrieved ${convertedEvents.length} live events`);
+            }
+          }
+        } catch (soccersError: any) {
+          if (soccersError.name !== 'AbortError') {
+            console.warn('⚠️ [SoccersAPI] Events fallback failed:', soccersError.message);
+          }
+        }
+      }
+
+      if (!hasStats && isMounted && !controller.signal.aborted) {
+        try {
+          const soccersStatsResponse = await fetch(`/api/soccersapi/matches/${matchId}/stats`, {
+            signal: controller.signal
+          });
+          
+          if (soccersStatsResponse.ok) {
+            const soccersStatsData = await soccersStatsResponse.json();
+            
+            if (soccersStatsData.success && soccersStatsData.statistics) {
+              const convertedStats = {
+                possession: {
+                  home: soccersStatsData.statistics.possession_home || 50,
+                  away: soccersStatsData.statistics.possession_away || 50
+                },
+                shots: {
+                  home: soccersStatsData.statistics.shots_home || 0,
+                  away: soccersStatsData.statistics.shots_away || 0
+                },
+                corners: {
+                  home: soccersStatsData.statistics.corners_home || 0,
+                  away: soccersStatsData.statistics.corners_away || 0
+                },
+                fouls: {
+                  home: soccersStatsData.statistics.fouls_home || 0,
+                  away: soccersStatsData.statistics.fouls_away || 0
+                }
+              };
+              
+              setLiveStats(convertedStats);
+              hasStats = true;
+              console.log(`✅ [SoccersAPI] Retrieved live statistics`);
+            }
+          }
+        } catch (soccersStatsError: any) {
+          if (soccersStatsError.name !== 'AbortError') {
+            console.warn('⚠️ [SoccersAPI] Stats fallback failed:', soccersStatsError.message);
+          }
+        }
+      }
+
+      clearTimeout(timeoutId);
+
+      // Set default data if no APIs provided data
+      if (!hasEvents && isMounted) {
+        setLastAction('Live match in progress');
+      }
+      
+      if (!hasStats && isMounted) {
+        setLiveStats({
+          possession: { home: 50, away: 50 },
+          shots: { home: 0, away: 0 },
+          corners: { home: 0, away: 0 },
+          fouls: { home: 0, away: 0 }
+        });
+      }
+
+    } catch (error: any) {
+      if (isMounted && error.name !== 'AbortError') {
+        console.error('❌ [Sportsradar Live Action] Error fetching data:', error);
+        setError('Failed to load live data');
+        setLastAction('Live match in progress');
+        setLiveStats({
+          possession: { home: 50, away: 50 },
+          shots: { home: 0, away: 0 },
+          corners: { home: 0, away: 0 },
+          fouls: { home: 0, away: 0 }
+        });
+      }
+    } finally {
+      if (isMounted) {
+        setIsLoading(false);
+      }
+    }
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [matchId, isLive]);
+
+  // Main effect for fetching data and setting up intervals
   useEffect(() => {
     if (!matchId || !isLive) {
       console.log('❌ [Sportsradar Live Action] No match ID or match not live');
       return;
     }
 
-    let mounted = true;
-    let updateInterval: NodeJS.Timeout;
-    let fetchTimeout: NodeJS.Timeout;
-
-    const fetchSportsradarData = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Set a timeout to prevent indefinite loading
-        fetchTimeout = setTimeout(() => {
-          if (mounted) {
-            console.warn('⏰ [Sportsradar] Request timeout, using fallback data');
-            setLastAction('Live match in progress');
-            setLiveStats({
-              possession: { home: 50, away: 50 },
-              shots: { home: 0, away: 0 },
-              corners: { home: 0, away: 0 },
-              fouls: { home: 0, away: 0 }
-            });
-            setIsLoading(false);
-          }
-        }, 5000); // 5 second timeout
-
-        let hasEvents = false;
-        let hasStats = false;
-
-        // Try Sportsradar API first with timeout
-        try {
-          const eventsController = new AbortController();
-          const eventsTimeoutId = setTimeout(() => eventsController.abort(), 3000);
-          
-          const eventsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/events`, {
-            signal: eventsController.signal
-          });
-          clearTimeout(eventsTimeoutId);
-          
-          if (eventsResponse.ok && mounted) {
-            const eventsData = await eventsResponse.json();
-            
-            if (eventsData.success && eventsData.events && eventsData.events.length > 0) {
-              setLiveEvents(eventsData.events);
-              setCurrentEvent(eventsData.events[0]);
-              setLastAction(`${eventsData.events[0].type} - ${eventsData.events[0].description}`);
-              hasEvents = true;
-              console.log(`✅ [Sportsradar] Retrieved ${eventsData.events.length} events`);
-            }
-          }
-        } catch (sportsradarError) {
-          console.warn('⚠️ [Sportsradar] Events API failed:', sportsradarError.name || 'Unknown error');
-        }
-
-        // Try SoccersAPI fallback for events
-        if (!hasEvents && mounted) {
-          try {
-            const soccersController = new AbortController();
-            const soccersTimeoutId = setTimeout(() => soccersController.abort(), 3000);
-            
-            const soccersEventsResponse = await fetch(`/api/soccersapi/matches/${matchId}/events`, {
-              signal: soccersController.signal
-            });
-            clearTimeout(soccersTimeoutId);
-            
-            if (soccersEventsResponse.ok && mounted) {
-              const soccersEventsData = await soccersEventsResponse.json();
-              
-              if (soccersEventsData.success && soccersEventsData.events && soccersEventsData.events.length > 0) {
-                const convertedEvents = soccersEventsData.events.map((event: any) => ({
-                  id: event.id || `event-${Date.now()}`,
-                  time: { minute: event.minute || 0 },
-                  type: event.type || 'action',
-                  team: event.team || 'home',
-                  player: { name: event.player || 'Unknown' },
-                  description: event.text || event.description || 'Live action'
-                }));
-                
-                setLiveEvents(convertedEvents);
-                setCurrentEvent(convertedEvents[0]);
-                setLastAction(`${convertedEvents[0].type} - ${convertedEvents[0].description}`);
-                hasEvents = true;
-                console.log(`✅ [SoccersAPI] Retrieved ${convertedEvents.length} live events`);
-              }
-            }
-          } catch (soccersError) {
-            console.warn('⚠️ [SoccersAPI] Events fallback failed:', soccersError.name || 'Unknown error');
-          }
-        }
-
-        // Try Sportsradar stats API
-        try {
-          const statsController = new AbortController();
-          const statsTimeoutId = setTimeout(() => statsController.abort(), 3000);
-          
-          const statsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/stats`, {
-            signal: statsController.signal
-          });
-          clearTimeout(statsTimeoutId);
-          
-          if (statsResponse.ok && mounted) {
-            const statsData = await statsResponse.json();
-            
-            if (statsData.success && statsData.statistics) {
-              setLiveStats(statsData.statistics);
-              hasStats = true;
-              console.log(`✅ [Sportsradar] Retrieved live statistics`);
-            }
-          }
-        } catch (sportsradarStatsError) {
-          console.warn('⚠️ [Sportsradar] Stats API failed:', sportsradarStatsError.name || 'Unknown error');
-        }
-
-        // Try SoccersAPI fallback for stats
-        if (!hasStats && mounted) {
-          try {
-            const soccersStatsController = new AbortController();
-            const soccersStatsTimeoutId = setTimeout(() => soccersStatsController.abort(), 3000);
-            
-            const soccersStatsResponse = await fetch(`/api/soccersapi/matches/${matchId}/stats`, {
-              signal: soccersStatsController.signal
-            });
-            clearTimeout(soccersStatsTimeoutId);
-            
-            if (soccersStatsResponse.ok && mounted) {
-              const soccersStatsData = await soccersStatsResponse.json();
-              
-              if (soccersStatsData.success && soccersStatsData.statistics) {
-                const convertedStats = {
-                  possession: {
-                    home: soccersStatsData.statistics.possession_home || 50,
-                    away: soccersStatsData.statistics.possession_away || 50
-                  },
-                  shots: {
-                    home: soccersStatsData.statistics.shots_home || 0,
-                    away: soccersStatsData.statistics.shots_away || 0
-                  },
-                  corners: {
-                    home: soccersStatsData.statistics.corners_home || 0,
-                    away: soccersStatsData.statistics.corners_away || 0
-                  },
-                  fouls: {
-                    home: soccersStatsData.statistics.fouls_home || 0,
-                    away: soccersStatsData.statistics.fouls_away || 0
-                  }
-                };
-                
-                setLiveStats(convertedStats);
-                hasStats = true;
-                console.log(`✅ [SoccersAPI] Retrieved live statistics`);
-              }
-            }
-          } catch (soccersStatsError) {
-            console.warn('⚠️ [SoccersAPI] Stats fallback failed:', soccersStatsError.name || 'Unknown error');
-          }
-        }
-
-        // Clear the timeout since we completed successfully
-        clearTimeout(fetchTimeout);
-
-        // Set final fallback data if nothing worked
-        if (!hasEvents && mounted) {
-          setLastAction('Live match in progress');
-        }
-        
-        if (!hasStats && mounted) {
-          setLiveStats({
-            possession: { home: 50, away: 50 },
-            shots: { home: 0, away: 0 },
-            corners: { home: 0, away: 0 },
-            fouls: { home: 0, away: 0 }
-          });
-        }
-
-        if (mounted) {
-          setIsLoading(false);
-        }
-      } catch (error) {
-        if (mounted) {
-          console.error('❌ [Sportsradar Live Action] Error fetching data:', error);
-          clearTimeout(fetchTimeout);
-          setLastAction('Live match in progress');
-          setLiveStats({
-            possession: { home: 50, away: 50 },
-            shots: { home: 0, away: 0 },
-            corners: { home: 0, away: 0 },
-            fouls: { home: 0, away: 0 }
-          });
-          setIsLoading(false);
-        }
-      }
-    };
-
     // Initial fetch
     fetchSportsradarData();
 
-    // Set up real-time updates every 10 seconds for live matches
-    if (isLive) {
-      updateInterval = setInterval(fetchSportsradarData, 10000);
-    }
+    // Set up interval for live updates
+    const updateInterval = setInterval(() => {
+      fetchSportsradarData();
+    }, 15000); // Update every 15 seconds
 
     return () => {
-      mounted = false;
-      if (updateInterval) {
-        clearInterval(updateInterval);
-      }
-      if (fetchTimeout) {
-        clearTimeout(fetchTimeout);
-      }
+      clearInterval(updateInterval);
     };
-  }, [matchId, isLive]);
+  }, [fetchSportsradarData]);
 
   // Simulate ball movement based on events
   useEffect(() => {
@@ -298,13 +294,10 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
           y: prev.y + (targetY - prev.y) * 0.1
         };
       });
-    }, 100);
+    }, 200);
 
     return () => clearInterval(moveInterval);
   }, [isLive, currentEvent]);
-
-  const homeTeamData = homeTeam;
-  const awayTeamData = awayTeam;
 
   if (isLoading) {
     return (
@@ -319,7 +312,7 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
           <div className="h-48 flex items-center justify-center text-textSecondary text-sm bg-surfaceSecondary">
             <div className="text-center">
               <div className="animate-spin rounded-full h-6 w-6 border-2 border-textSecondary border-t-transparent mx-auto mb-2"></div>
-              <p>Loading Sportsradar data...</p>
+              <p>Loading live data...</p>
             </div>
           </div>
         </div>
@@ -338,6 +331,27 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
             <div className="text-center">
               <p className="mb-1">Match not live</p>
               <p className="text-xs opacity-60">Sportsradar data available during live matches</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`w-full ${className}`}>
+        <div className="bg-surfaceSecondary rounded-lg overflow-hidden shadow-sm border border-dividerPrimary">
+          <div className="bg-surfacePrimary px-3 py-2 border-b border-dividerPrimary">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+              <span className="text-textPrimary text-xs font-medium uppercase tracking-wide">Sportsradar Live</span>
+            </div>
+          </div>
+          <div className="h-48 flex items-center justify-center text-textSecondary text-sm bg-surfaceSecondary">
+            <div className="text-center">
+              <p className="text-red-400 mb-1">Failed to load live data</p>
+              <p className="text-xs opacity-60">{error}</p>
             </div>
           </div>
         </div>
