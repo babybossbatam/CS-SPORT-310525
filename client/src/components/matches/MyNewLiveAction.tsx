@@ -77,35 +77,70 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
 
     let mounted = true;
     let updateInterval: NodeJS.Timeout;
+    let fetchTimeout: NodeJS.Timeout;
 
     const fetchSportsradarData = async () => {
       try {
         setIsLoading(true);
         
-        // Try Sportsradar API first
-        const eventsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/events`);
-        let hasEvents = false;
-        
-        if (eventsResponse.ok && mounted) {
-          const eventsData = await eventsResponse.json();
-          
-          if (eventsData.success && eventsData.events && eventsData.events.length > 0) {
-            setLiveEvents(eventsData.events);
-            setCurrentEvent(eventsData.events[0]);
-            setLastAction(`${eventsData.events[0].type} - ${eventsData.events[0].description}`);
-            hasEvents = true;
+        // Set a timeout to prevent indefinite loading
+        fetchTimeout = setTimeout(() => {
+          if (mounted) {
+            console.warn('⏰ [Sportsradar] Request timeout, using fallback data');
+            setLastAction('Live match in progress');
+            setLiveStats({
+              possession: { home: 50, away: 50 },
+              shots: { home: 0, away: 0 },
+              corners: { home: 0, away: 0 },
+              fouls: { home: 0, away: 0 }
+            });
+            setIsLoading(false);
           }
+        }, 5000); // 5 second timeout
+
+        let hasEvents = false;
+        let hasStats = false;
+
+        // Try Sportsradar API first with timeout
+        try {
+          const eventsController = new AbortController();
+          const eventsTimeoutId = setTimeout(() => eventsController.abort(), 3000);
+          
+          const eventsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/events`, {
+            signal: eventsController.signal
+          });
+          clearTimeout(eventsTimeoutId);
+          
+          if (eventsResponse.ok && mounted) {
+            const eventsData = await eventsResponse.json();
+            
+            if (eventsData.success && eventsData.events && eventsData.events.length > 0) {
+              setLiveEvents(eventsData.events);
+              setCurrentEvent(eventsData.events[0]);
+              setLastAction(`${eventsData.events[0].type} - ${eventsData.events[0].description}`);
+              hasEvents = true;
+              console.log(`✅ [Sportsradar] Retrieved ${eventsData.events.length} events`);
+            }
+          }
+        } catch (sportsradarError) {
+          console.warn('⚠️ [Sportsradar] Events API failed:', sportsradarError.name || 'Unknown error');
         }
 
-        // If no events from Sportsradar, try SoccersAPI
-        if (!hasEvents) {
+        // Try SoccersAPI fallback for events
+        if (!hasEvents && mounted) {
           try {
-            const soccersEventsResponse = await fetch(`/api/soccersapi/matches/${matchId}/events`);
+            const soccersController = new AbortController();
+            const soccersTimeoutId = setTimeout(() => soccersController.abort(), 3000);
+            
+            const soccersEventsResponse = await fetch(`/api/soccersapi/matches/${matchId}/events`, {
+              signal: soccersController.signal
+            });
+            clearTimeout(soccersTimeoutId);
+            
             if (soccersEventsResponse.ok && mounted) {
               const soccersEventsData = await soccersEventsResponse.json();
               
               if (soccersEventsData.success && soccersEventsData.events && soccersEventsData.events.length > 0) {
-                // Convert SoccersAPI events to our format
                 const convertedEvents = soccersEventsData.events.map((event: any) => ({
                   id: event.id || `event-${Date.now()}`,
                   time: { minute: event.minute || 0 },
@@ -123,37 +158,48 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
               }
             }
           } catch (soccersError) {
-            console.warn('⚠️ [SoccersAPI] Events fallback failed:', soccersError);
+            console.warn('⚠️ [SoccersAPI] Events fallback failed:', soccersError.name || 'Unknown error');
           }
         }
 
-        // Final fallback: simulate basic live data
-        if (!hasEvents) {
-          setLastAction('Live match in progress');
-        }
-
-        // Try Sportsradar API first
-        const statsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/stats`);
-        let hasStats = false;
-        
-        if (statsResponse.ok && mounted) {
-          const statsData = await statsResponse.json();
+        // Try Sportsradar stats API
+        try {
+          const statsController = new AbortController();
+          const statsTimeoutId = setTimeout(() => statsController.abort(), 3000);
           
-          if (statsData.success && statsData.statistics) {
-            setLiveStats(statsData.statistics);
-            hasStats = true;
+          const statsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/stats`, {
+            signal: statsController.signal
+          });
+          clearTimeout(statsTimeoutId);
+          
+          if (statsResponse.ok && mounted) {
+            const statsData = await statsResponse.json();
+            
+            if (statsData.success && statsData.statistics) {
+              setLiveStats(statsData.statistics);
+              hasStats = true;
+              console.log(`✅ [Sportsradar] Retrieved live statistics`);
+            }
           }
+        } catch (sportsradarStatsError) {
+          console.warn('⚠️ [Sportsradar] Stats API failed:', sportsradarStatsError.name || 'Unknown error');
         }
 
-        // If no stats from Sportsradar, try SoccersAPI
-        if (!hasStats) {
+        // Try SoccersAPI fallback for stats
+        if (!hasStats && mounted) {
           try {
-            const soccersStatsResponse = await fetch(`/api/soccersapi/matches/${matchId}/stats`);
+            const soccersStatsController = new AbortController();
+            const soccersStatsTimeoutId = setTimeout(() => soccersStatsController.abort(), 3000);
+            
+            const soccersStatsResponse = await fetch(`/api/soccersapi/matches/${matchId}/stats`, {
+              signal: soccersStatsController.signal
+            });
+            clearTimeout(soccersStatsTimeoutId);
+            
             if (soccersStatsResponse.ok && mounted) {
               const soccersStatsData = await soccersStatsResponse.json();
               
               if (soccersStatsData.success && soccersStatsData.statistics) {
-                // Convert SoccersAPI stats to our format
                 const convertedStats = {
                   possession: {
                     home: soccersStatsData.statistics.possession_home || 50,
@@ -178,13 +224,20 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
                 console.log(`✅ [SoccersAPI] Retrieved live statistics`);
               }
             }
-          } catch (soccersError) {
-            console.warn('⚠️ [SoccersAPI] Stats fallback failed:', soccersError);
+          } catch (soccersStatsError) {
+            console.warn('⚠️ [SoccersAPI] Stats fallback failed:', soccersStatsError.name || 'Unknown error');
           }
         }
 
-        // Final fallback: simulate basic stats
-        if (!hasStats) {
+        // Clear the timeout since we completed successfully
+        clearTimeout(fetchTimeout);
+
+        // Set final fallback data if nothing worked
+        if (!hasEvents && mounted) {
+          setLastAction('Live match in progress');
+        }
+        
+        if (!hasStats && mounted) {
           setLiveStats({
             possession: { home: 50, away: 50 },
             shots: { home: 0, away: 0 },
@@ -193,10 +246,20 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
           });
         }
 
-        setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       } catch (error) {
         if (mounted) {
           console.error('❌ [Sportsradar Live Action] Error fetching data:', error);
+          clearTimeout(fetchTimeout);
+          setLastAction('Live match in progress');
+          setLiveStats({
+            possession: { home: 50, away: 50 },
+            shots: { home: 0, away: 0 },
+            corners: { home: 0, away: 0 },
+            fouls: { home: 0, away: 0 }
+          });
           setIsLoading(false);
         }
       }
@@ -214,6 +277,9 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
       mounted = false;
       if (updateInterval) {
         clearInterval(updateInterval);
+      }
+      if (fetchTimeout) {
+        clearTimeout(fetchTimeout);
       }
     };
   }, [matchId, isLive]);
