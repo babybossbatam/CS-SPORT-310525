@@ -201,21 +201,28 @@ const HomeTopScorersList = () => {
       const preferredLeague = POPULAR_LEAGUES.find(
         (league) => league.id === 34,
       );
-      const initialLeague = preferredLeague ? preferredLeague.id : POPULAR_LEAGUES[0].id;
+      const initialLeague = preferredLeague
+        ? preferredLeague.id
+        : POPULAR_LEAGUES[0].id;
       setSelectedLeague(initialLeague);
-      
+
       // Store in sessionStorage to persist across refreshes
-      sessionStorage.setItem('homeTopScorers_selectedLeague', initialLeague.toString());
+      sessionStorage.setItem(
+        "homeTopScorers_selectedLeague",
+        initialLeague.toString(),
+      );
     }
   }, []);
 
   // Restore selected league from sessionStorage on mount
   useEffect(() => {
-    const storedLeague = sessionStorage.getItem('homeTopScorers_selectedLeague');
+    const storedLeague = sessionStorage.getItem(
+      "homeTopScorers_selectedLeague",
+    );
     if (storedLeague && !selectedLeague) {
       const leagueId = parseInt(storedLeague, 10);
       // Verify the league still exists in our list
-      if (POPULAR_LEAGUES.find(league => league.id === leagueId)) {
+      if (POPULAR_LEAGUES.find((league) => league.id === leagueId)) {
         setSelectedLeague(leagueId);
       }
     }
@@ -224,7 +231,10 @@ const HomeTopScorersList = () => {
   // Store selected league in sessionStorage when it changes
   useEffect(() => {
     if (selectedLeague) {
-      sessionStorage.setItem('homeTopScorers_selectedLeague', selectedLeague.toString());
+      sessionStorage.setItem(
+        "homeTopScorers_selectedLeague",
+        selectedLeague.toString(),
+      );
     }
   }, [selectedLeague]);
 
@@ -350,7 +360,9 @@ const HomeTopScorersList = () => {
     const updateDimensions = () => {
       if (scrollContainerRef.current && availableLeagues.length > 0) {
         const container = scrollContainerRef.current;
-        const content = container.querySelector("[data-content]") as HTMLElement;
+        const content = container.querySelector(
+          "[data-content]",
+        ) as HTMLElement;
         if (content) {
           // Use requestAnimationFrame to ensure accurate measurements
           requestAnimationFrame(() => {
@@ -364,7 +376,7 @@ const HomeTopScorersList = () => {
     // Initial dimension calculation with multiple attempts for better reliability
     const initialTimer = setTimeout(updateDimensions, 100);
     const fallbackTimer = setTimeout(updateDimensions, 300);
-    
+
     window.addEventListener("resize", updateDimensions);
 
     return () => {
@@ -376,10 +388,16 @@ const HomeTopScorersList = () => {
 
   // Update dimensions when selected league changes
   useEffect(() => {
-    if (selectedLeague && availableLeagues.length > 0 && scrollContainerRef.current) {
+    if (
+      selectedLeague &&
+      availableLeagues.length > 0 &&
+      scrollContainerRef.current
+    ) {
       const updateDimensions = () => {
         const container = scrollContainerRef.current;
-        const content = container?.querySelector("[data-content]") as HTMLElement;
+        const content = container?.querySelector(
+          "[data-content]",
+        ) as HTMLElement;
         if (container && content) {
           requestAnimationFrame(() => {
             setContainerWidth(container.clientWidth);
@@ -403,7 +421,7 @@ const HomeTopScorersList = () => {
 
   const scrollLeft = () => {
     if (availableLeagues.length === 0) return;
-    
+
     const currentIndex = getCurrentLeagueIndex();
     if (currentIndex > 0) {
       setSelectedLeague(availableLeagues[currentIndex - 1].id);
@@ -415,7 +433,7 @@ const HomeTopScorersList = () => {
 
   const scrollRight = () => {
     if (availableLeagues.length === 0) return;
-    
+
     const currentIndex = getCurrentLeagueIndex();
     if (currentIndex < availableLeagues.length - 1) {
       setSelectedLeague(availableLeagues[currentIndex + 1].id);
@@ -430,7 +448,11 @@ const HomeTopScorersList = () => {
 
   // Auto-scroll to selected league when it changes with improved timing
   useEffect(() => {
-    if (!scrollContainerRef.current || !selectedLeague || availableLeagues.length === 0) {
+    if (
+      !scrollContainerRef.current ||
+      !selectedLeague ||
+      availableLeagues.length === 0
+    ) {
       return;
     }
 
@@ -441,7 +463,7 @@ const HomeTopScorersList = () => {
       const selectedButton = container.querySelector(
         `[data-league-id="${selectedLeague}"]`,
       ) as HTMLElement;
-      
+
       if (!selectedButton) {
         // Button not found, try again after a short delay
         return false;
@@ -467,7 +489,7 @@ const HomeTopScorersList = () => {
 
       // Update state
       setContentPosition(clampedPosition);
-      
+
       if (actualContentWidth !== contentWidth) {
         setContentWidth(actualContentWidth);
       }
@@ -647,7 +669,9 @@ const HomeTopScorersList = () => {
 
         {/* Goals title */}
         <div className="px-4 py-3 border-b border-gray-100">
-          <h3 className="text-sm font-semibold text-gray-900">Goals</h3>
+          <h3 className="text-sm font-semibold text-gray-900 text-center">
+            Goals
+          </h3>
         </div>
 
         {/* Players list */}
