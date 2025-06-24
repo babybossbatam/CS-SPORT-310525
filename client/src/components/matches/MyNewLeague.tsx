@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Star, Calendar } from "lucide-react";
@@ -103,7 +102,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             console.log(`MyNewLeague - Fetching data for league ${leagueId}`);
 
             // Fetch league info
-            const leagueResponse = await apiRequest("GET", `/api/leagues/${leagueId}`);
+            const leagueResponse = await apiRequest(
+              "GET",
+              `/api/leagues/${leagueId}`,
+            );
             const leagueData = await leagueResponse.json();
             console.log(`MyNewLeague - League ${leagueId} info:`, leagueData);
 
@@ -112,26 +114,38 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             }
 
             // Fetch fixtures for the league
-            const fixturesResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures`);
+            const fixturesResponse = await apiRequest(
+              "GET",
+              `/api/leagues/${leagueId}/fixtures`,
+            );
             const fixturesData = await fixturesResponse.json();
-            console.log(`MyNewLeague - League ${leagueId} fixtures count:`, fixturesData?.length || 0);
+            console.log(
+              `MyNewLeague - League ${leagueId} fixtures count:`,
+              fixturesData?.length || 0,
+            );
 
             if (Array.isArray(fixturesData)) {
               // Filter for Club World Cup matches specifically
-              const filteredFixtures = fixturesData.filter(fixture => {
-                const isClubWorldCup = fixture.league?.name?.toLowerCase().includes('club world cup') ||
-                                     fixture.league?.name?.toLowerCase().includes('fifa club world cup');
-                const isRelevantMatch = fixture.teams?.home?.name === 'Juventus' || 
-                                       fixture.teams?.away?.name === 'Juventus' ||
-                                       fixture.teams?.home?.name === 'Wydad AC' || 
-                                       fixture.teams?.away?.name === 'Wydad AC';
+              const filteredFixtures = fixturesData.filter((fixture) => {
+                const isClubWorldCup =
+                  fixture.league?.name
+                    ?.toLowerCase()
+                    .includes("club world cup") ||
+                  fixture.league?.name
+                    ?.toLowerCase()
+                    .includes("fifa club world cup");
+                const isRelevantMatch =
+                  fixture.teams?.home?.name === "Juventus" ||
+                  fixture.teams?.away?.name === "Juventus" ||
+                  fixture.teams?.home?.name === "Wydad AC" ||
+                  fixture.teams?.away?.name === "Wydad AC";
 
                 console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
                   teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
                   league: fixture.league?.name,
                   status: fixture.fixture?.status?.short,
                   isClubWorldCup,
-                  isRelevantMatch
+                  isRelevantMatch,
                 });
 
                 return true; // Show all matches for now to debug
@@ -140,15 +154,18 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               allFixtures.push(...filteredFixtures);
             }
           } catch (leagueError) {
-            console.warn(`Failed to fetch data for league ${leagueId}:`, leagueError);
+            console.warn(
+              `Failed to fetch data for league ${leagueId}:`,
+              leagueError,
+            );
           }
         }
 
         setLeagueInfo(primaryLeagueInfo);
         setFixtures(allFixtures);
       } catch (err) {
-        console.error('Error fetching league data:', err);
-        setError('Failed to load league data');
+        console.error("Error fetching league data:", err);
+        setError("Failed to load league data");
       } finally {
         setLoading(false);
       }
@@ -158,64 +175,73 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   }, []);
 
   // Debug logging
-  console.log('MyNewLeague - All fixtures:', fixtures.length);
-  fixtures.forEach(f => {
-    console.log('Fixture:', {
+  console.log("MyNewLeague - All fixtures:", fixtures.length);
+  fixtures.forEach((f) => {
+    console.log("Fixture:", {
       id: f.fixture.id,
       teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
       status: f.fixture.status.short,
       league: f.league.name,
-      date: f.fixture.date
+      date: f.fixture.date,
     });
   });
 
   // Filter matches to show matches for the selected date
-  const selectedDateFixtures = fixtures.filter(f => {
+  const selectedDateFixtures = fixtures.filter((f) => {
     const matchDate = new Date(f.fixture.date);
     // Extract just the date part for comparison (YYYY-MM-DD format)
     const year = matchDate.getFullYear();
-    const month = String(matchDate.getMonth() + 1).padStart(2, '0');
-    const day = String(matchDate.getDate()).padStart(2, '0');
+    const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+    const day = String(matchDate.getDate()).padStart(2, "0");
     const matchDateString = `${year}-${month}-${day}`;
     return matchDateString === selectedDate;
   });
 
   // Group matches by league ID
-  const matchesByLeague = selectedDateFixtures.reduce((acc, fixture) => {
-    const leagueId = fixture.league.id;
-    if (!acc[leagueId]) {
-      acc[leagueId] = {
-        league: fixture.league,
-        matches: []
-      };
-    }
-    acc[leagueId].matches.push(fixture);
-    return acc;
-  }, {} as Record<number, { league: any; matches: FixtureData[] }>);
+  const matchesByLeague = selectedDateFixtures.reduce(
+    (acc, fixture) => {
+      const leagueId = fixture.league.id;
+      if (!acc[leagueId]) {
+        acc[leagueId] = {
+          league: fixture.league,
+          matches: [],
+        };
+      }
+      acc[leagueId].matches.push(fixture);
+      return acc;
+    },
+    {} as Record<number, { league: any; matches: FixtureData[] }>,
+  );
 
   // Sort matches within each league by status and date
-  Object.values(matchesByLeague).forEach(leagueGroup => {
+  Object.values(matchesByLeague).forEach((leagueGroup) => {
     leagueGroup.matches.sort((a, b) => {
       // First sort by status priority (live > upcoming > finished)
       const statusPriority = (status: string) => {
-        if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P'].includes(status)) return 1;
-        if (status === 'NS') return 2;
+        if (["LIVE", "1H", "2H", "HT", "ET", "BT", "P"].includes(status))
+          return 1;
+        if (status === "NS") return 2;
         return 3;
       };
-      
+
       const aPriority = statusPriority(a.fixture.status.short);
       const bPriority = statusPriority(b.fixture.status.short);
-      
+
       if (aPriority !== bPriority) {
         return aPriority - bPriority;
       }
-      
+
       // Then sort by date
-      return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
+      return (
+        new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
+      );
     });
   });
 
-  const totalMatches = Object.values(matchesByLeague).reduce((sum, group) => sum + group.matches.length, 0);
+  const totalMatches = Object.values(matchesByLeague).reduce(
+    (sum, group) => sum + group.matches.length,
+    0,
+  );
 
   const toggleStarMatch = (matchId: number) => {
     setStarredMatches((prev) => {
@@ -322,23 +348,27 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   className="w-6 h-6 object-contain rounded-full"
                   style={{ backgroundColor: "transparent" }}
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
+                    (e.target as HTMLImageElement).src =
+                      "/assets/fallback-logo.svg";
                   }}
                 />
                 <div className="flex flex-col flex-1">
                   <span
                     className="font-semibold text-gray-800"
                     style={{
-                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                      fontFamily:
+                        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                       fontSize: "13.3px",
                     }}
                   >
-                    {safeSubstring(leagueGroup.league.name, 0) || "Unknown League"}
+                    {safeSubstring(leagueGroup.league.name, 0) ||
+                      "Unknown League"}
                   </span>
                   <span
                     className="text-gray-600"
                     style={{
-                      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                      fontFamily:
+                        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                       fontSize: "13.3px",
                     }}
                   >
@@ -350,7 +380,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                     className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium"
                     style={{ fontSize: "calc(0.75rem * 0.85)" }}
                   >
-                    {leagueGroup.matches.length} Match{leagueGroup.matches.length !== 1 ? 'es' : ''}
+                    {leagueGroup.matches.length} Match
+                    {leagueGroup.matches.length !== 1 ? "es" : ""}
                   </span>
                 </div>
               </CardContent>
@@ -376,8 +407,28 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   const nowTime = now.getTime();
 
                   // Live matches first
-                  const aLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
-                  const bLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
+                  const aLive = [
+                    "LIVE",
+                    "LIV",
+                    "1H",
+                    "HT",
+                    "2H",
+                    "ET",
+                    "BT",
+                    "P",
+                    "INT",
+                  ].includes(aStatus);
+                  const bLive = [
+                    "LIVE",
+                    "LIV",
+                    "1H",
+                    "HT",
+                    "2H",
+                    "ET",
+                    "BT",
+                    "P",
+                    "INT",
+                  ].includes(bStatus);
 
                   if (aLive && !bLive) return -1;
                   if (!aLive && bLive) return 1;
@@ -420,14 +471,28 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                           const status = match.fixture.status.short;
                           const elapsed = match.fixture.status.elapsed;
 
-                          if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                          if (
+                            [
+                              "LIVE",
+                              "LIV",
+                              "1H",
+                              "HT",
+                              "2H",
+                              "ET",
+                              "BT",
+                              "P",
+                              "INT",
+                            ].includes(status)
+                          ) {
                             let displayText = "";
                             if (status === "HT") {
                               displayText = "Halftime";
                             } else if (status === "P") {
                               displayText = "Penalties";
                             } else if (status === "ET") {
-                              displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
+                              displayText = elapsed
+                                ? `${elapsed}' ET`
+                                : "Extra Time";
                             } else if (status === "BT") {
                               displayText = "Break Time";
                             } else if (status === "INT") {
@@ -443,10 +508,25 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                             );
                           }
 
-                          if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                          if (
+                            [
+                              "FT",
+                              "AET",
+                              "PEN",
+                              "AWD",
+                              "WO",
+                              "ABD",
+                              "CANC",
+                              "SUSP",
+                            ].includes(status)
+                          ) {
                             return (
                               <div className="match-status-label status-ended">
-                                {status === "FT" ? "Ended" : status === "AET" ? "After Extra Time" : status}
+                                {status === "FT"
+                                  ? "Ended"
+                                  : status === "AET"
+                                    ? "After Extra Time"
+                                    : status}
                               </div>
                             );
                           }
@@ -475,18 +555,21 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                               : ""
                           }`}
                           style={{
-                            paddingRight: "0.75rem",
                             textAlign: "right",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
-                            whiteSpace: "nowrap"
+                            whiteSpace: "nowrap",
                           }}
                         >
-                          {shortenTeamName(match.teams.home.name) || "Unknown Team"}
+                          {shortenTeamName(match.teams.home.name) ||
+                            "Unknown Team"}
                         </div>
 
                         {/* Home team logo */}
-                        <div className="home-team-logo-container" style={{ padding: "0 0.5rem" }}>
+                        <div
+                          className="home-team-logo-container"
+                          style={{ padding: "0 0.6rem" }}
+                        >
                           <MyWorldTeamLogo
                             teamName={match.teams.home.name}
                             teamLogo={
@@ -510,17 +593,44 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                             const status = match.fixture.status.short;
                             const fixtureDate = parseISO(match.fixture.date);
 
-                            if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+                            if (
+                              [
+                                "LIVE",
+                                "LIV",
+                                "1H",
+                                "HT",
+                                "2H",
+                                "ET",
+                                "BT",
+                                "P",
+                                "INT",
+                              ].includes(status)
+                            ) {
                               return (
                                 <div className="match-score-display">
-                                  <span className="score-number">{match.goals.home ?? 0}</span>
+                                  <span className="score-number">
+                                    {match.goals.home ?? 0}
+                                  </span>
                                   <span className="score-separator">-</span>
-                                  <span className="score-number">{match.goals.away ?? 0}</span>
+                                  <span className="score-number">
+                                    {match.goals.away ?? 0}
+                                  </span>
                                 </div>
                               );
                             }
 
-                            if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+                            if (
+                              [
+                                "FT",
+                                "AET",
+                                "PEN",
+                                "AWD",
+                                "WO",
+                                "ABD",
+                                "CANC",
+                                "SUSP",
+                              ].includes(status)
+                            ) {
                               const homeScore = match.goals.home;
                               const awayScore = match.goals.away;
                               const hasValidScores =
@@ -534,14 +644,21 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                               if (hasValidScores) {
                                 return (
                                   <div className="match-score-display">
-                                    <span className="score-number">{homeScore}</span>
+                                    <span className="score-number">
+                                      {homeScore}
+                                    </span>
                                     <span className="score-separator">-</span>
-                                    <span className="score-number">{awayScore}</span>
+                                    <span className="score-number">
+                                      {awayScore}
+                                    </span>
                                   </div>
                                 );
                               } else {
                                 return (
-                                  <div className="match-time-display" style={{ fontSize: "0.882em" }}>
+                                  <div
+                                    className="match-time-display"
+                                    style={{ fontSize: "0.882em" }}
+                                  >
                                     {format(fixtureDate, "HH:mm")}
                                   </div>
                                 );
@@ -549,15 +666,23 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                             }
 
                             return (
-                              <div className="match-time-display" style={{ fontSize: "0.882em" }}>
-                                {status === "TBD" ? "TBD" : format(fixtureDate, "HH:mm")}
+                              <div
+                                className="match-time-display"
+                                style={{ fontSize: "0.882em" }}
+                              >
+                                {status === "TBD"
+                                  ? "TBD"
+                                  : format(fixtureDate, "HH:mm")}
                               </div>
                             );
                           })()}
                         </div>
 
                         {/* Away team logo */}
-                        <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
+                        <div
+                          className="away-team-logo-container"
+                          style={{ padding: "0 0.5rem" }}
+                        >
                           <MyWorldTeamLogo
                             teamName={match.teams.away.name}
                             teamLogo={
@@ -589,10 +714,11 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                             textAlign: "left",
                             overflow: "hidden",
                             textOverflow: "ellipsis",
-                            whiteSpace: "nowrap"
+                            whiteSpace: "nowrap",
                           }}
                         >
-                          {shortenTeamName(match.teams.away.name) || "Unknown Team"}
+                          {shortenTeamName(match.teams.away.name) ||
+                            "Unknown Team"}
                         </div>
                       </div>
 
@@ -617,7 +743,9 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
                             return (
                               <div className="penalty-result-display">
-                                <span className="penalty-winner">{winnerText}</span>
+                                <span className="penalty-winner">
+                                  {winnerText}
+                                </span>
                               </div>
                             );
                           }
