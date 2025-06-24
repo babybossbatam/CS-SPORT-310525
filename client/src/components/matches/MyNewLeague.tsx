@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Star, Calendar } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
@@ -310,8 +310,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   return (
     <>
       {/* Header Section */}
-      <CardHeader className="flex items-center justify-between gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        <span>My New League</span>
+      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+        My New League
       </CardHeader>
 
       {/* Create individual league cards */}
@@ -441,7 +441,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                 .map((match: any) => (
                   <div
                     key={match.fixture.id}
-                    className="match-card-container group relative"
+                    className="match-card-container group"
                     onClick={() => onMatchCardClick?.(match)}
                     style={{
                       cursor: onMatchCardClick ? "pointer" : "default",
