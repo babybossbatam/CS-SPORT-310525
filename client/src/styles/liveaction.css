@@ -1,10 +1,46 @@
 
-/* 365scores style Live Action animations */
+/* 365scores design system CSS variables */
+:root {
+  --accentPrimary: #2194ff;
+  --successPrimary: #5bb849;
+  --dangerPrimary: #ff495c;
+  --warningPrimary: #ffb800;
+  --surfacePrimary: #f3f3f3;
+  --surfaceSecondary: #fff;
+  --dividerPrimary: #ced0d0;
+  --textPrimary: #151e22;
+  --textSecondary: #6b7173;
+  --whitePrimary: #fff;
+  --blackPrimary: #000;
+  --highlightPrimary: rgba(0,0,0,.102);
+  --ratePrimary: #e38218;
+  --grayPrimary: #9c9b9b;
+  --scrollerPrimary: #d0d8de;
+}
 
+[data-theme=dark] {
+  --accentPrimary: #2194ff;
+  --successPrimary: #5bb849;
+  --dangerPrimary: #ff495c;
+  --warningPrimary: #ffb800;
+  --surfacePrimary: #000;
+  --surfaceSecondary: #151e22;
+  --dividerPrimary: #3a4145;
+  --textPrimary: #fff;
+  --textSecondary: #9da0a2;
+  --whitePrimary: #fff;
+  --blackPrimary: #000;
+  --highlightPrimary: hsla(0,0%,100%,.102);
+  --ratePrimary: #e38218;
+  --grayPrimary: #2a3437;
+  --scrollerPrimary: #4e5662;
+}
+
+/* 365scores style Live Action animations */
 @keyframes fieldFadeIn {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale(0.98);
   }
   to {
     opacity: 1;
@@ -15,10 +51,10 @@
 @keyframes eventPopIn {
   0% {
     opacity: 0;
-    transform: scale(0.8) translateY(10px);
+    transform: scale(0.9) translateY(8px);
   }
   50% {
-    transform: scale(1.05) translateY(-2px);
+    transform: scale(1.02) translateY(-2px);
   }
   100% {
     opacity: 1;
@@ -31,7 +67,7 @@
     transform: translateY(0);
   }
   40% {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
   }
   60% {
     transform: translateY(-1px);
@@ -41,10 +77,10 @@
 @keyframes substitutionSlide {
   0% {
     opacity: 0;
-    transform: translateX(-100%) scale(0.8);
+    transform: translateX(-80%) scale(0.9);
   }
   50% {
-    transform: translateX(0) scale(1.1);
+    transform: translateX(0) scale(1.05);
   }
   100% {
     opacity: 1;
@@ -54,15 +90,15 @@
 
 @keyframes attackPulse {
   0% {
-    opacity: 0.6;
+    opacity: 0.7;
     transform: scale(1);
   }
   50% {
-    opacity: 0.9;
-    transform: scale(1.05);
+    opacity: 1;
+    transform: scale(1.03);
   }
   100% {
-    opacity: 0.6;
+    opacity: 0.7;
     transform: scale(1);
   }
 }
@@ -72,10 +108,10 @@
     transform: scale(1) rotate(0deg);
   }
   25% {
-    transform: scale(1.2) rotate(5deg);
+    transform: scale(1.15) rotate(3deg);
   }
   75% {
-    transform: scale(1.1) rotate(-3deg);
+    transform: scale(1.08) rotate(-2deg);
   }
   100% {
     transform: scale(1) rotate(0deg);
@@ -86,13 +122,17 @@
   animation: fieldFadeIn 0.6s ease-out;
 }
 
+.scores365-style {
+  font-family: '365 Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 .attack-animation {
-  animation: attackPulse 2s ease-in-out infinite;
+  animation: attackPulse 2.5s ease-in-out infinite;
 }
 
 .attack-line-animation {
   stroke-dasharray: 4, 2;
-  animation: dash 2s linear infinite;
+  animation: dash 2.5s linear infinite;
 }
 
 @keyframes dash {
@@ -102,50 +142,128 @@
 }
 
 .attack-arrow-animation {
-  animation: attackPulse 1.5s ease-in-out infinite;
+  animation: attackPulse 2s ease-in-out infinite;
 }
 
 .corner-arc-animation {
   stroke-dasharray: 3, 1.5;
-  animation: dash 3s linear infinite;
+  animation: dash 3.5s linear infinite;
 }
 
 .corner-flag-animation {
-  animation: cornerFlag 2s ease-in-out infinite;
+  animation: cornerFlag 2.5s ease-in-out infinite;
 }
 
 .corner-area-highlight {
-  animation: attackPulse 3s ease-in-out infinite;
+  animation: attackPulse 4s ease-in-out infinite;
 }
 
 /* Event overlay animations */
 .event-overlay {
-  animation: eventPopIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: eventPopIn 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  background-color: var(--surfaceSecondary);
+  color: var(--textPrimary);
+  border-color: var(--dividerPrimary);
 }
 
 .substitution-out {
-  animation: substitutionSlide 1s ease-out;
+  animation: substitutionSlide 1.2s ease-out;
 }
 
 .substitution-in {
-  animation: substitutionSlide 1s ease-out 0.5s both;
+  animation: substitutionSlide 1.2s ease-out 0.6s both;
 }
 
 /* Ball physics */
 .ball-physics {
-  animation: ballBounce 2s ease-in-out infinite;
+  animation: ballBounce 2.5s ease-in-out infinite;
 }
 
 /* Grass animation */
 @keyframes grassWave {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1; }
+  0%, 100% { 
+    opacity: 0.85; 
+  }
+  50% { 
+    opacity: 1; 
+  }
 }
 
 .grass-stripe:nth-child(odd) {
-  animation: grassWave 4s ease-in-out infinite;
+  animation: grassWave 5s ease-in-out infinite;
 }
 
 .grass-stripe:nth-child(even) {
-  animation: grassWave 4s ease-in-out infinite 2s;
+  animation: grassWave 5s ease-in-out infinite 2.5s;
+}
+
+/* 365scores color scheme utilities */
+.bg-surfacePrimary {
+  background-color: var(--surfacePrimary);
+}
+
+.bg-surfaceSecondary {
+  background-color: var(--surfaceSecondary);
+}
+
+.bg-accentPrimary {
+  background-color: var(--accentPrimary);
+}
+
+.bg-successPrimary {
+  background-color: var(--successPrimary);
+}
+
+.bg-dangerPrimary {
+  background-color: var(--dangerPrimary);
+}
+
+.text-textPrimary {
+  color: var(--textPrimary);
+}
+
+.text-textSecondary {
+  color: var(--textSecondary);
+}
+
+.text-accentPrimary {
+  color: var(--accentPrimary);
+}
+
+.text-whitePrimary {
+  color: var(--whitePrimary);
+}
+
+.border-dividerPrimary {
+  border-color: var(--dividerPrimary);
+}
+
+/* Field enhancements */
+.live-action-container .relative {
+  will-change: transform;
+}
+
+.live-action-container svg {
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .live-action-container {
+    margin: 0 -1rem;
+  }
+  
+  .event-overlay {
+    max-width: calc(100vw - 2rem);
+    margin: 0 1rem;
+  }
+}
+
+/* Enhanced shadows */
+.live-action-container .shadow-lg {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.live-action-container .shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }

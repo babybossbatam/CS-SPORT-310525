@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -418,21 +419,17 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   if (isLoading) {
     return (
       <div className={`w-full ${className}`}>
-        <div className="bg-green-700 rounded-lg overflow-hidden">
-          <div className="bg-black/20 px-3 py-2 flex items-center justify-between">
-            <Badge className="bg-red-600 hover:bg-red-600 text-white text-xs px-2 py-1">
-              Live Action
-            </Badge>
-            <div className="text-white text-xs flex items-center">
-              <div className="animate-spin rounded-full h-3 w-3 border border-white border-t-transparent mr-1"></div>
-              Loading...
+        <div className="bg-surfaceSecondary rounded-lg overflow-hidden shadow-sm border border-dividerPrimary">
+          <div className="bg-surfacePrimary px-3 py-2 border-b border-dividerPrimary">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-accentPrimary rounded-full animate-pulse"></div>
+              <span className="text-textPrimary text-xs font-medium uppercase tracking-wide">Live Action</span>
             </div>
           </div>
-          <div className="h-32 flex items-center justify-center text-white text-sm">
+          <div className="h-48 flex items-center justify-center text-textSecondary text-sm bg-surfaceSecondary">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-6 w-6 border-2 border-white border-t-transparent mx-auto mb-2"></div>
-              <p>Fetching live action...</p>
-              <p className="text-xs opacity-70 mt-1">Please wait</p>
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-textSecondary border-t-transparent mx-auto mb-2"></div>
+              <p>Loading live action...</p>
             </div>
           </div>
         </div>
@@ -454,13 +451,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
     return (
       <div className={`w-full ${className}`}>
-        <div className="bg-gray-700 rounded-lg overflow-hidden">
-          <div className="bg-black/20 px-3 py-2 flex items-center justify-between">
-            <Badge className="bg-gray-600 hover:bg-gray-600 text-white text-xs px-2 py-1">
-              Live Action
-            </Badge>
+        <div className="bg-surfaceSecondary rounded-lg overflow-hidden shadow-sm border border-dividerPrimary">
+          <div className="bg-surfacePrimary px-3 py-2 border-b border-dividerPrimary">
+            <span className="text-textPrimary text-xs font-medium uppercase tracking-wide">Live Action</span>
           </div>
-          <div className="h-32 flex items-center justify-center text-white text-sm">
+          <div className="h-48 flex items-center justify-center text-textSecondary text-sm bg-surfaceSecondary">
             {matchId ? `No match data found` : 'No match selected'}
           </div>
         </div>
@@ -471,13 +466,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   if (!isLive) {
     return (
       <div className={`w-full ${className}`}>
-        <div className="bg-gray-700 rounded-lg overflow-hidden">
-          <div className="bg-black/20 px-3 py-2 flex items-center justify-between">
-            <Badge className="bg-gray-600 hover:bg-gray-600 text-white text-xs px-2 py-1">
-              Live Action
-            </Badge>
+        <div className="bg-surfaceSecondary rounded-lg overflow-hidden shadow-sm border border-dividerPrimary">
+          <div className="bg-surfacePrimary px-3 py-2 border-b border-dividerPrimary">
+            <span className="text-textPrimary text-xs font-medium uppercase tracking-wide">Live Action</span>
           </div>
-          <div className="h-32 flex items-center justify-center text-white text-sm">
+          <div className="h-48 flex items-center justify-center text-textSecondary text-sm bg-surfaceSecondary">
             <div className="text-center">
               <p className="mb-1">Match not live</p>
               <p className="text-xs opacity-60">
@@ -491,25 +484,26 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   return (
-    <div className={`w-full ${className} live-action-container`}>
-      <div className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
+    <div className={`w-full ${className} live-action-container scores365-style`}>
+      <div className="bg-surfaceSecondary rounded-lg overflow-hidden shadow-sm border border-dividerPrimary">
         {/* Header - 365scores style */}
-        <div className="bg-gray-50 px-3 py-2 flex items-center justify-between border-b border-gray-200">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-            <span className="text-gray-700 text-xs font-medium uppercase tracking-wide">Live Action</span>
-          </div>
-          <div className="text-gray-600 text-xs font-medium">
-            {elapsed}'
+        <div className="bg-surfacePrimary px-4 py-3 border-b border-dividerPrimary">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-accentPrimary rounded-full animate-pulse"></div>
+              <span className="text-textPrimary text-sm font-medium uppercase tracking-wide">Live Action</span>
+            </div>
+            <div className="text-textSecondary text-xs font-medium">
+              {elapsed}'
+            </div>
           </div>
         </div>
 
         {/* 365scores style Football Field */}
-        <div className="relative h-64 bg-gradient-to-br from-green-600 via-green-500 to-green-600 overflow-hidden">
+        <div className="relative h-80 bg-gradient-to-br from-green-600 via-green-500 to-green-600 overflow-hidden">
 
-          {/* Professional grass pattern - more realistic stripes */}
+          {/* Professional grass pattern */}
           <div className="absolute inset-0">
-            {/* Grass stripes - alternating lighter/darker with animation */}
             <div className="absolute inset-0">
               {Array.from({ length: 16 }).map((_, i) => (
                 <div
@@ -529,7 +523,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             {/* Field markings - 365scores precision */}
             <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
               <defs>
-                {/* Field line glow effect */}
                 <filter id="fieldGlow">
                   <feGaussianBlur stdDeviation="0.2" result="coloredBlur"/>
                   <feMerge> 
@@ -537,46 +530,35 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                     <feMergeNode in="SourceGraphic"/>
                   </feMerge>
                 </filter>
-                
-                {/* Corner arc pattern */}
-                <pattern id="cornerPattern" x="0" y="0" width="2" height="2" patternUnits="userSpaceOnUse">
-                  <circle cx="1" cy="1" r="0.1" fill="rgba(255,255,255,0.3)"/>
-                </pattern>
               </defs>
 
-              {/* Outer boundary - thicker professional lines */}
-              <rect x="5" y="15" width="90" height="70" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
+              {/* Outer boundary */}
+              <rect x="5" y="15" width="90" height="70" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
 
               {/* Center line */}
-              <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
+              <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
 
               {/* Center circle */}
-              <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
+              <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
               <circle cx="50" cy="50" r="0.6" fill="rgba(255,255,255,0.95)"/>
 
-              {/* Goal areas - 6-yard box */}
-              <rect x="5" y="38" width="8" height="24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
-              <rect x="87" y="38" width="8" height="24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
+              {/* Goal areas */}
+              <rect x="5" y="38" width="8" height="24" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
+              <rect x="87" y="38" width="8" height="24" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
 
-              {/* Penalty areas - 18-yard box */}
-              <rect x="5" y="28" width="18" height="44" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
-              <rect x="77" y="28" width="18" height="44" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" filter="url(#fieldGlow)"/>
+              {/* Penalty areas */}
+              <rect x="5" y="28" width="18" height="44" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
+              <rect x="77" y="28" width="18" height="44" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" filter="url(#fieldGlow)"/>
 
               {/* Penalty spots */}
               <circle cx="17" cy="50" r="0.5" fill="rgba(255,255,255,0.95)"/>
               <circle cx="83" cy="50" r="0.5" fill="rgba(255,255,255,0.95)"/>
 
-              {/* Penalty arcs */}
-              <path d="M 26 50 A 9 9 0 0 1 26 50" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" fill="none" 
-                    transform="rotate(-45 17 50)" filter="url(#fieldGlow)"/>
-              <path d="M 74 50 A 9 9 0 0 0 74 50" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" fill="none" 
-                    transform="rotate(45 83 50)" filter="url(#fieldGlow)"/>
-
               {/* Corner arcs */}
-              <path d="M 7 15 A 2 2 0 0 1 5 17" stroke="rgba(255,255,255,0.9)" strokeWidth="0.3" fill="none" filter="url(#fieldGlow)"/>
-              <path d="M 93 15 A 2 2 0 0 0 95 17" stroke="rgba(255,255,255,0.9)" strokeWidth="0.3" fill="none" filter="url(#fieldGlow)"/>
-              <path d="M 7 85 A 2 2 0 0 0 5 83" stroke="rgba(255,255,255,0.9)" strokeWidth="0.3" fill="none" filter="url(#fieldGlow)"/>
-              <path d="M 93 85 A 2 2 0 0 1 95 83" stroke="rgba(255,255,255,0.9)" strokeWidth="0.3" fill="none" filter="url(#fieldGlow)"/>
+              <path d="M 7 15 A 2 2 0 0 1 5 17" stroke="rgba(255,255,255,0.95)" strokeWidth="0.4" fill="none" filter="url(#fieldGlow)"/>
+              <path d="M 93 15 A 2 2 0 0 0 95 17" stroke="rgba(255,255,255,0.95)" strokeWidth="0.4" fill="none" filter="url(#fieldGlow)"/>
+              <path d="M 7 85 A 2 2 0 0 0 5 83" stroke="rgba(255,255,255,0.95)" strokeWidth="0.4" fill="none" filter="url(#fieldGlow)"/>
+              <path d="M 93 85 A 2 2 0 0 1 95 83" stroke="rgba(255,255,255,0.95)" strokeWidth="0.4" fill="none" filter="url(#fieldGlow)"/>
 
               {/* Goal posts */}
               <rect x="4" y="45" width="1" height="10" fill="rgba(255,255,255,0.95)"/>
@@ -590,100 +572,43 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id={`attackGradient-${pattern.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor={pattern.team === 'home' ? '#3b82f6' : '#ef4444'} stopOpacity="0.8"/>
+                    <stop offset="0%" stopColor={pattern.team === 'home' ? '#2194ff' : '#ff495c'} stopOpacity="0.8"/>
                     <stop offset="50%" stopColor={pattern.team === 'home' ? '#1d4ed8' : '#dc2626'} stopOpacity="0.6"/>
                     <stop offset="100%" stopColor={pattern.team === 'home' ? '#1e40af' : '#b91c1c'} stopOpacity="0.3"/>
                   </linearGradient>
-                  <filter id={`attackShadow-${pattern.id}`}>
-                    <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="rgba(0,0,0,0.4)"/>
-                  </filter>
                 </defs>
 
-                {/* Attack cone/area */}
                 <path
                   d={`M ${pattern.startX} ${pattern.startY} 
                       L ${pattern.endX - 5} ${pattern.endY - 8} 
                       L ${pattern.endX + 5} ${pattern.endY + 8} 
                       Z`}
                   fill={`url(#attackGradient-${pattern.id})`}
-                  filter={`url(#attackShadow-${pattern.id})`}
                   className="attack-animation"
                   opacity={pattern.intensity === 'dangerous' ? '0.9' : '0.6'}
                 />
 
-                {/* Attack line */}
                 <line
                   x1={pattern.startX}
                   y1={pattern.startY}
                   x2={pattern.endX}
                   y2={pattern.endY}
-                  stroke={pattern.team === 'home' ? '#3b82f6' : '#ef4444'}
+                  stroke={pattern.team === 'home' ? '#2194ff' : '#ff495c'}
                   strokeWidth={pattern.intensity === 'dangerous' ? '1.2' : '0.8'}
                   strokeDasharray="2,1"
                   className="attack-line-animation"
-                  filter={`url(#attackShadow-${pattern.id})`}
                 />
 
-                {/* Attack direction arrow */}
                 <polygon
                   points={`${pattern.endX-2},${pattern.endY-2} ${pattern.endX+2},${pattern.endY} ${pattern.endX-2},${pattern.endY+2}`}
-                  fill={pattern.team === 'home' ? '#1d4ed8' : '#dc2626'}
+                  fill={pattern.team === 'home' ? '#2194ff' : '#ff495c'}
                   className="attack-arrow-animation"
                 />
               </svg>
             </div>
           ))}
 
-          {/* Corner Kick Visualization */}
-          {currentEvent && currentEvent.type === 'corner' && (
-            <div className="absolute inset-0 pointer-events-none z-25">
-              <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <defs>
-                  <filter id="cornerGlow">
-                    <feGaussianBlur stdDeviation="0.5" result="coloredBlur"/>
-                    <feMerge> 
-                      <feMergeNode in="coloredBlur"/>
-                      <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
-                  </filter>
-                </defs>
-
-                {/* Corner kick arc - dotted line from corner to penalty area */}
-                <path
-                  d={`M ${currentEvent.x} ${currentEvent.y} Q ${currentEvent.x! + (currentEvent.team === 'home' ? 15 : -15)} ${currentEvent.y! - 10} ${currentEvent.x! + (currentEvent.team === 'home' ? 20 : -20)} ${50}`}
-                  fill="none"
-                  stroke="rgba(255,255,255,0.9)"
-                  strokeWidth="0.8"
-                  strokeDasharray="2,1.5"
-                  filter="url(#cornerGlow)"
-                  className="corner-arc-animation"
-                />
-
-                {/* Corner flag indicator */}
-                <circle
-                  cx={currentEvent.x}
-                  cy={currentEvent.y}
-                  r="1.2"
-                  fill="rgba(255,255,255,0.95)"
-                  className="corner-flag-animation"
-                />
-
-                {/* Corner area highlight */}
-                <rect
-                  x={currentEvent.team === 'home' ? 87 : 5}
-                  y={currentEvent.y! > 50 ? 70 : 15}
-                  width="8"
-                  height="15"
-                  fill="rgba(255,255,255,0.15)"
-                  stroke="rgba(255,255,255,0.6)"
-                  strokeWidth="0.3"
-                  className="corner-area-highlight"
-                />
-              </svg>
-            </div>
-          )}
-
-          {/* 365scores style Ball with realistic movement */}
+          {/* Ball with realistic movement */}
           <div 
             className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-150 ease-out z-30"
             style={{
@@ -692,19 +617,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             }}
           >
             <div className="relative">
-              {/* Ball shadow */}
               <div className="absolute w-4 h-2 bg-black/20 rounded-full blur-sm" 
                    style={{ left: '-8px', top: '8px' }}></div>
               
-              {/* Main ball */}
               <div className="w-4 h-4 bg-gradient-to-br from-white via-gray-100 to-gray-200 rounded-full shadow-lg border border-gray-300 relative">
-                {/* Ball pattern */}
                 <div className="absolute inset-0 rounded-full">
                   <div className="absolute w-1 h-1 bg-gray-400 rounded-full top-1 left-1"></div>
                   <div className="absolute w-0.5 h-0.5 bg-gray-400 rounded-full bottom-1 right-1"></div>
                 </div>
                 
-                {/* Ball movement trail */}
                 {ballPossession && (
                   <div className={`absolute inset-0 rounded-full animate-pulse ${
                     ballPossession === 'home' ? 'ring-2 ring-blue-400' : 'ring-2 ring-red-400'
@@ -717,9 +638,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           {/* 365scores style event overlays */}
           {currentEvent && (
             <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-              {/* Main event display - center overlay like 365scores */}
-              <div className="bg-white/98 backdrop-blur-md rounded-lg px-6 py-3 text-center shadow-2xl border border-gray-200 max-w-sm event-overlay">
-                <div className="text-gray-600 text-xs font-medium uppercase tracking-wider mb-1">
+              <div className="bg-surfaceSecondary backdrop-blur-md rounded-lg px-6 py-4 text-center shadow-lg border border-dividerPrimary max-w-sm event-overlay">
+                <div className="text-textSecondary text-xs font-medium uppercase tracking-wider mb-2">
                   {currentEvent.type === 'goal' ? 'GOAL!' : 
                    currentEvent.type === 'substitution' ? 'SUBSTITUTION' :
                    currentEvent.type === 'card' ? 'CARD' :
@@ -727,7 +647,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                    currentEvent.type === 'shot' ? 'SHOT' :
                    'MATCH EVENT'}
                 </div>
-                <div className="text-gray-900 text-sm font-bold mb-2">
+                <div className="text-textPrimary text-sm font-bold mb-2">
                   {currentEvent.description}
                 </div>
                 {currentEvent.player !== 'Team' && (
@@ -740,7 +660,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                         e.currentTarget.src = '/assets/fallback-logo.svg';
                       }}
                     />
-                    <div className="text-gray-700 text-xs font-medium">
+                    <div className="text-textSecondary text-xs font-medium">
                       {currentEvent.player}
                     </div>
                   </div>
@@ -749,10 +669,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           )}
 
-          {/* Player position indicators */}
+          {/* Substitution indicators */}
           {currentEvent && currentEvent.type === 'substitution' && (
             <div>
-              {/* Substitution OUT indicator */}
               <div 
                 className="absolute z-40 pointer-events-none"
                 style={{
@@ -761,16 +680,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                   transform: 'translate(-50%, -50%)'
                 }}
               >
-                <div className="bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold shadow-lg border-2 border-white">
+                <div className="bg-dangerPrimary text-whitePrimary rounded-full px-2 py-1 text-xs font-bold shadow-lg border-2 border-whitePrimary">
                   OUT
                 </div>
-                <div className="bg-white rounded-md px-2 py-1 text-xs font-medium shadow-md mt-1 border border-gray-200">
-                  <div className="text-gray-600 text-xs">33 | MIDFIELDER</div>
-                  <div className="text-gray-800 font-medium">Evangelista, Lucas</div>
+                <div className="bg-surfaceSecondary rounded-md px-2 py-1 text-xs font-medium shadow-md mt-1 border border-dividerPrimary">
+                  <div className="text-textSecondary text-xs">Player Out</div>
+                  <div className="text-textPrimary font-medium">{currentEvent.player}</div>
                 </div>
               </div>
 
-              {/* Substitution IN indicator */}
               <div 
                 className="absolute z-40 pointer-events-none"
                 style={{
@@ -779,12 +697,12 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                   transform: 'translate(50%, 50%)'
                 }}
               >
-                <div className="bg-green-500 text-white rounded-full px-2 py-1 text-xs font-bold shadow-lg border-2 border-white">
+                <div className="bg-successPrimary text-whitePrimary rounded-full px-2 py-1 text-xs font-bold shadow-lg border-2 border-whitePrimary">
                   IN
                 </div>
-                <div className="bg-white rounded-md px-2 py-1 text-xs font-medium shadow-md mt-1 border border-gray-200">
-                  <div className="text-blue-500 font-medium">Roque, Vitor</div>
-                  <div className="text-gray-600 text-xs">FORWARD | 9</div>
+                <div className="bg-surfaceSecondary rounded-md px-2 py-1 text-xs font-medium shadow-md mt-1 border border-dividerPrimary">
+                  <div className="text-accentPrimary font-medium">Player In</div>
+                  <div className="text-textSecondary text-xs">Substitute</div>
                 </div>
               </div>
             </div>
@@ -793,14 +711,13 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         </div>
 
         {/* Corners Section - 365scores style */}
-        <div className="bg-gray-50 px-3 py-2 border-t border-gray-200">
-          <div className="text-center text-gray-500 text-xs font-medium mb-2 uppercase tracking-wide">
+        <div className="bg-surfacePrimary px-4 py-3 border-t border-dividerPrimary">
+          <div className="text-center text-textSecondary text-xs font-medium mb-3 uppercase tracking-wide">
             Corners
           </div>
 
           <div className="flex items-center justify-between">
-            {/* Home Team */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <img
                 src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
                 alt={homeTeamData?.name || 'Home Team'}
@@ -809,23 +726,22 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                   e.currentTarget.src = '/assets/fallback-logo.svg';
                 }}
               />
-              <div className="text-lg font-bold text-gray-800">
+              <div className="text-lg font-bold text-textPrimary">
                 {cornerKicks.home}
               </div>
             </div>
 
-            {/* Simple Progress Bar */}
-            <div className="flex-1 mx-3">
-              <div className="h-1 bg-gray-300 rounded-full overflow-hidden">
+            <div className="flex-1 mx-4">
+              <div className="h-1 bg-dividerPrimary rounded-full overflow-hidden">
                 <div className="h-full flex">
                   <div 
-                    className="bg-blue-500 transition-all duration-500"
+                    className="bg-accentPrimary transition-all duration-500"
                     style={{ 
                       width: `${(cornerKicks.home / Math.max(cornerKicks.home + cornerKicks.away, 1)) * 100}%` 
                     }}
                   ></div>
                   <div 
-                    className="bg-red-500 transition-all duration-500"
+                    className="bg-dangerPrimary transition-all duration-500"
                     style={{ 
                       width: `${(cornerKicks.away / Math.max(cornerKicks.home + cornerKicks.away, 1)) * 100}%` 
                     }}
@@ -834,9 +750,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               </div>
             </div>
 
-            {/* Away Team */}
-            <div className="flex items-center gap-2">
-              <div className="text-lg font-bold text-gray-800">
+            <div className="flex items-center gap-3">
+              <div className="text-lg font-bold text-textPrimary">
                 {cornerKicks.away}
               </div>
               <img
