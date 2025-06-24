@@ -158,12 +158,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                 // Only add if not already in live fixtures
                 const alreadyInLive = allFixtures.some(f => f.fixture.id === fixture.fixture.id);
                 
-                // Include recently ended matches (within last 3 hours)
-                const fixtureDate = new Date(fixture.fixture.date);
-                const hoursAgo = (new Date().getTime() - fixtureDate.getTime()) / (1000 * 60 * 60);
-                const isRecentlyEnded = isEnded && hoursAgo <= 3;
-                
-                return (isEnded || isRecentlyEnded) && !alreadyInLive;
+                return isEnded && !alreadyInLive;
               });
 
               const upcomingFixtures = fixturesData.filter((fixture) => {
