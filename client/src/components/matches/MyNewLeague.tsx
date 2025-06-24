@@ -84,69 +84,9 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
-  const [liveMatchUpdates, setLiveMatchUpdates] = useState<Map<number, FixtureData>>(new Map());
-  const [lastUpdateTime, setLastUpdateTime] = useState<number>(Date.now());
 
   // Using league ID 38 and 15 as specified in checkSpecificLeagueMatches.ts
   const leagueIds = [38, 15];
-
-  // Check if a match is live
-  const isLiveMatch = useCallback((status: string) => {
-    return ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-  }, []);
-
-  // Get live matches from current fixtures
-  const liveMatches = useMemo(() => {
-    return fixtures.filter(fixture => isLiveMatch(fixture.fixture.status.short));
-  }, [fixtures, isLiveMatch]);
-
-  // Real-time update function for live matches
-  const updateLiveMatches = useCallback(async () => {
-    if (liveMatches.length === 0) return;
-
-    try {
-      console.log("🔴 [MyNewLeague] Updating live matches:", liveMatches.length);
-      
-      // Fetch live fixtures from API
-      const liveResponse = await apiRequest("GET", "/api/fixtures/live");
-      const liveData = await liveResponse.json();
-      
-      if (Array.isArray(liveData)) {
-        const updatedMatches = new Map<number, FixtureData>();
-        
-        // Update live matches with fresh data
-        liveData.forEach((liveFixture: FixtureData) => {
-          const existingMatch = liveMatches.find(
-            match => match.fixture.id === liveFixture.fixture.id
-          );
-          
-          if (existingMatch) {
-            updatedMatches.set(liveFixture.fixture.id, liveFixture);
-            console.log("🔄 [MyNewLeague] Updated live match:", {
-              id: liveFixture.fixture.id,
-              teams: `${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name}`,
-              score: `${liveFixture.goals.home}-${liveFixture.goals.away}`,
-              status: liveFixture.fixture.status.short,
-              elapsed: liveFixture.fixture.status.elapsed
-            });
-          }
-        });
-
-        setLiveMatchUpdates(updatedMatches);
-        setLastUpdateTime(Date.now());
-      }
-    } catch (error) {
-      console.error("❌ [MyNewLeague] Error updating live matches:", error);
-    }
-  }, [liveMatches]);
-
-  // Merge live updates with original fixtures
-  const mergedFixtures = useMemo(() => {
-    return fixtures.map(fixture => {
-      const liveUpdate = liveMatchUpdates.get(fixture.fixture.id);
-      return liveUpdate || fixture;
-    });
-  }, [fixtures, liveMatchUpdates]);
 
   useEffect(() => {
     const fetchLeagueData = async () => {
@@ -234,29 +174,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     fetchLeagueData();
   }, []);
 
-  // Real-time polling effect for live matches
-  useEffect(() => {
-    if (liveMatches.length === 0) return;
-
-    console.log("🔴 [MyNewLeague] Setting up live polling for", liveMatches.length, "matches");
-
-    // Initial update
-    updateLiveMatches();
-
-    // Set up polling interval - adaptive based on number of live matches
-    const getPollingInterval = () => {
-      if (liveMatches.length > 0) return 10000; // 10 seconds for live matches
-      return 30000; // 30 seconds for non-live
-    };
-
-    const interval = setInterval(updateLiveMatches, getPollingInterval());
-
-    return () => {
-      console.log("🔴 [MyNewLeague] Clearing live polling interval");
-      clearInterval(interval);
-    };
-  }, [liveMatches, updateLiveMatches]);
-
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
   fixtures.forEach((f) => {
@@ -269,8 +186,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Filter matches to show matches for the selected date (using merged data with live updates)
-  const selectedDateFixtures = mergedFixtures.filter((f) => {
+  // Filter matches to show matches for the selected date
+  const selectedDateFixtures = fixtures.filter((f) => {
     const matchDate = new Date(f.fixture.date);
     // Extract just the date part for comparison (YYYY-MM-DD format)
     const year = matchDate.getFullYear();
@@ -395,17 +312,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       {/* Header Section */}
       <CardHeader className="flex items-center justify-between gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         <span>My New League</span>
-        {liveMatches.length > 0 && (
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-            <span className="text-xs text-red-600 font-medium">
-              {liveMatches.length} LIVE
-            </span>
-            <span className="text-xs text-gray-500">
-              Updated {Math.floor((Date.now() - lastUpdateTime) / 1000)}s ago
-            </span>
-          </div>
-        )}
       </CardHeader>
 
       {/* Create individual league cards */}
@@ -556,11 +462,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                         }`}
                       />
                     </button>
-
-                    {/* Live update indicator */}
-                    {isLiveMatch(match.fixture.status.short) && liveMatchUpdates.has(match.fixture.id) && (
-                      <div className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    )}
 
                     {/* Match content container */}
                     <div className="match-three-grid-container">
@@ -742,15 +643,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
                               if (hasValidScores) {
                                 return (
-                                  <div className="match-score-display">
-                                    <span className="score-number">
-                                      {homeScore}
-                                    </span>
-                                    <span className="score-separator">-</span>
-                                    <span className="score-number">
-                                      {awayScore}
-                                    </span>
-                                  </div>
+                                  <div className="match-score-display">FC Porto1-2Al Ahly</div>
                                 );
                               } else {
                                 return (
