@@ -61,7 +61,7 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
         >
           {homeTeam && (
             <div
-              className="absolute z-20 w-[64px] h-[64px]"
+              className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out hover:scale-110"
               style={{
                 cursor: "pointer",
                 top: "calc(50% - 32px)",
@@ -74,7 +74,10 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
                 teamLogo={homeTeam.logo}
                 alt={homeTeam.name || "Home Team"}
                 size="64px"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                style={{
+                  filter: "contrast(115%) brightness(105%)",
+                }}
                 leagueContext={{
                   name: league?.country || "League",
                   country: league?.country || "World"
@@ -167,7 +170,7 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
         </div>
 
         <div
-          className="absolute z-20 w-[64px] h-[64px]"
+          className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out hover:scale-110"
           style={{
             cursor: "pointer",
             top: "calc(50% - 32px)",
@@ -181,7 +184,10 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
             teamLogo={awayTeam.logo}
             alt={awayTeam.name || "Away Team"}
             size="64px"
-            className="w-full h-full object-contain"
+            className="w-full h-full object-contain hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+            style={{
+              filter: "contrast(115%) brightness(105%)",
+            }}
             leagueContext={{
               name: league?.country || "League",
               country: league?.country || "World"
