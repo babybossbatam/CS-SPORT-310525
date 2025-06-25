@@ -11,7 +11,6 @@ import {
 // Adjustments for header height and league tabs position
 const headerHeight = "h-[216px]"; // 180px increased by 20%
 const leagueTabsPosition = "mt-[236px]"; // 180px increased to accommodate new header height
-import { LeagueStandings } from "@/components/stats/LeagueStandings";
 import MyStandingsDetail from "@/components/stats/MyStandingsDetail";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
