@@ -113,6 +113,49 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         return;
       }
 
+      // First try to get live fixtures from the live endpoint
+      try {
+        const liveResponse = await apiRequest("GET", `/api/fixtures/live?_t=${Date.now()}`);
+        const liveFixtures = await liveResponse.json();
+        
+        if (Array.isArray(liveFixtures) && liveFixtures.length > 0) {
+          console.log(`🔴 [MyNewLeague] Found ${liveFixtures.length} live fixtures from live endpoint`);
+          
+          // Filter live fixtures for our target leagues
+          const relevantLiveFixtures = liveFixtures.filter(fixture => 
+            leagueIds.includes(fixture.league?.id)
+          );
+          
+          if (relevantLiveFixtures.length > 0) {
+            console.log(`✅ [MyNewLeague] Found ${relevantLiveFixtures.length} relevant live fixtures`);
+            
+            // Update existing fixtures with live data
+            setFixtures(prevFixtures => {
+              const updatedFixtures = [...prevFixtures];
+              
+              relevantLiveFixtures.forEach(liveFixture => {
+                const index = updatedFixtures.findIndex(f => f.fixture.id === liveFixture.fixture.id);
+                if (index !== -1) {
+                  updatedFixtures[index] = liveFixture;
+                  console.log(`🔄 [MyNewLeague] Updated live fixture ${liveFixture.fixture.id}: ${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name}`);
+                } else {
+                  // Add new live fixture if not found
+                  updatedFixtures.push(liveFixture);
+                  console.log(`➕ [MyNewLeague] Added new live fixture ${liveFixture.fixture.id}: ${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name}`);
+                }
+              });
+              
+              return updatedFixtures;
+            });
+            
+            return; // Exit early if we successfully updated with live data
+          }
+        }
+      } catch (liveError) {
+        console.warn("❌ [MyNewLeague] Live endpoint failed, falling back to league endpoints:", liveError);
+      }
+
+      // Fallback: Fetch from individual league endpoints
       const allFixtures: FixtureData[] = [];
 
       for (const leagueId of leagueIds) {
@@ -140,12 +183,14 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       }
 
       // Update fixtures without changing loading state
-      setFixtures(allFixtures);
-      console.log(`✅ [MyNewLeague] Background refresh completed: ${allFixtures.length} fixtures`);
+      if (allFixtures.length > 0) {
+        setFixtures(allFixtures);
+        console.log(`✅ [MyNewLeague] Background refresh completed: ${allFixtures.length} fixtures`);
+      }
     } catch (err) {
       console.error("❌ [MyNewLeague] Background refresh error:", err);
     }
-  }, [fixtures]);
+  }, [leagueIds]);
 
   // Initial data fetch
   useEffect(() => {
@@ -236,12 +281,35 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
   // Background refresh interval for live matches
   useEffect(() => {
-    const interval = setInterval(() => {
+    const hasLiveMatches = fixtures.some(fixture => 
+      ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short)
+    );
+    
+    let interval: NodeJS.Timeout;
+    
+    if (hasLiveMatches) {
+      // More frequent updates for live matches (every 30 seconds)
+      console.log("🔴 [MyNewLeague] Live matches detected, setting up frequent refresh (30s)");
+      interval = setInterval(() => {
+        backgroundRefreshLiveData();
+      }, 30000);
+      
+      // Immediate refresh when live matches are first detected
       backgroundRefreshLiveData();
-    }, 60000); // Refresh every 60 seconds
+    } else {
+      // Less frequent updates when no live matches (every 2 minutes)
+      console.log("⏸️ [MyNewLeague] No live matches, setting up normal refresh (2min)");
+      interval = setInterval(() => {
+        backgroundRefreshLiveData();
+      }, 120000);
+    }
 
-    return () => clearInterval(interval);
-  }, [backgroundRefreshLiveData]);
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [backgroundRefreshLiveData, fixtures]);
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
@@ -384,6 +452,18 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           });
           newFulltimeMatches.add(matchId);
         }
+
+        // Check if status changed to live
+        if (['LIVE', '1H', '2H'].includes(currentStatus) && !['LIVE', '1H', '2H', 'HT'].includes(previousStatus)) {
+          console.log(`🔴 [LIVE START] Match ${matchId} just started!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
+          // Trigger immediate refresh when match goes live
+          setTimeout(() => backgroundRefreshLiveData(), 1000);
+        }
       }
 
       // Check for goal changes
@@ -426,7 +506,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         setGoalFlashMatches(new Set());
       }, 2000);
     }
-  }, [fixtures]);
+  }, [fixtures, backgroundRefreshLiveData]);
 
   if (loading) {
     return (
