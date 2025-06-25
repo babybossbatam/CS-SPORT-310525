@@ -636,15 +636,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             {/* Navigation arrows */}
             {allMatches.length > 1 && (
               <>
-                <button 
+                <button
                   onClick={handlePrevious}
-                  className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200  rounded-sm p-2 shadow-md"
+                  className="absolute 
+                  -left-12 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className=" h-4 w-4 " />
                 </button>
-                <button 
+                <button
                   onClick={handleNext}
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-2 shadow-md"
+                  className="absolute -right-12 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -769,13 +770,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   {/* Horizontal logo display aligned with colored bar edges */}
                   <div className="flex items-center justify-between px-4 relative">
                     {/* Home team logo positioned to align with left edge of colored bar */}
-                    <div className="flex items-center gap-2" style={{ marginLeft: "4px" }}>
+                    <div
+                      className="flex items-center gap-2"
+                      style={{ marginLeft: "4px" }}
+                    >
                       <MyWorldTeamLogo
                         teamName={currentMatch.teams.home.name}
                         teamLogo={currentMatch.teams.home.logo}
                         alt={currentMatch.teams.home.name}
-                        size="50px"
-                        className="object-contain"
+                        size="65px"
+                        className="object-contain "
                         leagueContext={{
                           name: currentMatch.league.name,
                           country: currentMatch.league.country,
@@ -784,7 +788,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     </div>
 
                     {/* Away team logo positioned to align with right edge of colored bar */}
-                    <div className="flex items-center gap-2 flex-row-reverse" style={{ marginRight: "4px" }}>
+                    <div
+                      className="flex items-center gap-2 flex-row-reverse"
+                      style={{ marginRight: "4px" }}
+                    >
                       <MyWorldTeamLogo
                         teamName={currentMatch.teams.away.name}
                         teamLogo={currentMatch.teams.away.logo}
@@ -796,36 +803,38 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           country: currentMatch.league.country,
                         }}
                       />
+
+                      {/* MyColoredBarNew component */}
+                      <MyColoredBarNew
+                        homeTeam={{
+                          id: currentMatch.teams.home.id,
+                          name: currentMatch.teams.home.name,
+                          logo: currentMatch.teams.home.logo,
+                        }}
+                        awayTeam={{
+                          id: currentMatch.teams.away.id,
+                          name: currentMatch.teams.away.name,
+                          logo: currentMatch.teams.away.logo,
+                        }}
+                        homeScore={currentMatch.goals.home}
+                        awayScore={currentMatch.goals.away}
+                        status={currentMatch.fixture.status.short}
+                        fixture={{
+                          id: currentMatch.fixture.id,
+                          date: currentMatch.fixture.date,
+                          status: currentMatch.fixture.status,
+                        }}
+                        onClick={() =>
+                          navigate(`/match/${currentMatch.fixture.id}`)
+                        }
+                        getTeamColor={getTeamColor}
+                        className="h-20"
+                        league={{
+                          country: currentMatch.league.country,
+                        }}
+                      />
                     </div>
                   </div>
-
-                  {/* MyColoredBarNew component */}
-                  <MyColoredBarNew
-                    homeTeam={{
-                      id: currentMatch.teams.home.id,
-                      name: currentMatch.teams.home.name,
-                      logo: currentMatch.teams.home.logo,
-                    }}
-                    awayTeam={{
-                      id: currentMatch.teams.away.id,
-                      name: currentMatch.teams.away.name,
-                      logo: currentMatch.teams.away.logo,
-                    }}
-                    homeScore={currentMatch.goals.home}
-                    awayScore={currentMatch.goals.away}
-                    status={currentMatch.fixture.status.short}
-                    fixture={{
-                      id: currentMatch.fixture.id,
-                      date: currentMatch.fixture.date,
-                      status: currentMatch.fixture.status,
-                    }}
-                    onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
-                    getTeamColor={getTeamColor}
-                    className="h-20"
-                    league={{
-                      country: currentMatch.league.country,
-                    }}
-                  />
                 </div>
                 {/* Match Details */}
                 <div className="text-center text-sm text-gray-600 mb-4">
