@@ -148,7 +148,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                     ...updatedFixtures[index],
                     fixture: {
                       ...updatedFixtures[index].fixture,
-                      status: liveFixture.fixture.status,
+                      status: {
+                        short: liveFixture.fixture.status.short,
+                        elapsed: liveFixture.fixture.status.elapsed || updatedFixtures[index].fixture.status.elapsed,
+                      },
                     },
                     goals: {
                       home: liveFixture.goals?.home ?? updatedFixtures[index].goals.home,
@@ -169,7 +172,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                       ...updatedFixtures[teamMatchIndex],
                       fixture: {
                         ...updatedFixtures[teamMatchIndex].fixture,
-                        status: liveFixture.fixture.status,
+                        status: {
+                          short: liveFixture.fixture.status.short,
+                          elapsed: liveFixture.fixture.status.elapsed || updatedFixtures[teamMatchIndex].fixture.status.elapsed,
+                        },
                       },
                       goals: {
                         home: liveFixture.goals?.home ?? updatedFixtures[teamMatchIndex].goals.home,
@@ -829,7 +835,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                             } else if (status === "INT") {
                               displayText = "Interrupted";
                             } else {
-                              displayText = elapsed ? `${elapsed}'` : "LIVE";
+                              displayText = elapsed && elapsed > 0 ? `${elapsed}'` : "LIVE";
                             }
 
                             return (
@@ -923,6 +929,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                           {(() => {
                             const status = match.fixture.status.short;
                             const fixtureDate = parseISO(match.fixture.date);
+                            const elapsed = match.fixture.status.elapsed;
 
                             if (
                               [
