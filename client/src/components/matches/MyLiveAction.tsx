@@ -291,7 +291,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     }, 3000);
   };
 
-  // Auto-update current event display with better stale event handling
+  // Auto-update current event display with better stale event handling and auto-hide
   useEffect(() => {
     if (playByPlayEvents.length > 0) {
       const latestEvent = playByPlayEvents[0];
@@ -300,6 +300,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       // Only show events that are less than 2 minutes old
       if (eventAge < 120000) {
         setCurrentEvent(latestEvent);
+        
+        // Auto-hide event after 8 seconds to show field and ball movement
+        const hideEventTimeout = setTimeout(() => {
+          setCurrentEvent(null);
+        }, 8000);
+
+        return () => {
+          clearTimeout(hideEventTimeout);
+        };
       } else {
         // Clear stale events
         setCurrentEvent(null);
@@ -316,7 +325,12 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             const currentIndex = recentEvents.findIndex(e => e.id === currentEvent?.id);
             const nextIndex = (currentIndex + 1) % recentEvents.length;
             setCurrentEvent(recentEvents[nextIndex]);
-          }, 6000); // Show each event for 6 seconds
+            
+            // Auto-hide each cycled event after 6 seconds
+            setTimeout(() => {
+              setCurrentEvent(null);
+            }, 6000);
+          }, 10000); // Show each event for 6 seconds, 4 seconds gap to see field
 
           return () => {
             clearInterval(eventCycleInterval);
@@ -327,7 +341,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       // No events available, clear current event
       setCurrentEvent(null);
     }
-  }, [playByPlayEvents.length, currentEvent?.id])
+  }, [playByPlayEvents.length])
 
   const generatePlayByPlayEvents = async (matchData: any, isUpdate: boolean = false) => {
     try {
@@ -711,9 +725,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
 
           {/* Premium event overlay */}
-          {(currentEvent || (!currentEvent && isLive)) && (
+          {(currentEvent || (!currentEvent && isLive && ballPossession)) && (
             <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-              <div className="bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl rounded-2xl px-8 py-6 text-center shadow-2xl border border-slate-600/50 max-w-sm event-overlay transform animate-in fade-in-0 zoom-in-95 duration-300">
+              <div className="bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl rounded-2xl px-8 py-6 text-center shadow-2xl border border-slate-600/50 max-w-sm event-overlay transform animate-in fade-in-0 zoom-in-95 duration-300"></div>
                 {/* Premium event type badge */}
                 <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-4 ${
                   currentEvent ? (
