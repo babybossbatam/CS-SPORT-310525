@@ -238,13 +238,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         const isUpcoming = ["NS", "TBD"].includes(status);
 
         if (isLive) return 1; // Live matches always first
-        
+
         // If no live matches exist, ended matches get priority 1, otherwise priority 2
         if (isEnded) return hasLiveMatches ? 2 : 1;
-        
+
         // Upcoming matches get lowest priority
         if (isUpcoming) return hasLiveMatches ? 3 : 2;
-        
+
         return 4; // Other statuses last
       };
 
