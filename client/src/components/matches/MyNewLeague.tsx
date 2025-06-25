@@ -98,6 +98,56 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
   const leagueIds = [38, 15];
 
+  // Background refresh function without loading state
+  const backgroundRefreshLiveData = useCallback(async () => {
+    try {
+      console.log("🔄 [MyNewLeague] Background refresh for live matches");
+      
+      // Only refresh if we have live matches
+      const hasLiveMatches = fixtures.some(fixture => 
+        ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short)
+      );
+
+      if (!hasLiveMatches) {
+        console.log("⏸️ [MyNewLeague] No live matches, skipping background refresh");
+        return;
+      }
+
+      const allFixtures: FixtureData[] = [];
+
+      for (const leagueId of leagueIds) {
+        try {
+          // Fetch fresh fixtures for the league (no cache)
+          const fixturesResponse = await apiRequest(
+            "GET",
+            `/api/leagues/${leagueId}/fixtures?_t=${Date.now()}`,
+          );
+          const fixturesData = await fixturesResponse.json();
+
+          if (Array.isArray(fixturesData)) {
+            const filteredFixtures = fixturesData.filter((fixture) => {
+              return true; // Show all matches
+            });
+
+            allFixtures.push(...filteredFixtures);
+          }
+        } catch (leagueError) {
+          console.warn(
+            `Background refresh failed for league ${leagueId}:`,
+            leagueError,
+          );
+        }
+      }
+
+      // Update fixtures without changing loading state
+      setFixtures(allFixtures);
+      console.log(`✅ [MyNewLeague] Background refresh completed: ${allFixtures.length} fixtures`);
+    } catch (err) {
+      console.error("❌ [MyNewLeague] Background refresh error:", err);
+    }
+  }, [fixtures]);
+
+  // Initial data fetch
   useEffect(() => {
     const fetchLeagueData = async () => {
       setLoading(true);
@@ -183,6 +233,15 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
     fetchLeagueData();
   }, []);
+
+  // Background refresh interval for live matches
+  useEffect(() => {
+    const interval = setInterval(() => {
+      backgroundRefreshLiveData();
+    }, 60000); // Refresh every 60 seconds
+
+    return () => clearInterval(interval);
+  }, [backgroundRefreshLiveData]);
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
