@@ -895,14 +895,7 @@ const HomeTopScorersList = () => {
                 );
               })}
             </div>
-          ) : (
-            <div className="text-center py-6 text-gray-500">
-              <p className="text-sm">No top scorer data available</p>
-              <p className="text-xs text-gray-400 mt-1">
-                for {getCurrentLeague()?.name || "Selected League"}
-              </p>
-            </div>
-          )}
+          ) : null}
 
           {/* Stats link - always use the currently selected league */}
           {selectedLeague && (
