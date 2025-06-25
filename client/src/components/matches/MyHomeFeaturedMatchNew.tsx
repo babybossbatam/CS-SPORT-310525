@@ -1,165 +1,153 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Calendar, Clock, ChevronLeft, ChevronRight } from "lucide-react";
-import { format, parseISO } from "date-fns";
 import { useLocation } from "wouter";
-import { CURRENT_POPULAR_LEAGUES } from "@/components/leagues/PopularLeaguesList";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
   maxMatches?: number;
 }
 
-interface Fixture {
-  fixture: {
-    id: number;
-    date: string;
-    status: {
-      short: string;
-      long: string;
-    };
-  };
-  league: {
-    id: number;
-    name: string;
-    logo: string;
-    country: string;
-  };
-  teams: {
-    home: {
-      id: number;
-      name: string;
-      logo: string;
-    };
-    away: {
-      id: number;
-      name: string;
-      logo: string;
-    };
-  };
-  goals: {
-    home: number | null;
-    away: number | null;
-  };
-  score: {
-    halftime: {
-      home: number | null;
-      away: number | null;
-    };
-    fulltime: {
-      home: number | null;
-      away: number | null;
-    };
-  };
-}
+// Static mock data for design purposes
+const mockFixtures = [
+  {
+    fixture: {
+      id: 1,
+      date: "2025-01-25T15:00:00Z",
+      status: {
+        short: "LIVE",
+        long: "Match Finished"
+      }
+    },
+    league: {
+      id: 39,
+      name: "Premier League",
+      logo: "https://media.api-sports.io/football/leagues/39.png",
+      country: "England"
+    },
+    teams: {
+      home: {
+        id: 33,
+        name: "Manchester United",
+        logo: "https://media.api-sports.io/football/teams/33.png"
+      },
+      away: {
+        id: 34,
+        name: "Newcastle",
+        logo: "https://media.api-sports.io/football/teams/34.png"
+      }
+    },
+    goals: {
+      home: 2,
+      away: 1
+    },
+    score: {
+      halftime: {
+        home: 1,
+        away: 0
+      },
+      fulltime: {
+        home: 2,
+        away: 1
+      }
+    }
+  },
+  {
+    fixture: {
+      id: 2,
+      date: "2025-01-25T17:30:00Z",
+      status: {
+        short: "1H",
+        long: "First Half"
+      }
+    },
+    league: {
+      id: 140,
+      name: "La Liga",
+      logo: "https://media.api-sports.io/football/leagues/140.png",
+      country: "Spain"
+    },
+    teams: {
+      home: {
+        id: 541,
+        name: "Real Madrid",
+        logo: "https://media.api-sports.io/football/teams/541.png"
+      },
+      away: {
+        id: 529,
+        name: "Barcelona",
+        logo: "https://media.api-sports.io/football/teams/529.png"
+      }
+    },
+    goals: {
+      home: 1,
+      away: 0
+    },
+    score: {
+      halftime: {
+        home: 1,
+        away: 0
+      },
+      fulltime: {
+        home: null,
+        away: null
+      }
+    }
+  },
+  {
+    fixture: {
+      id: 3,
+      date: "2025-01-25T20:00:00Z",
+      status: {
+        short: "NS",
+        long: "Not Started"
+      }
+    },
+    league: {
+      id: 135,
+      name: "Serie A",
+      logo: "https://media.api-sports.io/football/leagues/135.png",
+      country: "Italy"
+    },
+    teams: {
+      home: {
+        id: 489,
+        name: "AC Milan",
+        logo: "https://media.api-sports.io/football/teams/489.png"
+      },
+      away: {
+        id: 496,
+        name: "Juventus",
+        logo: "https://media.api-sports.io/football/teams/496.png"
+      }
+    },
+    goals: {
+      home: null,
+      away: null
+    },
+    score: {
+      halftime: {
+        home: null,
+        away: null
+      },
+      fulltime: {
+        home: null,
+        away: null
+      }
+    }
+  }
+];
 
 const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
-  selectedDate,
-  maxMatches = 3,
+  maxMatches = 3
 }) => {
   const [, navigate] = useLocation();
-  const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Get the popular league IDs from the PopularLeaguesList
-  const popularLeagueIds = CURRENT_POPULAR_LEAGUES.slice(0, 10).map(league => league.id);
-  
-  console.log(`🎯 [MyHomeFeaturedMatchNew] Using ${popularLeagueIds.length} popular leagues:`, 
-    CURRENT_POPULAR_LEAGUES.slice(0, 10).map(l => ({ id: l.id, name: l.name }))
-  );
-
-  useEffect(() => {
-    const fetchFeaturedFixtures = async () => {
-      try {
-        setIsLoading(true);
-        
-        // Use today's date if no date is provided
-        const targetDate = selectedDate || new Date().toISOString().slice(0, 10);
-        
-        console.log(`🎯 [MyHomeFeaturedMatchNew] Fetching fixtures for date: ${targetDate}`);
-        console.log(`🎯 [MyHomeFeaturedMatchNew] Popular league IDs:`, popularLeagueIds);
-        
-        // Fetch fixtures for the target date
-        const response = await fetch(`/api/fixtures/date/${targetDate}?all=true`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch fixtures');
-        }
-        
-        const allFixtures: Fixture[] = await response.json();
-        console.log(`🎯 [MyHomeFeaturedMatchNew] Total fixtures fetched: ${allFixtures.length}`);
-        
-        if (allFixtures.length > 0) {
-          console.log(`🎯 [MyHomeFeaturedMatchNew] Sample fixture leagues:`, 
-            allFixtures.slice(0, 5).map(f => ({ id: f.league.id, name: f.league.name }))
-          );
-          
-          // Show all unique league IDs from API
-          const uniqueLeagueIds = [...new Set(allFixtures.map(f => f.league.id))];
-          console.log(`🎯 [MyHomeFeaturedMatchNew] All unique league IDs from API:`, uniqueLeagueIds);
-          
-          // Check which popular league IDs are present in the fixtures
-          const presentPopularLeagues = popularLeagueIds.filter(id => uniqueLeagueIds.includes(id));
-          const missingPopularLeagues = popularLeagueIds.filter(id => !uniqueLeagueIds.includes(id));
-          
-          console.log(`🎯 [MyHomeFeaturedMatchNew] Popular leagues PRESENT in today's fixtures:`, presentPopularLeagues);
-          console.log(`🎯 [MyHomeFeaturedMatchNew] Popular leagues MISSING from today's fixtures:`, missingPopularLeagues);
-        }
-        
-        // Filter fixtures from popular leagues
-        const popularFixtures = allFixtures.filter(fixture => 
-          popularLeagueIds.includes(fixture.league.id)
-        );
-        
-        console.log(`🎯 [MyHomeFeaturedMatchNew] Popular fixtures after filtering: ${popularFixtures.length}`);
-        
-        if (popularFixtures.length > 0) {
-          console.log(`🎯 [MyHomeFeaturedMatchNew] Found popular fixtures:`, 
-            popularFixtures.map(f => ({ 
-              league: f.league.name, 
-              teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
-              status: f.fixture.status.short
-            }))
-          );
-        }
-        
-        // Prioritize live matches, then upcoming matches from top leagues
-        const sortedFixtures = popularFixtures.sort((a, b) => {
-          // Prioritize live matches
-          const aIsLive = ['1H', '2H', 'HT', 'LIVE'].includes(a.fixture.status.short);
-          const bIsLive = ['1H', '2H', 'HT', 'LIVE'].includes(b.fixture.status.short);
-          
-          if (aIsLive && !bIsLive) return -1;
-          if (!aIsLive && bIsLive) return 1;
-          
-          // Then prioritize by league importance (order in CURRENT_POPULAR_LEAGUES)
-          const aLeagueIndex = popularLeagueIds.indexOf(a.league.id);
-          const bLeagueIndex = popularLeagueIds.indexOf(b.league.id);
-          
-          if (aLeagueIndex !== bLeagueIndex) {
-            return aLeagueIndex - bLeagueIndex;
-          }
-          
-          // Finally sort by date
-          return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
-        });
-        
-        const finalFixtures = sortedFixtures.slice(0, maxMatches);
-        console.log(`🎯 [MyHomeFeaturedMatchNew] Final fixtures to display: ${finalFixtures.length}`);
-        
-        setFixtures(finalFixtures);
-      } catch (error) {
-        console.error('🎯 [MyHomeFeaturedMatchNew] Error fetching featured fixtures:', error);
-        setFixtures([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchFeaturedFixtures();
-  }, [selectedDate, maxMatches]);
+  // Use static mock data
+  const fixtures = mockFixtures.slice(0, maxMatches);
 
   const handlePrevious = () => {
     setCurrentIndex((prev) => (prev === 0 ? fixtures.length - 1 : prev - 1));
@@ -169,35 +157,16 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
     setCurrentIndex((prev) => (prev === fixtures.length - 1 ? 0 : prev + 1));
   };
 
-  const getMatchStatus = (fixture: Fixture) => {
+  const getMatchStatus = (fixture: typeof mockFixtures[0]) => {
     const status = fixture.fixture.status.short;
     if (['1H', '2H', 'HT', 'LIVE'].includes(status)) {
       return { text: 'LIVE', color: 'bg-red-500' };
     } else if (status === 'FT') {
       return { text: 'FINISHED', color: 'bg-gray-500' };
     } else {
-      return { text: format(parseISO(fixture.fixture.date), 'HH:mm'), color: 'bg-blue-500' };
+      return { text: '15:00', color: 'bg-blue-500' };
     }
   };
-
-  if (isLoading) {
-    return (
-      <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4">
-        <Badge
-          variant="secondary"
-          className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
-        >
-          Featured Match
-        </Badge>
-        <CardContent className="p-6">
-          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mb-3"></div>
-            <p className="text-sm">Loading featured matches...</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   if (fixtures.length === 0) {
     return (
@@ -320,13 +289,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         {/* Match Info */}
         <div className="flex items-center justify-center text-sm text-gray-500">
           <Calendar className="h-4 w-4 mr-1" />
-          <span className="mr-3">
-            {format(parseISO(currentFixture.fixture.date), 'MMM d, yyyy')}
-          </span>
+          <span className="mr-3">Jan 25, 2025</span>
           <Clock className="h-4 w-4 mr-1" />
-          <span>
-            {format(parseISO(currentFixture.fixture.date), 'HH:mm')}
-          </span>
+          <span>15:00</span>
         </div>
 
         {/* Pagination dots */}
