@@ -50,12 +50,11 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
       style={{
         cursor: onClick ? "pointer" : "default",
         height: "44px",
-        overflow: "visible",
       }}
     >
       {/* Home team section - 50% width */}
       <div
-        className="flex items-left justify-between h-full flex-1 relative"
+        className="flex items-left justify-between h-full flex-1 relative z-10"
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
           width: "50%",
