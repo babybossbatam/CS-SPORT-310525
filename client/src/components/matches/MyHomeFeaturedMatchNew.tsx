@@ -93,32 +93,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   useEffect(() => {
     fetchFeaturedMatches();
 
-    // Set up dynamic intervals based on match status
-    const setupInterval = () => {
-      // Check if we have any live matches from current featuredMatches
-      const currentAllMatches = featuredMatches.reduce((acc, dayData) => {
-        return [...acc, ...dayData.matches];
-      }, [] as FeaturedMatch[]);
-
-      const hasLiveMatches = currentAllMatches.some(match => {
-        const status = match.fixture.status.short;
-        return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-      });
-
-      // Use shorter interval for live matches, longer for non-live
-      const intervalTime = hasLiveMatches ? 15000 : 60000; // 15s for live, 60s for non-live
-      
-      console.log(`⏱️ [FeaturedMatches] Setting interval to ${intervalTime/1000}s (hasLive: ${hasLiveMatches})`);
-      
-      return setInterval(() => {
-        fetchFeaturedMatches();
-      }, intervalTime);
-    };
-
-    const interval = setupInterval();
+    // Set up a fixed interval - we'll check for live matches inside the interval
+    const interval = setInterval(() => {
+      fetchFeaturedMatches();
+    }, 30000); // Check every 30 seconds
 
     return () => clearInterval(interval);
-  }, [featuredMatches]); // Re-setup interval when matches change
+  }, []); // Empty dependency array to run only once on mount
 
   const fetchFeaturedMatches = async () => {
     try {
