@@ -781,4 +781,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = memo(({
   );
 });
 
+MyHomeFeaturedMatchNew.displayName = 'MyHomeFeaturedMatchNew';
+
 export default MyHomeFeaturedMatchNew;
