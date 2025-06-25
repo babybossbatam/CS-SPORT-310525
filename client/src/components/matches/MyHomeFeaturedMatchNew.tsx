@@ -32,9 +32,7 @@ const POPULAR_LEAGUES = [
   { id: 15, name: 'FIFA Club World Cup', country: 'World' },
   { id: 38, name: 'UEFA U21 Championship', country: 'World' },
   { id: 9, name: 'Copa America', country: 'World' },
-  { id: 22, name: 'CONCACAF Gold Cup', country: 'World' },
   { id: 6, name: 'Africa Cup of Nations', country: 'World' },
-  { id: 7, name: 'Asian Cup', country: 'World' },
 ];
 
 interface FeaturedMatch {
