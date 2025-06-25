@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -76,7 +76,7 @@ interface DayMatches {
   matches: FeaturedMatch[];
 }
 
-const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
+const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = memo(({
   maxMatches = 8
 }) => {
   const [, navigate] = useLocation();
@@ -97,10 +97,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   useEffect(() => {
     fetchFeaturedMatches();
     
-    // Set up real-time updates every 30 seconds
+    // Set up real-time updates every 60 seconds (reduced frequency)
     const interval = setInterval(() => {
       fetchFeaturedMatches();
-    }, 30000);
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
@@ -779,6 +779,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       </CardContent>
     </Card>
   );
-};
+});
 
 export default MyHomeFeaturedMatchNew;
