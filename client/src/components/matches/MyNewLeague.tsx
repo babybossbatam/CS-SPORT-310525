@@ -225,15 +225,26 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
   // Sort matches within each league by status priority: live > ended > upcoming
   Object.values(matchesByLeague).forEach((leagueGroup) => {
+    // Check if there are any live matches in this league
+    const hasLiveMatches = leagueGroup.matches.some(match => 
+      ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(match.fixture.status.short)
+    );
+
     leagueGroup.matches.sort((a, b) => {
-      // First sort by status priority (live > ended > upcoming)
+      // First sort by status priority
       const statusPriority = (status: string) => {
-        if (["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status))
-          return 1; // Live matches first
-        if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status))
-          return 2; // Ended matches second
-        if (["NS", "TBD"].includes(status))
-          return 3; // Upcoming matches third
+        const isLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
+        const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
+        const isUpcoming = ["NS", "TBD"].includes(status);
+
+        if (isLive) return 1; // Live matches always first
+        
+        // If no live matches exist, ended matches get priority 1, otherwise priority 2
+        if (isEnded) return hasLiveMatches ? 2 : 1;
+        
+        // Upcoming matches get lowest priority
+        if (isUpcoming) return hasLiveMatches ? 3 : 2;
+        
         return 4; // Other statuses last
       };
 
