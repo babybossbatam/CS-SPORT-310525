@@ -199,12 +199,12 @@ const HomeTopScorersList = () => {
     if (!selectedLeague && POPULAR_LEAGUES.length > 0) {
       // Always start with World Cup Qualification South America (ID 34)
       const initialLeague = 34;
-      
+
       console.log(`🎯 [HomeTopScorers] Setting initial league:`, {
         initialLeagueId: initialLeague,
-        initialLeagueName: "World Cup Qualification South America"
+        initialLeagueName: "World Cup Qualification South America",
       });
-      
+
       setSelectedLeague(initialLeague);
 
       // Store in sessionStorage to persist across refreshes
@@ -223,19 +223,21 @@ const HomeTopScorersList = () => {
     console.log(`💾 [HomeTopScorers] Checking sessionStorage:`, {
       storedLeague,
       currentSelectedLeague: selectedLeague,
-      hasStoredLeague: !!storedLeague
+      hasStoredLeague: !!storedLeague,
     });
-    
+
     if (storedLeague && !selectedLeague) {
       const leagueId = parseInt(storedLeague, 10);
-      const foundLeague = POPULAR_LEAGUES.find((league) => league.id === leagueId);
-      
+      const foundLeague = POPULAR_LEAGUES.find(
+        (league) => league.id === leagueId,
+      );
+
       console.log(`🔍 [HomeTopScorers] Restoring from storage:`, {
         leagueId,
         foundLeague: foundLeague?.name,
-        isValid: !!foundLeague
+        isValid: !!foundLeague,
       });
-      
+
       // Verify the league still exists in our list
       if (foundLeague) {
         setSelectedLeague(leagueId);
@@ -445,7 +447,7 @@ const HomeTopScorersList = () => {
 
     const currentIndex = getCurrentLeagueIndex();
     let nextLeagueId;
-    
+
     if (currentIndex > 0) {
       nextLeagueId = availableLeagues[currentIndex - 1].id;
     } else {
@@ -453,12 +455,14 @@ const HomeTopScorersList = () => {
       nextLeagueId = availableLeagues[availableLeagues.length - 1].id;
     }
 
-    console.log(`⬅️ [Navigation] Moving left from ${getCurrentLeague()?.name} to ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
+    console.log(
+      `⬅️ [Navigation] Moving left from ${getCurrentLeague()?.name} to ${availableLeagues.find((l) => l.id === nextLeagueId)?.name}`,
+    );
     setSelectedLeague(nextLeagueId);
-    
+
     // Scroll content to the right when moving selection left
     const scrollAmount = 200; // Adjust scroll amount as needed
-    setContentPosition(prev => Math.max(0, prev - scrollAmount));
+    setContentPosition((prev) => Math.max(0, prev - scrollAmount));
   };
 
   const scrollRight = () => {
@@ -466,7 +470,7 @@ const HomeTopScorersList = () => {
 
     const currentIndex = getCurrentLeagueIndex();
     let nextLeagueId;
-    
+
     if (currentIndex < availableLeagues.length - 1) {
       nextLeagueId = availableLeagues[currentIndex + 1].id;
     } else {
@@ -474,13 +478,15 @@ const HomeTopScorersList = () => {
       nextLeagueId = availableLeagues[0].id;
     }
 
-    console.log(`➡️ [Navigation] Moving right from ${getCurrentLeague()?.name} to ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
+    console.log(
+      `➡️ [Navigation] Moving right from ${getCurrentLeague()?.name} to ${availableLeagues.find((l) => l.id === nextLeagueId)?.name}`,
+    );
     setSelectedLeague(nextLeagueId);
-    
+
     // Scroll content to the left when moving selection right
     const scrollAmount = 200; // Adjust scroll amount as needed
     const maxScroll = Math.max(0, contentWidth - containerWidth);
-    setContentPosition(prev => Math.min(maxScroll, prev + scrollAmount));
+    setContentPosition((prev) => Math.min(maxScroll, prev + scrollAmount));
   };
 
   const canScrollLeft = availableLeagues.length > 0;
@@ -503,40 +509,43 @@ const HomeTopScorersList = () => {
       if (!container) return;
 
       const selectedButton = container.querySelector(
-        `[data-league-id="${selectedLeague}"]`
+        `[data-league-id="${selectedLeague}"]`,
       ) as HTMLElement;
 
       if (selectedButton) {
         // Force a reflow to ensure DOM is updated
         container.offsetHeight;
-        
+
         // Get button's position relative to the content container
         const buttonLeft = selectedButton.offsetLeft;
         const buttonWidth = selectedButton.offsetWidth;
-        
+
         // Calculate center position
-        const buttonCenter = buttonLeft + (buttonWidth / 2);
+        const buttonCenter = buttonLeft + buttonWidth / 2;
         const viewportCenter = containerWidth / 2;
-        
+
         // Calculate how much to scroll to center the button
         let targetPosition = buttonCenter - viewportCenter;
-        
+
         // Ensure we don't scroll beyond boundaries
         const maxScroll = Math.max(0, contentWidth - containerWidth);
         targetPosition = Math.max(0, Math.min(maxScroll, targetPosition));
-        
-        console.log(`🎯 [Auto-Center] Centering league: ${getCurrentLeague()?.name}`, {
-          selectedLeague,
-          buttonLeft,
-          buttonWidth,
-          buttonCenter,
-          viewportCenter,
-          targetPosition,
-          maxScroll,
-          containerWidth,
-          contentWidth
-        });
-        
+
+        console.log(
+          `🎯 [Auto-Center] Centering league: ${getCurrentLeague()?.name}`,
+          {
+            selectedLeague,
+            buttonLeft,
+            buttonWidth,
+            buttonCenter,
+            viewportCenter,
+            targetPosition,
+            maxScroll,
+            containerWidth,
+            contentWidth,
+          },
+        );
+
         setContentPosition(targetPosition);
         return true; // Success
       }
@@ -546,11 +555,11 @@ const HomeTopScorersList = () => {
     // Enhanced timing strategy with validation
     let attempts = 0;
     const maxAttempts = 5;
-    
+
     const attemptCentering = () => {
       attempts++;
       const success = centerSelectedLeague();
-      
+
       if (!success && attempts < maxAttempts) {
         // If centering failed, try again with increasing delay
         setTimeout(attemptCentering, attempts * 50);
@@ -579,23 +588,26 @@ const HomeTopScorersList = () => {
       if (!container) return;
 
       const selectedButton = container.querySelector(
-        `[data-league-id="${selectedLeague}"]`
+        `[data-league-id="${selectedLeague}"]`,
       ) as HTMLElement;
 
       if (selectedButton && containerWidth > 0 && contentWidth > 0) {
         const buttonLeft = selectedButton.offsetLeft;
         const buttonWidth = selectedButton.offsetWidth;
-        const buttonCenter = buttonLeft + (buttonWidth / 2);
+        const buttonCenter = buttonLeft + buttonWidth / 2;
         const viewportCenter = containerWidth / 2;
         let targetPosition = buttonCenter - viewportCenter;
-        
+
         const maxScroll = Math.max(0, contentWidth - containerWidth);
         targetPosition = Math.max(0, Math.min(maxScroll, targetPosition));
-        
-        console.log(`🎯 [RAF Auto-Center] Immediate centering for: ${getCurrentLeague()?.name}`, {
-          targetPosition
-        });
-        
+
+        console.log(
+          `🎯 [RAF Auto-Center] Immediate centering for: ${getCurrentLeague()?.name}`,
+          {
+            targetPosition,
+          },
+        );
+
         setContentPosition(targetPosition);
       }
     });
@@ -722,16 +734,19 @@ const HomeTopScorersList = () => {
                     key={league.id}
                     data-league-id={league.id}
                     onClick={() => {
-                      console.log(`🎯 [League Selection] User selected league:`, {
-                        id: league.id,
-                        name: league.name,
-                        previousSelection: selectedLeague
-                      });
+                      console.log(
+                        `🎯 [League Selection] User selected league:`,
+                        {
+                          id: league.id,
+                          name: league.name,
+                          previousSelection: selectedLeague,
+                        },
+                      );
                       setSelectedLeague(league.id);
                     }}
                     className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 flex-shrink-0 px-3 py-2 min-w-max ${
                       selectedLeague === league.id
-                        ? "text-gray-700 font-semibold bg-gray-50 rounded-md"
+                        ? "text-gray-700 font-semibold "
                         : "text-gray-400 hover:text-gray-900"
                     }`}
                   >
@@ -789,8 +804,8 @@ const HomeTopScorersList = () => {
               <p className="text-xs text-gray-400 mt-1">
                 for {getCurrentLeague()?.name || "Selected League"}
               </p>
-              <button 
-                onClick={() => window.location.reload()} 
+              <button
+                onClick={() => window.location.reload()}
                 className="text-xs text-blue-600 hover:text-blue-800 mt-2 underline"
               >
                 Retry
