@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { format, parseISO } from 'date-fns';
-import MyWorldTeamLogo from '../common/MyWorldTeamLogo';
 
 interface Team {
   id: number;
@@ -60,8 +59,10 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
           }}
         >
           {homeTeam && (
-            <div
-              className="absolute z-20 transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+            <img
+              src={homeTeam.logo || `/assets/fallback-logo.svg`}
+              alt={homeTeam.name || "Home Team"}
+              className="absolute z-20 w-[64px] h-[64px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
               style={{
                 cursor: "pointer",
                 top: "calc(50% - 32px)",
@@ -69,18 +70,20 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
                 filter: "contrast(115%) brightness(105%)",
               }}
               onClick={onClick}
-            >
-              <MyWorldTeamLogo
-                teamName={homeTeam.name}
-                teamLogo={homeTeam.logo || "/assets/fallback-logo.svg"}
-                alt={homeTeam.name || "Home Team"}
-                size="64px"
-                leagueContext={league ? {
-                  name: "",
-                  country: league.country
-                } : undefined}
-              />
-            </div>
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (
+                  target.src.includes("sportmonks") &&
+                  homeTeam.logo
+                ) {
+                  target.src = homeTeam.logo;
+                } else if (
+                  target.src !== "/assets/fallback-logo.svg"
+                ) {
+                  target.src = "/assets/fallback-logo.svg";
+                }
+              }}
+            />
           )}
         </div>
 
@@ -166,8 +169,10 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
           {awayTeam.name || "Away Team"}
         </div>
 
-        <div
-          className="absolute z-20 transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+        <img
+          src={awayTeam.logo || `/assets/fallback-logo.svg`}
+          alt={awayTeam.name || "Away Team"}
+          className="absolute z-20 w-[64px] h-[64px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
           style={{
             cursor: "pointer",
             top: "calc(50% - 32px)",
@@ -176,18 +181,10 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
             filter: "contrast(115%) brightness(105%)",
           }}
           onClick={onClick}
-        >
-          <MyWorldTeamLogo
-            teamName={awayTeam.name}
-            teamLogo={awayTeam.logo || "/assets/fallback-logo.svg"}
-            alt={awayTeam.name || "Away Team"}
-            size="64px"
-            leagueContext={league ? {
-              name: "",
-              country: league.country
-            } : undefined}
-          />
-        </div>
+          onError={(e) => {
+            e.currentTarget.src = "/assets/fallback-logo.svg";
+          }}
+        />
       </div>
     </div>
   );
