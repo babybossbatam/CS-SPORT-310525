@@ -9,6 +9,7 @@ import { useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
 import TeamLogo from './TeamLogo';
 import LazyImage from '../common/LazyImage';
+import MyColoredBar from './MyColoredBar';
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -373,52 +374,47 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   </div>
                 </div>
 
-                {/* Teams display - horizontal layout like 365scores */}
+                {/* Teams display using MyColoredBar component */}
                 <div className="relative mb-6">
-                  <div className="flex items-center h-20 rounded-lg overflow-hidden shadow-lg">
-                    {/* Home team section */}
-                    <div className="flex-1 flex items-center h-full bg-gradient-to-r from-blue-500 to-blue-600 relative">
-                      <div className="absolute left-4 z-10 w-12 h-12 bg-white/20 rounded-full p-2 flex items-center justify-center">
-                        <TeamLogo
-                          src={currentMatch.teams.home.logo}
-                          alt={currentMatch.teams.home.name}
-                          size="sm"
-                          className="w-8 h-8"
-                        />
-                      </div>
-                      <div className="flex-1 text-center pr-4">
-                        <div className="text-white font-bold text-lg uppercase tracking-wide">
-                          {currentMatch.teams.home.name.length > 12 ? 
-                            currentMatch.teams.home.name.substring(0, 12) + '...' : 
-                            currentMatch.teams.home.name}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* VS section */}
-                    <div className="w-16 h-full bg-gray-800 flex items-center justify-center relative z-20">
-                      <span className="text-white font-bold text-sm">VS</span>
-                    </div>
-
-                    {/* Away team section */}
-                    <div className="flex-1 flex items-center h-full bg-gradient-to-l from-red-500 to-red-600 relative">
-                      <div className="flex-1 text-center pl-4">
-                        <div className="text-white font-bold text-lg uppercase tracking-wide">
-                          {currentMatch.teams.away.name.length > 12 ? 
-                            currentMatch.teams.away.name.substring(0, 12) + '...' : 
-                            currentMatch.teams.away.name}
-                        </div>
-                      </div>
-                      <div className="absolute right-4 z-10 w-12 h-12 bg-white/20 rounded-full p-2 flex items-center justify-center">
-                        <TeamLogo
-                          src={currentMatch.teams.away.logo}
-                          alt={currentMatch.teams.away.name}
-                          size="sm"
-                          className="w-8 h-8"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                  <MyColoredBar
+                    homeTeam={{
+                      id: currentMatch.teams.home.id,
+                      name: currentMatch.teams.home.name,
+                      logo: currentMatch.teams.home.logo
+                    }}
+                    awayTeam={{
+                      id: currentMatch.teams.away.id,
+                      name: currentMatch.teams.away.name,
+                      logo: currentMatch.teams.away.logo
+                    }}
+                    homeScore={currentMatch.goals.home}
+                    awayScore={currentMatch.goals.away}
+                    status={currentMatch.fixture.status.short}
+                    fixture={{
+                      id: currentMatch.fixture.id,
+                      date: currentMatch.fixture.date,
+                      status: currentMatch.fixture.status
+                    }}
+                    onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
+                    getTeamColor={(teamId: number) => {
+                      // Simple team color generator based on team ID
+                      const colors = [
+                        '#3B82F6', // blue
+                        '#EF4444', // red
+                        '#10B981', // green
+                        '#F59E0B', // amber
+                        '#8B5CF6', // violet
+                        '#EC4899', // pink
+                        '#14B8A6', // teal
+                        '#F97316'  // orange
+                      ];
+                      return colors[teamId % colors.length];
+                    }}
+                    className="h-20 rounded-lg shadow-lg"
+                    league={{
+                      country: currentMatch.league.country
+                    }}
+                  />
                 </div>
 
                 {/* Match Details */}
