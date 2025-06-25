@@ -1,7 +1,6 @@
 
 import { Button } from "@/components/ui/button";
 import LeagueTabs from "./LeagueTabs";
-import { LeagueStandings } from "@/components/stats/LeagueStandings";
 
 interface LeagueTabsHeaderProps {
   leagueId?: number;
@@ -39,10 +38,7 @@ const LeagueTabsHeader = ({
             </div>
           </div>
           
-          {/* Use the existing LeagueStandings component with scrollable container */}
-          <div className="mt-4 h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 border border-gray-200 rounded-lg">
-            <LeagueStandings leagueId={leagueId} season={2025} />
-          </div>
+          
         </div>
       </div>
       <div className="fixed left-0 right-0 top-[152px] z-40 bg-white shadow-md">
