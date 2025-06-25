@@ -109,27 +109,22 @@ const MyMatchdetailsScoreboard = ({
         initialElapsed: initialElapsed,
       });
 
-      // Real-time timer that increments every minute for live matches (not HT)
-      // Optimized to prevent excessive logging and updates
+      // Real-time timer that increments every 2 minutes (reduced frequency)
       let realtimeTimer: NodeJS.Timeout | null = null;
       if (status !== "HT" && status !== "P") {
         realtimeTimer = setInterval(() => {
           setRealTimeElapsed(prev => {
-            const newTime = (prev !== null ? prev : initialElapsed) + 1;
-            // Reduced logging frequency to prevent spam
-            if (newTime % 5 === 0) { // Log only every 5 minutes
-              console.log("⏱️ [Real-time Timer] Elapsed time update:", {
-                newTime: newTime,
-                status: status,
-                fixtureId: displayMatch.fixture.id
-              });
+            const newTime = (prev !== null ? prev : initialElapsed) + 2; // Increment by 2
+            // Minimal logging to prevent spam
+            if (newTime % 10 === 0) { // Log only every 10 minutes
+              console.log("⏱️ [Timer] Update:", newTime, "min");
             }
             return newTime;
           });
-        }, 60000); // Increment every minute
+        }, 120000); // Increment every 2 minutes instead of 1
       }
 
-      // Fetch updated data from API every 2 minutes (less aggressive) to sync with server
+      // Fetch updated data from API every 5 minutes (much less aggressive)
       const apiSyncTimer = setInterval(async () => {
         try {
           const response = await fetch("/api/fixtures/live");
@@ -138,12 +133,9 @@ const MyMatchdetailsScoreboard = ({
           }
 
           const liveFixtures = await response.json();
-          // Reduced logging to prevent spam
-          if (Math.random() < 0.3) { // Log only 30% of the time
-            console.log("🔄 [Live Timer] API sync (reduced logging):", {
-              totalFixtures: liveFixtures.length,
-              matchId: displayMatch.fixture.id,
-            });
+          // Minimal logging to prevent spam
+          if (Math.random() < 0.1) { // Log only 10% of the time
+            console.log("🔄 [Sync]:", liveFixtures.length, "fixtures");
           }
 
           // Find the current match in live fixtures
@@ -153,16 +145,9 @@ const MyMatchdetailsScoreboard = ({
 
           if (currentLiveMatch) {
             const apiElapsed = currentLiveMatch.fixture.status.elapsed;
-            console.log("✅ [Live Timer] Syncing with API data:", {
-              id: currentLiveMatch.fixture.id,
-              apiElapsed: apiElapsed,
-              realTimeElapsed: realTimeElapsed,
-              status: currentLiveMatch.fixture.status.short,
-            });
-
-            // Sync real-time timer with API if there's a significant difference
-            if (apiElapsed !== null && Math.abs((realTimeElapsed || 0) - apiElapsed) > 2) {
-              console.log("🔄 [Live Timer] Syncing real-time timer with API");
+            
+            // Sync real-time timer with API if there's a significant difference (reduced logging)
+            if (apiElapsed !== null && Math.abs((realTimeElapsed || 0) - apiElapsed) > 3) {
               setRealTimeElapsed(apiElapsed);
               setLiveElapsed(apiElapsed);
             }
@@ -200,14 +185,8 @@ const MyMatchdetailsScoreboard = ({
               const specificMatchResponse = await fetch(`/api/fixtures/${displayMatch.fixture.id}`);
               if (specificMatchResponse.ok) {
                 const specificMatchData = await specificMatchResponse.json();
-                console.log("🔍 [Live Timer] Specific match status:", {
-                  id: specificMatchData.fixture?.id,
-                  status: specificMatchData.fixture?.status?.short,
-                });
-
                 // If match has ended, stop all timers
                 if (["FT", "AET", "PEN"].includes(specificMatchData.fixture?.status?.short || "")) {
-                  console.log("🏁 [Live Timer] Match has ended, stopping all timers");
                   if (realtimeTimer) clearInterval(realtimeTimer);
                   clearInterval(apiSyncTimer);
                   setRealTimeElapsed(null);
@@ -219,9 +198,9 @@ const MyMatchdetailsScoreboard = ({
             }
           }
         } catch (error) {
-          console.error("❌ [Live Timer] Failed to sync with API:", error);
+          console.error("❌ [Sync Error]:", error);
         }
-      }, 120000); // Sync with API every 2 minutes (less aggressive)
+      }, 300000); // Sync with API every 5 minutes (much less aggressive)
 
       return () => {
         console.log("🛑 [Live Timer] Cleaning up timers for match:", displayMatch.fixture.id);

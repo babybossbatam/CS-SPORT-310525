@@ -102,9 +102,9 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         return [];
       }
     },
-    staleTime: 60000, // 60 seconds for live data
-    gcTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: 90000, // Refetch every 90 seconds (reduced frequency)
+    staleTime: 120000, // 2 minutes for live data
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchInterval: 300000, // Refetch every 5 minutes (much less aggressive)
     refetchOnWindowFocus: false, // Disable to prevent memory leaks
     retry: false, // Disable retries to prevent cascading errors
     throwOnError: false, // Don't throw errors to prevent unhandled rejections

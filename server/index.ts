@@ -9,14 +9,18 @@ app.use(express.urlencoded({ extended: false }));
 
 // Global error handlers to prevent crashes
 process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
+  console.error('Uncaught Exception:', error.message);
   // Log but don't exit to prevent restarts
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  console.error('Unhandled Rejection:', reason);
   // Prevent unhandled rejections from crashing the process
 });
+
+// Set higher limits to prevent EventEmitter warnings
+process.setMaxListeners(50);
+require('events').EventEmitter.defaultMaxListeners = 50;
 
 // Graceful shutdown handling
 process.on('SIGTERM', () => {
