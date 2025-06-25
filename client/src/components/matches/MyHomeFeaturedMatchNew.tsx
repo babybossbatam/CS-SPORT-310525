@@ -602,10 +602,32 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 {/* Match day indicator */}
                 <div className="text-center mb-4">
                   <div className="text-2xl font-bold text-gray-800">
-                    {getStatusDisplay(currentMatch).isLive ? 'Live Now' : 
-                     currentMatch.fixture.date.includes(format(new Date(), 'yyyy-MM-dd')) ? 'Today' :
-                     currentMatch.fixture.date.includes(format(addDays(new Date(), 1), 'yyyy-MM-dd')) ? 'Tomorrow' : 
-                     'Day After Tomorrow'}
+                    {(() => {
+                      if (getStatusDisplay(currentMatch).isLive) {
+                        return 'Live Now';
+                      }
+                      
+                      const matchDate = new Date(currentMatch.fixture.date);
+                      const today = new Date();
+                      const tomorrow = addDays(today, 1);
+                      const dayAfterTomorrow = addDays(today, 2);
+                      
+                      const matchDateString = format(matchDate, 'yyyy-MM-dd');
+                      const todayString = format(today, 'yyyy-MM-dd');
+                      const tomorrowString = format(tomorrow, 'yyyy-MM-dd');
+                      const dayAfterTomorrowString = format(dayAfterTomorrow, 'yyyy-MM-dd');
+                      
+                      if (matchDateString === todayString) {
+                        return 'Today';
+                      } else if (matchDateString === tomorrowString) {
+                        return 'Tomorrow';
+                      } else if (matchDateString === dayAfterTomorrowString) {
+                        return format(matchDate, 'EEEE'); // Show day name like "Friday"
+                      } else {
+                        // For dates beyond day after tomorrow, show the day name
+                        return format(matchDate, 'EEEE, MMM d');
+                      }
+                    })()}
                   </div>
                 </div>
 
