@@ -31,7 +31,7 @@ interface MyColoredBarProps {
   };
 }
 
-const MyColoredBar: React.FC<MyColoredBarProps> = ({
+const MyColoredBar: React.FC<MyColoredBarProps> = React.memo(({
   homeTeam,
   awayTeam,
   homeScore,
@@ -187,6 +187,6 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default MyColoredBar;

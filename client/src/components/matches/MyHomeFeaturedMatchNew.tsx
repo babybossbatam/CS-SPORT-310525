@@ -379,7 +379,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         });
       }
 
-      setFeaturedMatches(allMatches);
+      // Only update state if data has actually changed
+      const hasChanged = JSON.stringify(allMatches) !== JSON.stringify(featuredMatches);
+      if (hasChanged) {
+        console.log("🔄 [FeaturedMatches] Data changed, updating state");
+        setFeaturedMatches(allMatches);
+      } else {
+        console.log("⏭️ [FeaturedMatches] No changes detected, skipping state update");
+      }
     } catch (error) {
       console.error("❌ [FeaturedMatches] Error:", error);
     } finally {
