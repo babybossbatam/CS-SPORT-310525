@@ -1,7 +1,11 @@
+
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import '../../styles/liveaction.css';
+import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
+import MyCircularFlag from '@/components/common/MyCircularFlag';
+import { isNationalTeam } from '@/lib/teamLogoSources';
 
 interface MyNewLiveActionProps {
   matchId?: number;
@@ -51,6 +55,14 @@ interface LiveStats {
     home: number;
     away: number;
   };
+  yellowCards?: {
+    home: number;
+    away: number;
+  };
+  redCards?: {
+    home: number;
+    away: number;
+  };
 }
 
 const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({ 
@@ -64,23 +76,19 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
   const [liveStats, setLiveStats] = useState<LiveStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<SportsradarEvent | null>(null);
-  const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
-  const [lastAction, setLastAction] = useState<string>('');
+  const [matchData, setMatchData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [elapsed, setElapsed] = useState<number>(0);
 
   // Memoize the live status check to prevent unnecessary re-renders
   const isLive = useMemo(() => {
     return status && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
   }, [status]);
 
-  // Memoize team data to prevent unnecessary re-renders
-  const homeTeamData = useMemo(() => homeTeam, [homeTeam]);
-  const awayTeamData = useMemo(() => awayTeam, [awayTeam]);
-
-  // Fetch Sportsradar data with proper error handling and cleanup
+  // Fetch match data and live updates
   const fetchSportsradarData = useCallback(async () => {
     if (!matchId || !isLive) {
-      console.log('❌ [Sportsradar Live Action] No match ID or match not live');
+      console.log('❌ [Sportradar Live Action] No match ID or match not live');
       return;
     }
 
@@ -92,26 +100,40 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
       setIsLoading(true);
       setError(null);
 
-      // Set a reasonable timeout
+      // Set timeout for requests
       timeoutId = setTimeout(() => {
         if (isMounted && !controller.signal.aborted) {
           try {
             controller.abort();
-            console.warn('⏰ [Sportsradar] Request timeout');
+            console.warn('⏰ [Sportradar] Request timeout');
             if (isMounted) {
               setError('Request timeout');
               setIsLoading(false);
             }
           } catch (abortError) {
-            console.warn('⚠️ [Sportsradar] Error during abort:', abortError);
+            console.warn('⚠️ [Sportradar] Error during abort:', abortError);
           }
         }
-      }, 8000);
+      }, 10000);
 
-      let hasEvents = false;
-      let hasStats = false;
+      // Fetch match details first
+      try {
+        const matchResponse = await fetch(`/api/fixtures/${matchId}`, {
+          signal: controller.signal
+        });
 
-      // Try Sportsradar API first
+        if (matchResponse.ok && isMounted) {
+          const match = await matchResponse.json();
+          setMatchData(match);
+          setElapsed(match.fixture?.status?.elapsed || 0);
+        }
+      } catch (matchError: any) {
+        if (matchError.name !== 'AbortError' && isMounted) {
+          console.warn('⚠️ [Sportradar] Match data failed:', matchError.message);
+        }
+      }
+
+      // Try Sportsradar API for events
       try {
         const eventsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/events`, {
           signal: controller.signal
@@ -123,16 +145,13 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
           if (eventsData.success && eventsData.events && eventsData.events.length > 0) {
             setLiveEvents(eventsData.events);
             setCurrentEvent(eventsData.events[0]);
-            setLastAction(`${eventsData.events[0].type} - ${eventsData.events[0].description}`);
-            hasEvents = true;
-            console.log(`✅ [Sportsradar] Retrieved ${eventsData.events.length} events`);
+            console.log(`✅ [Sportradar] Retrieved ${eventsData.events.length} events`);
           }
         }
       } catch (sportsradarError: any) {
         if (sportsradarError.name !== 'AbortError' && isMounted) {
-          console.warn('⚠️ [Sportsradar] Events API failed:', sportsradarError.message);
+          console.warn('⚠️ [Sportradar] Events API failed:', sportsradarError.message);
         }
-        // Don't throw, continue with fallback
       }
 
       // Try Sportsradar stats API
@@ -146,115 +165,30 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
 
           if (statsData.success && statsData.statistics) {
             setLiveStats(statsData.statistics);
-            hasStats = true;
-            console.log(`✅ [Sportsradar] Retrieved live statistics`);
+            console.log(`✅ [Sportradar] Retrieved live statistics`);
           }
         }
       } catch (sportsradarStatsError: any) {
         if (sportsradarStatsError.name !== 'AbortError' && isMounted) {
-          console.warn('⚠️ [Sportsradar] Stats API failed:', sportsradarStatsError.message);
-        }
-        // Don't throw, continue with fallback
-      }
-
-      // Fallback to SoccersAPI if Sportsradar fails
-      if (!hasEvents && isMounted && !controller.signal.aborted) {
-        try {
-          const soccersEventsResponse = await fetch(`/api/soccersapi/matches/${matchId}/events`, {
-            signal: controller.signal
-          });
-
-          if (soccersEventsResponse.ok) {
-            const soccersEventsData = await soccersEventsResponse.json();
-
-            if (soccersEventsData.success && soccersEventsData.events && soccersEventsData.events.length > 0) {
-              const convertedEvents = soccersEventsData.events.map((event: any, index: number) => ({
-                id: event.id || `event-${index}`,
-                time: { minute: event.minute || 0 },
-                type: event.type || 'action',
-                team: event.team || 'home',
-                player: { name: event.player || 'Unknown', id: event.player_id || `player-${index}` },
-                description: event.text || event.description || 'Live action'
-              }));
-
-              setLiveEvents(convertedEvents);
-              setCurrentEvent(convertedEvents[0]);
-              setLastAction(`${convertedEvents[0].type} - ${convertedEvents[0].description}`);
-              hasEvents = true;
-              console.log(`✅ [SoccersAPI] Retrieved ${convertedEvents.length} live events`);
-            }
-          }
-        } catch (soccersError: any) {
-          if (soccersError.name !== 'AbortError' && isMounted) {
-            console.warn('⚠️ [SoccersAPI] Events fallback failed:', soccersError.message);
-          }
-          // Don't throw, continue
+          console.warn('⚠️ [Sportradar] Stats API failed:', sportsradarStatsError.message);
         }
       }
 
-      if (!hasStats && isMounted && !controller.signal.aborted) {
-        try {
-          const soccersStatsResponse = await fetch(`/api/soccersapi/matches/${matchId}/stats`, {
-            signal: controller.signal
-          });
-
-          if (soccersStatsResponse.ok) {
-            const soccersStatsData = await soccersStatsResponse.json();
-
-            if (soccersStatsData.success && soccersStatsData.statistics) {
-              const convertedStats = {
-                possession: {
-                  home: soccersStatsData.statistics.possession_home || 50,
-                  away: soccersStatsData.statistics.possession_away || 50
-                },
-                shots: {
-                  home: soccersStatsData.statistics.shots_home || 0,
-                  away: soccersStatsData.statistics.shots_away || 0
-                },
-                shotsOnTarget: {
-                  home: soccersStatsData.statistics.shots_on_target_home || 0,
-                  away: soccersStatsData.statistics.shots_on_target_away || 0
-                },
-                corners: {
-                  home: soccersStatsData.statistics.corners_home || 0,
-                  away: soccersStatsData.statistics.corners_away || 0
-                },
-                fouls: {
-                  home: soccersStatsData.statistics.fouls_home || 0,
-                  away: soccersStatsData.statistics.fouls_away || 0
-                }
-              };
-
-              setLiveStats(convertedStats);
-              hasStats = true;
-              console.log(`✅ [SoccersAPI] Retrieved live statistics`);
-            }
-          }
-        } catch (soccersStatsError: any) {
-          if (soccersStatsError.name !== 'AbortError' && isMounted) {
-            console.warn('⚠️ [SoccersAPI] Stats fallback failed:', soccersStatsError.message);
-          }
-          // Don't throw, continue
-        }
+      // Fallback to default data if APIs fail
+      if (!liveStats && isMounted) {
+        setLiveStats({
+          possession: { home: 50, away: 50 },
+          shots: { home: 0, away: 0 },
+          shotsOnTarget: { home: 0, away: 0 },
+          corners: { home: 0, away: 0 },
+          fouls: { home: 0, away: 0 },
+          yellowCards: { home: 0, away: 0 },
+          redCards: { home: 0, away: 0 }
+        });
       }
 
       if (timeoutId) {
         clearTimeout(timeoutId);
-      }
-
-      // Set default data if no APIs provided data
-      if (!hasEvents && isMounted) {
-        setLastAction('Live match in progress');
-      }
-
-      if (!hasStats && isMounted) {
-        setLiveStats({
-          possession: { home: 50, away: 50 },
-          shots: { home: 0, away: 0 },
-          shotsOnTarget: {home: 0, away: 0},
-          corners: { home: 0, away: 0 },
-          fouls: { home: 0, away: 0 }
-        });
       }
 
     } catch (error: any) {
@@ -263,16 +197,8 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
       }
 
       if (isMounted && error.name !== 'AbortError') {
-        console.error('❌ [Sportsradar Live Action] Error fetching data:', error);
+        console.error('❌ [Sportradar Live Action] Error fetching data:', error);
         setError('Failed to load live data');
-        setLastAction('Live match in progress');
-        setLiveStats({
-          possession: { home: 50, away: 50 },
-          shots: { home: 0, away: 0 },
-          shotsOnTarget: {home: 0, away: 0},
-          corners: { home: 0, away: 0 },
-          fouls: { home: 0, away: 0 }
-        });
       }
     } finally {
       if (isMounted) {
@@ -280,7 +206,6 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
       }
     }
 
-    // Return cleanup function
     return () => {
       isMounted = false;
       if (timeoutId) {
@@ -290,28 +215,37 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
         try {
           controller.abort();
         } catch (cleanupError) {
-          console.warn('⚠️ [Sportsradar] Cleanup abort error:', cleanupError);
+          console.warn('⚠️ [Sportradar] Cleanup abort error:', cleanupError);
         }
       }
     };
   }, [matchId, isLive]);
 
+  // Auto-hide current event after 8 seconds
+  useEffect(() => {
+    if (currentEvent) {
+      const hideTimer = setTimeout(() => {
+        setCurrentEvent(null);
+      }, 8000);
+
+      return () => clearTimeout(hideTimer);
+    }
+  }, [currentEvent]);
+
   // Main effect for fetching data and setting up intervals
   useEffect(() => {
     if (!matchId || !isLive) {
-      console.log('❌ [Sportsradar Live Action] No match ID or match not live');
       return;
     }
 
     let updateInterval: NodeJS.Timeout | null = null;
     let cleanupFunction: (() => void) | null = null;
 
-    // Initial fetch with cleanup function
     const initialFetch = async () => {
       try {
         cleanupFunction = await fetchSportsradarData();
       } catch (error) {
-        console.warn('⚠️ [Sportsradar] Initial fetch error:', error);
+        console.warn('⚠️ [Sportradar] Initial fetch error:', error);
       }
     };
 
@@ -320,15 +254,14 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
     // Set up interval for live updates
     updateInterval = setInterval(async () => {
       try {
-        // Clean up previous request if any
         if (cleanupFunction) {
           cleanupFunction();
         }
         cleanupFunction = await fetchSportsradarData();
       } catch (error) {
-        console.warn('⚠️ [Sportsradar] Interval fetch error:', error);
+        console.warn('⚠️ [Sportradar] Interval fetch error:', error);
       }
-    }, 15000); // Update every 15 seconds
+    }, 15000);
 
     return () => {
       if (updateInterval) {
@@ -340,39 +273,17 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
     };
   }, [fetchSportsradarData]);
 
-  // Simulate ball movement based on events
-  useEffect(() => {
-    if (!isLive || !currentEvent) return;
-
-    const moveInterval = setInterval(() => {
-      setBallPosition(prev => {
-        const targetX = currentEvent.coordinates?.x || (currentEvent.team === 'home' ? 25 : 75);
-        const targetY = currentEvent.coordinates?.y || 50;
-
-        return {
-          x: prev.x + (targetX - prev.x) * 0.1,
-          y: prev.y + (targetY - prev.y) * 0.1
-        };
-      });
-    }, 200);
-
-    return () => clearInterval(moveInterval);
-  }, [isLive, currentEvent]);
+  const homeTeamData = homeTeam || matchData?.teams?.home;
+  const awayTeamData = awayTeam || matchData?.teams?.away;
 
   if (isLoading) {
     return (
       <div className={`w-full ${className}`}>
-        <div className="bg-surfaceSecondary rounded-lg overflow-hidden shadow-sm border border-dividerPrimary">
-          <div className="bg-surfacePrimary px-3 py-2 border-b border-dividerPrimary">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-              <span className="text-textPrimary text-xs font-medium uppercase tracking-wide">Sportsradar Live</span>
-            </div>
-          </div>
-          <div className="h-48 flex items-center justify-center text-textSecondary text-sm bg-surfaceSecondary">
+        <div className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100">
+          <div className="h-96 flex items-center justify-center">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-6 w-6 border-2 border-textSecondary border-t-transparent mx-auto mb-2"></div>
-              <p>Loading live data...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mx-auto mb-3"></div>
+              <p className="text-gray-600 text-sm">Loading live match data...</p>
             </div>
           </div>
         </div>
@@ -383,14 +294,16 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
   if (!isLive) {
     return (
       <div className={`w-full ${className}`}>
-        <div className="bg-surfaceSecondary rounded-lg overflow-hidden shadow-sm border border-dividerPrimary">
-          <div className="bg-surfacePrimary px-3 py-2 border-b border-dividerPrimary">
-            <span className="text-textPrimary text-xs font-medium uppercase tracking-wide">Sportsradar Live</span>
-          </div>
-          <div className="h-48 flex items-center justify-center text-textSecondary text-sm bg-surfaceSecondary">
+        <div className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100">
+          <div className="h-96 flex items-center justify-center">
             <div className="text-center">
-              <p className="mb-1">Match not live</p>
-              <p className="text-xs opacity-60">Sportsradar data available during live matches</p>
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="text-gray-800 font-medium mb-1">Match not live</p>
+              <p className="text-gray-500 text-sm">Live tracking will begin when the match starts</p>
             </div>
           </div>
         </div>
@@ -401,17 +314,16 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
   if (error) {
     return (
       <div className={`w-full ${className}`}>
-        <div className="bg-surfaceSecondary rounded-lg overflow-hidden shadow-sm border border-dividerPrimary">
-          <div className="bg-surfacePrimary px-3 py-2 border-b border-dividerPrimary">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-              <span className="text-textPrimary text-xs font-medium uppercase tracking-wide">Sportsradar Live</span>
-            </div>
-          </div>
-          <div className="h-48 flex items-center justify-center text-textSecondary text-sm bg-surfaceSecondary">
+        <div className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100">
+          <div className="h-96 flex items-center justify-center">
             <div className="text-center">
-              <p className="text-red-400 mb-1">Failed to load live data</p>
-              <p className="text-xs opacity-60">{error}</p>
+              <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4 mx-auto">
+                <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <p className="text-red-600 font-medium mb-1">Connection Error</p>
+              <p className="text-gray-500 text-sm">{error}</p>
             </div>
           </div>
         </div>
@@ -420,142 +332,220 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
   }
 
   return (
-    <div className={`w-full ${className} live-action-container sportsradar-style`}>
-      <div className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-200">
-        {/* Header - SportsRadar style */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-white">
+    <div className={`w-full ${className} sportradar-live-widget`}>
+      <div className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100">
+        
+        {/* Sportradar-style Header */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-lg"></div>
-              <span className="text-white text-sm font-bold uppercase tracking-wide">Live Match Tracker</span>
+              <div className="relative">
+                <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <div className="absolute inset-0 w-3 h-3 bg-red-500 rounded-full animate-ping opacity-75"></div>
+              </div>
+              <div>
+                <h3 className="text-gray-900 text-sm font-semibold uppercase tracking-wide">Live Match</h3>
+                <p className="text-gray-600 text-xs">Real-time updates</p>
+              </div>
             </div>
-            <div className="text-blue-100 text-xs font-medium bg-blue-800/30 px-2 py-1 rounded">
-              {lastAction || 'Live Updates'}
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                {elapsed}'
+              </div>
+              <div className="text-gray-500 text-xs font-medium uppercase tracking-wider">
+                {status}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Match Info Header */}
+        {/* Match Teams Header */}
         {homeTeamData && awayTeamData && (
-          <div className="bg-gray-50 px-4 py-2 border-b border-gray-200">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium text-gray-700">
-                {homeTeamData.name} vs {awayTeamData.name}
-              </span>
-              <span className="text-gray-500 bg-white px-2 py-1 rounded text-xs">
-                Match ID: {matchId}
-              </span>
+          <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {matchData?.league?.country === "World" ||
+                matchData?.league?.country === "International" ? (
+                  <MyWorldTeamLogo
+                    teamName={homeTeamData?.name}
+                    teamLogo={homeTeamData?.logo || '/assets/fallback-logo.svg'}
+                    alt={homeTeamData?.name || 'Home Team'}
+                    size="32px"
+                    leagueContext={{
+                      name: matchData?.league?.name || '',
+                      country: matchData?.league?.country || '',
+                    }}
+                  />
+                ) : isNationalTeam(homeTeamData, matchData?.league) ? (
+                  <MyCircularFlag
+                    teamName={homeTeamData?.name}
+                    fallbackUrl={homeTeamData?.logo}
+                    alt={homeTeamData?.name || 'Home Team'}
+                    size="32px"
+                  />
+                ) : (
+                  <img
+                    src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
+                    alt={homeTeamData?.name || 'Home Team'}
+                    className="w-8 h-8 object-contain"
+                    onError={(e) => {
+                      e.currentTarget.src = '/assets/fallback-logo.svg';
+                    }}
+                  />
+                )}
+                <span className="text-gray-900 font-medium">{homeTeamData?.name}</span>
+              </div>
+              
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900">
+                  {matchData?.goals?.home || 0} - {matchData?.goals?.away || 0}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <span className="text-gray-900 font-medium">{awayTeamData?.name}</span>
+                <img
+                  src={awayTeamData?.logo || '/assets/fallback-logo.svg'}
+                  alt={awayTeamData?.name || 'Away Team'}
+                  className="w-8 h-8 object-contain"
+                  onError={(e) => {
+                    e.currentTarget.src = '/assets/fallback-logo.svg';
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}
 
-        {/* Enhanced Live Stats Display */}
+        {/* Current Event Display */}
+        {currentEvent && (
+          <div className="px-6 py-4 bg-blue-50 border-b border-blue-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
+                  {currentEvent.time.minute}'
+                </div>
+                <div className="flex items-center gap-2">
+                  {currentEvent.type === 'goal' && <span className="text-green-600 text-lg">⚽</span>}
+                  {currentEvent.type === 'card' && <span className="text-yellow-500 text-lg">🟨</span>}
+                  {currentEvent.type === 'substitution' && <span className="text-blue-500 text-lg">🔄</span>}
+                  {currentEvent.type === 'corner' && <span className="text-orange-500 text-lg">🚩</span>}
+                  <span className="text-gray-900 font-medium">{currentEvent.description}</span>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 bg-white px-2 py-1 rounded">
+                {currentEvent.player?.name || 'Live Event'}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Live Statistics */}
         {liveStats && (
-          <div className="p-4 bg-white">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 border-b border-gray-200 pb-2">
-              Live Statistics
-            </h3>
+          <div className="p-6">
+            <h4 className="text-gray-900 font-semibold text-sm mb-4 uppercase tracking-wide">Match Statistics</h4>
+            
             <div className="space-y-4">
               {/* Ball Possession */}
-              <div className="bg-gray-50 p-3 rounded-lg">
+              <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-medium text-gray-600">Ball Possession</span>
-                  <div className="flex gap-4 text-xs font-bold">
+                  <span className="text-gray-600 text-sm font-medium">Ball Possession</span>
+                  <div className="flex gap-4 text-sm font-semibold">
                     <span className="text-blue-600">{liveStats.possession?.home || 50}%</span>
                     <span className="text-red-600">{liveStats.possession?.away || 50}%</span>
                   </div>
                 </div>
-                <div className="relative bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div className="relative bg-gray-200 rounded-full h-2">
                   <div 
-                    className="absolute left-0 top-0 bg-gradient-to-r from-blue-500 to-blue-600 h-full transition-all duration-1000"
+                    className="absolute left-0 top-0 bg-blue-500 h-full rounded-l-full transition-all duration-1000"
                     style={{ width: `${liveStats.possession?.home || 50}%` }}
                   ></div>
                   <div 
-                    className="absolute right-0 top-0 bg-gradient-to-l from-red-500 to-red-600 h-full transition-all duration-1000"
+                    className="absolute right-0 top-0 bg-red-500 h-full rounded-r-full transition-all duration-1000"
                     style={{ width: `${liveStats.possession?.away || 50}%` }}
                   ></div>
                 </div>
               </div>
 
-              {/* Shots Comparison */}
-              <div className="grid grid-cols-3 gap-3 text-center bg-gray-50 p-3 rounded-lg">
-                <div>
+              {/* Stats Grid */}
+              <div className="grid grid-cols-3 gap-4 pt-2">
+                {/* Shots */}
+                <div className="text-center">
                   <div className="text-lg font-bold text-blue-600">{liveStats.shots?.home || 0}</div>
-                  <div className="text-xs text-gray-600">Shots</div>
-                </div>
-                <div className="border-l border-r border-gray-300">
-                  <div className="text-xs text-gray-500 mb-1">On Target</div>
-                  <div className="text-sm font-semibold text-gray-700">
-                    {liveStats.shotsOnTarget?.home || 0} - {liveStats.shotsOnTarget?.away || 0}
-                  </div>
-                </div>
-                <div>
+                  <div className="text-xs text-gray-500 mb-1">Shots</div>
                   <div className="text-lg font-bold text-red-600">{liveStats.shots?.away || 0}</div>
-                  <div className="text-xs text-gray-600">Shots</div>
+                </div>
+
+                {/* Shots on Target */}
+                <div className="text-center border-l border-r border-gray-200">
+                  <div className="text-lg font-bold text-blue-600">{liveStats.shotsOnTarget?.home || 0}</div>
+                  <div className="text-xs text-gray-500 mb-1">On Target</div>
+                  <div className="text-lg font-bold text-red-600">{liveStats.shotsOnTarget?.away || 0}</div>
+                </div>
+
+                {/* Corners */}
+                <div className="text-center">
+                  <div className="text-lg font-bold text-blue-600">{liveStats.corners?.home || 0}</div>
+                  <div className="text-xs text-gray-500 mb-1">Corners</div>
+                  <div className="text-lg font-bold text-red-600">{liveStats.corners?.away || 0}</div>
                 </div>
               </div>
 
-              {/* Additional Stats */}
-              {(liveStats.corners || liveStats.fouls) && (
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  {liveStats.corners && (
-                    <div className="bg-yellow-50 p-2 rounded border-l-3 border-yellow-400">
-                      <div className="font-medium text-gray-700">Corners</div>
-                      <div className="text-sm font-bold text-yellow-700">
-                        {liveStats.corners.home || 0} - {liveStats.corners.away || 0}
-                      </div>
-                    </div>
-                  )}
-                  {liveStats.fouls && (
-                    <div className="bg-orange-50 p-2 rounded border-l-3 border-orange-400">
-                      <div className="font-medium text-gray-700">Fouls</div>
-                      <div className="text-sm font-bold text-orange-700">
-                        {liveStats.fouls.home || 0} - {liveStats.fouls.away || 0}
-                      </div>
-                    </div>
-                  )}
+              {/* Additional Stats Row */}
+              <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+                <div className="text-center">
+                  <div className="text-base font-semibold text-blue-600">{liveStats.fouls?.home || 0}</div>
+                  <div className="text-xs text-gray-500 mb-1">Fouls</div>
+                  <div className="text-base font-semibold text-red-600">{liveStats.fouls?.away || 0}</div>
                 </div>
-              )}
+
+                <div className="text-center">
+                  <div className="text-base font-semibold text-blue-600">{liveStats.yellowCards?.home || 0}</div>
+                  <div className="text-xs text-gray-500 mb-1">Yellow Cards</div>
+                  <div className="text-base font-semibold text-red-600">{liveStats.yellowCards?.away || 0}</div>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Recent Events - SportsRadar Style */}
+        {/* Recent Events Timeline */}
         {liveEvents.length > 0 && (
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-              <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Recent Events</h3>
-            </div>
-            <div className="space-y-3 max-h-48 overflow-y-auto">
-              {liveEvents.slice(0, 6).map((event, index) => (
-                <div key={index} className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded min-w-[30px] text-center">
-                        {event.time.minute}'
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {event.type === 'goal' && <span className="text-green-600">⚽</span>}
-                        {event.type === 'card' && <span className="text-yellow-500">🟨</span>}
-                        {event.type === 'substitution' && <span className="text-blue-500">🔄</span>}
-                        {event.type === 'corner' && <span className="text-orange-500">📐</span>}
-                        <span className="text-gray-700 text-sm font-medium">{event.description}</span>
-                      </div>
-                    </div>
-                    <div className={`text-xs font-bold px-2 py-1 rounded ${
-                      event.team === 'home' 
-                        ? 'bg-blue-100 text-blue-700' 
-                        : 'bg-red-100 text-red-700'
-                    }`}>
-                      {event.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
-                    </div>
+          <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+            <h4 className="text-gray-900 font-semibold text-sm mb-3 uppercase tracking-wide">Recent Events</h4>
+            <div className="space-y-2 max-h-32 overflow-y-auto">
+              {liveEvents.slice(0, 5).map((event, index) => (
+                <div key={index} className="flex items-center gap-3 text-sm">
+                  <div className="bg-gray-600 text-white px-2 py-0.5 rounded text-xs font-medium min-w-[30px] text-center">
+                    {event.time.minute}'
+                  </div>
+                  <div className="flex items-center gap-2 flex-1">
+                    {event.type === 'goal' && <span>⚽</span>}
+                    {event.type === 'card' && <span>🟨</span>}
+                    {event.type === 'substitution' && <span>🔄</span>}
+                    {event.type === 'corner' && <span>🚩</span>}
+                    <span className="text-gray-700">{event.description}</span>
+                  </div>
+                  <div className={`text-xs px-2 py-0.5 rounded ${
+                    event.team === 'home' 
+                      ? 'bg-blue-100 text-blue-700' 
+                      : 'bg-red-100 text-red-700'
+                  }`}>
+                    {event.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
                   </div>
                 </div>
               ))}
             </div>
           </div>
         )}
+
+        {/* Footer Info */}
+        <div className="px-6 py-3 bg-gray-50 border-t border-gray-100">
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <span>Powered by Sportradar</span>
+            <span>Last updated: {new Date().toLocaleTimeString()}</span>
+          </div>
+        </div>
 
       </div>
     </div>
