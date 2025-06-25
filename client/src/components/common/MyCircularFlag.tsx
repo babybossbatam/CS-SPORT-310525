@@ -156,11 +156,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       style={{
         width: size,
         height: size,
-        position: "absolute",
+        position: "relative",
         left: moveLeft ? "-16px" : "4px",
-        top: "50%",
-        transform: "translateY(-50%)",
-        zIndex: 20,
       }}
       onMouseEnter={() => showNextMatchOverlay && setIsHovered(true)}
       onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
@@ -175,9 +172,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           objectFit: "cover",
           borderRadius: "50%",
           position: "relative",
-          zIndex: 21,
-          border: "2px solid white",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+          zIndex: 1,
+
           filter:
             "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
         }}
