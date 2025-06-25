@@ -673,7 +673,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 {/* Premium possession indicator */}
                 {ballPossession && (
                   <div className="absolute -inset-1">
-                    <div className{`w-7 h-7 rounded-full animate-pulse ${
+                    <div className={`w-7 h-7 rounded-full animate-pulse ${
                       ballPossession === 'home' 
                         ? 'ring-2 ring-blue-400 bg-blue-400/10' 
                         : 'ring-2 ring-red-400 bg-red-400/10'
