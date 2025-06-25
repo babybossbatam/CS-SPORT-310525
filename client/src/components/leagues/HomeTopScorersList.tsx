@@ -190,29 +190,82 @@ const HomeTopScorersList = () => {
   // Simplified - no need to check which leagues have data, just show all
   const isLoadingLeagues = false;
 
-  // Update available leagues when data is loaded
+  // Update available leagues when data is loaded - filter by data availability
   useEffect(() => {
-    // Always show all popular leagues regardless of data availability
-    setAvailableLeagues(POPULAR_LEAGUES);
+    const checkLeaguesWithData = async () => {
+      const leaguesWithData = [];
+      
+      for (const league of POPULAR_LEAGUES) {
+        try {
+          const response = await fetch(`/api/leagues/${league.id}/topscorers`, {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "Cache-Control": "max-age=3600",
+            },
+          });
 
-    // Set initial selected league if not set and persist it
-    if (!selectedLeague && POPULAR_LEAGUES.length > 0) {
-      // Always start with World Cup Qualification South America (ID 34)
-      const initialLeague = 34;
+          if (response.ok) {
+            const data = await response.json();
+            
+            // Filter for current/recent season data
+            const freshData = data.filter((scorer: any) => {
+              const seasonYear = scorer.statistics[0]?.league?.season;
+              if (!seasonYear) return false;
 
-      console.log(`🎯 [HomeTopScorers] Setting initial league:`, {
-        initialLeagueId: initialLeague,
-        initialLeagueName: "World Cup Qualification South America",
-      });
+              const currentYear = new Date().getFullYear();
+              const currentMonth = new Date().getMonth() + 1;
 
-      setSelectedLeague(initialLeague);
+              // For World Cup Qualification cycles
+              if (league.id === 34) {
+                return seasonYear >= 2024 && seasonYear <= 2026;
+              }
 
-      // Store in sessionStorage to persist across refreshes
-      sessionStorage.setItem(
-        "homeTopScorers_selectedLeague",
-        initialLeague.toString(),
-      );
-    }
+              // For other competitions
+              let currentSeason;
+              if (currentMonth >= 8) {
+                currentSeason = currentYear;
+              } else {
+                currentSeason = currentYear - 1;
+              }
+
+              return seasonYear >= currentSeason && seasonYear <= currentYear + 1;
+            });
+
+            if (freshData.length > 0) {
+              leaguesWithData.push(league);
+            }
+          }
+        } catch (error) {
+          console.warn(`Failed to check data for league ${league.id}`);
+        }
+      }
+
+      setAvailableLeagues(leaguesWithData);
+
+      // Set initial selected league from available leagues with data
+      if (!selectedLeague && leaguesWithData.length > 0) {
+        // Try to find World Cup Qualification South America first
+        const preferredLeague = leaguesWithData.find(l => l.id === 34);
+        const initialLeague = preferredLeague ? preferredLeague.id : leaguesWithData[0].id;
+
+        console.log(`🎯 [HomeTopScorers] Setting initial league:`, {
+          initialLeagueId: initialLeague,
+          initialLeagueName: leaguesWithData.find(l => l.id === initialLeague)?.name,
+          availableLeaguesCount: leaguesWithData.length,
+        });
+
+        setSelectedLeague(initialLeague);
+
+        // Store in sessionStorage to persist across refreshes
+        sessionStorage.setItem(
+          "homeTopScorers_selectedLeague",
+          initialLeague.toString(),
+        );
+      }
+    };
+
+    checkLeaguesWithData();
   }, []);
 
   // Restore selected league from sessionStorage on mount
@@ -224,11 +277,12 @@ const HomeTopScorersList = () => {
       storedLeague,
       currentSelectedLeague: selectedLeague,
       hasStoredLeague: !!storedLeague,
+      availableLeaguesCount: availableLeagues.length,
     });
 
-    if (storedLeague && !selectedLeague) {
+    if (storedLeague && !selectedLeague && availableLeagues.length > 0) {
       const leagueId = parseInt(storedLeague, 10);
-      const foundLeague = POPULAR_LEAGUES.find(
+      const foundLeague = availableLeagues.find(
         (league) => league.id === leagueId,
       );
 
@@ -236,20 +290,19 @@ const HomeTopScorersList = () => {
         leagueId,
         foundLeague: foundLeague?.name,
         isValid: !!foundLeague,
+        isInAvailableList: !!foundLeague,
       });
 
-      // Verify the league still exists in our list
+      // Verify the league exists in our filtered available list
       if (foundLeague) {
         setSelectedLeague(leagueId);
-      } else {
-        // If stored league not found, default to World Cup Qualification South America
-        setSelectedLeague(34);
+      } else if (availableLeagues.length > 0) {
+        // If stored league not in available list, use first available
+        const fallbackLeague = availableLeagues.find(l => l.id === 34) || availableLeagues[0];
+        setSelectedLeague(fallbackLeague.id);
       }
-    } else if (!storedLeague && !selectedLeague) {
-      // If no stored league, default to World Cup Qualification South America
-      setSelectedLeague(34);
     }
-  }, []);
+  }, [availableLeagues]);
 
   // Store selected league in sessionStorage when it changes
   useEffect(() => {
