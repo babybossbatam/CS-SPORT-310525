@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -221,12 +220,12 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
     };
   }, [matchId, isLive]);
 
-  // Auto-hide current event after 8 seconds
+  // Auto-hide current event after 12 seconds - optimized timing
   useEffect(() => {
     if (currentEvent) {
       const hideTimer = setTimeout(() => {
         setCurrentEvent(null);
-      }, 8000);
+      }, 12000); // Increased from 8s to 12s for better UX
 
       return () => clearTimeout(hideTimer);
     }
@@ -318,7 +317,7 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
   return (
     <div className={`w-full ${className} sportradar-live-widget`}>
       <div className="bg-white rounded-lg overflow-hidden shadow-lg border border-gray-100">
-        
+
         {/* Sportradar-style Header */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100">
           <div className="flex items-center justify-between">
@@ -379,13 +378,13 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
                 )}
                 <span className="text-gray-900 font-medium">{homeTeamData?.name}</span>
               </div>
-              
+
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-900">
                   {matchData?.goals?.home || 0} - {matchData?.goals?.away || 0}
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <span className="text-gray-900 font-medium">{awayTeamData?.name}</span>
                 <img
@@ -428,7 +427,7 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
         {liveStats && (
           <div className="p-6">
             <h4 className="text-gray-900 font-semibold text-sm mb-4 uppercase tracking-wide">Match Statistics</h4>
-            
+
             <div className="space-y-4">
               {/* Ball Possession */}
               <div>

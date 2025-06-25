@@ -145,7 +145,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         if (isLive) {
           updateInterval = setInterval(() => {
             generateDynamicEvent();
-          }, 8000);
+          }, 15000); // Increased from 8s to 15s to reduce frequency
         }
       }
     });
@@ -162,14 +162,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     };
   }, [matchId]);
 
-  // Dynamic ball movement and possession zones
+  // Dynamic ball movement and possession zones - optimized for better performance
   useEffect(() => {
     if (!isLive) return;
 
     const ballInterval = setInterval(() => {
       setBallPosition(prev => {
-        const newX = Math.max(15, Math.min(85, prev.x + (Math.random() - 0.5) * 12));
-        const newY = Math.max(25, Math.min(75, prev.y + (Math.random() - 0.5) * 10));
+        const newX = Math.max(15, Math.min(85, prev.x + (Math.random() - 0.5) * 8)); // Reduced movement range
+        const newY = Math.max(25, Math.min(75, prev.y + (Math.random() - 0.5) * 6)); // Reduced movement range
 
         // Update possession based on ball position
         if (newX < 40) {
@@ -182,7 +182,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
         return { x: newX, y: newY };
       });
-    }, 1200);
+    }, 3000); // Increased from 1.2s to 3s to reduce frequency
 
     return () => clearInterval(ballInterval);
   }, [isLive]);
