@@ -95,6 +95,17 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           console.log(`🎯 [MyHomeFeaturedMatchNew] Sample fixture leagues:`, 
             allFixtures.slice(0, 5).map(f => ({ id: f.league.id, name: f.league.name }))
           );
+          
+          // Show all unique league IDs from API
+          const uniqueLeagueIds = [...new Set(allFixtures.map(f => f.league.id))];
+          console.log(`🎯 [MyHomeFeaturedMatchNew] All unique league IDs from API:`, uniqueLeagueIds);
+          
+          // Check which popular league IDs are present in the fixtures
+          const presentPopularLeagues = popularLeagueIds.filter(id => uniqueLeagueIds.includes(id));
+          const missingPopularLeagues = popularLeagueIds.filter(id => !uniqueLeagueIds.includes(id));
+          
+          console.log(`🎯 [MyHomeFeaturedMatchNew] Popular leagues PRESENT in today's fixtures:`, presentPopularLeagues);
+          console.log(`🎯 [MyHomeFeaturedMatchNew] Popular leagues MISSING from today's fixtures:`, missingPopularLeagues);
         }
         
         // Filter fixtures from popular leagues
