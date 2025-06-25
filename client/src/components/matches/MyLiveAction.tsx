@@ -28,15 +28,28 @@ interface PlayByPlayEvent {
   y?: number;
 }
 
-interface AttackPattern {
+interface AttackZone {
   id: string;
   team: 'home' | 'away';
-  startX: number;
-  startY: number;
-  endX: number;
-  endY: number;
-  intensity: 'low' | 'medium' | 'high' | 'dangerous';
+  type: 'attacking' | 'ball_safe' | 'dangerous_attack';
+  opacity: number;
   timestamp: number;
+}
+
+interface TeamStats {
+  corners: { home: number; away: number };
+  possession: { home: number; away: number };
+  shots: { home: number; away: number };
+  fouls: { home: number; away: number };
+  lastFiveMatches: {
+    home: ('W' | 'L' | 'D')[];
+    away: ('W' | 'L' | 'D')[];
+  };
+  previousMeetings: {
+    homeWins: number;
+    draws: number;
+    awayWins: number;
+  };
 }
 
 const MyLiveAction: React.FC<MyLiveActionProps> = ({ 
@@ -51,11 +64,20 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<PlayByPlayEvent | null>(null);
   const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
-  const [ballDirection, setBallDirection] = useState({ dx: 1, dy: 0.5 });
+  const [attackZones, setAttackZones] = useState<AttackZone[]>([]);
   const [ballPossession, setBallPossession] = useState<'home' | 'away' | null>('home');
-  const [attackPatterns, setAttackPatterns] = useState<AttackPattern[]>([]);
-  const [currentAttack, setCurrentAttack] = useState<AttackPattern | null>(null);
-  const [cornerKicks, setCornerKicks] = useState({ home: 0, away: 0 });
+  const [teamStats, setTeamStats] = useState<TeamStats>({
+    corners: { home: 0, away: 0 },
+    possession: { home: 50, away: 50 },
+    shots: { home: 0, away: 0 },
+    fouls: { home: 0, away: 0 },
+    lastFiveMatches: {
+      home: ['W', 'W', 'L', 'W', 'W'],
+      away: ['W', 'W', 'W', 'W', 'D']
+    },
+    previousMeetings: { homeWins: 16, draws: 16, awayWins: 11 }
+  });
+  const [currentView, setCurrentView] = useState<'event' | 'stats' | 'history' | 'corners'>('event');
 
   // Determine if match is currently live
   const displayMatch = liveData;
@@ -115,42 +137,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       }
     };
 
-    const fetchLiveUpdates = async () => {
-      if (!liveData) return;
-
-      try {
-        const response = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
-        if (response.ok && mounted) {
-          const liveFixtures = await response.json();
-          const currentMatch = liveFixtures.find((fixture: any) => 
-            fixture.fixture.id === matchId
-          );
-
-          if (currentMatch && mounted) {
-            const previousElapsed = liveData.fixture?.status?.elapsed || 0;
-            const currentElapsed = currentMatch.fixture?.status?.elapsed || 0;
-
-            setLiveData(currentMatch);
-
-            if (currentElapsed > previousElapsed) {
-              await generatePlayByPlayEvents(currentMatch, true);
-            }
-          }
-        }
-      } catch (error) {
-        if (mounted) {
-          console.error('❌ [Live Action] Error fetching live updates:', error);
-        }
-      }
-    };
-
     fetchMatchData().then((match) => {
       if (match && mounted) {
         const status = match.fixture?.status?.short;
         const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
 
         if (isLive) {
-          updateInterval = setInterval(fetchLiveUpdates, 5000);
+          updateInterval = setInterval(() => {
+            generateDynamicEvent();
+          }, 8000);
         }
       }
     });
@@ -163,178 +158,90 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       setLiveData(null);
       setPlayByPlayEvents([]);
       setCurrentEvent(null);
-      setAttackPatterns([]);
-      setCurrentAttack(null);
+      setAttackZones([]);
     };
   }, [matchId]);
 
-  // Ball movement with realistic field positioning
+  // Dynamic ball movement and possession zones
   useEffect(() => {
     if (!isLive) return;
 
     const ballInterval = setInterval(() => {
       setBallPosition(prev => {
-        let newX = prev.x + ballDirection.dx * 0.8;
-        let newY = prev.y + ballDirection.dy * 0.8;
+        const newX = Math.max(15, Math.min(85, prev.x + (Math.random() - 0.5) * 8));
+        const newY = Math.max(25, Math.min(75, prev.y + (Math.random() - 0.5) * 6));
 
-        let newDx = ballDirection.dx;
-        let newDy = ballDirection.dy;
-
-        const minX = 10;
-        const maxX = 90;
-        const minY = 25;
-        const maxY = 75;
-
-        if (newX < 35) {
+        // Update possession based on ball position
+        if (newX < 40) {
           setBallPossession('home');
-          if (Math.random() > 0.96) {
-            generateAttackPattern('home', newX, newY);
-          }
-        } else if (newX > 65) {
+        } else if (newX > 60) {
           setBallPossession('away');
-          if (Math.random() > 0.96) {
-            generateAttackPattern('away', newX, newY);
-          }
         } else {
           setBallPossession(null);
         }
 
-        if (newX <= minX || newX >= maxX) {
-          newDx = -newDx * 0.7 + (Math.random() - 0.5) * 0.3;
-          newX = Math.max(minX, Math.min(maxX, newX));
-        }
-
-        if (newY <= minY || newY >= maxY) {
-          newDy = -newDy * 0.7 + (Math.random() - 0.5) * 0.3;
-          newY = Math.max(minY, Math.min(maxY, newY));
-        }
-
-        newDx += (Math.random() - 0.5) * 0.05;
-        newDy += (Math.random() - 0.5) * 0.05;
-
-        const speed = Math.sqrt(newDx * newDx + newDy * newDy);
-        if (speed > 1.0) {
-          newDx = (newDx / speed) * 1.0;
-          newDy = (newDy / speed) * 1.0;
-        }
-        if (speed < 0.3) {
-          newDx = (newDx / speed) * 0.3;
-          newDy = (newDy / speed) * 0.3;
-        }
-
-        setBallDirection({ dx: newDx, dy: newDy });
-
         return { x: newX, y: newY };
       });
-    }, 300);
+    }, 2000);
 
     return () => clearInterval(ballInterval);
   }, [isLive]);
 
-  // Generate attack patterns
-  const generateAttackPattern = (team: 'home' | 'away', startX: number, startY: number) => {
-    const intensity = Math.random() > 0.7 ? 'dangerous' : Math.random() > 0.4 ? 'high' : 'medium';
+  // Generate dynamic events
+  const generateDynamicEvent = () => {
+    const eventTypes = ['attacking', 'ball_safe', 'dangerous_attack'];
+    const teams = ['home', 'away'];
+    const randomTeam = teams[Math.floor(Math.random() * teams.length)] as 'home' | 'away';
+    const randomType = eventTypes[Math.floor(Math.random() * eventTypes.length)] as 'attacking' | 'ball_safe' | 'dangerous_attack';
 
-    let endX, endY;
-    if (team === 'home') {
-      endX = startX + 15 + Math.random() * 20;
-      endY = startY + (Math.random() - 0.5) * 15;
-    } else {
-      endX = startX - 15 - Math.random() * 20;
-      endY = startY + (Math.random() - 0.5) * 15;
-    }
-
-    const newPattern: AttackPattern = {
-      id: `attack_${Date.now()}_${Math.random()}`,
-      team,
-      startX,
-      startY,
-      endX: Math.max(10, Math.min(90, endX)),
-      endY: Math.max(25, Math.min(75, endY)),
-      intensity,
+    // Create attack zone
+    const newZone: AttackZone = {
+      id: `zone_${Date.now()}`,
+      team: randomTeam,
+      type: randomType,
+      opacity: 0.3,
       timestamp: Date.now()
     };
 
-    setAttackPatterns(prev => [newPattern, ...prev.slice(0, 2)]);
-    setCurrentAttack(newPattern);
+    setAttackZones(prev => [newZone, ...prev.slice(0, 0)]);
 
-    if (intensity === 'dangerous') {
-      const attackEvent: PlayByPlayEvent = {
-        id: `attack_event_${Date.now()}`,
-        minute: elapsed,
-        team,
-        type: 'attack',
-        player: 'Team',
-        description: 'Dangerous Attack',
-        timestamp: Date.now(),
-        isRecent: true,
-        x: newPattern.endX,
-        y: newPattern.endY
-      };
+    // Create corresponding event
+    const eventDescriptions = {
+      attacking: 'Attacking',
+      ball_safe: 'Ball Safe',
+      dangerous_attack: 'Dangerous Attack'
+    };
 
-      setPlayByPlayEvents(prev => [attackEvent, ...prev.slice(0, 4)]);
-    }
+    const newEvent: PlayByPlayEvent = {
+      id: `event_${Date.now()}`,
+      minute: elapsed,
+      team: randomTeam,
+      type: 'attack',
+      player: randomTeam === 'home' ? homeTeamData?.name || 'Home Team' : awayTeamData?.name || 'Away Team',
+      description: eventDescriptions[randomType],
+      timestamp: Date.now(),
+      isRecent: true
+    };
 
+    setCurrentEvent(newEvent);
+    setPlayByPlayEvents(prev => [newEvent, ...prev.slice(0, 4)]);
+
+    // Cycle through different views
     setTimeout(() => {
-      setAttackPatterns(prev => prev.filter(p => p.id !== newPattern.id));
-      if (currentAttack?.id === newPattern.id) {
-        setCurrentAttack(null);
-      }
+      const views: ('event' | 'stats' | 'history' | 'corners')[] = ['stats', 'history', 'corners'];
+      const randomView = views[Math.floor(Math.random() * views.length)];
+      setCurrentView(randomView);
     }, 3000);
+
+    // Clear zone and reset view
+    setTimeout(() => {
+      setAttackZones(prev => prev.filter(z => z.id !== newZone.id));
+      setCurrentView('event');
+      setCurrentEvent(null);
+    }, 6000);
   };
 
-  // Auto-update current event display
-  useEffect(() => {
-    if (playByPlayEvents.length > 0) {
-      const latestEvent = playByPlayEvents[0];
-      const eventAge = Date.now() - latestEvent.timestamp;
-
-      if (eventAge < 120000) {
-        setCurrentEvent(latestEvent);
-
-        const hideEventTimeout = setTimeout(() => {
-          setCurrentEvent(null);
-        }, 6000);
-
-        const cleanupTimeout = () => clearTimeout(hideEventTimeout);
-
-        if (playByPlayEvents.length > 1) {
-          const recentEvents = playByPlayEvents.slice(0, 3).filter(event => 
-            Date.now() - event.timestamp < 120000
-          );
-
-          if (recentEvents.length > 1) {
-            const eventCycleInterval = setInterval(() => {
-              setCurrentEvent(null);
-
-              setTimeout(() => {
-                const currentIndex = recentEvents.findIndex(e => e.id === currentEvent?.id);
-                const nextIndex = (currentIndex + 1) % recentEvents.length;
-                setCurrentEvent(recentEvents[nextIndex]);
-
-                setTimeout(() => {
-                  setCurrentEvent(null);
-                }, 5000);
-              }, 1000);
-            }, 8000);
-
-            return () => {
-              clearInterval(eventCycleInterval);
-              cleanupTimeout();
-            };
-          }
-        }
-
-        return cleanupTimeout;
-      } else {
-        setCurrentEvent(null);
-      }
-    } else {
-      setCurrentEvent(null);
-    }
-  }, [playByPlayEvents.length, currentEvent?.id])
-
-  const generatePlayByPlayEvents = async (matchData: any, isUpdate: boolean = false) => {
+  const generatePlayByPlayEvents = async (matchData: any) => {
     try {
       const response = await fetch(`/api/fixtures/${matchData.fixture.id}/events`);
       let realEvents: any[] = [];
@@ -354,18 +261,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           .slice(-3)
           .reverse();
 
-        if (!isUpdate) {
-          const allCornerEvents = realEvents.filter(event => 
-            event.detail?.toLowerCase().includes('corner') && 
-            event.time?.elapsed <= elapsed
-          );
-
-          const homeCorners = allCornerEvents.filter(event => event.team?.id === homeTeam?.id).length;
-          const awayCorners = allCornerEvents.filter(event => event.team?.id === awayTeam?.id).length;
-
-          setCornerKicks({ home: homeCorners, away: awayCorners });
-        }
-
         recentEvents.forEach((event, index) => {
           const isHomeTeam = event.team?.id === homeTeam?.id;
           const team = isHomeTeam ? 'home' : 'away';
@@ -375,37 +270,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
           if (event.type === 'Goal') {
             eventType = 'goal';
-            const goalDetail = event.detail || '';
-            if (goalDetail.toLowerCase().includes('normal goal')) {
-              description = 'GOAL!';
-            } else {
-              description = goalDetail.includes('Goal') ? goalDetail : `${goalDetail} Goal`;
-            }
-          } else if (event.type === 'Card') {
-            eventType = 'card';
-            description = `${event.detail || 'Yellow'} Card`;
-          } else if (event.type === 'subst') {
-            eventType = 'substitution';
-            description = 'Substitution';
+            description = 'Goal kick';
           } else if (event.detail?.toLowerCase().includes('corner')) {
             eventType = 'corner';
-            description = 'Corner Kick';
-          } else if (event.detail?.toLowerCase().includes('shot')) {
-            eventType = 'shot';
-            description = event.detail;
-          }
-
-          let x = 50, y = 50;
-
-          if (eventType === 'goal') {
-            x = isHomeTeam ? 85 : 15;
-            y = 50;
-          } else if (eventType === 'corner') {
-            x = isHomeTeam ? 85 : 15;
-            y = Math.random() > 0.5 ? 30 : 70;
-          } else {
-            x = isHomeTeam ? 60 + Math.random() * 20 : 20 + Math.random() * 20;
-            y = 35 + Math.random() * 30;
+            description = 'Corner kick';
           }
 
           events.push({
@@ -413,31 +281,28 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             minute: event.time?.elapsed || elapsed,
             team,
             type: eventType as any,
-            player: event.player?.name || event.assist?.name || 'Player',
+            player: event.player?.name || 'Player',
             description,
             timestamp: Date.now() - (index * 10000),
-            isRecent: index === 0 && isUpdate,
-            x,
-            y
+            isRecent: index === 0
           });
-
-          if (isUpdate && eventType === 'corner' && index === 0) {
-            setCornerKicks(prev => ({
-              ...prev,
-              [team]: prev[team] + 1
-            }));
-          }
         });
+
+        // Update team stats from real events
+        const homeCorners = realEvents.filter(e => 
+          e.team?.id === homeTeam?.id && e.detail?.toLowerCase().includes('corner')
+        ).length;
+        const awayCorners = realEvents.filter(e => 
+          e.team?.id === awayTeam?.id && e.detail?.toLowerCase().includes('corner')
+        ).length;
+
+        setTeamStats(prev => ({
+          ...prev,
+          corners: { home: homeCorners, away: awayCorners }
+        }));
       }
 
-      events.sort((a, b) => b.timestamp - a.timestamp);
-
-      if (isUpdate) {
-        setPlayByPlayEvents(prev => [...events.slice(0, 3), ...prev.slice(0, 4)]);
-      } else {
-        setPlayByPlayEvents(events);
-      }
-
+      setPlayByPlayEvents(events);
     } catch (error) {
       console.error('❌ [Live Action] Error fetching real events:', error);
     }
@@ -478,19 +343,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         />
       );
     }
-
-    return (
-      <div className={`w-full ${className}`}>
-        <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
-            <span className="text-gray-800 text-sm font-semibold">Live Action</span>
-          </div>
-          <div className="h-80 flex items-center justify-center text-gray-500 text-sm">
-            {matchId ? `No match data found` : 'No match selected'}
-          </div>
-        </div>
-      </div>
-    );
   }
 
   if (!isLive) {
@@ -513,10 +365,19 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     );
   }
 
+  const getMatchResult = (result: 'W' | 'L' | 'D') => {
+    const colors = {
+      W: 'bg-blue-500 text-white',
+      L: 'bg-red-500 text-white', 
+      D: 'bg-gray-400 text-white'
+    };
+    return colors[result];
+  };
+
   return (
-    <div className={`w-full ${className} modern-live-action`}>
+    <div className={`w-full ${className} professional-live-action`}>
       <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
-        {/* Modern Header */}
+        {/* Header */}
         <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -532,89 +393,89 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
         </div>
 
-        {/* Premium Football Field - Landscape */}
+        {/* Professional Football Field */}
         <div className="relative h-80 bg-gradient-to-br from-green-600 via-green-500 to-green-600 overflow-hidden">
 
-          {/* Grass pattern */}
+          {/* Professional grass stripes */}
           <div className="absolute inset-0">
-            {Array.from({ length: 12 }).map((_, i) => (
+            {Array.from({ length: 20 }).map((_, i) => (
               <div
                 key={i}
                 className="absolute h-full transition-all duration-500"
                 style={{
-                  width: '8.33%',
-                  left: `${i * 8.33}%`,
+                  width: '5%',
+                  left: `${i * 5}%`,
                   background: i % 2 === 0 
-                    ? 'rgba(255,255,255,0.03)'
-                    : 'rgba(0,0,0,0.03)',
+                    ? 'rgba(255,255,255,0.04)'
+                    : 'rgba(0,0,0,0.04)',
                 }}
               />
             ))}
           </div>
 
-          {/* Field markings */}
+          {/* Attack zones - 365scores style */}
+          {attackZones.map((zone) => (
+            <div key={zone.id} className="absolute inset-0 pointer-events-none">
+              <div 
+                className={`absolute transition-all duration-1000 ${
+                  zone.team === 'home' 
+                    ? 'bg-gradient-to-r from-blue-500/20 via-blue-600/30 to-transparent' 
+                    : 'bg-gradient-to-l from-red-500/20 via-red-600/30 to-transparent'
+                }`}
+                style={{
+                  top: '20%',
+                  bottom: '20%',
+                  left: zone.team === 'home' ? '10%' : '40%',
+                  right: zone.team === 'home' ? '40%' : '10%',
+                  clipPath: zone.team === 'home' 
+                    ? 'polygon(0% 0%, 70% 0%, 100% 50%, 70% 100%, 0% 100%)'
+                    : 'polygon(30% 0%, 100% 0%, 100% 100%, 30% 100%, 0% 50%)',
+                  opacity: zone.opacity
+                }}
+              />
+            </div>
+          ))}
+
+          {/* Field markings - exact 365scores style */}
           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="0.2" result="coloredBlur"/>
-                <feColorMatrix values="1 1 1 0 0  1 1 1 0 0  1 1 1 0 0  0 0 0 1 0" result="whiteGlow"/>
+              <filter id="whiteGlow">
+                <feGaussianBlur stdDeviation="0.3" result="coloredBlur"/>
                 <feMerge> 
-                  <feMergeNode in="whiteGlow"/>
+                  <feMergeNode in="coloredBlur"/>
                   <feMergeNode in="SourceGraphic"/>
                 </feMerge>
               </filter>
             </defs>
 
-            {/* Outer boundary */}
-            <rect x="5" y="15" width="90" height="70" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#glow)"/>
+            {/* Field boundary */}
+            <rect x="5" y="15" width="90" height="70" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="0.5" filter="url(#whiteGlow)"/>
 
             {/* Center line */}
-            <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#glow)"/>
+            <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(255,255,255,0.9)" strokeWidth="0.5" filter="url(#whiteGlow)"/>
 
             {/* Center circle */}
-            <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#glow)"/>
-            <circle cx="50" cy="50" r="0.6" fill="rgba(255,255,255,0.9)"/>
-
-            {/* Goal areas */}
-            <rect x="5" y="38" width="8" height="24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#glow)"/>
-            <rect x="87" y="38" width="8" height="24" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#glow)"/>
+            <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="0.5" filter="url(#whiteGlow)"/>
+            <circle cx="50" cy="50" r="0.8" fill="rgba(255,255,255,0.9)"/>
 
             {/* Penalty areas */}
-            <rect x="5" y="28" width="18" height="44" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#glow)"/>
-            <rect x="77" y="28" width="18" height="44" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="0.4" filter="url(#glow)"/>
+            <rect x="5" y="30" width="16" height="40" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="0.5" filter="url(#whiteGlow)"/>
+            <rect x="79" y="30" width="16" height="40" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="0.5" filter="url(#whiteGlow)"/>
+
+            {/* Goal areas */}
+            <rect x="5" y="40" width="5.5" height="20" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="0.5" filter="url(#whiteGlow)"/>
+            <rect x="89.5" y="40" width="5.5" height="20" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="0.5" filter="url(#whiteGlow)"/>
 
             {/* Corner arcs */}
-            <path d="M 7 15 A 2 2 0 0 1 5 17" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3" fill="none" filter="url(#glow)"/>
-            <path d="M 93 15 A 2 2 0 0 0 95 17" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3" fill="none" filter="url(#glow)"/>
-            <path d="M 7 85 A 2 2 0 0 0 5 83" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3" fill="none" filter="url(#glow)"/>
-            <path d="M 93 85 A 2 2 0 0 1 95 83" stroke="rgba(255,255,255,0.8)" strokeWidth="0.3" fill="none" filter="url(#glow)"/>
+            <path d="M 7 15 A 2 2 0 0 1 5 17" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" fill="none" filter="url(#whiteGlow)"/>
+            <path d="M 93 15 A 2 2 0 0 0 95 17" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" fill="none" filter="url(#whiteGlow)"/>
+            <path d="M 7 85 A 2 2 0 0 0 5 83" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" fill="none" filter="url(#whiteGlow)"/>
+            <path d="M 93 85 A 2 2 0 0 1 95 83" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" fill="none" filter="url(#whiteGlow)"/>
           </svg>
 
-          {/* Attack patterns with simple white lines */}
-          {attackPatterns.map((pattern) => (
-            <div key={pattern.id} className="absolute inset-0 pointer-events-none z-20">
-              <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <line
-                  x1={pattern.startX}
-                  y1={pattern.startY}
-                  x2={pattern.endX}
-                  y2={pattern.endY}
-                  stroke="rgba(255,255,255,0.9)"
-                  strokeWidth="0.8"
-                  strokeDasharray="2,1"
-                  className="animate-pulse"
-                />
-                <polygon
-                  points={`${pattern.endX-1.5},${pattern.endY-1.5} ${pattern.endX+1.5},${pattern.endY} ${pattern.endX-1.5},${pattern.endY+1.5}`}
-                  fill="rgba(255,255,255,0.9)"
-                />
-              </svg>
-            </div>
-          ))}
-
-          {/* Modern White Ball with pulse animation */}
+          {/* Professional ball with possession indicator */}
           <div 
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out z-30"
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ease-out z-30"
             style={{
               left: `${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
@@ -622,20 +483,18 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           >
             <div className="relative">
               {/* Ball shadow */}
-              <div className="absolute w-4 h-2 bg-black/20 rounded-full blur-sm transform" 
-                   style={{ left: '-8px', top: '8px' }}></div>
+              <div className="absolute w-4 h-2 bg-black/30 rounded-full blur-sm" 
+                   style={{ left: '-8px', top: '12px' }}></div>
 
-              {/* White ball with pulse */}
-              <div className="w-3 h-3 bg-white rounded-full shadow-lg relative overflow-hidden animate-pulse">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/30 to-transparent"></div>
+              {/* Professional ball */}
+              <div className="w-3 h-3 bg-white rounded-full shadow-xl relative overflow-hidden">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/40 to-transparent"></div>
 
-                {/* Possession indicator ring */}
+                {/* Possession glow effect */}
                 {ballPossession && (
-                  <div className="absolute -inset-1">
-                    <div className={`w-5 h-5 rounded-full animate-ping opacity-40 ${
-                      ballPossession === 'home' 
-                        ? 'bg-blue-400' 
-                        : 'bg-red-400'
+                  <div className="absolute -inset-2">
+                    <div className={`w-7 h-7 rounded-full animate-ping opacity-30 ${
+                      ballPossession === 'home' ? 'bg-blue-400' : 'bg-red-400'
                     }`}></div>
                   </div>
                 )}
@@ -643,91 +502,152 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           </div>
 
-          {/* Event overlay */}
-          {currentEvent && (
-            <div className="absolute top-4 right-4 z-50 pointer-events-none">
-              <div className="bg-white/95 backdrop-blur-sm rounded-lg px-4 py-2 shadow-lg border border-gray-200 max-w-xs">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold">
-                    {currentEvent.minute}'
-                  </div>
-                  <span className="text-sm">
-                    {currentEvent.type === 'goal' ? '⚽' : 
-                     currentEvent.type === 'corner' ? '🚩' :
-                     currentEvent.type === 'card' ? '🟨' :
-                     currentEvent.type === 'attack' ? '⚽' : '⚽'}
-                  </span>
-                </div>
-                <div className="text-gray-800 text-sm font-medium">
+          {/* Team positioning - 365scores style */}
+          <div className="absolute top-4 left-4 z-40">
+            <div className="flex items-center gap-2 bg-black/20 backdrop-blur-sm rounded-lg px-3 py-2">
+              <div className="w-4 h-4 bg-red-500 rounded-sm flex items-center justify-center">
+                <span className="text-white text-xs font-bold">👕</span>
+              </div>
+              <span className="text-white text-sm font-bold">
+                {homeTeamData?.name?.toUpperCase().substring(0, 12) || 'HOME'}
+              </span>
+            </div>
+          </div>
+
+          <div className="absolute top-4 right-4 z-40">
+            <div className="flex items-center gap-2 bg-black/20 backdrop-blur-sm rounded-lg px-3 py-2">
+              <span className="text-white text-sm font-bold">
+                {awayTeamData?.name?.toUpperCase().substring(0, 12) || 'AWAY'}
+              </span>
+              <div className="w-4 h-4 bg-gray-300 rounded-sm flex items-center justify-center">
+                <span className="text-gray-700 text-xs font-bold">👕</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Current event display - exact 365scores style */}
+          {currentEvent && currentView === 'event' && (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+              <div className="text-center text-white">
+                <div className="text-3xl font-bold mb-2">
                   {currentEvent.description}
                 </div>
-                <div className="text-gray-600 text-xs">
-                  {currentEvent.player !== 'Team' ? currentEvent.player : 
-                   currentEvent.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
+                <div className="text-xl font-semibold opacity-90">
+                  {currentEvent.team === 'home' ? homeTeamData?.name?.toUpperCase() : awayTeamData?.name?.toUpperCase()}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Team logos on field */}
-          <div className="absolute top-4 left-4 z-40">
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2">
-              <div className="relative">
-                {displayMatch.league?.country === "World" ||
-                displayMatch.league?.country === "International" ? (
-                  <MyWorldTeamLogo
-                    teamName={homeTeamData?.name}
-                    teamLogo={homeTeamData?.logo || '/assets/fallback-logo.svg'}
-                    alt={homeTeamData?.name || 'Home Team'}
-                    size="24px"
-                    leagueContext={{
-                      name: displayMatch.league?.name || '',
-                      country: displayMatch.league?.country || '',
-                    }}
-                  />
-                ) : isNationalTeam(homeTeamData, displayMatch.league) ? (
-                  <MyCircularFlag
-                    teamName={homeTeamData?.name}
-                    fallbackUrl={homeTeamData?.logo}
-                    alt={homeTeamData?.name || 'Home Team'}
-                    size="24px"
-                  />
-                ) : (
-                  <img
-                    src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
-                    alt={homeTeamData?.name || 'Home Team'}
-                    className="w-6 h-6 object-contain"
-                    onError={(e) => {
-                      e.currentTarget.src = '/assets/fallback-logo.svg';
-                    }}
-                  />
-                )}
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"></div>
+          {/* Event notification card - top right */}
+          {currentEvent && currentEvent.type === 'goal' && (
+            <div className="absolute top-4 right-4 z-50">
+              <div className="bg-white rounded-lg shadow-lg px-4 py-2 flex items-center gap-2">
+                <div className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                  {currentEvent.minute}'
+                </div>
+                <span className="text-sm font-semibold">Goal kick</span>
+                <div className="text-gray-500 text-xs">
+                  {currentEvent.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
+                </div>
               </div>
-              <span className="text-white text-sm font-medium">
-                {homeTeamData?.name?.substring(0, 8)}
-              </span>
             </div>
-          </div>
+          )}
+        </div>
 
-          <div className="absolute top-4 right-4 z-40" style={{ right: currentEvent ? '200px' : '16px' }}>
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2">
-              <span className="text-white text-sm font-medium">
-                {awayTeamData?.name?.substring(0, 8)}
-              </span>
-              <div className="relative">
-                <img
-                  src={awayTeamData?.logo || '/assets/fallback-logo.svg'}
-                  alt={awayTeamData?.name || 'Away Team'}
-                  className="w-6 h-6 object-contain"
-                  onError={(e) => {
-                    e.currentTarget.src = '/assets/fallback-logo.svg';
-                  }}
-                />
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+        {/* Bottom statistics panel - 365scores style */}
+        <div className="bg-white border-t border-gray-100">
+          {currentView === 'stats' && (
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Free Kicks</span>
+                <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
+                  {elapsed}'
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+                  <span className="text-sm font-bold">SFE</span>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-blue-500 text-2xl font-bold">10</span>
+                  <div className="w-12 h-12 relative">
+                    <svg className="w-12 h-12 transform -rotate-90">
+                      <circle cx="24" cy="24" r="20" stroke="#e5e7eb" strokeWidth="4" fill="none"/>
+                      <circle cx="24" cy="24" r="20" stroke="#3b82f6" strokeWidth="4" fill="none"
+                              strokeDasharray={`${(teamStats.possession.home/100) * 125.6} 125.6`}/>
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-xs font-bold">⚽</span>
+                    </div>
+                  </div>
+                  <span className="text-red-500 text-2xl font-bold">9</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold">DIM</span>
+                  <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
+
+          {currentView === 'history' && (
+            <div className="p-4">
+              <div className="text-center mb-3">
+                <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Last 5 Matches</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+                  <div className="flex gap-1">
+                    {teamStats.lastFiveMatches.home.map((result, i) => (
+                      <div key={i} className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}>
+                        {result}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    {teamStats.lastFiveMatches.away.map((result, i) => (
+                      <div key={i} className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}>
+                        {result}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {currentView === 'corners' && (
+            <div className="p-4">
+              <div className="text-center mb-3">
+                <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Corners</span>
+              </div>
+              <div className="flex items-center justify-center gap-12">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+                  <span className="text-blue-500 text-3xl font-bold">{teamStats.corners.home}</span>
+                </div>
+                <div className="w-24 h-1 bg-gray-200 rounded relative">
+                  <div 
+                    className="h-full bg-blue-500 rounded transition-all duration-1000"
+                    style={{ 
+                      width: `${teamStats.corners.home > 0 ? (teamStats.corners.home / (teamStats.corners.home + teamStats.corners.away)) * 100 : 50}%` 
+                    }}
+                  ></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-red-500 text-3xl font-bold">{teamStats.corners.away}</span>
+                  <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -343,27 +343,240 @@
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-/* Premium pro style enhancements */
-.premium-pro-style {
-  position: relative;
+/* Professional 365scores Live Action Styles */
+.professional-live-action {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  animation: fieldFadeIn 0.8s ease-out;
 }
 
-.premium-pro-style::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ef4444, #10b981, #3b82f6);
+/* Professional field grass animation */
+@keyframes professionalGrassWave {
+  0%, 100% { 
+    opacity: 0.96; 
+    transform: scaleY(1);
+  }
+  50% { 
+    opacity: 1; 
+    transform: scaleY(1.01);
+  }
+}
+
+.professional-live-action .grass-stripe:nth-child(odd) {
+  animation: professionalGrassWave 6s ease-in-out infinite;
+}
+
+.professional-live-action .grass-stripe:nth-child(even) {
+  animation: professionalGrassWave 6s ease-in-out infinite 3s;
+}
+
+/* Professional attack zone animations */
+@keyframes professionalAttackZone {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+}
+
+/* Professional ball animations */
+@keyframes professionalBallPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 0 rgba(255, 255, 255, 0.4);
+  }
+  50% {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 6px rgba(255, 255, 255, 0);
+  }
+}
+
+.professional-live-action .animate-pulse {
+  animation: professionalBallPulse 2.5s infinite;
+}
+
+/* Professional event overlay */
+@keyframes professionalEventSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.9);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.professional-live-action .event-notification {
+  animation: professionalEventSlide 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Professional team positioning */
+@keyframes professionalTeamGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0);
+  }
+}
+
+/* Professional statistics panel */
+@keyframes professionalStatsReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.professional-live-action .stats-panel {
+  animation: professionalStatsReveal 0.5s ease-out;
+}
+
+/* Professional corner arc animation */
+@keyframes professionalCornerArc {
+  0%, 100% {
+    stroke-dashoffset: 0;
+    opacity: 0.9;
+  }
+  50% {
+    stroke-dashoffset: -6;
+    opacity: 1;
+  }
+}
+
+/* Professional possession indicator */
+@keyframes professionalPossessionPulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* Professional attack zone overlay */
+.professional-live-action .attack-zone {
+  animation: professionalAttackZone 1.5s ease-out;
+  filter: blur(1px);
+  mix-blend-mode: multiply;
+}
+
+/* Professional field glow effect */
+@keyframes professionalFieldGlow {
+  0%, 100% {
+    filter: brightness(1) contrast(1.05);
+  }
+  50% {
+    filter: brightness(1.02) contrast(1.1);
+  }
+}
+
+.professional-live-action .field-background {
+  animation: professionalFieldGlow 8s ease-in-out infinite;
+}
+
+/* Professional text shadows */
+.professional-live-action .team-text {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.professional-live-action .event-text {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Professional backdrop blur effects */
+.professional-live-action .glass-effect {
+  backdrop-filter: blur(12px) saturate(180%);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Professional loading animation */
+@keyframes professionalLoading {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+}
+
+.professional-live-action .loading-state {
+  animation: professionalLoading 2s ease-in-out infinite;
+}
+
+/* Premium shadows and depth */
+.professional-live-action .depth-shadow {
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Responsive optimizations */
+@media (max-width: 768px) {
+  .professional-live-action {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+  }
+  
+  .professional-live-action .h-80 {
+    height: 60vh;
+    min-height: 300px;
+  }
+  
+  .professional-live-action .team-text {
+    font-size: 0.75rem;
+  }
+  
+  .professional-live-action .event-text {
+    font-size: 1.25rem;
+  }
+}
+
+/* Ultra-smooth transitions */
+.professional-live-action * {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Premium gradient overlays */
+.professional-live-action .premium-gradient {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.1) 0%,
+    rgba(147, 51, 234, 0.1) 25%,
+    rgba(239, 68, 68, 0.1) 50%,
+    rgba(16, 185, 129, 0.1) 75%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
   background-size: 400% 400%;
-  border-radius: 14px;
-  z-index: -1;
-  animation: premiumBorder 4s ease-in-out infinite;
-  opacity: 0.3;
+  animation: premiumGradientShift 10s ease-in-out infinite;
 }
 
-@keyframes premiumBorder {
+@keyframes premiumGradientShift {
   0%, 100% {
     background-position: 0% 50%;
   }
