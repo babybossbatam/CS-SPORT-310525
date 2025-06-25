@@ -83,18 +83,25 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
 
     let isMounted = true;
     const controller = new AbortController();
+    let timeoutId: NodeJS.Timeout | null = null;
 
     try {
       setIsLoading(true);
       setError(null);
 
       // Set a reasonable timeout
-      const timeoutId = setTimeout(() => {
+      timeoutId = setTimeout(() => {
         if (isMounted && !controller.signal.aborted) {
-          controller.abort();
-          console.warn('⏰ [Sportsradar] Request timeout');
-          setError('Request timeout');
-          setIsLoading(false);
+          try {
+            controller.abort();
+            console.warn('⏰ [Sportsradar] Request timeout');
+            if (isMounted) {
+              setError('Request timeout');
+              setIsLoading(false);
+            }
+          } catch (abortError) {
+            console.warn('⚠️ [Sportsradar] Error during abort:', abortError);
+          }
         }
       }, 8000);
 
@@ -119,9 +126,10 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
           }
         }
       } catch (sportsradarError: any) {
-        if (sportsradarError.name !== 'AbortError') {
+        if (sportsradarError.name !== 'AbortError' && isMounted) {
           console.warn('⚠️ [Sportsradar] Events API failed:', sportsradarError.message);
         }
+        // Don't throw, continue with fallback
       }
 
       // Try Sportsradar stats API
@@ -140,9 +148,10 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
           }
         }
       } catch (sportsradarStatsError: any) {
-        if (sportsradarStatsError.name !== 'AbortError') {
+        if (sportsradarStatsError.name !== 'AbortError' && isMounted) {
           console.warn('⚠️ [Sportsradar] Stats API failed:', sportsradarStatsError.message);
         }
+        // Don't throw, continue with fallback
       }
 
       // Fallback to SoccersAPI if Sportsradar fails
@@ -173,9 +182,10 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
             }
           }
         } catch (soccersError: any) {
-          if (soccersError.name !== 'AbortError') {
+          if (soccersError.name !== 'AbortError' && isMounted) {
             console.warn('⚠️ [SoccersAPI] Events fallback failed:', soccersError.message);
           }
+          // Don't throw, continue
         }
       }
 
@@ -214,13 +224,16 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
             }
           }
         } catch (soccersStatsError: any) {
-          if (soccersStatsError.name !== 'AbortError') {
+          if (soccersStatsError.name !== 'AbortError' && isMounted) {
             console.warn('⚠️ [SoccersAPI] Stats fallback failed:', soccersStatsError.message);
           }
+          // Don't throw, continue
         }
       }
 
-      clearTimeout(timeoutId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
 
       // Set default data if no APIs provided data
       if (!hasEvents && isMounted) {
@@ -237,6 +250,10 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
       }
 
     } catch (error: any) {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      
       if (isMounted && error.name !== 'AbortError') {
         console.error('❌ [Sportsradar Live Action] Error fetching data:', error);
         setError('Failed to load live data');
@@ -254,7 +271,20 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
       }
     }
 
-    // Cleanup function will be handled by the effect cleanup
+    // Return cleanup function
+    return () => {
+      isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      if (!controller.signal.aborted) {
+        try {
+          controller.abort();
+        } catch (cleanupError) {
+          console.warn('⚠️ [Sportsradar] Cleanup abort error:', cleanupError);
+        }
+      }
+    };
   }, [matchId, isLive]);
 
   // Main effect for fetching data and setting up intervals
@@ -264,17 +294,40 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
       return;
     }
 
-    // Initial fetch
-    fetchSportsradarData();
+    let updateInterval: NodeJS.Timeout | null = null;
+    let cleanupFunction: (() => void) | null = null;
+
+    // Initial fetch with cleanup function
+    const initialFetch = async () => {
+      try {
+        cleanupFunction = await fetchSportsradarData();
+      } catch (error) {
+        console.warn('⚠️ [Sportsradar] Initial fetch error:', error);
+      }
+    };
+
+    initialFetch();
 
     // Set up interval for live updates
-    const updateInterval = setInterval(() => {
-      fetchSportsradarData();
+    updateInterval = setInterval(async () => {
+      try {
+        // Clean up previous request if any
+        if (cleanupFunction) {
+          cleanupFunction();
+        }
+        cleanupFunction = await fetchSportsradarData();
+      } catch (error) {
+        console.warn('⚠️ [Sportsradar] Interval fetch error:', error);
+      }
     }, 15000); // Update every 15 seconds
 
     return () => {
-      clearInterval(updateInterval);
-      // Any ongoing requests will be cleaned up by their own abort controllers
+      if (updateInterval) {
+        clearInterval(updateInterval);
+      }
+      if (cleanupFunction) {
+        cleanupFunction();
+      }
     };
   }, [fetchSportsradarData]);
 
