@@ -61,24 +61,22 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         }}
       >
         {/* Home team logo */}
-        <div className="flex items-center gap-3">
-          <div className="-ml-4 w-15 h-18 flex-shrink-1 relative z-10" style={{ marginTop: "-8px", marginBottom: "-8px" }}>
-            <MyWorldTeamLogo
-              teamName={homeTeam.name || "Home Team"}
-              teamLogo={homeTeam.logo}
-              alt={homeTeam.name || "Home Team"}
-              size="65px"
-              className="w-full h-full object-contain "
-              leagueContext={{
-                name: league?.country || "League",
-                country: league?.country || "World",
-              }}
-            />
-          </div>
-          <span className="text-white font-md uppercase text-sm truncate max-w-[120px]">
-            {homeTeam.name || "TBD"}
-          </span>
+        <div className="-ml-4 w-15 h-18 flex-shrink-1 relative z-10" style={{ marginTop: "-8px", marginBottom: "-8px" }}>
+          <MyWorldTeamLogo
+            teamName={homeTeam.name || "Home Team"}
+            teamLogo={homeTeam.logo}
+            alt={homeTeam.name || "Home Team"}
+            size="65px"
+            className="w-full h-full object-contain "
+            leagueContext={{
+              name: league?.country || "League",
+              country: league?.country || "World",
+            }}
+          />
         </div>
+        <span className="text-white font-md uppercase text-sm truncate max-w-[120px]">
+          {homeTeam.name || "TBD"}
+        </span>
       </div>
 
       {/* VS section - positioned at the connection point */}
