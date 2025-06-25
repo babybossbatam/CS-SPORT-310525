@@ -301,47 +301,54 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       if (eventAge < 120000) {
         setCurrentEvent(latestEvent);
         
-        // Auto-hide event after 8 seconds to show field and ball movement
+        // Auto-hide event after 6 seconds to show field and ball movement
         const hideEventTimeout = setTimeout(() => {
           setCurrentEvent(null);
-        }, 8000);
+        }, 6000);
 
-        return () => {
-          clearTimeout(hideEventTimeout);
-        };
+        // Don't return cleanup here - let it fall through to handle cycling
+        // Store the timeout to clean up later
+        const cleanupTimeout = () => clearTimeout(hideEventTimeout);
+        
+        // Only cycle if there are multiple recent events
+        if (playByPlayEvents.length > 1) {
+          const recentEvents = playByPlayEvents.slice(0, 3).filter(event => 
+            Date.now() - event.timestamp < 120000
+          );
+          
+          if (recentEvents.length > 1) {
+            const eventCycleInterval = setInterval(() => {
+              setCurrentEvent(null); // Clear before showing next
+              
+              setTimeout(() => {
+                const currentIndex = recentEvents.findIndex(e => e.id === currentEvent?.id);
+                const nextIndex = (currentIndex + 1) % recentEvents.length;
+                setCurrentEvent(recentEvents[nextIndex]);
+                
+                // Auto-hide each cycled event after 5 seconds
+                setTimeout(() => {
+                  setCurrentEvent(null);
+                }, 5000);
+              }, 1000); // 1 second gap to see field
+            }, 8000); // Show each event for 5 seconds, 3 seconds gap
+
+            return () => {
+              clearInterval(eventCycleInterval);
+              cleanupTimeout();
+            };
+          }
+        }
+
+        return cleanupTimeout;
       } else {
         // Clear stale events
         setCurrentEvent(null);
-      }
-
-      // Only cycle if there are multiple recent events
-      if (playByPlayEvents.length > 1) {
-        const recentEvents = playByPlayEvents.slice(0, 2).filter(event => 
-          Date.now() - event.timestamp < 120000
-        );
-        
-        if (recentEvents.length > 1) {
-          const eventCycleInterval = setInterval(() => {
-            const currentIndex = recentEvents.findIndex(e => e.id === currentEvent?.id);
-            const nextIndex = (currentIndex + 1) % recentEvents.length;
-            setCurrentEvent(recentEvents[nextIndex]);
-            
-            // Auto-hide each cycled event after 6 seconds
-            setTimeout(() => {
-              setCurrentEvent(null);
-            }, 6000);
-          }, 10000); // Show each event for 6 seconds, 4 seconds gap to see field
-
-          return () => {
-            clearInterval(eventCycleInterval);
-          };
-        }
       }
     } else {
       // No events available, clear current event
       setCurrentEvent(null);
     }
-  }, [playByPlayEvents.length])
+  }, [playByPlayEvents.length, currentEvent?.id])
 
   const generatePlayByPlayEvents = async (matchData: any, isUpdate: boolean = false) => {
     try {
@@ -725,7 +732,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
 
           {/* Premium event overlay */}
-          {(currentEvent || (!currentEvent && isLive && ballPossession)) && (
+          {currentEvent && (
             <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
               <div className="bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl rounded-2xl px-8 py-6 text-center shadow-2xl border border-slate-600/50 max-w-sm event-overlay transform animate-in fade-in-0 zoom-in-95 duration-300">
                 {/* Premium event type badge */}
@@ -762,15 +769,12 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 </div>
 
                 <div className="text-white text-lg font-bold mb-4">
-                  {currentEvent ? currentEvent.description : (
-                    ballPossession === 'home' ? 'Building up play' :
-                    ballPossession === 'away' ? 'Counter attack' :
-                    'Midfield battle'
-                  )}
+                  {currentEvent.description}
                 </div>
 
                 <div className="flex items-center justify-center gap-3 bg-slate-800/50 rounded-lg px-4 py-3">
-                  {currentEvent ? (
+                  {/* Show event details */}
+                  {(
                     <>
                       {displayMatch.league?.country === "World" ||
                       displayMatch.league?.country === "International" ? (
@@ -809,30 +813,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       </div>
                       <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-2 py-1 rounded-full text-xs font-bold">
                         {currentEvent.minute}'
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <img
-                          src={ballPossession === 'home' ? homeTeamData?.logo : awayTeamData?.logo || '/assets/fallback-logo.svg'}
-                          alt={ballPossession === 'home' ? homeTeamData?.name : awayTeamData?.name || 'Team'}
-                          className="w-6 h-6 object-contain rounded-full"
-                          style={{
-                            filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
-                          }}
-                          onError={(e) => {
-                            e.currentTarget.src = '/assets/fallback-logo.svg';
-                          }}
-                        />
-                        <div className="text-slate-300 text-sm font-medium">
-                          {ballPossession === 'home' ? homeTeamData?.name : 
-                           ballPossession === 'away' ? awayTeamData?.name : 
-                           'Match in progress'}
-                        </div>
-                      </div>
-                      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-2 py-1 rounded-full text-xs font-bold">
-                        {elapsed}'
                       </div>
                     </>
                   )}
