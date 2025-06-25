@@ -150,7 +150,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             if (Array.isArray(liveData)) {
               liveFixtures = liveData
                 .filter((fixture: any) => {
-                  // Must have valid teams and be from priority leagues or popular leagues
+                  // Must have valid teams - prioritize ALL live matches
                   const hasValidTeams =
                     fixture.teams?.home?.name && fixture.teams?.away?.name;
                   const isPriorityLeague = priorityLeagueIds.includes(
@@ -159,8 +159,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   const isPopularLeague = POPULAR_LEAGUES.some(
                     (league) => league.id === fixture.league?.id,
                   );
+                  const isLive = isLiveMatch(fixture.fixture.status.short);
 
-                  return hasValidTeams && (isPriorityLeague || isPopularLeague);
+                  // Include if: has valid teams AND (is live OR is from priority/popular leagues)
+                  return hasValidTeams && (isLive || isPriorityLeague || isPopularLeague);
                 })
                 .map((fixture: any) => ({
                   fixture: {
@@ -193,7 +195,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 }));
             }
             console.log(
-              `✅ [FeaturedMatches] Found ${liveFixtures.length} live matches`,
+              `✅ [FeaturedMatches] Found ${liveFixtures.length} live matches (including all live matches regardless of league)`,
             );
           }
         } catch (error) {
@@ -378,27 +380,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const aStatus = a.fixture.status.short;
               const bStatus = b.fixture.status.short;
 
-              const aLive = [
-                "LIVE",
-                "1H",
-                "HT",
-                "2H",
-                "ET",
-                "BT",
-                "P",
-                "INT",
-              ].includes(aStatus);
-              const bLive = [
-                "LIVE",
-                "1H",
-                "HT",
-                "2H",
-                "ET",
-                "BT",
-                "P",
-                "INT",
-              ].includes(bStatus);
+              const aLive = isLiveMatch(aStatus);
+              const bLive = isLiveMatch(bStatus);
 
+              // Live matches always come first
               if (aLive && !bLive) return -1;
               if (!aLive && bLive) return 1;
 
