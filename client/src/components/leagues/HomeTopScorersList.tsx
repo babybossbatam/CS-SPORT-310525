@@ -467,7 +467,7 @@ const HomeTopScorersList = () => {
   const canScrollLeft = availableLeagues.length > 0;
   const canScrollRight = availableLeagues.length > 0;
 
-  // Auto-scroll to selected league when it changes with improved timing
+  // Auto-scroll to center selected league when it changes
   useEffect(() => {
     if (
       !scrollContainerRef.current ||
@@ -486,7 +486,6 @@ const HomeTopScorersList = () => {
       ) as HTMLElement;
 
       if (!selectedButton) {
-        // Button not found, try again after a short delay
         console.log(`🔍 [Scroll] Selected league button not found: ${selectedLeague}`);
         return false;
       }
@@ -500,17 +499,17 @@ const HomeTopScorersList = () => {
       const actualContentWidth = content ? content.scrollWidth : 0;
 
       if (actualContentWidth === 0) {
-        // Content not ready, try again
         console.log(`🔍 [Scroll] Content not ready, actualContentWidth: ${actualContentWidth}`);
         return false;
       }
 
-      // Calculate optimal position to center the selected item
-      const targetPosition = buttonLeft - containerWidth / 2 + buttonWidth / 2;
+      // Always center the selected league in the visible area
+      const targetPosition = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
       const maxScroll = Math.max(0, actualContentWidth - containerWidth);
       const clampedPosition = Math.max(0, Math.min(maxScroll, targetPosition));
 
-      console.log(`🎯 [Scroll] Scrolling to selected league: ${selectedLeague}`, {
+      console.log(`🎯 [Scroll] Centering selected league: ${selectedLeague}`, {
+        leagueName: availableLeagues.find(l => l.id === selectedLeague)?.name,
         buttonLeft,
         buttonWidth,
         containerWidth,
@@ -519,23 +518,23 @@ const HomeTopScorersList = () => {
         clampedPosition
       });
 
-      // Update state to trigger scroll
+      // Force immediate scroll to center position
       setContentPosition(clampedPosition);
 
       if (actualContentWidth !== contentWidth) {
         setContentWidth(actualContentWidth);
       }
 
-      return true; // Success
+      return true;
     };
 
-    // Try multiple times with increasing delays to handle different rendering scenarios
+    // Use multiple attempts with shorter delays for better responsiveness
     const attemptScroll = (attempt = 0) => {
-      const maxAttempts = 8; // Increased attempts
-      const delays = [0, 50, 150, 300, 500, 750, 1000, 1500]; // More delay options
+      const maxAttempts = 5;
+      const delays = [0, 100, 250, 500, 1000];
 
       if (attempt >= maxAttempts) {
-        console.warn(`❌ [Scroll] Failed to scroll to league ${selectedLeague} after ${maxAttempts} attempts`);
+        console.warn(`❌ [Scroll] Failed to center league ${selectedLeague} after ${maxAttempts} attempts`);
         return;
       }
 
@@ -546,7 +545,7 @@ const HomeTopScorersList = () => {
             console.log(`🔄 [Scroll] Attempt ${attempt + 1} failed, retrying...`);
             attemptScroll(attempt + 1);
           } else if (success) {
-            console.log(`✅ [Scroll] Successfully scrolled to league ${selectedLeague} on attempt ${attempt + 1}`);
+            console.log(`✅ [Scroll] Successfully centered league ${selectedLeague} on attempt ${attempt + 1}`);
           }
         });
       }, delays[attempt]);
@@ -556,7 +555,7 @@ const HomeTopScorersList = () => {
 
     const cleanup = attemptScroll();
     return cleanup;
-  }, [selectedLeague, availableLeagues.length, containerWidth, contentWidth]);
+  }, [selectedLeague, availableLeagues.length]);
 
   if (isLoadingLeagues || !selectedLeague) {
     return (
@@ -674,11 +673,18 @@ const HomeTopScorersList = () => {
                   <button
                     key={league.id}
                     data-league-id={league.id}
-                    onClick={() => setSelectedLeague(league.id)}
-                    className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 flex-shrink-0 px-3 py-2  min-w-max ${
+                    onClick={() => {
+                      console.log(`🎯 [League Selection] User selected league:`, {
+                        id: league.id,
+                        name: league.name,
+                        previousSelection: selectedLeague
+                      });
+                      setSelectedLeague(league.id);
+                    }}
+                    className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 flex-shrink-0 px-3 py-2 min-w-max ${
                       selectedLeague === league.id
-                        ? "text-gray-700 font-md"
-                        : "text-gray-400 hover:text-gray-900 "
+                        ? "text-gray-700 font-semibold bg-gray-50 rounded-md"
+                        : "text-gray-400 hover:text-gray-900"
                     }`}
                   >
                     <div className="w-5 h-5 flex-shrink-0">
@@ -733,8 +739,14 @@ const HomeTopScorersList = () => {
             <div className="text-center py-6 text-gray-500">
               <p className="text-sm">Failed to load top scorers</p>
               <p className="text-xs text-gray-400 mt-1">
-                for {getCurrentLeague()?.name}
+                for {getCurrentLeague()?.name || "Selected League"}
               </p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="text-xs text-blue-600 hover:text-blue-800 mt-2 underline"
+              >
+                Retry
+              </button>
             </div>
           ) : topScorers && topScorers.length > 0 ? (
             <div className="space-y-3">
@@ -839,22 +851,24 @@ const HomeTopScorersList = () => {
             <div className="text-center py-6 text-gray-500">
               <p className="text-sm">No top scorer data available</p>
               <p className="text-xs text-gray-400 mt-1">
-                for {getCurrentLeague()?.name}
+                for {getCurrentLeague()?.name || "Selected League"}
               </p>
             </div>
           )}
 
-          {/* Stats link */}
-          <div className="mt-4 pt-3 border-t border-gray-100">
-            <button
-              className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium group"
-              onClick={() => navigate(`/league/${selectedLeague}/stats`)}
-            >
-              <span className="hover:underline transition-all duration-200">
-                {getLeagueDisplayName(selectedLeague)} Stats
-              </span>
-            </button>
-          </div>
+          {/* Stats link - always use the currently selected league */}
+          {selectedLeague && (
+            <div className="mt-4 pt-3 border-t border-gray-100">
+              <button
+                className="w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium group"
+                onClick={() => navigate(`/league/${selectedLeague}/stats`)}
+              >
+                <span className="hover:underline transition-all duration-200">
+                  {getCurrentLeague()?.name || "Selected League"} Stats
+                </span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </>
