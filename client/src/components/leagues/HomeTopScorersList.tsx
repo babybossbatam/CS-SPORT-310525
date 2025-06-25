@@ -50,6 +50,11 @@ const POPULAR_LEAGUES = [
     logo: "https://media.api-sports.io/football/leagues/61.png",
   },
   {
+    id: 34,
+    name: "World Cup Qualification South America",
+    logo: "https://media.api-sports.io/football/leagues/34.png",
+  },
+  {
     id: 2,
     name: "UEFA Champions League",
     logo: "https://media.api-sports.io/football/leagues/2.png",
@@ -83,11 +88,6 @@ const POPULAR_LEAGUES = [
     id: 15,
     name: "FIFA Club World Cup",
     logo: "https://media.api-sports.io/football/leagues/15.png",
-  },
-  {
-    id: 34,
-    name: "World Cup Qualification South America",
-    logo: "https://media.api-sports.io/football/leagues/34.png",
   },
   {
     id: 307,
