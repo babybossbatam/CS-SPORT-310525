@@ -45,7 +45,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
 }) => {
   return (
     <div
-      className={`flex items-center px-4  overflow relative ${onClick ? "cursor-pointer" : ""} ${className}`}
+      className={`flex items-center px-4 overflow relative ${onClick ? "cursor-pointer" : ""} ${className}`}
       onClick={onClick}
       style={{ cursor: onClick ? "pointer" : "default", height: "44px" }}
     >
@@ -62,7 +62,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
       >
         {/* Home team logo */}
         <div className="flex items-center gap-3">
-          <div className=" -ml-4 w-15 h-18 flex-shrink-1 ">
+          <div className="-ml-4 w-15 h-18 flex-shrink-1 relative z-10" style={{ marginTop: "-8px", marginBottom: "-8px" }}>
             <MyWorldTeamLogo
               teamName={homeTeam.name || "Home Team"}
               teamLogo={homeTeam.logo}
@@ -107,7 +107,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
       >
         {/* Away team logo */}
         <div className="flex items-center gap-3 flex-row-reverse">
-          <div className="-mr-2 w-15 h-15 flex-shrink-0">
+          <div className="-mr-2 w-15 h-15 flex-shrink-0 relative z-10" style={{ marginTop: "-8px", marginBottom: "-8px" }}>
             <MyWorldTeamLogo
               teamName={awayTeam.name || "Away Team"}
               teamLogo={awayTeam.logo}
