@@ -120,13 +120,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             continue;
           }
 
-          // Get all fixtures with valid teams (no league filtering)
+          // Filter for popular leagues and get featured matches
           const featuredForDay = fixtures
             .filter((fixture: any) => {
+              // Must be from popular leagues
+              const isPopularLeague = POPULAR_LEAGUES.some(league => league.id === fixture.league.id);
+              
               // Must have valid teams
               const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
               
-              return hasValidTeams;
+              return isPopularLeague && hasValidTeams;
             })
             .map((fixture: any) => ({
               fixture: {
@@ -157,8 +160,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 away: fixture.goals?.away ?? null
               }
             }))
-            // Sort by match time only
+            // Sort by league priority and time
             .sort((a: FeaturedMatch, b: FeaturedMatch) => {
+              // Priority order: Champions League, Premier League, La Liga, etc.
+              const leaguePriority = [2, 39, 140, 135, 78, 61, 3, 848, 15, 38];
+              const aPriority = leaguePriority.indexOf(a.league.id);
+              const bPriority = leaguePriority.indexOf(b.league.id);
+              
+              if (aPriority !== -1 && bPriority !== -1) {
+                return aPriority - bPriority;
+              }
+              if (aPriority !== -1) return -1;
+              if (bPriority !== -1) return 1;
+              
+              // Sort by time if same priority
               return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
             })
             .slice(0, maxMatches); // Use maxMatches prop
