@@ -444,24 +444,34 @@ const HomeTopScorersList = () => {
     if (availableLeagues.length === 0) return;
 
     const currentIndex = getCurrentLeagueIndex();
+    let nextLeagueId;
+    
     if (currentIndex > 0) {
-      setSelectedLeague(availableLeagues[currentIndex - 1].id);
+      nextLeagueId = availableLeagues[currentIndex - 1].id;
     } else {
       // If at first league, go to last league
-      setSelectedLeague(availableLeagues[availableLeagues.length - 1].id);
+      nextLeagueId = availableLeagues[availableLeagues.length - 1].id;
     }
+
+    console.log(`⬅️ [Navigation] Moving left from ${getCurrentLeague()?.name} to ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
+    setSelectedLeague(nextLeagueId);
   };
 
   const scrollRight = () => {
     if (availableLeagues.length === 0) return;
 
     const currentIndex = getCurrentLeagueIndex();
+    let nextLeagueId;
+    
     if (currentIndex < availableLeagues.length - 1) {
-      setSelectedLeague(availableLeagues[currentIndex + 1].id);
+      nextLeagueId = availableLeagues[currentIndex + 1].id;
     } else {
       // If at last league, go to first league
-      setSelectedLeague(availableLeagues[0].id);
+      nextLeagueId = availableLeagues[0].id;
     }
+
+    console.log(`➡️ [Navigation] Moving right from ${getCurrentLeague()?.name} to ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
+    setSelectedLeague(nextLeagueId);
   };
 
   const canScrollLeft = availableLeagues.length > 0;
@@ -518,7 +528,7 @@ const HomeTopScorersList = () => {
         clampedPosition
       });
 
-      // Force immediate scroll to center position
+      // Smooth scroll to center position with animation
       setContentPosition(clampedPosition);
 
       if (actualContentWidth !== contentWidth) {
@@ -530,8 +540,8 @@ const HomeTopScorersList = () => {
 
     // Use multiple attempts with shorter delays for better responsiveness
     const attemptScroll = (attempt = 0) => {
-      const maxAttempts = 5;
-      const delays = [0, 100, 250, 500, 1000];
+      const maxAttempts = 3;
+      const delays = [0, 50, 150];
 
       if (attempt >= maxAttempts) {
         console.warn(`❌ [Scroll] Failed to center league ${selectedLeague} after ${maxAttempts} attempts`);
@@ -555,7 +565,7 @@ const HomeTopScorersList = () => {
 
     const cleanup = attemptScroll();
     return cleanup;
-  }, [selectedLeague, availableLeagues.length]);
+  }, [selectedLeague, availableLeagues.length, containerWidth, contentWidth]);
 
   if (isLoadingLeagues || !selectedLeague) {
     return (
@@ -663,7 +673,7 @@ const HomeTopScorersList = () => {
             >
               <div
                 data-content
-                className="flex items-center py-3 gap-6 transition-all duration-300 ease-out"
+                className="flex items-center py-3 gap-6 transition-all duration-400 ease-in-out"
                 style={{
                   transform: `translateX(-${contentPosition}px)`,
                   width: "max-content",
