@@ -45,69 +45,64 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
 }) => {
   return (
     <div
-      className={`flex items-center rounded-lg overflow-hidden shadow-lg relative ${onClick ? "cursor-pointer" : ""} ${className}`}
+      className={`flex items-center px-4  overflow relative ${onClick ? "cursor-pointer" : ""} ${className}`}
       onClick={onClick}
       style={{ cursor: onClick ? "pointer" : "default", height: "54px" }}
     >
       {/* Home team section - 45% width */}
       <div
-        className="flex items-center justify-between h-full flex-1 -pl-12 relative"
+        className="flex items-left justify-between h-full flex-1 relative"
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
-          width: "45%",
+          width: "50%",
         }}
       >
         {/* Home team logo */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 flex-shrink-0">
+          <div className=" -ml-4 w-15 h-18 flex-shrink-0 ">
             <MyWorldTeamLogo
               teamName={homeTeam.name || "Home Team"}
               teamLogo={homeTeam.logo}
               alt={homeTeam.name || "Home Team"}
-              size="62px"
-              className="w-full h-full object-contain"
+              size="65px"
+              className="w-full h-full object-contain "
               leagueContext={{
                 name: league?.country || "League",
                 country: league?.country || "World",
               }}
             />
           </div>
-          <span className="text-white font-bold text-sm truncate max-w-[120px]">
+          <span className="text-white font-md uppercase text-sm truncate max-w-[120px]">
             {homeTeam.name || "TBD"}
           </span>
         </div>
-
-        {/* Home score */}
-        {homeScore !== null && homeScore !== undefined && (
-          <div className="text-white font-bold text-xl">{homeScore}</div>
-        )}
       </div>
 
       {/* VS section - 10% width */}
       <div
-        className="flex items-center justify-center h-full bg-gray-800 text-white font-bold text-xs relative z-10"
-        style={{ width: "5%" }}
+        className="flex items-center justify-center h-full  text-white font-bold text-xs relative z-0"
+        style={{ width: "0%" }}
       >
         <span>VS</span>
       </div>
 
-      {/* Away team section - 65% width */}
+      {/* Away team section - 45% width */}
       <div
-        className="flex items-center justify-between h-full flex-1 px-4 relative"
+        className="flex justify-between h-full  flex-1 mr-1 relative"
         style={{
           background: `linear-gradient(225deg, ${getTeamColor(awayTeam.id)}, ${getTeamColor(awayTeam.id)}dd)`,
-          width: "45%",
+          width: "50%",
           flexDirection: "row-reverse",
         }}
       >
         {/* Away team logo */}
         <div className="flex items-center gap-3 flex-row-reverse">
-          <div className="w-10 h-10 flex-shrink-0">
+          <div className="-mr-2 w-15 h-15 flex-shrink-0">
             <MyWorldTeamLogo
               teamName={awayTeam.name || "Away Team"}
               teamLogo={awayTeam.logo}
               alt={awayTeam.name || "Away Team"}
-              size="40px"
+              size="55px"
               className="w-full h-full object-contain"
               leagueContext={{
                 name: league?.country || "League",
@@ -115,17 +110,11 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
               }}
             />
           </div>
-          <span className="text-white font-bold text-sm truncate max-w-[120px] text-right">
+          <span className="text-white font-md uppercase text-sm truncate max-w-[65px] text-right">
             {awayTeam.name || "Away Team"}
           </span>
         </div>
-
-        {/* Away score */}
-        {awayScore !== null && awayScore !== undefined && (
-          <div className="text-white font-bold text-xl">{awayScore}</div>
-        )}
       </div>
-
     </div>
   );
 };
