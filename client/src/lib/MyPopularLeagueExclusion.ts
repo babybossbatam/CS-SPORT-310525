@@ -79,7 +79,17 @@ export const popularLeagueExclusionTerms = [
 
   // US lower-tier leagues
   "usl league one",
-  "npsl"
+  "npsl",
+
+  // FIFA competitions to exclude
+  "fifa club world cup",
+  "club world cup",
+
+  // UEFA youth competitions to exclude
+  "uefa u21 championship",
+  "uefa european under-21 championship",
+  "euro u21",
+  "european under-21"
 ];
 
 // Safe substring function to handle null/undefined values
@@ -154,20 +164,16 @@ export function shouldExcludeFromPopularLeagues(
 
   // Check if this is a major international competition that should NEVER be excluded
   const isMajorInternationalCompetition =
-    // UEFA competitions (but women's already excluded above)
-    league.includes("uefa") ||
+    // UEFA competitions (but women's already excluded above, and excluding U21)
+    (league.includes("uefa") && !league.includes("u21") && !league.includes("under-21")) ||
     league.includes("champions league") ||
     league.includes("europa league") ||
     league.includes("conference league") ||
-    league.includes("euro") ||
-    league.includes("european championship") ||
-    // Specifically allow UEFA U21 Championship
-    league.includes("uefa u21 championship") ||
-    league.includes("uefa european under-21 championship") ||
-    // FIFA competitions
-    league.includes("fifa") ||
-    league.includes("world cup") ||
-    league.includes("fifa club world cup") ||
+    (league.includes("euro") && !league.includes("u21") && !league.includes("under-21")) ||
+    (league.includes("european championship") && !league.includes("under-21")) ||
+    // FIFA competitions (excluding Club World Cup)
+    (league.includes("fifa") && !league.includes("club world cup")) ||
+    (league.includes("world cup") && !league.includes("club")) ||
     // CONMEBOL competitions
     league.includes("conmebol") ||
     league.includes("copa america") ||
