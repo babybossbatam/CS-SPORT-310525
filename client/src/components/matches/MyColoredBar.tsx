@@ -1,7 +1,6 @@
-
-import React from 'react';
-import { format, parseISO } from 'date-fns';
-import MyWorldTeamLogo from '../common/MyWorldTeamLogo';
+import React from "react";
+import { format, parseISO } from "date-fns";
+import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 
 interface Team {
   id: number;
@@ -42,11 +41,11 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
   onClick,
   getTeamColor,
   className = "",
-  league
+  league,
 }) => {
   return (
-    <div 
-      className={`flex relative h-[53px] rounded-md mb-8 ${onClick ? 'cursor-pointer' : ''} ${className}`}
+    <div
+      className={`flex relative h-[63px] rounded-md mb-8  ${onClick ? "cursor-pointer" : ""} ${className}`}
       onClick={onClick}
       style={{ cursor: onClick ? "pointer" : "default" }}
     >
@@ -77,7 +76,7 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
                 className="w-full h-full object-contain"
                 leagueContext={{
                   name: league?.country || "League",
-                  country: league?.country || "World"
+                  country: league?.country || "World",
                 }}
               />
             </div>
@@ -98,19 +97,18 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
 
         {/* VS circle */}
         <div
-          className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
+          className="absolute text-white font-bold text-sm rounded-full h-[63px] w-[63px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
           style={{
             background: "#a00000",
-            left: "calc(50% - 26px)",
-            top: "calc(50% - 26px)",
+            left: "calc(50% - 32px)",
+            top: "calc(50% - 31px)",
             minWidth: "52px",
           }}
         >
           <span className="vs-text font-bold">VS</span>
         </div>
 
-        {/* Match date and venue - centered below VS */}
-        <div
+        {/* Match date and venue - centered below VS <div
           className="absolute text-center text-xs text-black font-medium"
           style={{
             fontSize: "0.875rem",
@@ -134,16 +132,14 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
               return (
                 <>
                   {formattedDate} | {timeOnly}
-                  {fixture.venue?.name
-                    ? ` | ${fixture.venue.name}`
-                    : ""}
+                  {fixture.venue?.name ? ` | ${fixture.venue.name}` : ""}
                 </>
               );
             } catch (e) {
               return fixture.venue?.name || "";
             }
           })()}
-        </div>
+        </div> */}
 
         {/* Away team colored bar and logo */}
         <div
@@ -184,7 +180,7 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
             className="w-full h-full object-contain"
             leagueContext={{
               name: league?.country || "League",
-              country: league?.country || "World"
+              country: league?.country || "World",
             }}
           />
         </div>
