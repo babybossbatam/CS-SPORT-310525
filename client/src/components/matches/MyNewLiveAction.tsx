@@ -232,13 +232,12 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
     }
   }, [currentEvent]);
 
-  // Main effect for fetching data and setting up intervals
+  // Main effect for fetching data (no auto-refresh)
   useEffect(() => {
     if (!matchId || !isLive) {
       return;
     }
 
-    let updateInterval: NodeJS.Timeout | null = null;
     let cleanupFunction: (() => void) | null = null;
 
     const initialFetch = async () => {
@@ -251,22 +250,7 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
 
     initialFetch();
 
-    // Set up interval for live updates
-    updateInterval = setInterval(async () => {
-      try {
-        if (cleanupFunction) {
-          cleanupFunction();
-        }
-        cleanupFunction = await fetchSportsradarData();
-      } catch (error) {
-        console.warn('⚠️ [Sportradar] Interval fetch error:', error);
-      }
-    }, 15000);
-
     return () => {
-      if (updateInterval) {
-        clearInterval(updateInterval);
-      }
       if (cleanupFunction) {
         cleanupFunction();
       }
