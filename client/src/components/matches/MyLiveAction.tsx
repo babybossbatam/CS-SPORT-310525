@@ -189,10 +189,23 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
   // Generate dynamic events
   const generateDynamicEvent = () => {
-    const eventTypes = ['attacking', 'ball_safe', 'dangerous_attack'];
     const teams = ['home', 'away'];
     const randomTeam = teams[Math.floor(Math.random() * teams.length)] as 'home' | 'away';
-    const randomType = eventTypes[Math.floor(Math.random() * eventTypes.length)] as 'attacking' | 'ball_safe' | 'dangerous_attack';
+    
+    // Determine event type based on ball position and proximity to penalty area
+    let randomType: 'attacking' | 'ball_safe' | 'dangerous_attack';
+    
+    // Check if ball is in or near penalty areas for dangerous attack
+    const isNearHomePenalty = ballPosition.x < 25 && ballPosition.y > 30 && ballPosition.y < 70;
+    const isNearAwayPenalty = ballPosition.x > 75 && ballPosition.y > 30 && ballPosition.y < 70;
+    
+    if ((randomTeam === 'away' && isNearHomePenalty) || (randomTeam === 'home' && isNearAwayPenalty)) {
+      randomType = 'dangerous_attack';
+    } else if (ballPosition.x < 40 && randomTeam === 'home' || ballPosition.x > 60 && randomTeam === 'away') {
+      randomType = 'attacking';
+    } else {
+      randomType = 'ball_safe';
+    }
 
     // Create attack zone
     const newZone: AttackZone = {
@@ -394,20 +407,23 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         </div>
 
         {/* Professional Football Field */}
-        <div className="relative h-80 bg-gradient-to-br from-green-600 via-green-500 to-green-600 overflow-hidden">
+        <div className="relative h-80 bg-gradient-to-br from-green-700 via-green-600 to-green-700 overflow-hidden" style={{
+          background: 'linear-gradient(135deg, #1e5631 0%, #2d7d32 25%, #388e3c 50%, #2d7d32 75%, #1e5631 100%)'
+        }}>
 
           {/* Professional grass stripes */}
           <div className="absolute inset-0">
-            {Array.from({ length: 20 }).map((_, i) => (
+            {Array.from({ length: 24 }).map((_, i) => (
               <div
                 key={i}
-                className="absolute h-full transition-all duration-500"
+                className="absolute h-full transition-all duration-500 grass-stripe"
                 style={{
-                  width: '5%',
-                  left: `${i * 5}%`,
+                  width: '4.16%',
+                  left: `${i * 4.16}%`,
                   background: i % 2 === 0 
-                    ? 'rgba(255,255,255,0.04)'
-                    : 'rgba(0,0,0,0.04)',
+                    ? 'rgba(255,255,255,0.08)'
+                    : 'rgba(0,0,0,0.12)',
+                  opacity: 0.6
                 }}
               />
             ))}
@@ -417,20 +433,28 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           {attackZones.map((zone) => (
             <div key={zone.id} className="absolute inset-0 pointer-events-none">
               <div 
-                className={`absolute transition-all duration-1000 ${
-                  zone.team === 'home' 
-                    ? 'bg-gradient-to-r from-blue-500/20 via-blue-600/30 to-transparent' 
-                    : 'bg-gradient-to-l from-red-500/20 via-red-600/30 to-transparent'
+                className={`absolute transition-all duration-1000 attack-zone ${
+                  zone.type === 'dangerous_attack'
+                    ? zone.team === 'home' 
+                      ? 'bg-gradient-to-r from-blue-600/60 via-blue-700/70 to-blue-500/40' 
+                      : 'bg-gradient-to-l from-red-600/60 via-red-700/70 to-red-500/40'
+                    : zone.team === 'home' 
+                      ? 'bg-gradient-to-r from-blue-500/45 via-blue-600/55 to-transparent' 
+                      : 'bg-gradient-to-l from-red-500/45 via-red-600/55 to-transparent'
                 }`}
                 style={{
-                  top: '20%',
-                  bottom: '20%',
-                  left: zone.team === 'home' ? '10%' : '40%',
-                  right: zone.team === 'home' ? '40%' : '10%',
+                  top: zone.type === 'dangerous_attack' ? '25%' : '20%',
+                  bottom: zone.type === 'dangerous_attack' ? '25%' : '20%',
+                  left: zone.team === 'home' ? (zone.type === 'dangerous_attack' ? '5%' : '10%') : '35%',
+                  right: zone.team === 'home' ? '35%' : (zone.type === 'dangerous_attack' ? '5%' : '10%'),
                   clipPath: zone.team === 'home' 
-                    ? 'polygon(0% 0%, 70% 0%, 100% 50%, 70% 100%, 0% 100%)'
-                    : 'polygon(30% 0%, 100% 0%, 100% 100%, 30% 100%, 0% 50%)',
-                  opacity: zone.opacity
+                    ? zone.type === 'dangerous_attack' 
+                      ? 'polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%)'
+                      : 'polygon(0% 0%, 70% 0%, 100% 50%, 70% 100%, 0% 100%)'
+                    : zone.type === 'dangerous_attack'
+                      ? 'polygon(15% 0%, 100% 0%, 100% 100%, 15% 100%, 0% 50%)'
+                      : 'polygon(30% 0%, 100% 0%, 100% 100%, 30% 100%, 0% 50%)',
+                  opacity: zone.type === 'dangerous_attack' ? 0.75 : 0.5
                 }}
               />
             </div>
