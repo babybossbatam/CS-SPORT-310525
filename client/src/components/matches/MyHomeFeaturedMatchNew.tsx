@@ -759,33 +759,71 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 {/* Teams display using MyColoredBarNew component */}
 
-                <MyColoredBarNew
-                  homeTeam={{
-                    id: currentMatch.teams.home.id,
-                    name: currentMatch.teams.home.name,
-                    logo: currentMatch.teams.home.logo,
-                  }}
-                  awayTeam={{
-                    id: currentMatch.teams.away.id,
-                    name: currentMatch.teams.away.name,
-                    logo: currentMatch.teams.away.logo,
-                  }}
-                  homeScore={currentMatch.goals.home}
-                  awayScore={currentMatch.goals.away}
-                  status={currentMatch.fixture.status.short}
-                  fixture={{
-                    id: currentMatch.fixture.id,
-                    date: currentMatch.fixture.date,
-                    status: currentMatch.fixture.status,
-                  }}
-                  onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
-                  getTeamColor={getTeamColor}
-                  className="h-20 "
-                  league={{
-                    country: currentMatch.league.country,
-                  }}
-                />
+                <div className="flex flex-col gap-2">
+                  {/* Horizontal logo display */}
+                  <div className="flex items-center justify-center gap-8 px-4">
+                    <div className="flex items-center gap-2">
+                      <MyWorldTeamLogo
+                        teamName={currentMatch.teams.home.name}
+                        teamLogo={currentMatch.teams.home.logo}
+                        alt={currentMatch.teams.home.name}
+                        size="40px"
+                        className="object-contain"
+                        leagueContext={{
+                          name: currentMatch.league.name,
+                          country: currentMatch.league.country,
+                        }}
+                      />
+                     
+                    </div>
 
+                 
+
+                    <div className="flex items-center gap-2 flex-row-reverse">
+                      <MyWorldTeamLogo
+                        teamName={currentMatch.teams.away.name}
+                        teamLogo={currentMatch.teams.away.logo}
+                        alt={currentMatch.teams.away.name}
+                        size="40px"
+                        className="object-contain"
+                        leagueContext={{
+                          name: currentMatch.league.name,
+                          country: currentMatch.league.country,
+                        }}
+                      />
+                     
+   
+                    </div>
+                  </div>
+
+                  {/* MyColoredBarNew component */}
+                  <MyColoredBarNew
+                    homeTeam={{
+                      id: currentMatch.teams.home.id,
+                      name: currentMatch.teams.home.name,
+                      logo: currentMatch.teams.home.logo,
+                    }}
+                    awayTeam={{
+                      id: currentMatch.teams.away.id,
+                      name: currentMatch.teams.away.name,
+                      logo: currentMatch.teams.away.logo,
+                    }}
+                    homeScore={currentMatch.goals.home}
+                    awayScore={currentMatch.goals.away}
+                    status={currentMatch.fixture.status.short}
+                    fixture={{
+                      id: currentMatch.fixture.id,
+                      date: currentMatch.fixture.date,
+                      status: currentMatch.fixture.status,
+                    }}
+                    onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
+                    getTeamColor={getTeamColor}
+                    className="h-20"
+                    league={{
+                      country: currentMatch.league.country,
+                    }}
+                  />
+                </div>
                 {/* Match Details */}
                 <div className="text-center text-sm text-gray-600 mb-4">
                   {format(
