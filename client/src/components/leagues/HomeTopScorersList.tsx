@@ -204,6 +204,13 @@ const HomeTopScorersList = () => {
       const initialLeague = preferredLeague
         ? preferredLeague.id
         : POPULAR_LEAGUES[0].id;
+      
+      console.log(`🎯 [HomeTopScorers] Setting initial league:`, {
+        preferredLeague: preferredLeague?.name,
+        initialLeagueId: initialLeague,
+        initialLeagueName: POPULAR_LEAGUES.find(l => l.id === initialLeague)?.name
+      });
+      
       setSelectedLeague(initialLeague);
 
       // Store in sessionStorage to persist across refreshes
@@ -219,10 +226,24 @@ const HomeTopScorersList = () => {
     const storedLeague = sessionStorage.getItem(
       "homeTopScorers_selectedLeague",
     );
+    console.log(`💾 [HomeTopScorers] Checking sessionStorage:`, {
+      storedLeague,
+      currentSelectedLeague: selectedLeague,
+      hasStoredLeague: !!storedLeague
+    });
+    
     if (storedLeague && !selectedLeague) {
       const leagueId = parseInt(storedLeague, 10);
+      const foundLeague = POPULAR_LEAGUES.find((league) => league.id === leagueId);
+      
+      console.log(`🔍 [HomeTopScorers] Restoring from storage:`, {
+        leagueId,
+        foundLeague: foundLeague?.name,
+        isValid: !!foundLeague
+      });
+      
       // Verify the league still exists in our list
-      if (POPULAR_LEAGUES.find((league) => league.id === leagueId)) {
+      if (foundLeague) {
         setSelectedLeague(leagueId);
       }
     }
@@ -458,7 +479,7 @@ const HomeTopScorersList = () => {
 
     const scrollToSelectedLeague = () => {
       const container = scrollContainerRef.current;
-      if (!container) return;
+      if (!container) return false;
 
       const selectedButton = container.querySelector(
         `[data-league-id="${selectedLeague}"]`,
@@ -466,6 +487,7 @@ const HomeTopScorersList = () => {
 
       if (!selectedButton) {
         // Button not found, try again after a short delay
+        console.log(`🔍 [Scroll] Selected league button not found: ${selectedLeague}`);
         return false;
       }
 
@@ -479,6 +501,7 @@ const HomeTopScorersList = () => {
 
       if (actualContentWidth === 0) {
         // Content not ready, try again
+        console.log(`🔍 [Scroll] Content not ready, actualContentWidth: ${actualContentWidth}`);
         return false;
       }
 
@@ -487,7 +510,16 @@ const HomeTopScorersList = () => {
       const maxScroll = Math.max(0, actualContentWidth - containerWidth);
       const clampedPosition = Math.max(0, Math.min(maxScroll, targetPosition));
 
-      // Update state
+      console.log(`🎯 [Scroll] Scrolling to selected league: ${selectedLeague}`, {
+        buttonLeft,
+        buttonWidth,
+        containerWidth,
+        actualContentWidth,
+        targetPosition,
+        clampedPosition
+      });
+
+      // Update state to trigger scroll
       setContentPosition(clampedPosition);
 
       if (actualContentWidth !== contentWidth) {
@@ -499,16 +531,22 @@ const HomeTopScorersList = () => {
 
     // Try multiple times with increasing delays to handle different rendering scenarios
     const attemptScroll = (attempt = 0) => {
-      const maxAttempts = 5;
-      const delays = [0, 50, 150, 300, 500];
+      const maxAttempts = 8; // Increased attempts
+      const delays = [0, 50, 150, 300, 500, 750, 1000, 1500]; // More delay options
 
-      if (attempt >= maxAttempts) return;
+      if (attempt >= maxAttempts) {
+        console.warn(`❌ [Scroll] Failed to scroll to league ${selectedLeague} after ${maxAttempts} attempts`);
+        return;
+      }
 
       const timer = setTimeout(() => {
         requestAnimationFrame(() => {
           const success = scrollToSelectedLeague();
           if (!success && attempt < maxAttempts - 1) {
+            console.log(`🔄 [Scroll] Attempt ${attempt + 1} failed, retrying...`);
             attemptScroll(attempt + 1);
+          } else if (success) {
+            console.log(`✅ [Scroll] Successfully scrolled to league ${selectedLeague} on attempt ${attempt + 1}`);
           }
         });
       }, delays[attempt]);
@@ -518,7 +556,7 @@ const HomeTopScorersList = () => {
 
     const cleanup = attemptScroll();
     return cleanup;
-  }, [selectedLeague, availableLeagues.length]);
+  }, [selectedLeague, availableLeagues.length, containerWidth, contentWidth]);
 
   if (isLoadingLeagues || !selectedLeague) {
     return (
