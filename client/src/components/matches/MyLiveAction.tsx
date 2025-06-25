@@ -1,9 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import MyHighlights from './MyHighlights';
 import '../../styles/liveaction.css';
+import { MyWorldTeamLogo } from '@/components/Logos/MyWorldTeamLogo';
+import { MyCircularFlag } from '@/components/MyCircularFlag';
+import { isNationalTeam } from '@/utils/utils';
 
 interface MyLiveActionProps {
   matchId?: number;
@@ -520,7 +522,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
         {/* Premium Football Field */}
         <div className="relative h-96 bg-gradient-to-br from-emerald-800 via-green-600 to-emerald-800 overflow-hidden shadow-inner">
-          
+
           {/* Premium ambient lighting overlay */}
           <div className="absolute inset-0 bg-gradient-radial from-transparent via-green-500/5 to-black/20"></div>
           <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/5 to-transparent"></div>
@@ -543,7 +545,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 />
               ))}
             </div>
-            
+
             {/* Stadium lighting effects */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-white/5"></div>
             <div className="absolute top-0 left-1/4 w-1/2 h-1/4 bg-gradient-radial from-white/10 to-transparent rounded-full blur-3xl"></div>
@@ -657,7 +659,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               {/* Enhanced shadow */}
               <div className="absolute w-6 h-3 bg-black/30 rounded-full blur-md transform rotate-3" 
                    style={{ left: '-12px', top: '12px' }}></div>
-              
+
               {/* Premium ball design */}
               <div className="w-5 h-5 bg-gradient-to-br from-white via-gray-50 to-gray-200 rounded-full shadow-2xl border border-gray-300 relative overflow-hidden">
                 {/* Ball texture */}
@@ -667,11 +669,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                   <div className="absolute w-1 h-1 bg-gray-400 rounded-full bottom-1 right-1 opacity-40"></div>
                   <div className="absolute w-0.5 h-0.5 bg-gray-600 rounded-full top-2 right-1.5 opacity-50"></div>
                 </div>
-                
+
                 {/* Premium possession indicator */}
                 {ballPossession && (
                   <div className="absolute -inset-1">
-                    <div className={`w-7 h-7 rounded-full animate-pulse ${
+                    <div className{`w-7 h-7 rounded-full animate-pulse ${
                       ballPossession === 'home' 
                         ? 'ring-2 ring-blue-400 bg-blue-400/10' 
                         : 'ring-2 ring-red-400 bg-red-400/10'
@@ -715,20 +717,44 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                      'LIVE'}
                   </span>
                 </div>
-                
+
                 <div className="text-white text-lg font-bold mb-4">
                   {currentEvent.description}
                 </div>
-                
+
                 <div className="flex items-center justify-center gap-3 bg-slate-800/50 rounded-lg px-4 py-3">
-                  <img
-                    src={currentEvent.team === 'home' ? homeTeamData?.logo : awayTeamData?.logo}
-                    alt={currentEvent.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
-                    className="w-6 h-6 object-contain rounded-full"
-                    onError={(e) => {
-                      e.currentTarget.src = '/assets/fallback-logo.svg';
-                    }}
-                  />
+                  {displayMatch.league?.country === "World" ||
+                  displayMatch.league?.country === "International" ? (
+                    <MyWorldTeamLogo
+                      teamName={homeTeamData?.name}
+                      teamLogo={homeTeamData?.logo || '/assets/fallback-logo.svg'}
+                      alt={homeTeamData?.name || 'Home Team'}
+                      size="32px"
+                      leagueContext={{
+                        name: displayMatch.league?.name || '',
+                        country: displayMatch.league?.country || '',
+                      }}
+                    />
+                  ) : isNationalTeam(homeTeamData, displayMatch.league) ? (
+                    <MyCircularFlag
+                      teamName={homeTeamData?.name}
+                      fallbackUrl={homeTeamData?.logo}
+                      alt={homeTeamData?.name || 'Home Team'}
+                      size="32px"
+                    />
+                  ) : (
+                    <img
+                      src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
+                      alt={homeTeamData?.name || 'Home Team'}
+                      className="w-6 h-6 object-contain rounded-full"
+                      style={{
+                        filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
+                      }}
+                      onError={(e) => {
+                        e.currentTarget.src = '/assets/fallback-logo.svg';
+                      }}
+                    />
+                  )}
                   <div className="text-slate-300 text-sm font-medium">
                     {currentEvent.player !== 'Team' ? currentEvent.player : getTeamDisplayName(currentEvent.team)}
                   </div>
@@ -789,17 +815,41 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="relative">
-                <img
-                  src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
-                  alt={homeTeamData?.name || 'Home Team'}
-                  className="w-8 h-8 object-contain rounded-full border-2 border-blue-400/50 shadow-lg"
-                  onError={(e) => {
-                    e.currentTarget.src = '/assets/fallback-logo.svg';
-                  }}
-                />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border border-white"></div>
-              </div>
+                <div className="relative">
+                  {displayMatch.league?.country === "World" ||
+                  displayMatch.league?.country === "International" ? (
+                    <MyWorldTeamLogo
+                      teamName={homeTeamData?.name}
+                      teamLogo={homeTeamData?.logo || '/assets/fallback-logo.svg'}
+                      alt={homeTeamData?.name || 'Home Team'}
+                      size="32px"
+                      leagueContext={{
+                        name: displayMatch.league?.name || '',
+                        country: displayMatch.league?.country || '',
+                      }}
+                    />
+                  ) : isNationalTeam(homeTeamData, displayMatch.league) ? (
+                    <MyCircularFlag
+                      teamName={homeTeamData?.name}
+                      fallbackUrl={homeTeamData?.logo}
+                      alt={homeTeamData?.name || 'Home Team'}
+                      size="32px"
+                    />
+                  ) : (
+                    <img
+                      src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
+                      alt={homeTeamData?.name || 'Home Team'}
+                      className="w-8 h-8 object-contain"
+                      style={{
+                        filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
+                      }}
+                      onError={(e) => {
+                        e.currentTarget.src = '/assets/fallback-logo.svg';
+                      }}
+                    />
+                  )}
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border border-white"></div>
+                </div>
               <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-2 rounded-lg text-xl font-bold shadow-lg min-w-[50px] text-center">
                 {cornerKicks.home}
               </div>
