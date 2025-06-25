@@ -20,7 +20,8 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // Set higher limits to prevent EventEmitter warnings
 process.setMaxListeners(50);
-require('events').EventEmitter.defaultMaxListeners = 50;
+import { EventEmitter } from 'events';
+EventEmitter.defaultMaxListeners = 50;
 
 // Graceful shutdown handling
 process.on('SIGTERM', () => {
