@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronDown, ChevronUp, Calendar, Star } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid, differenceInHours } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
@@ -32,10 +31,6 @@ import {
   flagCache,
   getCountryCode,
 } from "@/lib/flagUtils";
-import {
-  getCachedFixturesForDate,
-  cacheFixturesForDate,
-} from "@/lib/fixtureCache";
 import { getCachedCountryName, setCachedCountryName } from "@/lib/countryCache";
 
 import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
@@ -147,10 +142,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(
     new Set(),
   );
-  const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [hiddenMatches, setHiddenMatches] = useState<Set<number>>(new Set());
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
   const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
@@ -188,103 +181,45 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     114, 116, 120, 121, 122, 123, 124, 125, 126, 127,
   ]; // Significantly expanded to include major leagues from all continents
 
-  // Fetch all fixtures for the selected date - simple approach like MyNewLeague
-  const { data: fixtures = [], isLoading } = useQuery({
-    queryKey: ["all-fixtures-by-date", selectedDate],
-    queryFn: async () => {
-      console.log(
-        `🔍 [TodaysMatchesByCountryNew] Checking cache for date: ${selectedDate}`,
-      );
+  // Direct API fetching without caching - like MyNewLeague
+  const [fixtures, setFixtures] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-      // Check our custom cache first
-      const cachedFixtures = getCachedFixturesForDate(selectedDate);
-      if (cachedFixtures) {
-        console.log(
-          `✅ [TodaysMatchesByCountryNew] Using cached fixtures: ${cachedFixtures.length} matches`,
+  useEffect(() => {
+    const fetchFixturesData = async () => {
+      if (!selectedDate) return;
+      
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        console.log(`🔍 [TodaysMatchesByCountryNew] Fetching data for date: ${selectedDate}`);
+        
+        const response = await apiRequest(
+          "GET",
+          `/api/fixtures/date/${selectedDate}?all=true`,
         );
+        const data = await response.json();
 
-        // Detailed API data analysis
-        const apiAnalysis = {
-          totalFixtures: cachedFixtures.length,
-          countries: [
-            ...new Set(
-              cachedFixtures.map((f) => f.league?.country).filter(Boolean),
-            ),
-          ].length,
-          leagues: [
-            ...new Set(
-              cachedFixtures.map((f) => f.league?.name).filter(Boolean),
-            ),
-          ].length,
-          statuses: [
-            ...new Set(
-              cachedFixtures
-                .map((f) => f.fixture?.status?.short)
-                .filter(Boolean),
-            ),
-          ],
-          dateRange: {
-            earliest: cachedFixtures.reduce(
-              (min, f) => (f.fixture?.date < min ? f.fixture.date : min),
-              cachedFixtures[0]?.fixture?.date || "",
-            ),
-            latest: cachedFixtures.reduce(
-              (max, f) => (f.fixture?.date > max ? f.fixture.date : max),
-              cachedFixtures[0]?.fixture?.date || "",
-            ),
-          },
-          sampleFixtures: cachedFixtures.slice(0, 5).map((f) => ({
-            id: f.fixture?.id,
-            date: f.fixture?.date,
-            status: f.fixture?.status?.short,
-            league: f.league?.name,
-            country: f.league?.country,
-            teams: `${f.teams?.home?.name || "Unknown"} vs ${f.teams?.away?.name || "Unknown"}`,
-          })),
-        };
-
-        console.log(`📊 [DEBUG] API Data Analysis:`, apiAnalysis);
-        return cachedFixtures;
+        console.log(`✅ [TodaysMatchesByCountryNew] Received ${data?.length || 0} fixtures`);
+        
+        if (Array.isArray(data)) {
+          setFixtures(data);
+        } else {
+          setFixtures([]);
+        }
+      } catch (err) {
+        console.error("Error fetching fixtures:", err);
+        setError("Failed to load fixtures");
+        setFixtures([]);
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      // Check if we really need fresh data based on cache age and date type
-      const today = new Date().toISOString().slice(0, 10);
-      const isPastDate = selectedDate < today;
-
-      // For past dates, be very conservative about refetching
-      if (isPastDate && cachedFixtures && cachedFixtures.length > 0) {
-        console.log(
-          `📦 [TodaysMatchesByCountryNew] Using cached data for past date ${selectedDate} (${cachedFixtures.length} fixtures)`,
-        );
-        return cachedFixtures;
-      }
-
-      console.log(
-        `📡 [TodaysMatchesByCountryNew] Fetching fresh data for date: ${selectedDate}`,
-      );
-      const response = await apiRequest(
-        "GET",
-        `/api/fixtures/date/${selectedDate}?all=true`,
-      );
-      const data = await response.json();
-
-      // Cache the fetched data with intelligent pre-caching
-      if (data && Array.isArray(data)) {
-        cacheFixturesForDate(selectedDate, data, "api");
-        console.log(
-          `💾 [TodaysMatchesByCountryNew] Cached ${data.length} fixtures for ${selectedDate}`,
-        );
-      }
-
-      return data;
-    },
-    staleTime: 2 * 60 * 1000, // 2 minutes for live data
-    gcTime: 30 * 60 * 1000, // 30 minutes garbage collection time
-    enabled: !!selectedDate && enableFetching, // Always fetch date fixtures
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-  });
+    fetchFixturesData();
+  }, [selectedDate]);
 
   // Simple fixture processing like MyNewLeague
   const processedFixtures = fixtures || [];
@@ -1051,41 +986,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
   };
 
-  const handleManualRefresh = async () => {
-    if (isRefreshing) return;
-
-    setIsRefreshing(true);
-    console.log("🔄 [MANUAL REFRESH] Forcing fresh API call...");
-
-    // Clear all relevant caches
-    const cacheKey = `all-fixtures-by-date-${selectedDate}`;
-    localStorage.removeItem(cacheKey);
-
-    // Force fresh API call
-    try {
-      const response = await apiRequest(
-        "GET",
-        `/api/fixtures/date/${selectedDate}?all=true&fresh=true&t=${Date.now()}`,
-      );
-      const freshData = await response.json();
-
-      if (freshData && Array.isArray(freshData)) {
-        // Cache fresh data
-        cacheFixturesForDate(selectedDate, freshData, "manual-refresh");
-        console.log(
-          `✅ [MANUAL REFRESH] Got ${freshData.length} fresh fixtures`,
-        );
-
-        // Force component re-render by updating a state that triggers useQuery
-        setEnableFetching(false);
-        setTimeout(() => setEnableFetching(true), 100);
-      }
-    } catch (error) {
-      console.error("❌ [MANUAL REFRESH] Failed:", error);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
+  
 
   const toggleLeague = (country: string, leagueId: number) => {
     const leagueKey = `${country}-${leagueId}`;
@@ -1297,6 +1198,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       console.warn("Background prefetch failed for fixture:", fixtureId);
     }
   }, []);
+
+  // Show error state
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <div className="text-center py-4 text-red-500">{error}</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   // Show loading only if we're actually loading and have no data
   if (isLoading && !fixtures.length) {
