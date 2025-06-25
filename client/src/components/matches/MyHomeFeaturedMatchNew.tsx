@@ -66,6 +66,10 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Get the popular league IDs from the PopularLeaguesList
   const popularLeagueIds = CURRENT_POPULAR_LEAGUES.slice(0, 10).map(league => league.id);
+  
+  console.log(`🎯 [MyHomeFeaturedMatchNew] Using ${popularLeagueIds.length} popular leagues:`, 
+    CURRENT_POPULAR_LEAGUES.slice(0, 10).map(l => ({ id: l.id, name: l.name }))
+  );
 
   useEffect(() => {
     const fetchFeaturedFixtures = async () => {
@@ -75,6 +79,9 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         // Use today's date if no date is provided
         const targetDate = selectedDate || new Date().toISOString().slice(0, 10);
         
+        console.log(`🎯 [MyHomeFeaturedMatchNew] Fetching fixtures for date: ${targetDate}`);
+        console.log(`🎯 [MyHomeFeaturedMatchNew] Popular league IDs:`, popularLeagueIds);
+        
         // Fetch fixtures for the target date
         const response = await fetch(`/api/fixtures/date/${targetDate}?all=true`);
         if (!response.ok) {
@@ -82,11 +89,30 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
         
         const allFixtures: Fixture[] = await response.json();
+        console.log(`🎯 [MyHomeFeaturedMatchNew] Total fixtures fetched: ${allFixtures.length}`);
+        
+        if (allFixtures.length > 0) {
+          console.log(`🎯 [MyHomeFeaturedMatchNew] Sample fixture leagues:`, 
+            allFixtures.slice(0, 5).map(f => ({ id: f.league.id, name: f.league.name }))
+          );
+        }
         
         // Filter fixtures from popular leagues
         const popularFixtures = allFixtures.filter(fixture => 
           popularLeagueIds.includes(fixture.league.id)
         );
+        
+        console.log(`🎯 [MyHomeFeaturedMatchNew] Popular fixtures after filtering: ${popularFixtures.length}`);
+        
+        if (popularFixtures.length > 0) {
+          console.log(`🎯 [MyHomeFeaturedMatchNew] Found popular fixtures:`, 
+            popularFixtures.map(f => ({ 
+              league: f.league.name, 
+              teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+              status: f.fixture.status.short
+            }))
+          );
+        }
         
         // Prioritize live matches, then upcoming matches from top leagues
         const sortedFixtures = popularFixtures.sort((a, b) => {
@@ -109,9 +135,12 @@ const MyFeaturedMatchSlide: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
         });
         
-        setFixtures(sortedFixtures.slice(0, maxMatches));
+        const finalFixtures = sortedFixtures.slice(0, maxMatches);
+        console.log(`🎯 [MyHomeFeaturedMatchNew] Final fixtures to display: ${finalFixtures.length}`);
+        
+        setFixtures(finalFixtures);
       } catch (error) {
-        console.error('Error fetching featured fixtures:', error);
+        console.error('🎯 [MyHomeFeaturedMatchNew] Error fetching featured fixtures:', error);
         setFixtures([]);
       } finally {
         setIsLoading(false);
