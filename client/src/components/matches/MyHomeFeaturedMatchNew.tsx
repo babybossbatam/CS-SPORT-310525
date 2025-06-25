@@ -622,10 +622,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       </Badge>
 
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-sm">
-          
-     
-        </CardTitle>
+        <CardTitle className="flex items-center gap-2 text-sm"></CardTitle>
       </CardHeader>
 
       <CardContent className="pt-0">
@@ -663,7 +660,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     className="w-6 h-6"
                     fallbackSrc="/assets/fallback-logo.svg"
                   />
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-md text-gray-700">
                     {currentMatch.league.name}
                   </span>
                   {getStatusDisplay(currentMatch).isLive && (
@@ -672,8 +669,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
 
                 {/* Match day indicator */}
-                <div className="text-center mb-4">
-                  <div className="text-2xl font-bold text-gray-800">
+                <div className="text-center mb-4 ">
+                  <div className="text-2xl font-bold text-gray-800 ">
                     {(() => {
                       const statusInfo = getStatusDisplay(currentMatch);
                       const matchStatus = currentMatch.fixture.status.short;
@@ -716,7 +713,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                         return (
                           <div className="space-y-1">
-                            <div className="text-gray-600 text-sm">
+                            <div className="text-gray-600 text-sm ">
                               {matchStatus === "FT"
                                 ? "Ended"
                                 : matchStatus === "AET"

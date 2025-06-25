@@ -45,9 +45,13 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
 }) => {
   return (
     <div
-      className={`flex items-center px-4 relative ${onClick ? "cursor-pointer" : ""} ${className}`}
+      className={`flex items-center px-4   ${onClick ? "cursor-pointer" : ""} ${className}`}
       onClick={onClick}
-      style={{ cursor: onClick ? "pointer" : "default", height: "44px", overflow: "visible" }}
+      style={{
+        cursor: onClick ? "pointer" : "default",
+        height: "44px",
+        overflow: "visible",
+      }}
     >
       {/* Home team section - 50% width */}
       <div
@@ -63,7 +67,11 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         {/* Home team logo */}
         <div
           className="flex items-center gap-3 -ml-4 w-15 h-18 flex-shrink-1 relative z-10"
-          style={{ marginTop: "-12px", marginBottom: "-12px", transform: "translateY(0)" }}
+          style={{
+            marginTop: "-12px",
+            marginBottom: "-12px",
+            transform: "translateY(0)",
+          }}
         >
           <MyWorldTeamLogo
             teamName={homeTeam.name || "Home Team"}
@@ -110,7 +118,11 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         <div className="flex items-center gap-3 flex-row-reverse">
           <div
             className="-mr-2 w-15 h-15 flex-shrink-0 relative z-10"
-            style={{ marginTop: "-12px", marginBottom: "-12px", transform: "translateY(0)" }}
+            style={{
+              marginTop: "-12px",
+              marginBottom: "-12px",
+              transform: "translateY(0)",
+            }}
           >
             <MyWorldTeamLogo
               teamName={awayTeam.name || "Away Team"}
