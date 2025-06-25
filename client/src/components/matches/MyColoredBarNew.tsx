@@ -65,7 +65,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
       >
         {/* Home team logo */}
         <div
-          className="flex items-center gap-3 -ml-4 w-15 h-18 flex-shrink-1 relative z-20"
+          className="flex items-center gap-3 ml-4 w-15 h-18 flex-shrink-1 relative z-20"
           style={{
             marginTop: "-12px",
             marginBottom: "-12px",
@@ -73,19 +73,6 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
             position: "relative",
           }}
         >
-          <div style={{ position: "relative", width: "65px", height: "65px" }}>
-            <MyWorldTeamLogo
-              teamName={homeTeam.name || "Home Team"}
-              teamLogo={homeTeam.logo}
-              alt={homeTeam.name || "Home Team"}
-              size="65px"
-              className="w-full h-full object-contain "
-              leagueContext={{
-                name: league?.country || "League",
-                country: league?.country || "World",
-              }}
-            />
-          </div>
           <span className=" flex items-center text-white font-md uppercase text-sm truncate max-w-[250px]">
             {homeTeam.name || "TBD"}
           </span>
@@ -97,7 +84,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         className="flex items-center justify-center h-full text-white font-bold text-lg absolute z-10 bg-transparent"
         style={{
           width: "30px",
-          left: "calc(50% - 15px)",
+          left: "calc(50% - 16px)",
 
           borderRadius: "50%",
         }}
@@ -107,42 +94,19 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
 
       {/* Away team section - 50% width */}
       <div
-        className="flex justify-between h-full  flex-1 mr-1 relative z-0"
+        className="flex justify-between h-full  flex-1 mr-4 relative z-0"
         style={{
           background: `linear-gradient(225deg, ${getTeamColor(awayTeam.id)}, ${getTeamColor(awayTeam.id)}dd)`,
           width: "50%",
           flexDirection: "row-reverse",
-          clipPath: "polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%)",
+          clipPath: "polygon(15px 0, 100% 0, calc(100% - 0px) 100%, 0 100%)",
           marginLeft: "12px",
+          marginRight: "4px",
         }}
       >
         {/* Away team logo */}
-        <div className="flex items-center gap-3 flex-row-reverse">
-          <div
-            className="-mr-2 w-15 h-15 flex-shrink-0 relative z-20"
-            style={{
-              marginTop: "-12px",
-              marginBottom: "-12px",
-              transform: "translateY(0)",
-              position: "relative",
-              width: "65px",
-              height: "65px",
-            }}
-          >
-            <MyWorldTeamLogo
-              teamName={awayTeam.name || "Away Team"}
-              teamLogo={awayTeam.logo}
-              alt={awayTeam.name || "Away Team"}
-              size="65px"
-              className="w-full h-full object-contain"
-              leagueContext={{
-                name: league?.country || "League",
-                country: league?.country || "World",
-              }}
-              moveLeft={true}
-            />
-          </div>
-          <span className="text-white font-md uppercase text-sm truncate max-w-[65px] text-right">
+        <div className="flex items-center gap-3 flex-row-reverse mr-4">
+          <span className="text-white font-md uppercase text-sm truncate max-w-[250px] text-right">
             {awayTeam.name || "Away Team"}
           </span>
         </div>
