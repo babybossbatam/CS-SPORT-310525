@@ -54,13 +54,13 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         className="flex items-left justify-between h-full flex-1 relative"
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
-          width: "50%",
-          clipPath: "polygon(0 0, calc(100% - 15px) 0, 100% 100%, 15px 100%)",
+          width: "55%",
+          clipPath: "polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%)",
         }}
       >
         {/* Home team logo */}
         <div className="flex items-center gap-3">
-          <div className=" -ml-4 w-15 h-18 flex-shrink-0 ">
+          <div className=" -ml-4 w-15 h-18 flex-shrink-1 ">
             <MyWorldTeamLogo
               teamName={homeTeam.name || "Home Team"}
               teamLogo={homeTeam.logo}
