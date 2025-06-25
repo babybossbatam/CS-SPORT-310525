@@ -15,7 +15,7 @@ import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import TeamLogo from "./TeamLogo";
 import LazyImage from "../common/LazyImage";
-import MyColoredBar from "./MyColoredBar";
+import MyColoredBarNew from "./MyColoredBarNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -650,9 +650,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   </div>
                 </div>
 
-                {/* Teams display using MyColoredBar component */}
+                {/* Teams display using MyColoredBarNew component */}
                 <div className="relative mb-6">
-                  <MyColoredBar
+                  <MyColoredBarNew
                     homeTeam={{
                       id: currentMatch.teams.home.id,
                       name: currentMatch.teams.home.name,
