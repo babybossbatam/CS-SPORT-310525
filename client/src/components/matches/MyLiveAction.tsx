@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import MyHighlights from './MyHighlights';
 import '../../styles/liveaction.css';
-import { MyWorldTeamLogo } from '@/components/Logos/MyWorldTeamLogo';
+import { MyWorldTeamLogo } from '@/components/common/MyWorldTeamLogo';
 import { MyCircularFlag } from '@/components/MyCircularFlag';
 import { isNationalTeam } from '@/utils/utils';
 
