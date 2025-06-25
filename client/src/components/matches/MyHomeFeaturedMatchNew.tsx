@@ -116,8 +116,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     // Set up dynamic intervals based on match status
     const setupInterval = () => {
-      // Check if we have any live matches
-      const hasLiveMatches = allMatches.some(match => {
+      // Check if we have any live matches from current featuredMatches
+      const currentAllMatches = featuredMatches.reduce((acc, dayData) => {
+        return [...acc, ...dayData.matches];
+      }, [] as FeaturedMatch[]);
+
+      const hasLiveMatches = currentAllMatches.some(match => {
         const status = match.fixture.status.short;
         return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
       });
@@ -135,7 +139,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const interval = setupInterval();
 
     return () => clearInterval(interval);
-  }, [allMatches]); // Re-setup interval when matches change
+  }, [featuredMatches]); // Re-setup interval when matches change
 
   // Flash effect cleanup
   useEffect(() => {
