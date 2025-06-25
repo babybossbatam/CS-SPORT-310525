@@ -446,27 +446,73 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     fetchFeaturedMatches(true);
   }, []); // Only run once on mount
 
-  // Separate effect for live match refresh interval
+  // Background refresh for live matches only
   useEffect(() => {
-    const interval = setInterval(() => {
-      const hasLiveMatches = featuredMatches.some((dayData) =>
-        dayData.matches.some((match) =>
-          ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
-            match.fixture.status.short,
+    const backgroundRefreshLiveData = async () => {
+      try {
+        const hasLiveMatches = featuredMatches.some((dayData) =>
+          dayData.matches.some((match) =>
+            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+              match.fixture.status.short,
+            ),
           ),
-        ),
-      );
-
-      if (hasLiveMatches) {
-        console.log(
-          "🔄 [FeaturedMatches] Live matches detected, refreshing live data only",
         );
-        // Only refresh live match data, don't clear existing matches
-        fetchFeaturedMatches(false); // Background refresh without loading state
-      } else {
-        console.log("⏸️ [FeaturedMatches] No live matches, skipping refresh");
+
+        if (!hasLiveMatches) {
+          console.log("⏸️ [FeaturedMatches] No live matches, skipping background refresh");
+          return;
+        }
+
+        console.log("🔄 [FeaturedMatches] Background refresh for live matches only");
+
+        // Fetch only live fixtures from API
+        const liveResponse = await apiRequest("GET", "/api/fixtures/live");
+        const liveData = await liveResponse.json();
+
+        if (!Array.isArray(liveData) || liveData.length === 0) {
+          console.log("⚠️ [FeaturedMatches] No live data received, keeping existing matches");
+          return;
+        }
+
+        // Update only the live matches in existing featured matches
+        setFeaturedMatches((prevMatches) => {
+          const updatedMatches = prevMatches.map((dayData) => ({
+            ...dayData,
+            matches: dayData.matches.map((existingMatch) => {
+              // Find if this match has live data update
+              const liveUpdate = liveData.find(
+                (liveMatch: any) => liveMatch.fixture.id === existingMatch.fixture.id
+              );
+
+              if (liveUpdate) {
+                console.log(`🔄 [FeaturedMatches] Updating live match ${existingMatch.fixture.id}`);
+                return {
+                  ...existingMatch,
+                  fixture: {
+                    ...existingMatch.fixture,
+                    status: liveUpdate.fixture.status,
+                  },
+                  goals: {
+                    home: liveUpdate.goals?.home ?? existingMatch.goals.home,
+                    away: liveUpdate.goals?.away ?? existingMatch.goals.away,
+                  },
+                };
+              }
+
+              return existingMatch;
+            }),
+          }));
+
+          return updatedMatches;
+        });
+
+      } catch (error) {
+        console.error("❌ [FeaturedMatches] Background refresh error:", error);
+        // Don't clear existing matches on error
       }
-    }, 60000); // Check every 60 seconds
+    };
+
+    const interval = setInterval(backgroundRefreshLiveData, 60000); // Check every 60 seconds
 
     return () => clearInterval(interval);
   }, [featuredMatches]); // Only depend on featuredMatches for live match detection
