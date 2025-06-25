@@ -603,29 +603,75 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <div className="text-center mb-4">
                   <div className="text-2xl font-bold text-gray-800">
                     {(() => {
-                      if (getStatusDisplay(currentMatch).isLive) {
-                        return 'Live Now';
-                      }
-                      
+                      const statusInfo = getStatusDisplay(currentMatch);
+                      const matchStatus = currentMatch.fixture.status.short;
                       const matchDate = new Date(currentMatch.fixture.date);
                       const today = new Date();
                       const tomorrow = addDays(today, 1);
-                      const dayAfterTomorrow = addDays(today, 2);
                       
                       const matchDateString = format(matchDate, 'yyyy-MM-dd');
                       const todayString = format(today, 'yyyy-MM-dd');
                       const tomorrowString = format(tomorrow, 'yyyy-MM-dd');
-                      const dayAfterTomorrowString = format(dayAfterTomorrow, 'yyyy-MM-dd');
                       
+                      // Live matches - show elapsed time and live score
+                      if (statusInfo.isLive) {
+                        const elapsed = currentMatch.fixture.status.elapsed;
+                        const homeScore = currentMatch.goals.home ?? 0;
+                        const awayScore = currentMatch.goals.away ?? 0;
+                        
+                        return (
+                          <div className="space-y-1">
+                            <div className="text-red-500 animate-pulse flex items-center justify-center gap-2">
+                              <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                              <span>LIVE</span>
+                              {elapsed && <span>- {elapsed}'</span>}
+                            </div>
+                            <div className="text-3xl font-bold">
+                              {homeScore} - {awayScore}
+                            </div>
+                          </div>
+                        );
+                      }
+                      
+                      // Ended matches - show final score
+                      if (matchStatus === 'FT' || matchStatus === 'AET' || matchStatus === 'PEN') {
+                        const homeScore = currentMatch.goals.home ?? 0;
+                        const awayScore = currentMatch.goals.away ?? 0;
+                        
+                        return (
+                          <div className="space-y-1">
+                            <div className="text-gray-600 text-sm">
+                              {matchStatus === 'FT' ? 'Full Time' : 
+                               matchStatus === 'AET' ? 'After Extra Time' : 
+                               matchStatus === 'PEN' ? 'After Penalties' : 'Ended'}
+                            </div>
+                            <div className="text-3xl font-bold">
+                              {homeScore} - {awayScore}
+                            </div>
+                          </div>
+                        );
+                      }
+                      
+                      // Upcoming matches - smart date labeling
                       if (matchDateString === todayString) {
                         return 'Today';
                       } else if (matchDateString === tomorrowString) {
                         return 'Tomorrow';
-                      } else if (matchDateString === dayAfterTomorrowString) {
-                        return format(matchDate, 'EEEE'); // Show day name like "Friday"
                       } else {
-                        // For dates beyond day after tomorrow, show the day name
-                        return format(matchDate, 'EEEE, MMM d');
+                        // Calculate days difference for upcoming matches
+                        const daysDiff = Math.ceil((matchDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                        
+                        if (daysDiff > 0 && daysDiff <= 7) {
+                          // For matches within a week, show day name and days from now
+                          const dayName = format(matchDate, 'EEEE');
+                          return `${dayName} (${daysDiff} ${daysDiff === 1 ? 'day' : 'days'} from now)`;
+                        } else if (daysDiff > 7) {
+                          // For matches more than a week away, show date
+                          return format(matchDate, 'EEEE, MMM d');
+                        } else {
+                          // For past matches that aren't ended (edge case)
+                          return format(matchDate, 'EEEE, MMM d');
+                        }
                       }
                     })()}
                   </div>
