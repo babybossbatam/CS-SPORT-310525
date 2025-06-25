@@ -662,7 +662,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 {/* Match day indicator */}
                 <div className="text-center mb-4 ">
-                  <div className="text-2xl font-bold text-gray-800 ">
+                  <div className="text-lg font-bold text-gray-800 ">
                     {(() => {
                       const statusInfo = getStatusDisplay(currentMatch);
                       const matchStatus = currentMatch.fixture.status.short;
