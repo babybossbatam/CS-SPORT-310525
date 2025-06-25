@@ -17,7 +17,6 @@ import MyHighlights from "@/components/matches/MyHighlights";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
 import MyLiveAction from "@/components/matches/MyLiveAction";
 import MyNewLiveAction from "@/components/matches/MyNewLiveAction";
-import SoccersApiLiveAction from '../matches/SoccersApiLiveAction';
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
@@ -194,14 +193,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                           homeTeam={selectedFixture?.teams?.home}
                           awayTeam={selectedFixture?.teams?.away}
                           status={selectedFixture?.fixture?.status?.short}
-                        />
-
-                        <SoccersApiLiveAction
-                          matchId={selectedFixture?.fixture?.id}
-                          homeTeam={selectedFixture?.teams?.home}
-                          awayTeam={selectedFixture?.teams?.away}
-                          status={selectedFixture?.fixture?.status?.short}
-                          className="mt-4"
                         />
                       </>
                     )}
