@@ -5,7 +5,7 @@ import MyHighlights from './MyHighlights';
 import '../../styles/liveaction.css';
 import { MyWorldTeamLogo } from '@/components/common/MyWorldTeamLogo';
 import MyCircularFlag from '@/components/common/MyCircularFlag';
-import { isNationalTeam } from '@/utils/utils';
+import { isNationalTeam } from '@/lib/utils';
 
 interface MyLiveActionProps {
   matchId?: number;
