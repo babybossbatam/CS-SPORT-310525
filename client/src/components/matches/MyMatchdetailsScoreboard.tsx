@@ -86,14 +86,14 @@ const MyMatchdetailsScoreboard = ({
       const initialElapsed = displayMatch.fixture.status.elapsed || 0;
       setLiveElapsed(initialElapsed);
       setRealTimeElapsed(initialElapsed);
-      
+
       console.log("🎯 [Live Timer] Initializing timer:", {
         fixtureId: displayMatch.fixture.id,
         status: status,
         initialElapsed: initialElapsed,
         teams: `${displayMatch.teams?.home?.name} vs ${displayMatch.teams?.away?.name}`
       });
-      
+
       // Initialize with current scores
       setLiveScores({
         home: displayMatch.goals.home,
@@ -145,7 +145,7 @@ const MyMatchdetailsScoreboard = ({
 
           if (currentLiveMatch) {
             const apiElapsed = currentLiveMatch.fixture.status.elapsed;
-            
+
             // Sync real-time timer with API if there's a significant difference (reduced logging)
             if (apiElapsed !== null && Math.abs((realTimeElapsed || 0) - apiElapsed) > 3) {
               setRealTimeElapsed(apiElapsed);
@@ -163,13 +163,13 @@ const MyMatchdetailsScoreboard = ({
             // Update live status
             if (currentLiveMatch.fixture.status.short) {
               setLiveStatus(currentLiveMatch.fixture.status.short);
-              
+
               // Stop real-time timer if match is now in halftime or penalties
               if ((currentLiveMatch.fixture.status.short === "HT" || currentLiveMatch.fixture.status.short === "P") && realtimeTimer) {
                 clearInterval(realtimeTimer);
                 realtimeTimer = null;
               }
-              
+
               // Restart real-time timer if match resumed from halftime
               if ((currentLiveMatch.fixture.status.short === "2H" || currentLiveMatch.fixture.status.short === "ET") && !realtimeTimer) {
                 realtimeTimer = setInterval(() => {
@@ -229,9 +229,38 @@ const MyMatchdetailsScoreboard = ({
   };
 
   const getStatusBadge = (status: string) => {
-    // Use live status if available, otherwise use the original status
-    const currentStatus = liveStatus || status;
-    
+    // Determine if match is truly live or ended
+    const apiStatus = status;
+    const currentLiveStatus = liveStatus || apiStatus;
+    const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(apiStatus);
+
+    // Check if match has likely ended based on time elapsed (beyond typical match duration)
+    const matchDate = new Date(displayMatch.fixture.date);
+    const now = new Date();
+    const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+    const isLikelyEnded = hoursElapsed > 3; // Matches typically don't exceed 3 hours
+
+    // Real-time check: if a match started more than 2.5 hours ago and still shows live status, it's likely ended
+    const isVeryLikelyEnded = hoursElapsed > 2.5 && ["HT", "1H", "2H", "LIVE", "LIV", "ET", "BT", "P", "INT"].includes(currentLiveStatus);
+
+    // If match is definitely ended or very likely ended, override status
+    let currentStatus = currentLiveStatus;
+    if (isEndedMatch || isLikelyEnded || isVeryLikelyEnded) {
+      currentStatus = isEndedMatch ? apiStatus : "FT"; // Use FT for likely ended matches
+    }
+
+    console.log("🔍 [Status Check] Match status analysis:", {
+      fixtureId: displayMatch.fixture.id,
+      apiStatus,
+      liveStatus,
+      currentLiveStatus,
+      hoursElapsed: hoursElapsed.toFixed(2),
+      isEndedMatch,
+      isLikelyEnded,
+      isVeryLikelyEnded,
+      finalStatus: currentStatus
+    });
+
     // Check if it's a finished match and determine the appropriate label
     const getFinishedLabel = () => {
       if (!["FT", "AET", "PEN"].includes(currentStatus)) return "Finished";
@@ -500,17 +529,50 @@ const MyMatchdetailsScoreboard = ({
                 </div>
                 <div className="text-3xl font-semi-bold">
                   {(() => {
-                    // Use live scores if available and not null/undefined, otherwise fall back to API scores
-                    const homeScore = (liveScores?.home != null) ? liveScores.home : (displayMatch.goals?.home ?? 0);
-                    const awayScore = (liveScores?.away != null) ? liveScores.away : (displayMatch.goals?.away ?? 0);
-                    
+                    // Determine if match is truly live or ended
+                    const apiStatus = displayMatch.fixture.status.short;
+                    const currentLiveStatus = liveStatus || apiStatus;
+                    const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(apiStatus);
+
+                    // Check if match has likely ended based on time elapsed
+                    const matchDate = new Date(displayMatch.fixture.date);
+                    const now = new Date();
+                    const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+                    const isLikelyEnded = hoursElapsed > 3;
+                    const isVeryLikelyEnded = hoursElapsed > 2.5 && ["HT", "1H", "2H", "LIVE", "LIV", "ET", "BT", "P", "INT"].includes(currentLiveStatus);
+
+                    // If match is definitely ended or very likely ended, use static scores
+                    const isMatchEnded = isEndedMatch || isLikelyEnded || isVeryLikelyEnded;
+                    const isTrulyLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentLiveStatus) && !isMatchEnded;
+
+                    // Use live scores only for truly live matches, static scores for ended matches
+                    let homeScore, awayScore;
+
+                    if (isTrulyLive && liveScores?.home != null && liveScores?.away != null) {
+                      // Use live scores for confirmed live matches
+                      homeScore = liveScores.home;
+                      awayScore = liveScores.away;
+                    } else {
+                      // Use static API scores for ended or when live scores unavailable
+                      homeScore = displayMatch.goals?.home ?? 0;
+                      awayScore = displayMatch.goals?.away ?? 0;
+                    }
+
                     console.log("🔄 [Score Display] Score update:", {
+                      apiStatus,
+                      currentLiveStatus,
+                      isEndedMatch,
+                      isLikelyEnded,
+                      isVeryLikelyEnded,
+                      isMatchEnded,
+                      isTrulyLive,
+                      hoursElapsed: hoursElapsed.toFixed(2),
+                      dataSource: (isTrulyLive && liveScores?.home != null) ? "LIVE" : "STATIC",
                       liveScores,
                       apiScores: {home: displayMatch.goals?.home, away: displayMatch.goals?.away},
                       displayedScores: {home: homeScore, away: awayScore},
-                      fixtureId: displayMatch.fixture.id
                     });
-                    
+
                     return `${homeScore} - ${awayScore}`;
                   })()}
                 </div>
