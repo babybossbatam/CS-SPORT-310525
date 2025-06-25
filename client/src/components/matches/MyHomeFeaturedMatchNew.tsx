@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -81,7 +81,7 @@ interface DayMatches {
   matches: FeaturedMatch[];
 }
 
-const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
+const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = React.memo(({
   maxMatches = 8,
 }) => {
   const [, navigate] = useLocation();
@@ -90,18 +90,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [selectedDay, setSelectedDay] = useState(0);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
 
-  useEffect(() => {
-    fetchFeaturedMatches();
-
-    // Set up a fixed interval - we'll check for live matches inside the interval
-    const interval = setInterval(() => {
-      fetchFeaturedMatches();
-    }, 30000); // Check every 30 seconds
-
-    return () => clearInterval(interval);
-  }, []); // Empty dependency array to run only once on mount
-
-  const fetchFeaturedMatches = async () => {
+  const fetchFeaturedMatches = useCallback(async () => {
     try {
       setIsLoading(true);
 
@@ -379,13 +368,33 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         });
       }
 
-      setFeaturedMatches(allMatches);
+      // Only update state if data has actually changed
+      setFeaturedMatches(prevMatches => {
+        const newMatchesString = JSON.stringify(allMatches);
+        const prevMatchesString = JSON.stringify(prevMatches);
+        
+        if (newMatchesString !== prevMatchesString) {
+          return allMatches;
+        }
+        return prevMatches;
+      });
     } catch (error) {
       console.error("❌ [FeaturedMatches] Error:", error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [maxMatches]);
+
+  useEffect(() => {
+    fetchFeaturedMatches();
+
+    // Set up a fixed interval - we'll check for live matches inside the interval
+    const interval = setInterval(() => {
+      fetchFeaturedMatches();
+    }, 30000); // Check every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [fetchFeaturedMatches]); // Add fetchFeaturedMatches as dependency
 
   const formatMatchTime = (dateString: string) => {
     try {
@@ -458,28 +467,32 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     };
   };
 
-  const handlePrevious = () => {
+  // Memoize expensive calculations
+  const allMatches = useMemo(() => {
+    return featuredMatches.reduce((acc, dayData) => {
+      return [...acc, ...dayData.matches];
+    }, [] as FeaturedMatch[]);
+  }, [featuredMatches]);
+
+  const currentMatch = useMemo(() => {
+    return allMatches[currentMatchIndex];
+  }, [allMatches, currentMatchIndex]);
+
+  const handlePrevious = useCallback(() => {
     if (allMatches.length > 0) {
       setCurrentMatchIndex((prev) =>
         prev === 0 ? allMatches.length - 1 : prev - 1,
       );
     }
-  };
+  }, [allMatches.length]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (allMatches.length > 0) {
       setCurrentMatchIndex((prev) =>
         prev === allMatches.length - 1 ? 0 : prev + 1,
       );
     }
-  };
-
-  // Combine all matches from all days into a single array
-  const allMatches = featuredMatches.reduce((acc, dayData) => {
-    return [...acc, ...dayData.matches];
-  }, [] as FeaturedMatch[]);
-
-  const currentMatch = allMatches[currentMatchIndex];
+  }, [allMatches.length]);
 
   if (isLoading) {
     return (
@@ -542,6 +555,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             {/* Single match display */}
             {currentMatch && (
               <div
+                key={`match-${currentMatch.fixture.id}-${currentMatchIndex}`}
                 className="cursor-pointer transition-all duration-300"
                 onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
               >
@@ -674,7 +688,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     onClick={() =>
                       navigate(`/match/${currentMatch.fixture.id}`)
                     }
-                    getTeamColor={(teamId: number) => {
+                    getTeamColor={useCallback((teamId: number) => {
                       // Simple team color generator based on team ID
                       const colors = [
                         "#3B82F6", // blue
@@ -687,7 +701,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         "#F97316", // orange
                       ];
                       return colors[teamId % colors.length];
-                    }}
+                    }, [])}
                     className="h-20 rounded-lg shadow-lg"
                     league={{
                       country: currentMatch.league.country,
@@ -827,6 +841,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       </CardContent>
     </Card>
   );
-};
+});
+
+MyHomeFeaturedMatchNew.displayName = 'MyHomeFeaturedMatchNew';
 
 export default MyHomeFeaturedMatchNew;
