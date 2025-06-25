@@ -1,4 +1,3 @@
-
 import React from "react";
 import { format, parseISO } from "date-fns";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
@@ -52,7 +51,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
     >
       {/* Home team section - 45% width */}
       <div
-        className="flex items-center justify-between h-full flex-1 px-4 relative"
+        className="flex items-center justify-between h-full flex-1 -pl-12 relative"
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
           width: "45%",
@@ -65,7 +64,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
               teamName={homeTeam.name || "Home Team"}
               teamLogo={homeTeam.logo}
               alt={homeTeam.name || "Home Team"}
-              size="40px"
+              size="62px"
               className="w-full h-full object-contain"
               leagueContext={{
                 name: league?.country || "League",
@@ -77,12 +76,10 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
             {homeTeam.name || "TBD"}
           </span>
         </div>
-        
+
         {/* Home score */}
-        {(homeScore !== null && homeScore !== undefined) && (
-          <div className="text-white font-bold text-xl">
-            {homeScore}
-          </div>
+        {homeScore !== null && homeScore !== undefined && (
+          <div className="text-white font-bold text-xl">{homeScore}</div>
         )}
       </div>
 
@@ -122,12 +119,10 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
             {awayTeam.name || "Away Team"}
           </span>
         </div>
-        
+
         {/* Away score */}
-        {(awayScore !== null && awayScore !== undefined) && (
-          <div className="text-white font-bold text-xl">
-            {awayScore}
-          </div>
+        {awayScore !== null && awayScore !== undefined && (
+          <div className="text-white font-bold text-xl">{awayScore}</div>
         )}
       </div>
 
