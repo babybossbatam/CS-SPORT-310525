@@ -86,12 +86,12 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
       {/* VS section - 10% width */}
       <div
         className="flex items-center justify-center h-full bg-gray-800 text-white font-bold text-xs relative z-10"
-        style={{ width: "10%" }}
+        style={{ width: "5%" }}
       >
         <span>VS</span>
       </div>
 
-      {/* Away team section - 45% width */}
+      {/* Away team section - 65% width */}
       <div
         className="flex items-center justify-between h-full flex-1 px-4 relative"
         style={{
@@ -126,24 +126,6 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         )}
       </div>
 
-      {/* Status indicator - positioned at bottom */}
-      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-t">
-        {status === "NS" ? (
-          (() => {
-            try {
-              return format(parseISO(fixture.date), "HH:mm");
-            } catch {
-              return "TBD";
-            }
-          })()
-        ) : status === "FT" ? (
-          "FT"
-        ) : ["1H", "2H", "HT", "LIVE"].includes(status) ? (
-          <span className="animate-pulse text-red-400">LIVE</span>
-        ) : (
-          status
-        )}
-      </div>
     </div>
   );
 };
