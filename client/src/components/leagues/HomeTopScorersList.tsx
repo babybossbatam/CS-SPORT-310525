@@ -197,18 +197,12 @@ const HomeTopScorersList = () => {
 
     // Set initial selected league if not set and persist it
     if (!selectedLeague && POPULAR_LEAGUES.length > 0) {
-      // Prefer World Cup Qualification South America (ID 34) if available
-      const preferredLeague = POPULAR_LEAGUES.find(
-        (league) => league.id === 34,
-      );
-      const initialLeague = preferredLeague
-        ? preferredLeague.id
-        : POPULAR_LEAGUES[0].id;
+      // Always start with World Cup Qualification South America (ID 34)
+      const initialLeague = 34;
       
       console.log(`🎯 [HomeTopScorers] Setting initial league:`, {
-        preferredLeague: preferredLeague?.name,
         initialLeagueId: initialLeague,
-        initialLeagueName: POPULAR_LEAGUES.find(l => l.id === initialLeague)?.name
+        initialLeagueName: "World Cup Qualification South America"
       });
       
       setSelectedLeague(initialLeague);
@@ -245,7 +239,13 @@ const HomeTopScorersList = () => {
       // Verify the league still exists in our list
       if (foundLeague) {
         setSelectedLeague(leagueId);
+      } else {
+        // If stored league not found, default to World Cup Qualification South America
+        setSelectedLeague(34);
       }
+    } else if (!storedLeague && !selectedLeague) {
+      // If no stored league, default to World Cup Qualification South America
+      setSelectedLeague(34);
     }
   }, []);
 
@@ -455,6 +455,10 @@ const HomeTopScorersList = () => {
 
     console.log(`⬅️ [Navigation] Moving left from ${getCurrentLeague()?.name} to ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
     setSelectedLeague(nextLeagueId);
+    
+    // Scroll content to the right when moving selection left
+    const scrollAmount = 200; // Adjust scroll amount as needed
+    setContentPosition(prev => Math.max(0, prev - scrollAmount));
   };
 
   const scrollRight = () => {
@@ -472,12 +476,17 @@ const HomeTopScorersList = () => {
 
     console.log(`➡️ [Navigation] Moving right from ${getCurrentLeague()?.name} to ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
     setSelectedLeague(nextLeagueId);
+    
+    // Scroll content to the left when moving selection right
+    const scrollAmount = 200; // Adjust scroll amount as needed
+    const maxScroll = Math.max(0, contentWidth - containerWidth);
+    setContentPosition(prev => Math.min(maxScroll, prev + scrollAmount));
   };
 
   const canScrollLeft = availableLeagues.length > 0;
   const canScrollRight = availableLeagues.length > 0;
 
-  // Auto-scroll to center selected league when it changes
+  // Initialize content position on mount (no auto-centering)
   useEffect(() => {
     if (
       !scrollContainerRef.current ||
@@ -487,85 +496,23 @@ const HomeTopScorersList = () => {
       return;
     }
 
-    const scrollToSelectedLeague = () => {
+    // Only update dimensions, don't auto-center
+    const updateContentDimensions = () => {
       const container = scrollContainerRef.current;
-      if (!container) return false;
+      if (!container) return;
 
-      const selectedButton = container.querySelector(
-        `[data-league-id="${selectedLeague}"]`,
-      ) as HTMLElement;
-
-      if (!selectedButton) {
-        console.log(`🔍 [Scroll] Selected league button not found: ${selectedLeague}`);
-        return false;
-      }
-
-      const buttonLeft = selectedButton.offsetLeft;
-      const buttonWidth = selectedButton.offsetWidth;
-      const containerWidth = container.clientWidth;
-
-      // Get fresh content width
       const content = container.querySelector("[data-content]") as HTMLElement;
       const actualContentWidth = content ? content.scrollWidth : 0;
 
-      if (actualContentWidth === 0) {
-        console.log(`🔍 [Scroll] Content not ready, actualContentWidth: ${actualContentWidth}`);
-        return false;
-      }
-
-      // Always center the selected league in the visible area
-      const targetPosition = buttonLeft - (containerWidth / 2) + (buttonWidth / 2);
-      const maxScroll = Math.max(0, actualContentWidth - containerWidth);
-      const clampedPosition = Math.max(0, Math.min(maxScroll, targetPosition));
-
-      console.log(`🎯 [Scroll] Centering selected league: ${selectedLeague}`, {
-        leagueName: availableLeagues.find(l => l.id === selectedLeague)?.name,
-        buttonLeft,
-        buttonWidth,
-        containerWidth,
-        actualContentWidth,
-        targetPosition,
-        clampedPosition
-      });
-
-      // Smooth scroll to center position with animation
-      setContentPosition(clampedPosition);
-
-      if (actualContentWidth !== contentWidth) {
+      if (actualContentWidth !== contentWidth && actualContentWidth > 0) {
         setContentWidth(actualContentWidth);
+        console.log(`📏 [Dimensions] Updated content width: ${actualContentWidth}`);
       }
-
-      return true;
     };
 
-    // Use multiple attempts with shorter delays for better responsiveness
-    const attemptScroll = (attempt = 0) => {
-      const maxAttempts = 3;
-      const delays = [0, 50, 150];
-
-      if (attempt >= maxAttempts) {
-        console.warn(`❌ [Scroll] Failed to center league ${selectedLeague} after ${maxAttempts} attempts`);
-        return;
-      }
-
-      const timer = setTimeout(() => {
-        requestAnimationFrame(() => {
-          const success = scrollToSelectedLeague();
-          if (!success && attempt < maxAttempts - 1) {
-            console.log(`🔄 [Scroll] Attempt ${attempt + 1} failed, retrying...`);
-            attemptScroll(attempt + 1);
-          } else if (success) {
-            console.log(`✅ [Scroll] Successfully centered league ${selectedLeague} on attempt ${attempt + 1}`);
-          }
-        });
-      }, delays[attempt]);
-
-      return () => clearTimeout(timer);
-    };
-
-    const cleanup = attemptScroll();
-    return cleanup;
-  }, [selectedLeague, availableLeagues.length, containerWidth, contentWidth]);
+    const timer = setTimeout(updateContentDimensions, 100);
+    return () => clearTimeout(timer);
+  }, [selectedLeague, availableLeagues.length, containerWidth]);
 
   if (isLoadingLeagues || !selectedLeague) {
     return (
