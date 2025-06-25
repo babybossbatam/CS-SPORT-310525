@@ -194,7 +194,7 @@ const HomeTopScorersList = () => {
   useEffect(() => {
     const checkLeaguesWithData = async () => {
       const leaguesWithData = [];
-      
+
       for (const league of POPULAR_LEAGUES) {
         try {
           const response = await fetch(`/api/leagues/${league.id}/topscorers`, {
@@ -207,7 +207,7 @@ const HomeTopScorersList = () => {
 
           if (response.ok) {
             const data = await response.json();
-            
+
             // Filter for current/recent season data
             const freshData = data.filter((scorer: any) => {
               const seasonYear = scorer.statistics[0]?.league?.season;
@@ -229,7 +229,9 @@ const HomeTopScorersList = () => {
                 currentSeason = currentYear - 1;
               }
 
-              return seasonYear >= currentSeason && seasonYear <= currentYear + 1;
+              return (
+                seasonYear >= currentSeason && seasonYear <= currentYear + 1
+              );
             });
 
             if (freshData.length > 0) {
@@ -246,12 +248,15 @@ const HomeTopScorersList = () => {
       // Set initial selected league from available leagues with data
       if (!selectedLeague && leaguesWithData.length > 0) {
         // Try to find World Cup Qualification South America first
-        const preferredLeague = leaguesWithData.find(l => l.id === 34);
-        const initialLeague = preferredLeague ? preferredLeague.id : leaguesWithData[0].id;
+        const preferredLeague = leaguesWithData.find((l) => l.id === 34);
+        const initialLeague = preferredLeague
+          ? preferredLeague.id
+          : leaguesWithData[0].id;
 
         console.log(`🎯 [HomeTopScorers] Setting initial league:`, {
           initialLeagueId: initialLeague,
-          initialLeagueName: leaguesWithData.find(l => l.id === initialLeague)?.name,
+          initialLeagueName: leaguesWithData.find((l) => l.id === initialLeague)
+            ?.name,
           availableLeaguesCount: leaguesWithData.length,
         });
 
@@ -298,7 +303,8 @@ const HomeTopScorersList = () => {
         setSelectedLeague(leagueId);
       } else if (availableLeagues.length > 0) {
         // If stored league not in available list, use first available
-        const fallbackLeague = availableLeagues.find(l => l.id === 34) || availableLeagues[0];
+        const fallbackLeague =
+          availableLeagues.find((l) => l.id === 34) || availableLeagues[0];
         setSelectedLeague(fallbackLeague.id);
       }
     }
@@ -954,10 +960,10 @@ const HomeTopScorersList = () => {
                     </div>
 
                     <div className="text-center flex-shrink-0">
-                      <div className="text-lg font-bold text-gray-900">
+                      <div className="text-lg font-md text-gray-900 bg-gray-200">
                         {goals}
                       </div>
-                      <div className="text-xs text-gray-500">Goals</div>
+                      <div className="text-xs text-gray-500 ">Goals</div>
                     </div>
                   </div>
                 );
