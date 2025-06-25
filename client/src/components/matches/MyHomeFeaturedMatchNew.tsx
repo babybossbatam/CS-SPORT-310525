@@ -760,39 +760,36 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 {/* Teams display using MyColoredBarNew component */}
 
                 <div className="flex flex-col gap-2">
-                  {/* Horizontal logo display */}
-                  <div className="flex items-center justify-center gap-8 px-4">
-                    <div className="flex items-center gap-2">
+                  {/* Horizontal logo display aligned with colored bar edges */}
+                  <div className="flex items-center justify-between px-4 relative">
+                    {/* Home team logo positioned to align with left edge of colored bar */}
+                    <div className="flex items-center gap-2" style={{ marginLeft: "4px" }}>
                       <MyWorldTeamLogo
                         teamName={currentMatch.teams.home.name}
                         teamLogo={currentMatch.teams.home.logo}
                         alt={currentMatch.teams.home.name}
-                        size="40px"
+                        size="50px"
                         className="object-contain"
                         leagueContext={{
                           name: currentMatch.league.name,
                           country: currentMatch.league.country,
                         }}
                       />
-                     
                     </div>
 
-                 
-
-                    <div className="flex items-center gap-2 flex-row-reverse">
+                    {/* Away team logo positioned to align with right edge of colored bar */}
+                    <div className="flex items-center gap-2 flex-row-reverse" style={{ marginRight: "4px" }}>
                       <MyWorldTeamLogo
                         teamName={currentMatch.teams.away.name}
                         teamLogo={currentMatch.teams.away.logo}
                         alt={currentMatch.teams.away.name}
-                        size="40px"
+                        size="50px"
                         className="object-contain"
                         leagueContext={{
                           name: currentMatch.league.name,
                           country: currentMatch.league.country,
                         }}
                       />
-                     
-   
                     </div>
                   </div>
 
