@@ -463,25 +463,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   };
 
   const handlePrevious = () => {
-    const currentMatches = featuredMatches[selectedDay]?.matches || [];
-    if (currentMatches.length > 0) {
+    if (allMatches.length > 0) {
       setCurrentMatchIndex((prev) => 
-        prev === 0 ? currentMatches.length - 1 : prev - 1
+        prev === 0 ? allMatches.length - 1 : prev - 1
       );
     }
   };
 
   const handleNext = () => {
-    const currentMatches = featuredMatches[selectedDay]?.matches || [];
-    if (currentMatches.length > 0) {
+    if (allMatches.length > 0) {
       setCurrentMatchIndex((prev) => 
-        prev === currentMatches.length - 1 ? 0 : prev + 1
+        prev === allMatches.length - 1 ? 0 : prev + 1
       );
     }
   };
 
-  const currentMatches = featuredMatches[selectedDay]?.matches || [];
-  const currentMatch = currentMatches[currentMatchIndex];
+  // Combine all matches from all days into a single array
+  const allMatches = featuredMatches.reduce((acc, dayData) => {
+    return [...acc, ...dayData.matches];
+  }, [] as FeaturedMatch[]);
+  
+  const currentMatch = allMatches[currentMatchIndex];
 
   if (isLoading) {
     return (
@@ -518,34 +520,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           <Trophy className="h-4 w-4 text-amber-500" />
           Featured Matches
         </CardTitle>
-
-        {/* Day selector tabs */}
-        <div className="flex gap-1 mt-2">
-          {featuredMatches.map((dayData, index) => (
-            <Button
-              key={dayData.date}
-              variant={selectedDay === index ? "default" : "outline"}
-              size="sm"
-              onClick={() => {
-                setSelectedDay(index);
-                setCurrentMatchIndex(0);
-              }}
-              className="text-xs h-7"
-            >
-              <Calendar className="h-3 w-3 mr-1" />
-              {dayData.label}
-              {dayData.matches.length > 0 && (
-                <Badge variant="secondary" className="ml-1 h-4 w-4 p-0 text-xs">
-                  {dayData.matches.length}
-                </Badge>
-              )}
-            </Button>
-          ))}
-        </div>
       </CardHeader>
 
       <CardContent className="pt-0">
-        {currentMatches.length === 0 ? (
+        {allMatches.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-gray-500">
             <Trophy className="h-12 w-12 mb-3 opacity-50" />
             <p className="text-lg font-medium mb-1">No featured matches</p>
@@ -554,7 +532,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         ) : (
           <div className="relative">
             {/* Navigation arrows */}
-            {currentMatches.length > 1 && (
+            {allMatches.length > 1 && (
               <>
                 <button
                   onClick={handlePrevious}
@@ -778,9 +756,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
 
                 {/* Slide indicators */}
-                {currentMatches.length > 1 && (
+                {allMatches.length > 1 && (
                   <div className="flex justify-center mt-4 gap-1">
-                    {currentMatches.map((_, index) => (
+                    {allMatches.map((_, index) => (
                       <button
                         key={index}
                         onClick={(e) => {
