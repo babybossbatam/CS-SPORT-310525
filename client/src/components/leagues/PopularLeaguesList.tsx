@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { RootState, userActions } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import FeaturedMatchesThreeDays from '@/components/matches/FeaturedMatchesThreeDays';
 
 // Current popular leagues list - matches HomeTopScorersList
 export const CURRENT_POPULAR_LEAGUES = [
@@ -106,9 +107,13 @@ const PopularLeaguesList = () => {
   }
 
   return (
-    <Card className="w-full bg-white shadow-sm">
-      <CardContent className="p-4">
-        <h3 className="text-sm font-semibold mb-2">Popular Leagues</h3>
+    <div className="space-y-4">
+      {/* Featured Matches Component */}
+      <FeaturedMatchesThreeDays />
+      
+      <Card className="w-full bg-white shadow-sm">
+        <CardContent className="p-4">
+          <h3 className="text-sm font-semibold mb-2">Popular Leagues</h3>
         <div className="space-y-2">
           {leagueData.map((league) => {
             const isFavorite = user.preferences.favoriteLeagues.includes(league.id.toString());
@@ -150,6 +155,7 @@ const PopularLeaguesList = () => {
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 };
 
