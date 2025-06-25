@@ -47,15 +47,17 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
     <div
       className={`flex items-center px-4  overflow relative ${onClick ? "cursor-pointer" : ""} ${className}`}
       onClick={onClick}
-      style={{ cursor: onClick ? "pointer" : "default", height: "54px" }}
+      style={{ cursor: onClick ? "pointer" : "default", height: "44px" }}
     >
       {/* Home team section - 50% width */}
       <div
         className="flex items-left justify-between h-full flex-1 relative"
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
-          width: "55%",
-          clipPath: "polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%)",
+          width: "50%",
+          clipPath: "polygon(0 0, 100% 0, calc(100% - 15px) 100%, 0 100%)",
+          marginLeft: "4px",
+          marginRight: "-28px",
         }}
       >
         {/* Home team logo */}
@@ -100,6 +102,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
           width: "50%",
           flexDirection: "row-reverse",
           clipPath: "polygon(15px 0, 100% 0, calc(100% - 15px) 100%, 0 100%)",
+          marginLeft: "12px",
         }}
       >
         {/* Away team logo */}
