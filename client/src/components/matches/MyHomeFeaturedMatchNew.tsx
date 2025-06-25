@@ -641,7 +641,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         return (
                           <div className="space-y-1">
                             <div className="text-gray-600 text-sm">
-                              {matchStatus === 'FT' ? 'Full Time' : 
+                              {matchStatus === 'FT' ? 'Ended' : 
                                matchStatus === 'AET' ? 'After Extra Time' : 
                                matchStatus === 'PEN' ? 'After Penalties' : 'Ended'}
                             </div>
