@@ -15,6 +15,7 @@ interface MyCircularFlagProps {
     venue?: string;
   };
   showNextMatchOverlay?: boolean;
+  leagueContext?: any; // Add leagueContext prop
 }
 
 const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
@@ -26,6 +27,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   moveLeft = false,
   nextMatchInfo,
   showNextMatchOverlay = false,
+  leagueContext, // Destructure leagueContext
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
@@ -146,6 +148,21 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     });
   };
 
+  // Check if this is a national team following MyNewLeague pattern
+  const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
+
+  // Check for youth teams
+  const isYouthTeam = teamName?.includes("U20") || 
+                     teamName?.includes("U21") ||
+                     teamName?.includes("U19") ||
+                     teamName?.includes("U23");
+
+  // Check if this is FIFA Club World Cup (club competition, not national teams)
+  const isFifaClubWorldCup = leagueContext?.name?.toLowerCase().includes("fifa club world cup");
+
+  // Only show glossy effect for actual national teams and youth teams, but NOT for club competitions
+  const shouldShowGlossyEffect = (isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup;
+
   // For national teams, use the circular flag format
   return (
     <div
@@ -170,8 +187,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           borderRadius: "50%",
           position: "relative",
           zIndex: 1,
-          filter:
-            "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
         }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
@@ -180,8 +195,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           }
         }}
       />
-      <div className="gloss"></div>
-
+      {shouldShowGlossyEffect && <div className="gloss"></div>}
       {/* Next Match Tooltip - External popup */}
       {showNextMatchOverlay && isHovered && nextMatch && (
         <div
@@ -224,3 +238,4 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 };
 
 export default MyCircularFlag;
+```
