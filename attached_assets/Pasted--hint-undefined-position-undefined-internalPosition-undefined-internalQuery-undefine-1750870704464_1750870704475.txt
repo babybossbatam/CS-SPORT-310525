@@ -1,0 +1,68 @@
+ hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'cached_fixtures',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'cached_fixtures_fixture_id_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Error caching fixture 1332988: duplicate key value violates unique constraint "cached_fixtures_fixture_id_unique"
+Database connection established
+Database connection removed from pool
+Error caching fixture: error: duplicate key value violates unique constraint "cached_fixtures_fixture_id_unique"
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:464:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:385:15) {
+  length: 274,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (fixture_id)=(multi-tz-all:2025-06-28:1340435) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'cached_fixtures',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'cached_fixtures_fixture_id_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
+Error caching fixture 1340435: duplicate key value violates unique constraint "cached_fixtures_fixture_id_unique"
+Database connection established
+Database connection removed from pool
+Error caching fixture: error: duplicate key value violates unique constraint "cached_fixtures_fixture_id_unique"
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.createCachedFixture (/home/runner/workspace/server/storage.ts:464:22)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:385:15) {
+  length: 274,
+  severity: 'ERROR',
+  code: '23505',
+  detail: 'Key (fixture_id)=(multi-tz-all:2025-06-28:1366903) already exists.',
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: 'public',
+  table: 'cached_fixtures',
+  column: undefined,
+  dataType: undefined,
+  constraint: 'cached_fixtures_fixture_id_unique',
+  file: 'nbtinsert.c',
+  line: '666',
+  routine: '_bt_check_unique'
+}
