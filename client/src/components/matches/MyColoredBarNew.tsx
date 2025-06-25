@@ -61,7 +61,10 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         }}
       >
         {/* Home team logo */}
-        <div className="-ml-4 w-15 h-18 flex-shrink-1 relative z-10" style={{ marginTop: "-8px", marginBottom: "-8px" }}>
+        <div
+          className="flex items-center gap-3 -ml-4 w-15 h-18 flex-shrink-1 relative z-10"
+          style={{ marginTop: "-8px", marginBottom: "-8px" }}
+        >
           <MyWorldTeamLogo
             teamName={homeTeam.name || "Home Team"}
             teamLogo={homeTeam.logo}
@@ -73,10 +76,10 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
               country: league?.country || "World",
             }}
           />
+          <span className=" flex items-center text-white font-md uppercase text-sm truncate max-w-[250px]">
+            {homeTeam.name || "TBD"}
+          </span>
         </div>
-        <span className="text-white font-md uppercase text-sm truncate max-w-[120px]">
-          {homeTeam.name || "TBD"}
-        </span>
       </div>
 
       {/* VS section - positioned at the connection point */}
@@ -105,7 +108,10 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
       >
         {/* Away team logo */}
         <div className="flex items-center gap-3 flex-row-reverse">
-          <div className="-mr-2 w-15 h-15 flex-shrink-0 relative z-10" style={{ marginTop: "-8px", marginBottom: "-8px" }}>
+          <div
+            className="-mr-2 w-15 h-15 flex-shrink-0 relative z-10"
+            style={{ marginTop: "-8px", marginBottom: "-8px" }}
+          >
             <MyWorldTeamLogo
               teamName={awayTeam.name || "Away Team"}
               teamLogo={awayTeam.logo}
