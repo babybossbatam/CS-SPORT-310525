@@ -55,7 +55,8 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
           width: "50%",
-          clipPath: "polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%)",
+          clipPath:
+            "polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%)",
         }}
       >
         {/* Home team logo */}
@@ -81,13 +82,12 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
 
       {/* VS section - positioned at the connection point */}
       <div
-        className="flex items-center justify-center h-full text-white font-bold text-xs absolute z-10"
-        style={{ 
-          width: "30px", 
+        className="flex items-center justify-center h-full text-white font-bold text-lg absolute z-10 bg-transparent"
+        style={{
+          width: "30px",
           left: "calc(50% - 15px)",
-          background: "#a00000",
+
           borderRadius: "50%",
-          border: "2px solid white"
         }}
       >
         <span>VS</span>
