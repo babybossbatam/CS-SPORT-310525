@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Trophy, Calendar, Clock, Star } from 'lucide-react';
+import { Trophy, Calendar, Clock, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 import { useLocation } from 'wouter';
 import { apiRequest } from '@/lib/queryClient';
@@ -77,12 +77,13 @@ interface DayMatches {
 }
 
 const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
-  maxMatches = 3
+  maxMatches = 8
 }) => {
   const [, navigate] = useLocation();
   const [featuredMatches, setFeaturedMatches] = useState<DayMatches[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState(0);
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
 
   useEffect(() => {
     fetchFeaturedMatches();
@@ -120,16 +121,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             continue;
           }
 
-          // Filter for popular leagues and get featured matches
+          // Get all fixtures with valid teams (no league filtering)
           const featuredForDay = fixtures
             .filter((fixture: any) => {
-              // Must be from popular leagues
-              const isPopularLeague = POPULAR_LEAGUES.some(league => league.id === fixture.league.id);
-              
               // Must have valid teams
               const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
               
-              return isPopularLeague && hasValidTeams;
+              return hasValidTeams;
             })
             .map((fixture: any) => ({
               fixture: {
@@ -160,20 +158,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 away: fixture.goals?.away ?? null
               }
             }))
-            // Sort by league priority and time
+            // Sort by match time only
             .sort((a: FeaturedMatch, b: FeaturedMatch) => {
-              // Priority order: Champions League, Premier League, La Liga, etc.
-              const leaguePriority = [2, 39, 140, 135, 78, 61, 3, 848, 15, 38];
-              const aPriority = leaguePriority.indexOf(a.league.id);
-              const bPriority = leaguePriority.indexOf(b.league.id);
-              
-              if (aPriority !== -1 && bPriority !== -1) {
-                return aPriority - bPriority;
-              }
-              if (aPriority !== -1) return -1;
-              if (bPriority !== -1) return 1;
-              
-              // Sort by time if same priority
               return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
             })
             .slice(0, maxMatches); // Use maxMatches prop
@@ -246,6 +232,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     };
   };
 
+  const handlePrevious = () => {
+    const currentMatches = featuredMatches[selectedDay]?.matches || [];
+    if (currentMatches.length > 0) {
+      setCurrentMatchIndex((prev) => 
+        prev === 0 ? currentMatches.length - 1 : prev - 1
+      );
+    }
+  };
+
+  const handleNext = () => {
+    const currentMatches = featuredMatches[selectedDay]?.matches || [];
+    if (currentMatches.length > 0) {
+      setCurrentMatchIndex((prev) => 
+        prev === currentMatches.length - 1 ? 0 : prev + 1
+      );
+    }
+  };
+
+  const currentMatches = featuredMatches[selectedDay]?.matches || [];
+  const currentMatch = currentMatches[currentMatchIndex];
+
   if (isLoading) {
     return (
       <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4">
@@ -257,16 +264,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         </Badge>
         <CardContent className="p-6">
           <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-                <div className="space-y-2">
-                  {[...Array(2)].map((_, j) => (
-                    <div key={j} className="h-16 bg-gray-100 rounded"></div>
-                  ))}
-                </div>
-              </div>
-            ))}
+            <div className="animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+              <div className="h-32 bg-gray-100 rounded"></div>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -274,7 +275,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }
 
   return (
-    <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4">
+    <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4 overflow-hidden">
       <Badge
         variant="secondary"
         className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
@@ -295,7 +296,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               key={dayData.date}
               variant={selectedDay === index ? "default" : "outline"}
               size="sm"
-              onClick={() => setSelectedDay(index)}
+              onClick={() => {
+                setSelectedDay(index);
+                setCurrentMatchIndex(0);
+              }}
               className="text-xs h-7"
             >
               <Calendar className="h-3 w-3 mr-1" />
@@ -311,161 +315,187 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       </CardHeader>
 
       <CardContent className="pt-0">
-        {featuredMatches[selectedDay] && (
-          <div className="space-y-3">
-            {featuredMatches[selectedDay].matches.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-gray-500">
-                <Trophy className="h-12 w-12 mb-3 opacity-50" />
-                <p className="text-lg font-medium mb-1">No featured matches</p>
-                <p className="text-sm">Check back later for upcoming games</p>
-              </div>
-            ) : (
-              featuredMatches[selectedDay].matches.map((match) => {
-                const statusInfo = getStatusDisplay(match);
-                
-                return (
-                  <div
-                    key={match.fixture.id}
-                    className="border rounded-lg p-3 hover:bg-gray-50 cursor-pointer transition-colors"
-                    onClick={() => navigate(`/match/${match.fixture.id}`)}
-                  >
-                    {/* League info */}
-                    <div className="flex items-center gap-2 mb-2">
-                      <LazyImage
-                        src={match.league.logo}
-                        alt={match.league.name}
-                        className="w-4 h-4"
-                        fallbackSrc="/assets/fallback-logo.svg"
-                      />
-                      <span className="text-xs text-gray-600 font-medium">
-                        {match.league.name}
-                      </span>
-                      {statusInfo.isLive && (
-                        <Star className="h-3 w-3 text-red-500 fill-current" />
-                      )}
-                    </div>
+        {currentMatches.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+            <Trophy className="h-12 w-12 mb-3 opacity-50" />
+            <p className="text-lg font-medium mb-1">No featured matches</p>
+            <p className="text-sm">Check back later for upcoming games</p>
+          </div>
+        ) : (
+          <div className="relative">
+            {/* Navigation arrows */}
+            {currentMatches.length > 1 && (
+              <>
+                <button
+                  onClick={handlePrevious}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-700 p-2 rounded-full shadow-lg z-30 border border-gray-200 transition-all duration-200"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={handleNext}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-700 p-2 rounded-full shadow-lg z-30 border border-gray-200 transition-all duration-200"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </>
+            )}
 
-                    {/* Status and Countdown */}
-                    <div className="flex justify-center items-center mb-3">
-                      <div className="text-center">
-                        <div className="text-lg font-bold text-gray-800">
-                          {statusInfo.isLive ? 'Live Now' : 
-                           match.fixture.date.includes(format(new Date(), 'yyyy-MM-dd')) ? 'Today' :
-                           match.fixture.date.includes(format(addDays(new Date(), 1), 'yyyy-MM-dd')) ? 'Tomorrow' : 
-                           'Day After Tomorrow'}
+            {/* Single match display */}
+            {currentMatch && (
+              <div 
+                className="cursor-pointer transition-all duration-300"
+                onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
+              >
+                {/* League header */}
+                <div className="flex items-center justify-center gap-2 mb-4 p-2 bg-gray-50 rounded-lg">
+                  <LazyImage
+                    src={currentMatch.league.logo}
+                    alt={currentMatch.league.name}
+                    className="w-6 h-6"
+                    fallbackSrc="/assets/fallback-logo.svg"
+                  />
+                  <span className="text-sm font-medium text-gray-700">
+                    {currentMatch.league.name}
+                  </span>
+                  {getStatusDisplay(currentMatch).isLive && (
+                    <Star className="h-4 w-4 text-red-500 fill-current" />
+                  )}
+                </div>
+
+                {/* Match day indicator */}
+                <div className="text-center mb-4">
+                  <div className="text-2xl font-bold text-gray-800">
+                    {getStatusDisplay(currentMatch).isLive ? 'Live Now' : 
+                     currentMatch.fixture.date.includes(format(new Date(), 'yyyy-MM-dd')) ? 'Today' :
+                     currentMatch.fixture.date.includes(format(addDays(new Date(), 1), 'yyyy-MM-dd')) ? 'Tomorrow' : 
+                     'Day After Tomorrow'}
+                  </div>
+                </div>
+
+                {/* Teams display - horizontal layout like 365scores */}
+                <div className="relative mb-6">
+                  <div className="flex items-center h-20 rounded-lg overflow-hidden shadow-lg">
+                    {/* Home team section */}
+                    <div className="flex-1 flex items-center h-full bg-gradient-to-r from-blue-500 to-blue-600 relative">
+                      <div className="absolute left-4 z-10 w-12 h-12 bg-white/20 rounded-full p-2 flex items-center justify-center">
+                        <TeamLogo
+                          src={currentMatch.teams.home.logo}
+                          alt={currentMatch.teams.home.name}
+                          size="sm"
+                          className="w-8 h-8"
+                        />
+                      </div>
+                      <div className="flex-1 text-center pr-4">
+                        <div className="text-white font-bold text-lg uppercase tracking-wide">
+                          {currentMatch.teams.home.name.length > 12 ? 
+                            currentMatch.teams.home.name.substring(0, 12) + '...' : 
+                            currentMatch.teams.home.name}
                         </div>
                       </div>
                     </div>
 
-                    {/* Horizontal Team Layout with Colored Bars */}
-                    <div className="relative mb-4">
-                      <div className="flex items-center h-14 rounded-lg overflow-hidden">
-                        {/* Home team section */}
-                        <div className="flex-1 flex items-center h-full bg-gradient-to-r from-yellow-400 to-yellow-500 relative">
-                          <div className="absolute left-2 z-10 w-10 h-10 bg-white/20 rounded-full p-1 flex items-center justify-center">
-                            <TeamLogo
-                              src={match.teams.home.logo}
-                              alt={match.teams.home.name}
-                              size="sm"
-                              className="w-8 h-8"
-                            />
-                          </div>
-                          <div className="flex-1 text-center">
-                            <div className="text-white font-bold text-sm uppercase tracking-wide pr-8">
-                              {match.teams.home.name.length > 12 ? 
-                                match.teams.home.name.substring(0, 12) + '...' : 
-                                match.teams.home.name}
-                            </div>
-                          </div>
-                        </div>
+                    {/* VS section */}
+                    <div className="w-16 h-full bg-gray-800 flex items-center justify-center relative z-20">
+                      <span className="text-white font-bold text-sm">VS</span>
+                    </div>
 
-                        {/* VS section */}
-                        <div className="w-12 h-full bg-gray-800 flex items-center justify-center relative z-20">
-                          <span className="text-white font-bold text-xs">VS</span>
-                        </div>
-
-                        {/* Away team section */}
-                        <div className="flex-1 flex items-center h-full bg-gradient-to-l from-red-500 to-red-600 relative">
-                          <div className="flex-1 text-center">
-                            <div className="text-white font-bold text-sm uppercase tracking-wide pl-8">
-                              {match.teams.away.name.length > 12 ? 
-                                match.teams.away.name.substring(0, 12) + '...' : 
-                                match.teams.away.name}
-                            </div>
-                          </div>
-                          <div className="absolute right-2 z-10 w-10 h-10 bg-white/20 rounded-full p-1 flex items-center justify-center">
-                            <TeamLogo
-                              src={match.teams.away.logo}
-                              alt={match.teams.away.name}
-                              size="sm"
-                              className="w-8 h-8"
-                            />
-                          </div>
+                    {/* Away team section */}
+                    <div className="flex-1 flex items-center h-full bg-gradient-to-l from-red-500 to-red-600 relative">
+                      <div className="flex-1 text-center pl-4">
+                        <div className="text-white font-bold text-lg uppercase tracking-wide">
+                          {currentMatch.teams.away.name.length > 12 ? 
+                            currentMatch.teams.away.name.substring(0, 12) + '...' : 
+                            currentMatch.teams.away.name}
                         </div>
                       </div>
-                    </div>
-
-                    {/* Match Details */}
-                    <div className="text-center text-xs text-gray-600 mb-3">
-                      {format(new Date(match.fixture.date), 'EEEE, do MMMM | HH:mm')}
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex justify-around border-t border-gray-200 pt-3">
-                      <button 
-                        className="flex flex-col items-center cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/match/${match.fixture.id}`);
-                        }}
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" className="text-blue-500">
-                          <path d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z" fill="currentColor" />
-                        </svg>
-                        <span className="text-xs text-gray-600 mt-1">Match Page</span>
-                      </button>
-                      <button 
-                        className="flex flex-col items-center cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Navigate to lineups when available
-                        }}
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" className="text-blue-500">
-                          <path d="M21.5 4H2.5C2.22386 4 2 4.22386 2 4.5V19.5C2 19.7761 2.22386 20 2.5 20H21.5C21.7761 20 22 19.7761 22 19.5V4.5C22 4.22386 21.7761 4 21.5 4Z" stroke="currentColor" strokeWidth="2" fill="none"/>
-                          <path d="M21.5 9H18.5C18.2239 9 18 9.22386 18 9.5V14.5C18 14.7761 18.2239 15 18.5 15H21.5C21.7761 15 22 14.7761 22 14.5V9.5C22 9.22386 21.7761 9 21.5 9Z" stroke="currentColor" strokeWidth="2" fill="none"/>
-                          <path d="M5.5 9H2.5C2.22386 9 2 9.22386 2 9.5V14.5C2 14.7761 2.22386 15 2.5 15H5.5C5.77614 15 6 14.7761 6 14.5V9.5C6 9.22386 5.77614 9 5.5 9Z" stroke="currentColor" strokeWidth="2" fill="none"/>
-                        </svg>
-                        <span className="text-xs text-gray-600 mt-1">Lineups</span>
-                      </button>
-                      <button 
-                        className="flex flex-col items-center cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Navigate to stats when available
-                        }}
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" className="text-blue-500">
-                          <path d="M12 2C6.486 2 2 6.486 2 12C2 17.514 6.486 22 12 22C17.514 22 22 17.514 22 12C22 6.486 17.514 2 12 2ZM19.931 11H13V4.069C14.7598 4.29335 16.3953 5.09574 17.6498 6.3502C18.9043 7.60466 19.7066 9.24017 19.931 11ZM4 12C4 7.928 7.061 4.564 11 4.069V12C11.003 12.1526 11.0409 12.3024 11.111 12.438C11.126 12.468 11.133 12.501 11.152 12.531L15.354 19.254C14.3038 19.7442 13.159 19.9988 12 20C7.589 20 4 16.411 4 12ZM17.052 18.196L13.805 13H19.931C19.6746 15.0376 18.6436 16.8982 17.052 18.196Z" fill="currentColor"/>
-                        </svg>
-                        <span className="text-xs text-gray-600 mt-1">Stats</span>
-                      </button>
-                      <button 
-                        className="flex flex-col items-center cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/league/${match.league.id}/standings`);
-                        }}
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" className="text-blue-500">
-                          <path d="M4 6H6V8H4V6ZM4 11H6V13H4V11ZM4 16H6V18H4V16ZM20 8V6H8.023V8H18.8H20ZM8 11H20V13H8V11ZM8 16H20V18H8V16Z" fill="currentColor"/>
-                        </svg>
-                        <span className="text-xs text-gray-600 mt-1">Groups</span>
-                      </button>
+                      <div className="absolute right-4 z-10 w-12 h-12 bg-white/20 rounded-full p-2 flex items-center justify-center">
+                        <TeamLogo
+                          src={currentMatch.teams.away.logo}
+                          alt={currentMatch.teams.away.name}
+                          size="sm"
+                          className="w-8 h-8"
+                        />
+                      </div>
                     </div>
                   </div>
-                );
-              })
+                </div>
+
+                {/* Match Details */}
+                <div className="text-center text-sm text-gray-600 mb-4">
+                  {format(new Date(currentMatch.fixture.date), 'EEEE, do MMMM | HH:mm')}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex justify-around border-t border-gray-200 pt-4">
+                  <button 
+                    className="flex flex-col items-center cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/match/${currentMatch.fixture.id}`);
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" className="text-blue-500">
+                      <path d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z" fill="currentColor" />
+                    </svg>
+                    <span className="text-xs text-gray-600 mt-1">Match Page</span>
+                  </button>
+                  <button 
+                    className="flex flex-col items-center cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" className="text-blue-500">
+                      <path d="M21.5 4H2.5C2.22386 4 2 4.22386 2 4.5V19.5C2 19.7761 2.22386 20 2.5 20H21.5C21.7761 20 22 19.7761 22 19.5V4.5C22 4.22386 21.7761 4 21.5 4Z" stroke="currentColor" strokeWidth="2" fill="none"/>
+                      <path d="M21.5 9H18.5C18.2239 9 18 9.22386 18 9.5V14.5C18 14.7761 18.2239 15 18.5 15H21.5C21.7761 15 22 14.7761 22 14.5V9.5C22 9.22386 21.7761 9 21.5 9Z" stroke="currentColor" strokeWidth="2" fill="none"/>
+                      <path d="M5.5 9H2.5C2.22386 9 2 9.22386 2 9.5V14.5C2 14.7761 2.22386 15 2.5 15H5.5C5.77614 15 6 14.7761 6 14.5V9.5C6 9.22386 5.77614 9 5.5 9Z" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    </svg>
+                    <span className="text-xs text-gray-600 mt-1">Lineups</span>
+                  </button>
+                  <button 
+                    className="flex flex-col items-center cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" className="text-blue-500">
+                      <path d="M12 2C6.486 2 2 6.486 2 12C2 17.514 6.486 22 12 22C17.514 22 22 17.514 22 12C22 6.486 17.514 2 12 2ZM19.931 11H13V4.069C14.7598 4.29335 16.3953 5.09574 17.6498 6.3502C18.9043 7.60466 19.7066 9.24017 19.931 11ZM4 12C4 7.928 7.061 4.564 11 4.069V12C11.003 12.1526 11.0409 12.3024 11.111 12.438C11.126 12.468 11.133 12.501 11.152 12.531L15.354 19.254C14.3038 19.7442 13.159 19.9988 12 20C7.589 20 4 16.411 4 12ZM17.052 18.196L13.805 13H19.931C19.6746 15.0376 18.6436 16.8982 17.052 18.196Z" fill="currentColor"/>
+                    </svg>
+                    <span className="text-xs text-gray-600 mt-1">Stats</span>
+                  </button>
+                  <button 
+                    className="flex flex-col items-center cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/league/${currentMatch.league.id}/standings`);
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" className="text-blue-500">
+                      <path d="M4 6H6V8H4V6ZM4 11H6V13H4V11ZM4 16H6V18H4V16ZM20 8V6H8.023V8H18.8H20ZM8 11H20V13H8V11ZM8 16H20V18H8V16Z" fill="currentColor"/>
+                    </svg>
+                    <span className="text-xs text-gray-600 mt-1">Groups</span>
+                  </button>
+                </div>
+
+                {/* Slide indicators */}
+                {currentMatches.length > 1 && (
+                  <div className="flex justify-center mt-4 gap-1">
+                    {currentMatches.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentMatchIndex(index);
+                        }}
+                        className={`w-2 h-2 rounded-full transition-colors ${
+                          index === currentMatchIndex ? 'bg-blue-500' : 'bg-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         )}
