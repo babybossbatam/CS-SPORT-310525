@@ -168,8 +168,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
     const ballInterval = setInterval(() => {
       setBallPosition(prev => {
-        const newX = Math.max(15, Math.min(85, prev.x + (Math.random() - 0.5) * 8));
-        const newY = Math.max(25, Math.min(75, prev.y + (Math.random() - 0.5) * 6));
+        const newX = Math.max(15, Math.min(85, prev.x + (Math.random() - 0.5) * 12));
+        const newY = Math.max(25, Math.min(75, prev.y + (Math.random() - 0.5) * 10));
 
         // Update possession based on ball position
         if (newX < 40) {
@@ -182,7 +182,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
         return { x: newX, y: newY };
       });
-    }, 2000);
+    }, 1200);
 
     return () => clearInterval(ballInterval);
   }, [isLive]);
@@ -192,16 +192,18 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     const teams = ['home', 'away'];
     const randomTeam = teams[Math.floor(Math.random() * teams.length)] as 'home' | 'away';
     
-    // Determine event type based on ball position and proximity to penalty area
+    // Determine event type based on ball position and actual penalty area boundaries
     let randomType: 'attacking' | 'ball_safe' | 'dangerous_attack';
     
-    // Check if ball is in or near penalty areas for dangerous attack
-    const isNearHomePenalty = ballPosition.x < 25 && ballPosition.y > 30 && ballPosition.y < 70;
-    const isNearAwayPenalty = ballPosition.x > 75 && ballPosition.y > 30 && ballPosition.y < 70;
+    // Check if ball is actually INSIDE penalty areas for dangerous attack
+    // Home penalty area: x < 21 (16 yards from goal line), y between 30-70
+    // Away penalty area: x > 79 (16 yards from goal line), y between 30-70
+    const isInHomePenalty = ballPosition.x < 21 && ballPosition.y > 30 && ballPosition.y < 70;
+    const isInAwayPenalty = ballPosition.x > 79 && ballPosition.y > 30 && ballPosition.y < 70;
     
-    if ((randomTeam === 'away' && isNearHomePenalty) || (randomTeam === 'home' && isNearAwayPenalty)) {
+    if ((randomTeam === 'away' && isInHomePenalty) || (randomTeam === 'home' && isInAwayPenalty)) {
       randomType = 'dangerous_attack';
-    } else if (ballPosition.x < 40 && randomTeam === 'home' || ballPosition.x > 60 && randomTeam === 'away') {
+    } else if ((ballPosition.x < 40 && randomTeam === 'home') || (ballPosition.x > 60 && randomTeam === 'away')) {
       randomType = 'attacking';
     } else {
       randomType = 'ball_safe';
