@@ -953,7 +953,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   </div>
                 )}
               </div>
-            </div>
             )}
           </div>
         )}
