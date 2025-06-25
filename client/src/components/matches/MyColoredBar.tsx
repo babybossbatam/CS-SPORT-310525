@@ -44,11 +44,7 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
   league,
 }) => {
   return (
-    <div
-      className={`flex relative h-[63px] rounded-md mb-8  ${onClick ? "cursor-pointer" : ""} ${className}`}
-      onClick={onClick}
-      style={{ cursor: onClick ? "pointer" : "default" }}
-    >
+    <>
       <div className="w-full h-full flex justify-between relative">
         {/* Home team colored bar and logo */}
         <div
@@ -185,7 +181,7 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
           />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
