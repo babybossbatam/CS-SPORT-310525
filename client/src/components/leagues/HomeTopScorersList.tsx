@@ -455,7 +455,30 @@ const HomeTopScorersList = () => {
 
     console.log(`⬅️ [Navigation] Moving left from ${getCurrentLeague()?.name} to ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
     setSelectedLeague(nextLeagueId);
-    // Auto-centering will be handled by useEffect
+    
+    // Force immediate centering after state update
+    setTimeout(() => {
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+        const content = container.querySelector("[data-content]") as HTMLElement;
+        const selectedButton = content?.querySelector(`[data-league-id="${nextLeagueId}"]`) as HTMLElement;
+        
+        if (container && content && selectedButton) {
+          const containerWidth = container.clientWidth;
+          const contentWidth = content.scrollWidth;
+          const buttonRelativeLeft = selectedButton.offsetLeft;
+          const buttonWidth = selectedButton.offsetWidth;
+          const containerCenter = containerWidth / 2;
+          const buttonCenter = buttonRelativeLeft + (buttonWidth / 2);
+          const newPosition = buttonCenter - containerCenter;
+          const maxScroll = Math.max(0, contentWidth - containerWidth);
+          const clampedPosition = Math.max(0, Math.min(newPosition, maxScroll));
+          
+          setContentPosition(clampedPosition);
+          console.log(`🎯 [Navigation Left] Centered league ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
+        }
+      }
+    }, 50);
   };
 
   const scrollRight = () => {
@@ -473,7 +496,30 @@ const HomeTopScorersList = () => {
 
     console.log(`➡️ [Navigation] Moving right from ${getCurrentLeague()?.name} to ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
     setSelectedLeague(nextLeagueId);
-    // Auto-centering will be handled by useEffect
+    
+    // Force immediate centering after state update
+    setTimeout(() => {
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+        const content = container.querySelector("[data-content]") as HTMLElement;
+        const selectedButton = content?.querySelector(`[data-league-id="${nextLeagueId}"]`) as HTMLElement;
+        
+        if (container && content && selectedButton) {
+          const containerWidth = container.clientWidth;
+          const contentWidth = content.scrollWidth;
+          const buttonRelativeLeft = selectedButton.offsetLeft;
+          const buttonWidth = selectedButton.offsetWidth;
+          const containerCenter = containerWidth / 2;
+          const buttonCenter = buttonRelativeLeft + (buttonWidth / 2);
+          const newPosition = buttonCenter - containerCenter;
+          const maxScroll = Math.max(0, contentWidth - containerWidth);
+          const clampedPosition = Math.max(0, Math.min(newPosition, maxScroll));
+          
+          setContentPosition(clampedPosition);
+          console.log(`🎯 [Navigation Right] Centered league ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
+        }
+      }
+    }, 50);
   };
 
   const canScrollLeft = availableLeagues.length > 0;
