@@ -9,6 +9,7 @@ import { apiRequest } from '@/lib/queryClient';
 import TeamLogo from './TeamLogo';
 import LazyImage from '../common/LazyImage';
 import MyColoredBar from './MyColoredBar';
+import MyWorldTeamLogo from '../common/MyWorldTeamLogo';
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -376,47 +377,66 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   </div>
                 </div>
 
-                {/* Teams display using MyColoredBar component */}
-                <div className="relative mb-6">
-                  <MyColoredBar
-                    homeTeam={{
-                      id: currentMatch.teams.home.id,
-                      name: currentMatch.teams.home.name,
-                      logo: currentMatch.teams.home.logo
-                    }}
-                    awayTeam={{
-                      id: currentMatch.teams.away.id,
-                      name: currentMatch.teams.away.name,
-                      logo: currentMatch.teams.away.logo
-                    }}
-                    homeScore={currentMatch.goals.home}
-                    awayScore={currentMatch.goals.away}
-                    status={currentMatch.fixture.status.short}
-                    fixture={{
-                      id: currentMatch.fixture.id,
-                      date: currentMatch.fixture.date,
-                      status: currentMatch.fixture.status
-                    }}
-                    onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
-                    getTeamColor={(teamId: number) => {
-                      // Simple team color generator based on team ID
-                      const colors = [
-                        '#3B82F6', // blue
-                        '#EF4444', // red
-                        '#10B981', // green
-                        '#F59E0B', // amber
-                        '#8B5CF6', // violet
-                        '#EC4899', // pink
-                        '#14B8A6', // teal
-                        '#F97316'  // orange
-                      ];
-                      return colors[teamId % colors.length];
-                    }}
-                    className="h-20 rounded-lg shadow-lg"
-                    league={{
-                      country: currentMatch.league.country
-                    }}
-                  />
+                {/* Teams display */}
+                <div className="relative mb-6 bg-gradient-to-r from-blue-50 to-red-50 rounded-lg p-4">
+                  <div className="flex items-center justify-between">
+                    {/* Home Team */}
+                    <div className="flex items-center space-x-3 flex-1">
+                      <MyWorldTeamLogo
+                        teamName={currentMatch.teams.home.name}
+                        teamLogo={currentMatch.teams.home.logo}
+                        alt={currentMatch.teams.home.name}
+                        size="48px"
+                        className="flex-shrink-0"
+                        leagueContext={{
+                          name: currentMatch.league.name,
+                          country: currentMatch.league.country
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {currentMatch.teams.home.name}
+                        </p>
+                      </div>
+                      {currentMatch.goals.home !== null && (
+                        <div className="text-2xl font-bold text-gray-900">
+                          {currentMatch.goals.home}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Match Status/Time */}
+                    <div className="flex-shrink-0 mx-4">
+                      <div className={`px-3 py-1 rounded-full text-xs font-medium text-white ${getStatusDisplay(currentMatch).color}`}>
+                        {getStatusDisplay(currentMatch).text}
+                      </div>
+                    </div>
+
+                    {/* Away Team */}
+                    <div className="flex items-center space-x-3 flex-1 justify-end">
+                      {currentMatch.goals.away !== null && (
+                        <div className="text-2xl font-bold text-gray-900">
+                          {currentMatch.goals.away}
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0 text-right">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {currentMatch.teams.away.name}
+                        </p>
+                      </div>
+                      <MyWorldTeamLogo
+                        teamName={currentMatch.teams.away.name}
+                        teamLogo={currentMatch.teams.away.logo}
+                        alt={currentMatch.teams.away.name}
+                        size="48px"
+                        className="flex-shrink-0"
+                        leagueContext={{
+                          name: currentMatch.league.name,
+                          country: currentMatch.league.country
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Match Details */}
