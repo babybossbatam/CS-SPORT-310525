@@ -81,7 +81,7 @@ interface DayMatches {
   matches: FeaturedMatch[];
 }
 
-const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = React.memo(({
+const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   maxMatches = 8,
 }) => {
   const [, navigate] = useLocation();
@@ -843,8 +843,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = React.memo
       </CardContent>
     </Card>
   );
-});
-
-MyHomeFeaturedMatchNew.displayName = 'MyHomeFeaturedMatchNew';
+};
 
 export default MyHomeFeaturedMatchNew;
