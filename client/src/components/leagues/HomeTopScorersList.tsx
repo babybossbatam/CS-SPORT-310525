@@ -455,10 +455,7 @@ const HomeTopScorersList = () => {
 
     console.log(`⬅️ [Navigation] Moving left from ${getCurrentLeague()?.name} to ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
     setSelectedLeague(nextLeagueId);
-    
-    // Scroll content to the right when moving selection left
-    const scrollAmount = 200; // Adjust scroll amount as needed
-    setContentPosition(prev => Math.max(0, prev - scrollAmount));
+    // Auto-centering will be handled by useEffect
   };
 
   const scrollRight = () => {
@@ -476,43 +473,89 @@ const HomeTopScorersList = () => {
 
     console.log(`➡️ [Navigation] Moving right from ${getCurrentLeague()?.name} to ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
     setSelectedLeague(nextLeagueId);
-    
-    // Scroll content to the left when moving selection right
-    const scrollAmount = 200; // Adjust scroll amount as needed
-    const maxScroll = Math.max(0, contentWidth - containerWidth);
-    setContentPosition(prev => Math.min(maxScroll, prev + scrollAmount));
+    // Auto-centering will be handled by useEffect
   };
 
   const canScrollLeft = availableLeagues.length > 0;
   const canScrollRight = availableLeagues.length > 0;
 
-  // Initialize content position on mount (no auto-centering)
+  // Auto-center selected league
   useEffect(() => {
     if (
       !scrollContainerRef.current ||
       !selectedLeague ||
-      availableLeagues.length === 0
+      availableLeagues.length === 0 ||
+      containerWidth === 0 ||
+      contentWidth === 0
     ) {
       return;
     }
 
-    // Only update dimensions, don't auto-center
-    const updateContentDimensions = () => {
+    const centerSelectedLeague = () => {
       const container = scrollContainerRef.current;
       if (!container) return;
 
       const content = container.querySelector("[data-content]") as HTMLElement;
-      const actualContentWidth = content ? content.scrollWidth : 0;
+      if (!content) return;
 
-      if (actualContentWidth !== contentWidth && actualContentWidth > 0) {
-        setContentWidth(actualContentWidth);
-        console.log(`📏 [Dimensions] Updated content width: ${actualContentWidth}`);
+      // Find the selected league button
+      const selectedButton = content.querySelector(`[data-league-id="${selectedLeague}"]`) as HTMLElement;
+      if (!selectedButton) {
+        console.warn(`❌ [Auto-center] Could not find button for league ${selectedLeague}`);
+        return;
       }
+
+      // Calculate the position to center the selected league
+      const buttonRect = selectedButton.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      const buttonRelativeLeft = selectedButton.offsetLeft;
+      const buttonWidth = selectedButton.offsetWidth;
+
+      // Calculate center position
+      const containerCenter = containerWidth / 2;
+      const buttonCenter = buttonRelativeLeft + (buttonWidth / 2);
+      const newPosition = buttonCenter - containerCenter;
+
+      // Clamp position to valid range
+      const maxScroll = Math.max(0, contentWidth - containerWidth);
+      const clampedPosition = Math.max(0, Math.min(newPosition, maxScroll));
+
+      console.log(`🎯 [Auto-center] Centering league ${getCurrentLeague()?.name}:`, {
+        buttonLeft: buttonRelativeLeft,
+        buttonWidth,
+        buttonCenter,
+        containerCenter,
+        newPosition,
+        clampedPosition,
+        maxScroll
+      });
+
+      setContentPosition(clampedPosition);
     };
 
-    const timer = setTimeout(updateContentDimensions, 100);
-    return () => clearTimeout(timer);
-  }, [selectedLeague, availableLeagues.length, containerWidth]);
+    // Use multiple attempts for better reliability
+    const attemptCenter = (attempt = 0) => {
+      const maxAttempts = 3;
+      const delays = [0, 100, 300];
+
+      if (attempt >= maxAttempts) {
+        console.warn(`❌ [Auto-center] Failed to center league ${selectedLeague} after ${maxAttempts} attempts`);
+        return;
+      }
+
+      const timer = setTimeout(() => {
+        centerSelectedLeague();
+        if (attempt < maxAttempts - 1) {
+          attemptCenter(attempt + 1);
+        }
+      }, delays[attempt]);
+
+      return () => clearTimeout(timer);
+    };
+
+    const cleanup = attemptCenter();
+    return cleanup;
+  }, [selectedLeague, availableLeagues.length, containerWidth, contentWidth]);
 
   if (isLoadingLeagues || !selectedLeague) {
     return (
