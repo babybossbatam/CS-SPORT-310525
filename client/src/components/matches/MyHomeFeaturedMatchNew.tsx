@@ -494,6 +494,21 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = React.memo
     }
   }, [allMatches.length]);
 
+  const getTeamColor = useCallback((teamId: number) => {
+    // Simple team color generator based on team ID
+    const colors = [
+      "#3B82F6", // blue
+      "#EF4444", // red
+      "#10B981", // green
+      "#F59E0B", // amber
+      "#8B5CF6", // violet
+      "#EC4899", // pink
+      "#14B8A6", // teal
+      "#F97316", // orange
+    ];
+    return colors[teamId % colors.length];
+  }, []);
+
   if (isLoading) {
     return (
       <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4">
@@ -688,20 +703,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = React.memo
                     onClick={() =>
                       navigate(`/match/${currentMatch.fixture.id}`)
                     }
-                    getTeamColor={useCallback((teamId: number) => {
-                      // Simple team color generator based on team ID
-                      const colors = [
-                        "#3B82F6", // blue
-                        "#EF4444", // red
-                        "#10B981", // green
-                        "#F59E0B", // amber
-                        "#8B5CF6", // violet
-                        "#EC4899", // pink
-                        "#14B8A6", // teal
-                        "#F97316", // orange
-                      ];
-                      return colors[teamId % colors.length];
-                    }, [])}
+                    getTeamColor={getTeamColor}
                     className="h-20 rounded-lg shadow-lg"
                     league={{
                       country: currentMatch.league.country,
