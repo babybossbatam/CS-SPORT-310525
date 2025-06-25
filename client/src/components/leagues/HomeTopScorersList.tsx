@@ -655,6 +655,11 @@ const HomeTopScorersList = () => {
     );
   }
 
+  // Hide entire component if no top scorer data is available
+  if (!isLoading && (!topScorers || topScorers.length === 0)) {
+    return null;
+  }
+
   if (isLoading && !topScorers) {
     return (
       <>
