@@ -17,7 +17,7 @@ import {
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
 import { QUERY_CONFIGS, CACHE_FRESHNESS } from "@/lib/cacheConfig";
-import { useCachedQuery, CacheManager } from "@/lib/cachingHelper";
+// Removed cached query system for live match updates
 import { getCurrentUTCDateString } from "@/lib/dateUtilsUpdated";
 import { POPULAR_LEAGUES } from "@/lib/constants";
 import {
@@ -234,59 +234,82 @@ const TodayPopularFootballLeaguesNew: React.FC<
     548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
   ];
 
-  // Smart cache duration based on date type
-  const today = new Date().toISOString().slice(0, 10);
-  const isToday = selectedDate === today;
-  const isFuture = selectedDate > today;
+  // Direct API calls without caching for live updates
 
-  // Longer cache for upcoming dates (4 hours), shorter for today (2 hours)
-  const cacheMaxAge = isFuture
-    ? 4 * 60 * 60 * 1000
-    : isToday
-      ? 2 * 60 * 60 * 1000
-      : 30 * 60 * 1000;
+  // Use direct API calls like MyNewLeague for live data, cached for static data
+  const [fixtures, setFixtures] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
 
-  // Check if we have fresh cached data
-  const fixturesQueryKey = ["all-fixtures-by-date", selectedDate];
+  useEffect(() => {
+    const fetchFixtures = async () => {
+      setIsLoading(true);
+      setIsFetching(true);
+      
+      try {
+        console.log(
+          `🔄 [TodayPopularLeagueNew] Fetching fresh data for date: ${selectedDate}`,
+        );
+        
+        // For live matches, fetch directly without caching
+        const response = await apiRequest(
+          "GET",
+          `/api/fixtures/date/${selectedDate}?all=true`,
+        );
+        const data = await response.json();
+        
+        console.log(
+          `✅ [TodayPopularLeagueNew] Received ${data?.length || 0} fixtures for ${selectedDate}`,
+        );
+        
+        setFixtures(data || []);
+      } catch (error) {
+        console.error('Error fetching fixtures:', error);
+        setFixtures([]);
+      } finally {
+        setIsLoading(false);
+        setIsFetching(false);
+      }
+    };
 
-  // Fetch all fixtures for the selected date - simple approach like MyNewLeague
-  const {
-    data: fixtures = [],
-    isLoading,
-    isFetching,
-  } = useCachedQuery(
-    fixturesQueryKey,
-    async () => {
-      console.log(
-        `🔄 [TodayPopularLeagueNew] Fetching fresh data for date: ${selectedDate}`,
-      );
-      const response = await apiRequest(
-        "GET",
-        `/api/fixtures/date/${selectedDate}?all=true`,
-      );
-      const data = await response.json();
-      console.log(
-        `✅ [TodayPopularLeagueNew] Received ${data?.length || 0} fixtures for ${selectedDate}`,
-      );
-      return data;
-    },
-    {
-      enabled: !!selectedDate && enableFetching,
-      maxAge: cacheMaxAge,
-      backgroundRefresh: false, // Disable background refresh to prevent frequent calls
-      staleTime: cacheMaxAge, // Use the same duration for stale time
-      gcTime: cacheMaxAge * 2, // Keep in memory longer
-      refetchOnMount: false, // Don't refetch on component mount
-      refetchOnWindowFocus: false, // Don't refetch on window focus
-      refetchOnReconnect: false, // Don't refetch on reconnect
-    },
-  );
+    if (selectedDate && enableFetching) {
+      fetchFixtures();
+    }
+  }, [selectedDate, enableFetching]);
+
+  // Auto-refresh for live matches every 30 seconds like MyNewLeague
+  useEffect(() => {
+    const hasLiveMatches = fixtures.some(fixture => 
+      ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture?.status?.short)
+    );
+
+    if (!hasLiveMatches || !selectedDate || !enableFetching) return;
+
+    const interval = setInterval(async () => {
+      console.log('🔄 [TodayPopularLeagueNew] Auto-refreshing for live matches');
+      setIsFetching(true);
+      
+      try {
+        const response = await apiRequest(
+          "GET",
+          `/api/fixtures/date/${selectedDate}?all=true`,
+        );
+        const data = await response.json();
+        setFixtures(data || []);
+      } catch (error) {
+        console.error('Error auto-refreshing fixtures:', error);
+      } finally {
+        setIsFetching(false);
+      }
+    }, 30000); // 30 seconds like MyNewLeague
+
+    return () => clearInterval(interval);
+  }, [fixtures, selectedDate, enableFetching]);
 
   // Simple fixture processing like MyNewLeague
   const processedFixtures = useMemo(() => {
-    const dateFixtures = fixtures || [];
-    console.log(`🎯 [TodayPopularLeagueNew] Processing ${dateFixtures.length} fixtures`);
-    return dateFixtures;
+    console.log(`🎯 [TodayPopularLeagueNew] Processing ${fixtures.length} fixtures`);
+    return fixtures;
   }, [fixtures]);
 
   // Use the prioritized popular countries list
@@ -1247,9 +1270,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Simple date comparison handled by SimpleDateFilter
 
-  // Show loading only if we're actually loading and don't have any cached data
-  const showLoading =
-    (isLoading && !fixtures?.length) || (isFetching && !fixtures?.length);
+  // Show loading only if we're actually loading and don't have any data
+  const showLoading = isLoading && !fixtures.length;
 
   if (showLoading) {
     console.log(
