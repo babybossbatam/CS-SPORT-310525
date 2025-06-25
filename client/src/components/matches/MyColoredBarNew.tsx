@@ -46,9 +46,9 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
 }) => {
   return (
     <div
-      className={`flex items-center h-16 rounded-lg overflow-hidden shadow-lg relative ${onClick ? "cursor-pointer" : ""} ${className}`}
+      className={`flex items-center rounded-lg overflow-hidden shadow-lg relative ${onClick ? "cursor-pointer" : ""} ${className}`}
       onClick={onClick}
-      style={{ cursor: onClick ? "pointer" : "default" }}
+      style={{ cursor: onClick ? "pointer" : "default", height: "54px" }}
     >
       {/* Home team section - 45% width */}
       <div
