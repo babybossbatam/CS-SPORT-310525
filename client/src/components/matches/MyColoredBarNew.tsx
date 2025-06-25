@@ -49,13 +49,13 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
       onClick={onClick}
       style={{ cursor: onClick ? "pointer" : "default", height: "54px" }}
     >
-      {/* Home team section - 45% width */}
+      {/* Home team section - 50% width */}
       <div
         className="flex items-left justify-between h-full flex-1 relative"
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
           width: "50%",
-          clipPath: "polygon(0 0, calc(100% - 20px) 0, 100% 100%, 20px 100%)",
+          clipPath: "polygon(0 0, calc(100% - 15px) 0, 100% 50%, calc(100% - 15px) 100%, 0 100%)",
         }}
       >
         {/* Home team logo */}
@@ -79,22 +79,28 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         </div>
       </div>
 
-      {/* VS section - 10% width */}
+      {/* VS section - positioned at the connection point */}
       <div
-        className="flex items-center justify-center h-full  text-white font-bold text-xs relative z-0"
-        style={{ width: "0%" }}
+        className="flex items-center justify-center h-full text-white font-bold text-xs absolute z-10"
+        style={{ 
+          width: "30px", 
+          left: "calc(50% - 15px)",
+          background: "#a00000",
+          borderRadius: "50%",
+          border: "2px solid white"
+        }}
       >
         <span>VS</span>
       </div>
 
-      {/* Away team section - 45% width */}
+      {/* Away team section - 50% width */}
       <div
         className="flex justify-between h-full  flex-1 mr-1 relative"
         style={{
           background: `linear-gradient(225deg, ${getTeamColor(awayTeam.id)}, ${getTeamColor(awayTeam.id)}dd)`,
           width: "50%",
           flexDirection: "row-reverse",
-          clipPath: "polygon(20px 0, 100% 0, calc(100% - 20px) 100%, 0 100%)",
+          clipPath: "polygon(15px 0, 100% 0, 100% 100%, 15px 100%, 0 50%)",
         }}
       >
         {/* Away team logo */}
