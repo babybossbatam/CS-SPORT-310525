@@ -100,15 +100,45 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         { date: format(addDays(today, 2), 'yyyy-MM-dd'), label: 'Day After Tomorrow' }
       ];
 
+      console.log(`🚀 [FeaturedMatches] Starting fetch for dates:`, dates);
+
       const allMatches: DayMatches[] = [];
 
       for (const dateInfo of dates) {
         try {
           console.log(`🔍 [FeaturedMatches] Fetching for ${dateInfo.label}: ${dateInfo.date}`);
           
-          // Fetch fixtures for the date
-          const response = await apiRequest('GET', `/api/fixtures/date/${dateInfo.date}?all=true`);
+          // Try main endpoint first
+          let response = await apiRequest('GET', `/api/fixtures/date/${dateInfo.date}?all=true`);
+          
+          // If main endpoint fails, try fallback
+          if (!response.ok) {
+            console.warn(`⚠️ [FeaturedMatches] Main API failed for ${dateInfo.label}, trying fallback...`);
+            try {
+              response = await apiRequest('GET', `/api/fixtures/date/${dateInfo.date}`);
+            } catch (fallbackError) {
+              console.error(`❌ [FeaturedMatches] Both endpoints failed for ${dateInfo.label}:`, response.status, response.statusText);
+              allMatches.push({
+                date: dateInfo.date,
+                label: dateInfo.label,
+                matches: []
+              });
+              continue;
+            }
+          }
+          
+          if (!response.ok) {
+            console.error(`❌ [FeaturedMatches] API response not OK for ${dateInfo.label}:`, response.status, response.statusText);
+            allMatches.push({
+              date: dateInfo.date,
+              label: dateInfo.label,
+              matches: []
+            });
+            continue;
+          }
+          
           const fixtures = await response.json();
+          console.log(`📊 [FeaturedMatches] Raw fixtures for ${dateInfo.label}:`, fixtures?.length || 0, 'fixtures');
 
           if (!fixtures?.length) {
             console.log(`📭 [FeaturedMatches] No fixtures for ${dateInfo.label}`);
@@ -125,6 +155,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             .filter((fixture: any) => {
               // Must have valid teams
               const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
+              
+              if (!hasValidTeams) {
+                console.log(`⚠️ [FeaturedMatches] Invalid fixture data:`, {
+                  id: fixture.fixture?.id,
+                  homeTeam: fixture.teams?.home?.name,
+                  awayTeam: fixture.teams?.away?.name,
+                  league: fixture.league?.name
+                });
+              }
               
               return hasValidTeams;
             })
@@ -164,6 +203,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             .slice(0, maxMatches); // Use maxMatches prop
 
           console.log(`✅ [FeaturedMatches] Found ${featuredForDay.length} featured matches for ${dateInfo.label}`);
+          
+          if (featuredForDay.length > 0) {
+            console.log(`🎯 [FeaturedMatches] Sample matches for ${dateInfo.label}:`, featuredForDay.slice(0, 2).map(m => ({
+              id: m.fixture.id,
+              teams: `${m.teams.home.name} vs ${m.teams.away.name}`,
+              league: m.league.name,
+              date: m.fixture.date
+            })));
+          }
 
           allMatches.push({
             date: dateInfo.date,
@@ -180,6 +228,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           });
         }
       }
+
+      console.log(`🏁 [FeaturedMatches] Final matches summary:`, allMatches.map(day => ({
+        date: day.date,
+        label: day.label,
+        matchCount: day.matches.length
+      })));
 
       setFeaturedMatches(allMatches);
     } catch (error) {
