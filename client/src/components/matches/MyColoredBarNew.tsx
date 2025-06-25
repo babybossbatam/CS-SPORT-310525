@@ -112,7 +112,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
               teamName={awayTeam.name || "Away Team"}
               teamLogo={awayTeam.logo}
               alt={awayTeam.name || "Away Team"}
-              size="55px"
+              size="65px"
               className="w-full h-full object-contain"
               leagueContext={{
                 name: league?.country || "League",
