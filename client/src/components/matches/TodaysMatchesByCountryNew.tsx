@@ -1699,42 +1699,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                             const status =
                                               match.fixture.status.short;
 
-                                            // Live matches status
-                                            if (
-                                              [
-                                                "LIVE",
-                                                "LIV",
-                                                "1H",
-                                                "HT",
-                                                "2H",
-                                                "ET",
-                                                "BT",
-                                                "P",
-                                                "INT",
-                                              ].includes(status)
-                                            ) {
-                                              // Use original API status and elapsed time without modification
-                                              let displayText = "LIVE";
-                                              const elapsed = match.fixture.status.elapsed;
-
-                                              if (status === "HT") {
-                                                displayText = "Halftime";
-                                              } else if (status === "P") {
-                                                displayText = "Penalties";
-                                              } else if (status === "ET") {
-                                                displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
-                                              } else if (elapsed !== null && elapsed !== undefined) {
-                                                displayText = `${elapsed}'`;
-                                              }
-
-                                              return (
-                                                <div className="match-status-label status-live">
-                                                  {displayText}
-                                                </div>
-                                              );
-                                            }
-
-                                            // Finished matches status
+                                            // Finished matches status - check this first
                                             if (
                                               [
                                                 "FT",
@@ -1771,6 +1736,43 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 </div>
                                               );
                                             }
+
+                                            // Live matches status - only for truly live matches
+                                            if (
+                                              [
+                                                "LIVE",
+                                                "LIV",
+                                                "1H",
+                                                "HT",
+                                                "2H",
+                                                "ET",
+                                                "BT",
+                                                "P",
+                                                "INT",
+                                              ].includes(status)
+                                            ) {
+                                              // Use original API status and elapsed time without modification
+                                              let displayText = "LIVE";
+                                              const elapsed = match.fixture.status.elapsed;
+
+                                              if (status === "HT") {
+                                                displayText = "Halftime";
+                                              } else if (status === "P") {
+                                                displayText = "Penalties";
+                                              } else if (status === "ET") {
+                                                displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
+                                              } else if (elapsed !== null && elapsed !== undefined) {
+                                                displayText = `${elapsed}'`;
+                                              }
+
+                                              return (
+                                                <div className="match-status-label status-live">
+                                                  {displayText}
+                                                </div>
+                                              );
+                                            }
+
+                                            
 
                                             // Postponed matches status
                                             if (
