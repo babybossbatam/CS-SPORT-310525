@@ -486,33 +486,70 @@ const HomeTopScorersList = () => {
   const canScrollLeft = availableLeagues.length > 0;
   const canScrollRight = availableLeagues.length > 0;
 
-  // Initialize content position on mount (no auto-centering)
+  // Auto-center selected league in navigation
   useEffect(() => {
     if (
       !scrollContainerRef.current ||
       !selectedLeague ||
-      availableLeagues.length === 0
+      availableLeagues.length === 0 ||
+      containerWidth === 0 ||
+      contentWidth === 0
     ) {
       return;
     }
 
-    // Only update dimensions, don't auto-center
-    const updateContentDimensions = () => {
+    const centerSelectedLeague = () => {
       const container = scrollContainerRef.current;
       if (!container) return;
 
-      const content = container.querySelector("[data-content]") as HTMLElement;
-      const actualContentWidth = content ? content.scrollWidth : 0;
+      const selectedButton = container.querySelector(
+        `[data-league-id="${selectedLeague}"]`
+      ) as HTMLElement;
 
-      if (actualContentWidth !== contentWidth && actualContentWidth > 0) {
-        setContentWidth(actualContentWidth);
-        console.log(`📏 [Dimensions] Updated content width: ${actualContentWidth}`);
+      if (selectedButton) {
+        // Calculate the position to center the selected button
+        const buttonRect = selectedButton.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        
+        // Get button's position relative to the content container
+        const buttonLeft = selectedButton.offsetLeft;
+        const buttonWidth = selectedButton.offsetWidth;
+        
+        // Calculate center position
+        const buttonCenter = buttonLeft + (buttonWidth / 2);
+        const viewportCenter = containerWidth / 2;
+        
+        // Calculate how much to scroll to center the button
+        let targetPosition = buttonCenter - viewportCenter;
+        
+        // Ensure we don't scroll beyond boundaries
+        const maxScroll = Math.max(0, contentWidth - containerWidth);
+        targetPosition = Math.max(0, Math.min(maxScroll, targetPosition));
+        
+        console.log(`🎯 [Auto-Center] Centering league: ${getCurrentLeague()?.name}`, {
+          buttonLeft,
+          buttonWidth,
+          buttonCenter,
+          viewportCenter,
+          targetPosition,
+          maxScroll
+        });
+        
+        setContentPosition(targetPosition);
       }
     };
 
-    const timer = setTimeout(updateContentDimensions, 100);
-    return () => clearTimeout(timer);
-  }, [selectedLeague, availableLeagues.length, containerWidth]);
+    // Use multiple timeouts to ensure DOM is updated
+    const timer1 = setTimeout(centerSelectedLeague, 50);
+    const timer2 = setTimeout(centerSelectedLeague, 150);
+    const timer3 = setTimeout(centerSelectedLeague, 300);
+
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+    };
+  }, [selectedLeague, availableLeagues.length, containerWidth, contentWidth]);
 
   if (isLoadingLeagues || !selectedLeague) {
     return (
