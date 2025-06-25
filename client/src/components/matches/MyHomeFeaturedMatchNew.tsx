@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -93,7 +92,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const fetchFeaturedMatches = async () => {
     try {
       setIsLoading(true);
-      
+
       // Get dates for today, tomorrow, and day after tomorrow
       const today = new Date();
       const dates = [
@@ -107,7 +106,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       for (const dateInfo of dates) {
         try {
           console.log(`🔍 [FeaturedMatches] Fetching for ${dateInfo.label}: ${dateInfo.date}`);
-          
+
           // Fetch fixtures for the date
           const response = await apiRequest('GET', `/api/fixtures/date/${dateInfo.date}?all=true`);
           const fixtures = await response.json();
@@ -122,13 +121,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             continue;
           }
 
-          // Get all fixtures with valid teams (no league filtering)
+          // Get fixtures from popular leagues only
           const featuredForDay = fixtures
             .filter((fixture: any) => {
               // Must have valid teams
               const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
-              
-              return hasValidTeams;
+
+              // Only show matches from popular leagues
+              const isPopularLeague = POPULAR_LEAGUES.some(league => league.id === fixture.league?.id);
+
+              return hasValidTeams && isPopularLeague;
             })
             .map((fixture: any) => ({
               fixture: {
@@ -201,7 +203,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   const getStatusDisplay = (match: FeaturedMatch) => {
     const status = match.fixture.status.short;
-    
+
     if (status === 'NS') {
       return {
         text: formatMatchTime(match.fixture.date),
@@ -209,7 +211,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         isLive: false
       };
     }
-    
+
     if (['1H', '2H', 'HT', 'ET', 'BT', 'P', 'LIVE'].includes(status)) {
       return {
         text: status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`,
@@ -217,7 +219,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         isLive: true
       };
     }
-    
+
     if (status === 'FT') {
       return {
         text: 'FT',
@@ -225,7 +227,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         isLive: false
       };
     }
-    
+
     return {
       text: status,
       color: 'bg-gray-400',
@@ -283,13 +285,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       >
         Featured Match
       </Badge>
-      
+
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-sm">
           <Trophy className="h-4 w-4 text-amber-500" />
           Featured Matches
         </CardTitle>
-        
+
         {/* Day selector tabs */}
         <div className="flex gap-1 mt-2">
           {featuredMatches.map((dayData, index) => (
