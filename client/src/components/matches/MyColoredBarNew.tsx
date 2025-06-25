@@ -71,19 +71,22 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
             marginTop: "-12px",
             marginBottom: "-12px",
             transform: "translateY(0)",
+            position: "relative",
           }}
         >
-          <MyWorldTeamLogo
-            teamName={homeTeam.name || "Home Team"}
-            teamLogo={homeTeam.logo}
-            alt={homeTeam.name || "Home Team"}
-            size="65px"
-            className="w-full h-full object-contain "
-            leagueContext={{
-              name: league?.country || "League",
-              country: league?.country || "World",
-            }}
-          />
+          <div style={{ position: "relative", width: "65px", height: "65px" }}>
+            <MyWorldTeamLogo
+              teamName={homeTeam.name || "Home Team"}
+              teamLogo={homeTeam.logo}
+              alt={homeTeam.name || "Home Team"}
+              size="65px"
+              className="w-full h-full object-contain "
+              leagueContext={{
+                name: league?.country || "League",
+                country: league?.country || "World",
+              }}
+            />
+          </div>
           <span className=" flex items-center text-white font-md uppercase text-sm truncate max-w-[250px]">
             {homeTeam.name || "TBD"}
           </span>
@@ -122,6 +125,9 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
               marginTop: "-12px",
               marginBottom: "-12px",
               transform: "translateY(0)",
+              position: "relative",
+              width: "65px",
+              height: "65px",
             }}
           >
             <MyWorldTeamLogo
@@ -134,6 +140,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
                 name: league?.country || "League",
                 country: league?.country || "World",
               }}
+              moveLeft={true}
             />
           </div>
           <span className="text-white font-md uppercase text-sm truncate max-w-[65px] text-right">
