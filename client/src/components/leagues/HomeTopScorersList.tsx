@@ -731,7 +731,7 @@ const HomeTopScorersList = () => {
                     }}
                     className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 flex-shrink-0 px-3 py-2 min-w-max ${
                       selectedLeague === league.id
-                        ? "text-gray-700 font-semibold bg-gray-50 rounded-md"
+                        ? "text-gray-700 font-semibold"
                         : "text-gray-400 hover:text-gray-900"
                     }`}
                   >
