@@ -127,15 +127,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         return ["NS", "TBD", "PST"].includes(status);
       };
 
-      // Check if we have live matches in current data before fetching
-      const hasLiveMatches = featuredMatches.some(dayData => 
-        dayData.matches.some(match => isLiveMatch(match.fixture.status.short))
-      );
-
       // Fetch live matches from API for real-time updates
       let liveFixtures: FeaturedMatch[] = [];
       try {
-        if (hasLiveMatches || forceRefresh || featuredMatches.length === 0) {
+        if (forceRefresh) {
           console.log("🔴 [FeaturedMatches] Fetching live matches from API");
           const liveResponse = await apiRequest("GET", "/api/fixtures/live");
           const liveData = await liveResponse.json();
@@ -181,8 +176,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }));
           }
           console.log(`✅ [FeaturedMatches] Found ${liveFixtures.length} live matches`);
-        } else {
-          console.log("⏸️ [FeaturedMatches] No live matches, skipping API call");
         }
       } catch (error) {
         console.error("❌ [FeaturedMatches] Error fetching live matches:", error);
@@ -191,7 +184,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       allFixtures.push(...liveFixtures);
 
       // Fetch non-live matches from cached data only on initial load or force refresh
-      if (forceRefresh || featuredMatches.length === 0) {
+      if (forceRefresh) {
         // Fetch non-live matches from cached data (priority leagues)
         for (const leagueId of priorityLeagueIds) {
           try {
@@ -301,14 +294,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             console.error(`❌ [FeaturedMatches] Error fetching cached data for ${dateInfo.label}:`, error);
           }
         }
-      } else if (hasLiveMatches) {
-        // If we have live matches but not doing full refresh, merge existing non-live data with new live data
-        const existingNonLiveFixtures = featuredMatches.reduce((acc, dayData) => {
-          const nonLiveMatches = dayData.matches.filter(match => !isLiveMatch(match.fixture.status.short));
-          return [...acc, ...nonLiveMatches];
-        }, [] as FeaturedMatch[]);
-        
-        allFixtures.push(...existingNonLiveFixtures);
       }
 
       // Remove duplicates based on fixture ID
@@ -406,13 +391,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [maxMatches, featuredMatches]);
+  }, [maxMatches]);
 
   useEffect(() => {
     // Initial fetch with force refresh
     fetchFeaturedMatches(true);
+  }, []); // Only run once on mount
 
-    // Set up intelligent interval - only refresh if there are live matches
+  // Separate effect for live match refresh interval
+  useEffect(() => {
     const interval = setInterval(() => {
       const hasLiveMatches = featuredMatches.some(dayData => 
         dayData.matches.some(match => 
@@ -426,10 +413,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       } else {
         console.log("⏸️ [FeaturedMatches] No live matches, skipping refresh");
       }
-    }, 60000); // Check every 60 seconds (less aggressive)
+    }, 60000); // Check every 60 seconds
 
     return () => clearInterval(interval);
-  }, []); // Remove fetchFeaturedMatches dependency to prevent excessive re-creation
+  }, [featuredMatches]); // Only depend on featuredMatches for live match detection
 
   const formatMatchTime = (dateString: string) => {
     try {
