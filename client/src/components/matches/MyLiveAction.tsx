@@ -727,7 +727,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           {/* Premium event overlay */}
           {(currentEvent || (!currentEvent && isLive && ballPossession)) && (
             <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
-              <div className="bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl rounded-2xl px-8 py-6 text-center shadow-2xl border border-slate-600/50 max-w-sm event-overlay transform animate-in fade-in-0 zoom-in-95 duration-300"></div>
+              <div className="bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl rounded-2xl px-8 py-6 text-center shadow-2xl border border-slate-600/50 max-w-sm event-overlay transform animate-in fade-in-0 zoom-in-95 duration-300">
                 {/* Premium event type badge */}
                 <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-4 ${
                   currentEvent ? (
