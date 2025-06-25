@@ -450,28 +450,29 @@ const HomeTopScorersList = () => {
   }, [selectedLeague, availableLeagues.length]);
 
   const scrollLeft = () => {
-    if (availableLeagues.length === 0) return;
+    if (POPULAR_LEAGUES.length === 0) return;
 
-    const currentIndex = getCurrentLeagueIndex();
-    console.log(`🔍 [Navigation Debug] Current league: ${getCurrentLeague()?.name} at index: ${currentIndex}`);
+    const currentIndex = POPULAR_LEAGUES.findIndex((league) => league.id === selectedLeague);
+    const currentLeague = POPULAR_LEAGUES.find((league) => league.id === selectedLeague);
+    console.log(`🔍 [Navigation Debug] Current league: ${currentLeague?.name} at index: ${currentIndex}`);
     
     // Ensure we have a valid current index
     if (currentIndex === -1) {
-      console.warn(`❌ [Navigation] Current league not found in available leagues`);
+      console.warn(`❌ [Navigation] Current league not found in POPULAR_LEAGUES`);
       return;
     }
     
     let nextLeagueId;
     
     if (currentIndex > 0) {
-      nextLeagueId = availableLeagues[currentIndex - 1].id;
+      nextLeagueId = POPULAR_LEAGUES[currentIndex - 1].id;
     } else {
       // If at first league, go to last league
-      nextLeagueId = availableLeagues[availableLeagues.length - 1].id;
+      nextLeagueId = POPULAR_LEAGUES[POPULAR_LEAGUES.length - 1].id;
     }
 
-    const nextLeague = availableLeagues.find(l => l.id === nextLeagueId);
-    console.log(`⬅️ [Navigation] Moving left from ${getCurrentLeague()?.name} (index: ${currentIndex}) to ${nextLeague?.name} (id: ${nextLeagueId})`);
+    const nextLeague = POPULAR_LEAGUES.find(l => l.id === nextLeagueId);
+    console.log(`⬅️ [Navigation] Moving left from ${currentLeague?.name} (index: ${currentIndex}) to ${nextLeague?.name} (id: ${nextLeagueId})`);
     
     setSelectedLeague(nextLeagueId);
     
@@ -501,28 +502,29 @@ const HomeTopScorersList = () => {
   };
 
   const scrollRight = () => {
-    if (availableLeagues.length === 0) return;
+    if (POPULAR_LEAGUES.length === 0) return;
 
-    const currentIndex = getCurrentLeagueIndex();
-    console.log(`🔍 [Navigation Debug] Current league: ${getCurrentLeague()?.name} at index: ${currentIndex}`);
+    const currentIndex = POPULAR_LEAGUES.findIndex((league) => league.id === selectedLeague);
+    const currentLeague = POPULAR_LEAGUES.find((league) => league.id === selectedLeague);
+    console.log(`🔍 [Navigation Debug] Current league: ${currentLeague?.name} at index: ${currentIndex}`);
     
     // Ensure we have a valid current index
     if (currentIndex === -1) {
-      console.warn(`❌ [Navigation] Current league not found in available leagues`);
+      console.warn(`❌ [Navigation] Current league not found in POPULAR_LEAGUES`);
       return;
     }
     
     let nextLeagueId;
     
-    if (currentIndex < availableLeagues.length - 1) {
-      nextLeagueId = availableLeagues[currentIndex + 1].id;
+    if (currentIndex < POPULAR_LEAGUES.length - 1) {
+      nextLeagueId = POPULAR_LEAGUES[currentIndex + 1].id;
     } else {
       // If at last league, go to first league
-      nextLeagueId = availableLeagues[0].id;
+      nextLeagueId = POPULAR_LEAGUES[0].id;
     }
 
-    const nextLeague = availableLeagues.find(l => l.id === nextLeagueId);
-    console.log(`➡️ [Navigation] Moving right from ${getCurrentLeague()?.name} (index: ${currentIndex}) to ${nextLeague?.name} (id: ${nextLeagueId})`);
+    const nextLeague = POPULAR_LEAGUES.find(l => l.id === nextLeagueId);
+    console.log(`➡️ [Navigation] Moving right from ${currentLeague?.name} (index: ${currentIndex}) to ${nextLeague?.name} (id: ${nextLeagueId})`);
     
     setSelectedLeague(nextLeagueId);
     
@@ -551,8 +553,8 @@ const HomeTopScorersList = () => {
     }, 50);
   };
 
-  const canScrollLeft = availableLeagues.length > 0;
-  const canScrollRight = availableLeagues.length > 0;
+  const canScrollLeft = POPULAR_LEAGUES.length > 0;
+  const canScrollRight = POPULAR_LEAGUES.length > 0;
 
   // Auto-center selected league with improved timing
   useEffect(() => {
