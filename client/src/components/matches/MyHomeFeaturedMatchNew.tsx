@@ -114,13 +114,28 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   useEffect(() => {
     fetchFeaturedMatches();
 
-    // Set up real-time updates every 30 seconds
-    const interval = setInterval(() => {
-      fetchFeaturedMatches();
-    }, 30000);
+    // Set up dynamic intervals based on match status
+    const setupInterval = () => {
+      // Check if we have any live matches
+      const hasLiveMatches = allMatches.some(match => {
+        const status = match.fixture.status.short;
+        return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
+      });
+
+      // Use shorter interval for live matches, longer for non-live
+      const intervalTime = hasLiveMatches ? 15000 : 60000; // 15s for live, 60s for non-live
+      
+      console.log(`⏱️ [FeaturedMatches] Setting interval to ${intervalTime/1000}s (hasLive: ${hasLiveMatches})`);
+      
+      return setInterval(() => {
+        fetchFeaturedMatches();
+      }, intervalTime);
+    };
+
+    const interval = setupInterval();
 
     return () => clearInterval(interval);
-  }, []);
+  }, [allMatches]); // Re-setup interval when matches change
 
   // Flash effect cleanup
   useEffect(() => {
@@ -169,31 +184,91 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const priorityLeagueIds = [38, 15];
       const allFixtures: FeaturedMatch[] = [];
 
-      // Fetch fixtures directly from priority leagues like MyNewLeague does
+      // Helper function to determine if match is live
+      const isLiveMatch = (status: string) => {
+        return ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
+      };
+
+      // Helper function to determine if match is ended
+      const isEndedMatch = (status: string) => {
+        return ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
+      };
+
+      // Helper function to determine if match is upcoming
+      const isUpcomingMatch = (status: string) => {
+        return ["NS", "TBD", "PST"].includes(status);
+      };
+
+      // Fetch live matches from API for real-time updates
+      let liveFixtures: FeaturedMatch[] = [];
+      try {
+        console.log("🔴 [FeaturedMatches] Fetching live matches from API");
+        const liveResponse = await apiRequest("GET", "/api/fixtures/live");
+        const liveData = await liveResponse.json();
+        
+        if (Array.isArray(liveData)) {
+          liveFixtures = liveData
+            .filter((fixture: any) => {
+              // Must have valid teams and be from priority leagues or popular leagues
+              const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
+              const isPriorityLeague = priorityLeagueIds.includes(fixture.league?.id);
+              const isPopularLeague = POPULAR_LEAGUES.some(league => league.id === fixture.league?.id);
+              
+              return hasValidTeams && (isPriorityLeague || isPopularLeague);
+            })
+            .map((fixture: any) => ({
+              fixture: {
+                id: fixture.fixture.id,
+                date: fixture.fixture.date,
+                status: fixture.fixture.status,
+              },
+              league: {
+                id: fixture.league.id,
+                name: fixture.league.name,
+                country: fixture.league.country,
+                logo: fixture.league.logo,
+              },
+              teams: {
+                home: {
+                  id: fixture.teams.home.id,
+                  name: fixture.teams.home.name,
+                  logo: fixture.teams.home.logo,
+                },
+                away: {
+                  id: fixture.teams.away.id,
+                  name: fixture.teams.away.name,
+                  logo: fixture.teams.away.logo,
+                },
+              },
+              goals: {
+                home: fixture.goals?.home ?? null,
+                away: fixture.goals?.away ?? null,
+              },
+            }));
+        }
+        console.log(`✅ [FeaturedMatches] Found ${liveFixtures.length} live matches`);
+      } catch (error) {
+        console.error("❌ [FeaturedMatches] Error fetching live matches:", error);
+      }
+
+      allFixtures.push(...liveFixtures);
+
+      // Fetch non-live matches from cached data (priority leagues)
       for (const leagueId of priorityLeagueIds) {
         try {
-          console.log(
-            `🔍 [FeaturedMatches] Fetching data for league ${leagueId}`,
-          );
+          console.log(`🔍 [FeaturedMatches] Fetching cached data for league ${leagueId}`);
 
-          // Fetch fixtures for the league
-          const fixturesResponse = await apiRequest(
-            "GET",
-            `/api/leagues/${leagueId}/fixtures`,
-          );
+          const fixturesResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures`);
           const fixturesData = await fixturesResponse.json();
-          console.log(
-            `📊 [FeaturedMatches] League ${leagueId} fixtures count:`,
-            fixturesData?.length || 0,
-          );
-
+          
           if (Array.isArray(fixturesData)) {
-            const processedFixtures = fixturesData
+            const cachedFixtures = fixturesData
               .filter((fixture: any) => {
-                // Must have valid teams
-                const hasValidTeams =
-                  fixture.teams?.home?.name && fixture.teams?.away?.name;
-                return hasValidTeams;
+                // Must have valid teams and NOT be live (since we already fetched live matches)
+                const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
+                const isNotLive = !isLiveMatch(fixture.fixture.status.short);
+                
+                return hasValidTeams && isNotLive;
               })
               .map((fixture: any) => ({
                 fixture: {
@@ -225,45 +300,31 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 },
               }));
 
-            allFixtures.push(...processedFixtures);
+            allFixtures.push(...cachedFixtures);
           }
         } catch (leagueError) {
-          console.warn(
-            `Failed to fetch data for league ${leagueId}:`,
-            leagueError,
-          );
+          console.warn(`Failed to fetch cached data for league ${leagueId}:`, leagueError);
         }
       }
 
-      // Also include other popular league matches from date-based fetching
+      // Fetch non-live matches from cached date-based data
       for (const dateInfo of dates) {
         try {
-          console.log(
-            `🔍 [FeaturedMatches] Fetching for ${dateInfo.label}: ${dateInfo.date}`,
-          );
+          console.log(`🔍 [FeaturedMatches] Fetching cached data for ${dateInfo.label}: ${dateInfo.date}`);
 
-          const response = await apiRequest(
-            "GET",
-            `/api/fixtures/date/${dateInfo.date}?all=true`,
-          );
+          const response = await apiRequest("GET", `/api/fixtures/date/${dateInfo.date}?all=true`);
           const fixtures = await response.json();
 
           if (fixtures?.length) {
-            const otherLeagueFixtures = fixtures
+            const cachedFixtures = fixtures
               .filter((fixture: any) => {
-                // Must have valid teams
-                const hasValidTeams =
-                  fixture.teams?.home?.name && fixture.teams?.away?.name;
+                // Must have valid teams, be from popular leagues, not priority leagues, and NOT be live
+                const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
+                const isPopularLeague = POPULAR_LEAGUES.some(league => league.id === fixture.league?.id);
+                const isPriorityLeague = priorityLeagueIds.includes(fixture.league?.id);
+                const isNotLive = !isLiveMatch(fixture.fixture.status.short);
 
-                // Only show matches from popular leagues (excluding priority leagues we already fetched)
-                const isPopularLeague = POPULAR_LEAGUES.some(
-                  (league) => league.id === fixture.league?.id,
-                );
-                const isPriorityLeague = priorityLeagueIds.includes(
-                  fixture.league?.id,
-                );
-
-                return hasValidTeams && isPopularLeague && !isPriorityLeague;
+                return hasValidTeams && isPopularLeague && !isPriorityLeague && isNotLive;
               })
               .map((fixture: any) => ({
                 fixture: {
@@ -295,13 +356,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 },
               }));
 
-            allFixtures.push(...otherLeagueFixtures);
+            allFixtures.push(...cachedFixtures);
           }
         } catch (error) {
-          console.error(
-            `❌ [FeaturedMatches] Error fetching for ${dateInfo.label}:`,
-            error,
-          );
+          console.error(`❌ [FeaturedMatches] Error fetching cached data for ${dateInfo.label}:`, error);
         }
       }
 
