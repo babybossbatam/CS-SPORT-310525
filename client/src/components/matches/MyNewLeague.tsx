@@ -579,6 +579,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                       isFulltimeFlash ? 'fulltime-flash' :
                       isGoalFlash ? 'goal-flash' : ''
                     }`}
+                    data-match-id={match.fixture.id}
                     onClick={() => onMatchCardClick?.(match)}
                     style={{
                       cursor: onMatchCardClick ? "pointer" : "default",
@@ -592,6 +593,14 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                       }}
                       className="match-star-button"
                       title="Add to favorites"
+                      onMouseEnter={() => {
+                        const container = document.querySelector(`[data-match-id="${match.fixture.id}"]`);
+                        if (container) container.classList.add('disable-hover');
+                      }}
+                      onMouseLeave={() => {
+                        const container = document.querySelector(`[data-match-id="${match.fixture.id}"]`);
+                        if (container) container.classList.remove('disable-hover');
+                      }}
                     >
                       <Star
                         className={`match-star-icon ${
