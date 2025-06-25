@@ -828,7 +828,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           navigate(`/match/${currentMatch.fixture.id}`)
                         }
                         getTeamColor={getTeamColor}
-                        className="h-20"
+                        className="h-20 "
                         league={{
                           country: currentMatch.league.country,
                         }}
