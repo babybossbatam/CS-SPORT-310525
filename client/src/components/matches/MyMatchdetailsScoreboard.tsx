@@ -229,12 +229,18 @@ const MyMatchdetailsScoreboard = ({
   };
 
   const getStatusBadge = (status: string) => {
-    // Determine if match is truly live based on status
-    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-    const isEndedMatch = ["FT", "AET", "PEN"].includes(status);
+    // Determine if match is truly live or ended
+    const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
+    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status) && !isEndedMatch;
     
-    // Use live status and data for live matches, static data for ended matches
-    const currentStatus = isLiveMatch && liveStatus ? liveStatus : status;
+    // Check if match has likely ended based on time elapsed (beyond typical match duration)
+    const matchDate = new Date(displayMatch.fixture.date);
+    const now = new Date();
+    const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+    const isLikelyEnded = hoursElapsed > 3; // Matches typically don't exceed 3 hours
+    
+    // Use live status only for truly live matches, otherwise use API status
+    const currentStatus = (isLiveMatch && !isLikelyEnded && liveStatus) ? liveStatus : status;
     
     // Check if it's a finished match and determine the appropriate label
     const getFinishedLabel = () => {
@@ -504,19 +510,26 @@ const MyMatchdetailsScoreboard = ({
                 </div>
                 <div className="text-3xl font-semi-bold">
                   {(() => {
-                    // Determine if match is live or ended
-                    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(displayMatch.fixture.status.short);
-                    const isEndedMatch = ["FT", "AET", "PEN"].includes(displayMatch.fixture.status.short);
+                    // Determine if match is truly live or ended
+                    const currentStatus = displayMatch.fixture.status.short;
+                    const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(currentStatus);
+                    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentStatus) && !isEndedMatch;
                     
-                    // Use live scores for live matches, static scores for ended matches
+                    // Check if match has likely ended based on time elapsed
+                    const matchDate = new Date(displayMatch.fixture.date);
+                    const now = new Date();
+                    const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+                    const isLikelyEnded = hoursElapsed > 3;
+                    
+                    // Use live scores only for truly live matches, static scores for ended or likely ended matches
                     let homeScore, awayScore;
                     
-                    if (isLiveMatch && liveScores?.home != null && liveScores?.away != null) {
-                      // Use live scores for live matches
+                    if (isLiveMatch && !isLikelyEnded && liveScores?.home != null && liveScores?.away != null) {
+                      // Use live scores for confirmed live matches
                       homeScore = liveScores.home;
                       awayScore = liveScores.away;
                     } else {
-                      // Use static API scores for ended matches or when live scores unavailable
+                      // Use static API scores for ended, likely ended, or when live scores unavailable
                       homeScore = displayMatch.goals?.home ?? 0;
                       awayScore = displayMatch.goals?.away ?? 0;
                     }
@@ -524,7 +537,10 @@ const MyMatchdetailsScoreboard = ({
                     console.log("🔄 [Score Display] Score update:", {
                       isLiveMatch,
                       isEndedMatch,
+                      isLikelyEnded,
+                      hoursElapsed: hoursElapsed.toFixed(2),
                       status: displayMatch.fixture.status.short,
+                      dataSource: (isLiveMatch && !isLikelyEnded && liveScores?.home != null) ? "LIVE" : "STATIC",
                       liveScores,
                       apiScores: {home: displayMatch.goals?.home, away: displayMatch.goals?.away},
                       displayedScores: {home: homeScore, away: awayScore},
