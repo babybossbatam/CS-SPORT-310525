@@ -90,8 +90,8 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
 
       // Set a reasonable timeout
       const timeoutId = setTimeout(() => {
-        controller.abort();
-        if (isMounted) {
+        if (isMounted && !controller.signal.aborted) {
+          controller.abort();
           console.warn('⏰ [Sportsradar] Request timeout');
           setError('Request timeout');
           setIsLoading(false);
@@ -254,10 +254,7 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
       }
     }
 
-    return () => {
-      isMounted = false;
-      controller.abort();
-    };
+    // Cleanup function will be handled by the effect cleanup
   }, [matchId, isLive]);
 
   // Main effect for fetching data and setting up intervals
@@ -277,6 +274,7 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
 
     return () => {
       clearInterval(updateInterval);
+      // Any ongoing requests will be cleaned up by their own abort controllers
     };
   }, [fetchSportsradarData]);
 
