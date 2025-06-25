@@ -54,7 +54,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
     >
       {/* Home team section - 50% width */}
       <div
-        className="flex items-left justify-between h-full flex-1 relative z-10"
+        className="flex items-left justify-between h-full flex-1 relative z-0"
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
           width: "50%",
@@ -65,7 +65,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
       >
         {/* Home team logo */}
         <div
-          className="flex items-center gap-3 -ml-4 w-15 h-18 flex-shrink-1 relative z-10"
+          className="flex items-center gap-3 -ml-4 w-15 h-18 flex-shrink-1 relative z-20"
           style={{
             marginTop: "-12px",
             marginBottom: "-12px",
@@ -107,7 +107,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
 
       {/* Away team section - 50% width */}
       <div
-        className="flex justify-between h-full  flex-1 mr-1 relative"
+        className="flex justify-between h-full  flex-1 mr-1 relative z-0"
         style={{
           background: `linear-gradient(225deg, ${getTeamColor(awayTeam.id)}, ${getTeamColor(awayTeam.id)}dd)`,
           width: "50%",
@@ -119,7 +119,7 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         {/* Away team logo */}
         <div className="flex items-center gap-3 flex-row-reverse">
           <div
-            className="-mr-2 w-15 h-15 flex-shrink-0 relative z-10"
+            className="-mr-2 w-15 h-15 flex-shrink-0 relative z-20"
             style={{
               marginTop: "-12px",
               marginBottom: "-12px",
