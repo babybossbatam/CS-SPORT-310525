@@ -10,6 +10,7 @@ import TeamLogo from './TeamLogo';
 import LazyImage from '../common/LazyImage';
 import MyColoredBar from './MyColoredBar';
 import MyWorldTeamLogo from '../common/MyWorldTeamLogo';
+import "../../styles/flasheffect.css";
 
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -84,9 +85,47 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [selectedDay, setSelectedDay] = useState(0);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
 
+  // Flash animation states for real-time updates
+  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
+  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
+  const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
+
+  // Status and score tracking for flash effects
+  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
+  const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
+
   useEffect(() => {
     fetchFeaturedMatches();
+    
+    // Set up real-time updates every 30 seconds
+    const interval = setInterval(() => {
+      fetchFeaturedMatches();
+    }, 30000);
+
+    return () => clearInterval(interval);
   }, []);
+
+  // Flash effect cleanup
+  useEffect(() => {
+    if (halftimeFlashMatches.size > 0) {
+      const timeout = setTimeout(() => setHalftimeFlashMatches(new Set()), 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [halftimeFlashMatches]);
+
+  useEffect(() => {
+    if (fulltimeFlashMatches.size > 0) {
+      const timeout = setTimeout(() => setFulltimeFlashMatches(new Set()), 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [fulltimeFlashMatches]);
+
+  useEffect(() => {
+    if (goalFlashMatches.size > 0) {
+      const timeout = setTimeout(() => setGoalFlashMatches(new Set()), 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [goalFlashMatches]);
 
   const fetchFeaturedMatches = async () => {
     try {
@@ -222,6 +261,83 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
       console.log(`📋 [FeaturedMatches] Total unique fixtures found:`, uniqueFixtures.length);
 
+      // Check for status and score changes for flash effects
+      const currentStatuses = new Map<number, string>();
+      const currentScores = new Map<number, {home: number, away: number}>();
+      const newHalftimeMatches = new Set<number>();
+      const newFulltimeMatches = new Set<number>();
+      const newGoalMatches = new Set<number>();
+
+      uniqueFixtures.forEach((fixture) => {
+        const matchId = fixture.fixture.id;
+        const currentStatus = fixture.fixture.status.short;
+        const currentScore = {
+          home: fixture.goals.home ?? 0,
+          away: fixture.goals.away ?? 0
+        };
+
+        currentStatuses.set(matchId, currentStatus);
+        currentScores.set(matchId, currentScore);
+
+        const previousStatus = previousMatchStatuses.get(matchId);
+        const previousScore = previousMatchScores.get(matchId);
+
+        // Check for status changes
+        if (previousStatus && previousStatus !== currentStatus) {
+          // Check if status just changed to halftime
+          if (currentStatus === 'HT' && previousStatus !== 'HT') {
+            console.log(`🟡 [HALFTIME FLASH] Match ${matchId} reached halftime!`, {
+              home: fixture.teams?.home?.name,
+              away: fixture.teams?.away?.name,
+              previousStatus,
+              currentStatus
+            });
+            newHalftimeMatches.add(matchId);
+          }
+
+          // Check if status just changed to fulltime
+          if (currentStatus === 'FT') {
+            console.log(`🔵 [FULLTIME FLASH] Match ${matchId} just finished!`, {
+              home: fixture.teams?.home?.name,
+              away: fixture.teams?.away?.name,
+              previousStatus,
+              currentStatus
+            });
+            newFulltimeMatches.add(matchId);
+          }
+        }
+
+        // Check for goal changes (when score changes but status stays the same or during live matches)
+        if (previousScore && ['1H', '2H', 'LIVE'].includes(currentStatus)) {
+          const scoreChanged = currentScore.home !== previousScore.home || currentScore.away !== previousScore.away;
+          if (scoreChanged) {
+            console.log(`⚽ [GOAL FLASH] Match ${matchId} score changed!`, {
+              home: fixture.teams?.home?.name,
+              away: fixture.teams?.away?.name,
+              previousScore: `${previousScore.home}-${previousScore.away}`,
+              currentScore: `${currentScore.home}-${currentScore.away}`,
+              status: currentStatus
+            });
+            newGoalMatches.add(matchId);
+          }
+        }
+      });
+
+      // Update previous statuses and scores AFTER checking for changes
+      setPreviousMatchStatuses(currentStatuses);
+      setPreviousMatchScores(currentScores);
+
+      // Trigger flash for new events
+      if (newHalftimeMatches.size > 0) {
+        setHalftimeFlashMatches(newHalftimeMatches);
+      }
+      if (newFulltimeMatches.size > 0) {
+        setFulltimeFlashMatches(newFulltimeMatches);
+      }
+      if (newGoalMatches.size > 0) {
+        setGoalFlashMatches(newGoalMatches);
+      }
+
       // Group fixtures by date
       const allMatches: DayMatches[] = [];
       for (const dateInfo of dates) {
@@ -285,6 +401,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   const getStatusDisplay = (match: FeaturedMatch) => {
     const status = match.fixture.status.short;
+    const elapsed = match.fixture.status.elapsed;
 
     if (status === 'NS') {
       return {
@@ -295,8 +412,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
 
     if (['1H', '2H', 'HT', 'ET', 'BT', 'P', 'LIVE'].includes(status)) {
+      let displayText = status;
+      
+      if (status === 'HT') {
+        displayText = 'Half Time';
+      } else if (status === '1H' || status === '2H' || status === 'LIVE') {
+        displayText = elapsed ? `${elapsed}'` : 'LIVE';
+      } else if (status === 'ET') {
+        displayText = elapsed ? `${elapsed}' ET` : 'Extra Time';
+      } else if (status === 'P') {
+        displayText = 'Penalties';
+      }
+
       return {
-        text: status === 'HT' ? 'HT' : `${match.fixture.status.elapsed || 0}'`,
+        text: displayText,
         color: 'bg-red-500 animate-pulse',
         isLive: true
       };
@@ -304,8 +433,24 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     if (status === 'FT') {
       return {
-        text: 'FT',
+        text: 'Full Time',
         color: 'bg-gray-500',
+        isLive: false
+      };
+    }
+
+    if (status === 'PST') {
+      return {
+        text: 'Postponed',
+        color: 'bg-yellow-500',
+        isLive: false
+      };
+    }
+
+    if (status === 'CANC') {
+      return {
+        text: 'Cancelled',
+        color: 'bg-red-600',
         isLive: false
       };
     }
@@ -429,7 +574,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             {/* Single match display */}
             {currentMatch && (
               <div 
-                className="cursor-pointer transition-all duration-300"
+                className={`cursor-pointer transition-all duration-300 ${
+                  halftimeFlashMatches.has(currentMatch.fixture.id) ? 'halftime-flash' : ''
+                } ${
+                  fulltimeFlashMatches.has(currentMatch.fixture.id) ? 'fulltime-flash' : ''
+                } ${
+                  goalFlashMatches.has(currentMatch.fixture.id) ? 'goal-flash' : ''
+                }`}
                 onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
               >
                 {/* League header */}
