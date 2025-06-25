@@ -420,7 +420,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           const newMatchesString = JSON.stringify(allMatches);
           const prevMatchesString = JSON.stringify(prevMatches);
 
+          // Safeguard: Don't clear existing matches during background refresh unless we have new data
+          if (!forceRefresh && prevMatches.length > 0 && allMatches.length === 0) {
+            console.log("🚫 [FeaturedMatches] Preventing clearing of existing matches during background refresh");
+            return prevMatches;
+          }
+
           if (newMatchesString !== prevMatchesString) {
+            console.log(`✅ [FeaturedMatches] State updated with ${allMatches.length} day groups`);
             return allMatches;
           }
           return prevMatches;
@@ -452,8 +459,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
       if (hasLiveMatches) {
         console.log(
-          "🔄 [FeaturedMatches] Live matches detected, refreshing data",
+          "🔄 [FeaturedMatches] Live matches detected, refreshing live data only",
         );
+        // Only refresh live match data, don't clear existing matches
         fetchFeaturedMatches(false); // Background refresh without loading state
       } else {
         console.log("⏸️ [FeaturedMatches] No live matches, skipping refresh");
