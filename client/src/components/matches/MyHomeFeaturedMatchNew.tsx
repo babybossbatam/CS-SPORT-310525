@@ -100,88 +100,171 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         { date: format(addDays(today, 2), 'yyyy-MM-dd'), label: 'Day After Tomorrow' }
       ];
 
-      const allMatches: DayMatches[] = [];
+      // Priority leagues: 38 (UEFA U21) first, then 15 (FIFA Club World Cup)
+      const priorityLeagueIds = [38, 15];
+      const allFixtures: FeaturedMatch[] = [];
 
+      // Fetch fixtures directly from priority leagues like MyNewLeague does
+      for (const leagueId of priorityLeagueIds) {
+        try {
+          console.log(`🔍 [FeaturedMatches] Fetching data for league ${leagueId}`);
+
+          // Fetch fixtures for the league
+          const fixturesResponse = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`);
+          const fixturesData = await fixturesResponse.json();
+          console.log(`📊 [FeaturedMatches] League ${leagueId} fixtures count:`, fixturesData?.length || 0);
+
+          if (Array.isArray(fixturesData)) {
+            const processedFixtures = fixturesData
+              .filter((fixture: any) => {
+                // Must have valid teams
+                const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
+                return hasValidTeams;
+              })
+              .map((fixture: any) => ({
+                fixture: {
+                  id: fixture.fixture.id,
+                  date: fixture.fixture.date,
+                  status: fixture.fixture.status
+                },
+                league: {
+                  id: fixture.league.id,
+                  name: fixture.league.name,
+                  country: fixture.league.country,
+                  logo: fixture.league.logo
+                },
+                teams: {
+                  home: {
+                    id: fixture.teams.home.id,
+                    name: fixture.teams.home.name,
+                    logo: fixture.teams.home.logo
+                  },
+                  away: {
+                    id: fixture.teams.away.id,
+                    name: fixture.teams.away.name,
+                    logo: fixture.teams.away.logo
+                  }
+                },
+                goals: {
+                  home: fixture.goals?.home ?? null,
+                  away: fixture.goals?.away ?? null
+                }
+              }));
+
+            allFixtures.push(...processedFixtures);
+          }
+        } catch (leagueError) {
+          console.warn(`Failed to fetch data for league ${leagueId}:`, leagueError);
+        }
+      }
+
+      // Also include other popular league matches from date-based fetching
       for (const dateInfo of dates) {
         try {
           console.log(`🔍 [FeaturedMatches] Fetching for ${dateInfo.label}: ${dateInfo.date}`);
 
-          // Fetch fixtures for the date
           const response = await apiRequest('GET', `/api/fixtures/date/${dateInfo.date}?all=true`);
           const fixtures = await response.json();
 
-          if (!fixtures?.length) {
-            console.log(`📭 [FeaturedMatches] No fixtures for ${dateInfo.label}`);
-            allMatches.push({
-              date: dateInfo.date,
-              label: dateInfo.label,
-              matches: []
-            });
-            continue;
-          }
+          if (fixtures?.length) {
+            const otherLeagueFixtures = fixtures
+              .filter((fixture: any) => {
+                // Must have valid teams
+                const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
 
-          // Get fixtures from popular leagues only
-          const featuredForDay = fixtures
-            .filter((fixture: any) => {
-              // Must have valid teams
-              const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
+                // Only show matches from popular leagues (excluding priority leagues we already fetched)
+                const isPopularLeague = POPULAR_LEAGUES.some(league => league.id === fixture.league?.id);
+                const isPriorityLeague = priorityLeagueIds.includes(fixture.league?.id);
 
-              // Only show matches from popular leagues
-              const isPopularLeague = POPULAR_LEAGUES.some(league => league.id === fixture.league?.id);
-
-              return hasValidTeams && isPopularLeague;
-            })
-            .map((fixture: any) => ({
-              fixture: {
-                id: fixture.fixture.id,
-                date: fixture.fixture.date,
-                status: fixture.fixture.status
-              },
-              league: {
-                id: fixture.league.id,
-                name: fixture.league.name,
-                country: fixture.league.country,
-                logo: fixture.league.logo
-              },
-              teams: {
-                home: {
-                  id: fixture.teams.home.id,
-                  name: fixture.teams.home.name,
-                  logo: fixture.teams.home.logo
+                return hasValidTeams && isPopularLeague && !isPriorityLeague;
+              })
+              .map((fixture: any) => ({
+                fixture: {
+                  id: fixture.fixture.id,
+                  date: fixture.fixture.date,
+                  status: fixture.fixture.status
                 },
-                away: {
-                  id: fixture.teams.away.id,
-                  name: fixture.teams.away.name,
-                  logo: fixture.teams.away.logo
+                league: {
+                  id: fixture.league.id,
+                  name: fixture.league.name,
+                  country: fixture.league.country,
+                  logo: fixture.league.logo
+                },
+                teams: {
+                  home: {
+                    id: fixture.teams.home.id,
+                    name: fixture.teams.home.name,
+                    logo: fixture.teams.home.logo
+                  },
+                  away: {
+                    id: fixture.teams.away.id,
+                    name: fixture.teams.away.name,
+                    logo: fixture.teams.away.logo
+                  }
+                },
+                goals: {
+                  home: fixture.goals?.home ?? null,
+                  away: fixture.goals?.away ?? null
                 }
-              },
-              goals: {
-                home: fixture.goals?.home ?? null,
-                away: fixture.goals?.away ?? null
-              }
-            }))
-            // Sort by match time only
-            .sort((a: FeaturedMatch, b: FeaturedMatch) => {
-              return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
-            })
-            .slice(0, maxMatches); // Use maxMatches prop
+              }));
 
-          console.log(`✅ [FeaturedMatches] Found ${featuredForDay.length} featured matches for ${dateInfo.label}`);
-
-          allMatches.push({
-            date: dateInfo.date,
-            label: dateInfo.label,
-            matches: featuredForDay
-          });
-
+            allFixtures.push(...otherLeagueFixtures);
+          }
         } catch (error) {
           console.error(`❌ [FeaturedMatches] Error fetching for ${dateInfo.label}:`, error);
-          allMatches.push({
-            date: dateInfo.date,
-            label: dateInfo.label,
-            matches: []
-          });
         }
+      }
+
+      // Remove duplicates based on fixture ID
+      const uniqueFixtures = allFixtures.filter((fixture, index, self) => 
+        index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
+      );
+
+      console.log(`📋 [FeaturedMatches] Total unique fixtures found:`, uniqueFixtures.length);
+
+      // Group fixtures by date
+      const allMatches: DayMatches[] = [];
+      for (const dateInfo of dates) {
+        const fixturesForDay = uniqueFixtures
+          .filter((fixture) => {
+            const matchDate = new Date(fixture.fixture.date);
+            const year = matchDate.getFullYear();
+            const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+            const day = String(matchDate.getDate()).padStart(2, "0");
+            const matchDateString = `${year}-${month}-${day}`;
+            return matchDateString === dateInfo.date;
+          })
+          .sort((a: FeaturedMatch, b: FeaturedMatch) => {
+            // Priority sort: live matches first, then by league priority, then by time
+            const aStatus = a.fixture.status.short;
+            const bStatus = b.fixture.status.short;
+
+            const aLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
+            const bLive = ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
+
+            if (aLive && !bLive) return -1;
+            if (!aLive && bLive) return 1;
+
+            // Priority leagues first
+            const aPriority = priorityLeagueIds.indexOf(a.league.id);
+            const bPriority = priorityLeagueIds.indexOf(b.league.id);
+
+            if (aPriority !== -1 && bPriority === -1) return -1;
+            if (aPriority === -1 && bPriority !== -1) return 1;
+            if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
+
+            // Finally by time
+            return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
+          })
+          .slice(0, maxMatches);
+
+        console.log(`✅ [FeaturedMatches] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`);
+
+        allMatches.push({
+          date: dateInfo.date,
+          label: dateInfo.label,
+          matches: fixturesForDay
+        });
       }
 
       setFeaturedMatches(allMatches);
