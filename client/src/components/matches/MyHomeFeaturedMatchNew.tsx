@@ -104,69 +104,76 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
       const allMatches: DayMatches[] = [];
 
+      // Collect fixtures from popular leagues for each day
+      const allFixtures: any[] = [];
+      
       for (const dateInfo of dates) {
-        try {
-          console.log(`🔍 [FeaturedMatches] Fetching for ${dateInfo.label}: ${dateInfo.date}`);
-          
-          // Try main endpoint first
-          let response = await apiRequest('GET', `/api/fixtures/date/${dateInfo.date}?all=true`);
-          
-          // If main endpoint fails, try fallback
-          if (!response.ok) {
-            console.warn(`⚠️ [FeaturedMatches] Main API failed for ${dateInfo.label}, trying fallback...`);
-            try {
-              response = await apiRequest('GET', `/api/fixtures/date/${dateInfo.date}`);
-            } catch (fallbackError) {
-              console.error(`❌ [FeaturedMatches] Both endpoints failed for ${dateInfo.label}:`, response.status, response.statusText);
-              allMatches.push({
-                date: dateInfo.date,
-                label: dateInfo.label,
-                matches: []
-              });
+        console.log(`🔍 [FeaturedMatches] Fetching for ${dateInfo.label}: ${dateInfo.date}`);
+        
+        // Fetch from multiple popular leagues
+        for (const league of POPULAR_LEAGUES.slice(0, 8)) { // Top 8 leagues for performance
+          try {
+            const response = await apiRequest('GET', `/api/fixtures/leagueid/${league.id}`);
+            
+            if (!response.ok) {
+              console.warn(`⚠️ [FeaturedMatches] Failed to fetch league ${league.name} (${league.id})`);
               continue;
             }
-          }
-          
-          if (!response.ok) {
-            console.error(`❌ [FeaturedMatches] API response not OK for ${dateInfo.label}:`, response.status, response.statusText);
-            allMatches.push({
-              date: dateInfo.date,
-              label: dateInfo.label,
-              matches: []
-            });
-            continue;
-          }
-          
-          const fixtures = await response.json();
-          console.log(`📊 [FeaturedMatches] Raw fixtures for ${dateInfo.label}:`, fixtures?.length || 0, 'fixtures');
-
-          if (!fixtures?.length) {
-            console.log(`📭 [FeaturedMatches] No fixtures for ${dateInfo.label}`);
-            allMatches.push({
-              date: dateInfo.date,
-              label: dateInfo.label,
-              matches: []
-            });
-            continue;
-          }
-
-          // Get all fixtures with valid teams (no league filtering)
-          const featuredForDay = fixtures
-            .filter((fixture: any) => {
-              // Must have valid teams
-              const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
+            
+            const fixtures = await response.json();
+            
+            if (fixtures?.length) {
+              // Filter fixtures for the current date
+              const dayFixtures = fixtures.filter((fixture: any) => {
+                const fixtureDate = format(new Date(fixture.fixture.date), 'yyyy-MM-dd');
+                return fixtureDate === dateInfo.date;
+              });
               
-              if (!hasValidTeams) {
-                console.log(`⚠️ [FeaturedMatches] Invalid fixture data:`, {
-                  id: fixture.fixture?.id,
-                  homeTeam: fixture.teams?.home?.name,
-                  awayTeam: fixture.teams?.away?.name,
-                  league: fixture.league?.name
-                });
-              }
-              
-              return hasValidTeams;
-            })
+              allFixtures.push(...dayFixtures);
+              console.log(`📊 [FeaturedMatches] Found ${dayFixtures.length} fixtures from ${league.name} for ${dateInfo.label}`);
+            }
+          } catch (error) {
+            console.warn(`⚠️ [FeaturedMatches] Error fetching league ${league.name}:`, error);
+          }
+        }
+      }
+
+      console.log(`📦 [FeaturedMatches] Total fixtures collected: ${allFixtures.length}`);
+
+      // Group fixtures by date
+      for (const dateInfo of dates) {
+        const dayFixtures = allFixtures.filter((fixture: any) => {
+          const fixtureDate = format(new Date(fixture.fixture.date), 'yyyy-MM-dd');
+          return fixtureDate === dateInfo.date;
+        });
+
+        if (!dayFixtures.length) {
+          console.log(`📭 [FeaturedMatches] No fixtures for ${dateInfo.label}`);
+          allMatches.push({
+            date: dateInfo.date,
+            label: dateInfo.label,
+            matches: []
+          });
+          continue;
+        }
+
+        // Process and filter fixtures
+        const featuredForDay = dayFixtures
+          .filter((fixture: any) => {
+            // Must have valid teams
+            const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
+            
+            if (!hasValidTeams) {
+              console.log(`⚠️ [FeaturedMatches] Invalid fixture data:`, {
+                id: fixture.fixture?.id,
+                homeTeam: fixture.teams?.home?.name,
+                awayTeam: fixture.teams?.away?.name,
+                league: fixture.league?.name
+              });
+            }
+            
+            return hasValidTeams;
+          })
             .map((fixture: any) => ({
               fixture: {
                 id: fixture.fixture.id,
