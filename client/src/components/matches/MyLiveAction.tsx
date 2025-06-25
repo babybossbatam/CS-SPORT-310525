@@ -169,61 +169,70 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     };
   }, [matchId]);
 
-  // More realistic ball movement with smoother patterns
+  // Professional ball movement with realistic field positioning
   useEffect(() => {
     if (!isLive) return;
 
     const ballInterval = setInterval(() => {
       setBallPosition(prev => {
-        let newX = prev.x + ballDirection.dx * 0.8; // Slower, more realistic
-        let newY = prev.y + ballDirection.dy * 0.8;
+        let newX = prev.x + ballDirection.dx * 0.6; // More controlled movement
+        let newY = prev.y + ballDirection.dy * 0.6;
 
         let newDx = ballDirection.dx;
         let newDy = ballDirection.dy;
 
-        // Determine ball possession more naturally
-        if (newX < 45) {
+        // Keep ball within realistic field boundaries (not at extreme edges)
+        const minX = 15; // Stay away from goal line edges
+        const maxX = 85;
+        const minY = 30; // Stay within field bounds
+        const maxY = 70;
+
+        // Determine ball possession more naturally based on field thirds
+        if (newX < 40) {
           setBallPossession('home');
-          // Less frequent attack patterns
-          if (Math.random() > 0.95) {
+          if (Math.random() > 0.97) {
             generateAttackPattern('home', newX, newY);
           }
-        } else if (newX > 55) {
+        } else if (newX > 60) {
           setBallPossession('away');
-          if (Math.random() > 0.95) {
+          if (Math.random() > 0.97) {
             generateAttackPattern('away', newX, newY);
           }
         } else {
-          setBallPossession(null); // Neutral zone
+          setBallPossession(null); // Midfield area
         }
 
-        // Smoother boundary physics
-        if (newX <= 10 || newX >= 90) {
-          newDx = -newDx * 0.8 + (Math.random() - 0.5) * 0.2;
-          newX = Math.max(10, Math.min(90, newX));
+        // Professional boundary physics - bounce off field edges realistically
+        if (newX <= minX || newX >= maxX) {
+          newDx = -newDx * 0.7 + (Math.random() - 0.5) * 0.3;
+          newX = Math.max(minX, Math.min(maxX, newX));
         }
 
-        if (newY <= 25 || newY >= 75) {
-          newDy = -newDy * 0.8 + (Math.random() - 0.5) * 0.2;
-          newY = Math.max(25, Math.min(75, newY));
+        if (newY <= minY || newY >= maxY) {
+          newDy = -newDy * 0.7 + (Math.random() - 0.5) * 0.3;
+          newY = Math.max(minY, Math.min(maxY, newY));
         }
 
-        // Gentler variation
-        newDx += (Math.random() - 0.5) * 0.04;
-        newDy += (Math.random() - 0.5) * 0.04;
+        // Natural movement variation
+        newDx += (Math.random() - 0.5) * 0.05;
+        newDy += (Math.random() - 0.5) * 0.05;
 
-        // Conservative speed control
+        // Realistic speed control
         const speed = Math.sqrt(newDx * newDx + newDy * newDy);
-        if (speed > 1.5) {
-          newDx = (newDx / speed) * 1.5;
-          newDy = (newDy / speed) * 1.5;
+        if (speed > 1.2) {
+          newDx = (newDx / speed) * 1.2;
+          newDy = (newDy / speed) * 1.2;
+        }
+        if (speed < 0.3) {
+          newDx = (newDx / speed) * 0.3;
+          newDy = (newDy / speed) * 0.3;
         }
 
         setBallDirection({ dx: newDx, dy: newDy });
 
         return { x: newX, y: newY };
       });
-    }, 200); // Slower update rate
+    }, 250); // Slightly slower for more realistic movement
 
     return () => clearInterval(ballInterval);
   }, [isLive]);
@@ -282,29 +291,43 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     }, 3000);
   };
 
-  // Auto-update current event display - show latest event and hold it longer
+  // Auto-update current event display with better stale event handling
   useEffect(() => {
     if (playByPlayEvents.length > 0) {
       const latestEvent = playByPlayEvents[0];
-      setCurrentEvent(latestEvent);
+      const eventAge = Date.now() - latestEvent.timestamp;
+      
+      // Only show events that are less than 2 minutes old
+      if (eventAge < 120000) {
+        setCurrentEvent(latestEvent);
+      } else {
+        // Clear stale events
+        setCurrentEvent(null);
+      }
 
-      // Only cycle if there are multiple recent events, and do it less frequently
+      // Only cycle if there are multiple recent events
       if (playByPlayEvents.length > 1) {
-        const eventCycleInterval = setInterval(() => {
-          const recentEvents = playByPlayEvents.slice(0, 2); // Only show 2 most recent
-          if (recentEvents.length > 1) {
+        const recentEvents = playByPlayEvents.slice(0, 2).filter(event => 
+          Date.now() - event.timestamp < 120000
+        );
+        
+        if (recentEvents.length > 1) {
+          const eventCycleInterval = setInterval(() => {
             const currentIndex = recentEvents.findIndex(e => e.id === currentEvent?.id);
             const nextIndex = (currentIndex + 1) % recentEvents.length;
             setCurrentEvent(recentEvents[nextIndex]);
-          }
-        }, 8000); // Longer interval - 8 seconds
+          }, 6000); // Show each event for 6 seconds
 
-        return () => {
-          clearInterval(eventCycleInterval);
-        };
+          return () => {
+            clearInterval(eventCycleInterval);
+          };
+        }
       }
+    } else {
+      // No events available, clear current event
+      setCurrentEvent(null);
     }
-  }, [playByPlayEvents.length])
+  }, [playByPlayEvents.length, currentEvent?.id])
 
   const generatePlayByPlayEvents = async (matchData: any, isUpdate: boolean = false) => {
     try {
@@ -688,79 +711,117 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
 
           {/* Premium event overlay */}
-          {currentEvent && (
+          {(currentEvent || (!currentEvent && isLive)) && (
             <div className="absolute inset-0 flex items-center justify-center z-50 pointer-events-none">
               <div className="bg-gradient-to-br from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-xl rounded-2xl px-8 py-6 text-center shadow-2xl border border-slate-600/50 max-w-sm event-overlay transform animate-in fade-in-0 zoom-in-95 duration-300">
                 {/* Premium event type badge */}
                 <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-4 ${
-                  currentEvent.type === 'goal' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' :
-                  currentEvent.type === 'substitution' ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white' :
-                  currentEvent.type === 'card' ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white' :
-                  currentEvent.type === 'corner' ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white' :
-                  currentEvent.type === 'shot' ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white' :
-                  'bg-gradient-to-r from-slate-500 to-slate-600 text-white'
+                  currentEvent ? (
+                    currentEvent.type === 'goal' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' :
+                    currentEvent.type === 'substitution' ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white' :
+                    currentEvent.type === 'card' ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white' :
+                    currentEvent.type === 'corner' ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white' :
+                    currentEvent.type === 'shot' ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white' :
+                    'bg-gradient-to-r from-slate-500 to-slate-600 text-white'
+                  ) : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
                 }`}>
                   <span className="text-lg">
-                    {currentEvent.type === 'goal' ? '⚽' : 
-                     currentEvent.type === 'substitution' ? '🔄' :
-                     currentEvent.type === 'card' ? '🟨' :
-                     currentEvent.type === 'corner' ? '🚩' :
-                     currentEvent.type === 'shot' ? '🎯' :
-                     '⚽'}
+                    {currentEvent ? (
+                      currentEvent.type === 'goal' ? '⚽' : 
+                      currentEvent.type === 'substitution' ? '🔄' :
+                      currentEvent.type === 'card' ? '🟨' :
+                      currentEvent.type === 'corner' ? '🚩' :
+                      currentEvent.type === 'shot' ? '🎯' :
+                      '⚽'
+                    ) : (ballPossession === 'home' ? '⚽' : ballPossession === 'away' ? '⚽' : '⚽')}
                   </span>
                   <span className="uppercase tracking-wider">
-                    {currentEvent.type === 'goal' ? 'GOAL!' : 
-                     currentEvent.type === 'substitution' ? 'SUBSTITUTION' :
-                     currentEvent.type === 'card' ? 'CARD' :
-                     currentEvent.type === 'corner' ? 'CORNER' :
-                     currentEvent.type === 'shot' ? 'SHOT' :
-                     'LIVE'}
+                    {currentEvent ? (
+                      currentEvent.type === 'goal' ? 'GOAL!' : 
+                      currentEvent.type === 'substitution' ? 'SUBSTITUTION' :
+                      currentEvent.type === 'card' ? 'CARD' :
+                      currentEvent.type === 'corner' ? 'CORNER' :
+                      currentEvent.type === 'shot' ? 'SHOT' :
+                      'LIVE'
+                    ) : (ballPossession === 'home' ? 'HOME ATTACK' : ballPossession === 'away' ? 'AWAY ATTACK' : 'POSSESSION')}
                   </span>
                 </div>
 
                 <div className="text-white text-lg font-bold mb-4">
-                  {currentEvent.description}
+                  {currentEvent ? currentEvent.description : (
+                    ballPossession === 'home' ? 'Building up play' :
+                    ballPossession === 'away' ? 'Counter attack' :
+                    'Midfield battle'
+                  )}
                 </div>
 
                 <div className="flex items-center justify-center gap-3 bg-slate-800/50 rounded-lg px-4 py-3">
-                  {displayMatch.league?.country === "World" ||
-                  displayMatch.league?.country === "International" ? (
-                    <MyWorldTeamLogo
-                      teamName={homeTeamData?.name}
-                      teamLogo={homeTeamData?.logo || '/assets/fallback-logo.svg'}
-                      alt={homeTeamData?.name || 'Home Team'}
-                      size="32px"
-                      leagueContext={{
-                        name: displayMatch.league?.name || '',
-                        country: displayMatch.league?.country || '',
-                      }}
-                    />
-                  ) : isNationalTeam(homeTeamData, displayMatch.league) ? (
-                    <MyCircularFlag
-                      teamName={homeTeamData?.name}
-                      fallbackUrl={homeTeamData?.logo}
-                      alt={homeTeamData?.name || 'Home Team'}
-                      size="32px"
-                    />
+                  {currentEvent ? (
+                    <>
+                      {displayMatch.league?.country === "World" ||
+                      displayMatch.league?.country === "International" ? (
+                        <MyWorldTeamLogo
+                          teamName={homeTeamData?.name}
+                          teamLogo={homeTeamData?.logo || '/assets/fallback-logo.svg'}
+                          alt={homeTeamData?.name || 'Home Team'}
+                          size="32px"
+                          leagueContext={{
+                            name: displayMatch.league?.name || '',
+                            country: displayMatch.league?.country || '',
+                          }}
+                        />
+                      ) : isNationalTeam(homeTeamData, displayMatch.league) ? (
+                        <MyCircularFlag
+                          teamName={homeTeamData?.name}
+                          fallbackUrl={homeTeamData?.logo}
+                          alt={homeTeamData?.name || 'Home Team'}
+                          size="32px"
+                        />
+                      ) : (
+                        <img
+                          src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
+                          alt={homeTeamData?.name || 'Home Team'}
+                          className="w-6 h-6 object-contain rounded-full"
+                          style={{
+                            filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
+                          }}
+                          onError={(e) => {
+                            e.currentTarget.src = '/assets/fallback-logo.svg';
+                          }}
+                        />
+                      )}
+                      <div className="text-slate-300 text-sm font-medium">
+                        {currentEvent.player !== 'Team' ? currentEvent.player : getTeamDisplayName(currentEvent.team)}
+                      </div>
+                      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-2 py-1 rounded-full text-xs font-bold">
+                        {currentEvent.minute}'
+                      </div>
+                    </>
                   ) : (
-                    <img
-                      src={homeTeamData?.logo || '/assets/fallback-logo.svg'}
-                      alt={homeTeamData?.name || 'Home Team'}
-                      className="w-6 h-6 object-contain rounded-full"
-                      style={{
-                        filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
-                      }}
-                      onError={(e) => {
-                        e.currentTarget.src = '/assets/fallback-logo.svg';
-                      }}
-                    />
+                    <>
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={ballPossession === 'home' ? homeTeamData?.logo : awayTeamData?.logo || '/assets/fallback-logo.svg'}
+                          alt={ballPossession === 'home' ? homeTeamData?.name : awayTeamData?.name || 'Team'}
+                          className="w-6 h-6 object-contain rounded-full"
+                          style={{
+                            filter: "drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8))",
+                          }}
+                          onError={(e) => {
+                            e.currentTarget.src = '/assets/fallback-logo.svg';
+                          }}
+                        />
+                        <div className="text-slate-300 text-sm font-medium">
+                          {ballPossession === 'home' ? homeTeamData?.name : 
+                           ballPossession === 'away' ? awayTeamData?.name : 
+                           'Match in progress'}
+                        </div>
+                      </div>
+                      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-2 py-1 rounded-full text-xs font-bold">
+                        {elapsed}'
+                      </div>
+                    </>
                   )}
-                  <div className="text-slate-300 text-sm font-medium">
-                    {currentEvent.player !== 'Team' ? currentEvent.player : getTeamDisplayName(currentEvent.team)}
-                  </div>
-                  <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-2 py-1 rounded-full text-xs font-bold">
-                    {currentEvent.minute}'
-                  </div>
                 </div>
               </div>
             </div>
