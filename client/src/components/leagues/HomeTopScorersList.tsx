@@ -339,11 +339,20 @@ const HomeTopScorersList = () => {
   );
 
   const getCurrentLeagueIndex = () => {
-    return availableLeagues.findIndex((league) => league.id === selectedLeague);
+    const index = availableLeagues.findIndex((league) => league.id === selectedLeague);
+    console.log(`🔍 [getCurrentLeagueIndex] selectedLeague: ${selectedLeague}, found index: ${index}, available leagues count: ${availableLeagues.length}`);
+    
+    if (index === -1) {
+      console.warn(`❌ [getCurrentLeagueIndex] League ${selectedLeague} not found in available leagues:`, availableLeagues.map(l => ({ id: l.id, name: l.name })));
+    }
+    
+    return index;
   };
 
   const getCurrentLeague = () => {
-    return availableLeagues.find((league) => league.id === selectedLeague);
+    const league = availableLeagues.find((league) => league.id === selectedLeague);
+    console.log(`🔍 [getCurrentLeague] selectedLeague: ${selectedLeague}, found league: ${league?.name || 'NOT FOUND'}`);
+    return league;
   };
 
   const goToPreviousLeague = () => {
@@ -444,6 +453,14 @@ const HomeTopScorersList = () => {
     if (availableLeagues.length === 0) return;
 
     const currentIndex = getCurrentLeagueIndex();
+    console.log(`🔍 [Navigation Debug] Current league: ${getCurrentLeague()?.name} at index: ${currentIndex}`);
+    
+    // Ensure we have a valid current index
+    if (currentIndex === -1) {
+      console.warn(`❌ [Navigation] Current league not found in available leagues`);
+      return;
+    }
+    
     let nextLeagueId;
     
     if (currentIndex > 0) {
@@ -453,7 +470,9 @@ const HomeTopScorersList = () => {
       nextLeagueId = availableLeagues[availableLeagues.length - 1].id;
     }
 
-    console.log(`⬅️ [Navigation] Moving left from ${getCurrentLeague()?.name} to ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
+    const nextLeague = availableLeagues.find(l => l.id === nextLeagueId);
+    console.log(`⬅️ [Navigation] Moving left from ${getCurrentLeague()?.name} (index: ${currentIndex}) to ${nextLeague?.name} (id: ${nextLeagueId})`);
+    
     setSelectedLeague(nextLeagueId);
     
     // Force immediate centering after state update
@@ -475,7 +494,7 @@ const HomeTopScorersList = () => {
           const clampedPosition = Math.max(0, Math.min(newPosition, maxScroll));
           
           setContentPosition(clampedPosition);
-          console.log(`🎯 [Navigation Left] Centered league ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
+          console.log(`🎯 [Navigation Left] Centered league ${nextLeague?.name}`);
         }
       }
     }, 50);
@@ -485,6 +504,14 @@ const HomeTopScorersList = () => {
     if (availableLeagues.length === 0) return;
 
     const currentIndex = getCurrentLeagueIndex();
+    console.log(`🔍 [Navigation Debug] Current league: ${getCurrentLeague()?.name} at index: ${currentIndex}`);
+    
+    // Ensure we have a valid current index
+    if (currentIndex === -1) {
+      console.warn(`❌ [Navigation] Current league not found in available leagues`);
+      return;
+    }
+    
     let nextLeagueId;
     
     if (currentIndex < availableLeagues.length - 1) {
@@ -494,7 +521,9 @@ const HomeTopScorersList = () => {
       nextLeagueId = availableLeagues[0].id;
     }
 
-    console.log(`➡️ [Navigation] Moving right from ${getCurrentLeague()?.name} to ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
+    const nextLeague = availableLeagues.find(l => l.id === nextLeagueId);
+    console.log(`➡️ [Navigation] Moving right from ${getCurrentLeague()?.name} (index: ${currentIndex}) to ${nextLeague?.name} (id: ${nextLeagueId})`);
+    
     setSelectedLeague(nextLeagueId);
     
     // Force immediate centering after state update
@@ -516,7 +545,7 @@ const HomeTopScorersList = () => {
           const clampedPosition = Math.max(0, Math.min(newPosition, maxScroll));
           
           setContentPosition(clampedPosition);
-          console.log(`🎯 [Navigation Right] Centered league ${availableLeagues.find(l => l.id === nextLeagueId)?.name}`);
+          console.log(`🎯 [Navigation Right] Centered league ${nextLeague?.name}`);
         }
       }
     }, 50);
