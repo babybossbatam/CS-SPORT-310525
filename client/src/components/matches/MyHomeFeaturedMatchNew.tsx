@@ -636,10 +636,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             {/* Navigation arrows */}
             {allMatches.length > 1 && (
               <>
-                <button onClick={handlePrevious}>
+                <button 
+                  onClick={handlePrevious}
+                  className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-2 shadow-md"
+                >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
-                <button onClick={handleNext}>
+                <button 
+                  onClick={handleNext}
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 bg-white/80 hover:bg-white rounded-full p-2 shadow-md"
+                >
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </>
@@ -947,6 +953,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   </div>
                 )}
               </div>
+            </div>
             )}
           </div>
         )}
