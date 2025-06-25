@@ -100,80 +100,37 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         { date: format(addDays(today, 2), 'yyyy-MM-dd'), label: 'Day After Tomorrow' }
       ];
 
-      console.log(`🚀 [FeaturedMatches] Starting fetch for dates:`, dates);
-
       const allMatches: DayMatches[] = [];
 
-      // Collect fixtures from popular leagues for each day
-      const allFixtures: any[] = [];
-      
       for (const dateInfo of dates) {
-        console.log(`🔍 [FeaturedMatches] Fetching for ${dateInfo.label}: ${dateInfo.date}`);
-        
-        // Fetch from multiple popular leagues
-        for (const league of POPULAR_LEAGUES.slice(0, 8)) { // Top 8 leagues for performance
-          try {
-            const response = await apiRequest('GET', `/api/fixtures/leagueid/${league.id}`);
-            
-            if (!response.ok) {
-              console.warn(`⚠️ [FeaturedMatches] Failed to fetch league ${league.name} (${league.id})`);
-              continue;
-            }
-            
-            const fixtures = await response.json();
-            
-            if (fixtures?.length) {
-              // Filter fixtures for the current date
-              const dayFixtures = fixtures.filter((fixture: any) => {
-                const fixtureDate = format(new Date(fixture.fixture.date), 'yyyy-MM-dd');
-                return fixtureDate === dateInfo.date;
-              });
-              
-              allFixtures.push(...dayFixtures);
-              console.log(`📊 [FeaturedMatches] Found ${dayFixtures.length} fixtures from ${league.name} for ${dateInfo.label}`);
-            }
-          } catch (error) {
-            console.warn(`⚠️ [FeaturedMatches] Error fetching league ${league.name}:`, error);
+        try {
+          console.log(`🔍 [FeaturedMatches] Fetching for ${dateInfo.label}: ${dateInfo.date}`);
+          
+          // Fetch fixtures for the date
+          const response = await apiRequest('GET', `/api/fixtures/date/${dateInfo.date}?all=true`);
+          const fixtures = await response.json();
+
+          if (!fixtures?.length) {
+            console.log(`📭 [FeaturedMatches] No fixtures for ${dateInfo.label}`);
+            allMatches.push({
+              date: dateInfo.date,
+              label: dateInfo.label,
+              matches: []
+            });
+            continue;
           }
-        }
-      }
 
-      console.log(`📦 [FeaturedMatches] Total fixtures collected: ${allFixtures.length}`);
-
-      // Group fixtures by date
-      for (const dateInfo of dates) {
-        const dayFixtures = allFixtures.filter((fixture: any) => {
-          const fixtureDate = format(new Date(fixture.fixture.date), 'yyyy-MM-dd');
-          return fixtureDate === dateInfo.date;
-        });
-
-        if (!dayFixtures.length) {
-          console.log(`📭 [FeaturedMatches] No fixtures for ${dateInfo.label}`);
-          allMatches.push({
-            date: dateInfo.date,
-            label: dateInfo.label,
-            matches: []
-          });
-          continue;
-        }
-
-        // Process and filter fixtures
-        const featuredForDay = dayFixtures
-          .filter((fixture: any) => {
-            // Must have valid teams
-            const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
-            
-            if (!hasValidTeams) {
-              console.log(`⚠️ [FeaturedMatches] Invalid fixture data:`, {
-                id: fixture.fixture?.id,
-                homeTeam: fixture.teams?.home?.name,
-                awayTeam: fixture.teams?.away?.name,
-                league: fixture.league?.name
-              });
-            }
-            
-            return hasValidTeams;
-          })
+          // Filter for popular leagues and get featured matches
+          const featuredForDay = fixtures
+            .filter((fixture: any) => {
+              // Must be from popular leagues
+              const isPopularLeague = POPULAR_LEAGUES.some(league => league.id === fixture.league.id);
+              
+              // Must have valid teams
+              const hasValidTeams = fixture.teams?.home?.name && fixture.teams?.away?.name;
+              
+              return isPopularLeague && hasValidTeams;
+            })
             .map((fixture: any) => ({
               fixture: {
                 id: fixture.fixture.id,
@@ -203,22 +160,25 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 away: fixture.goals?.away ?? null
               }
             }))
-            // Sort by match time only
+            // Sort by league priority and time
             .sort((a: FeaturedMatch, b: FeaturedMatch) => {
+              // Priority order: Champions League, Premier League, La Liga, etc.
+              const leaguePriority = [2, 39, 140, 135, 78, 61, 3, 848, 15, 38];
+              const aPriority = leaguePriority.indexOf(a.league.id);
+              const bPriority = leaguePriority.indexOf(b.league.id);
+              
+              if (aPriority !== -1 && bPriority !== -1) {
+                return aPriority - bPriority;
+              }
+              if (aPriority !== -1) return -1;
+              if (bPriority !== -1) return 1;
+              
+              // Sort by time if same priority
               return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
             })
             .slice(0, maxMatches); // Use maxMatches prop
 
           console.log(`✅ [FeaturedMatches] Found ${featuredForDay.length} featured matches for ${dateInfo.label}`);
-          
-          if (featuredForDay.length > 0) {
-            console.log(`🎯 [FeaturedMatches] Sample matches for ${dateInfo.label}:`, featuredForDay.slice(0, 2).map(m => ({
-              id: m.fixture.id,
-              teams: `${m.teams.home.name} vs ${m.teams.away.name}`,
-              league: m.league.name,
-              date: m.fixture.date
-            })));
-          }
 
           allMatches.push({
             date: dateInfo.date,
@@ -235,12 +195,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           });
         }
       }
-
-      console.log(`🏁 [FeaturedMatches] Final matches summary:`, allMatches.map(day => ({
-        date: day.date,
-        label: day.label,
-        matchCount: day.matches.length
-      })));
 
       setFeaturedMatches(allMatches);
     } catch (error) {
