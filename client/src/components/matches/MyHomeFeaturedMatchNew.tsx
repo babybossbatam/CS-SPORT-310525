@@ -810,54 +810,167 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   </div>
                 </div>
 
-                {/* Teams display */}
-                <div className="flex items-center justify-between px-4 py-2">
-                  {/* Home team */}
-                  <div className="flex items-center gap-3">
-                    <MyWorldTeamLogo
-                      teamName={currentMatch.teams.home.name}
-                      teamLogo={currentMatch.teams.home.logo}
-                      alt={currentMatch.teams.home.name}
-                      size="48px"
-                      className="object-contain"
-                      leagueContext={{
-                        name: currentMatch.league.name,
-                        country: currentMatch.league.country,
-                      }}
-                    />
-                    <span className="text-sm font-medium text-gray-800">
-                      {currentMatch.teams.home.name}
-                    </span>
-                  </div>
+                {/* Teams display using colored bar like FixedScoreboard */}
+                <div className="relative mt-4">
+                  <div
+                    className="flex relative h-[53px] rounded-md mb-8"
+                    onClick={handleMatchClick}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="w-full h-full flex justify-between relative">
+                      {/* Home team colored bar and logo */}
+                      <div
+                        className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
+                        style={{
+                          background: getTeamColor(
+                            currentMatch?.teams?.home?.id || 0,
+                          ),
+                          transition: "all 0.3s ease-in-out",
+                        }}
+                      >
+                        {currentMatch?.teams?.home && (
+                          <img
+                            src={
+                              currentMatch.teams.home.logo ||
+                              `/assets/fallback-logo.svg`
+                            }
+                            alt={currentMatch.teams.home.name || "Home Team"}
+                            className="absolute z-20 w-[64px] h-[64px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                            style={{
+                              cursor: "pointer",
+                              top: "calc(50% - 32px)",
+                              left: "-32px",
+                              filter: "contrast(115%) brightness(105%)",
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/match/${currentMatch.fixture.id}`);
+                            }}
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              if (
+                                target.src.includes("sportmonks") &&
+                                currentMatch.teams.home.logo
+                              ) {
+                                target.src = currentMatch.teams.home.logo;
+                              } else if (
+                                target.src !== "/assets/fallback-logo.svg"
+                              ) {
+                                target.src = "/assets/fallback-logo.svg";
+                              }
+                            }}
+                          />
+                        )}
+                      </div>
 
-                  {/* VS divider */}
-                  <div className="text-gray-500 font-semibold text-sm">VS</div>
+                      <div
+                        className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
+                        style={{
+                          top: "calc(50% - 13px)",
+                          left: "120px",
+                          fontSize: "1.24rem",
+                          fontWeight: "normal",
+                        }}
+                      >
+                        {currentMatch?.teams?.home?.name || "TBD"}
+                      </div>
 
-                  {/* Away team */}
-                  <div className="flex items-center gap-3 flex-row-reverse">
-                    <MyWorldTeamLogo
-                      teamName={currentMatch.teams.away.name}
-                      teamLogo={currentMatch.teams.away.logo}
-                      alt={currentMatch.teams.away.name}
-                      size="48px"
-                      className="object-contain"
-                      leagueContext={{
-                        name: currentMatch.league.name,
-                        country: currentMatch.league.country,
-                      }}
-                    />
-                    <span className="text-sm font-medium text-gray-800">
-                      {currentMatch.teams.away.name}
-                    </span>
+                      {/* VS circle */}
+                      <div
+                        className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
+                        style={{
+                          background: "#a00000",
+                          left: "calc(50% - 26px)",
+                          top: "calc(50% - 26px)",
+                          minWidth: "52px",
+                        }}
+                      >
+                        <span className="vs-text font-bold">VS</span>
+                      </div>
+
+                      {/* Match date and venue - centered below VS */}
+                      <div
+                        className="absolute text-center text-xs text-black font-medium"
+                        style={{
+                          fontSize: "0.875rem",
+                          whiteSpace: "nowrap",
+                          overflow: "visible",
+                          textAlign: "center",
+                          position: "absolute",
+                          left: "50%",
+                          transform: "translateX(-50%)",
+                          bottom: "-25px",
+                          width: "max-content",
+                          fontFamily: "'Inter', system-ui, sans-serif",
+                        }}
+                      >
+                        {(() => {
+                          try {
+                            const matchDate = new Date(currentMatch.fixture.date);
+                            const formattedDate = format(
+                              matchDate,
+                              "EEEE, do MMM",
+                            );
+                            const timeOnly = format(matchDate, "HH:mm");
+
+                            return (
+                              <>
+                                {formattedDate} | {timeOnly}
+                              </>
+                            );
+                          } catch (e) {
+                            return "";
+                          }
+                        })()}
+                      </div>
+
+                      {/* Away team colored bar and logo */}
+                      <div
+                        className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100"
+                        style={{
+                          background: getTeamColor(currentMatch.teams.away.id),
+                          transition: "all 0.3s ease-in-out",
+                        }}
+                      ></div>
+
+                      <div
+                        className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
+                        style={{
+                          top: "calc(50% - 13px)",
+                          right: "130px",
+                          fontSize: "1.24rem",
+                          fontWeight: "normal",
+                        }}
+                      >
+                        {currentMatch?.teams?.away?.name || "Away Team"}
+                      </div>
+
+                      <img
+                        src={
+                          currentMatch?.teams?.away?.logo ||
+                          `/assets/fallback-logo.svg`
+                        }
+                        alt={currentMatch?.teams?.away?.name || "Away Team"}
+                        className="absolute z-20 w-[64px] h-[64px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                        style={{
+                          cursor: "pointer",
+                          top: "calc(50% - 32px)",
+                          right: "87px",
+                          transform: "translateX(50%)",
+                          filter: "contrast(115%) brightness(105%)",
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/match/${currentMatch.fixture.id}`);
+                        }}
+                        onError={(e) => {
+                          e.currentTarget.src = "/assets/fallback-logo.svg";
+                        }}
+                      />
+                    </div>
                   </div>
                 </div>
-                {/* Match Details */}
-                <div className="text-center text-sm text-gray-600 mb-4">
-                  {format(
-                    new Date(currentMatch.fixture.date),
-                    "EEEE, do MMMM | HH:mm",
-                  )}
-                </div>
+                
 
                 {/* Action Buttons */}
                 <div className="flex justify-around border-t border-gray-200 pt-4">
