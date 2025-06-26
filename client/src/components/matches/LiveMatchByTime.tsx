@@ -38,6 +38,7 @@ import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/TodaysMatchByCountryNew.css";
+import "../../styles/flasheffect.css";
 import LazyMatchItem from "./LazyMatchItem";
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
@@ -117,6 +118,13 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
 }) => {
   const [enableFetching, setEnableFetching] = useState(true);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+  
+  // Flash animation states
+  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
+  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
+  const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
+  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
+  const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
 
   // Popular leagues for prioritization
   const POPULAR_LEAGUES = [2, 3, 39, 140, 135, 78]; // Champions League, Europa League, Premier League, La Liga, Serie A, Bundesliga
@@ -191,6 +199,99 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
 
   // Use only the live fixtures data
   const allFixtures = fixtures;
+
+  // Effect to detect status and score changes with flash effects
+  useEffect(() => {
+    if (!allFixtures?.length) return;
+
+    const newHalftimeMatches = new Set<number>();
+    const newFulltimeMatches = new Set<number>();
+    const newGoalMatches = new Set<number>();
+    const currentStatuses = new Map<number, string>();
+    const currentScores = new Map<number, {home: number, away: number}>();
+
+    allFixtures.forEach((fixture) => {
+      const matchId = fixture.fixture.id;
+      const currentStatus = fixture.fixture.status.short;
+      const previousStatus = previousMatchStatuses.get(matchId);
+      const currentScore = {
+        home: fixture.goals.home ?? 0,
+        away: fixture.goals.away ?? 0
+      };
+      const previousScore = previousMatchScores.get(matchId);
+
+      currentStatuses.set(matchId, currentStatus);
+      currentScores.set(matchId, currentScore);
+
+      // Only check for changes if we have a previous status (not on first load)
+      if (previousStatus && previousStatus !== currentStatus) {
+        // Check if status just changed to halftime
+        if (currentStatus === 'HT') {
+          console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
+          newHalftimeMatches.add(matchId);
+        }
+
+        // Check if status just changed to fulltime
+        if (currentStatus === 'FT') {
+          console.log(`🔵 [FULLTIME FLASH] Match ${matchId} just finished!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
+          newFulltimeMatches.add(matchId);
+        }
+      }
+
+      // Check for goal changes
+      if (previousScore && ['1H', '2H', 'LIVE'].includes(currentStatus)) {
+        const scoreChanged = currentScore.home !== previousScore.home || currentScore.away !== previousScore.away;
+        if (scoreChanged) {
+          console.log(`⚽ [GOAL FLASH] Match ${matchId} score changed!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousScore: `${previousScore.home}-${previousScore.away}`,
+            currentScore: `${currentScore.home}-${currentScore.away}`,
+            status: currentStatus
+          });
+          newGoalMatches.add(matchId);
+        }
+      }
+    });
+
+    // Update previous statuses and scores AFTER checking for changes
+    setPreviousMatchStatuses(currentStatuses);
+    setPreviousMatchScores(currentScores);
+
+    // Trigger flash for new halftime matches
+    if (newHalftimeMatches.size > 0) {
+      setHalftimeFlashMatches(newHalftimeMatches);
+      setTimeout(() => {
+        setHalftimeFlashMatches(new Set());
+      }, 3000);
+    }
+
+    // Trigger flash for new fulltime matches
+    if (newFulltimeMatches.size > 0) {
+      setFulltimeFlashMatches(newFulltimeMatches);
+      setTimeout(() => {
+        setFulltimeFlashMatches(new Set());
+      }, 3000);
+    }
+
+    // Trigger flash for goal changes
+    if (newGoalMatches.size > 0) {
+      setGoalFlashMatches(newGoalMatches);
+      setTimeout(() => {
+        setGoalFlashMatches(new Set());
+      }, 2000);
+    }
+  }, [allFixtures]);
 
   // Collect all matches from all leagues and add league info with smart date labeling
   const allMatches = allFixtures.map((fixture: any) => {
@@ -358,13 +459,56 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
     <>
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        {liveFilterActive && timeFilterActive
-          ? "Popular Football Live Score"
-          : liveFilterActive && !timeFilterActive
-            ? "Live Football Scores"
-            : !liveFilterActive && timeFilterActive
-              ? "All Matches by Time"
-              : "Live Football Scores"}
+        <div className="flex justify-between items-center w-full">
+          <span>
+            {liveFilterActive && timeFilterActive
+              ? "Popular Football Live Score"
+              : liveFilterActive && !timeFilterActive
+                ? "Live Football Scores"
+                : !liveFilterActive && timeFilterActive
+                  ? "All Matches by Time"
+                  : "Live Football Scores"}
+          </span>
+          {/* Test Flash Effect Buttons - Remove these after testing */}
+          <div className="flex gap-2">
+            <button 
+              onClick={() => {
+                const firstMatchId = sortedMatches[0]?.fixture?.id;
+                if (firstMatchId) {
+                  setHalftimeFlashMatches(new Set([firstMatchId]));
+                  setTimeout(() => setHalftimeFlashMatches(new Set()), 3000);
+                }
+              }}
+              className="px-2 py-1 text-xs bg-pink-200 rounded"
+            >
+              Test HT Flash
+            </button>
+            <button 
+              onClick={() => {
+                const firstMatchId = sortedMatches[0]?.fixture?.id;
+                if (firstMatchId) {
+                  setFulltimeFlashMatches(new Set([firstMatchId]));
+                  setTimeout(() => setFulltimeFlashMatches(new Set()), 3000);
+                }
+              }}
+              className="px-2 py-1 text-xs bg-blue-200 rounded"
+            >
+              Test FT Flash
+            </button>
+            <button 
+              onClick={() => {
+                const firstMatchId = sortedMatches[0]?.fixture?.id;
+                if (firstMatchId) {
+                  setGoalFlashMatches(new Set([firstMatchId]));
+                  setTimeout(() => setGoalFlashMatches(new Set()), 2000);
+                }
+              }}
+              className="px-2 py-1 text-xs bg-green-200 rounded"
+            >
+              Test Goal Flash
+            </button>
+          </div>
+        </div>
       </CardHeader>
 
       {/* Single consolidated card with all matches sorted by time */}
@@ -377,7 +521,14 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
             {sortedMatches.map((match: any, index: number) => (
               <div
                 key={`${match.fixture.id}-${match.fixture.status.elapsed}-${index}`}
-                className="match-card-container group"
+                className={`match-card-container group ${
+                  halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
+                } ${
+                  fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
+                } ${
+                  goalFlashMatches.has(match.fixture.id) ? 'goal-flash' : ''
+                }`}
+                data-fixture-id={match.fixture.id}
               >
                 {/* Star Button with slide-in effect */}
                 <button

@@ -149,6 +149,9 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
   const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
   const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
+
+  // Test flash effect buttons (remove after testing)
+  const [showTestButtons, setShowTestButtons] = useState(false);
   // Initialize flagMap with immediate synchronous values for better rendering
   const [flagMap, setFlagMap] = useState<{ [country: string]: string }>(() => {
     // Pre-populate with synchronous flag URLs to prevent initial undefined state
@@ -1305,16 +1308,57 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   return (
     <Card className="mt-4">
       <CardHeader className="flex flex-row justify-between items-center space-y-0 p-2 border-b border-stone-200">
-        <h3
-          className="font-semibold"
-          style={{
-            fontFamily:
-              "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-            fontSize: "13.3px",
-          }}
-        >
-          {getHeaderTitle()}
-        </h3>
+        <div className="flex justify-between items-center w-full">
+          <h3
+            className="font-semibold"
+            style={{
+              fontFamily:
+                "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+              fontSize: "13.3px",
+            }}
+          >
+            {getHeaderTitle()}
+          </h3>
+          {/* Test Flash Effect Buttons - Remove these after testing */}
+          <div className="flex gap-2">
+            <button 
+              onClick={() => {
+                const firstMatchId = validFixtures[0]?.fixture?.id;
+                if (firstMatchId) {
+                  setHalftimeFlashMatches(new Set([firstMatchId]));
+                  setTimeout(() => setHalftimeFlashMatches(new Set()), 3000);
+                }
+              }}
+              className="px-2 py-1 text-xs bg-pink-200 rounded"
+            >
+              Test HT Flash
+            </button>
+            <button 
+              onClick={() => {
+                const firstMatchId = validFixtures[0]?.fixture?.id;
+                if (firstMatchId) {
+                  setFulltimeFlashMatches(new Set([firstMatchId]));
+                  setTimeout(() => setFulltimeFlashMatches(new Set()), 3000);
+                }
+              }}
+              className="px-2 py-1 text-xs bg-blue-200 rounded"
+            >
+              Test FT Flash
+            </button>
+            <button 
+              onClick={() => {
+                const firstMatchId = validFixtures[0]?.fixture?.id;
+                if (firstMatchId) {
+                  setGoalFlashMatches(new Set([firstMatchId]));
+                  setTimeout(() => setGoalFlashMatches(new Set()), 2000);
+                }
+              }}
+              className="px-2 py-1 text-xs bg-green-200 rounded"
+            >
+              Test Goal Flash
+            </button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         <div className="country-matches-container todays-matches-by-country-container">
