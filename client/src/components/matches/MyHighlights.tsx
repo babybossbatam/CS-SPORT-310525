@@ -248,27 +248,54 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
         {videoData && (
           <div className="space-y-3">
-            {/* Clean Video Player - Matches Design */}
-            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-              <iframe
-                className="absolute top-0 left-0 w-full h-full rounded-lg"
-                src={`https://www.youtube.com/embed/${videoData.id.videoId}?rel=0&modestbranding=1&showinfo=0&controls=1&autoplay=0`}
-                title={videoData.snippet.title}
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
+            {/* Clickable Video Thumbnail */}
+            <div 
+              className="relative w-full cursor-pointer group rounded-lg overflow-hidden bg-gray-100"
+              style={{ paddingBottom: '56.25%' }}
+              onClick={handleOpenInYouTube}
+            >
+              <img
+                src={videoData.snippet.thumbnails.medium.url}
+                alt={videoData.snippet.title}
+                className="absolute top-0 left-0 w-full h-full object-cover transition-transform group-hover:scale-105"
               />
+              
+              {/* Play Button Overlay */}
+              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 group-hover:bg-opacity-50 transition-all">
+                <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform">
+                  <Play className="h-6 w-6 text-white ml-1" fill="white" />
+                </div>
+              </div>
+              
+              {/* YouTube Logo */}
+              <div className="absolute top-3 right-3 bg-black bg-opacity-70 rounded px-2 py-1">
+                <span className="text-white text-xs font-semibold">YouTube</span>
+              </div>
+              
+              {/* Duration Badge (if available) */}
+              <div className="absolute bottom-3 right-3 bg-black bg-opacity-80 rounded px-2 py-1">
+                <span className="text-white text-xs">Watch Highlights</span>
+              </div>
             </div>
             
-            {/* Minimal Video Info */}
+            {/* Video Info */}
             <div className="space-y-2">
-              <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
+              <h3 className="font-medium text-gray-900 text-sm line-clamp-2 cursor-pointer hover:text-blue-600" onClick={handleOpenInYouTube}>
                 {videoData.snippet.title}
               </h3>
               <div className="flex items-center justify-between text-xs text-gray-500">
                 <span>{videoData.snippet.channelTitle}</span>
                 <span>{formatPublishDate(videoData.snippet.publishedAt)}</span>
               </div>
+              
+              {/* Watch Button */}
+              <button
+                onClick={handleOpenInYouTube}
+                className="w-full mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+              >
+                <ExternalLink className="h-4 w-4" />
+                Watch on YouTube
+              </button>
             </div>
           </div>
         )}
