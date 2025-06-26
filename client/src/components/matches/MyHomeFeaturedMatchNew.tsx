@@ -139,6 +139,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return ["NS", "TBD", "PST"].includes(status);
         };
 
+        // Function to validate a match (check for valid teams)
+        const isValidMatch = (fixture: any) => {
+          return fixture.teams?.home?.name && fixture.teams?.away?.name;
+        };
+
         // Fetch live matches from API for real-time updates
         let liveFixtures: FeaturedMatch[] = [];
         try {
@@ -150,22 +155,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             if (Array.isArray(liveData)) {
               liveFixtures = liveData
                 .filter((fixture: any) => {
-                  // Must have valid teams - prioritize ALL live matches
-                  const hasValidTeams =
-                    fixture.teams?.home?.name && fixture.teams?.away?.name;
-                  const isPriorityLeague = priorityLeagueIds.includes(
-                    fixture.league?.id,
-                  );
-                  const isPopularLeague = POPULAR_LEAGUES.some(
-                    (league) => league.id === fixture.league?.id,
-                  );
-                  const isLive = isLiveMatch(fixture.fixture.status.short);
-
-                  // Include if: has valid teams AND (is live OR is from priority/popular leagues)
-                  return (
-                    hasValidTeams &&
-                    (isLive || isPriorityLeague || isPopularLeague)
-                  );
+                  return isValidMatch(fixture);
                 })
                 .map((fixture: any) => ({
                   fixture: {
@@ -895,7 +885,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   >
                     <svg
                       width="20"
-                      height="20"
+height="20"
                       viewBox="0 0 24 24"
                       className="text-blue-500"
                     >
