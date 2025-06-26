@@ -846,16 +846,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <>
                 <button
                   onClick={handlePrevious}
-                  className="absolute -left-10 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
+                  className="absolute -left-10 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-3 "
                 >
-                  <ChevronLeft className="h-5 w-4" />
+                  <ChevronLeft className="h-4 w-3" />
                 </button>
 
                 <button
                   onClick={handleNext}
-                  className="absolute -right-10 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
+                  className="absolute -right-10 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-3 "
                 >
-                  <ChevronRight className="h-5 w-4" />
+                  <ChevronRight className="h-4 w-3" />
                 </button>
               </>
             )}
