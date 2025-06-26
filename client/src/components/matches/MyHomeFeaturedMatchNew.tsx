@@ -706,12 +706,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   onClick={handlePrevious}
                   className="absolute 
                   -left-10 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full  p-2 h-12 w-10"
-                ></button>
-                <div>
-                  {" "}
-                  <ChevronLeft className="h-6 w-3" />
-                </div>
-
+                >
+                  
+                </button>
+               
+                
                 <button
                   onClick={handleNext}
                   className="absolute -right-14 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
@@ -842,6 +841,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   >
                     <div className="w-full h-full flex justify-between relative">
                       {/* Home team colored bar and logo */}
+                     
                       <div
                         className="h-full w-[calc(50%-16px)] ml-[37px] transition-all duration-500 ease-in-out opacity-100 relative"
                         style={{
@@ -851,7 +851,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           transition: "all 0.3s ease-in-out",
                         }}
                       >
-                        {currentMatch?.teams?.home && (
+                        <div className=" left-5">
+
+                          <ChevronLeft className="h-4 w-4" />
+                        </div>{currentMatch?.teams?.home && (
                           <div
                             className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                             style={{
