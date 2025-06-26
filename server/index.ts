@@ -4,8 +4,17 @@ import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
+
+// Set server timeout to 20 seconds
+app.use((req, res, next) => {
+  res.setTimeout(20000, () => {
+    console.log('Request has timed out.');
+    res.status(408).json({ error: 'Request timeout' });
+  });
+  next();
+});
 
 // Global error handlers to prevent crashes
 process.on('uncaughtException', (error) => {
