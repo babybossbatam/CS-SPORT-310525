@@ -524,8 +524,8 @@ const LeagueStandingsFilter = () => {
     queryKey: ["standings", selectedLeague, todayDateKey],
     queryFn: async () => {
       const response = await apiRequest(
+        "GET",
         `/api/leagues/${selectedLeague}/standings`,
-        "GET"
       );
       return response.json();
     },
@@ -540,8 +540,8 @@ const LeagueStandingsFilter = () => {
     queryKey: ["fixtures", selectedLeague, todayDateKey],
     queryFn: async () => {
       const response = await apiRequest(
+        "GET",
         `/api/leagues/${selectedLeague}/fixtures`,
-        "GET"
       );
       return response.json();
     },

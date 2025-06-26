@@ -1,20 +1,27 @@
+import { QueryClient, QueryFunction } from '@tanstack/react-query';
+import { CACHE_STALE_TIMES } from './constants';
+import { CACHE_DURATIONS } from './cacheConfig';
 
-import { QueryClient } from "@tanstack/react-query";
+// Helper to throw error for non-ok responses
+async function throwIfResNotOk(res: Response) {
+  if (!res.ok) {
+    const text = (await res.text()) || res.statusText;
+    throw new Error(`${res.status}: ${text}`);
+  }
+}
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-
-// Rate limiting configuration
-const RATE_LIMIT_DELAY = 100; // 100ms between requests
+// Simplified rate limiting for non-central requests
 const requestTimestamps = new Map<string, number>();
+const MIN_REQUEST_INTERVAL = 600000; // 10 minutes for non-central requests
 
 const checkRateLimit = (key: string) => {
   // Skip rate limiting for central cache keys
   if (key.includes('central-')) return true;
-
+  
   const now = Date.now();
   const lastRequest = requestTimestamps.get(key);
 
-  if (lastRequest && now - lastRequest < RATE_LIMIT_DELAY) {
+  if (lastRequest && now - lastRequest < MIN_REQUEST_INTERVAL) {
     return false;
   }
 
@@ -22,11 +29,11 @@ const checkRateLimit = (key: string) => {
   return true;
 };
 
-// Enhanced API request function with proper error handling and retries
+// API request helper
 export async function apiRequest(
+  method: string,
   url: string,
-  method: string = "GET",
-  data?: any
+  data?: unknown | undefined
 ): Promise<Response> {
   try {
     const res = await fetch(url, {
@@ -36,14 +43,7 @@ export async function apiRequest(
       credentials: "include"
     });
 
-    if (!res.ok) {
-      console.error(`API request failed: ${method} ${url}`, {
-        status: res.status,
-        statusText: res.statusText
-      });
-      throw new Error(`API request failed: ${res.status} ${res.statusText}`);
-    }
-
+    await throwIfResNotOk(res);
     return res;
   } catch (error) {
     console.error(`API request error for ${method} ${url}:`, error);
@@ -51,105 +51,62 @@ export async function apiRequest(
   }
 }
 
-// Create query client with enhanced configuration
+// Query function type
+type UnauthorizedBehavior = "returnNull" | "throw";
+export const getQueryFn: <T>(options: {
+  on401: UnauthorizedBehavior;
+}) => QueryFunction<T> =
+  ({ on401: unauthorizedBehavior }) =>
+  async ({ queryKey }) => {
+    const keyString = Array.isArray(queryKey) ? queryKey.join('-') : String(queryKey);
+
+    if (!checkRateLimit(keyString)) {
+      console.warn('Rate limiting request to:', keyString);
+      return null as any;
+    }
+
+    try {
+      const res = await fetch(queryKey[0] as string, {
+        credentials: "include"
+      });
+
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+
+      await throwIfResNotOk(res);
+      return await res.json();
+    } catch (error) {
+      console.error(`Query error for ${queryKey[0]}:`, error);
+      throw error;
+    }
+  };
+
+// Query client with configurations
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: (failureCount, error: any) => {
-        // Don't retry on 4xx errors (client errors)
-        if (error?.status >= 400 && error?.status < 500) {
-          return false;
-        }
-        // Retry up to 3 times for other errors
-        return failureCount < 3;
-      },
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+      queryFn: getQueryFn({ 
+        on401: "throw"
+      }),
+      refetchInterval: false,
       refetchOnWindowFocus: false,
-      refetchOnReconnect: true,
+      staleTime: CACHE_DURATIONS.ONE_HOUR, // Data stays fresh for 60 minutes
+      gcTime: CACHE_DURATIONS.SIX_HOURS, // 6 hours
+      retry: 0, // Disable retries to prevent cascading requests
+      retryDelay: 2000,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
+      // Prevent memory leaks
+      networkMode: 'online',
     },
     mutations: {
       retry: 1,
-      retryDelay: 1000,
+      retryDelay: 2000,
+      networkMode: 'online',
     },
   },
+  // Increase max query cache size to prevent excessive cleanup
+  queryCache: undefined,
+  mutationCache: undefined,
 });
-
-// Centralized API functions
-export const api = {
-  // Fixtures
-  async getFixtures(date: string) {
-    const url = `${API_BASE_URL}/api/fixtures/date/${date}`;
-    const response = await apiRequest(url);
-    return response.json();
-  },
-
-  async getLiveFixtures() {
-    const url = `${API_BASE_URL}/api/fixtures/live`;
-    const response = await apiRequest(url);
-    return response.json();
-  },
-
-  async getFixtureById(id: number) {
-    const url = `${API_BASE_URL}/api/fixtures/${id}`;
-    const response = await apiRequest(url);
-    return response.json();
-  },
-
-  // Leagues
-  async getLeagues() {
-    const url = `${API_BASE_URL}/api/leagues`;
-    const response = await apiRequest(url);
-    return response.json();
-  },
-
-  async getPopularLeagues() {
-    const url = `${API_BASE_URL}/api/leagues/popular`;
-    const response = await apiRequest(url);
-    return response.json();
-  },
-
-  async getLeagueById(id: number) {
-    const url = `${API_BASE_URL}/api/leagues/${id}`;
-    const response = await apiRequest(url);
-    return response.json();
-  },
-
-  async getLeagueFixtures(id: number, season?: number) {
-    let url = `${API_BASE_URL}/api/leagues/${id}/fixtures`;
-    if (season) {
-      url += `?season=${season}`;
-    }
-    const response = await apiRequest(url);
-    return response.json();
-  },
-
-  // User preferences
-  async getUserPreferences(userId: number) {
-    const url = `${API_BASE_URL}/api/user/${userId}/preferences`;
-    const response = await apiRequest(url);
-    return response.json();
-  },
-
-  async updateUserPreferences(userId: number, preferences: any) {
-    const url = `${API_BASE_URL}/api/user/${userId}/preferences`;
-    const response = await apiRequest(url, "PATCH", preferences);
-    return response.json();
-  },
-
-  // Authentication
-  async register(userData: any) {
-    const url = `${API_BASE_URL}/api/auth/register`;
-    const response = await apiRequest(url, "POST", userData);
-    return response.json();
-  },
-
-  async login(credentials: any) {
-    const url = `${API_BASE_URL}/api/auth/login`;
-    const response = await apiRequest(url, "POST", credentials);
-    return response.json();
-  },
-};
-
-export default queryClient;

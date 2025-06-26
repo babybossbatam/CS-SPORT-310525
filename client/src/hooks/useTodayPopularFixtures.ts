@@ -23,8 +23,8 @@ export const useTodayPopularFixtures = (selectedDate: string) => {
     async () => {
       console.log(`🔄 [useTodayPopularFixtures] Fetching data for date: ${selectedDate}`);
       const response = await apiRequest(
+        "GET",
         `/api/fixtures/date/${selectedDate}?all=true`,
-        "GET"
       );
       const data = await response.json();
       console.log(`✅ [useTodayPopularFixtures] Received ${data?.length || 0} fixtures for ${selectedDate}`);

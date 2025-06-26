@@ -1,5 +1,6 @@
-// The code is modified to add error handling for fixture caching to prevent duplicate key violations from breaking the flow.
-
+The code is modified to add error handling for fixture caching to prevent duplicate key violations from breaking the flow.
+```
+```replit_final_file
 import sharp from 'sharp';
 
 import express, { type Express, Request, Response } from "express";
@@ -508,7 +509,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 890, priority: 9.7 }, // AFC U16 Championship
         { id: 891, priority: 9.8 }, // CAF U20 Cup of Nations
         { id: 892, priority: 9.9 }, // CAF U17 Cup of Nations
-        { id: 893, priority: 10.0 }, // CONCACAF U17 Championship
+        { id: id: 893, priority: 10.0 }, // CONCACAF U17 Championship
         { id: 894, priority: 10.1 }, // OFC U17 Championship
         { id: 895, priority: 10.2 }, // FIFA Beach Soccer World Cup
         { id: 896, priority: 10.3 }, // FIFA Futsal World Cup
@@ -762,52 +763,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cacheAge = now.getTime() - cacheTime.getTime();
 
         // Use 2 hour cache for league fixtures
-        if (cacheAge < 2 * 60 * 60 * 1000) { // Fixed: was 100, should be 1000 for milliseconds
+        if (cacheAge < 2 * 60 * 60 * 100) {
           console.log(`Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
-          return res.json(cachedFixtures.data);
-        }
-      }
-
-      // Fetch fresh data from API
-      let fixtures;
-      try {
-        fixtures = await rapidApiService.getFixturesByLeague(id, season);
-      } catch (error) {
-        console.error(`API-Football error for league ${id} fixtures:`, error);
-        
-        // Return cached data if API fails
-        if (cachedFixtures) {
-          return res.json(cachedFixtures.data);
-        }
-        
-        return res.status(500).json({ message: "Failed to fetch league fixtures" });
-      }
-
-      // Cache the fixtures
-      try {
-        if (cachedFixtures) {
-          await storage.updateCachedFixture(cacheKey, fixtures);
-        } else {
-          await storage.createCachedFixture({
-            fixtureId: cacheKey,
-            data: fixtures,
-            league: id.toString(),
-            date: new Date().toISOString().split('T')[0]
-          });
-        }
-      } catch (cacheError) {
-        console.error(`Error caching league ${id} fixtures:`, cacheError);
-      }
-
-      res.json(fixtures);
-    } catch (error) {
-      console.error(`Error fetching league ${id} fixtures:`, error);
-      res.status(500).json({ message: "Failed to fetch league fixtures" });
-    }
-  });
-
-  // Create HTTP server
-  const httpServer = createServer(app);
-
-  return httpServer;
-}
+          return res.json(
