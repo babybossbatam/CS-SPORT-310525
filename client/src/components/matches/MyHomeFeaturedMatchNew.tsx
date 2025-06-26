@@ -835,7 +835,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             {/* Hidden status placeholder to maintain spacing */}
                             Ended
                           </div>
-                          <div className="text-lg font-bold">
+                          <div className="text-2xl font-md min-h-[2rem] flex items-center justify-center">
                             {upcomingContent}
                           </div>
                         </div>
