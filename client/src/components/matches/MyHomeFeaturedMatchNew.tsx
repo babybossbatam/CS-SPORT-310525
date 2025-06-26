@@ -993,7 +993,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
               )}
             </div>
-          </div>
 
             {/* Navigation dots */}
             {allMatches.length > 1 && (
