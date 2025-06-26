@@ -647,91 +647,105 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }, [allMatches.length]);
 
   // State for storing extracted logo colors
-  const [teamLogoColors, setTeamLogoColors] = useState<Record<string, string>>({});
+  const [teamLogoColors, setTeamLogoColors] = useState<Record<string, string>>(
+    {},
+  );
 
   // Function to extract dominant color from logo
-  const extractDominantColorFromLogo = useCallback(async (logoUrl: string, teamName: string) => {
-    try {
-      return new Promise<string>((resolve) => {
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          
-          if (!ctx) {
-            resolve(getTeamColor(teamName, true)); // fallback
-            return;
-          }
-          
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-          
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const data = imageData.data;
-          
-          // Color frequency map
-          const colorMap: Record<string, number> = {};
-          
-          // Sample every 4th pixel for performance
-          for (let i = 0; i < data.length; i += 16) {
-            const r = data[i];
-            const g = data[i + 1];
-            const b = data[i + 2];
-            const a = data[i + 3];
-            
-            // Skip transparent or near-transparent pixels
-            if (a < 128) continue;
-            
-            // Skip near-white or near-black pixels
-            if ((r > 240 && g > 240 && b > 240) || (r < 20 && g < 20 && b < 20)) continue;
-            
-            // Group similar colors (reduce precision)
-            const rGroup = Math.floor(r / 20) * 20;
-            const gGroup = Math.floor(g / 20) * 20;
-            const bGroup = Math.floor(b / 20) * 20;
-            
-            const colorKey = `${rGroup},${gGroup},${bGroup}`;
-            colorMap[colorKey] = (colorMap[colorKey] || 0) + 1;
-          }
-          
-          // Find most frequent color
-          let dominantColor = '';
-          let maxCount = 0;
-          
-          for (const [color, count] of Object.entries(colorMap)) {
-            if (count > maxCount) {
-              maxCount = count;
-              dominantColor = color;
+  const extractDominantColorFromLogo = useCallback(
+    async (logoUrl: string, teamName: string) => {
+      try {
+        return new Promise<string>((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+
+            if (!ctx) {
+              resolve(getTeamColor(teamName, true)); // fallback
+              return;
             }
-          }
-          
-          if (dominantColor) {
-            const [r, g, b] = dominantColor.split(',').map(Number);
-            // Enhance the color for better visibility
-            const enhancedR = Math.min(255, Math.max(40, r * 0.8));
-            const enhancedG = Math.min(255, Math.max(40, g * 0.8));
-            const enhancedB = Math.min(255, Math.max(40, b * 0.8));
-            
-            resolve(`rgb(${enhancedR}, ${enhancedG}, ${enhancedB})`);
-          } else {
+
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            const imageData = ctx.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height,
+            );
+            const data = imageData.data;
+
+            // Color frequency map
+            const colorMap: Record<string, number> = {};
+
+            // Sample every 4th pixel for performance
+            for (let i = 0; i < data.length; i += 16) {
+              const r = data[i];
+              const g = data[i + 1];
+              const b = data[i + 2];
+              const a = data[i + 3];
+
+              // Skip transparent or near-transparent pixels
+              if (a < 128) continue;
+
+              // Skip near-white or near-black pixels
+              if (
+                (r > 240 && g > 240 && b > 240) ||
+                (r < 20 && g < 20 && b < 20)
+              )
+                continue;
+
+              // Group similar colors (reduce precision)
+              const rGroup = Math.floor(r / 20) * 20;
+              const gGroup = Math.floor(g / 20) * 20;
+              const bGroup = Math.floor(b / 20) * 20;
+
+              const colorKey = `${rGroup},${gGroup},${bGroup}`;
+              colorMap[colorKey] = (colorMap[colorKey] || 0) + 1;
+            }
+
+            // Find most frequent color
+            let dominantColor = "";
+            let maxCount = 0;
+
+            for (const [color, count] of Object.entries(colorMap)) {
+              if (count > maxCount) {
+                maxCount = count;
+                dominantColor = color;
+              }
+            }
+
+            if (dominantColor) {
+              const [r, g, b] = dominantColor.split(",").map(Number);
+              // Enhance the color for better visibility
+              const enhancedR = Math.min(255, Math.max(40, r * 0.8));
+              const enhancedG = Math.min(255, Math.max(40, g * 0.8));
+              const enhancedB = Math.min(255, Math.max(40, b * 0.8));
+
+              resolve(`rgb(${enhancedR}, ${enhancedG}, ${enhancedB})`);
+            } else {
+              resolve(getTeamColor(teamName, true)); // fallback
+            }
+          };
+
+          img.onerror = () => {
             resolve(getTeamColor(teamName, true)); // fallback
-          }
-        };
-        
-        img.onerror = () => {
-          resolve(getTeamColor(teamName, true)); // fallback
-        };
-        
-        img.src = logoUrl;
-      });
-    } catch (error) {
-      console.warn('Error extracting color from logo:', error);
-      return getTeamColor(teamName, true); // fallback
-    }
-  }, []);
+          };
+
+          img.src = logoUrl;
+        });
+      } catch (error) {
+        console.warn("Error extracting color from logo:", error);
+        return getTeamColor(teamName, true); // fallback
+      }
+    },
+    [],
+  );
 
   // Extract colors from team logos when match changes
   useEffect(() => {
@@ -739,34 +753,34 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       const extractColors = async () => {
         const homeTeamName = currentMatch.teams.home.name;
         const awayTeamName = currentMatch.teams.away.name;
-        
+
         // Only extract if we don't already have the colors cached
         if (!teamLogoColors[homeTeamName] || !teamLogoColors[awayTeamName]) {
           const homeLogoUrl = currentMatch.teams.home.id
             ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
             : currentMatch.teams.home.logo;
-            
+
           const awayLogoUrl = currentMatch.teams.away.id
             ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
             : currentMatch.teams.away.logo;
-          
+
           try {
             const [homeColor, awayColor] = await Promise.all([
               extractDominantColorFromLogo(homeLogoUrl, homeTeamName),
-              extractDominantColorFromLogo(awayLogoUrl, awayTeamName)
+              extractDominantColorFromLogo(awayLogoUrl, awayTeamName),
             ]);
-            
-            setTeamLogoColors(prev => ({
+
+            setTeamLogoColors((prev) => ({
               ...prev,
               [homeTeamName]: homeColor,
-              [awayTeamName]: awayColor
+              [awayTeamName]: awayColor,
             }));
           } catch (error) {
-            console.warn('Error extracting team colors:', error);
+            console.warn("Error extracting team colors:", error);
           }
         }
       };
-      
+
       extractColors();
     }
   }, [currentMatch, extractDominantColorFromLogo, teamLogoColors]);
@@ -778,7 +792,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       if (extractedColor) {
         return extractedColor;
       }
-      
+
       // Fallback to existing color extraction
       return getTeamColor(teamName, isHome);
     },
@@ -983,14 +997,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       {/* Home team colored bar and logo */}
 
                       <div
-                        className="h-full w-[calc(50%+10px)] ml-[37px] transition-all duration-500 ease-in-out opacity-100 relative "
+                        className="h-full w-[calc(50%+20px)] ml-[34px] transition-all duration-500 ease-in-out opacity-100 relative "
                         style={{
                           background: getEnhancedTeamColor(
                             currentMatch?.teams?.home?.name || "Home Team",
                             true,
                           ),
                           transition: "all 0.3s ease-in-out",
-                          clipPath: "polygon(0 0, calc(100% - 15px) 0, 100% 100%, 0 100%)",
+                          clipPath:
+                            "polygon(0 0, 100% 0, 100% 100%, 100% 100%, 100%)",
+                          right: "-15px",
                         }}
                       >
                         {currentMatch?.teams?.home && (
@@ -999,7 +1015,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             style={{
                               cursor: "pointer",
                               top: "calc(50% - 32px)",
-                              left: "-32px",
+                              left: "-38px",
                               filter: "contrast(115%) brightness(105%)",
                             }}
                             onClick={(e) => {
@@ -1033,7 +1049,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
                         style={{
                           top: "calc(50% - 13px)",
-                          left: "85px",
+                          left: "80px",
                           fontSize: "1.24rem",
                           fontWeight: "normal",
                         }}
@@ -1043,7 +1059,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                       {/* VS circle */}
                       <div
-                        className="absolute text-white font-bold text-lg  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
+                        className="absolute text-white font-bold text-2xl  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
                         style={{
                           background: "transparent",
                           left: "calc(50% - 25px)",
@@ -1065,7 +1081,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           position: "absolute",
                           left: "50%",
                           transform: "translateX(-50%)",
-                          top:"60px",
+                          top: "60px",
                           bottom: "-15px",
                           width: "max-content",
                           fontFamily: "'Inter', system-ui, sans-serif",
@@ -1095,15 +1111,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                       {/* Away team colored bar and logo */}
                       <div
-                        className="h-full w-[calc(50%+10px)] mr-[40px] transition-all duration-500 ease-in-out opacity-100"
+                        className="h-full w-[calc(50%+16px)] mr-[35px] transition-all duration-500 ease-in-out opacity-100"
                         style={{
                           background: getEnhancedTeamColor(
                             currentMatch?.teams?.away?.name || "Away Team",
                             false,
                           ),
                           transition: "all 0.3s ease-in-out",
-                          clipPath: "polygon(15px 0, 100% 0, 100% 100%, 0 100%)",
-                          marginLeft: "-10px",
+                          clipPath:
+                            "polygon(15px 0, 100% 0, 100% 100%, 0 100%)",
+                          marginLeft: "-15px",
                         }}
                       ></div>
 
@@ -1124,7 +1141,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         style={{
                           cursor: "pointer",
                           top: "calc(50% - 32px)",
-                          right: "55px",
+                          right: "50px",
                           transform: "translateX(50%)",
                           filter: "contrast(115%) brightness(105%)",
                         }}
@@ -1151,7 +1168,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             country: currentMatch.league.country,
                           }}
                         />
-                        
                       </div>
                     </div>
                   </div>
