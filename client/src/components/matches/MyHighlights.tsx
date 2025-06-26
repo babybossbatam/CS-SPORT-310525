@@ -282,12 +282,20 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               <div className="relative w-full rounded-lg overflow-hidden bg-gray-100">
                 <div style={{ paddingBottom: '56.25%', position: 'relative' }}>
                   <iframe
-                    src={`https://www.youtube.com/embed/${videoData.id.videoId}?autoplay=1&rel=0&modestbranding=1`}
+                    src={`https://www.youtube.com/embed/${videoData.id.videoId}?autoplay=1&rel=0&modestbranding=1&origin=${window.location.origin}`}
                     title={videoData.snippet.title}
                     className="absolute top-0 left-0 w-full h-full"
                     frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    onError={(e) => {
+                      console.error('YouTube iframe failed to load:', e);
+                      setError('Failed to load video player. This video may be restricted from embedding.');
+                    }}
+                    onLoad={() => {
+                      console.log('YouTube iframe loaded successfully');
+                    }}
                   />
                 </div>
                 {/* Close embed button */}
@@ -312,14 +320,23 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 <span>{formatPublishDate(videoData.snippet.publishedAt)}</span>
               </div>
               
-              {/* Toggle Embed Button */}
-              <button
-                onClick={handleToggleEmbed}
-                className="w-full mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center justify-center gap-2"
-              >
-                <Play className="h-4 w-4" />
-                {showEmbed ? 'Show Thumbnail' : 'Play Video'}
-              </button>
+              {/* Action Buttons */}
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={handleToggleEmbed}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <Play className="h-4 w-4" />
+                  {showEmbed ? 'Show Thumbnail' : 'Play Here'}
+                </button>
+                <button
+                  onClick={() => window.open(`https://www.youtube.com/watch?v=${videoData.id.videoId}`, '_blank')}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  YouTube
+                </button>
+              </div>
             </div>
           </div>
         )}
