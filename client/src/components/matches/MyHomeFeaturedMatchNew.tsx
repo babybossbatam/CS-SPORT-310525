@@ -162,7 +162,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   const isLive = isLiveMatch(fixture.fixture.status.short);
 
                   // Include if: has valid teams AND (is live OR is from priority/popular leagues)
-                  return hasValidTeams && (isLive || isPriorityLeague || isPopularLeague);
+                  return (
+                    hasValidTeams &&
+                    (isLive || isPriorityLeague || isPopularLeague)
+                  );
                 })
                 .map((fixture: any) => ({
                   fixture: {
@@ -682,12 +685,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                         return (
                           <div className="space-y-1">
-                            <div className="text-red-500 animate-pulse flex items-center justify-center gap-2">
-                              <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                              <span>LIVE</span>
-                              {elapsed && <span>- {elapsed}'</span>}
+                            <div className="text-red-600 text-sm animate-pulse flex items-center justify-center gap-2">
+                              {elapsed && <span> {elapsed}'</span>}
                             </div>
-                            <div className="text-3xl font-bold">
+                            <div className="text-2xl font-md">
                               {homeScore} - {awayScore}
                             </div>
                           </div>
