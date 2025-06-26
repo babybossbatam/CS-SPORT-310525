@@ -15,6 +15,7 @@ import {
   isPopularLeagueSuitable,
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
+import { shouldExcludeFeaturedMatch } from "@/lib/MyFeaturedMatchExclusion";
 import { QUERY_CONFIGS, CACHE_FRESHNESS } from "@/lib/cacheConfig";
 import { useCachedQuery, CacheManager } from "@/lib/cachingHelper";
 import { getCurrentUTCDateString } from "@/lib/dateUtilsUpdated";
@@ -500,9 +501,9 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
     const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
 
-    // Apply exclusion check using the same logic as TodayPopularFootballLeaguesNew
+    // Apply exclusion check using featured match exclusion logic (more appropriate for live matches)
     if (
-      shouldExcludeFromPopularLeagues(
+      shouldExcludeFeaturedMatch(
         league.name,
         fixture.teams.home.name,
         fixture.teams.away.name,
