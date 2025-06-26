@@ -396,8 +396,31 @@ const FixedScoreboard = () => {
           uniqueFixtures.length,
         );
 
+        // Filter out matches that are too old (more than 3 days ago for finished matches)
+        const now = new Date();
+        const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+        
+        const relevantFixtures = uniqueFixtures.filter((fixture: Match) => {
+          const matchDate = new Date(fixture.fixture.date);
+          const isFinished = isEndedMatch(fixture.fixture.status.short);
+          
+          // Keep all live and upcoming matches
+          if (isLiveMatch(fixture.fixture.status.short) || isUpcomingMatch(fixture.fixture.status.short)) {
+            return true;
+          }
+          
+          // For finished matches, only keep if within last 3 days
+          if (isFinished) {
+            return matchDate >= threeDaysAgo;
+          }
+          
+          return true;
+        });
+
+        console.log(`🔍 [FixedScoreboard] Filtered ${uniqueFixtures.length} to ${relevantFixtures.length} relevant fixtures`);
+
         // Sort fixtures by priority
-        const sortedFixtures = uniqueFixtures.sort((a: Match, b: Match) => {
+        const sortedFixtures = relevantFixtures.sort((a: Match, b: Match) => {
           // Priority sort: live matches first, then by league priority, then by time
           const aStatus = a.fixture.status.short;
           const bStatus = b.fixture.status.short;
@@ -409,6 +432,19 @@ const FixedScoreboard = () => {
           if (aLive && !bLive) return -1;
           if (!aLive && bLive) return 1;
 
+          // Upcoming matches within 24 hours come next
+          const aUpcoming = isUpcomingMatch(aStatus);
+          const bUpcoming = isUpcomingMatch(bStatus);
+          const aMatchDate = new Date(a.fixture.date);
+          const bMatchDate = new Date(b.fixture.date);
+          const twentyFourHoursFromNow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+          
+          const aUpcomingSoon = aUpcoming && aMatchDate <= twentyFourHoursFromNow;
+          const bUpcomingSoon = bUpcoming && bMatchDate <= twentyFourHoursFromNow;
+          
+          if (aUpcomingSoon && !bUpcomingSoon) return -1;
+          if (!aUpcomingSoon && bUpcomingSoon) return 1;
+
           // Priority leagues first
           const aPriority = priorityLeagueIds.indexOf(a.league.id);
           const bPriority = priorityLeagueIds.indexOf(b.league.id);
@@ -418,11 +454,22 @@ const FixedScoreboard = () => {
           if (aPriority !== -1 && bPriority !== -1)
             return aPriority - bPriority;
 
+          // For upcoming matches, sort by time (soonest first)
+          if (aUpcoming && bUpcoming) {
+            return aMatchDate.getTime() - bMatchDate.getTime();
+          }
+
+          // For finished matches, sort by time (most recent first)
+          if (isEndedMatch(aStatus) && isEndedMatch(bStatus)) {
+            return bMatchDate.getTime() - aMatchDate.getTime();
+          }
+
+          // Mixed status - prioritize upcoming over finished
+          if (aUpcoming && isEndedMatch(bStatus)) return -1;
+          if (isEndedMatch(aStatus) && bUpcoming) return 1;
+
           // Finally by time
-          return (
-            new Date(a.fixture.date).getTime() -
-            new Date(b.fixture.date).getTime()
-          );
+          return aMatchDate.getTime() - bMatchDate.getTime();
         });
 
         // Take the top 8 matches
