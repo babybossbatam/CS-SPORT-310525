@@ -49,42 +49,33 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
       onClick={onClick}
       style={{
         cursor: onClick ? "pointer" : "default",
-        height: "44px",
+        height: "54px",
       }}
     >
       {/* Home team section - expanded to middle of VS */}
       <div
-        className="flex items-left justify-between h-full flex-1 relative z-0"
+        className="flex items-left justify-between h-full flex-1 "
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
-          width: "calc(50% + 15px)",
-          clipPath: "polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%)",
-          marginLeft: "4px",
-          marginRight: "-15px",
+          width: "calc(50% - 25px)",
+          clipPath: "polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%)",
+          marginLeft: "-45px",
+          marginRight: "-9px",
         }}
       >
         {/* Home team logo */}
-        <div
-          className="flex items-center gap-3 ml-4 w-15 h-18 flex-shrink-1 relative z-20"
-          style={{
-            marginTop: "-12px",
-            marginBottom: "-12px",
-            transform: "translateY(0)",
-            position: "relative",
-          }}
-        >
-          <span className=" flex items-center text-white font-md uppercase text-sm truncate max-w-[250px]">
-            {homeTeam.name || "TBD"}
-          </span>
-        </div>
+
+        <span className=" flex items-center text-white font-md uppercase text-lg ml-8 truncate max-w-[250px]">
+          {homeTeam.name || "TBD"}
+        </span>
       </div>
 
       {/* VS section - positioned at the connection point */}
       <div
-        className="flex items-center justify-center h-full text-white font-bold text-lg absolute z-10 bg-transparent"
+        className="flex items-center justify-center h-full text-white font-semi-bold text-2xl absolute z-10 bg-transparent"
         style={{
-          width: "30px",
-          left: "calc(50% - 16px)",
+          width: "calc(50% - 16px",
+          left: "55px",
 
           borderRadius: "50%",
         }}
@@ -97,19 +88,16 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         className="flex justify-between h-full  flex-1 mr-4 relative z-0"
         style={{
           background: `linear-gradient(225deg, ${getTeamColor(awayTeam.id)}, ${getTeamColor(awayTeam.id)}dd)`,
-          width: "calc(50% + 15px)",
+          width: "calc(50% - 115px)",
           flexDirection: "row-reverse",
           clipPath: "polygon(8px 0, 100% 0, calc(100% - 0px) 100%, 0 100%)",
-          marginLeft: "-15px",
-          marginRight: "4px",
+          marginLeft: "-25px",
+          marginRight: "-52px",
         }}
       >
-        {/* Away team logo */}
-        <div className="flex items-center gap-3 flex-row-reverse mr-4">
-          <span className="text-white font-md uppercase text-sm truncate max-w-[250px] text-right">
-            {awayTeam.name || "Away Team"}
-          </span>
-        </div>
+        <span className=" flex items-center text-white font-md uppercase text-lg mr-8 truncate max-w-[250px]">
+          {awayTeam.name || "TBD"}
+        </span>
       </div>
     </div>
   );

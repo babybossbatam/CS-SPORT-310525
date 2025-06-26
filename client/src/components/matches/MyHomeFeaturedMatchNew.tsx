@@ -42,7 +42,9 @@ const POPULAR_LEAGUES = [
 ];
 
 // Define featured leagues
-const FEATURED_MATCH_LEAGUE_IDS = [39, 140, 135, 78, 61, 2, 3, 848, 5, 1, 4, 15, 38, 9, 6];
+const FEATURED_MATCH_LEAGUE_IDS = [
+  39, 140, 135, 78, 61, 2, 3, 848, 5, 1, 4, 15, 38, 9, 6,
+];
 const PRIORITY_LEAGUE_IDS = [15, 38]; // FIFA Club World Cup, UEFA U21 Championship
 
 interface FeaturedMatch {
@@ -117,8 +119,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const priorityLeagueIds = PRIORITY_LEAGUE_IDS;
         const allFixtures: FeaturedMatch[] = [];
 
-        console.log('🔍 [MyHomeFeaturedMatchNew] Starting fetch with priority leagues:', priorityLeagueIds);
-        console.log('🔍 [MyHomeFeaturedMatchNew] All featured league IDs:', FEATURED_MATCH_LEAGUE_IDS);
+        console.log(
+          "🔍 [MyHomeFeaturedMatchNew] Starting fetch with priority leagues:",
+          priorityLeagueIds,
+        );
+        console.log(
+          "🔍 [MyHomeFeaturedMatchNew] All featured league IDs:",
+          FEATURED_MATCH_LEAGUE_IDS,
+        );
 
         // Helper function to determine if match is live
         const isLiveMatch = (status: string) => {
@@ -155,36 +163,53 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         let liveFixtures: FeaturedMatch[] = [];
         try {
           if (forceRefresh) {
-            console.log("🔴 [MyHomeFeaturedMatchNew] Fetching live matches from dedicated endpoint");
-            const liveResponse = await apiRequest("GET", "/api/featured-match/live?skipFilter=true");
+            console.log(
+              "🔴 [MyHomeFeaturedMatchNew] Fetching live matches from dedicated endpoint",
+            );
+            const liveResponse = await apiRequest(
+              "GET",
+              "/api/featured-match/live?skipFilter=true",
+            );
             const liveData = await liveResponse.json();
 
             if (Array.isArray(liveData)) {
-              console.log('🔍 [MyHomeFeaturedMatchNew] Processing live fixtures:', liveData.length);
-
-              // First filter by featured leagues, then by valid teams
-              const featuredLiveFixtures = liveData.filter(fixture => 
-                FEATURED_MATCH_LEAGUE_IDS.includes(fixture.league?.id)
+              console.log(
+                "🔍 [MyHomeFeaturedMatchNew] Processing live fixtures:",
+                liveData.length,
               );
 
-              console.log('🔍 [MyHomeFeaturedMatchNew] Featured live fixtures:', featuredLiveFixtures.length);
+              // First filter by featured leagues, then by valid teams
+              const featuredLiveFixtures = liveData.filter((fixture) =>
+                FEATURED_MATCH_LEAGUE_IDS.includes(fixture.league?.id),
+              );
+
+              console.log(
+                "🔍 [MyHomeFeaturedMatchNew] Featured live fixtures:",
+                featuredLiveFixtures.length,
+              );
 
               liveFixtures = featuredLiveFixtures
                 .filter((fixture: any) => {
                   const isValid = isValidMatch(fixture);
                   if (!isValid) {
-                    console.log('❌ [MyHomeFeaturedMatchNew] Filtered out invalid fixture:', {
-                      home: fixture.teams?.home?.name,
-                      away: fixture.teams?.away?.name,
-                      league: fixture.league?.name
-                    });
+                    console.log(
+                      "❌ [MyHomeFeaturedMatchNew] Filtered out invalid fixture:",
+                      {
+                        home: fixture.teams?.home?.name,
+                        away: fixture.teams?.away?.name,
+                        league: fixture.league?.name,
+                      },
+                    );
                   } else {
-                    console.log('✅ [MyHomeFeaturedMatchNew] Valid featured live fixture:', {
-                      home: fixture.teams?.home?.name,
-                      away: fixture.teams?.away?.name,
-                      league: fixture.league?.name,
-                      leagueId: fixture.league?.id
-                    });
+                    console.log(
+                      "✅ [MyHomeFeaturedMatchNew] Valid featured live fixture:",
+                      {
+                        home: fixture.teams?.home?.name,
+                        away: fixture.teams?.away?.name,
+                        league: fixture.league?.name,
+                        leagueId: fixture.league?.id,
+                      },
+                    );
                   }
                   return isValid;
                 })
@@ -251,17 +276,22 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   .filter((fixture: any) => {
                     // Must have valid teams and NOT be live (since we already fetched live matches)
                     const hasValidTeams = isValidMatch(fixture);
-                    const isNotLive = !isLiveMatch(fixture.fixture.status.short);
+                    const isNotLive = !isLiveMatch(
+                      fixture.fixture.status.short,
+                    );
                     const shouldInclude = hasValidTeams && isNotLive;
 
                     if (shouldInclude) {
-                      console.log(`✅ [MyHomeFeaturedMatchNew] Including priority league ${leagueId} fixture:`, {
-                        home: fixture.teams?.home?.name,
-                        away: fixture.teams?.away?.name,
-                        league: fixture.league?.name,
-                        leagueId: fixture.league?.id,
-                        status: fixture.fixture.status.short
-                      });
+                      console.log(
+                        `✅ [MyHomeFeaturedMatchNew] Including priority league ${leagueId} fixture:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                          status: fixture.fixture.status.short,
+                        },
+                      );
                     }
 
                     return shouldInclude;
@@ -488,7 +518,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         );
         fetchFeaturedMatches(false); // Background refresh without loading state
       } else {
-        console.log("⏸️ [MyHomeFeaturedMatchNew] No live matches, skipping refresh");
+        console.log(
+          "⏸️ [MyHomeFeaturedMatchNew] No live matches, skipping refresh",
+        );
       }
     }, 60000); // Check every 60 seconds
 
@@ -781,13 +813,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 {/* Teams display using MyColoredBarNew component */}
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col ">
                   {/* Horizontal logo display aligned with colored bar edges */}
-                  <div className="flex items-center justify-between px-4 relative">
+                  <div className="flex items-center justify-between  relative-z-20 ">
                     {/* Home team logo positioned to align with left edge of colored bar */}
                     <div
-                      className="flex items-center gap-2"
-                      style={{ marginLeft: "4px" }}
+                      className="flex items-center "
+                      style={{ marginLeft: "-22px" }}
                     >
                       <MyWorldTeamLogo
                         teamName={currentMatch.teams.home.name}
@@ -804,14 +836,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     {/* Away team logo positioned to align with right edge of colored bar */}
                     <div
-                      className="flex items-center gap-2 flex-row-reverse"
-                      style={{ marginRight: "4px" }}
+                      className="flex items-center flex-row-reverse relative "
+                      style={{ marginRight: "255px" }}
                     >
                       <MyWorldTeamLogo
                         teamName={currentMatch.teams.away.name}
                         teamLogo={currentMatch.teams.away.logo}
                         alt={currentMatch.teams.away.name}
-                        size="50px"
+                        size="65px"
                         className="object-contain"
                         leagueContext={{
                           name: currentMatch.league.name,
@@ -924,7 +956,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   >
                     <svg
                       width="20"
-height="20"
+                      height="20"
                       viewBox="0 0 24 24"
                       className="text-blue-500"
                     >
