@@ -705,9 +705,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <button
                   onClick={handlePrevious}
                   className="absolute 
-                  -left-8 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
+                  -left-14 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 flex "
                 >
-                  <ChevronLeft className="h-8 w-6 " />
+                  <ChevronLeft className="h-4 w-8 " />
                 </button>
                 <button
                   onClick={handleNext}
