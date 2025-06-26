@@ -12,7 +12,6 @@ import FixedMatchTimer from "./FixedMatchTimer";
 import {
   filterPopularLeagueMatches,
   getMatchesWithinTimeWindow,
-  DEFAULT_POPULAR_LEAGUES,
   type FilterOptions
 } from "@/lib/matchFilters";
 import { standingsUtils } from "@/lib/MyStandingsCachedNew";
@@ -37,6 +36,31 @@ const FixedScoreboard = () => {
     setError(null);
   }, []);
 
+  // Popular leagues from PopularLeaguesList.tsx
+  const POPULAR_LEAGUES = [
+    { id: 39, name: "Premier League", country: "England" },
+    { id: 140, name: "La Liga", country: "Spain" },
+    { id: 135, name: "Serie A", country: "Italy" },
+    { id: 78, name: "Bundesliga", country: "Germany" },
+    { id: 61, name: "Ligue 1", country: "France" },
+    { id: 2, name: "UEFA Champions League", country: "Europe" },
+    { id: 3, name: "UEFA Europa League", country: "Europe" },
+    { id: 848, name: "UEFA Conference League", country: "Europe" },
+    { id: 5, name: "UEFA Nations League", country: "Europe" },
+    { id: 1, name: "World Cup", country: "World" },
+    { id: 4, name: "Euro Championship", country: "World" },
+    { id: 15, name: "FIFA Club World Cup", country: "World" },
+    { id: 38, name: "UEFA U21 Championship", country: "World" },
+    { id: 9, name: "Copa America", country: "World" },
+    { id: 6, name: "Africa Cup of Nations", country: "World" },
+  ];
+
+  // Define featured leagues
+  const FEATURED_MATCH_LEAGUE_IDS = [
+    39, 140, 135, 78, 61, 2, 3, 848, 5, 1, 4, 15, 38, 9, 6,
+  ];
+  const PRIORITY_LEAGUE_IDS = [15, 38]; // FIFA Club World Cup, UEFA U21 Championship
+
   // Fetch matches from popular leagues with proper filtering
   useEffect(() => {
     const currentSeason = 2024;
@@ -53,11 +77,11 @@ const FixedScoreboard = () => {
         const day3Date = "2025-05-21";
         const day4Date = "2025-05-22";
 
-        // Include UEFA Conference League (848) and FIFA World Cup (1) with other popular leagues
-        const leaguesWithConferenceAndWorldCup = [...DEFAULT_POPULAR_LEAGUES, 848, 1];
+        // Use FEATURED_MATCH_LEAGUE_IDS for fetching
+        const featuredLeagueIds = FEATURED_MATCH_LEAGUE_IDS;
 
-        // Fetch fixtures for popular leagues for latest season with better error handling
-        const leaguePromises = leaguesWithConferenceAndWorldCup.map(async (leagueId) => {
+        // Fetch fixtures for featured leagues with better error handling
+        const leaguePromises = featuredLeagueIds.map(async (leagueId) => {
           try {
             const response = await apiRequest(
               "GET",
@@ -207,8 +231,8 @@ const FixedScoreboard = () => {
           }
         })();
 
-        // Fetch standings for popular leagues to identify top teams
-        const standingsPromises = leaguesWithConferenceAndWorldCup.map(async (leagueId) => {
+        // Fetch standings for featured leagues to identify top teams
+        const standingsPromises = featuredLeagueIds.map(async (leagueId) => {
           try {
             const response = await apiRequest(
               "GET",
@@ -278,11 +302,9 @@ const FixedScoreboard = () => {
 
         // Use a more lenient filtering approach for featured matches
 
-        // Filter matches from popular leagues first
+        // Filter matches from featured leagues first
         const popularLeagueMatches = allMatches.filter(match => {
-          return DEFAULT_POPULAR_LEAGUES.includes(match.league.id) || 
-                 match.league.id === 848 || // UEFA Conference League
-                 match.league.id === 1;     // FIFA World Cup
+          return FEATURED_MATCH_LEAGUE_IDS.includes(match.league.id);
         });
 
         // Sort matches by priority: Featured match first, then Live > Upcoming Within 24hours > Other Upcoming > Recent Finished
