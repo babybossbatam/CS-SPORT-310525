@@ -92,7 +92,7 @@ interface DayMatches {
 }
 
 const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
-  maxMatches = 8,
+  maxMatches = 15,
 }) => {
   const [, navigate] = useLocation();
   const [featuredMatches, setFeaturedMatches] = useState<DayMatches[]>([]);
@@ -108,7 +108,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           setIsLoading(true);
         }
 
-        // Get dates for today, tomorrow, and day after tomorrow
+        // Get dates for today and the next 4 days
         const today = new Date();
         const dates = [
           { date: format(today, "yyyy-MM-dd"), label: "Today" },
@@ -116,6 +116,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           {
             date: format(addDays(today, 2), "yyyy-MM-dd"),
             label: "Day After Tomorrow",
+          },
+          {
+            date: format(addDays(today, 3), "yyyy-MM-dd"),
+            label: format(addDays(today, 3), "EEEE"),
+          },
+          {
+            date: format(addDays(today, 4), "yyyy-MM-dd"),
+            label: format(addDays(today, 4), "EEEE"),
           },
         ];
 
@@ -486,7 +494,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 new Date(b.fixture.date).getTime()
               );
             })
-            .slice(0, maxMatches);
+            .slice(0, Math.max(5, Math.floor(maxMatches / dates.length)));
 
           console.log(
             `✅ [MyHomeFeaturedMatchNew] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`,
