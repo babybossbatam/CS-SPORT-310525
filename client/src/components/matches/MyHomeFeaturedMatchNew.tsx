@@ -724,10 +724,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                         return (
                           <div className="space-y-1">
-                            <div className="text-red-500 animate-pulse flex items-center justify-center gap-2">
-                              <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                              <span>LIVE</span>
-                              {elapsed && <span>- {elapsed}'</span>}
+                            <div className="text-sm text-gray-600 flex items-center justify-center">
+                              {elapsed && <span>{elapsed}'</span>}
                             </div>
                             <div className="text-3xl font-bold">
                               {homeScore} - {awayScore}
