@@ -750,8 +750,57 @@ const FixedScoreboard = () => {
                       marginTop: "-15px"
                     }}
                   >
-                    {" "}
-                    {getMatchStatus(currentMatch)}
+                    {(() => {
+                      if (!currentMatch) return "No Match Data";
+
+                      const matchStatus = currentMatch.fixture.status.short;
+                      const matchDate = new Date(currentMatch.fixture.date);
+                      const now = new Date();
+                      
+                      // Live matches - show elapsed time and live score
+                      if (["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "SUSP", "INT"].includes(matchStatus)) {
+                        const elapsed = currentMatch.fixture.status.elapsed;
+                        const homeScore = currentMatch.goals.home ?? 0;
+                        const awayScore = currentMatch.goals.away ?? 0;
+
+                        return (
+                          <div className="space-y-1">
+                            <div className="text-red-600 text-sm animate-pulse flex items-center justify-center gap-2">
+                              {elapsed && <span> {elapsed}'</span>}
+                            </div>
+                            <div className="text-2xl font-md">
+                              {homeScore} - {awayScore}
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      // Ended matches - show final score
+                      if (["FT", "AET", "PEN"].includes(matchStatus)) {
+                        const homeScore = currentMatch.goals.home ?? 0;
+                        const awayScore = currentMatch.goals.away ?? 0;
+
+                        return (
+                          <div className="space-y-1">
+                            <div className="text-gray-600 text-sm">
+                              {matchStatus === "FT"
+                                ? "Ended"
+                                : matchStatus === "AET"
+                                  ? "After Extra Time"
+                                  : matchStatus === "PEN"
+                                    ? "After Penalties"
+                                    : "Ended"}
+                            </div>
+                            <div className="text-3xl font-bold">
+                              {homeScore} - {awayScore}
+                            </div>
+                          </div>
+                        );
+                      }
+
+                      // For upcoming matches, use the existing logic
+                      return getMatchStatus(currentMatch);
+                    })()}
                   </div>
 
                   {/* Score display for live and finished matches */}
