@@ -16,7 +16,10 @@ import { apiRequest } from "@/lib/queryClient";
 import TeamLogo from "./TeamLogo";
 import LazyImage from "../common/LazyImage";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
-import { getTeamColor, getEnhancedHomeTeamGradient } from "@/lib/colorExtractor";
+import {
+  getTeamColor,
+  getEnhancedHomeTeamGradient,
+} from "@/lib/colorExtractor";
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
   maxMatches?: number;
@@ -643,10 +646,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
   }, [allMatches.length]);
 
-  const getEnhancedTeamColor = useCallback((teamName: string, isHome: boolean = false) => {
-    // Use 365scores-style color extraction based on team name and logo
-    return getTeamColor(teamName, isHome);
-  }, []);
+  const getEnhancedTeamColor = useCallback(
+    (teamName: string, isHome: boolean = false) => {
+      // Use 365scores-style color extraction based on team name and logo
+      return getTeamColor(teamName, isHome);
+    },
+    [],
+  );
 
   if (isLoading) {
     return (
@@ -695,15 +701,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               <>
                 <button
                   onClick={handlePrevious}
-                  className="absolute 
-                  -left-10 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full  p-2 h-12 w-10"
-                ></button>
+                  className="absolute -left-10 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
+                >
+                  <ChevronLeft className="h-5 w-4" />
+                </button>
 
                 <button
                   onClick={handleNext}
-                  className="absolute -right-14 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
+                  className="absolute -right-10 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
                 >
-                  <ChevronRight className="h-6 w-5" />
+                  <ChevronRight className="h-5 w-4" />
                 </button>
               </>
             )}
@@ -834,7 +841,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 {/* Teams display using colored bar like FixedScoreboard */}
                 <div className="relative mt-2">
-                  
                   <div
                     className="flex relative h-[53px] rounded-md mb-8"
                     onClick={() =>
@@ -850,7 +856,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         style={{
                           background: getEnhancedTeamColor(
                             currentMatch?.teams?.home?.name || "Home Team",
-                            true
+                            true,
                           ),
                           transition: "all 0.3s ease-in-out",
                         }}
@@ -905,7 +911,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                       {/* VS circle */}
                       <div
-                       className="absolute text-white font-bold text-lg  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
+                        className="absolute text-white font-bold text-lg  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
                         style={{
                           background: "transparent",
                           left: "calc(50% - 25px)",
@@ -918,7 +924,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                       {/* Match date and venue - centered below VS */}
                       <div
-                        className="mt-2 absolute text-center text-xs text-black font-medium"
+                        className=" absolute text-center text-xs text-black font-medium"
                         style={{
                           fontSize: "0.875rem",
                           whiteSpace: "nowrap",
@@ -927,7 +933,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           position: "absolute",
                           left: "50%",
                           transform: "translateX(-50%)",
-                          bottom: "-25px",
+                          top:"60px",
+                          bottom: "-15px",
                           width: "max-content",
                           fontFamily: "'Inter', system-ui, sans-serif",
                         }}
@@ -960,7 +967,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         style={{
                           background: getEnhancedTeamColor(
                             currentMatch?.teams?.away?.name || "Away Team",
-                            false
+                            false,
                           ),
                           transition: "all 0.3s ease-in-out",
                         }}
@@ -970,7 +977,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
                         style={{
                           top: "calc(50% - 13px)",
-                          right: "130px",
+                          right: "80px",
                           fontSize: "1.24rem",
                           fontWeight: "normal",
                         }}
@@ -1010,6 +1017,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             country: currentMatch.league.country,
                           }}
                         />
+                        
                       </div>
                     </div>
                   </div>
