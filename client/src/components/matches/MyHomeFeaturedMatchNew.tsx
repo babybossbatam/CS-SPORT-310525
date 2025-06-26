@@ -17,6 +17,7 @@ import TeamLogo from "./TeamLogo";
 import LazyImage from "../common/LazyImage";
 import MyColoredBar from "./MyColoredBar";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
+import MyNewFeaturedMatchColoredBar from "./MyNewFeaturedMatchColoredBar";
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
   maxMatches?: number;
@@ -811,49 +812,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   </div>
                 </div>
 
-                {/* Teams display using MyColoredBarNew component */}
-
-                <div className="flex flex-col ">
-                  {/* Horizontal logo display aligned with colored bar edges */}
-                  <div className="flex items-center justify-between  relative-z-20 ">
-                    {/* Home team logo positioned to align with left edge of colored bar */}
-                    <div
-                      className="flex items-center "
-                      style={{ marginLeft: "-22px" }}
-                    >
-                      <MyWorldTeamLogo
-                        teamName={currentMatch.teams.home.name}
-                        teamLogo={currentMatch.teams.home.logo}
-                        alt={currentMatch.teams.home.name}
-                        size="65px"
-                        className="object-contain "
-                        leagueContext={{
-                          name: currentMatch.league.name,
-                          country: currentMatch.league.country,
-                        }}
-                      />
-                    </div>
-
-                    {/* Away team logo positioned to align with right edge of colored bar */}
-                    <div
-                      className="flex items-center flex-row-reverse relative "
-                      style={{ marginRight: "255px" }}
-                    >
-                      <MyWorldTeamLogo
-                        teamName={currentMatch.teams.away.name}
-                        teamLogo={currentMatch.teams.away.logo}
-                        alt={currentMatch.teams.away.name}
-                        size="65px"
-                        className="object-contain"
-                        leagueContext={{
-                          name: currentMatch.league.name,
-                          country: currentMatch.league.country,
-                        }}
-                      />
-
-                      </div>
-                  </div>
-                </div>
+                {/* Teams display using MyNewFeaturedMatchColoredBar component */}
+                <MyNewFeaturedMatchColoredBar
+                  homeTeam={currentMatch.teams.home}
+                  awayTeam={currentMatch.teams.away}
+                  homeScore={currentMatch.goals.home}
+                  awayScore={currentMatch.goals.away}
+                  status={currentMatch.fixture.status.short}
+                  fixture={currentMatch.fixture}
+                  onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
+                  getTeamColor={getTeamColor}
+                  league={{
+                    country: currentMatch.league.country,
+                  }}
+                />
 
                 {/* Action Buttons */}
                 <div className="flex justify-around border-t border-gray-200 pt-4">
