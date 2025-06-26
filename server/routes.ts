@@ -758,6 +758,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cacheAge = now.getTime() - cacheTime.getTime();
 
         // Use 2 hour cache for league fixtures
-        if (cacheAge < 2 * 60 * 60 * 100) {
+        if (cacheAge < 2 * 60 * 60 * 1000) {
           console.log(`Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
-          return res.json(
+          return res.json(cachedFixtures.data);
+        }
+      }
+
+      // Fetch from API-Football
+      let fixtures;
+      try {
+        fixtures = await rapidApiService.getFixturesByLeague(id, season);
+      } catch (error) {
+        console.error(`API-Football error for league ${id} fixtures:`, error);
+      }
+
+      if (!fixtures || fixtures.length === 0) {
+        return res.status(404).json({ message: "League fixtures not found" });
+      }
+
+      // Cache the fixtures
+      try {
+        if (cachedFixtures) {
+          await storage.updateCachedFixture(cacheKey, fixtures);
+        } else {
+          await storage.createCachedFixture({
+            fixtureId: cacheKey,
+            data: fixtures,
+            league: id.toString(),
+            date: new Date().toISOString().split('T')[0]
+          });
+        }
+      } catch (cacheError) {
+        console.error(`Error caching league ${id} fixtures:`, cacheError);
+      }
+
+      res.json(fixtures);
+    } catch (error) {
+      console.error(`Error fetching league ${req.params.id} fixtures:`, error);
+      res.status(500).json({ message: "Failed to fetch league fixtures" });
+    }
+  });
+
+  // Teams routes
+  apiRouter.get("/teams/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid team ID" });
+      }
+
+      // Use API-Football only
+      const team = await rapidApiService.getTeamById(id);
+
+      if (!team) {
+        return res.status(404).json({ message: "Team not found" });
+      }
+
+      res.json(team);
+    } catch (error) {
+      console.error('Error fetching team:', error);
+      res.status(500).json({ message: "Failed to fetch team" });
+    }
+  });
+
+  // News routes
+  apiRouter.get("/news", async (_req: Request, res: Response) => {
+    try {
+      const news = await storage.getNews();
+      res.json(news);
+    } catch (error) {
+      console.error('Error fetching news:', error);
+      res.status(500).json({ message: "Failed to fetch news" });
+    }
+  });
+
+  apiRouter.post("/news", async (req: Request, res: Response) => {
+    try {
+      const newsData = insertNewsArticleSchema.parse(req.body);
+      const news = await storage.createNews(newsData);
+      res.status(201).json(news);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create news article" });
+    }
+  });
+
+  const httpServer = createServer(app);
+  return httpServer;
