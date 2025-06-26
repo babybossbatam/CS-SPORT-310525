@@ -22,24 +22,16 @@ interface MyHomeFeaturedMatchNewProps {
   maxMatches?: number;
 }
 
-// Popular leagues from PopularLeaguesList.tsx
-const POPULAR_LEAGUES = [
-  { id: 39, name: "Premier League", country: "England" },
-  { id: 140, name: "La Liga", country: "Spain" },
-  { id: 135, name: "Serie A", country: "Italy" },
-  { id: 78, name: "Bundesliga", country: "Germany" },
-  { id: 61, name: "Ligue 1", country: "France" },
-  { id: 2, name: "UEFA Champions League", country: "Europe" },
-  { id: 3, name: "UEFA Europa League", country: "Europe" },
-  { id: 848, name: "UEFA Conference League", country: "Europe" },
-  { id: 5, name: "UEFA Nations League", country: "Europe" },
-  { id: 1, name: "World Cup", country: "World" },
-  { id: 4, name: "Euro Championship", country: "World" },
-  { id: 15, name: "FIFA Club World Cup", country: "World" },
-  { id: 38, name: "UEFA U21 Championship", country: "World" },
-  { id: 9, name: "Copa America", country: "World" },
-  { id: 6, name: "Africa Cup of Nations", country: "World" },
-];
+// Import the popular leagues list
+import { popularLeagues as POPULAR_LEAGUES } from "./MyFeaturedMatchPopularLeagueList";
+
+// Priority leagues: only priority leagues get special treatment
+const priorityLeagueIds = [38, 15];
+
+function isFeaturedMatchPopularLeague(leagueId: number | undefined): boolean {
+  if (!leagueId) return false;
+  return POPULAR_LEAGUES.some((league) => league.id === leagueId);
+}
 
 interface FeaturedMatch {
   fixture: {
@@ -110,7 +102,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         ];
 
         // Priority leagues: 38 (UEFA U21) first, then 15 (FIFA Club World Cup)
-        const priorityLeagueIds = [38, 15];
+        // const priorityLeagueIds = [38, 15];
         const allFixtures: FeaturedMatch[] = [];
 
         // Helper function to determine if match is live
@@ -156,9 +148,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   const isPriorityLeague = priorityLeagueIds.includes(
                     fixture.league?.id,
                   );
-                  const isPopularLeague = POPULAR_LEAGUES.some(
-                    (league) => league.id === fixture.league?.id,
-                  );
+                  const isPopularLeague = isFeaturedMatchPopularLeague(fixture.league?.id);
                   const isLive = isLiveMatch(fixture.fixture.status.short);
 
                   // Include if: has valid teams AND (is live OR is from priority/popular leagues)
@@ -293,9 +283,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Must have valid teams, be from popular leagues, not priority leagues, and NOT be live
                     const hasValidTeams =
                       fixture.teams?.home?.name && fixture.teams?.away?.name;
-                    const isPopularLeague = POPULAR_LEAGUES.some(
-                      (league) => league.id === fixture.league?.id,
-                    );
+                    const isPopularLeague = isFeaturedMatchPopularLeague(fixture.league?.id);
                     const isPriorityLeague = priorityLeagueIds.includes(
                       fixture.league?.id,
                     );
