@@ -58,9 +58,9 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
           width: "50%",
-          clipPath: "polygon(0 0, 100% 0, calc(100% - 15px) 100%, 0 100%)",
+          clipPath: "polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%)",
           marginLeft: "4px",
-          marginRight: "-28px",
+          marginRight: "-15px",
         }}
       >
         {/* Home team logo */}
@@ -99,8 +99,8 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
           background: `linear-gradient(225deg, ${getTeamColor(awayTeam.id)}, ${getTeamColor(awayTeam.id)}dd)`,
           width: "50%",
           flexDirection: "row-reverse",
-          clipPath: "polygon(15px 0, 100% 0, calc(100% - 0px) 100%, 0 100%)",
-          marginLeft: "12px",
+          clipPath: "polygon(8px 0, 100% 0, calc(100% - 0px) 100%, 0 100%)",
+          marginLeft: "0px",
           marginRight: "4px",
         }}
       >
