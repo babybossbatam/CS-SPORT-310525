@@ -22,11 +22,15 @@ import { z } from "zod";
 import { format, addDays, subDays } from 'date-fns';
 // Removing uefaU21Routes import as requested
 import cors from 'cors';
+import featuredMatchRouter from './routes/featuredMatchRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
   const apiRouter = express.Router();
   app.use("/api", apiRouter);
+
+  // Featured match routes for MyHomeFeaturedMatch component
+  apiRouter.use("/featured-match", featuredMatchRouter);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
@@ -202,12 +206,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Football API routes - Using API-Football
-  apiRouter.get("/fixtures/live", async (_req: Request, res: Response) => {
+  apiRouter.get("/fixtures/live", async (req: Request, res: Response) => {
     try {
+      const { skipFilter } = req.query;
+      
       // Use API-Football (RapidAPI) only
       try {
         const fixtures = await rapidApiService.getLiveFixtures();
-        console.log(`Retrieved ${fixtures.length} live fixtures from RapidAPI`);
+        console.log(`Retrieved ${fixtures.length} live fixtures from RapidAPI ${skipFilter ? '(SKIP FILTER MODE)' : ''}`);
 
         // NO CACHING for live fixtures - they need real-time updates
         console.log(`🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`);
@@ -257,7 +263,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/fixtures/date/:date", async (req: Request, res: Response) => {
     try {
       const { date } = req.params;
-      const { all } = req.query;
+      const { all, skipFilter } = req.query;
 
       // Validate date format first
       if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -751,6 +757,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/leagues/:id/fixtures", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
+      const { skipFilter } = req.query;
+      
       // Calculate current season based on date
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11

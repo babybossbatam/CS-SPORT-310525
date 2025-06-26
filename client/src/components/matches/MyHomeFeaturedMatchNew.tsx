@@ -155,8 +155,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         let liveFixtures: FeaturedMatch[] = [];
         try {
           if (forceRefresh) {
-            console.log("🔴 [MyHomeFeaturedMatchNew] Fetching live matches from API");
-            const liveResponse = await apiRequest("GET", "/api/fixtures/live");
+            console.log("🔴 [MyHomeFeaturedMatchNew] Fetching live matches from dedicated endpoint");
+            const liveResponse = await apiRequest("GET", "/api/featured-match/live?skipFilter=true");
             const liveData = await liveResponse.json();
 
             if (Array.isArray(liveData)) {
@@ -242,7 +242,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               const fixturesResponse = await apiRequest(
                 "GET",
-                `/api/leagues/${leagueId}/fixtures`,
+                `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
               );
               const fixturesData = await fixturesResponse.json();
 
@@ -315,7 +315,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
               const response = await apiRequest(
                 "GET",
-                `/api/fixtures/date/${dateInfo.date}?all=true`,
+                `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
               );
               const fixtures = await response.json();
 
