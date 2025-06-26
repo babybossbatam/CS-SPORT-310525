@@ -15,7 +15,7 @@ import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import TeamLogo from "./TeamLogo";
 import LazyImage from "../common/LazyImage";
-import MyColoredBar from "./MyColoredBar";
+import MyColoredBarNew from "./MyColoredBarNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
@@ -851,8 +851,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         }}
                       />
 
-                      {/* MyColoredBar component */}
-                      <MyColoredBar
+                      {/* MyColoredBarNew component */}
+                      <MyColoredBarNew
                         homeTeam={{
                           id: currentMatch.teams.home.id,
                           name: currentMatch.teams.home.name,
@@ -867,8 +867,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         awayScore={currentMatch.goals.away}
                         status={currentMatch.fixture.status.short}
                         fixture={{
+                          id: currentMatch.fixture.id,
                           date: currentMatch.fixture.date,
-                          venue: currentMatch.fixture.venue,
+                          status: currentMatch.fixture.status,
                         }}
                         onClick={() =>
                           navigate(`/match/${currentMatch.fixture.id}`)

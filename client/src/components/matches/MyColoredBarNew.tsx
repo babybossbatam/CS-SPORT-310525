@@ -54,46 +54,46 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         width: "100%",
       }}
     >
-      {/* Home team section */}
+      {/* Home team section - extends from center (50%) to 75% (middle of logo area) */}
       <div
-        className="flex items-center justify-start h-full relative z-0"
+        className="flex items-center justify-start h-full absolute z-0"
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
-          width: "calc(50% + 30px)",
-          clipPath: "polygon(0 0, calc(100% - 18px) 0, calc(100% - 30px) 100%, 0 100%)",
+          width: "75%",
+          left: "0%",
+          clipPath: "polygon(0 0, calc(100% - 12px) 0, calc(100% - 24px) 100%, 0 100%)",
         }}
       >
-        <span className="flex items-center text-white font-medium uppercase text-lg ml-8 truncate max-w-[200px]">
+        <span className="flex items-center text-white font-md uppercase text-lg ml-8 truncate max-w-[60%]">
           {homeTeam.name || "TBD"}
         </span>
       </div>
 
       {/* VS section - positioned at the center */}
       <div
-        className="flex items-center justify-center h-full text-white font-bold text-xl absolute z-10"
+        className="flex items-center justify-center h-full text-white font-semibold text-xl absolute z-10"
         style={{
           width: "60px",
           left: "50%",
           transform: "translateX(-50%)",
-          backgroundColor: "#a00000",
+          backgroundColor: "rgba(0, 0, 0, 0.3)",
           borderRadius: "50%",
-          height: "54px",
         }}
       >
         <span>VS</span>
       </div>
 
-      {/* Away team section */}
+      {/* Away team section - extends from center (50%) to 75% (middle of logo area) */}
       <div
-        className="flex items-center justify-end h-full relative z-0"
+        className="flex items-center justify-end h-full absolute z-0"
         style={{
           background: `linear-gradient(225deg, ${getTeamColor(awayTeam.id)}, ${getTeamColor(awayTeam.id)}dd)`,
-          width: "calc(50% + 30px)",
-          marginLeft: "auto",
-          clipPath: "polygon(30px 0, 100% 0, 100% 100%, 18px 100%)",
+          width: "75%",
+          right: "0%",
+          clipPath: "polygon(12px 0, 100% 0, 100% 100%, 24px 100%)",
         }}
       >
-        <span className="flex items-center text-white font-medium uppercase text-lg mr-8 truncate max-w-[200px]">
+        <span className="flex items-center text-white font-md uppercase text-lg mr-8 truncate max-w-[60%]">
           {awayTeam.name || "TBD"}
         </span>
       </div>
