@@ -1,4 +1,3 @@
-
 import React from "react";
 import { format, parseISO } from "date-fns";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
@@ -60,23 +59,25 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
           width: "75%",
-          left: "0%",
-          clipPath: "polygon(0 0, calc(100% - 12px) 0, calc(100% - 24px) 100%, 0 100%)",
+          left: "-35px",
+          clipPath: "polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%)",
         }}
       >
-        <span className="flex items-center text-white font-md uppercase text-lg ml-8 truncate max-w-[60%]">
+        {/* Home team logo */}
+
+        <span className=" flex items-center text-white font-md uppercase text-lg ml-8 truncate max-w-[250px]">
           {homeTeam.name || "TBD"}
         </span>
       </div>
 
       {/* VS section - positioned at the center */}
       <div
-        className="flex items-center justify-center h-full text-white font-semibold text-xl absolute z-10"
+        className="flex items-center justify-center h-full text-white font-semibold text-xl absolute z-10 bg-transparent"
         style={{
           width: "60px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          backgroundColor: "rgba(0, 0, 0, 0.3)",
+          left: "45px",
+          transform: "translateX(100%)",
+
           borderRadius: "50%",
         }}
       >
