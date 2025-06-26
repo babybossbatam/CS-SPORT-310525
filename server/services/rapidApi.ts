@@ -798,9 +798,10 @@ export const rapidApiService = {
       return [];
     } catch (error) {
       console.error(`Error fetching fixtures for league ${leagueId}:`, error);
-      if (cached?.data) {
+      const fallbackCache = fixturesCache.get(cacheKey);
+      if (fallbackCache?.data) {
         console.log("Using cached data due to API error");
-        return cached.data;
+        return fallbackCache.data;
       }
       console.error("API request failed and no cache available");
       return [];
@@ -833,9 +834,10 @@ export const rapidApiService = {
       return [];
     } catch (error) {
       console.error("Error fetching leagues:", error);
-      if (cached?.data) {
+      const fallbackCache = fixturesCache.get(cacheKey);
+      if (fallbackCache?.data) {
         console.log("Using cached data due to API error");
-        return cached.data;
+        return fallbackCache.data;
       }
       console.error("API request failed and no cache available");
       return [];
@@ -882,9 +884,10 @@ export const rapidApiService = {
       return null;
     } catch (error) {
       console.error(`Error fetching league with ID ${id}:`, error);
-      if (cached?.data) {
+      const fallbackCache = leaguesCache.get(cacheKey);
+      if (fallbackCache?.data) {
         console.log("Using cached data due to API error");
-        return cached.data;
+        return fallbackCache.data;
       }
       console.error("API request failed and no cache available");
       return null;
@@ -958,9 +961,10 @@ export const rapidApiService = {
         `Error fetching top scorers for league ${leagueId}:`,
         error,
       );
-      if (cached?.data) {
+      const fallbackCache = playersCache.get(cacheKey);
+      if (fallbackCache?.data) {
         console.log("Using cached data due to API error");
-        return cached.data;
+        return fallbackCache.data;
       }
       console.error("API request failed and no cache available");
       return [];
@@ -1040,9 +1044,10 @@ export const rapidApiService = {
       return null;
     } catch (error) {
       console.error(`Error fetching standings for league ${leagueId}:`, error);
-      if (cached?.data) {
+      const fallbackCache = leaguesCache.get(cacheKey);
+      if (fallbackCache?.data) {
         console.log("Using cached data due to API error");
-        return cached.data;
+        return fallbackCache.data;
       }
       console.error("API request failed and no cache available");
       return null;
