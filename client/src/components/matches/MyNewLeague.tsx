@@ -199,75 +199,52 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       setError(null);
 
       try {
-        const allFixtures: FixtureData[] = [];
-        let primaryLeagueInfo: LeagueData | null = null;
+        console.log("MyNewLeague - Fetching all fixtures from main endpoint");
 
-        for (const leagueId of leagueIds) {
-          try {
-            console.log(`MyNewLeague - Fetching data for league ${leagueId}`);
+        // Fetch all fixtures from the main endpoint instead of league-specific ones
+        const fixturesResponse = await apiRequest(
+          "GET",
+          `/api/fixtures/date/${selectedDate}`,
+        );
+        const allFixturesData = await fixturesResponse.json();
+        console.log(`MyNewLeague - All fixtures count:`, allFixturesData?.length || 0);
 
-            // Fetch league info
-            const leagueResponse = await apiRequest(
-              "GET",
-              `/api/leagues/${leagueId}`,
-            );
-            const leagueData = await leagueResponse.json();
-            console.log(`MyNewLeague - League ${leagueId} info:`, leagueData);
+        if (Array.isArray(allFixturesData)) {
+          // Filter for our target leagues (38 and 15)
+          const targetLeagueFixtures = allFixturesData.filter((fixture) => {
+            return leagueIds.includes(fixture.league?.id);
+          });
 
-            if (!primaryLeagueInfo) {
-              primaryLeagueInfo = leagueData;
+          console.log(`MyNewLeague - Filtered fixtures for target leagues:`, targetLeagueFixtures.length);
+          targetLeagueFixtures.forEach(fixture => {
+            console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
+              teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+              league: fixture.league?.name,
+              leagueId: fixture.league?.id,
+              status: fixture.fixture?.status?.short,
+            });
+          });
+
+          setFixtures(targetLeagueFixtures);
+
+          // Get league info for the first available league
+          if (targetLeagueFixtures.length > 0) {
+            try {
+              const firstLeagueId = targetLeagueFixtures[0].league.id;
+              const leagueResponse = await apiRequest(
+                "GET",
+                `/api/leagues/${firstLeagueId}`,
+              );
+              const leagueData = await leagueResponse.json();
+              setLeagueInfo(leagueData);
+            } catch (leagueError) {
+              console.warn("Failed to fetch league info:", leagueError);
             }
-
-            // Fetch fixtures for the league
-            const fixturesResponse = await apiRequest(
-              "GET",
-              `/api/leagues/${leagueId}/fixtures`,
-            );
-            const fixturesData = await fixturesResponse.json();
-            console.log(
-              `MyNewLeague - League ${leagueId} fixtures count:`,
-              fixturesData?.length || 0,
-            );
-
-            if (Array.isArray(fixturesData)) {
-              // Filter for Club World Cup matches specifically
-              const filteredFixtures = fixturesData.filter((fixture) => {
-                const isClubWorldCup =
-                  fixture.league?.name
-                    ?.toLowerCase()
-                    .includes("club world cup") ||
-                  fixture.league?.name
-                    ?.toLowerCase()
-                    .includes("fifa club world cup");
-                const isRelevantMatch =
-                  fixture.teams?.home?.name === "Juventus" ||
-                  fixture.teams?.away?.name === "Juventus" ||
-                  fixture.teams?.home?.name === "Wydad AC" ||
-                  fixture.teams?.away?.name === "Wydad AC";
-
-                console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
-                  teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-                  league: fixture.league?.name,
-                  status: fixture.fixture?.status?.short,
-                  isClubWorldCup,
-                  isRelevantMatch,
-                });
-
-                return true; // Show all matches for now to debug
-              });
-
-              allFixtures.push(...filteredFixtures);
-            }
-          } catch (leagueError) {
-            console.warn(
-              `Failed to fetch data for league ${leagueId}:`,
-              leagueError,
-            );
           }
+        } else {
+          console.warn("MyNewLeague - Invalid fixtures data received");
+          setFixtures([]);
         }
-
-        setLeagueInfo(primaryLeagueInfo);
-        setFixtures(allFixtures);
       } catch (err) {
         console.error("Error fetching league data:", err);
         setError("Failed to load league data");
