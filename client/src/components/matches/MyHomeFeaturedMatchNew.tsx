@@ -161,19 +161,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   );
                   const isLive = isLiveMatch(fixture.fixture.status.short);
 
-                  // Hardcoded exclusion for USA leagues
-                  const isUSALeague = fixture.league?.country?.toLowerCase().includes("usa") ||
-                                    fixture.league?.country?.toLowerCase().includes("united states") ||
-                                    fixture.league?.name?.toLowerCase().includes("mls") ||
-                                    fixture.league?.name?.toLowerCase().includes("usl") ||
-                                    fixture.league?.name?.toLowerCase().includes("nwsl") ||
-                                    fixture.league?.name?.toLowerCase().includes("major league soccer");
-
-                  if (isUSALeague) {
-                    console.log(`❌ [FeaturedMatch] Excluding USA league: ${fixture.league?.name} | ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`);
-                    return false;
-                  }
-
                   // Include if: has valid teams AND (is live OR is from priority/popular leagues)
                   return hasValidTeams && (isLive || isPriorityLeague || isPopularLeague);
                 })
@@ -245,15 +232,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       fixture.fixture.status.short,
                     );
 
-                    // Hardcoded exclusion for USA leagues
-                    const isUSALeague = fixture.league?.country?.toLowerCase().includes("usa") ||
-                                      fixture.league?.country?.toLowerCase().includes("united states") ||
-                                      fixture.league?.name?.toLowerCase().includes("mls") ||
-                                      fixture.league?.name?.toLowerCase().includes("usl") ||
-                                      fixture.league?.name?.toLowerCase().includes("nwsl") ||
-                                      fixture.league?.name?.toLowerCase().includes("major league soccer");
-
-                    return hasValidTeams && isNotLive && !isUSALeague;
+                    return hasValidTeams && isNotLive;
                   })
                   .map((fixture: any) => ({
                     fixture: {
@@ -324,20 +303,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       fixture.fixture.status.short,
                     );
 
-                    // Hardcoded exclusion for USA leagues
-                    const isUSALeague = fixture.league?.country?.toLowerCase().includes("usa") ||
-                                      fixture.league?.country?.toLowerCase().includes("united states") ||
-                                      fixture.league?.name?.toLowerCase().includes("mls") ||
-                                      fixture.league?.name?.toLowerCase().includes("usl") ||
-                                      fixture.league?.name?.toLowerCase().includes("nwsl") ||
-                                      fixture.league?.name?.toLowerCase().includes("major league soccer");
-
                     return (
                       hasValidTeams &&
                       isPopularLeague &&
                       !isPriorityLeague &&
-                      isNotLive &&
-                      !isUSALeague
+                      isNotLive
                     );
                   })
                   .map((fixture: any) => ({
