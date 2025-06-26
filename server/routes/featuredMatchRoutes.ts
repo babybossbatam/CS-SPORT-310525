@@ -16,13 +16,13 @@ featuredMatchRouter.get("/live", async (req: Request, res: Response) => {
     
     // Always fetch fresh live data without any filtering when called by MyHomeFeaturedMatch
     const fixtures = await rapidApiService.getLiveFixtures();
-    console.log(`🔴 [FeaturedMatch] Retrieved ${fixtures.length} live fixtures (NO FILTERING)`);
+    console.log(`🔴 [FeaturedMatch] Retrieved ${fixtures?.length || 0} live fixtures (NO FILTERING)`);
 
     // Return all fixtures without any exclusion filtering
-    return res.json(fixtures);
+    return res.json(fixtures || []);
   } catch (error) {
     console.error('❌ [FeaturedMatch] Error fetching live fixtures:', error);
-    res.status(500).json({ message: "Failed to fetch live fixtures" });
+    res.status(500).json({ message: "Failed to fetch live fixtures", fixtures: [] });
   }
 });
 
@@ -78,7 +78,7 @@ featuredMatchRouter.get("/date/:date", async (req: Request, res: Response) => {
     return res.json(uniqueFixtures);
   } catch (error) {
     console.error('❌ [FeaturedMatch] Error fetching fixtures by date:', error);
-    res.status(500).json({ error: 'Failed to fetch fixtures' });
+    res.status(500).json({ error: 'Failed to fetch fixtures', fixtures: [] });
   }
 });
 
@@ -108,7 +108,7 @@ featuredMatchRouter.get("/leagues/:id/fixtures", async (req: Request, res: Respo
     const fixtures = await rapidApiService.getFixturesByLeague(id, seasonYear);
     console.log(`✅ [FeaturedMatch] Retrieved ${fixtures ? fixtures.length : 0} fixtures for league ${id} (NO FILTERING)`);
 
-    res.json(fixtures);
+    res.json(fixtures || []);
   } catch (error) {
     console.error(`❌ [FeaturedMatch] Error fetching fixtures for league ID ${req.params.id}:`, error);
     res.status(500).json({ message: "Failed to fetch league fixtures" });

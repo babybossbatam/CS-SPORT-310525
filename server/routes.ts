@@ -32,6 +32,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Featured match routes for MyHomeFeaturedMatch component
   console.log('🚀 [Routes] Registering featured match routes at /api/featured-match');
   apiRouter.use("/featured-match", featuredMatchRouter);
+  
+  // Add a test endpoint to verify featured match routes are working
+  apiRouter.get("/test-featured", (req: Request, res: Response) => {
+    console.log('🧪 [Routes] Test featured endpoint hit');
+    res.json({ message: "Featured match routes are working", timestamp: new Date().toISOString() });
+  });
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
