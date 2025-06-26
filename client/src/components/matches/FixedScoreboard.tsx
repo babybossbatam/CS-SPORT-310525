@@ -535,11 +535,51 @@ const FixedScoreboard = () => {
         const msToMatch = matchDate.getTime() - now.getTime();
         const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
 
-        // For matches today, show a simple format
+        // For matches today, show enhanced status
         if (daysToMatch === 0) {
           try {
             const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
-            // Calculate hours to match - if more than 12 hours away, return null to hide the timer
+            const minutesToMatch = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
+            
+            // Check if match is live
+            if (['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(fixture.status.short)) {
+              const elapsed = liveElapsed || fixture.status.elapsed || 0;
+              const halfLabel = fixture.status.short === '1H' ? '1st Half' : 
+                               fixture.status.short === '2H' ? '2nd Half' : 
+                               fixture.status.short === 'HT' ? 'Half Time' : 'LIVE';
+              
+              return (
+                <div className="flex flex-col items-center space-y-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-red-500 font-semibold animate-pulse">LIVE</span>
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  </div>
+                  <span className="text-black text-sm">
+                    {fixture.status.short === 'HT' ? 'Half Time' : `${halfLabel}: ${elapsed}'`}
+                  </span>
+                </div>
+              );
+            }
+            
+            // Check if match has ended today
+            if (fixture.status.short === 'FT' && hoursToMatch < 0) {
+              const hoursAgo = Math.abs(hoursToMatch);
+              const endedText = hoursAgo <= 1 ? 'Just Ended' : hoursAgo < 8 ? `${hoursAgo}h ago` : 'Ended Today';
+              
+              return (
+                <div className="flex flex-col items-center space-y-1">
+                  <span className="text-gray-600 text-sm">{endedText}</span>
+                  <div className="text-lg font-bold text-black flex items-center gap-2">
+                    <span>{currentMatch?.goals?.home ?? 0}</span>
+                    <span className="text-gray-400">-</span>
+                    <span>{currentMatch?.goals?.away ?? 0}</span>
+                  </div>
+                </div>
+              );
+            }
+            
+            // Upcoming match today - show countdown if within 12 hours
             if (hoursToMatch >= 0 && hoursToMatch < 12) {
               return (
                 <div className="flex flex-col space-y-0 relative pb-1">
@@ -561,7 +601,7 @@ const FixedScoreboard = () => {
                 </div>
               );
             } else {
-              // More than 8 hours away
+              // More than 12 hours away
               return <span className="text-black">Today</span>;
             }
           } catch (e) {
