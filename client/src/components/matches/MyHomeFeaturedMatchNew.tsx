@@ -851,42 +851,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         }}
                       />
 
-                      {/* MyColoredBar component */}
-                      <MyColoredBar
-                        homeTeam={{
-                          id: currentMatch.teams.home.id,
-                          name: currentMatch.teams.home.name,
-                          logo: currentMatch.teams.home.logo,
-                        }}
-                        awayTeam={{
-                          id: currentMatch.teams.away.id,
-                          name: currentMatch.teams.away.name,
-                          logo: currentMatch.teams.away.logo,
-                        }}
-                        homeScore={currentMatch.goals.home}
-                        awayScore={currentMatch.goals.away}
-                        status={currentMatch.fixture.status.short}
-                        fixture={{
-                          date: currentMatch.fixture.date,
-                        }}
-                        onClick={() =>
-                          navigate(`/match/${currentMatch.fixture.id}`)
-                        }
-                        getTeamColor={getTeamColor}
-                        className="h-20 "
-                        league={{
-                          country: currentMatch.league.country,
-                        }}
-                      />
-                    </div>
+                      </div>
                   </div>
-                </div>
-                {/* Match Details */}
-                <div className="text-center text-sm text-gray-600 mb-4">
-                  {format(
-                    new Date(currentMatch.fixture.date),
-                    "EEEE, do MMMM | HH:mm",
-                  )}
                 </div>
 
                 {/* Action Buttons */}
