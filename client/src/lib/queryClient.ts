@@ -23,7 +23,7 @@ const checkRateLimit = (key: string) => {
 };
 
 // Enhanced API request function with proper error handling and retries
-async function apiRequest(
+export async function apiRequest(
   url: string,
   method: string = "GET",
   data?: any
