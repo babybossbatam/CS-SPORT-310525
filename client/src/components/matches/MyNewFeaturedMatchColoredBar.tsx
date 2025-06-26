@@ -52,12 +52,13 @@ const MyNewFeaturedMatchColoredBar: React.FC<MyNewFeaturedMatchColoredBarProps> 
         style={{ cursor: onClick ? "pointer" : "default" }}
       >
         <div className="w-full h-full flex justify-between relative">
-          {/* Home team colored bar and logo */}
+          {/* Home team colored bar with angled edge */}
           <div
             className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
             style={{
               background: getTeamColor(homeTeam?.id || 0),
               transition: "all 0.3s ease-in-out",
+              clipPath: "polygon(0 0, calc(100% - 12px) 0, calc(100% - 24px) 100%, 0 100%)",
             }}
           >
             {homeTeam && (
@@ -81,6 +82,7 @@ const MyNewFeaturedMatchColoredBar: React.FC<MyNewFeaturedMatchColoredBarProps> 
             )}
           </div>
 
+          {/* Home team name */}
           <div
             className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
             style={{
@@ -140,15 +142,17 @@ const MyNewFeaturedMatchColoredBar: React.FC<MyNewFeaturedMatchColoredBarProps> 
             })()}
           </div>
 
-          {/* Away team colored bar and logo */}
+          {/* Away team colored bar with angled edge */}
           <div
             className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100"
             style={{
               background: getTeamColor(awayTeam?.id || 0),
               transition: "all 0.3s ease-in-out",
+              clipPath: "polygon(12px 0, 100% 0, 100% 100%, 24px 100%)",
             }}
           ></div>
 
+          {/* Away team name */}
           <div
             className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
             style={{
@@ -161,6 +165,7 @@ const MyNewFeaturedMatchColoredBar: React.FC<MyNewFeaturedMatchColoredBarProps> 
             {awayTeam?.name || "Away Team"}
           </div>
 
+          {/* Away team logo */}
           <MyWorldTeamLogo
             teamName={awayTeam?.name || "Away Team"}
             teamLogo={awayTeam?.logo}
