@@ -814,7 +814,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <div className="relative mt-4">
                   <div
                     className="flex relative h-[53px] rounded-md mb-8"
-                    onClick={handleMatchClick}
+                    onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
                     style={{ cursor: "pointer" }}
                   >
                     <div className="w-full h-full flex justify-between relative">
