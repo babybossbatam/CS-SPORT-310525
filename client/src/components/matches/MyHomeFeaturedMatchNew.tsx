@@ -802,30 +802,44 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
                       }
 
-                      // Upcoming matches - smart date labeling
-                      if (matchDateString === todayString) {
-                        return "Today";
-                      } else if (matchDateString === tomorrowString) {
-                        return "Tomorrow";
-                      } else {
-                        // Calculate days difference for upcoming matches
-                        const daysDiff = Math.ceil(
-                          (matchDate.getTime() - today.getTime()) /
-                            (1000 * 60 * 60 * 24),
-                        );
-
-                        if (daysDiff > 0 && daysDiff <= 7) {
-                          // For matches within a week, show day name and days from now
-                          const dayName = format(matchDate, "EEEE");
-                          return `${dayName} (${daysDiff} ${daysDiff === 1 ? "day" : "days"} from now)`;
-                        } else if (daysDiff > 7) {
-                          // For matches more than a week away, show date
-                          return format(matchDate, "EEEE, MMM d");
+                      // Upcoming matches - smart date labeling with hidden score space
+                      const upcomingContent = (() => {
+                        if (matchDateString === todayString) {
+                          return "Today";
+                        } else if (matchDateString === tomorrowString) {
+                          return "Tomorrow";
                         } else {
-                          // For past matches that aren't ended (edge case)
-                          return format(matchDate, "EEEE, MMM d");
+                          // Calculate days difference for upcoming matches
+                          const daysDiff = Math.ceil(
+                            (matchDate.getTime() - today.getTime()) /
+                              (1000 * 60 * 60 * 24),
+                          );
+
+                          if (daysDiff > 0 && daysDiff <= 7) {
+                            // For matches within a week, show day name and days from now
+                            const dayName = format(matchDate, "EEEE");
+                            return `${dayName} (${daysDiff} ${daysDiff === 1 ? "day" : "days"} from now)`;
+                          } else if (daysDiff > 7) {
+                            // For matches more than a week away, show date
+                            return format(matchDate, "EEEE, MMM d");
+                          } else {
+                            // For past matches that aren't ended (edge case)
+                            return format(matchDate, "EEEE, MMM d");
+                          }
                         }
-                      }
+                      })();
+
+                      return (
+                        <div className="space-y-1">
+                          <div className="text-sm invisible">
+                            {/* Hidden placeholder to maintain spacing */}
+                            &nbsp;
+                          </div>
+                          <div className="text-lg font-bold">
+                            {upcomingContent}
+                          </div>
+                        </div>
+                      );
                     })()}
                   </div>
                 </div>
