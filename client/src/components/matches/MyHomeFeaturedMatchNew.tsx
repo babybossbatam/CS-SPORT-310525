@@ -23,7 +23,7 @@ interface MyHomeFeaturedMatchNewProps {
 }
 
 // Import the popular leagues list
-import { popularLeagues as POPULAR_LEAGUES } from "./MyFeaturedMatchPopularLeagueList";
+import { FEATURED_MATCH_POPULAR_LEAGUES as POPULAR_LEAGUES } from "../../lib/MyFeaturedMatchPopularLeagueList";
 
 // Priority leagues: only priority leagues get special treatment
 const priorityLeagueIds = [38, 15];
