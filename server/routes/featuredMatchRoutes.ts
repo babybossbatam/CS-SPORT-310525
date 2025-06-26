@@ -10,19 +10,17 @@ featuredMatchRouter.get("/live", async (req: Request, res: Response) => {
   try {
     const { skipFilter } = req.query;
     
-    console.log(`🎯 [FeaturedMatch] ROUTE HIT: /api/featured-match/live with skipFilter=${skipFilter}`);
-    console.log(`🎯 [FeaturedMatch] Request URL: ${req.url}`);
-    console.log(`🎯 [FeaturedMatch] Request method: ${req.method}`);
+    console.log(`🎯 [FeaturedMatch] Fetching live fixtures with skipFilter=${skipFilter}`);
     
     // Always fetch fresh live data without any filtering when called by MyHomeFeaturedMatch
     const fixtures = await rapidApiService.getLiveFixtures();
-    console.log(`🔴 [FeaturedMatch] Retrieved ${fixtures?.length || 0} live fixtures (NO FILTERING)`);
+    console.log(`🔴 [FeaturedMatch] Retrieved ${fixtures.length} live fixtures (NO FILTERING)`);
 
     // Return all fixtures without any exclusion filtering
-    return res.json(fixtures || []);
+    return res.json(fixtures);
   } catch (error) {
     console.error('❌ [FeaturedMatch] Error fetching live fixtures:', error);
-    res.status(500).json({ message: "Failed to fetch live fixtures", fixtures: [] });
+    res.status(500).json({ message: "Failed to fetch live fixtures" });
   }
 });
 
@@ -31,15 +29,12 @@ featuredMatchRouter.get("/date/:date", async (req: Request, res: Response) => {
     const { date } = req.params;
     const { skipFilter, all } = req.query;
 
-    console.log(`🎯 [FeaturedMatch] ROUTE HIT: /api/featured-match/date/${date} with skipFilter=${skipFilter}`);
-    console.log(`🎯 [FeaturedMatch] Request URL: ${req.url}`);
-
     // Validate date format
     if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
       return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
     }
 
-    console.log(`🎯 [FeaturedMatch] Processing fixtures for date: ${date} with skipFilter=${skipFilter}`);
+    console.log(`🎯 [FeaturedMatch] Fetching fixtures for date: ${date} with skipFilter=${skipFilter}`);
 
     // Calculate date ranges for multiple timezones
     const targetDate = new Date(date + 'T00:00:00Z');
@@ -78,7 +73,7 @@ featuredMatchRouter.get("/date/:date", async (req: Request, res: Response) => {
     return res.json(uniqueFixtures);
   } catch (error) {
     console.error('❌ [FeaturedMatch] Error fetching fixtures by date:', error);
-    res.status(500).json({ error: 'Failed to fetch fixtures', fixtures: [] });
+    res.status(500).json({ error: 'Failed to fetch fixtures' });
   }
 });
 
@@ -86,9 +81,6 @@ featuredMatchRouter.get("/leagues/:id/fixtures", async (req: Request, res: Respo
   try {
     const id = parseInt(req.params.id);
     const { skipFilter, season } = req.query;
-    
-    console.log(`🎯 [FeaturedMatch] ROUTE HIT: /api/featured-match/leagues/${id}/fixtures with skipFilter=${skipFilter}`);
-    console.log(`🎯 [FeaturedMatch] Request URL: ${req.url}`);
     
     // Calculate current season
     const currentDate = new Date();
@@ -102,13 +94,13 @@ featuredMatchRouter.get("/leagues/:id/fixtures", async (req: Request, res: Respo
       return res.status(400).json({ message: 'Invalid league ID' });
     }
 
-    console.log(`🎯 [FeaturedMatch] Processing league ${id} fixtures with skipFilter=${skipFilter}`);
+    console.log(`🎯 [FeaturedMatch] Fetching league ${id} fixtures with skipFilter=${skipFilter}`);
 
     // Use API-Football directly without filtering
     const fixtures = await rapidApiService.getFixturesByLeague(id, seasonYear);
     console.log(`✅ [FeaturedMatch] Retrieved ${fixtures ? fixtures.length : 0} fixtures for league ${id} (NO FILTERING)`);
 
-    res.json(fixtures || []);
+    res.json(fixtures);
   } catch (error) {
     console.error(`❌ [FeaturedMatch] Error fetching fixtures for league ID ${req.params.id}:`, error);
     res.status(500).json({ message: "Failed to fetch league fixtures" });

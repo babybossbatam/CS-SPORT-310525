@@ -42,7 +42,6 @@ import LazyMatchItem from "./LazyMatchItem";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
-import "../../styles/flasheffect.css";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -1657,7 +1656,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       } ${
                                         goalFlashMatches.has(match.fixture.id) ? 'goal-flash' : ''
                                       }`}
-                                      data-fixture-id={match.fixture.id}
                                       onClick={() => onMatchCardClick?.(match)}
                                       style={{
                                         cursor: onMatchCardClick

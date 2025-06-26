@@ -39,7 +39,6 @@ import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { SimpleDateFilter } from "../../lib/simpleDateFilter";
 import "../../styles/MyLogoPositioning.css";
-import "../../styles/flasheffect.css";
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import { useCentralData } from "../../providers/CentralDataProvider";
@@ -124,11 +123,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   const [visibleMatches, setVisibleMatches] = useState<Set<number>>(new Set());
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
-  const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
-  const [goalFlashMatches, setGoalFlashMatches] = useState<Set<number>>(new Set());
-  const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
-  const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
 
   // Fetch live fixtures only
   const { data: liveFixturesData = [], isLoading: liveLoading } = useQuery({
@@ -199,99 +193,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   const { fixtures, liveFixtures, isLoading, error } = useCentralData();
 
   console.log(`📊 [TodayMatchByTime] Got ${fixtures?.length || 0} fixtures from central cache`);
-
-  // Effect to detect halftime, fulltime and goal changes with flash effects
-  useEffect(() => {
-    if (!filteredFixtures?.length) return;
-
-    const newHalftimeMatches = new Set<number>();
-    const newFulltimeMatches = new Set<number>();
-    const newGoalMatches = new Set<number>();
-    const currentStatuses = new Map<number, string>();
-    const currentScores = new Map<number, {home: number, away: number}>();
-
-    filteredFixtures.forEach((fixture) => {
-      const matchId = fixture.fixture.id;
-      const currentStatus = fixture.fixture.status.short;
-      const previousStatus = previousMatchStatuses.get(matchId);
-      const currentScore = {
-        home: fixture.goals.home ?? 0,
-        away: fixture.goals.away ?? 0
-      };
-      const previousScore = previousMatchScores.get(matchId);
-
-      currentStatuses.set(matchId, currentStatus);
-      currentScores.set(matchId, currentScore);
-
-      // Only check for changes if we have a previous status (not on first load)
-      if (previousStatus && previousStatus !== currentStatus) {
-        // Check if status just changed to halftime
-        if (currentStatus === 'HT') {
-          console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            previousStatus,
-            currentStatus
-          });
-          newHalftimeMatches.add(matchId);
-        }
-
-        // Check if status just changed to fulltime
-        if (currentStatus === 'FT') {
-          console.log(`🔵 [FULLTIME FLASH] Match ${matchId} just finished!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            previousStatus,
-            currentStatus
-          });
-          newFulltimeMatches.add(matchId);
-        }
-      }
-
-      // Check for goal changes (when score changes but status stays the same or during live matches)
-      if (previousScore && ['1H', '2H', 'LIVE'].includes(currentStatus)) {
-        const scoreChanged = currentScore.home !== previousScore.home || currentScore.away !== previousScore.away;
-        if (scoreChanged) {
-          console.log(`⚽ [GOAL FLASH] Match ${matchId} score changed!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            previousScore: `${previousScore.home}-${previousScore.away}`,
-            currentScore: `${currentScore.home}-${currentScore.away}`,
-            status: currentStatus
-          });
-          newGoalMatches.add(matchId);
-        }
-      }
-    });
-
-    // Update previous statuses and scores AFTER checking for changes
-    setPreviousMatchStatuses(currentStatuses);
-    setPreviousMatchScores(currentScores);
-
-    // Trigger flash for new halftime matches
-    if (newHalftimeMatches.size > 0) {
-      setHalftimeFlashMatches(newHalftimeMatches);
-      setTimeout(() => {
-        setHalftimeFlashMatches(new Set());
-      }, 3000);
-    }
-
-    // Trigger flash for new fulltime matches
-    if (newFulltimeMatches.size > 0) {
-      setFulltimeFlashMatches(newFulltimeMatches);
-      setTimeout(() => {
-        setFulltimeFlashMatches(new Set());
-      }, 3000);
-    }
-
-    // Trigger flash for goal changes
-    if (newGoalMatches.size > 0) {
-      setGoalFlashMatches(newGoalMatches);
-      setTimeout(() => {
-        setGoalFlashMatches(new Set());
-      }, 2000); // Shorter duration for goals
-    }
-  }, [filteredFixtures]);
 
     // Define shouldExcludeFixture function
     const shouldExcludeFixture = (leagueName: string, homeTeam: string, awayTeam: string): boolean => {
@@ -497,11 +398,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
             visibleMatches,
             createLazyRef,
             LazyMatchSkeleton
-          }}
-          flashEffectProps={{
-            halftimeFlashMatches,
-            fulltimeFlashMatches,
-            goalFlashMatches
           }}
         />
       )}
