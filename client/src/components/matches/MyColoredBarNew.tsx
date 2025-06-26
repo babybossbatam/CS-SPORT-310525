@@ -52,12 +52,12 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         height: "44px",
       }}
     >
-      {/* Home team section - 50% width */}
+      {/* Home team section - expanded to middle of VS */}
       <div
         className="flex items-left justify-between h-full flex-1 relative z-0"
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
-          width: "50%",
+          width: "calc(50% + 15px)",
           clipPath: "polygon(0 0, 100% 0, calc(100% - 8px) 100%, 0 100%)",
           marginLeft: "4px",
           marginRight: "-15px",
@@ -92,15 +92,15 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
         <span>VS</span>
       </div>
 
-      {/* Away team section - 50% width */}
+      {/* Away team section - expanded to middle of VS */}
       <div
         className="flex justify-between h-full  flex-1 mr-4 relative z-0"
         style={{
           background: `linear-gradient(225deg, ${getTeamColor(awayTeam.id)}, ${getTeamColor(awayTeam.id)}dd)`,
-          width: "50%",
+          width: "calc(50% + 15px)",
           flexDirection: "row-reverse",
           clipPath: "polygon(8px 0, 100% 0, calc(100% - 0px) 100%, 0 100%)",
-          marginLeft: "0px",
+          marginLeft: "-15px",
           marginRight: "4px",
         }}
       >
