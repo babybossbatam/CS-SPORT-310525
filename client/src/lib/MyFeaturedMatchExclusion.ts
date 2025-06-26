@@ -61,9 +61,12 @@ export const featuredMatchExclusionTerms = [
   "oberliga hessen",
   "oberliga niedersachsen",
   "oberliga rheinland",
-  "oberliga schleswig",
+  "oberliga schleswig", 
   "oberliga thüringen",
   "usl league two",
+  "usl league 2",
+  "usl 2",
+  "usl championship 2",
 ];
 
 // Safe substring helper function
