@@ -1,6 +1,5 @@
-The code is modified to add error handling for fixture caching to prevent duplicate key violations from breaking the flow.
-```
-```replit_final_file
+// The code is modified to add error handling for fixture caching to prevent duplicate key violations from breaking the flow.
+
 import sharp from 'sharp';
 
 import express, { type Express, Request, Response } from "express";
