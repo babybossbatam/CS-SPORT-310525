@@ -706,11 +706,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   onClick={handlePrevious}
                   className="absolute 
                   -left-10 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full  p-2 h-12 w-10"
-                >
-                  
-                </button>
-               
-                
+                ></button>
+
                 <button
                   onClick={handleNext}
                   className="absolute -right-14 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
@@ -785,7 +782,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         const awayScore = currentMatch.goals.away ?? 0;
 
                         return (
-                          <div className="space-y-1">
+                          <div className="space-y-0">
                             <div className="text-gray-600 text-sm ">
                               {matchStatus === "FT"
                                 ? "Ended"
@@ -835,7 +832,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             {/* Hidden status placeholder to maintain spacing */}
                             Ended
                           </div>
-                          <div className="text-2xl font-md min-h-[2rem] flex items-center justify-center">
+                          <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
                             {upcomingContent}
                           </div>
                         </div>
@@ -845,7 +842,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
 
                 {/* Teams display using colored bar like FixedScoreboard */}
-                <div className="relative mt-4">
+                <div className="relative mt-2">
+                  
                   <div
                     className="flex relative h-[53px] rounded-md mb-8"
                     onClick={() =>
@@ -855,9 +853,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   >
                     <div className="w-full h-full flex justify-between relative">
                       {/* Home team colored bar and logo */}
-                     
+
                       <div
-                        className="h-full w-[calc(50%-16px)] ml-[37px] transition-all duration-500 ease-in-out opacity-100 relative"
+                        className="h-full w-[calc(50%-16px)] ml-[37px] transition-all duration-500 ease-in-out opacity-100 relative "
                         style={{
                           background: getTeamColor(
                             currentMatch?.teams?.home?.id || 0,
@@ -865,12 +863,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           transition: "all 0.3s ease-in-out",
                         }}
                       >
-                        <div className=" left-5">
-
-                          <ChevronLeft className="h-4 w-4" />
-                        </div>{currentMatch?.teams?.home && (
+                        {currentMatch?.teams?.home && (
                           <div
-                            className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                            className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-120 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                             style={{
                               cursor: "pointer",
                               top: "calc(50% - 32px)",
@@ -908,7 +903,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
                         style={{
                           top: "calc(50% - 13px)",
-                          left: "65px",
+                          left: "85px",
                           fontSize: "1.24rem",
                           fontWeight: "normal",
                         }}
@@ -918,10 +913,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                       {/* VS circle */}
                       <div
-                        className="absolute text-white font-bold text-lg  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
+                       className="absolute text-white font-bold text-lg  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
                         style={{
                           background: "transparent",
-                          left: "calc(50% - 46px)",
+                          left: "calc(50% - 25px)",
                           top: "calc(50% - 26px)",
                           minWidth: "52px",
                         }}
@@ -931,7 +926,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                       {/* Match date and venue - centered below VS */}
                       <div
-                        className="absolute text-center text-xs text-black font-medium"
+                        className="mt-2 absolute text-center text-xs text-black font-medium"
                         style={{
                           fontSize: "0.875rem",
                           whiteSpace: "nowrap",
