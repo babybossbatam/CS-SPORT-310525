@@ -157,8 +157,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         try {
           if (forceRefresh) {
             console.log("🔴 [MyHomeFeaturedMatchNew] Fetching live matches from dedicated endpoint");
-            console.log("🔴 [MyHomeFeaturedMatchNew] Making request to: /api/fixtures/live");
-            const liveResponse = await apiRequest("GET", "/api/fixtures/live");
+            console.log("🔴 [MyHomeFeaturedMatchNew] Making request to: /api/featured-match/live?skipFilter=true");
+            const liveResponse = await apiRequest("GET", "/api/featured-match/live?skipFilter=true");
             
             if (!liveResponse.ok) {
               console.error("❌ [MyHomeFeaturedMatchNew] Live API response not ok:", liveResponse.status, liveResponse.statusText);
@@ -170,28 +170,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
             if (Array.isArray(liveData)) {
               console.log('🔍 [MyHomeFeaturedMatchNew] Processing live fixtures:', liveData.length);
-              
-              // Log all league IDs to debug filtering issue
-              const allLeagueIds = liveData.map(fixture => ({
-                id: fixture.league?.id,
-                name: fixture.league?.name,
-                country: fixture.league?.country
-              }));
-              console.log('🔍 [MyHomeFeaturedMatchNew] All league IDs in live data:', allLeagueIds);
-              console.log('🔍 [MyHomeFeaturedMatchNew] Featured league IDs we filter for:', FEATURED_MATCH_LEAGUE_IDS);
 
               // First filter by featured leagues, then by valid teams
               const featuredLiveFixtures = liveData.filter(fixture => 
                 FEATURED_MATCH_LEAGUE_IDS.includes(fixture.league?.id)
               );
 
-              console.log('🔍 [MyHomeFeaturedMatchNew] Featured live fixtures after league filter:', featuredLiveFixtures.length);
-              
-              // If no featured league matches, let's include all live matches for now to debug
-              const finalLiveFixtures = featuredLiveFixtures.length > 0 ? featuredLiveFixtures : liveData;
-              console.log('🔍 [MyHomeFeaturedMatchNew] Final live fixtures to process:', finalLiveFixtures.length);
+              console.log('🔍 [MyHomeFeaturedMatchNew] Featured live fixtures:', featuredLiveFixtures.length);
 
-              liveFixtures = finalLiveFixtures
+              liveFixtures = featuredLiveFixtures
                 .filter((fixture: any) => {
                   const isValid = isValidMatch(fixture);
                   if (!isValid) {
@@ -610,22 +597,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   // Memoize expensive calculations
   const allMatches = useMemo(() => {
-    const matches = featuredMatches.reduce((acc, dayData) => {
+    return featuredMatches.reduce((acc, dayData) => {
       return [...acc, ...dayData.matches];
     }, [] as FeaturedMatch[]);
-    
-    console.log('🔍 [MyHomeFeaturedMatchNew] Final allMatches computed:', {
-      totalMatches: matches.length,
-      featuredMatchesData: featuredMatches.length,
-      firstFewMatches: matches.slice(0, 3).map(m => ({
-        id: m.fixture.id,
-        teams: `${m.teams.home.name} vs ${m.teams.away.name}`,
-        status: m.fixture.status.short,
-        league: m.league.name
-      }))
-    });
-    
-    return matches;
   }, [featuredMatches]);
 
   const currentMatch = useMemo(() => {
