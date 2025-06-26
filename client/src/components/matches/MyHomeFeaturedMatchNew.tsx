@@ -437,6 +437,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               return matchDateString === dateInfo.date;
             })
             .sort((a: FeaturedMatch, b: FeaturedMatch) => {
+              // Special priority for specific FIFA Club World Cup match (Inter vs River Plate)
+              const aIsSpecialMatch = a.league.id === 15 && 
+                ((a.teams.home.name === "Inter" && a.teams.away.name === "River Plate") ||
+                 (a.teams.home.name === "River Plate" && a.teams.away.name === "Inter"));
+              const bIsSpecialMatch = b.league.id === 15 && 
+                ((b.teams.home.name === "Inter" && b.teams.away.name === "River Plate") ||
+                 (b.teams.home.name === "River Plate" && b.teams.away.name === "Inter"));
+
+              // Special match always comes first
+              if (aIsSpecialMatch && !bIsSpecialMatch) return -1;
+              if (!aIsSpecialMatch && bIsSpecialMatch) return 1;
+
               // Priority sort: live matches first, then by league priority, then by time
               const aStatus = a.fixture.status.short;
               const bStatus = b.fixture.status.short;
@@ -444,7 +456,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const aLive = isLiveMatch(aStatus);
               const bLive = isLiveMatch(bStatus);
 
-              // Live matches always come first
+              // Live matches always come first (after special match)
               if (aLive && !bLive) return -1;
               if (!aLive && bLive) return 1;
 
