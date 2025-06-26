@@ -41,6 +41,10 @@ const POPULAR_LEAGUES = [
   { id: 6, name: "Africa Cup of Nations", country: "World" },
 ];
 
+// Define featured leagues
+const FEATURED_MATCH_LEAGUE_IDS = [39, 140, 135, 78, 61, 2, 3, 848, 5, 1, 4, 15, 38, 9, 6];
+const PRIORITY_LEAGUE_IDS = [15, 38]; // FIFA Club World Cup, UEFA U21 Championship
+
 interface FeaturedMatch {
   fixture: {
     id: number;
@@ -109,9 +113,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           },
         ];
 
-        // Priority leagues: 38 (UEFA U21) first, then 15 (FIFA Club World Cup)
-        const priorityLeagueIds = [38, 15];
+        // Use priority leagues from our clean list
+        const priorityLeagueIds = PRIORITY_LEAGUE_IDS;
         const allFixtures: FeaturedMatch[] = [];
+
+        console.log('🔍 [MyHomeFeaturedMatchNew] Starting fetch with priority leagues:', priorityLeagueIds);
+        console.log('🔍 [MyHomeFeaturedMatchNew] All featured league IDs:', FEATURED_MATCH_LEAGUE_IDS);
 
         // Helper function to determine if match is live
         const isLiveMatch = (status: string) => {
@@ -139,23 +146,47 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return ["NS", "TBD", "PST"].includes(status);
         };
 
-        // Function to validate a match (check for valid teams)
+        // Simple validation - only check for valid team names
         const isValidMatch = (fixture: any) => {
-          return fixture.teams?.home?.name && fixture.teams?.away?.name;
+          return !!(fixture?.teams?.home?.name && fixture?.teams?.away?.name);
         };
 
         // Fetch live matches from API for real-time updates
         let liveFixtures: FeaturedMatch[] = [];
         try {
           if (forceRefresh) {
-            console.log("🔴 [FeaturedMatches] Fetching live matches from API");
+            console.log("🔴 [MyHomeFeaturedMatchNew] Fetching live matches from API");
             const liveResponse = await apiRequest("GET", "/api/fixtures/live");
             const liveData = await liveResponse.json();
 
             if (Array.isArray(liveData)) {
-              liveFixtures = liveData
+              console.log('🔍 [MyHomeFeaturedMatchNew] Processing live fixtures:', liveData.length);
+
+              // First filter by featured leagues, then by valid teams
+              const featuredLiveFixtures = liveData.filter(fixture => 
+                FEATURED_MATCH_LEAGUE_IDS.includes(fixture.league?.id)
+              );
+
+              console.log('🔍 [MyHomeFeaturedMatchNew] Featured live fixtures:', featuredLiveFixtures.length);
+
+              liveFixtures = featuredLiveFixtures
                 .filter((fixture: any) => {
-                  return isValidMatch(fixture);
+                  const isValid = isValidMatch(fixture);
+                  if (!isValid) {
+                    console.log('❌ [MyHomeFeaturedMatchNew] Filtered out invalid fixture:', {
+                      home: fixture.teams?.home?.name,
+                      away: fixture.teams?.away?.name,
+                      league: fixture.league?.name
+                    });
+                  } else {
+                    console.log('✅ [MyHomeFeaturedMatchNew] Valid featured live fixture:', {
+                      home: fixture.teams?.home?.name,
+                      away: fixture.teams?.away?.name,
+                      league: fixture.league?.name,
+                      leagueId: fixture.league?.id
+                    });
+                  }
+                  return isValid;
                 })
                 .map((fixture: any) => ({
                   fixture: {
@@ -188,12 +219,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 }));
             }
             console.log(
-              `✅ [FeaturedMatches] Found ${liveFixtures.length} live matches (including all live matches regardless of league)`,
+              `✅ [MyHomeFeaturedMatchNew] Found ${liveFixtures.length} live matches (including all live matches regardless of league)`,
             );
           }
         } catch (error) {
           console.error(
-            "❌ [FeaturedMatches] Error fetching live matches:",
+            "❌ [MyHomeFeaturedMatchNew] Error fetching live matches:",
             error,
           );
         }
@@ -206,7 +237,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           for (const leagueId of priorityLeagueIds) {
             try {
               console.log(
-                `🔍 [FeaturedMatches] Fetching cached data for league ${leagueId}`,
+                `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for league ${leagueId}`,
               );
 
               const fixturesResponse = await apiRequest(
@@ -219,13 +250,21 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 const cachedFixtures = fixturesData
                   .filter((fixture: any) => {
                     // Must have valid teams and NOT be live (since we already fetched live matches)
-                    const hasValidTeams =
-                      fixture.teams?.home?.name && fixture.teams?.away?.name;
-                    const isNotLive = !isLiveMatch(
-                      fixture.fixture.status.short,
-                    );
+                    const hasValidTeams = isValidMatch(fixture);
+                    const isNotLive = !isLiveMatch(fixture.fixture.status.short);
+                    const shouldInclude = hasValidTeams && isNotLive;
 
-                    return hasValidTeams && isNotLive;
+                    if (shouldInclude) {
+                      console.log(`✅ [MyHomeFeaturedMatchNew] Including priority league ${leagueId} fixture:`, {
+                        home: fixture.teams?.home?.name,
+                        away: fixture.teams?.away?.name,
+                        league: fixture.league?.name,
+                        leagueId: fixture.league?.id,
+                        status: fixture.fixture.status.short
+                      });
+                    }
+
+                    return shouldInclude;
                   })
                   .map((fixture: any) => ({
                     fixture: {
@@ -271,7 +310,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           for (const dateInfo of dates) {
             try {
               console.log(
-                `🔍 [FeaturedMatches] Fetching cached data for ${dateInfo.label}: ${dateInfo.date}`,
+                `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for ${dateInfo.label}: ${dateInfo.date}`,
               );
 
               const response = await apiRequest(
@@ -337,7 +376,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }
             } catch (error) {
               console.error(
-                `❌ [FeaturedMatches] Error fetching cached data for ${dateInfo.label}:`,
+                `❌ [MyHomeFeaturedMatchNew] Error fetching cached data for ${dateInfo.label}:`,
                 error,
               );
             }
@@ -352,7 +391,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         );
 
         console.log(
-          `📋 [FeaturedMatches] Total unique fixtures found:`,
+          `📋 [MyHomeFeaturedMatchNew] Total unique fixtures found:`,
           uniqueFixtures.length,
         );
 
@@ -398,7 +437,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             .slice(0, maxMatches);
 
           console.log(
-            `✅ [FeaturedMatches] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`,
+            `✅ [MyHomeFeaturedMatchNew] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`,
           );
 
           allMatches.push({
@@ -419,7 +458,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return prevMatches;
         });
       } catch (error) {
-        console.error("❌ [FeaturedMatches] Error:", error);
+        console.error("❌ [MyHomeFeaturedMatchNew] Error:", error);
       } finally {
         setIsLoading(false);
       }
@@ -445,11 +484,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
       if (hasLiveMatches) {
         console.log(
-          "🔄 [FeaturedMatches] Live matches detected, refreshing data",
+          "🔄 [MyHomeFeaturedMatchNew] Live matches detected, refreshing data",
         );
         fetchFeaturedMatches(false); // Background refresh without loading state
       } else {
-        console.log("⏸️ [FeaturedMatches] No live matches, skipping refresh");
+        console.log("⏸️ [MyHomeFeaturedMatchNew] No live matches, skipping refresh");
       }
     }, 60000); // Check every 60 seconds
 
