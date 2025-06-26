@@ -438,12 +438,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             })
             .sort((a: FeaturedMatch, b: FeaturedMatch) => {
               // Special priority for specific FIFA Club World Cup match (Inter vs River Plate)
-              const aIsSpecialMatch = a.league.id === 15 && 
-                ((a.teams.home.name === "Inter" && a.teams.away.name === "River Plate") ||
-                 (a.teams.home.name === "River Plate" && a.teams.away.name === "Inter"));
-              const bIsSpecialMatch = b.league.id === 15 && 
-                ((b.teams.home.name === "Inter" && b.teams.away.name === "River Plate") ||
-                 (b.teams.home.name === "River Plate" && b.teams.away.name === "Inter"));
+              const aIsSpecialMatch =
+                a.league.id === 15 &&
+                ((a.teams.home.name === "Inter" &&
+                  a.teams.away.name === "River Plate") ||
+                  (a.teams.home.name === "River Plate" &&
+                    a.teams.away.name === "Inter"));
+              const bIsSpecialMatch =
+                b.league.id === 15 &&
+                ((b.teams.home.name === "Inter" &&
+                  b.teams.away.name === "River Plate") ||
+                  (b.teams.home.name === "River Plate" &&
+                    b.teams.away.name === "Inter"));
 
               // Special match always comes first
               if (aIsSpecialMatch && !bIsSpecialMatch) return -1;
@@ -699,15 +705,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <button
                   onClick={handlePrevious}
                   className="absolute 
-                  -left-12 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
+                  -left-14 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
                 >
-                  <ChevronLeft className="h-8 w-4 " />
+                  <ChevronLeft className="h-8 w-6 " />
                 </button>
                 <button
                   onClick={handleNext}
-                  className="absolute -right-12 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
+                  className="absolute -right-14 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-8 w-6" />
                 </button>
               </>
             )}
@@ -826,13 +832,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 <div className="relative mt-4">
                   <div
                     className="flex relative h-[53px] rounded-md mb-8"
-                    onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
+                    onClick={() =>
+                      navigate(`/match/${currentMatch.fixture.id}`)
+                    }
                     style={{ cursor: "pointer" }}
                   >
                     <div className="w-full h-full flex justify-between relative">
                       {/* Home team colored bar and logo */}
                       <div
-                        className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
+                        className="h-full w-[calc(50%-16px)] ml-[37px] transition-all duration-500 ease-in-out opacity-100 relative"
                         style={{
                           background: getTeamColor(
                             currentMatch?.teams?.home?.id || 0,
@@ -855,11 +863,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             }}
                           >
                             <MyWorldTeamLogo
-                              teamName={currentMatch.teams.home.name || "Home Team"}
+                              teamName={
+                                currentMatch.teams.home.name || "Home Team"
+                              }
                               teamLogo={
                                 currentMatch.teams.home.id
                                   ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
-                                  : currentMatch.teams.home.logo || "/assets/fallback-logo.svg"
+                                  : currentMatch.teams.home.logo ||
+                                    "/assets/fallback-logo.svg"
                               }
                               alt={currentMatch.teams.home.name || "Home Team"}
                               size="64px"
@@ -877,7 +888,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
                         style={{
                           top: "calc(50% - 13px)",
-                          left: "120px",
+                          left: "65px",
                           fontSize: "1.24rem",
                           fontWeight: "normal",
                         }}
@@ -887,10 +898,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                       {/* VS circle */}
                       <div
-                        className="absolute text-black font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
+                        className="absolute text-white font-bold text-lg  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
                         style={{
                           background: "transparent",
-                          left: "calc(50% - 26px)",
+                          left: "calc(50% - 46px)",
                           top: "calc(50% - 26px)",
                           minWidth: "52px",
                         }}
@@ -916,7 +927,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       >
                         {(() => {
                           try {
-                            const matchDate = new Date(currentMatch.fixture.date);
+                            const matchDate = new Date(
+                              currentMatch.fixture.date,
+                            );
                             const formattedDate = format(
                               matchDate,
                               "EEEE, do MMM",
@@ -930,13 +943,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             );
                           } catch (e) {
                             return "";
-}
+                          }
                         })()}
                       </div>
 
                       {/* Away team colored bar and logo */}
                       <div
-                        className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100"
+                        className="h-full w-[calc(50%-26px)] mr-[40px] transition-all duration-500 ease-in-out opacity-100"
                         style={{
                           background: getTeamColor(currentMatch.teams.away.id),
                           transition: "all 0.3s ease-in-out",
@@ -956,11 +969,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       </div>
 
                       <div
-                        className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                        className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out "
                         style={{
                           cursor: "pointer",
                           top: "calc(50% - 32px)",
-                          right: "87px",
+                          right: "55px",
                           transform: "translateX(50%)",
                           filter: "contrast(115%) brightness(105%)",
                         }}
@@ -970,14 +983,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         }}
                       >
                         <MyWorldTeamLogo
-                          teamName={currentMatch?.teams?.away?.name || "Away Team"}
+                          teamName={
+                            currentMatch?.teams?.away?.name || "Away Team"
+                          }
                           teamLogo={
                             currentMatch.teams.away.id
                               ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
-                              : currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`
+                              : currentMatch?.teams?.away?.logo ||
+                                `/assets/fallback-logo.svg`
                           }
                           alt={currentMatch?.teams?.away?.name || "Away Team"}
-                          size="64px"
+                          size="70px"
                           className="w-full h-full object-contain"
                           leagueContext={{
                             name: currentMatch.league.name,
@@ -988,7 +1004,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     </div>
                   </div>
                 </div>
-
 
                 {/* Action Buttons */}
                 <div className="flex justify-around border-t border-gray-200 pt-4">
