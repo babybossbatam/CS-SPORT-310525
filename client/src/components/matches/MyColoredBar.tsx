@@ -1,3 +1,4 @@
+
 import React from "react";
 import { format, parseISO } from "date-fns";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
@@ -45,7 +46,7 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
 }) => {
   return (
     <div
-      className={`flex relative h-[63px] rounded-md mb-8  ${onClick ? "cursor-pointer" : ""} ${className}`}
+      className={`flex relative h-[63px] rounded-md mb-8 ${onClick ? "cursor-pointer" : ""} ${className}`}
       onClick={onClick}
       style={{ cursor: onClick ? "pointer" : "default" }}
     >
@@ -54,8 +55,9 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
         <div
           className="h-full w-[calc(50%-16px)] ml-[77px] transition-all duration-500 ease-in-out opacity-100 relative"
           style={{
-            background: getTeamColor(homeTeam.id),
+            background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
             transition: "all 0.3s ease-in-out",
+            clipPath: "polygon(0 0, calc(100% - 12px) 0, calc(100% - 24px) 100%, 0 100%)",
           }}
         >
           {homeTeam && (
@@ -108,7 +110,8 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
           <span className="vs-text font-bold">VS</span>
         </div>
 
-        {/* Match date and venue - centered below VS <div
+        {/* Match date and venue - centered below VS */}
+        <div
           className="absolute text-center text-xs text-black font-medium"
           style={{
             fontSize: "0.875rem",
@@ -139,14 +142,15 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
               return fixture.venue?.name || "";
             }
           })()}
-        </div> */}
+        </div>
 
         {/* Away team colored bar and logo */}
         <div
           className="h-full w-[calc(50%-26px)] mr-[87px] transition-all duration-500 ease-in-out opacity-100"
           style={{
-            background: getTeamColor(awayTeam.id),
+            background: `linear-gradient(225deg, ${getTeamColor(awayTeam.id)}, ${getTeamColor(awayTeam.id)}dd)`,
             transition: "all 0.3s ease-in-out",
+            clipPath: "polygon(12px 0, 100% 0, 100% 100%, 24px 100%)",
           }}
         ></div>
 
