@@ -8,6 +8,11 @@ import RegionModal from '@/components/modals/RegionModal';
 import { Trophy } from 'lucide-react';
 import TodayPopularFootballLeaguesNew from "@/components/matches/TodayPopularFootballLeaguesNew";
 import TodaysMatchesByCountryNew from "@/components/matches/TodaysMatchesByCountryNew";
+import LiveMatchForAllCountry from "@/components/matches/LiveMatchForAllCountry";
+import LiveMatchByTime from "@/components/matches/LiveMatchByTime";
+import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew";
+import MyNewLeague from "@/components/matches/MyNewLeague";
+import MyNewLiveMatch from "@/components/matches/MyNewLiveMatch";
 
 const Home = () => {
   const [selectedDate, setSelectedDate] = React.useState(new Date());
@@ -37,6 +42,23 @@ const Home = () => {
               liveFilterActive={liveFilterActive}
               onMatchCardClick={handleMatchCardClick}
             />
+            {/* Live Matches for All Countries */}
+              {liveFilterActive && (
+                <LiveMatchForAllCountry
+                  refreshInterval={30000}
+                  isTimeFilterActive={timeFilterActive}
+                  liveFilterActive={liveFilterActive}
+                  timeFilterActive={timeFilterActive}
+                  setLiveFilterActive={setLiveFilterActive}
+                  onMatchCardClick={handleMatchCardClick}
+                />
+              )}
+
+              {/* Featured Live Matches - appears below LiveMatchForAllCountry when live filter is active */}
+              <MyNewLiveMatch
+                liveFilterActive={liveFilterActive}
+                onMatchCardClick={handleMatchCardClick}
+              />
         </MyMainLayout>
       </div>
 
