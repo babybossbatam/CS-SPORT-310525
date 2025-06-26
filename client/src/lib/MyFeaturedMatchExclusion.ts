@@ -64,9 +64,14 @@ export const featuredMatchExclusionTerms = [
   "oberliga schleswig", 
   "oberliga thüringen",
   "usl league two",
-  "usl league 2",
+  "usl league 2", 
   "usl 2",
   "usl championship 2",
+  "usl league one",
+  "usl league 1",
+  "usl 1",
+  "usl championship",
+  "usl super league",
 ];
 
 // Safe substring helper function
@@ -164,12 +169,19 @@ export const shouldExcludeFeaturedMatch = (
   }
 
   // Check if any exclusion term exists in league or team names
-  return featuredMatchExclusionTerms.some(
+  const hasExclusionTerms = featuredMatchExclusionTerms.some(
     (term) =>
       league.includes(term) ||
       homeTeam.includes(term) ||
       awayTeam.includes(term),
   );
+
+  if (hasExclusionTerms) {
+    console.log(`❌ [FEATURED DEBUG] Excluding match due to exclusion terms: "${leagueName}" | ${homeTeamName} vs ${awayTeamName}`);
+    return true;
+  }
+
+  return false;
 };
 
 /**
