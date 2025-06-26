@@ -1,4 +1,7 @@
 /**
+ * Adding "USL League Two" to the featuredMatchExclusionTerms array.
+ */
+/**
  * Specialized exclusion filters for MyHomeFeaturedMatchNew component
  * This provides targeted filtering for the featured match display to ensure only high-quality matches are shown
  * Updated to match TodayPopularFootballLeaguesNew exclusion logic
@@ -60,6 +63,7 @@ export const featuredMatchExclusionTerms = [
   "oberliga rheinland",
   "oberliga schleswig",
   "oberliga thüringen",
+  "usl league two",
 ];
 
 // Safe substring helper function
@@ -317,3 +321,4 @@ export const filterFeaturedMatches = (
 
   return sortedMatches.slice(0, maxMatches);
 };
+`
