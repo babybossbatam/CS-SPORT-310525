@@ -1,3 +1,4 @@
+
 import React from "react";
 import { format, parseISO } from "date-fns";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
@@ -45,57 +46,54 @@ const MyColoredBarNew: React.FC<MyColoredBarNewProps> = ({
 }) => {
   return (
     <div
-      className={`flex items-center px-4   ${onClick ? "cursor-pointer" : ""} ${className}`}
+      className={`flex items-center relative ${onClick ? "cursor-pointer" : ""} ${className}`}
       onClick={onClick}
       style={{
         cursor: onClick ? "pointer" : "default",
         height: "54px",
+        width: "100%",
       }}
     >
-      {/* Home team section - expanded to middle of VS */}
+      {/* Home team section - extends from center (50%) to 75% (middle of logo area) */}
       <div
-        className="flex items-left justify-between h-full flex-1 "
+        className="flex items-center justify-start h-full absolute z-0"
         style={{
           background: `linear-gradient(135deg, ${getTeamColor(homeTeam.id)}, ${getTeamColor(homeTeam.id)}dd)`,
-          width: "calc(50% - 25px)",
-          clipPath: "polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%)",
-          marginLeft: "-45px",
-          marginRight: "-9px",
+          width: "75%",
+          left: "0%",
+          clipPath: "polygon(0 0, calc(100% - 12px) 0, calc(100% - 24px) 100%, 0 100%)",
         }}
       >
-        {/* Home team logo */}
-
-        <span className=" flex items-center text-white font-md uppercase text-lg ml-8 truncate max-w-[250px]">
+        <span className="flex items-center text-white font-md uppercase text-lg ml-8 truncate max-w-[60%]">
           {homeTeam.name || "TBD"}
         </span>
       </div>
 
-      {/* VS section - positioned at the connection point */}
+      {/* VS section - positioned at the center */}
       <div
-        className="flex items-center justify-center h-full text-white font-semi-bold text-2xl absolute z-10 bg-transparent"
+        className="flex items-center justify-center h-full text-white font-semibold text-xl absolute z-10"
         style={{
-          width: "calc(50% - 16px",
-          left: "55px",
-
+          width: "60px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          backgroundColor: "rgba(0, 0, 0, 0.3)",
           borderRadius: "50%",
         }}
       >
         <span>VS</span>
       </div>
 
-      {/* Away team section - expanded to middle of VS */}
+      {/* Away team section - extends from center (50%) to 75% (middle of logo area) */}
       <div
-        className="flex justify-between h-full  flex-1 mr-4 relative z-0"
+        className="flex items-center justify-end h-full absolute z-0"
         style={{
           background: `linear-gradient(225deg, ${getTeamColor(awayTeam.id)}, ${getTeamColor(awayTeam.id)}dd)`,
-          width: "calc(50% - 115px)",
-          flexDirection: "row-reverse",
-          clipPath: "polygon(8px 0, 100% 0, calc(100% - 0px) 100%, 0 100%)",
-          marginLeft: "-25px",
-          marginRight: "-52px",
+          width: "75%",
+          right: "0%",
+          clipPath: "polygon(12px 0, 100% 0, 100% 100%, 24px 100%)",
         }}
       >
-        <span className=" flex items-center text-white font-md uppercase text-lg mr-8 truncate max-w-[250px]">
+        <span className="flex items-center text-white font-md uppercase text-lg mr-8 truncate max-w-[60%]">
           {awayTeam.name || "TBD"}
         </span>
       </div>
