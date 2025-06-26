@@ -869,7 +869,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   initial={{ x: 100, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: -100, opacity: 0 }}
-                  transition={{ type: "tween", duration: 0.3, ease: "easeInOut" }}
+                  transition={{ type: "tween", duration: 0.15, ease: "easeInOut" }}
                   className="cursor-pointer"
                   onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
                 >
