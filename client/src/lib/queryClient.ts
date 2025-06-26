@@ -37,7 +37,7 @@ export async function apiRequest(
 ): Promise<Response> {
   // Ensure the URL is properly formatted for the current environment
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url.startsWith('/') ? url : `/${url}`}`;
   
   console.log(`🔄 [API Request] ${method} ${fullUrl}`);
   
@@ -95,7 +95,7 @@ export const getQueryFn: <T>(options: {
 
     const url = queryKey[0] as string;
     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url.startsWith('/') ? url : `/${url}`}`;
 
     try {
       console.log(`🔄 [Query] Fetching: ${fullUrl}`);
