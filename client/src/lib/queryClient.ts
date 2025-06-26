@@ -36,15 +36,7 @@ export async function apiRequest(
   data?: unknown | undefined
 ): Promise<Response> {
   try {
-    // Validate URL
-    if (!url || typeof url !== 'string') {
-      throw new Error(`Invalid URL provided: ${url}`);
-    }
-
-    // Ensure URL is properly formatted
-    const cleanUrl = url.startsWith('/') ? url : `/${url}`;
-    
-    const res = await fetch(cleanUrl, {
+    const res = await fetch(url, {
       method,
       headers: data ? { "Content-Type": "application/json" } : {},
       body: data ? JSON.stringify(data) : undefined,
@@ -55,10 +47,6 @@ export async function apiRequest(
     return res;
   } catch (error) {
     console.error(`API request error for ${method} ${url}:`, error);
-    // Add more detailed error information
-    if (error instanceof TypeError && error.message.includes('fetch')) {
-      console.error(`Fetch error details - URL: ${url}, Clean URL: ${url.startsWith('/') ? url : `/${url}`}`);
-    }
     throw error;
   }
 }

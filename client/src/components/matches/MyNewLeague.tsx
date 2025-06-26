@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Star, Calendar } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
@@ -98,144 +98,81 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
   const leagueIds = [38, 15];
 
-  // Background refresh function without loading state
-  const backgroundRefreshLiveData = useCallback(async () => {
-    try {
-      console.log("🔄 [MyNewLeague] Background refresh for live matches");
-      
-      // Only refresh if we have live matches
-      const hasLiveMatches = fixtures.some(fixture => 
-        ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short)
-      );
-
-      if (!hasLiveMatches) {
-        console.log("⏸️ [MyNewLeague] No live matches, skipping background refresh");
-        return;
-      }
-
-      // First try to get live fixtures from the live endpoint
-      try {
-        const liveResponse = await apiRequest("GET", `/api/fixtures/live?_t=${Date.now()}`);
-        const liveFixtures = await liveResponse.json();
-        
-        if (Array.isArray(liveFixtures) && liveFixtures.length > 0) {
-          console.log(`🔴 [MyNewLeague] Found ${liveFixtures.length} live fixtures from live endpoint`);
-          
-          // Filter live fixtures for our target leagues
-          const relevantLiveFixtures = liveFixtures.filter(fixture => 
-            leagueIds.includes(fixture.league?.id)
-          );
-          
-          if (relevantLiveFixtures.length > 0) {
-            console.log(`✅ [MyNewLeague] Found ${relevantLiveFixtures.length} relevant live fixtures`);
-            
-            // Update existing fixtures with live data
-            setFixtures(prevFixtures => {
-              const updatedFixtures = [...prevFixtures];
-              
-              relevantLiveFixtures.forEach(liveFixture => {
-                const index = updatedFixtures.findIndex(f => f.fixture.id === liveFixture.fixture.id);
-                if (index !== -1) {
-                  updatedFixtures[index] = liveFixture;
-                  console.log(`🔄 [MyNewLeague] Updated live fixture ${liveFixture.fixture.id}: ${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name}`);
-                } else {
-                  // Add new live fixture if not found
-                  updatedFixtures.push(liveFixture);
-                  console.log(`➕ [MyNewLeague] Added new live fixture ${liveFixture.fixture.id}: ${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name}`);
-                }
-              });
-              
-              return updatedFixtures;
-            });
-            
-            return; // Exit early if we successfully updated with live data
-          }
-        }
-      } catch (liveError) {
-        console.warn("❌ [MyNewLeague] Live endpoint failed, falling back to main fixtures endpoint:", liveError);
-      }
-
-      // Fallback: Fetch from main fixtures endpoint and filter
-      try {
-        const fixturesResponse = await apiRequest(
-          "GET",
-          `/api/fixtures/date/${selectedDate}?_t=${Date.now()}`,
-        );
-        const allFixturesData = await fixturesResponse.json();
-
-        if (Array.isArray(allFixturesData)) {
-          // Filter for our target leagues (38 and 15)
-          const targetLeagueFixtures = allFixturesData.filter((fixture) => {
-            return leagueIds.includes(fixture.league?.id);
-          });
-
-          // Update fixtures without changing loading state
-          if (targetLeagueFixtures.length > 0) {
-            setFixtures(targetLeagueFixtures);
-            console.log(`✅ [MyNewLeague] Background refresh completed: ${targetLeagueFixtures.length} fixtures`);
-          }
-        }
-      } catch (fallbackError) {
-        console.warn("❌ [MyNewLeague] Fallback refresh failed:", fallbackError);
-      }
-    } catch (err) {
-      console.error("❌ [MyNewLeague] Background refresh error:", err);
-    }
-  }, [leagueIds, selectedDate]);
-
-  // Initial data fetch
   useEffect(() => {
     const fetchLeagueData = async () => {
       setLoading(true);
       setError(null);
 
       try {
-        console.log("MyNewLeague - Fetching all fixtures from main endpoint");
+        const allFixtures: FixtureData[] = [];
+        let primaryLeagueInfo: LeagueData | null = null;
 
-        // Fetch all fixtures from the main endpoint instead of league-specific ones
-        const fixturesResponse = await apiRequest(
-          "GET",
-          `/api/fixtures/date/${selectedDate}`,
-        );
-        const allFixturesData = await fixturesResponse.json();
-        console.log(`MyNewLeague - All fixtures count:`, allFixturesData?.length || 0);
+        for (const leagueId of leagueIds) {
+          try {
+            console.log(`MyNewLeague - Fetching data for league ${leagueId}`);
 
-        if (Array.isArray(allFixturesData)) {
-          // Filter for our target leagues (38 and 15)
-          const targetLeagueFixtures = allFixturesData.filter((fixture) => {
-            return leagueIds.includes(fixture.league?.id);
-          });
+            // Fetch league info
+            const leagueResponse = await apiRequest(
+              "GET",
+              `/api/leagues/${leagueId}`,
+            );
+            const leagueData = await leagueResponse.json();
+            console.log(`MyNewLeague - League ${leagueId} info:`, leagueData);
 
-          console.log(`MyNewLeague - Filtered fixtures for target leagues:`, targetLeagueFixtures.length);
-          targetLeagueFixtures.forEach(fixture => {
-            console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
-              teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-              league: fixture.league?.name,
-              leagueId: fixture.league?.id,
-              status: fixture.fixture?.status?.short,
-            });
-          });
-
-          setFixtures(targetLeagueFixtures);
-
-          // Get league info for the first available league
-          if (targetLeagueFixtures.length > 0) {
-            try {
-              const firstLeagueId = targetLeagueFixtures[0].league.id;
-              const leagueResponse = await apiRequest(
-                "GET",
-                `/api/leagues/${firstLeagueId}`,
-              );
-              const leagueData = await leagueResponse.json();
-              setLeagueInfo(leagueData);
-            } catch (leagueError) {
-              console.warn("Failed to fetch league info:", leagueError);
+            if (!primaryLeagueInfo) {
+              primaryLeagueInfo = leagueData;
             }
+
+            // Fetch fixtures for the league
+            const fixturesResponse = await apiRequest(
+              "GET",
+              `/api/leagues/${leagueId}/fixtures`,
+            );
+            const fixturesData = await fixturesResponse.json();
+            console.log(
+              `MyNewLeague - League ${leagueId} fixtures count:`,
+              fixturesData?.length || 0,
+            );
+
+            if (Array.isArray(fixturesData)) {
+              // Filter for Club World Cup matches specifically
+              const filteredFixtures = fixturesData.filter((fixture) => {
+                const isClubWorldCup =
+                  fixture.league?.name
+                    ?.toLowerCase()
+                    .includes("club world cup") ||
+                  fixture.league?.name
+                    ?.toLowerCase()
+                    .includes("fifa club world cup");
+                const isRelevantMatch =
+                  fixture.teams?.home?.name === "Juventus" ||
+                  fixture.teams?.away?.name === "Juventus" ||
+                  fixture.teams?.home?.name === "Wydad AC" ||
+                  fixture.teams?.away?.name === "Wydad AC";
+
+                console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
+                  teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+                  league: fixture.league?.name,
+                  status: fixture.fixture?.status?.short,
+                  isClubWorldCup,
+                  isRelevantMatch,
+                });
+
+                return true; // Show all matches for now to debug
+              });
+
+              allFixtures.push(...filteredFixtures);
+            }
+          } catch (leagueError) {
+            console.warn(
+              `Failed to fetch data for league ${leagueId}:`,
+              leagueError,
+            );
           }
-        } else {
-          console.warn("MyNewLeague - Invalid fixtures data received");
-          setFixtures([]);
         }
+
+        setLeagueInfo(primaryLeagueInfo);
+        setFixtures(allFixtures);
       } catch (err) {
         console.error("Error fetching league data:", err);
         setError("Failed to load league data");
@@ -245,39 +182,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     };
 
     fetchLeagueData();
-  }, [selectedDate]);
-
-  // Background refresh interval for live matches
-  useEffect(() => {
-    const hasLiveMatches = fixtures.some(fixture => 
-      ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short)
-    );
-    
-    let interval: NodeJS.Timeout;
-    
-    if (hasLiveMatches) {
-      // More frequent updates for live matches (every 30 seconds)
-      console.log("🔴 [MyNewLeague] Live matches detected, setting up frequent refresh (30s)");
-      interval = setInterval(() => {
-        backgroundRefreshLiveData();
-      }, 30000);
-      
-      // Immediate refresh when live matches are first detected
-      backgroundRefreshLiveData();
-    } else {
-      // Less frequent updates when no live matches (every 2 minutes)
-      console.log("⏸️ [MyNewLeague] No live matches, setting up normal refresh (2min)");
-      interval = setInterval(() => {
-        backgroundRefreshLiveData();
-      }, 120000);
-    }
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [backgroundRefreshLiveData, fixtures]);
+  }, []);
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
@@ -420,18 +325,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           });
           newFulltimeMatches.add(matchId);
         }
-
-        // Check if status changed to live
-        if (['LIVE', '1H', '2H'].includes(currentStatus) && !['LIVE', '1H', '2H', 'HT'].includes(previousStatus)) {
-          console.log(`🔴 [LIVE START] Match ${matchId} just started!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            previousStatus,
-            currentStatus
-          });
-          // Trigger immediate refresh when match goes live
-          setTimeout(() => backgroundRefreshLiveData(), 1000);
-        }
       }
 
       // Check for goal changes
@@ -474,7 +367,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         setGoalFlashMatches(new Set());
       }, 2000);
     }
-  }, [fixtures, backgroundRefreshLiveData]);
+  }, [fixtures]);
 
   if (loading) {
     return (

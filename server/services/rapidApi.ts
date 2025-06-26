@@ -363,11 +363,9 @@ export const rapidApiService = {
     } catch (error) {
       console.error("RapidAPI: Error fetching fixtures by date:", error);
 
-      // Try to get cached data for fallback
-      const fallbackCache = fixturesCache.get(cacheKey);
-      if (fallbackCache?.data) {
+      if (cached?.data) {
         console.log("Using cached data due to API error");
-        return fallbackCache.data;
+        return cached.data;
       }
       if (error instanceof Error) {
         throw new Error(`Failed to fetch fixtures: ${error.message}`);
@@ -470,18 +468,10 @@ export const rapidApiService = {
   },
 
   /**
-   * Get live fixtures with rate limiting protection
+   * Get live fixtures - ALWAYS fetch fresh data for live matches
    */
   async getLiveFixtures(): Promise<FixtureResponse[]> {
-    const cacheKey = 'live_fixtures';
-    const now = Date.now();
-    const cached = fixturesCache.get(cacheKey);
-
-    // Use cache if less than 30 seconds old to prevent rate limiting
-    if (cached && (now - cached.timestamp) < 30000) {
-      console.log(`🔄 [PRO API] Using cached live fixtures (age: ${Math.round((now - cached.timestamp) / 1000)}s)`);
-      return cached.data;
-    }
+    // NO CACHE for live fixtures - always fetch fresh data for accuracy
 
     try {
       console.log(
@@ -592,13 +582,7 @@ export const rapidApiService = {
         console.log(
           `🔴 [LIVE API] Retrieved ${response.data.response.length} live fixtures, ${filteredLiveFixtures.length} after filtering (NO CACHE - always fresh)`,
         );
-        
-        // Cache the results to prevent rate limiting
-        fixturesCache.set(cacheKey, { 
-          data: filteredLiveFixtures, 
-          timestamp: now 
-        });
-        
+        // NO CACHING for live fixtures - always return fresh data
         return filteredLiveFixtures;
       }
 
@@ -626,26 +610,36 @@ export const rapidApiService = {
     } catch (error) {
       console.error("RapidAPI: Error fetching live fixtures:", error);
 
-      // Check if it's a rate limiting error
-      if ((error as any)?.response?.status === 429) {
-        console.log("🔴 [LIVE API] Rate limited - using cached data if available");
-        
-        // Get cached data for rate limiting situations
-        const rateLimitCache = fixturesCache.get(cacheKey);
-        if (rateLimitCache?.data) {
-          console.log(`🔄 [LIVE API] Using cached data due to rate limiting (age: ${Math.round((now - rateLimitCache.timestamp) / 1000)}s)`);
-          return rateLimitCache.data;
+      /* Removed B365 API fallback
+      // Try B365API as fallback when RapidAPI fails
+      try {
+        console.log('RapidAPI failed, trying B365API as fallback...');
+        const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
+
+        if (b365LiveMatches && b365LiveMatches.length > 0) {
+          const convertedMatches = b365LiveMatches.map(match => 
+            b365ApiService.convertToRapidApiFormat(match)
+          );
+
+          console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures after RapidAPI error`);
+          fixturesCache.set(cacheKey, { 
+            data: convertedMatches, 
+            timestamp: now 
+          });
+          return convertedMatches;
         }
+      } catch (b365Error) {
+        console.error('B365API Fallback also failed:', b365Error);
+      }
+      */
+
+      // Use cached data if available
+      if (cached?.data) {
+        console.log("Using cached data due to both APIs failing");
+        return cached.data;
       }
 
-      // For other errors, try to use recent cache
-      const errorCache = fixturesCache.get(cacheKey);
-      if (errorCache?.data && (now - errorCache.timestamp) < 300000) { // 5 minutes
-        console.log(`🔄 [LIVE API] Using cached data due to API error (age: ${Math.round((now - errorCache.timestamp) / 1000)}s)`);
-        return errorCache.data;
-      }
-
-      console.error("❌ [LIVE API] All attempts failed and no usable cache available");
+      console.error("All API requests failed and no cache available");
       return [];
     }
   },
@@ -686,10 +680,9 @@ export const rapidApiService = {
       return null;
     } catch (error) {
       console.error(`Error fetching fixture with ID ${id}:`, error);
-      const fallbackCache = fixturesCache.get(cacheKey);
-      if (fallbackCache?.data) {
+      if (cached?.data) {
         console.log("Using cached data due to API error");
-        return fallbackCache.data;
+        return cached.data;
       }
       console.error("API request failed and no cache available");
       return null;
@@ -798,10 +791,9 @@ export const rapidApiService = {
       return [];
     } catch (error) {
       console.error(`Error fetching fixtures for league ${leagueId}:`, error);
-      const fallbackCache = fixturesCache.get(cacheKey);
-      if (fallbackCache?.data) {
+      if (cached?.data) {
         console.log("Using cached data due to API error");
-        return fallbackCache.data;
+        return cached.data;
       }
       console.error("API request failed and no cache available");
       return [];
@@ -834,10 +826,9 @@ export const rapidApiService = {
       return [];
     } catch (error) {
       console.error("Error fetching leagues:", error);
-      const fallbackCache = fixturesCache.get(cacheKey);
-      if (fallbackCache?.data) {
+      if (cached?.data) {
         console.log("Using cached data due to API error");
-        return fallbackCache.data;
+        return cached.data;
       }
       console.error("API request failed and no cache available");
       return [];
@@ -884,10 +875,9 @@ export const rapidApiService = {
       return null;
     } catch (error) {
       console.error(`Error fetching league with ID ${id}:`, error);
-      const fallbackCache = leaguesCache.get(cacheKey);
-      if (fallbackCache?.data) {
+      if (cached?.data) {
         console.log("Using cached data due to API error");
-        return fallbackCache.data;
+        return cached.data;
       }
       console.error("API request failed and no cache available");
       return null;
@@ -961,10 +951,9 @@ export const rapidApiService = {
         `Error fetching top scorers for league ${leagueId}:`,
         error,
       );
-      const fallbackCache = playersCache.get(cacheKey);
-      if (fallbackCache?.data) {
+      if (cached?.data) {
         console.log("Using cached data due to API error");
-        return fallbackCache.data;
+        return cached.data;
       }
       console.error("API request failed and no cache available");
       return [];
@@ -1044,10 +1033,9 @@ export const rapidApiService = {
       return null;
     } catch (error) {
       console.error(`Error fetching standings for league ${leagueId}:`, error);
-      const fallbackCache = leaguesCache.get(cacheKey);
-      if (fallbackCache?.data) {
+      if (cached?.data) {
         console.log("Using cached data due to API error");
-        return fallbackCache.data;
+        return cached.data;
       }
       console.error("API request failed and no cache available");
       return null;
