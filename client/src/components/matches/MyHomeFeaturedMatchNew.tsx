@@ -983,13 +983,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       {/* Home team colored bar and logo */}
 
                       <div
-                        className="h-full w-[calc(50%-16px)] ml-[37px] transition-all duration-500 ease-in-out opacity-100 relative "
+                        className="h-full w-[calc(50%+10px)] ml-[37px] transition-all duration-500 ease-in-out opacity-100 relative "
                         style={{
                           background: getEnhancedTeamColor(
                             currentMatch?.teams?.home?.name || "Home Team",
                             true,
                           ),
                           transition: "all 0.3s ease-in-out",
+                          clipPath: "polygon(0 0, calc(100% - 15px) 0, 100% 100%, 0 100%)",
                         }}
                       >
                         {currentMatch?.teams?.home && (
@@ -1094,13 +1095,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                       {/* Away team colored bar and logo */}
                       <div
-                        className="h-full w-[calc(50%-26px)] mr-[40px] transition-all duration-500 ease-in-out opacity-100"
+                        className="h-full w-[calc(50%+10px)] mr-[40px] transition-all duration-500 ease-in-out opacity-100"
                         style={{
                           background: getEnhancedTeamColor(
                             currentMatch?.teams?.away?.name || "Away Team",
                             false,
                           ),
                           transition: "all 0.3s ease-in-out",
+                          clipPath: "polygon(15px 0, 100% 0, 100% 100%, 0 100%)",
+                          marginLeft: "-10px",
                         }}
                       ></div>
 
