@@ -20,6 +20,7 @@ import {
   getTeamColor,
   getEnhancedHomeTeamGradient,
 } from "@/lib/colorExtractor";
+import { motion, AnimatePresence } from "framer-motion";
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
   maxMatches?: number;
@@ -861,12 +862,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             )}
 
             {/* Single match display */}
-            {currentMatch && (
-              <div
-                key={`match-${currentMatch.fixture.id}-${currentMatchIndex}`}
-                className="cursor-pointer transition-all duration-300"
-                onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
-              >
+            <AnimatePresence mode="wait">
+              {currentMatch && (
+                <motion.div
+                  key={`match-${currentMatch.fixture.id}-${currentMatchIndex}`}
+                  initial={{ x: 100, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: -100, opacity: 0 }}
+                  transition={{ type: "tween", duration: 0.3, ease: "easeInOut" }}
+                  className="cursor-pointer"
+                  onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
+                >
                 {/* League header */}
                 <div className="flex items-center justify-center gap-2 mb-4 p-2 bg-gray-50 rounded-lg">
                   <LazyImage
@@ -1290,8 +1296,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     ))}
                   </div>
                 )}
-              </div>
-            )}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
       </CardContent>
