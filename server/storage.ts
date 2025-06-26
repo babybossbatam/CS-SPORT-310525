@@ -461,19 +461,10 @@ export class DatabaseStorage implements IStorage {
         console.warn('Database pool not available, skipping cache creation');
         throw new Error('Database not available');
       }
-      
-      const result = await db
-        .insert(cachedFixtures)
+      const result = await db.insert(cachedFixtures)
         .values({
           ...fixture,
           timestamp: new Date()
-        })
-        .onConflictDoUpdate({
-          target: cachedFixtures.fixtureId,
-          set: {
-            data: fixture.data,
-            timestamp: new Date()
-          }
         })
         .returning();
 

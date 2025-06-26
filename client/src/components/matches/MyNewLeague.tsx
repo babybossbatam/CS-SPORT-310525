@@ -121,16 +121,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         if (Array.isArray(liveFixtures) && liveFixtures.length > 0) {
           console.log(`🔴 [MyNewLeague] Found ${liveFixtures.length} live fixtures from live endpoint`);
           
-          // Filter live fixtures for our target leagues OR by team names to catch all relevant matches
-          const relevantLiveFixtures = liveFixtures.filter(fixture => {
-            const isTargetLeague = leagueIds.includes(fixture.league?.id);
-            const isRelevantTeam = fixtures.some(existingFixture => 
-              existingFixture.fixture.id === fixture.fixture.id ||
-              (existingFixture.teams.home.name === fixture.teams.home.name && 
-               existingFixture.teams.away.name === fixture.teams.away.name)
-            );
-            return isTargetLeague || isRelevantTeam;
-          });
+          // Filter live fixtures for our target leagues
+          const relevantLiveFixtures = liveFixtures.filter(fixture => 
+            leagueIds.includes(fixture.league?.id)
+          );
           
           if (relevantLiveFixtures.length > 0) {
             console.log(`✅ [MyNewLeague] Found ${relevantLiveFixtures.length} relevant live fixtures`);
@@ -138,64 +132,20 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             // Update existing fixtures with live data
             setFixtures(prevFixtures => {
               const updatedFixtures = [...prevFixtures];
-              let hasUpdates = false;
               
               relevantLiveFixtures.forEach(liveFixture => {
                 const index = updatedFixtures.findIndex(f => f.fixture.id === liveFixture.fixture.id);
                 if (index !== -1) {
-                  // Update with fresh live data
-                  updatedFixtures[index] = {
-                    ...updatedFixtures[index],
-                    fixture: {
-                      ...updatedFixtures[index].fixture,
-                      status: {
-                        short: liveFixture.fixture.status.short,
-                        elapsed: liveFixture.fixture.status.elapsed || updatedFixtures[index].fixture.status.elapsed,
-                      },
-                    },
-                    goals: {
-                      home: liveFixture.goals?.home ?? updatedFixtures[index].goals.home,
-                      away: liveFixture.goals?.away ?? updatedFixtures[index].goals.away,
-                    },
-                  };
-                  hasUpdates = true;
-                  console.log(`🔄 [MyNewLeague] Updated live fixture ${liveFixture.fixture.id}: ${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name} - Status: ${liveFixture.fixture.status.short}, Elapsed: ${liveFixture.fixture.status.elapsed}'`);
+                  updatedFixtures[index] = liveFixture;
+                  console.log(`🔄 [MyNewLeague] Updated live fixture ${liveFixture.fixture.id}: ${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name}`);
                 } else {
-                  // Try to find by team names if ID doesn't match
-                  const teamMatchIndex = updatedFixtures.findIndex(f => 
-                    f.teams.home.name === liveFixture.teams.home.name && 
-                    f.teams.away.name === liveFixture.teams.away.name
-                  );
-                  
-                  if (teamMatchIndex !== -1) {
-                    updatedFixtures[teamMatchIndex] = {
-                      ...updatedFixtures[teamMatchIndex],
-                      fixture: {
-                        ...updatedFixtures[teamMatchIndex].fixture,
-                        status: {
-                          short: liveFixture.fixture.status.short,
-                          elapsed: liveFixture.fixture.status.elapsed || updatedFixtures[teamMatchIndex].fixture.status.elapsed,
-                        },
-                      },
-                      goals: {
-                        home: liveFixture.goals?.home ?? updatedFixtures[teamMatchIndex].goals.home,
-                        away: liveFixture.goals?.away ?? updatedFixtures[teamMatchIndex].goals.away,
-                      },
-                    };
-                    hasUpdates = true;
-                    console.log(`🔄 [MyNewLeague] Updated by team names ${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name} - Status: ${liveFixture.fixture.status.short}, Elapsed: ${liveFixture.fixture.status.elapsed}'`);
-                  } else {
-                    // Add new live fixture if it's from target leagues
-                    if (leagueIds.includes(liveFixture.league?.id)) {
-                      updatedFixtures.push(liveFixture);
-                      hasUpdates = true;
-                      console.log(`➕ [MyNewLeague] Added new live fixture ${liveFixture.fixture.id}: ${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name}`);
-                    }
-                  }
+                  // Add new live fixture if not found
+                  updatedFixtures.push(liveFixture);
+                  console.log(`➕ [MyNewLeague] Added new live fixture ${liveFixture.fixture.id}: ${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name}`);
                 }
               });
               
-              return hasUpdates ? updatedFixtures : prevFixtures;
+              return updatedFixtures;
             });
             
             return; // Exit early if we successfully updated with live data
@@ -205,15 +155,15 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         console.warn("❌ [MyNewLeague] Live endpoint failed, falling back to league endpoints:", liveError);
       }
 
-      // Fallback: Fetch from individual league endpoints with forced refresh
+      // Fallback: Fetch from individual league endpoints
       const allFixtures: FixtureData[] = [];
 
       for (const leagueId of leagueIds) {
         try {
-          // Fetch fresh fixtures for the league (force no cache)
+          // Fetch fresh fixtures for the league (no cache)
           const fixturesResponse = await apiRequest(
             "GET",
-            `/api/leagues/${leagueId}/fixtures?_t=${Date.now()}&nocache=true`,
+            `/api/leagues/${leagueId}/fixtures?_t=${Date.now()}`,
           );
           const fixturesData = await fixturesResponse.json();
 
@@ -232,7 +182,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         }
       }
 
-      // Update fixtures without changing loading state only if we got fresh data
+      // Update fixtures without changing loading state
       if (allFixtures.length > 0) {
         setFixtures(allFixtures);
         console.log(`✅ [MyNewLeague] Background refresh completed: ${allFixtures.length} fixtures`);
@@ -240,7 +190,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     } catch (err) {
       console.error("❌ [MyNewLeague] Background refresh error:", err);
     }
-  }, [leagueIds, fixtures]);
+  }, [leagueIds]);
 
   // Initial data fetch
   useEffect(() => {
@@ -338,16 +288,14 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     let interval: NodeJS.Timeout;
     
     if (hasLiveMatches) {
-      // More frequent updates for live matches (every 15 seconds)
-      console.log("🔴 [MyNewLeague] Live matches detected, setting up frequent refresh (15s)");
+      // More frequent updates for live matches (every 30 seconds)
+      console.log("🔴 [MyNewLeague] Live matches detected, setting up frequent refresh (30s)");
       interval = setInterval(() => {
         backgroundRefreshLiveData();
-      }, 15000);
+      }, 30000);
       
       // Immediate refresh when live matches are first detected
-      setTimeout(() => {
-        backgroundRefreshLiveData();
-      }, 1000);
+      backgroundRefreshLiveData();
     } else {
       // Less frequent updates when no live matches (every 2 minutes)
       console.log("⏸️ [MyNewLeague] No live matches, setting up normal refresh (2min)");
@@ -835,7 +783,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                             } else if (status === "INT") {
                               displayText = "Interrupted";
                             } else {
-                              displayText = elapsed && elapsed > 0 ? `${elapsed}'` : "LIVE";
+                              displayText = elapsed ? `${elapsed}'` : "LIVE";
                             }
 
                             return (
@@ -929,7 +877,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                           {(() => {
                             const status = match.fixture.status.short;
                             const fixtureDate = parseISO(match.fixture.date);
-                            const elapsed = match.fixture.status.elapsed;
 
                             if (
                               [
