@@ -762,6 +762,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cacheAge = now.getTime() - cacheTime.getTime();
 
         // Use 2 hour cache for league fixtures
-        if (cacheAge < 2 * 60 * 60 * 100) {
+        if (cacheAge < 2 * 60 * 60 * 1000) { // Fixed: was 100, should be 1000 for milliseconds
           console.log(`Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
-          return res.json(
+          return res.json(cachedFixtures.data);
+        }
+      }
+
+      // Fetch fresh data from API
+      let fixtures;
+      try {
+        fixtures = await rapidApiService.getFixturesByLeague(id, season);
+      } catch (error) {
+        console.error(`API-Football error for league ${id} fixtures:`, error);
+        
+        // Return cached data if API fails
+        if (cachedFixtures) {
+          return res.json(cachedFixtures.data);
+        }
+        
+        return res.status(500).json({ message: "Failed to fetch league fixtures" });
+      }
+
+      // Cache the fixtures
+      try {
+        if (cachedFixtures) {
+          await storage.updateCachedFixture(cacheKey, fixtures);
+        } else {
+          await storage.createCachedFixture({
+            fixtureId: cacheKey,
+            data: fixtures,
+            league: id.toString(),
+            date: new Date().toISOString().split('T')[0]
+          });
+        }
+      } catch (cacheError) {
+        console.error(`Error caching league ${id} fixtures:`, cacheError);
+      }
+
+      res.json(fixtures);
+    } catch (error) {
+      console.error(`Error fetching league ${id} fixtures:`, error);
+      res.status(500).json({ message: "Failed to fetch league fixtures" });
+    }
+  });
+
+  // Create HTTP server
+  const httpServer = createServer(app);
+
+  return httpServer;
+}
