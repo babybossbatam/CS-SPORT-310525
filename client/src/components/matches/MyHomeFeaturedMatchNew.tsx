@@ -1281,7 +1281,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           e.stopPropagation();
                           setCurrentMatchIndex(index);
                         }}
-                        className={`w-2 h-2 rounded-full transition-colors ${
+                        className={`w-1.5 h-1.5 rounded-full transition-colors ${
                           index === currentMatchIndex
                             ? "bg-blue-500"
                             : "bg-gray-300"
