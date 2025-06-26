@@ -17,7 +17,7 @@ const MIN_REQUEST_INTERVAL = 600000; // 10 minutes for non-central requests
 const checkRateLimit = (key: string) => {
   // Skip rate limiting for central cache keys
   if (key.includes('central-')) return true;
-  
+
   const now = Date.now();
   const lastRequest = requestTimestamps.get(key);
 
@@ -46,7 +46,14 @@ export async function apiRequest(
     await throwIfResNotOk(res);
     return res;
   } catch (error) {
-    console.error(`API request error for ${method} ${url}:`, error);
+    console.error(`API request failed: ${method} ${url}`, error);
+
+    // Check if it's a network error
+    if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+      console.error('Network error - check if server is running');
+      throw new Error('Network connection failed. Please check if the server is running.');
+    }
+
     throw error;
   }
 }
