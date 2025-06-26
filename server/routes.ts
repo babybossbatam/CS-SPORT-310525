@@ -508,7 +508,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 890, priority: 9.7 }, // AFC U16 Championship
         { id: 891, priority: 9.8 }, // CAF U20 Cup of Nations
         { id: 892, priority: 9.9 }, // CAF U17 Cup of Nations
-        { id: id: 893, priority: 10.0 }, // CONCACAF U17 Championship
+        { id: 893, priority: 10.0 }, // CONCACAF U17 Championship
         { id: 894, priority: 10.1 }, // OFC U17 Championship
         { id: 895, priority: 10.2 }, // FIFA Beach Soccer World Cup
         { id: 896, priority: 10.3 }, // FIFA Futsal World Cup
