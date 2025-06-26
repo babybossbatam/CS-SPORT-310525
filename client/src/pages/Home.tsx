@@ -12,7 +12,7 @@ import LiveMatchForAllCountry from "@/components/matches/LiveMatchForAllCountry"
 import LiveMatchByTime from "@/components/matches/LiveMatchByTime";
 import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew";
 import MyNewLeague from "@/components/matches/MyNewLeague";
-import MyNewLiveMatch from "@/components/matches/MyNewLiveMatch";
+
 
 const Home = () => {
   const [selectedDate, setSelectedDate] = React.useState(new Date());
@@ -54,11 +54,7 @@ const Home = () => {
                 />
               )}
 
-              {/* Featured Live Matches - appears below LiveMatchForAllCountry when live filter is active */}
-              <MyNewLiveMatch
-                liveFilterActive={liveFilterActive}
-                onMatchCardClick={handleMatchCardClick}
-              />
+              
         </MyMainLayout>
       </div>
 

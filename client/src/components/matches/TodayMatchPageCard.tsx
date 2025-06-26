@@ -14,6 +14,7 @@ import TodayMatchByTime from "./TodayMatchByTime";
 import MyNewPopularLeague from "./MyNewPopularLeague";
 import EnhancementLeague from "./EnhancementLeague";
 import MyNewLeague from "./MyNewLeague";
+import MyNewLiveMatch from "./MyNewLiveMatch";
 
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { format, parseISO, addDays, subDays } from "date-fns";
@@ -394,14 +395,20 @@ export const TodayMatchPageCard = ({
           setLiveFilterActive={setLiveFilterActive}
         />
       ) : liveFilterActive && !timeFilterActive ? (
-        // Live only - show LiveMatchForAllCountry
-        <LiveMatchForAllCountry
-          liveFilterActive={liveFilterActive}
-          timeFilterActive={timeFilterActive}
-          liveFixtures={sharedLiveFixtures}
-          setLiveFilterActive={setLiveFilterActive}
-          onMatchCardClick={handleMatchCardClick}
-        />
+        // Live only - show LiveMatchForAllCountry and MyNewLiveMatch below it
+        <>
+          <LiveMatchForAllCountry
+            liveFilterActive={liveFilterActive}
+            timeFilterActive={timeFilterActive}
+            liveFixtures={sharedLiveFixtures}
+            setLiveFilterActive={setLiveFilterActive}
+            onMatchCardClick={handleMatchCardClick}
+          />
+          <MyNewLiveMatch
+            liveFilterActive={liveFilterActive}
+            onMatchCardClick={handleMatchCardClick}
+          />
+        </>
       ) : timeFilterActive && !liveFilterActive ? (
         // Time only - show new TodayMatchByTime component with shared data
         <>
