@@ -210,8 +210,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     setShowEmbed(!showEmbed);
   };
 
-  const [showEmbed, setShowEmbed] = useState(false);
-
   if (!homeTeam || !awayTeam) {
     return null;
   }
