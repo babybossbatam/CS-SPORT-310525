@@ -642,66 +642,111 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   if (isLoading) {
     return (
-      <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4">
+      <Card className="px-0 pt-0 pb-2 relative shadow-md">
         <Badge
           variant="secondary"
           className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
         >
           Featured Match
         </Badge>
-        <CardContent className="p-6">
+        <div className="p-4">
           <div className="space-y-4">
             <div className="animate-pulse">
               <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
               <div className="h-32 bg-gray-100 rounded"></div>
             </div>
           </div>
-        </CardContent>
+        </div>
       </Card>
     );
   }
 
   return (
-    <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4 overflow-hidden">
+    <Card className="px-0 pt-0 pb-2 relative shadow-md">
       <Badge
         variant="secondary"
         className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
       >
         Featured Match
       </Badge>
+      <div className="bg-gray-50 p-2 mt-6 relative">
+        <div className="flex items-center justify-center">
+          {currentMatch?.league?.logo ? (
+            <img
+              src={currentMatch.league.logo}
+              alt={currentMatch.league.name}
+              className="w-5 h-5 object-contain mr-2"
+              onError={(e) => {
+                e.currentTarget.src = "/assets/fallback-logo.svg";
+              }}
+            />
+          ) : (
+            <Trophy className="w-5 h-5 text-amber-500 mr-2" />
+          )}
+          <span className="text-sm font-medium">{currentMatch?.league?.name || "League Name"}</span>
+          {getStatusDisplay(currentMatch).isLive ? (
+            <div className="flex items-center gap-1.5 ml-2">
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <Badge
+                variant="outline"
+                className="text-[10px] px-1.5 py-0 border border-red-500 text-red-500 animate-pulse"
+              >
+                LIVE
+              </Badge>
+            </div>
+          ) : (
+            <Badge
+              variant="outline"
+              className={`text-[10px] px-1.5 py-0 border ml-[3px] ${
+                getStatusDisplay(currentMatch).text === "Full Time"
+                  ? "border-gray-500 text-gray-500"
+                  : "border-blue-500 text-blue-500"
+              }`}
+            >
+              {(() => {
+                const statusInfo = getStatusDisplay(currentMatch);
+                const matchStatus = currentMatch?.fixture?.status?.short;
+                
+                if (statusInfo.isLive) {
+                  return "LIVE";
+                } else if (matchStatus === "FT") {
+                  return "FINISHED";
+                } else {
+                  return currentMatch?.league?.round || "UPCOMING";
+                }
+              })()}
+            </Badge>
+          )}
+        </div>
+      </div>
 
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-sm"></CardTitle>
-      </CardHeader>
+      {allMatches.length > 1 && (
+        <>
+          <button
+            onClick={handlePrevious}
+            className="absolute left-0 top-1/2 -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black h-[58px] w-[26px] p-2 rounded-r-full z-40 flex items-center border border-gray-200"
+          >
+            <ChevronLeft className="h-14 w-14" />
+          </button>
+          <button
+            onClick={handleNext}
+            className="absolute right-0 top-1/2 -translate-y-1/2 bg-gray-100 hover:bg-gray-200 text-black h-[58px] w-[26px] p-2 rounded-l-full z-40 flex items-center border border-gray-200"
+          >
+            <ChevronRight className="h-25 w-25" />
+          </button>
+        </>
+      )}
 
-      <CardContent className="pt-0">
+      <div className="pt-0">
         {allMatches.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-gray-500">
             <p className="text-lg font-medium mb-1">No featured matches</p>
             <p className="text-sm">Check back later for upcoming games</p>
           </div>
         ) : (
-          <div className="relative">
-            {/* Navigation arrows */}
-            {allMatches.length > 1 && (
-              <>
-                <button
-                  onClick={handlePrevious}
-                  className="absolute 
-                  -left-12 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
-                >
-                  <ChevronLeft className=" h-4 w-4 " />
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="absolute -right-12 top-1/2 transform -translate-y-1/2 z-10 bg-gray-200 hover:bg-gray-300 rounded-full p-4 "
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </>
-            )}
-
-            {/* Single match display */}
+          <div className="overflow-hidden h-full w-full bg-white shadow-sm cursor-pointer" onClick={() => currentMatch?.fixture?.id && navigate(`/match/${currentMatch.fixture.id}`)}>
+            <div className="p-0 h-full mt-0 mb-[10px] relative">
+              {/* Single match display */}
             {currentMatch && (
               <div
                 key={`match-${currentMatch.fixture.id}-${currentMatchIndex}`}
@@ -855,128 +900,122 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   </div>
                 </div>
 
-                {/* Action Buttons */}
+                {/* Bottom navigation */}
                 <div className="flex justify-around border-t border-gray-200 pt-4">
                   <button
-                    className="flex flex-col items-center cursor-pointer"
+                    className="flex flex-col items-center cursor-pointer w-1/4"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/match/${currentMatch.fixture.id}`);
                     }}
                   >
                     <svg
-                      width="20"
-                      height="20"
+                      width="18"
+                      height="18"
                       viewBox="0 0 24 24"
-                      className="text-blue-500"
+                      className="text-gray-600"
                     >
                       <path
                         d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z"
                         fill="currentColor"
                       />
                     </svg>
-                    <span className="text-xs text-gray-600 mt-1">
+                    <span className="text-[0.75rem] text-gray-600 mt-1">
                       Match Page
                     </span>
                   </button>
                   <button
-                    className="flex flex-col items-center cursor-pointer"
+                    className="flex flex-col items-center cursor-pointer w-1/4"
                     onClick={(e) => {
                       e.stopPropagation();
+                      navigate(`/match/${currentMatch.fixture.id}/lineups`);
                     }}
                   >
                     <svg
-                      width="20"
-                      height="20"
+                      width="18"
+                      height="18"
                       viewBox="0 0 24 24"
-                      className="text-blue-500"
+                      className="text-gray-600"
                     >
                       <path
-                        d="M21.5 4H2.5C2.22386 4 2 4.22386 2 4.5V19.5C2 19.7761 2.22386 20 2.5 20H21.5C21.7761 20 22 19.7761 22 19.5V4.5C22 4.22386 21.7761 4 21.5 4Z"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        fill="none"
-                      />
-                      <path
-                        d="M21.5 9H18.5C18.2239 9 18 9.22386 18 9.5V14.5C18 14.7761 18.2239 15 18.5 15H21.5C21.7761 15 22 14.7761 22 14.5V9.5C22 9.22386 21.7761 9 21.5 9Z"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        fill="none"
-                      />
-                      <path
-                        d="M5.5 9H2.5C2.22386 9 2 9.22386 2 9.5V14.5C2 14.7761 2.22386 15 2.5 15H5.5C5.77614 15 6 14.7761 6 14.5V9.5C6 9.22386 5.77614 9 5.5 9Z"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        fill="none"
-                      />
-                    </svg>
-                    <span className="text-xs text-gray-600 mt-1">Lineups</span>
-                  </button>
-                  <button
-                    className="flex flex-col items-center cursor-pointer"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      className="text-blue-500"
-                    >
-                      <path
-                        d="M12 2C6.486 2 2 6.486 2 12C2 17.514 6.486 22 12 22C17.514 22 22 17.514 22 12C22 6.486 17.514 2 12 2ZM19.931 11H13V4.069C14.7598 4.29335 16.3953 5.09574 17.6498 6.3502C18.9043 7.60466 19.7066 9.24017 19.931 11ZM4 12C4 7.928 7.061 4.564 11 4.069V12C11.003 12.1526 11.0409 12.3024 11.111 12.438C11.126 12.468 11.133 12.501 11.152 12.531L15.354 19.254C14.3038 19.7442 13.159 19.9988 12 20C7.589 20 4 16.411 4 12ZM17.052 18.196L13.805 13H19.931C19.6746 15.0376 18.6436 16.8982 17.052 18.196Z"
+                        d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM13 19V5H19V19H13Z"
                         fill="currentColor"
                       />
                     </svg>
-                    <span className="text-xs text-gray-600 mt-1">Stats</span>
+                    <span className="text-[0.75rem] text-gray-600 mt-1">
+                      Lineups
+                    </span>
                   </button>
                   <button
-                    className="flex flex-col items-center cursor-pointer"
+                    className="flex flex-col items-center cursor-pointer w-1/4"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/league/${currentMatch.league.id}/standings`);
+                      navigate(`/match/${currentMatch.fixture.id}/h2h`);
                     }}
                   >
                     <svg
-                      width="20"
-                      height="20"
+                      width="18"
+                      height="18"
                       viewBox="0 0 24 24"
-                      className="text-blue-500"
+                      className="text-gray-600"
                     >
                       <path
-                        d="M4 6H6V8H4V6ZM4 11H6V13H4V11ZM4 16H6V18H4V16ZM20 8V6H8.023V8H18.8H20ZM8 11H20V13H8V11ZM8 16H20V18H8V16Z"
+                        d="M14.06 9.02L16.66 11.62L14.06 14.22L15.48 15.64L18.08 13.04L20.68 15.64L19.26 17.06L21.86 19.66L20.44 21.08L17.84 18.48L15.24 21.08L13.82 19.66L16.42 17.06L15.06 15.64L12.46 13.04L15.06 10.44L13.64 9.02L11.04 11.62L8.44 9.02L9.86 7.6L7.26 5L4.66 7.6L6.08 9.02L3.48 11.62L6.08 14.22L4.66 15.64L2.06 13.04L4.66 10.44L6.08 9.02L3.48 6.42L4.9 5L7.5 7.6L10.1 5L11.52 6.42L8.92 9.02L11.52 11.62L14.06 9.02M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 2 12Z"
                         fill="currentColor"
                       />
                     </svg>
-                    <span className="text-xs text-gray-600 mt-1">Groups</span>
+                    <span className="text-[0.75rem] text-gray-600 mt-1">
+                      H2H
+                    </span>
+                  </button>
+                  <button
+                    className="flex flex-col items-center cursor-pointer w-1/4"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/match/${currentMatch.fixture.id}/standings`);
+                    }}
+                  >
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      className="text-gray-600"
+                    >
+                      <path
+                        d="M12 4C11.17 4 10.36 4.16 9.59 4.47L7.75 6.32L16.68 15.25L18.53 13.4C18.84 12.64 19 11.83 19 11C19 7.13 15.87 4 12 4M5.24 8.66L6.66 7.24L7.93 8.51C8.74 8.2 9.56 8 10.4 7.83L12.24 5.96L3.31 14.89L5.24 8.66M13.6 16.6L5.33 21.88C5.72 22.4 6.29 22.88 6.93 23.17L8.77 21.33L16.36 13.74L13.6 16.6M15.25 17.75L13.4 19.6C12.64 19.84 11.83 20 11 20C7.13 20 4 16.87 4 13C4 12.17 4.16 11.36 4.47 10.59L6.32 8.75L15.25 17.75Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    <span className="text-[0.75rem] text-gray-600 mt-1">
+                      Standings
+                    </span>
                   </button>
                 </div>
 
-                {/* Slide indicators */}
-                {allMatches.length > 1 && (
-                  <div className="flex justify-center mt-4 gap-1">
-                    {allMatches.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setCurrentMatchIndex(index);
-                        }}
-                        className={`w-2 h-2 rounded-full transition-colors ${
-                          index === currentMatchIndex
-                            ? "bg-blue-500"
-                            : "bg-gray-300"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                )}
+                </div>
+            </div>
+
+            {/* Navigation dots */}
+            {allMatches.length > 1 && (
+              <div className="flex justify-center gap-2 py-2 mt-2">
+                {allMatches.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentMatchIndex(index);
+                    }}
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                      index === currentMatchIndex ? "bg-black" : "bg-gray-300"
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
               </div>
             )}
           </div>
         )}
-      </CardContent>
+      </div>
     </Card>
   );
 };
