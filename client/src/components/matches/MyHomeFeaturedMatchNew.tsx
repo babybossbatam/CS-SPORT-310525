@@ -73,10 +73,10 @@ interface FeaturedMatch {
       name: string;
       logo: string;
     };
-  };
-  goals: {
-    home: number | null;
-    away: number | null;
+    goals: {
+      home: number | null;
+      away: number | null;
+    };
   };
 }
 
@@ -829,13 +829,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         }}
                       >
                         {currentMatch?.teams?.home && (
-                          <img
-                            src={
-                              currentMatch.teams.home.logo ||
-                              `/assets/fallback-logo.svg`
-                            }
-                            alt={currentMatch.teams.home.name || "Home Team"}
-                            className="absolute z-20 w-[64px] h-[64px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                          <div
+                            className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                             style={{
                               cursor: "pointer",
                               top: "calc(50% - 32px)",
@@ -846,20 +841,23 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               e.stopPropagation();
                               navigate(`/match/${currentMatch.fixture.id}`);
                             }}
-                            onError={(e) => {
-                              const target = e.currentTarget;
-                              if (
-                                target.src.includes("sportmonks") &&
-                                currentMatch.teams.home.logo
-                              ) {
-                                target.src = currentMatch.teams.home.logo;
-                              } else if (
-                                target.src !== "/assets/fallback-logo.svg"
-                              ) {
-                                target.src = "/assets/fallback-logo.svg";
+                          >
+                            <MyWorldTeamLogo
+                              teamName={currentMatch.teams.home.name || "Home Team"}
+                              teamLogo={
+                                currentMatch.teams.home.id
+                                  ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
+                                  : currentMatch.teams.home.logo || "/assets/fallback-logo.svg"
                               }
-                            }}
-                          />
+                              alt={currentMatch.teams.home.name || "Home Team"}
+                              size="64px"
+                              className="w-full h-full object-contain"
+                              leagueContext={{
+                                name: currentMatch.league.name,
+                                country: currentMatch.league.country,
+                              }}
+                            />
+                          </div>
                         )}
                       </div>
 
@@ -920,7 +918,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             );
                           } catch (e) {
                             return "";
-                          }
+}
                         })()}
                       </div>
 
@@ -945,13 +943,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         {currentMatch?.teams?.away?.name || "Away Team"}
                       </div>
 
-                      <img
-                        src={
-                          currentMatch?.teams?.away?.logo ||
-                          `/assets/fallback-logo.svg`
-                        }
-                        alt={currentMatch?.teams?.away?.name || "Away Team"}
-                        className="absolute z-20 w-[64px] h-[64px] object-contain transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                      <div
+                        className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-110 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
                         style={{
                           cursor: "pointer",
                           top: "calc(50% - 32px)",
@@ -963,14 +956,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           e.stopPropagation();
                           navigate(`/match/${currentMatch.fixture.id}`);
                         }}
-                        onError={(e) => {
-                          e.currentTarget.src = "/assets/fallback-logo.svg";
-                        }}
-                      />
+                      >
+                        <MyWorldTeamLogo
+                          teamName={currentMatch?.teams?.away?.name || "Away Team"}
+                          teamLogo={
+                            currentMatch.teams.away.id
+                              ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
+                              : currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`
+                          }
+                          alt={currentMatch?.teams?.away?.name || "Away Team"}
+                          size="64px"
+                          className="w-full h-full object-contain"
+                          leagueContext={{
+                            name: currentMatch.league.name,
+                            country: currentMatch.league.country,
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-                
+
 
                 {/* Action Buttons */}
                 <div className="flex justify-around border-t border-gray-200 pt-4">
