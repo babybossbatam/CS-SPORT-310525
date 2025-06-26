@@ -119,6 +119,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         console.log('🔍 [MyHomeFeaturedMatchNew] Starting fetch with priority leagues:', priorityLeagueIds);
         console.log('🔍 [MyHomeFeaturedMatchNew] All featured league IDs:', FEATURED_MATCH_LEAGUE_IDS);
+        console.log('🔍 [MyHomeFeaturedMatchNew] Force refresh mode:', forceRefresh);
 
         // Helper function to determine if match is live
         const isLiveMatch = (status: string) => {
@@ -156,6 +157,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         try {
           if (forceRefresh) {
             console.log("🔴 [MyHomeFeaturedMatchNew] Fetching live matches from dedicated endpoint");
+            console.log("🔴 [MyHomeFeaturedMatchNew] Making request to: /api/featured-match/live?skipFilter=true");
             const liveResponse = await apiRequest("GET", "/api/featured-match/live?skipFilter=true");
             const liveData = await liveResponse.json();
 
@@ -239,6 +241,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               console.log(
                 `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for league ${leagueId}`,
               );
+              console.log(
+                `🔍 [MyHomeFeaturedMatchNew] Making request to: /api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
+              );
 
               const fixturesResponse = await apiRequest(
                 "GET",
@@ -311,6 +316,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             try {
               console.log(
                 `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for ${dateInfo.label}: ${dateInfo.date}`,
+              );
+              console.log(
+                `🔍 [MyHomeFeaturedMatchNew] Making request to: /api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
               );
 
               const response = await apiRequest(

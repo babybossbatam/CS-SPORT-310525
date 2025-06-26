@@ -30,6 +30,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api", apiRouter);
 
   // Featured match routes for MyHomeFeaturedMatch component
+  console.log('🚀 [Routes] Registering featured match routes at /api/featured-match');
   apiRouter.use("/featured-match", featuredMatchRouter);
 
   // Health check endpoint
@@ -209,7 +210,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/fixtures/live", async (req: Request, res: Response) => {
     try {
       const { skipFilter } = req.query;
-      
+
       // Use API-Football (RapidAPI) only
       try {
         const fixtures = await rapidApiService.getLiveFixtures();
@@ -758,7 +759,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const { skipFilter } = req.query;
-      
+
       // Calculate current season based on date
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
@@ -1530,8 +1531,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // SportsRadar team logo endpoint (server-side to avoid CORS)
-  apiRouter.get('/sportsradar/teams/:teamId/logo', async (req: Request, res: Response) => {
-    try {
+  apiRouter.get('/sportsradar/teams/:teamId/logo', async (req: Request, res: Response) => {    try {
       let { teamId } = req.params;
 
       // If teamId contains a URL, extract the actual team ID
@@ -2213,9 +2213,9 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     try {
       const { id } = req.params;
       console.log(`📋 [SoccersAPI] Fetching match details for: ${id}`);
-      
+
       const matchDetails = await soccersApi.getMatchDetails(id);
-      
+
       if (matchDetails) {
         res.json({
           success: true,
@@ -2240,7 +2240,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     try {
       const { id } = req.params;
       console.log(`⚽ [SoccersAPI] Fetching events for match: ${id}`);
-      
+
       const events = await soccersApi.getMatchEvents(id);
       res.json({
         success: true,
@@ -2261,7 +2261,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     try {
       const { id } = req.params;
       console.log(`📊 [SoccersAPI] Fetching statistics for match: ${id}`);
-      
+
       const stats = await soccersApi.getMatchStatistics(id);
       res.json({
         success: true,
@@ -2281,7 +2281,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     try {
       const { id } = req.params;
       console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);
-      
+
       const lineups = await soccersApi.getMatchLineups(id);
       res.json({
         success: true,
