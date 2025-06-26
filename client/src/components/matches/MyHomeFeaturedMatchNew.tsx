@@ -646,12 +646,143 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
   }, [allMatches.length]);
 
+  // State for storing extracted logo colors
+  const [teamLogoColors, setTeamLogoColors] = useState<Record<string, string>>({});
+
+  // Function to extract dominant color from logo
+  const extractDominantColorFromLogo = useCallback(async (logoUrl: string, teamName: string) => {
+    try {
+      return new Promise<string>((resolve) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          if (!ctx) {
+            resolve(getTeamColor(teamName, true)); // fallback
+            return;
+          }
+          
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          
+          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = imageData.data;
+          
+          // Color frequency map
+          const colorMap: Record<string, number> = {};
+          
+          // Sample every 4th pixel for performance
+          for (let i = 0; i < data.length; i += 16) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+            const a = data[i + 3];
+            
+            // Skip transparent or near-transparent pixels
+            if (a < 128) continue;
+            
+            // Skip near-white or near-black pixels
+            if ((r > 240 && g > 240 && b > 240) || (r < 20 && g < 20 && b < 20)) continue;
+            
+            // Group similar colors (reduce precision)
+            const rGroup = Math.floor(r / 20) * 20;
+            const gGroup = Math.floor(g / 20) * 20;
+            const bGroup = Math.floor(b / 20) * 20;
+            
+            const colorKey = `${rGroup},${gGroup},${bGroup}`;
+            colorMap[colorKey] = (colorMap[colorKey] || 0) + 1;
+          }
+          
+          // Find most frequent color
+          let dominantColor = '';
+          let maxCount = 0;
+          
+          for (const [color, count] of Object.entries(colorMap)) {
+            if (count > maxCount) {
+              maxCount = count;
+              dominantColor = color;
+            }
+          }
+          
+          if (dominantColor) {
+            const [r, g, b] = dominantColor.split(',').map(Number);
+            // Enhance the color for better visibility
+            const enhancedR = Math.min(255, Math.max(40, r * 0.8));
+            const enhancedG = Math.min(255, Math.max(40, g * 0.8));
+            const enhancedB = Math.min(255, Math.max(40, b * 0.8));
+            
+            resolve(`rgb(${enhancedR}, ${enhancedG}, ${enhancedB})`);
+          } else {
+            resolve(getTeamColor(teamName, true)); // fallback
+          }
+        };
+        
+        img.onerror = () => {
+          resolve(getTeamColor(teamName, true)); // fallback
+        };
+        
+        img.src = logoUrl;
+      });
+    } catch (error) {
+      console.warn('Error extracting color from logo:', error);
+      return getTeamColor(teamName, true); // fallback
+    }
+  }, []);
+
+  // Extract colors from team logos when match changes
+  useEffect(() => {
+    if (currentMatch?.teams) {
+      const extractColors = async () => {
+        const homeTeamName = currentMatch.teams.home.name;
+        const awayTeamName = currentMatch.teams.away.name;
+        
+        // Only extract if we don't already have the colors cached
+        if (!teamLogoColors[homeTeamName] || !teamLogoColors[awayTeamName]) {
+          const homeLogoUrl = currentMatch.teams.home.id
+            ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
+            : currentMatch.teams.home.logo;
+            
+          const awayLogoUrl = currentMatch.teams.away.id
+            ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
+            : currentMatch.teams.away.logo;
+          
+          try {
+            const [homeColor, awayColor] = await Promise.all([
+              extractDominantColorFromLogo(homeLogoUrl, homeTeamName),
+              extractDominantColorFromLogo(awayLogoUrl, awayTeamName)
+            ]);
+            
+            setTeamLogoColors(prev => ({
+              ...prev,
+              [homeTeamName]: homeColor,
+              [awayTeamName]: awayColor
+            }));
+          } catch (error) {
+            console.warn('Error extracting team colors:', error);
+          }
+        }
+      };
+      
+      extractColors();
+    }
+  }, [currentMatch, extractDominantColorFromLogo, teamLogoColors]);
+
   const getEnhancedTeamColor = useCallback(
     (teamName: string, isHome: boolean = false) => {
-      // Use 365scores-style color extraction based on team name and logo
+      // Use extracted logo color if available, otherwise fallback to team color
+      const extractedColor = teamLogoColors[teamName];
+      if (extractedColor) {
+        return extractedColor;
+      }
+      
+      // Fallback to existing color extraction
       return getTeamColor(teamName, isHome);
     },
-    [],
+    [teamLogoColors],
   );
 
   if (isLoading) {
