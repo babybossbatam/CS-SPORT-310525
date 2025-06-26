@@ -96,12 +96,17 @@ interface CombinedLeagueCardsProps {
   timeFilterActive?: boolean;
   showTop20?: boolean;
   liveFilterActive?: boolean;
-  filteredFixtures?: any[];
-  onMatchCardClick?: (match: any) => void;
+  filteredFixtures: any[];
+  onMatchCardClick?: (fixture: any) => void;
   lazyLoadingProps?: {
     visibleMatches: Set<number>;
     createLazyRef: (matchId: number) => (node: HTMLDivElement | null) => void;
     LazyMatchSkeleton: React.ComponentType;
+  };
+  flashEffectProps?: {
+    halftimeFlashMatches: Set<number>;
+    fulltimeFlashMatches: Set<number>;
+    goalFlashMatches: Set<number>;
   };
 }
 
@@ -110,10 +115,15 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   timeFilterActive = false,
   showTop20 = false,
   liveFilterActive = false,
-  filteredFixtures: propFilteredFixtures = [],
+  filteredFixtures,
   onMatchCardClick,
   lazyLoadingProps,
+  flashEffectProps,
 }) => {
+  const halftimeFlashMatches = flashEffectProps?.halftimeFlashMatches || new Set();
+  const fulltimeFlashMatches = flashEffectProps?.fulltimeFlashMatches || new Set();
+  const goalFlashMatches = flashEffectProps?.goalFlashMatches || new Set();
+
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
     new Set(),
   );
@@ -188,7 +198,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   // Smart filtering operations
   const filteredFixtures = useMemo(() => {
     // Use provided fixtures if available, otherwise use central data
-    const fixturesToFilter = propFilteredFixtures || allFixtures;
+    const fixturesToFilter = filteredFixtures || allFixtures;
     if (!fixturesToFilter?.length) return [];
 
     console.log(
@@ -381,7 +391,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
     );
 
     return finalFiltered;
-  }, [propFilteredFixtures, allFixtures, selectedDate]);
+  }, [filteredFixtures, allFixtures, selectedDate]);
 
   // Group fixtures by country and league
   const fixturesByCountry = filteredFixtures.reduce(
@@ -927,14 +937,24 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
                   >
                     {isVisible ? (
                   <div
-                            key={match.fixture.id}
-                            className="match-card-container group"
-                            onClick={() => handleMatchClick(match)}
-                            style={{ 
-                              cursor: onMatchCardClick ? 'pointer' : 'default',
-                              userSelect: 'none'
-                            }}
-                          >
+                              key={match.fixture.id}
+                              className="country-matches-container"
+                            >
+                              <div 
+                                className={`match-card-container group ${
+                                  halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
+                                } ${
+                                  fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
+                                } ${
+                                  goalFlashMatches.has(match.fixture.id) ? 'goal-flash' : ''
+                                }`}
+                                data-fixture-id={match.fixture.id}
+                                onClick={() => handleMatchClick(match)}
+                                style={{ 
+                                  cursor: onMatchCardClick ? 'pointer' : 'default',
+                                  userSelect: 'none'
+                                }}
+                              >
                     {/* Star Button */}
                     <button
                       onClick={(e) => {
