@@ -73,20 +73,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         left: moveLeft ? "-16px" : "4px",
       }}
     >
-      <LazyImage
-        src={teamLogo || "/assets/fallback-logo.svg"}
-        alt={alt || teamName}
-        title={teamName}
-        className="team-logo"
-        style={{ 
-          backgroundColor: "transparent",
-          width: "100%",
-          height: "100%",
-          objectFit: "contain",
-          borderRadius: "0%"
-        }}
-        fallbackSrc="/assets/fallback-logo.svg"
-      />
     </div>
   );
 };
