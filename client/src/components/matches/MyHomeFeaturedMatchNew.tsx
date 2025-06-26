@@ -974,9 +974,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             );
 
                             if (daysDiff > 0 && daysDiff <= 7) {
-                              // For matches within a week, show day name and days from now
-                              const dayName = format(matchDate, "EEEE");
-                              return `${dayName} (${daysDiff} ${daysDiff === 1 ? "day" : "days"} from now)`;
+                              // For matches within a week, show just the number of days
+                              return `${daysDiff} ${daysDiff === 1 ? "Day" : "Days"}`;
                             } else if (daysDiff > 7) {
                               // For matches more than a week away, show date
                               return format(matchDate, "EEEE, MMM d");
