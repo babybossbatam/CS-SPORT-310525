@@ -625,8 +625,6 @@ const FixedScoreboard = () => {
     if (!match) return "No Match Data";
 
     const { fixture } = match;
-    // Use hardcoded "now" for demo purposes to match the fixture dates in our data
-    const now = new Date();
 
     // LIVE MATCHES - show match minute or halftime
     if (
@@ -636,136 +634,66 @@ const FixedScoreboard = () => {
     ) {
       // For halftime
       if (fixture.status.short === "HT") {
-        return "Half Time";
+        return (
+          <div className="flex flex-col items-center space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-red-500 font-semibold animate-pulse">LIVE</span>
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            </div>
+            <span className="text-black text-sm">Half Time</span>
+          </div>
+        );
       }
       // For live match with timer
       else if (["1H", "2H"].includes(fixture.status.short)) {
-        // Use our tracked elapsed time if available, otherwise fall back to API
         const elapsed = liveElapsed || fixture.status.elapsed || 0;
-        const halfLabel =
-          fixture.status.short === "1H" ? "First half" : "Second half";
-        return `${halfLabel}: ${elapsed}'`;
+        const halfLabel = fixture.status.short === "1H" ? "1st Half" : "2nd Half";
+        return (
+          <div className="flex flex-col items-center space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-red-500 font-semibold animate-pulse">LIVE</span>
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            </div>
+            <span className="text-black text-sm">{halfLabel}: {elapsed}'</span>
+          </div>
+        );
       }
       // For other live states
       else {
-        return fixture.status.long || "LIVE";
+        return (
+          <div className="flex flex-col items-center space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-red-500 font-semibold animate-pulse">LIVE</span>
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            </div>
+            <span className="text-black text-sm">{fixture.status.long || "LIVE"}</span>
+          </div>
+        );
       }
     }
     // FINISHED MATCHES
     else if (fixture.status.short === "FT") {
-        try {
-          const matchDate = parseISO(fixture.date);
-          // Calculate how long ago match ended (add ~2 hours to start time)
-          const estimatedEndTime = new Date(
-            matchDate.getTime() + 2 * 60 * 60 * 1000,
-          );
-          const hoursSince = Math.floor(
-            (now.getTime() - estimatedEndTime.getTime()) / (1000 * 60 * 60),
-          );
-
-          const statusText = hoursSince <= 1 ? "Ended" : hoursSince < 8 ? `${hoursSince}h ago` : "Full Time";
-          return (
-            <div className="flex flex-col items-center mt-0">{statusText}</div>
-          );
-        } catch (error) {
-          return "Full Time";
-        }
+      return "Full Time";
     }
     // UPCOMING MATCHES
     else {
-      try {
-        const matchDate = parseISO(fixture.date);
-        const now = new Date(); // Use same hardcoded time as above for consistency
-
-        // Get time differences in various units
-        const msToMatch = matchDate.getTime() - now.getTime();
-        const daysToMatch = Math.floor(msToMatch / (1000 * 60 * 60 * 24));
-
-        // For matches today, show enhanced status
-        if (daysToMatch === 0) {
-          try {
-            const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
-            const minutesToMatch = Math.floor((msToMatch % (1000 * 60 * 60)) / (1000 * 60));
-            
-            // Check if match is live
-            if (['1H', '2H', 'HT', 'LIVE', 'BT', 'ET', 'P', 'SUSP', 'INT'].includes(fixture.status.short)) {
-              const elapsed = liveElapsed || fixture.status.elapsed || 0;
-              const halfLabel = fixture.status.short === '1H' ? '1st Half' : 
-                               fixture.status.short === '2H' ? '2nd Half' : 
-                               fixture.status.short === 'HT' ? 'Half Time' : 'LIVE';
-              
-              return (
-                <div className="flex flex-col items-center space-y-1">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-red-500 font-semibold animate-pulse">LIVE</span>
-                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  </div>
-                  <span className="text-black text-sm">
-                    {fixture.status.short === 'HT' ? 'Half Time' : `${halfLabel}: ${elapsed}'`}
-                  </span>
-                </div>
-              );
-            }
-            
-            // Check if match has ended today
-            if (fixture.status.short === 'FT' && hoursToMatch < 0) {
-              const hoursAgo = Math.abs(hoursToMatch);
-              const endedText = hoursAgo <= 1 ? 'Just Ended' : hoursAgo < 8 ? `${hoursAgo}h ago` : 'Ended Today';
-              
-              return (
-                <div className="flex flex-col items-center space-y-1">
-                  <span className="text-gray-600 text-sm">{endedText}</span>
-                  <div className="text-lg font-bold text-black flex items-center gap-2">
-                    <span>{currentMatch?.goals?.home ?? 0}</span>
-                    <span className="text-gray-400">-</span>
-                    <span>{currentMatch?.goals?.away ?? 0}</span>
-                  </div>
-                </div>
-              );
-            }
-            
-            // Upcoming match today - show countdown if within 12 hours
-            if (hoursToMatch >= 0 && hoursToMatch < 12) {
-              return (
-                <div className="flex flex-col space-y-0 relative pb-1">
-                  <span className="text-black">Today</span>
-                  <span className="text-red-500" style={{
-                      fontSize: "0.975rem",
-                      position: "absolute",
-                      top: "0",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      width: "200px",
-                      textAlign: "center",
-                      zIndex: 20,
-                      fontFamily: "'Inter', system-ui, sans-serif",
-                      fontWeight: "normal"
-                    }}>
-                      <FixedMatchTimer matchDate={matchDate.toISOString()} />
-                    </span>
-                </div>
-              );
-            } else {
-              // More than 12 hours away
-              return <span className="text-black">Today</span>;
-            }
-          } catch (e) {
-            return <span className="text-black">Today</span>;
-          }
-        }
-
-        // For matches tomorrow or later, show the regular format
-        if (daysToMatch === 1) {
-          return <span className="text-black">Tomorrow</span>;
-        } else if (daysToMatch <= 7) {
-          return <span className="text-black">{daysToMatch} more days</span>;
-        } else {
-          const daysToMatch = Math.ceil((matchDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-          return <span className="text-black">{daysToMatch} more days</span>;
-        }
-      } catch (e) {
-        return <span className="text-black">Upcoming</span>;
+      const matchDate = parseISO(fixture.date);
+      const now = new Date();
+      const msToMatch = matchDate.getTime() - now.getTime();
+      const hoursToMatch = Math.floor(msToMatch / (1000 * 60 * 60));
+      
+      // Show countdown timer if match is within 12 hours
+      if (hoursToMatch >= 0 && hoursToMatch < 12) {
+        return (
+          <div className="flex flex-col items-center">
+            <FixedMatchTimer matchDate={matchDate.toISOString()} />
+          </div>
+        );
+      } else {
+        return "Upcoming";
       }
     }
   };
