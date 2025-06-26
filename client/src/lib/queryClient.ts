@@ -35,23 +35,44 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined
 ): Promise<Response> {
+  // Ensure the URL is properly formatted for the current environment
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+  
+  console.log(`🔄 [API Request] ${method} ${fullUrl}`);
+  
   try {
-    const res = await fetch(url, {
+    const res = await fetch(fullUrl, {
       method,
       headers: data ? { "Content-Type": "application/json" } : {},
       body: data ? JSON.stringify(data) : undefined,
-      credentials: "include"
+      credentials: "include",
+      // Add timeout handling
+      signal: AbortSignal.timeout(30000) // 30 second timeout
     });
 
     await throwIfResNotOk(res);
+    console.log(`✅ [API Request] ${method} ${fullUrl} - Success`);
     return res;
   } catch (error) {
-    console.error(`API request failed: ${method} ${url}`, error);
+    console.error(`❌ [API Request] Failed: ${method} ${fullUrl}`, error);
 
     // Check if it's a network error
     if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
-      console.error('Network error - check if server is running');
-      throw new Error('Network connection failed. Please check if the server is running.');
+      console.error('🌐 Network error - check if server is running on port 5000');
+      throw new Error('Network connection failed. Please check if the server is running on port 5000.');
+    }
+
+    // Check if it's a timeout error
+    if (error instanceof DOMException && error.name === 'TimeoutError') {
+      console.error('⏱️ Request timeout');
+      throw new Error('Request timeout. Please try again.');
+    }
+
+    // Check if it's an abort error
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      console.error('🚫 Request aborted');
+      throw new Error('Request was cancelled. Please try again.');
     }
 
     throw error;
@@ -68,23 +89,40 @@ export const getQueryFn: <T>(options: {
     const keyString = Array.isArray(queryKey) ? queryKey.join('-') : String(queryKey);
 
     if (!checkRateLimit(keyString)) {
-      console.warn('Rate limiting request to:', keyString);
+      console.warn('⏳ Rate limiting request to:', keyString);
       return null as any;
     }
 
+    const url = queryKey[0] as string;
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+
     try {
-      const res = await fetch(queryKey[0] as string, {
-        credentials: "include"
+      console.log(`🔄 [Query] Fetching: ${fullUrl}`);
+      
+      const res = await fetch(fullUrl, {
+        credentials: "include",
+        signal: AbortSignal.timeout(30000) // 30 second timeout
       });
 
       if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        console.warn(`🔐 [Query] Unauthorized access to: ${fullUrl}`);
         return null;
       }
 
       await throwIfResNotOk(res);
-      return await res.json();
+      const data = await res.json();
+      console.log(`✅ [Query] Success: ${fullUrl}`);
+      return data;
     } catch (error) {
-      console.error(`Query error for ${queryKey[0]}:`, error);
+      console.error(`❌ [Query] Error for ${fullUrl}:`, error);
+      
+      // Return null for network errors to prevent cascading failures
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        console.warn(`🌐 [Query] Network error, returning null for: ${fullUrl}`);
+        return null as any;
+      }
+      
       throw error;
     }
   };
