@@ -1,0 +1,366 @@
+_app-808adb3c2620275a.js:38 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+_app-808adb3c2620275a.js:38 [LaunchDarkly] LaunchDarkly client initialized
+_app-808adb3c2620275a.js:38 Adding extension: portkiller Object
+background.js:1 Uncaught SyntaxError: Invalid or unexpected tokenUnderstand this error
+_app-808adb3c2620275a.js:38 Adding extension: Icon Generator Object
+stallwart.build.js:1 stallwart: failed ping 1
+stallwart.build.js:1 stallwart: failed ping 2
+stallwart.build.js:1 stallwart: failed ping 3
+stallwart.build.js:1 stallwart: failed ping 4
+2stallwart.build.js:1 stallwart: failed ping 1
+hook.js:608 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 commitComplete listeners added. Use emitter.setMaxListeners() to increase limit
+    at d (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:68549)
+    at l.addListener (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:71435)
+    at h (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:44835)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:50705)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918428
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918403
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:125395)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:154390)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152776
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152842)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:137506)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:86196)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:134884
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 fileDirty listeners added. Use emitter.setMaxListeners() to increase limit
+    at d (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:68549)
+    at l.addListener (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:71435)
+    at h (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:44955)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:50705)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918428
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918403
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:125395)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:154390)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152776
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152842)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:137506)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:86196)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:134884
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 fileClean listeners added. Use emitter.setMaxListeners() to increase limit
+    at d (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:68549)
+    at l.addListener (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:71435)
+    at h (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:45070)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:50705)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918428
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918403
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:125395)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:154390)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152776
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152842)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:137506)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:86196)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:134884
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 commitStart listeners added. Use emitter.setMaxListeners() to increase limit
+    at d (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:68549)
+    at l.addListener (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:71435)
+    at h (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:45187)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:50705)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918428
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918403
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:125395)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:154390)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152776
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152842)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:137506)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:86196)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:134884
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 promptUserReconnect listeners added. Use emitter.setMaxListeners() to increase limit
+    at d (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:68549)
+    at l.addListener (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:71435)
+    at h (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:46480)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:50705)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918428
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918403
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:125395)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:154390)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152776
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152842)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:137506)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:86196)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:134884
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 The data provided has been truncated as it is over the limit of 225280 characters: Object
+overrideMethod @ hook.js:608Understand this warning
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_NETWORK_IO_SUSPENDEDUnderstand this error
+r.stripe.com/b:1 
+            
+            
+           Failed to load resource: net::ERR_NETWORK_IO_SUSPENDEDUnderstand this error
+hook.js:608 Error sending segment performance metrics TypeError: Failed to fetch
+    at _app-808adb3c2620275a.js:38:9046
+    at o (sdk.min.js:1:23763)
+    at t.<anonymous> (remote-metrics.ts:138:12)
+    at tslib.es6.js:103:23
+    at Object.next (tslib.es6.js:108:37)
+    at tslib.es6.js:80:8
+    at new Promise (<anonymous>)
+    at u (tslib.es6.js:72:27)
+    at t.send (sdk.min.js:1:22021)
+    at t.<anonymous> (remote-metrics.ts:125:16)
+    at tslib.es6.js:103:23
+    at Object.next (tslib.es6.js:108:37)
+    at tslib.es6.js:80:8
+    at new Promise (<anonymous>)
+    at u (tslib.es6.js:72:27)
+    at t.flush (sdk.min.js:1:21754)
+    at l (remote-metrics.ts:83:14)
+    at n (_app-808adb3c2620275a.js:38:2959)
+overrideMethod @ hook.js:608Understand this error
+hook.js:608 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 cursor listeners added. Use emitter.setMaxListeners() to increase limit
+    at d (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:68549)
+    at l.addListener (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:71435)
+    at h (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:45290)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:50705)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918428
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918403
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:125395)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:154390)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152776
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152842)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:137506)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:86196)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:134884
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 removeCursor listeners added. Use emitter.setMaxListeners() to increase limit
+    at d (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:68549)
+    at l.addListener (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:71435)
+    at h (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:45394)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:50705)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918428
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918403
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:125395)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:154390)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152776
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152842)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:137506)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:86196)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:134884
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 fileSavedChanged listeners added. Use emitter.setMaxListeners() to increase limit
+    at d (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:68549)
+    at l.addListener (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:71435)
+    at h (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:45508)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:50705)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918428
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918403
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:125395)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:154390)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152776
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152842)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:137506)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:86196)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:134884
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 error listeners added. Use emitter.setMaxListeners() to increase limit
+    at d (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:68549)
+    at l.addListener (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:71435)
+    at h (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:46777)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:50705)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918428
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918403
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:125395)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:154390)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152776
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152842)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:137506)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:86196)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:134884
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 fsError listeners added. Use emitter.setMaxListeners() to increase limit
+    at d (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:68549)
+    at l.addListener (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:71435)
+    at h (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:46963)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:50705)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918428
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918403
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:125395)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:154390)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152776
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152842)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:137506)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:86196)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:134884
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 transparentReconnect listeners added. Use emitter.setMaxListeners() to increase limit
+    at d (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:68549)
+    at l.addListener (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:71435)
+    at h (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:47825)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:50705)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918428
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918403
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:125395)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:154390)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152776
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152842)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:137506)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:86196)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:134884
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 changes listeners added. Use emitter.setMaxListeners() to increase limit
+    at d (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:68549)
+    at l.addListener (https://cdn.replit.com/_next/static/chunks/2656-d0023ce422307c72.js:1:71435)
+    at h (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:49757)
+    at Object.watchTextFile (https://cdn.replit.com/_next/static/chunks/692-2fc945bbd9cc73dc.js:1:50705)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918428
+    at Array.map (<anonymous>)
+    at https://cdn.replit.com/_next/static/chunks/7447-2c1f536307c18abe.js:1:1918403
+    at oO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:125395)
+    at uB (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:154390)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152776
+    at uO (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:152842)
+    at u_ (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:137506)
+    at r6 (https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:86196)
+    at https://cdn.replit.com/_next/static/chunks/framework-48c893da216ec76f.js:1:134884
+overrideMethod @ hook.js:608Understand this warning
+stallwart.build.js:1 stallwart: failed ping 1
+989[Report Only] Refused to connect to '<URL>' because it violates the following Content Security Policy directive: "connect-src 'none'".
+
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'battery'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'layout-animations'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'navigation-override'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'oversized-images'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'publickey-credentials'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'speaker-selection'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'unoptimized-images'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'unsized-media'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Unrecognized feature: 'pointer-lock'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
+_ @ framework-48c893da216ec76f.js:1Understand this warning
+framework-48c893da216ec76f.js:1 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+_ @ framework-48c893da216ec76f.js:1Understand this error
+framework-48c893da216ec76f.js:1 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+_ @ framework-48c893da216ec76f.js:1Understand this error
+workspace_iframe.html:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.Understand this error
+workspace_iframe.html:32 Unrecognized feature: 'ambient-light-sensor'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'battery'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-not-rendered'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-out-of-viewport'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'layout-animations'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'legacy-image-formats'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'navigation-override'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'oversized-images'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'publickey-credentials'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'speaker-selection'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'unoptimized-images'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'unsized-media'.Understand this warning
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowfullscreen'.Understand this warning
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowpaymentrequest'.Understand this warning
+6Refused to load the font '<URL>' because it violates the following Content Security Policy directive: "font-src 'self' <URL>".
+Understand this error
+stallwart.build.js:1 stallwart: failed ping 1
+stallwart.build.js:1 stallwart: failed ping 2
+stallwart.build.js:1 stallwart: failed ping 3
+stallwart.build.js:1 stallwart: failed ping 4
+7Refused to frame '<URL>' because it violates the following Content Security Policy directive: "default-src 'self'". Note that 'frame-src' was not explicitly set, so 'default-src' is used as a fallback.
+Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCYO_jab_esuFRV4b17AJtAw&maxResults=10&order=relevance&type=video&q=Germany%20U21%20France%20U21%20highlights%20UEFA%20U21%20Championship&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCaopyJz-EIXOXYXSMOC6c-g&eventType=live&type=video&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCKlcfZ3svGyESsxQCcV_x5g&eventType=live&type=video&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UC6yW44UGJJBvYTlfC7CRg2Q&eventType=live&type=video&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCpcTrCXblq78GZrTUTLWeBw&eventType=live&type=video&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCRfhZMRWLBpNnZ5nfKgL4-w&eventType=live&type=video&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCq6aw03fnIBFWs2fqgP32pA&eventType=live&type=video&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCYO_jab_esuFRV4b17AJtAw&eventType=live&type=video&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCaopyJz-EIXOXYXSMOC6c-g&maxResults=10&order=relevance&type=video&q=Germany%20U21%20France%20U21%20highlights%20UEFA%20U21%20Championship&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCKlcfZ3svGyESsxQCcV_x5g&maxResults=10&order=relevance&type=video&q=Germany%20U21%20France%20U21%20highlights%20UEFA%20U21%20Championship&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UC6yW44UGJJBvYTlfC7CRg2Q&maxResults=10&order=relevance&type=video&q=Germany%20U21%20France%20U21%20highlights%20UEFA%20U21%20Championship&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCpcTrCXblq78GZrTUTLWeBw&maxResults=10&order=relevance&type=video&q=Germany%20U21%20France%20U21%20highlights%20UEFA%20U21%20Championship&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCRfhZMRWLBpNnZ5nfKgL4-w&maxResults=10&order=relevance&type=video&q=Germany%20U21%20France%20U21%20highlights%20UEFA%20U21%20Championship&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCq6aw03fnIBFWs2fqgP32pA&maxResults=10&order=relevance&type=video&q=Germany%20U21%20France%20U21%20highlights%20UEFA%20U21%20Championship&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()Understand this error
+www.googleapis.com/youtube/v3/search?part=snippet&channelId=UCYO_jab_esuFRV4b17AJtAw&maxResults=10&order=relevance&type=video&q=Germany%20U21%20France%20U21%20highlights%20UEFA%20U21%20Championship&key=AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o:1 
+            
+            
+           Failed to load resource: the server responded with a status of 403 ()
