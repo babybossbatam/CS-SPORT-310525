@@ -887,9 +887,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                       {/* VS circle */}
                       <div
-                        className="absolute text-white font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 border-2 border-white overflow-hidden"
+                        className="absolute text-black font-bold text-sm rounded-full h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
                         style={{
-                          background: "#a00000",
+                          background: "transparent",
                           left: "calc(50% - 26px)",
                           top: "calc(50% - 26px)",
                           minWidth: "52px",
