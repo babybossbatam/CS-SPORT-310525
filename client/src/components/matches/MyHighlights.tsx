@@ -236,12 +236,30 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
               <span className="text-sm text-yellow-800">{error}</span>
             </div>
-            <button
-              onClick={searchForHighlights}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-            >
-              Try Again
-            </button>
+            {error.includes('embedding restrictions') || error.includes('blocked') ? (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => videoData && window.open(`https://www.youtube.com/watch?v=${videoData.id.videoId}`, '_blank')}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Watch on YouTube
+                </button>
+                <button
+                  onClick={searchForHighlights}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  Find Alternative
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={searchForHighlights}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+              >
+                Try Again
+              </button>
+            )}
           </div>
         )}
 
@@ -282,19 +300,36 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               <div className="relative w-full rounded-lg overflow-hidden bg-gray-100">
                 <div style={{ paddingBottom: '56.25%', position: 'relative' }}>
                   <iframe
-                    src={`https://www.youtube.com/embed/${videoData.id.videoId}?autoplay=1&rel=0&modestbranding=1&origin=${window.location.origin}`}
+                    src={`https://www.youtube.com/embed/${videoData.id.videoId}?autoplay=0&rel=0&modestbranding=1&origin=${window.location.origin}&enablejsapi=1`}
                     title={videoData.snippet.title}
                     className="absolute top-0 left-0 w-full h-full"
                     frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                     referrerPolicy="strict-origin-when-cross-origin"
+                    sandbox="allow-scripts allow-same-origin allow-presentation"
                     onError={(e) => {
                       console.error('YouTube iframe failed to load:', e);
-                      setError('Failed to load video player. This video may be restricted from embedding.');
+                      setError('This video cannot be played here due to embedding restrictions.');
+                      setShowEmbed(false);
                     }}
                     onLoad={() => {
                       console.log('YouTube iframe loaded successfully');
+                      // Check if content is actually blocked after a delay
+                      setTimeout(() => {
+                        const iframe = document.querySelector('iframe[src*="youtube.com"]') as HTMLIFrameElement;
+                        if (iframe) {
+                          try {
+                            // Try to access iframe content to detect if it's blocked
+                            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+                            if (!iframeDoc) {
+                              console.warn('YouTube content may be blocked - cannot access iframe content');
+                            }
+                          } catch (e) {
+                            console.log('YouTube iframe cross-origin restrictions (normal behavior)');
+                          }
+                        }
+                      }, 2000);
                     }}
                   />
                 </div>
@@ -335,6 +370,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 >
                   <ExternalLink className="h-4 w-4" />
                   YouTube
+                </button>
+                <button
+                  onClick={() => window.open(`https://m.youtube.com/watch?v=${videoData.id.videoId}`, '_blank')}
+                  className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  title="Try mobile YouTube"
+                >
+                  📱
                 </button>
               </div>
             </div>
