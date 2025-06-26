@@ -16,6 +16,7 @@ import { apiRequest } from "@/lib/queryClient";
 import TeamLogo from "./TeamLogo";
 import LazyImage from "../common/LazyImage";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
+import { getTeamColor, getEnhancedHomeTeamGradient } from "@/lib/colorExtractor";
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
   maxMatches?: number;
@@ -642,19 +643,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
   }, [allMatches.length]);
 
-  const getTeamColor = useCallback((teamId: number) => {
-    // Simple team color generator based on team ID
-    const colors = [
-      "#3B82F6", // blue
-      "#EF4444", // red
-      "#10B981", // green
-      "#F59E0B", // amber
-      "#8B5CF6", // violet
-      "#EC4899", // pink
-      "#14B8A6", // teal
-      "#F97316", // orange
-    ];
-    return colors[teamId % colors.length];
+  const getEnhancedTeamColor = useCallback((teamName: string, isHome: boolean = false) => {
+    // Use 365scores-style color extraction based on team name and logo
+    return getTeamColor(teamName, isHome);
   }, []);
 
   if (isLoading) {
@@ -857,8 +848,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       <div
                         className="h-full w-[calc(50%-16px)] ml-[37px] transition-all duration-500 ease-in-out opacity-100 relative "
                         style={{
-                          background: getTeamColor(
-                            currentMatch?.teams?.home?.id || 0,
+                          background: getEnhancedTeamColor(
+                            currentMatch?.teams?.home?.name || "Home Team",
+                            true
                           ),
                           transition: "all 0.3s ease-in-out",
                         }}
@@ -966,7 +958,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       <div
                         className="h-full w-[calc(50%-26px)] mr-[40px] transition-all duration-500 ease-in-out opacity-100"
                         style={{
-                          background: getTeamColor(currentMatch.teams.away.id),
+                          background: getEnhancedTeamColor(
+                            currentMatch?.teams?.away?.name || "Away Team",
+                            false
+                          ),
                           transition: "all 0.3s ease-in-out",
                         }}
                       ></div>
