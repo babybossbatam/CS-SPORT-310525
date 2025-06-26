@@ -991,8 +991,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     </span>
                   </button>
                 </div>
-
-                </div>
+              )}
             </div>
 
             {/* Navigation dots */}
