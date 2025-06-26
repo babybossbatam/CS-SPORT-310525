@@ -107,7 +107,6 @@ const MyColoredBar: React.FC<MyColoredBarProps> = ({
             minWidth: "52px",
           }}
         >
-          <span className="vs-text font-bold">VS</span>
         </div>
 
         {/* Match date and venue - centered below VS */}
