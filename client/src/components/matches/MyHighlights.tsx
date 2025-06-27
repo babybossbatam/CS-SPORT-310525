@@ -129,12 +129,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   const tryNextSource = async () => {
     if (sourceIndex >= videoSources.length) {
-      // All sources failed, use fallback feed widget
+      // All sources failed, use ScoreBat embed as fallback
+      const searchQuery = `${home} vs ${away}`.replace(/\s+/g, '-').toLowerCase();
       setCurrentSource({
-        name: 'Football Feed',
-        type: 'feed',
-        embedUrl: "https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&loading_spinner=off",
-        title: 'Football Highlights Feed'
+        name: 'ScoreBat',
+        type: 'scorebat',
+        embedUrl: `https://www.scorebat.com/embed/g/${encodeURIComponent(searchQuery)}/`,
+        title: `${home} vs ${away} Highlights`
       });
       setLoading(false);
       return;
@@ -171,6 +172,21 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       tryNextSource();
     }
   }, [sourceIndex]);
+
+  // Load ScoreBat script when using ScoreBat embed
+  useEffect(() => {
+    if (currentSource?.type === 'scorebat' && !loading) {
+      const scriptId = 'scorebat-jssdk';
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = 'https://www.scorebat.com/embed/embed.js?v=arrv';
+        script.async = true;
+        const firstScript = document.getElementsByTagName('script')[0];
+        firstScript.parentNode?.insertBefore(script, firstScript);
+      }
+    }
+  }, [currentSource, loading]);
 
   const handleRetry = () => {
     setSourceIndex(0);
@@ -223,24 +239,25 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             </div>
           </div>
         ) : currentSource ? (
-          <div className="w-full" style={{ paddingBottom: '56.25%', position: 'relative', height: 0 }}>
+          <div className="w-full" style={{ paddingBottom: currentSource.type === 'scorebat' ? '116%' : '56.25%', position: 'relative', height: 0 }}>
             <iframe
-              id={`highlights-iframe-${uniqueId}`}
+              key={`highlights-${uniqueId}-${currentSource.type}`}
               src={currentSource.embedUrl}
               width="100%"
-              height="100%"
-              className="fw-iframe"
+              height={currentSource.type === 'scorebat' ? '650' : '100%'}
+              className={currentSource.type === 'scorebat' ? '_scorebatEmbeddedPlayer_' : 'fw-iframe'}
               scrolling="no"
               frameBorder="0"
               title={currentSource.title || "Football Highlights"}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allow={currentSource.type === 'scorebat' ? 'autoplay; fullscreen' : 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'}
               allowFullScreen
               style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '100%',
-                height: '100%'
+                height: '100%',
+                overflow: currentSource.type === 'scorebat' ? 'hidden' : 'visible'
               }}
               onError={() => {
                 console.warn(`🎬 [Highlights] Iframe failed for ${currentSource.name}, trying next source`);
