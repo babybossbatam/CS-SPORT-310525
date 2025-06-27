@@ -556,7 +556,8 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                     goalFlashMatches.has(match.fixture.id) ? 'goal-flash' : ''
                   }`}
                   data-fixture-id={match.fixture.id}
-                >
+                ></div>
+                
                 {/* Star Button with slide-in effect */}
                 <button
                   onClick={(e) => {
@@ -609,6 +610,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
                             {status === "HT"
                               ? "Halftime"
                               : `${elapsed || 0}'`}
+                            
                           </div>
                         );
                       }
@@ -945,6 +947,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
               </div>
             ))}
           </div>
+     
         </CardContent>
       </Card>
     </>
