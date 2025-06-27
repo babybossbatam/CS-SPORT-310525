@@ -39,7 +39,16 @@
     'fileClean listeners',
     'overrideMethod @ hook.js',
     'background.js',
-    'framework-'
+    'framework-',
+    'workspace_iframe.html',
+    'Error while parsing the',
+    'is an invalid sandbox flag',
+    'uD @',
+    'uI @',
+    'uM @',
+    'uS @',
+    '@ framework-',
+    'Understand this error'
   ];
   
   // Override console.error

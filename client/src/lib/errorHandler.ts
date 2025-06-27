@@ -153,7 +153,7 @@ export const setupGlobalErrorHandlers = () => {
   console.error = (...args) => {
     const message = args.join(' ');
     
-    // Suppress EventEmitter and framework warnings
+    // Enhanced suppression patterns for sandbox and framework errors
     const suppressPatterns = [
       'MaxListenersExceededWarning',
       'Possible EventEmitter memory leak',
@@ -190,16 +190,30 @@ export const setupGlobalErrorHandlers = () => {
       'pointer-lock',
       'background.js',
       'framework-',
-      'Uncaught SyntaxError'
+      'Uncaught SyntaxError',
+      'workspace_iframe.html',
+      'Error while parsing the',
+      'is an invalid sandbox flag',
+      'uD @',
+      'uI @',
+      'uM @',
+      'uS @',
+      '@ framework-',
+      'Understand this error'
     ];
 
-    if (suppressPatterns.some(pattern => message.includes(pattern))) {
-      return; // Suppress these warnings
+    // Check for any of the patterns in the message or individual arguments
+    const shouldSuppress = suppressPatterns.some(pattern => 
+      message.includes(pattern) || 
+      args.some(arg => String(arg).includes(pattern))
+    );
+
+    if (shouldSuppress) {
+      return; // Suppress these warnings completely
     }
 
     originalConsoleError.apply(console, args);
-
-    };
+  };
 
   console.warn = (...args) => {
     const message = args.join(' ');

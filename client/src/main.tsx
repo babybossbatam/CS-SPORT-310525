@@ -15,7 +15,7 @@ import { setupGlobalErrorHandlers } from './lib/errorHandler.ts'
   const suppressEventEmitterWarnings = (method: string, originalMethod: any, args: any[]) => {
     const message = args.join(' ');
     
-    // Comprehensive EventEmitter warning patterns
+    // Comprehensive EventEmitter warning patterns with stack trace handling
     const warningPatterns = [
       'MaxListenersExceededWarning',
       'Possible EventEmitter memory leak',
@@ -52,7 +52,16 @@ import { setupGlobalErrorHandlers } from './lib/errorHandler.ts'
       'unsized-media',
       'pointer-lock',
       'background.js',
-      'framework-'
+      'framework-',
+      'workspace_iframe.html',
+      'Error while parsing the',
+      'is an invalid sandbox flag',
+      'uD @',
+      'uI @',
+      'uM @',
+      'uS @',
+      '@ framework-',
+      'Understand this error'
     ];
 
     // Check if message contains any warning pattern
