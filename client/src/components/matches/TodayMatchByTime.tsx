@@ -266,8 +266,41 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       currentStatuses.set(matchId, currentStatus);
       currentScores.set(matchId, currentScore);
 
-      // Only check for changes if we have a previous status (not on first load)
+      // Log all status transitions for debugging
       if (previousStatus && previousStatus !== currentStatus) {
+        console.log(`🔄 [STATUS TRANSITION] Match ${matchId}:`, {
+          teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+          transition: `${previousStatus} → ${currentStatus}`,
+          time: new Date().toLocaleTimeString()
+        });
+
+        // Detect transition from upcoming to live
+        const wasUpcoming = ['NS', 'TBD'].includes(previousStatus);
+        const isNowLive = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(currentStatus);
+        
+        if (wasUpcoming && isNowLive) {
+          console.log(`🟢 [MATCH STARTED] Match ${matchId} started!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
+        }
+
+        // Detect transition from live to ended
+        const wasLive = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(previousStatus);
+        const isNowEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(currentStatus);
+        
+        if (wasLive && isNowEnded) {
+          console.log(`🏁 [MATCH ENDED] Match ${matchId} ended!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            finalScore: `${currentScore.home}-${currentScore.away}`,
+            previousStatus,
+            currentStatus
+          });
+        }
+
         // Check if status just changed to halftime
         if (currentStatus === 'HT') {
           console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
@@ -292,22 +325,19 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       }
 
       // Check for goal changes
-      if (previousScore && ['1H', '2H', 'LIVE'].includes(currentStatus)) {
-        const scoreChanged = currentScore.home !== previousScore.home || currentScore.away !== previousScore.away;
-        if (scoreChanged) {
-          console.log(`⚽ [GOAL FLASH] Match ${matchId} score changed!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            previousScore: `${previousScore.home}-${previousScore.away}`,
-            currentScore: `${currentScore.home}-${currentScore.away}`,
-            status: currentStatus
-          });
-          newGoalMatches.add(matchId);
-        }
+      if (previousScore && 
+          (currentScore.home !== previousScore.home || currentScore.away !== previousScore.away)) {
+        console.log(`⚽ [GOAL FLASH] Match ${matchId} score changed!`, {
+          home: fixture.teams?.home?.name,
+          away: fixture.teams?.away?.name,
+          previousScore,
+          currentScore
+        });
+        newGoalMatches.add(matchId);
       }
     });
 
-    // Update previous statuses and scores AFTER checking for changes
+    // Update previous statuses and scores for next comparison
     setPreviousMatchStatuses(currentStatuses);
     setPreviousMatchScores(currentScores);
 
@@ -327,7 +357,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       }, 3000);
     }
 
-    // Trigger flash for goal changes
+    // Trigger flash for new goal matches
     if (newGoalMatches.size > 0) {
       setGoalFlashMatches(newGoalMatches);
       setTimeout(() => {

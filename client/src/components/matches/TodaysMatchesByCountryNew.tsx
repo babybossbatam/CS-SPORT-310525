@@ -144,6 +144,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   );
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [hiddenMatches, setHiddenMatches] = useState<Set<number>>(new Set());
+  // Flash animation states
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
   const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
@@ -828,8 +829,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         const aIsWorld = countryA.toLowerCase() === "world";
         const bIsWorld = countryB.toLowerCase() === "world";
 
-        // Check for live matches in each country
-        const aHasLive = Object.values(a.leagues).some((league: any) =>
+        // Check for live matches in each country        const aHasLive = Object.values(a.leagues).some((league: any) =>
           league.matches.some((match: any) =>
             ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
               match.fixture.status.short,
