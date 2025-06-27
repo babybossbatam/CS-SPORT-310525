@@ -6,7 +6,6 @@ import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
 import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
-import { Card, CardContent } from '@/components/ui/card';
 
 const MyRightContent: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
@@ -19,23 +18,19 @@ const MyRightContent: React.FC = () => {
         maxMatches={8}
       />
 
-      <Card className="shadow-md">
-        <CardContent className="p-0">
-          <HomeTopScorersList />
-        </CardContent>
-      </Card>
+      <HomeTopScorersList />
 
       <LeagueStandingsFilter />
 
       {/* Popular Leagues and Teams sections */}
       <div className="grid grid-cols-2 gap-4">
         <PopularLeaguesList />
-        <Card className="w-full shadow-md">
-          <CardContent className="p-4">
+        <div className="w-full shadow-md">
+          <div className="p-4">
             <h3 className="text-sm font-semibold mb-2">Popular Teams</h3>
             <PopularTeamsList />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </>
   );
