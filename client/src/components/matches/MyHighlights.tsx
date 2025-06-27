@@ -26,13 +26,24 @@ interface YouTubeVideo {
   };
 }
 
+interface VideoData {
+  platform: string;
+  id: string;
+  title: string;
+  description: string;
+  thumbnailUrl: string;
+  channelTitle: string;
+  publishedAt: string;
+  watchUrl: string;
+}
+
 const MyHighlights: React.FC<MyHighlightsProps> = ({
   homeTeam,
   awayTeam,
   leagueName,
   matchStatus = "NS"
 }) => {
-  const [videoData, setVideoData] = useState<YouTubeVideo | null>(null);
+  const [videoData, setVideoData] = useState<VideoData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showEmbed, setShowEmbed] = useState(false);
@@ -76,7 +87,16 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             });
 
             if (liveMatch) {
-              setVideoData(liveMatch);
+              setVideoData({
+                platform: 'youtube',
+                id: liveMatch.id.videoId,
+                title: liveMatch.snippet.title,
+                description: liveMatch.snippet.description,
+                thumbnailUrl: liveMatch.snippet.thumbnails.medium.url,
+                channelTitle: liveMatch.snippet.channelTitle,
+                publishedAt: liveMatch.snippet.publishedAt,
+                watchUrl: `https://www.youtube.com/watch?v=${liveMatch.id.videoId}`
+              });
               setIsLoading(false);
               return;
             }
@@ -108,7 +128,16 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             });
 
             if (perfectMatch) {
-              setVideoData(perfectMatch);
+              setVideoData({
+                platform: 'youtube',
+                id: perfectMatch.id.videoId,
+                title: perfectMatch.snippet.title,
+                description: perfectMatch.snippet.description,
+                thumbnailUrl: perfectMatch.snippet.thumbnails.medium.url,
+                channelTitle: perfectMatch.snippet.channelTitle,
+                publishedAt: perfectMatch.snippet.publishedAt,
+                watchUrl: `https://www.youtube.com/watch?v=${perfectMatch.id.videoId}`
+              });
               setIsLoading(false);
               return;
             }
@@ -120,7 +149,16 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 return title.includes(homeTeam.toLowerCase()) || title.includes(awayTeam.toLowerCase());
               });
               if (goodMatch) {
-                setVideoData(goodMatch);
+                setVideoData({
+                  platform: 'youtube',
+                  id: goodMatch.id.videoId,
+                  title: goodMatch.snippet.title,
+                  description: goodMatch.snippet.description,
+                  thumbnailUrl: goodMatch.snippet.thumbnails.medium.url,
+                  channelTitle: goodMatch.snippet.channelTitle,
+                  publishedAt: goodMatch.snippet.publishedAt,
+                  watchUrl: `https://www.youtube.com/watch?v=${goodMatch.id.videoId}`
+                });
               }
             }
           }
@@ -152,7 +190,16 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             });
 
             if (bestMatch) {
-              setVideoData(bestMatch);
+              setVideoData({
+                platform: 'youtube',
+                id: bestMatch.id.videoId,
+                title: bestMatch.snippet.title,
+                description: bestMatch.snippet.description,
+                thumbnailUrl: bestMatch.snippet.thumbnails.medium.url,
+                channelTitle: bestMatch.snippet.channelTitle,
+                publishedAt: bestMatch.snippet.publishedAt,
+                watchUrl: `https://www.youtube.com/watch?v=${bestMatch.id.videoId}`
+              });
             } else {
               // Last resort: any video mentioning either team
               const anyMatch = generalData.items.find((item: YouTubeVideo) => {
@@ -161,7 +208,16 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               });
 
               if (anyMatch) {
-                setVideoData(anyMatch);
+                setVideoData({
+                  platform: 'youtube',
+                  id: anyMatch.id.videoId,
+                  title: anyMatch.snippet.title,
+                  description: anyMatch.snippet.description,
+                  thumbnailUrl: anyMatch.snippet.thumbnails.medium.url,
+                  channelTitle: anyMatch.snippet.channelTitle,
+                  publishedAt: anyMatch.snippet.publishedAt,
+                  watchUrl: `https://www.youtube.com/watch?v=${anyMatch.id.videoId}`
+                });
               }
             }
           }
@@ -242,11 +298,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             {error.includes('embedding restrictions') || error.includes('blocked') ? (
               <div className="flex gap-2">
                 <button
-                  onClick={() => videoData && window.open(`https://www.youtube.com/watch?v=${videoData.id.videoId}`, '_blank')}
+                  onClick={() => videoData && window.open(videoData.watchUrl, '_blank')}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2"
                 >
                   <ExternalLink className="h-4 w-4" />
-                  Watch on YouTube
+                  Watch on {videoData?.platform && videoData.platform.charAt(0).toUpperCase() + videoData.platform.slice(1)}
                 </button>
                 <button
                   onClick={searchForHighlights}
@@ -276,8 +332,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 onClick={handleToggleEmbed}
               >
                 <img
-                  src={videoData.snippet.thumbnails.medium.url}
-                  alt={videoData.snippet.title}
+                  src={videoData.thumbnailUrl}
+                  alt={videoData.title}
                   className="absolute top-0 left-0 w-full h-full object-cover transition-all duration-300 group-hover:scale-105 group-hover:brightness-75"
                 />
 
@@ -299,7 +355,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                       <span className="text-xs font-medium">Highlights</span>
                     </div>
                     <div className="text-xs opacity-75">
-                      {videoData.snippet.channelTitle}
+                      {videoData.channelTitle}
                     </div>
                   </div>
                 </div>
@@ -314,9 +370,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               <div className="relative w-full rounded-lg overflow-hidden bg-gray-900 shadow-xl">
                 <div style={{ paddingBottom: '56.25%', position: 'relative' }}>
                   <iframe
-                    id={`youtube-player-${videoData.id.videoId}`}
-                    src={`https://www.youtube.com/embed/${videoData.id.videoId}?autoplay=1&rel=0&modestbranding=1&origin=${window.location.origin}&enablejsapi=1&controls=1&showinfo=0&color=white&iv_load_policy=3`}
-                    title={videoData.snippet.title}
+                    id={`youtube-player-${videoData.id}`}
+                    src={`https://www.youtube.com/embed/${videoData.id}?autoplay=1&rel=0&modestbranding=1&origin=${window.location.origin}&enablejsapi=1&controls=1&showinfo=0&color=white&iv_load_policy=3`}
+                    title={videoData.title}
                     className="absolute top-0 left-0 w-full h-full border-0"
                     allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; autoplay"
                     allowFullScreen
@@ -330,7 +386,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                     onLoad={() => {
                       console.log('YouTube iframe loaded successfully');
                       setTimeout(() => {
-                        const iframe = document.getElementById(`youtube-player-${videoData.id.videoId}`) as HTMLIFrameElement;
+                        const iframe = document.getElementById(`youtube-player-${videoData.id}`) as HTMLIFrameElement;
                         if (iframe) {
                           try {
                             if (iframe.contentWindow) {
@@ -349,7 +405,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                     }}
                   />
                 </div>
-                
+
                 {/* Minimal close button */}
                 <button
                   onClick={handleToggleEmbed}
@@ -370,11 +426,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             {/* Video Info */}
             <div className="space-y-2">
               <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
-                {videoData.snippet.title}
+                {videoData.title}
               </h3>
               <div className="flex items-center justify-between text-xs text-gray-500">
-                <span>{videoData.snippet.channelTitle}</span>
-                <span>{formatPublishDate(videoData.snippet.publishedAt)}</span>
+                <span>{videoData.channelTitle}</span>
+                <span>{formatPublishDate(videoData.publishedAt)}</span>
               </div>
 
               {/* 365scores-style Action Buttons */}
@@ -387,7 +443,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   {showEmbed ? 'Back to Preview' : 'Watch Highlights'}
                 </button>
                 <button
-                  onClick={() => window.open(`https://www.youtube.com/watch?v=${videoData.id.videoId}`, '_blank')}
+                  onClick={() => window.open(videoData.watchUrl, '_blank')}
                   className="px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 shadow-sm"
                 >
                   <ExternalLink className="h-4 w-4" />

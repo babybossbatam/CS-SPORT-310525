@@ -24,6 +24,8 @@ import { format, addDays, subDays } from 'date-fns';
 import cors from 'cors';
 import featuredMatchRoutes from './routes/featuredMatchRoutes';
 import youtubeRoutes from './routes/youtubeRoutes';
+import vimeoRoutes from './routes/vimeoRoutes';
+import dailymotionRoutes from './routes/dailymotionRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -34,6 +36,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.use("/featured-match", featuredMatchRoutes);
   app.use('/api/featured-match', featuredMatchRoutes);
   app.use('/api/youtube', youtubeRoutes);
+  app.use('/api/vimeo', vimeoRoutes);
+  app.use('/api/dailymotion', dailymotionRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
