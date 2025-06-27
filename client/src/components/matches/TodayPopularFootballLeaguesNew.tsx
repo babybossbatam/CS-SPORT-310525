@@ -1587,7 +1587,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
               return (
                 <Card
                   key={`${countryData.country}-${leagueData.league.id}`}
-                  className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing"
+                  className="border bg-card text-card-foreground shadow-md overflow-visible league-card-spacing min-h-[120px]"
                 >
                   {/* League Header - Always show unless time filter is active */}
                   {!timeFilterActive && (
@@ -1749,7 +1749,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                   )}
                   {/* Matches - Show for all leagues */}
 
-                  <div className="match-cards-wrapper">
+                  <div className="match-cards-wrapper min-h-[80px] overflow-visible">
                     {leagueData.matches
                       .slice(0, timeFilterActive && showTop20 ? 20 : undefined)
                       .sort((a: any, b: any) => {

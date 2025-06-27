@@ -149,7 +149,7 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
         {/* Left column (5 columns) */}
         <div className="lg:col-span-5 space-y-4">
           {/* Football-specific TodayMatchPageCard */}
-          <div className="max-h-[800px] overflow-y-auto">
+          <div className="max-h-[1200px] overflow-y-auto">
             <TodayMatchPageCard
               fixtures={filteredFixtures}
               onMatchClick={handleMatchClick}
