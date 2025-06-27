@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 interface MyLMTProps {
   matchId?: number;
@@ -6,7 +6,19 @@ interface MyLMTProps {
   awayTeam?: any;
   status?: string;
   className?: string;
-  sportradarMatchId?: number; // Sportradar specific match ID
+  sportradarMatchId?: number;
+}
+
+interface Scores365Match {
+  gameId: string;
+  homeCompetitor: { name: string; id: string; };
+  awayCompetitor: { name: string; id: string; };
+  gameStatus: string;
+  gameTime: string;
+  homeScore: number;
+  awayScore: number;
+  competitionDisplayName: string;
+  countryName: string;
 }
 
 declare global {
@@ -21,25 +33,86 @@ const MyLMT: React.FC<MyLMTProps> = ({
   awayTeam,
   status,
   className = "",
-  sportradarMatchId = 61239863 // Default match ID from the demo
+  sportradarMatchId = 61239863
 }) => {
   const widgetRef = useRef<HTMLDivElement>(null);
   const scriptLoadedRef = useRef<boolean>(false);
+  const [scores365Data, setScores365Data] = useState<Scores365Match | null>(null);
+  const [isLoadingLiveData, setIsLoadingLiveData] = useState(false);
+  const [lastUpdateId, setLastUpdateId] = useState<string | null>(null);
 
   // Determine if match is currently live
   const isLive = status && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
 
-  useEffect(() => {
-    if (!isLive || !widgetRef.current) return;
+  // 365scores-style API fetching
+  const fetch365ScoresData = useCallback(async () => {
+    if (!isLive || !matchId) return;
 
+    setIsLoadingLiveData(true);
+    
+    try {
+      const currentDate = new Date().toLocaleDateString('en-GB'); // DD/MM/YYYY format
+      const apiUrl = `https://webws.365scores.com/web/games/allscores/`;
+      
+      const params = new URLSearchParams({
+        appTypeId: '5',
+        langId: '1', 
+        timezoneName: 'Asia/Manila',
+        sports: '1', // Football
+        startDate: currentDate,
+        endDate: currentDate,
+        showOdds: 'true',
+        favoriteCompetitions: '35', // Priority competitions
+        onlyLiveGames: 'true',
+        withTop: 'true',
+        ...(lastUpdateId && { lastUpdateId })
+      });
+
+      // Note: This would need CORS proxy in production
+      const response = await fetch(`${apiUrl}?${params.toString()}`);
+      const data = await response.json();
+      
+      if (data?.games) {
+        // Find matching game by team names or match ID
+        const matchingGame = data.games.find((game: any) => 
+          (game.homeCompetitor?.name === homeTeam?.name && 
+           game.awayCompetitor?.name === awayTeam?.name) ||
+          game.gameId === matchId?.toString()
+        );
+        
+        if (matchingGame) {
+          setScores365Data(matchingGame);
+        }
+        
+        if (data.lastUpdateId) {
+          setLastUpdateId(data.lastUpdateId);
+        }
+      }
+    } catch (error) {
+      console.error('365scores API fetch error:', error);
+    } finally {
+      setIsLoadingLiveData(false);
+    }
+  }, [isLive, matchId, homeTeam?.name, awayTeam?.name, lastUpdateId]);
+
+  useEffect(() => {
+    if (!isLive) return;
+
+    // Initial data fetch
+    fetch365ScoresData();
+
+    // Set up real-time updates every 15 seconds (365scores style)
+    const updateInterval = setInterval(fetch365ScoresData, 15000);
+
+    // Load Sportradar widget as fallback
     const loadSportradarWidget = () => {
-      // Check if Sportradar script is already loaded
+      if (!widgetRef.current) return;
+
       if (window.SIR && !scriptLoadedRef.current) {
         initializeWidget();
         return;
       }
 
-      // Load Sportradar script if not already loaded
       if (!document.querySelector('script[src*="sportradar.com"]')) {
         const script = document.createElement('script');
         script.innerHTML = `
@@ -53,7 +126,6 @@ const MyLMT: React.FC<MyLMTProps> = ({
 
         document.head.appendChild(script);
 
-        // Wait for script to load and initialize
         setTimeout(() => {
           if (window.SIR) {
             initializeWidget();
@@ -80,10 +152,10 @@ const MyLMT: React.FC<MyLMTProps> = ({
     loadSportradarWidget();
 
     return () => {
-      // Cleanup if needed
+      clearInterval(updateInterval);
       scriptLoadedRef.current = false;
     };
-  }, [isLive, sportradarMatchId]);
+  }, [isLive, fetch365ScoresData, sportradarMatchId]);
 
   const homeTeamData = homeTeam;
   const awayTeamData = awayTeam;
@@ -173,19 +245,35 @@ const MyLMT: React.FC<MyLMTProps> = ({
               </div>
             </div>
 
-            {/* Match Status */}
+            {/* Match Status - 365scores Style */}
             <div className="bg-black bg-opacity-80 text-white px-4 py-2 rounded-lg backdrop-blur-sm text-center">
               <div className="text-2xl font-bold">
-                {status === '1H' && '1ST HALF'}
-                {status === '2H' && '2ND HALF'}
-                {status === 'HT' && 'HALF TIME'}
-                {status === 'FT' && 'FULL TIME'}
-                {!['1H', '2H', 'HT', 'FT'].includes(status || '') && 'LIVE'}
+                {scores365Data?.gameTime || (
+                  <>
+                    {status === '1H' && '1ST HALF'}
+                    {status === '2H' && '2ND HALF'}
+                    {status === 'HT' && 'HALF TIME'}
+                    {status === 'FT' && 'FULL TIME'}
+                    {!['1H', '2H', 'HT', 'FT'].includes(status || '') && 'LIVE'}
+                  </>
+                )}
               </div>
               <div className="text-xs opacity-80 mt-1">
-                Match Tracker Active
+                {scores365Data ? '365scores Live' : 'Match Tracker Active'}
               </div>
+              {isLoadingLiveData && (
+                <div className="text-xs text-yellow-300 mt-1">
+                  <div className="animate-pulse">Updating...</div>
+                </div>
+              )}
             </div>
+
+            {/* Live Score Display - 365scores Style */}
+            {scores365Data && (
+              <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-bold">
+                {scores365Data.homeScore} - {scores365Data.awayScore}
+              </div>
+            )}
 
             {/* Away Team */}
             <div className="bg-black bg-opacity-70 text-white p-3 rounded-lg backdrop-blur-sm">
@@ -208,14 +296,25 @@ const MyLMT: React.FC<MyLMTProps> = ({
             {/* Widget will overlay when loaded */}
           </div>
 
+          {/* Competition Info - 365scores Style */}
+          {scores365Data && (
+            <div className="absolute bottom-4 left-4 bg-blue-600 bg-opacity-90 text-white px-2 py-1 rounded text-xs">
+              {scores365Data.competitionDisplayName}
+              {scores365Data.countryName && ` • ${scores365Data.countryName}`}
+            </div>
+          )}
+
           {/* Loading State */}
-          {!scriptLoadedRef.current && (
+          {!scriptLoadedRef.current && !scores365Data && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-30">
               <div className="text-center text-white">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent mx-auto mb-3"></div>
                 <p className="text-sm">Loading Live Match Tracker...</p>
                 <p className="text-xs mt-1 opacity-80">
                   {homeTeamData?.name} vs {awayTeamData?.name}
+                </p>
+                <p className="text-xs mt-1 text-blue-300">
+                  Connecting to 365scores...
                 </p>
               </div>
             </div>
