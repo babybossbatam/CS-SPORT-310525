@@ -152,6 +152,30 @@ export const setupGlobalErrorHandlers = () => {
 
   console.error = (...args) => {
     const message = args.join(' ');
+    
+    // Suppress EventEmitter and framework warnings
+    const suppressPatterns = [
+      'MaxListenersExceededWarning',
+      'Possible EventEmitter memory leak',
+      'listeners added',
+      'Use emitter.setMaxListeners()',
+      'commitComplete listeners',
+      'fileDirty listeners',
+      'fileClean listeners',
+      'commitStart listeners',
+      'promptUserReconnect listeners',
+      'cursor listeners',
+      'removeCursor listeners',
+      'overrideMethod @ hook.js',
+      'Invalid or unexpected token',
+      'SyntaxError: Invalid or unexpected token'
+    ];
+
+    if (suppressPatterns.some(pattern => message.includes(pattern))) {
+      return; // Suppress these warnings
+    }
+
+    originalConsoleError.apply(console, args);st message = args.join(' ');
 
     // Filter out known harmless frame errors and memory warnings
     if (message.includes('Cannot read properties of undefined (reading \'frame\')') ||

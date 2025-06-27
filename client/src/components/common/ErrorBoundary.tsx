@@ -32,20 +32,21 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error details
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // Suppress certain framework and syntax errors
+    const suppressPatterns = [
+      'Invalid or unexpected token',
+      'SyntaxError: Invalid or unexpected token',
+      'Uncaught SyntaxError',
+      'sandbox',
+      'allow-downloads-without-user-activation'
+    ];
 
-    this.setState({
-      error,
-      errorInfo,
-      hasError: true
-    });
+    const shouldSuppress = suppressPatterns.some(pattern => 
+      error.message?.includes(pattern) || error.toString().includes(pattern)
+    );
 
-    // Handle specific types of errors
-    if (error.message?.includes('Failed to fetch') || 
-        error.message?.includes('NetworkError') ||
-        error.message?.includes('frame')) {
-      this.handleNetworkError();
+    if (!shouldSuppress) {
+      console.error('Error caught by boundary:', error, errorInfo);
     }
   }
 

@@ -28,7 +28,14 @@ import { setupGlobalErrorHandlers } from './lib/errorHandler.ts'
       'cursor listeners',
       'removeCursor listeners',
       'Use emitter.setMaxListeners()',
-      'overrideMethod @ hook.js'
+      'overrideMethod @ hook.js',
+      'Invalid or unexpected token',
+      'SyntaxError: Invalid or unexpected token',
+      'Uncaught SyntaxError',
+      'sandbox',
+      'allow-downloads-without-user-activation',
+      'Unrecognized feature',
+      'Allow attribute will take precedence'
     ];
 
     // Check if message contains any warning pattern

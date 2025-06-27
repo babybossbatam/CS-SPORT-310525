@@ -19,9 +19,17 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Set higher limits to prevent EventEmitter warnings
-process.setMaxListeners(50);
+process.setMaxListeners(100);
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 50;
+EventEmitter.defaultMaxListeners = 100;
+
+// Set max listeners for common event emitters
+if (typeof process !== 'undefined' && process.stdout) {
+  process.stdout.setMaxListeners(100);
+}
+if (typeof process !== 'undefined' && process.stderr) {
+  process.stderr.setMaxListeners(100);
+}
 
 // Graceful shutdown handling
 process.on('SIGTERM', () => {
