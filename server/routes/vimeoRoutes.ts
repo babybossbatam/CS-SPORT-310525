@@ -17,29 +17,32 @@ router.get('/search', async (req, res) => {
     
     // Try multiple Vimeo search methods
     const searchMethods = [
-      // Method 1: Original Vimeo API v2
+      // Method 1: Try Vimeo's public API (no auth required for public videos)
       async () => {
-        const apiUrl = `https://vimeo.com/api/v2/search/${encodeURIComponent(query)}.json`;
+        const apiUrl = `https://api.vimeo.com/videos?query=${encodeURIComponent(query)}&per_page=${maxRes}&sort=relevant&filter=embeddable`;
         const response = await fetch(apiUrl, {
           headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; VideoSearchBot/1.0)'
+            'User-Agent': 'Mozilla/5.0 (compatible - VideoSearchBot/1.0)',
+            'Accept': 'application/vnd.vimeo.*+json;version=3.4'
           }
         });
         
         if (!response.ok) {
-          throw new Error(`Vimeo API v2 failed: ${response.status}`);
+          throw new Error(`Vimeo API v3 failed: ${response.status}`);
         }
         
-        return await response.json();
+        const data = await response.json();
+        return data.data || [];
       },
       
-      // Method 2: Try a simplified search format
+      // Method 2: Alternative search approach
       async () => {
         const simplifiedQuery = query.replace(/[^\w\s]/g, ' ').trim();
-        const apiUrl = `https://vimeo.com/api/v2/search/${encodeURIComponent(simplifiedQuery)}.json`;
+        const apiUrl = `https://api.vimeo.com/videos?query=${encodeURIComponent(simplifiedQuery)}&per_page=${maxRes}&filter=embeddable`;
         const response = await fetch(apiUrl, {
           headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; VideoSearchBot/1.0)'
+            'User-Agent': 'Mozilla/5.0 (compatible - VideoSearchBot/1.0)',
+            'Accept': 'application/vnd.vimeo.*+json;version=3.4'
           }
         });
         
@@ -47,7 +50,8 @@ router.get('/search', async (req, res) => {
           throw new Error(`Vimeo simplified search failed: ${response.status}`);
         }
         
-        return await response.json();
+        const data = await response.json();
+        return data.data || [];
       }
     ];
 
@@ -77,14 +81,14 @@ router.get('/search', async (req, res) => {
     // Transform to match our interface
     const transformedData = {
       items: data.slice(0, maxRes).map((video: any) => ({
-        id: video.url?.split('/').pop() || video.id || 'unknown',
-        title: video.title || 'Untitled Video',
+        id: video.uri?.split('/').pop() || video.link?.split('/').pop() || 'unknown',
+        title: video.name || video.title || 'Untitled Video',
         description: video.description || '',
-        thumbnail: video.thumbnail_medium || video.thumbnail_large || '',
-        created_time: video.upload_date || new Date().toISOString(),
-        user_name: video.user_name || 'Unknown User',
+        thumbnail: video.pictures?.sizes?.[0]?.link || video.thumbnail_url || '',
+        created_time: video.created_time || new Date().toISOString(),
+        user_name: video.user?.name || 'Unknown User',
         duration: video.duration || 0,
-        url: video.url || `https://vimeo.com/${video.id}`
+        url: video.link || `https://vimeo.com/${video.uri?.split('/').pop()}`
       })).filter(video => video.title !== 'Untitled Video') // Filter out invalid entries
     };
 

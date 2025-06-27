@@ -17,13 +17,14 @@ router.get('/search', async (req, res) => {
     
     // Try multiple Dailymotion search approaches
     const searchMethods = [
-      // Method 1: Original API endpoint
+      // Method 1: Updated API endpoint
       async () => {
-        const apiUrl = `https://www.dailymotion.com/api/videos?search=${encodeURIComponent(query)}&limit=${maxRes}&fields=id,title,description,thumbnail_240_url,created_time,owner,duration`;
+        const apiUrl = `https://www.dailymotion.com/player/metadata/video/search?query=${encodeURIComponent(query)}&limit=${maxRes}`;
         const response = await fetch(apiUrl, {
           headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; VideoSearchBot/1.0)',
-            'Accept': 'application/json'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Referer': 'https://www.dailymotion.com/'
           }
         });
         
@@ -36,25 +37,34 @@ router.get('/search', async (req, res) => {
           throw new Error('Dailymotion returned non-JSON response');
         }
         
-        return await response.json();
+        const data = await response.json();
+        return { list: data.videos || [] };
       },
       
-      // Method 2: Try with simplified query
+      // Method 2: Try with GraphQL-like API
       async () => {
         const simplifiedQuery = query.replace(/[^\w\s]/g, ' ').trim();
-        const apiUrl = `https://www.dailymotion.com/api/videos?search=${encodeURIComponent(simplifiedQuery)}&limit=${maxRes}&fields=id,title,description,thumbnail_240_url,created_time,owner`;
+        const apiUrl = `https://graphql.api.dailymotion.com/`;
         const response = await fetch(apiUrl, {
+          method: 'POST',
           headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; VideoSearchBot/1.0)',
-            'Accept': 'application/json'
-          }
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Referer': 'https://www.dailymotion.com/'
+          },
+          body: JSON.stringify({
+            query: `query { videos(search: "${simplifiedQuery.replace(/"/g, '\\"')}", first: ${maxRes}) { edges { node { id title description thumbnailURL createdAt owner { displayName } duration } } } }`
+          })
         });
         
         if (!response.ok) {
-          throw new Error(`Dailymotion simplified search failed: ${response.status}`);
+          throw new Error(`Dailymotion GraphQL failed: ${response.status}`);
         }
         
-        return await response.json();
+        const data = await response.json();
+        const videos = data.data?.videos?.edges?.map((edge: any) => edge.node) || [];
+        return { list: videos };
       }
     ];
 
