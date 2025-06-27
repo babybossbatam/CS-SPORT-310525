@@ -168,7 +168,29 @@ export const setupGlobalErrorHandlers = () => {
       'removeCursor listeners',
       'overrideMethod @ hook.js',
       'Invalid or unexpected token',
-      'SyntaxError: Invalid or unexpected token'
+      'SyntaxError: Invalid or unexpected token',
+      'sandbox',
+      'allow-downloads-without-user-activation',
+      'Unrecognized feature',
+      'Allow attribute will take precedence',
+      'allowfullscreen',
+      'allowpaymentrequest',
+      'ambient-light-sensor',
+      'battery',
+      'execution-while-not-rendered',
+      'execution-while-out-of-viewport',
+      'layout-animations',
+      'legacy-image-formats',
+      'navigation-override',
+      'oversized-images',
+      'publickey-credentials',
+      'speaker-selection',
+      'unoptimized-images',
+      'unsized-media',
+      'pointer-lock',
+      'background.js',
+      'framework-',
+      'Uncaught SyntaxError'
     ];
 
     if (suppressPatterns.some(pattern => message.includes(pattern))) {

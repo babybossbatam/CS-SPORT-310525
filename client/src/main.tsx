@@ -35,7 +35,24 @@ import { setupGlobalErrorHandlers } from './lib/errorHandler.ts'
       'sandbox',
       'allow-downloads-without-user-activation',
       'Unrecognized feature',
-      'Allow attribute will take precedence'
+      'Allow attribute will take precedence',
+      'allowfullscreen',
+      'allowpaymentrequest',
+      'ambient-light-sensor',
+      'battery',
+      'execution-while-not-rendered',
+      'execution-while-out-of-viewport',
+      'layout-animations',
+      'legacy-image-formats',
+      'navigation-override',
+      'oversized-images',
+      'publickey-credentials',
+      'speaker-selection',
+      'unoptimized-images',
+      'unsized-media',
+      'pointer-lock',
+      'background.js',
+      'framework-'
     ];
 
     // Check if message contains any warning pattern
