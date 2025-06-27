@@ -9,7 +9,6 @@ import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
-
 interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
@@ -26,9 +25,6 @@ const MyMatchdetailsScoreboard = ({
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("match");
-  const [highlights, setHighlights] = useState<any>(null);
-  const [highlightsLoading, setHighlightsLoading] = useState<boolean>(false);
   // Sample match data for demonstration
   const sampleMatch = {
     fixture: {
@@ -77,11 +73,9 @@ const MyMatchdetailsScoreboard = ({
     league: displayMatch?.league?.name,
   });
 
-
   // State for real-time timer
   const [realTimeElapsed, setRealTimeElapsed] = useState<number | null>(null);
 
-  
   // Real-time update effect for live matches with continuous timer
   useEffect(() => {
     if (!displayMatch) return;
@@ -626,99 +620,25 @@ const MyMatchdetailsScoreboard = ({
 
       {/* Navigation Tabs */}
       <Card>
-        <div className="flex space-x-1 pb-0 px-0">
-          <button 
-            onClick={() => setActiveTab("match")}
-            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
-              activeTab === "match" 
-                ? "text-gray-600 border-b border-blue-500" 
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
+        <div className="flex space-x-1 pb-0  px-0">
+          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-600 border-b border-blue-500 pb-0 ">
             Match
           </button>
-          <button 
-            onClick={() => setActiveTab("lineups")}
-            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
-              activeTab === "lineups" 
-                ? "text-gray-600 border-b border-blue-500" 
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
+          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
             {displayMatch.fixture.status.short === "NS"
               ? "Probable Lineups"
               : "Lineups"}
           </button>
-          <button 
-            onClick={() => setActiveTab("stats")}
-            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
-              activeTab === "stats" 
-                ? "text-gray-600 border-b border-blue-500" 
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
+          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
             Stats
           </button>
-          <button 
-            onClick={() => setActiveTab("trends")}
-            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
-              activeTab === "trends" 
-                ? "text-gray-600 border-b border-blue-500" 
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
+          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 relative pb-0">
             Trends
           </button>
-         
-          <button 
-            onClick={() => setActiveTab("h2h")}
-            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
-              activeTab === "h2h" 
-                ? "text-gray-600 border-b border-blue-500" 
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
+          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
             Head to Head
           </button>
         </div>
-      </Card>
-
-      {/* Tab Content */}
-      <Card className="mt-2">
-        <CardContent className="p-0">
-          {activeTab === "match" && (
-            <div>
-              {/* Match tab content will be added here */}
-            </div>
-          )}
-          
-          {activeTab === "lineups" && (
-            <div className="p-4 text-center text-gray-500">
-              {displayMatch.fixture.status.short === "NS" 
-                ? "Probable lineups will be available here" 
-                : "Match lineups content"}
-            </div>
-          )}
-          
-          {activeTab === "stats" && (
-            <div className="p-4 text-center text-gray-500">
-              Match statistics content
-            </div>
-          )}
-          
-          {activeTab === "trends" && (
-            <div className="p-4 text-center text-gray-500">
-              Team trends and analysis
-            </div>
-          )}
-         
-          
-          {activeTab === "h2h" && (
-            <div className="p-4 text-center text-gray-500">
-              Head to head statistics
-            </div>
-          )}
-        </CardContent>
       </Card>
        
     </Card>

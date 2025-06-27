@@ -1529,7 +1529,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .png()
         .toBuffer();
 
-// Set appropriate headers
+```tool_code
+      // Set appropriate headers
       res.set({
         'Content-Type': 'image/png',
         'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
@@ -1554,8 +1555,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const urlDecoded = decodeURIComponent(teamId);
         const teamIdMatch = urlDecoded.match(/\/teams\/(\d+)\.png/);
         if (teamIdMatch && teamIdMatch[1]) {
-          teamId = teamIdMatch[1];
-        } else {
+          teamId = teamIdMatch[1];                } else {
           console.warn(`Could not extract team ID from URL: ${urlDecoded}`);
           return res.status(400).json({ error: 'Invalid team ID format' });
         }
@@ -1564,7 +1564,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate that teamId is numeric
       if (!/^\d+$/.test(teamId)) {
         console.warn(`Invalid team ID format: ${teamId}`);
-        return res.status(400).json({ error: 'Team ID must be numeric' });
+return res.status(400).json({ error: 'Team ID must be numeric' });
       }
 
       console.log(`SportsRadar: Fetching logo for team ID: ${teamId}`);
