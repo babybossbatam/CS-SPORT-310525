@@ -62,9 +62,24 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     'UCYO_jab_esuFRV4b17AJtAw'  // 3 Players
   ];
 
+  // Local cache for video searches (24 hour cache)
+  const [searchCache] = useState(() => new Map());
+
   const searchForHighlights = async () => {
     if (!homeTeam || !awayTeam) {
       setError('Team names are required for highlights search');
+      return;
+    }
+
+    // Create cache key
+    const cacheKey = `${homeTeam}_${awayTeam}_${leagueName || ''}`.toLowerCase().replace(/\s+/g, '_');
+    
+    // Check cache first (24 hour expiry)
+    const cached = searchCache.get(cacheKey);
+    const now = Date.now();
+    if (cached && (now - cached.timestamp < 24 * 60 * 60 * 1000)) {
+      console.log('🎯 Using cached highlight data for:', cacheKey);
+      setVideoData(cached.data);
       return;
     }
 
@@ -72,63 +87,40 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     setError(null);
 
     try {
-      // Strategy 1: Search for live videos across all channels
-      for (const channelId of HIGHLIGHT_CHANNELS) {
+      // Strategy 1: Try most reliable channels first (reduced to top 3)
+      const topChannels = [
+        'UCKlcfZ3svGyESsxQCcV_x5g', // ESPN FC
+        'UCpcTrCXblq78GZrTUTLWeBw', // Sky Sports Football
+        'UCq6aw03fnIBFWs2fqgP32pA'  // Goal
+      ];
+
+      // Single optimized search query
+      const query = encodeURIComponent(`${homeTeam} vs ${awayTeam} highlights ${leagueName || ''}`);
+      
+      for (const channelId of topChannels) {
         try {
-          const liveApiUrl = `/api/youtube/search?channelId=${channelId}&eventType=live`;
+          const apiUrl = `/api/youtube/search?channelId=${channelId}&maxResults=5&order=date&q=${query}`;
+          const response = await fetch(apiUrl);
+          const data = await response.json();
 
-          const liveResponse = await fetch(liveApiUrl);
-          const liveData = await liveResponse.json();
-
-          if (liveData.items && liveData.items.length > 0) {
-            const liveMatch = liveData.items.find((item: YouTubeVideo) => {
-              const title = item.snippet.title.toLowerCase();
-              return title.includes(homeTeam.toLowerCase()) && title.includes(awayTeam.toLowerCase());
-            });
-
-            if (liveMatch) {
-              setVideoData({
-                platform: 'youtube',
-                id: liveMatch.id.videoId,
-                title: liveMatch.snippet.title,
-                description: liveMatch.snippet.description,
-                thumbnailUrl: liveMatch.snippet.thumbnails.medium.url,
-                channelTitle: liveMatch.snippet.channelTitle,
-                publishedAt: liveMatch.snippet.publishedAt,
-                watchUrl: `https://www.youtube.com/watch?v=${liveMatch.id.videoId}`
-              });
-              setIsLoading(false);
+          if (data.error) {
+            if (data.error.includes('quota')) {
+              // Switch to alternative platforms when quota is exceeded
+              setError('YouTube quota exceeded. Switching to alternative video sources...');
+              await searchAlternativePlatforms();
               return;
             }
-          }
-        } catch (channelError) {
-          console.warn(`Failed to search live videos on channel ${channelId}:`, channelError);
-        }
-      }
-
-      // Strategy 2: Search for highlights on specific channels first
-      for (const channelId of HIGHLIGHT_CHANNELS) {
-        try {
-          const query = encodeURIComponent(`${homeTeam} ${awayTeam} highlights ${leagueName || ''}`);
-          const highlightApiUrl = `/api/youtube/search?channelId=${channelId}&maxResults=10&order=relevance&q=${query}`;
-
-          const highlightResponse = await fetch(highlightApiUrl);
-          const highlightData = await highlightResponse.json();
-
-          if (highlightData.error) {
-            console.warn(`API error for channel ${channelId}:`, highlightData.error.message);
             continue;
           }
 
-          if (highlightData.items && highlightData.items.length > 0) {
-            // Find perfect match with both team names
-            const perfectMatch = highlightData.items.find((item: YouTubeVideo) => {
+          if (data.items && data.items.length > 0) {
+            const perfectMatch = data.items.find((item: YouTubeVideo) => {
               const title = item.snippet.title.toLowerCase();
               return title.includes(homeTeam.toLowerCase()) && title.includes(awayTeam.toLowerCase());
             });
 
             if (perfectMatch) {
-              setVideoData({
+              const videoData = {
                 platform: 'youtube',
                 id: perfectMatch.id.videoId,
                 title: perfectMatch.snippet.title,
@@ -137,107 +129,97 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 channelTitle: perfectMatch.snippet.channelTitle,
                 publishedAt: perfectMatch.snippet.publishedAt,
                 watchUrl: `https://www.youtube.com/watch?v=${perfectMatch.id.videoId}`
+              };
+
+              // Cache the result
+              searchCache.set(cacheKey, {
+                data: videoData,
+                timestamp: now
               });
+
+              setVideoData(videoData);
               setIsLoading(false);
               return;
             }
-
-            // Store first good result as fallback
-            if (!videoData) {
-              const goodMatch = highlightData.items.find((item: YouTubeVideo) => {
-                const title = item.snippet.title.toLowerCase();
-                return title.includes(homeTeam.toLowerCase()) || title.includes(awayTeam.toLowerCase());
-              });
-              if (goodMatch) {
-                setVideoData({
-                  platform: 'youtube',
-                  id: goodMatch.id.videoId,
-                  title: goodMatch.snippet.title,
-                  description: goodMatch.snippet.description,
-                  thumbnailUrl: goodMatch.snippet.thumbnails.medium.url,
-                  channelTitle: goodMatch.snippet.channelTitle,
-                  publishedAt: goodMatch.snippet.publishedAt,
-                  watchUrl: `https://www.youtube.com/watch?v=${goodMatch.id.videoId}`
-                });
-              }
-            }
           }
         } catch (channelError) {
-          console.warn(`Failed to search highlights on channel ${channelId}:`, channelError);
+          console.warn(`Failed to search on channel ${channelId}:`, channelError);
         }
       }
 
-      // Strategy 3: General YouTube search if channel-specific searches fail
-      if (!videoData) {
-        try {
-          const generalQuery = encodeURIComponent(`${homeTeam} vs ${awayTeam} highlights ${leagueName || ''}`);
-          const generalApiUrl = `/api/youtube/search?maxResults=15&order=relevance&q=${generalQuery}`;
-
-          const generalResponse = await fetch(generalApiUrl);
-          const generalData = await generalResponse.json();
-
-          if (generalData.items && generalData.items.length > 0) {
-            // Find best match from general search
-            const bestMatch = generalData.items.find((item: YouTubeVideo) => {
-              const title = item.snippet.title.toLowerCase();
-              const description = item.snippet.description.toLowerCase();
-
-              // Check for both teams in title or description
-              const hasHomeTeam = title.includes(homeTeam.toLowerCase()) || description.includes(homeTeam.toLowerCase());
-              const hasAwayTeam = title.includes(awayTeam.toLowerCase()) || description.includes(awayTeam.toLowerCase());
-
-              return hasHomeTeam && hasAwayTeam;
-            });
-
-            if (bestMatch) {
-              setVideoData({
-                platform: 'youtube',
-                id: bestMatch.id.videoId,
-                title: bestMatch.snippet.title,
-                description: bestMatch.snippet.description,
-                thumbnailUrl: bestMatch.snippet.thumbnails.medium.url,
-                channelTitle: bestMatch.snippet.channelTitle,
-                publishedAt: bestMatch.snippet.publishedAt,
-                watchUrl: `https://www.youtube.com/watch?v=${bestMatch.id.videoId}`
-              });
-            } else {
-              // Last resort: any video mentioning either team
-              const anyMatch = generalData.items.find((item: YouTubeVideo) => {
-                const title = item.snippet.title.toLowerCase();
-                return title.includes(homeTeam.toLowerCase()) || title.includes(awayTeam.toLowerCase());
-              });
-
-              if (anyMatch) {
-                setVideoData({
-                  platform: 'youtube',
-                  id: anyMatch.id.videoId,
-                  title: anyMatch.snippet.title,
-                  description: anyMatch.snippet.description,
-                  thumbnailUrl: anyMatch.snippet.thumbnails.medium.url,
-                  channelTitle: anyMatch.snippet.channelTitle,
-                  publishedAt: anyMatch.snippet.publishedAt,
-                  watchUrl: `https://www.youtube.com/watch?v=${anyMatch.id.videoId}`
-                });
-              }
-            }
-          }
-        } catch (generalError) {
-          console.error('General search failed:', generalError);
-        }
-      }
-
-      // If we have data at this point, we're done
-      if (videoData) {
-        setIsLoading(false);
-        return;
-      }
-
-      // If still no results, show helpful error
-      setError(`No highlight videos found for ${homeTeam} vs ${awayTeam}. This match may be too recent or from a less covered league.`);
+      // If YouTube fails, try alternative platforms
+      await searchAlternativePlatforms();
 
     } catch (err) {
       console.error('Error fetching highlights:', err);
       setError('Failed to load highlight videos. Please try again later.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Alternative platform search when YouTube quota is exceeded
+  const searchAlternativePlatforms = async () => {
+    const query = `${homeTeam} vs ${awayTeam} highlights`;
+    
+    try {
+      // Try Vimeo first
+      const vimeoResponse = await fetch(`/api/vimeo/search?q=${encodeURIComponent(query)}&maxResults=5`);
+      const vimeoData = await vimeoResponse.json();
+      
+      if (vimeoData.items && vimeoData.items.length > 0) {
+        const vimeoMatch = vimeoData.items.find((item: any) => {
+          const title = item.title.toLowerCase();
+          return title.includes(homeTeam.toLowerCase()) && title.includes(awayTeam.toLowerCase());
+        });
+
+        if (vimeoMatch) {
+          setVideoData({
+            platform: 'vimeo',
+            id: vimeoMatch.id,
+            title: vimeoMatch.title,
+            description: vimeoMatch.description,
+            thumbnailUrl: vimeoMatch.thumbnail,
+            channelTitle: vimeoMatch.user_name,
+            publishedAt: vimeoMatch.created_time,
+            watchUrl: vimeoMatch.url
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Try Dailymotion as fallback
+      const dailymotionResponse = await fetch(`/api/dailymotion/search?q=${encodeURIComponent(query)}&maxResults=5`);
+      const dailymotionData = await dailymotionResponse.json();
+      
+      if (dailymotionData.items && dailymotionData.items.length > 0) {
+        const dailymotionMatch = dailymotionData.items.find((item: any) => {
+          const title = item.title.toLowerCase();
+          return title.includes(homeTeam.toLowerCase()) && title.includes(awayTeam.toLowerCase());
+        });
+
+        if (dailymotionMatch) {
+          setVideoData({
+            platform: 'dailymotion',
+            id: dailymotionMatch.id,
+            title: dailymotionMatch.title,
+            description: dailymotionMatch.description,
+            thumbnailUrl: dailymotionMatch.thumbnail_240_url,
+            channelTitle: dailymotionMatch.owner,
+            publishedAt: dailymotionMatch.created_time,
+            watchUrl: `https://www.dailymotion.com/video/${dailymotionMatch.id}`
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // If no alternatives found
+      setError(`No highlight videos found for ${homeTeam} vs ${awayTeam}. YouTube quota exceeded and no alternatives available.`);
+    } catch (altError) {
+      console.error('Alternative platform search failed:', altError);
+      setError(`No highlight videos found for ${homeTeam} vs ${awayTeam}. YouTube quota exceeded.`);
     } finally {
       setIsLoading(false);
     }
@@ -369,41 +351,35 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               /* 365scores-style Embedded Player */
               <div className="relative w-full rounded-lg overflow-hidden bg-gray-900 shadow-xl">
                 <div style={{ paddingBottom: '56.25%', position: 'relative' }}>
-                  <iframe
-                    id={`youtube-player-${videoData.id}`}
-                    src={`https://www.youtube.com/embed/${videoData.id}?autoplay=1&rel=0&modestbranding=1&origin=${window.location.origin}&enablejsapi=1&controls=1&showinfo=0&color=white&iv_load_policy=3`}
-                    title={videoData.title}
-                    className="absolute top-0 left-0 w-full h-full border-0"
-                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; autoplay"
-                    allowFullScreen
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    sandbox="allow-scripts allow-same-origin allow-presentation"
-                    onError={(e) => {
-                      console.error('YouTube iframe failed to load:', e);
-                      setError('This video cannot be played here due to embedding restrictions. Please use the "Watch on YouTube" button below.');
-                      setShowEmbed(false);
-                    }}
-                    onLoad={() => {
-                      console.log('YouTube iframe loaded successfully');
-                      setTimeout(() => {
-                        const iframe = document.getElementById(`youtube-player-${videoData.id}`) as HTMLIFrameElement;
-                        if (iframe) {
-                          try {
-                            if (iframe.contentWindow) {
-                              console.log('YouTube player iframe is accessible');
-                            }
-                          } catch (e) {
-                            console.log('YouTube iframe has normal cross-origin restrictions');
-                          }
-                          const rect = iframe.getBoundingClientRect();
-                          if (rect.height < 100) {
-                            console.warn('YouTube iframe may be blocked - unusually small height');
-                            setError('Video embedding may be restricted. Try the "Watch on YouTube" button.');
-                          }
-                        }
-                      }, 3000);
-                    }}
-                  />
+                  {videoData.platform === 'youtube' ? (
+                    <iframe
+                      id={`youtube-player-${videoData.id}`}
+                      src={`https://www.youtube.com/embed/${videoData.id}?autoplay=1&rel=0&modestbranding=1&origin=${window.location.origin}&enablejsapi=1&controls=1&showinfo=0&color=white&iv_load_policy=3`}
+                      title={videoData.title}
+                      className="absolute top-0 left-0 w-full h-full border-0"
+                      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; autoplay"
+                      allowFullScreen
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      sandbox="allow-scripts allow-same-origin allow-presentation"
+                      onError={() => setError('Video embedding restricted. Use "Open" button below.')}
+                    />
+                  ) : videoData.platform === 'vimeo' ? (
+                    <iframe
+                      src={`https://player.vimeo.com/video/${videoData.id}?autoplay=1&color=ffffff`}
+                      title={videoData.title}
+                      className="absolute top-0 left-0 w-full h-full border-0"
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      allowFullScreen
+                    />
+                  ) : videoData.platform === 'dailymotion' ? (
+                    <iframe
+                      src={`https://www.dailymotion.com/embed/video/${videoData.id}?autoplay=1`}
+                      title={videoData.title}
+                      className="absolute top-0 left-0 w-full h-full border-0"
+                      allow="autoplay; fullscreen"
+                      allowFullScreen
+                    />
+                  ) : null}
                 </div>
 
                 {/* Minimal close button */}
@@ -418,7 +394,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
                 {/* Video Quality Indicator */}
                 <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm rounded px-2 py-1 z-10">
-                  <span className="text-white text-xs font-medium">Playing...</span>
+                  <span className="text-white text-xs font-medium">
+                    {videoData.platform.charAt(0).toUpperCase() + videoData.platform.slice(1)}
+                  </span>
                 </div>
               </div>
             )}
