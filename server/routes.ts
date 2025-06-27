@@ -22,7 +22,8 @@ import { z } from "zod";
 import { format, addDays, subDays } from 'date-fns';
 // Removing uefaU21Routes import as requested
 import cors from 'cors';
-import featuredMatchRouter from './routes/featuredMatchRoutes';
+import featuredMatchRoutes from './routes/featuredMatchRoutes';
+import youtubeRoutes from './routes/youtubeRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -30,7 +31,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api", apiRouter);
 
   // Featured match routes for MyHomeFeaturedMatch component
-  apiRouter.use("/featured-match", featuredMatchRouter);
+  apiRouter.use("/featured-match", featuredMatchRoutes);
+  app.use('/api/featured-match', featuredMatchRoutes);
+  app.use('/api/youtube', youtubeRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
@@ -209,7 +212,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/fixtures/live", async (req: Request, res: Response) => {
     try {
       const { skipFilter } = req.query;
-      
+
       // Use API-Football (RapidAPI) only
       try {
         const fixtures = await rapidApiService.getLiveFixtures();
@@ -758,7 +761,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       const { skipFilter } = req.query;
-      
+
       // Calculate current season based on date
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
@@ -2213,9 +2216,9 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     try {
       const { id } = req.params;
       console.log(`📋 [SoccersAPI] Fetching match details for: ${id}`);
-      
+
       const matchDetails = await soccersApi.getMatchDetails(id);
-      
+
       if (matchDetails) {
         res.json({
           success: true,
@@ -2240,7 +2243,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     try {
       const { id } = req.params;
       console.log(`⚽ [SoccersAPI] Fetching events for match: ${id}`);
-      
+
       const events = await soccersApi.getMatchEvents(id);
       res.json({
         success: true,
@@ -2261,7 +2264,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     try {
       const { id } = req.params;
       console.log(`📊 [SoccersAPI] Fetching statistics for match: ${id}`);
-      
+
       const stats = await soccersApi.getMatchStatistics(id);
       res.json({
         success: true,
@@ -2281,7 +2284,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
     try {
       const { id } = req.params;
       console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);
-      
+
       const lineups = await soccersApi.getMatchLineups(id);
       res.json({
         success: true,

@@ -39,8 +39,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const [showEmbed, setShowEmbed] = useState(false);
   
 
-  // YouTube API Configuration with reliable channels
-  const API_KEY = 'AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o';
+  // Use server-side proxy instead of direct API calls
   
   // Multiple reliable channels for football highlights
   const HIGHLIGHT_CHANNELS = [
@@ -66,7 +65,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       // Strategy 1: Search for live videos across all channels
       for (const channelId of HIGHLIGHT_CHANNELS) {
         try {
-          const liveApiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&eventType=live&type=video&key=${API_KEY}`;
+          const liveApiUrl = `/api/youtube/search?channelId=${channelId}&eventType=live`;
           
           const liveResponse = await fetch(liveApiUrl);
           const liveData = await liveResponse.json();
@@ -92,7 +91,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       for (const channelId of HIGHLIGHT_CHANNELS) {
         try {
           const query = encodeURIComponent(`${homeTeam} ${awayTeam} highlights ${leagueName || ''}`);
-          const highlightApiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=10&order=relevance&type=video&q=${query}&key=${API_KEY}`;
+          const highlightApiUrl = `/api/youtube/search?channelId=${channelId}&maxResults=10&order=relevance&q=${query}`;
           
           const highlightResponse = await fetch(highlightApiUrl);
           const highlightData = await highlightResponse.json();
@@ -135,7 +134,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       if (!videoData) {
         try {
           const generalQuery = encodeURIComponent(`${homeTeam} vs ${awayTeam} highlights ${leagueName || ''}`);
-          const generalApiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=15&order=relevance&type=video&q=${generalQuery}&key=${API_KEY}`;
+          const generalApiUrl = `/api/youtube/search?maxResults=15&order=relevance&q=${generalQuery}`;
           
           const generalResponse = await fetch(generalApiUrl);
           const generalData = await generalResponse.json();
@@ -236,6 +235,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               <AlertCircle className="h-5 w-5 text-yellow-600 mr-2" />
               <span className="text-sm text-yellow-800">{error}</span>
             </div>
+            {error.includes('quota') && (
+              <div className="text-xs text-gray-600 text-center">
+                YouTube API quota exceeded. This resets daily at midnight PST.
+              </div>
+            )}
             {error.includes('embedding restrictions') || error.includes('blocked') ? (
               <div className="flex gap-2">
                 <button
