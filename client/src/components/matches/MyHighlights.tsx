@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Play, ExternalLink, AlertCircle } from 'lucide-react';
@@ -37,10 +36,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showEmbed, setShowEmbed] = useState(false);
-  
+
 
   // Use server-side proxy instead of direct API calls
-  
+
   // Multiple reliable channels for football highlights
   const HIGHLIGHT_CHANNELS = [
     'UCaopyJz-EIXOXYXSMOC6c-g', // Original channel
@@ -66,7 +65,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       for (const channelId of HIGHLIGHT_CHANNELS) {
         try {
           const liveApiUrl = `/api/youtube/search?channelId=${channelId}&eventType=live`;
-          
+
           const liveResponse = await fetch(liveApiUrl);
           const liveData = await liveResponse.json();
 
@@ -92,7 +91,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         try {
           const query = encodeURIComponent(`${homeTeam} ${awayTeam} highlights ${leagueName || ''}`);
           const highlightApiUrl = `/api/youtube/search?channelId=${channelId}&maxResults=10&order=relevance&q=${query}`;
-          
+
           const highlightResponse = await fetch(highlightApiUrl);
           const highlightData = await highlightResponse.json();
 
@@ -135,7 +134,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         try {
           const generalQuery = encodeURIComponent(`${homeTeam} vs ${awayTeam} highlights ${leagueName || ''}`);
           const generalApiUrl = `/api/youtube/search?maxResults=15&order=relevance&q=${generalQuery}`;
-          
+
           const generalResponse = await fetch(generalApiUrl);
           const generalData = await generalResponse.json();
 
@@ -144,11 +143,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             const bestMatch = generalData.items.find((item: YouTubeVideo) => {
               const title = item.snippet.title.toLowerCase();
               const description = item.snippet.description.toLowerCase();
-              
+
               // Check for both teams in title or description
               const hasHomeTeam = title.includes(homeTeam.toLowerCase()) || description.includes(homeTeam.toLowerCase());
               const hasAwayTeam = title.includes(awayTeam.toLowerCase()) || description.includes(awayTeam.toLowerCase());
-              
+
               return hasHomeTeam && hasAwayTeam;
             });
 
@@ -160,7 +159,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 const title = item.snippet.title.toLowerCase();
                 return title.includes(homeTeam.toLowerCase()) || title.includes(awayTeam.toLowerCase());
               });
-              
+
               if (anyMatch) {
                 setVideoData(anyMatch);
               }
@@ -179,7 +178,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
       // If still no results, show helpful error
       setError(`No highlight videos found for ${homeTeam} vs ${awayTeam}. This match may be too recent or from a less covered league.`);
-      
+
     } catch (err) {
       console.error('Error fetching highlights:', err);
       setError('Failed to load highlight videos. Please try again later.');
@@ -203,7 +202,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     });
   };
 
-  
+
 
   const handleToggleEmbed = () => {
     setShowEmbed(!showEmbed);
@@ -281,19 +280,19 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   alt={videoData.snippet.title}
                   className="absolute top-0 left-0 w-full h-full object-cover transition-transform group-hover:scale-105"
                 />
-                
+
                 {/* Play Button Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 group-hover:bg-opacity-50 transition-all">
                   <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform">
                     <Play className="h-6 w-6 text-white ml-1" fill="white" />
                   </div>
                 </div>
-                
+
                 {/* YouTube Logo */}
                 <div className="absolute top-3 right-3 bg-black bg-opacity-70 rounded px-2 py-1">
                   <span className="text-white text-xs font-semibold">YouTube</span>
                 </div>
-                
+
                 {/* Duration Badge (if available) */}
                 <div className="absolute bottom-3 right-3 bg-black bg-opacity-80 rounded px-2 py-1">
                   <span className="text-white text-xs">Play Here</span>
@@ -304,7 +303,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               <div className="relative w-full rounded-lg overflow-hidden bg-gray-100">
                 <div style={{ paddingBottom: '56.25%', position: 'relative' }}>
                   <iframe
-                    src={`https://www.youtube.com/embed/${videoData.id.videoId}?autoplay=0&rel=0&modestbranding=1&origin=${window.location.origin}&enablejsapi=1`}
+                    id={`youtube-player-${videoData.id.videoId}`}
+                    src={`https://www.youtube.com/embed/${videoData.id.videoId}?autoplay=0&rel=0&modestbranding=1&origin=${window.location.origin}&enablejsapi=1&controls=1&showinfo=0`}
                     title={videoData.snippet.title}
                     className="absolute top-0 left-0 w-full h-full"
                     frameBorder="0"
@@ -314,26 +314,33 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                     sandbox="allow-scripts allow-same-origin allow-presentation"
                     onError={(e) => {
                       console.error('YouTube iframe failed to load:', e);
-                      setError('This video cannot be played here due to embedding restrictions.');
+                      setError('This video cannot be played here due to embedding restrictions. Please use the "Watch on YouTube" button below.');
                       setShowEmbed(false);
                     }}
                     onLoad={() => {
                       console.log('YouTube iframe loaded successfully');
-                      // Check if content is actually blocked after a delay
+
+                      // Enhanced error detection for blocked content
                       setTimeout(() => {
-                        const iframe = document.querySelector('iframe[src*="youtube.com"]') as HTMLIFrameElement;
+                        const iframe = document.getElementById(`youtube-player-${videoData.id.videoId}`) as HTMLIFrameElement;
                         if (iframe) {
+                          // Check if iframe is properly loaded
                           try {
-                            // Try to access iframe content to detect if it's blocked
-                            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-                            if (!iframeDoc) {
-                              console.warn('YouTube content may be blocked - cannot access iframe content');
+                            if (iframe.contentWindow) {
+                              console.log('YouTube player iframe is accessible');
                             }
                           } catch (e) {
-                            console.log('YouTube iframe cross-origin restrictions (normal behavior)');
+                            console.log('YouTube iframe has normal cross-origin restrictions');
+                          }
+
+                          // Additional check for blocked content by looking at iframe size
+                          const rect = iframe.getBoundingClientRect();
+                          if (rect.height < 100) {
+                            console.warn('YouTube iframe may be blocked - unusually small height');
+                            setError('Video embedding may be restricted. Try the "Watch on YouTube" button.');
                           }
                         }
-                      }, 2000);
+                      }, 3000);
                     }}
                   />
                 </div>
@@ -348,7 +355,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 </button>
               </div>
             )}
-            
+
             {/* Video Info */}
             <div className="space-y-2">
               <h3 className="font-medium text-gray-900 text-sm line-clamp-2">
@@ -358,7 +365,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 <span>{videoData.snippet.channelTitle}</span>
                 <span>{formatPublishDate(videoData.snippet.publishedAt)}</span>
               </div>
-              
+
               {/* Action Buttons */}
               <div className="flex gap-2 mt-2">
                 <button

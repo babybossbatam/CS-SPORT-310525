@@ -10,6 +10,15 @@ router.get('/search', async (req, res) => {
   try {
     const { q, channelId, maxResults = 10, order = 'relevance', eventType } = req.query;
     
+    // Check if API key is available
+    if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o') {
+      return res.status(403).json({ 
+        error: 'YouTube API quota exceeded. Please wait for quota reset or configure a new API key.',
+        quotaExceeded: true,
+        fallbackSuggestion: 'Try searching manually on YouTube'
+      });
+    }
+    
     let apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=${YOUTUBE_API_KEY}`;
     
     if (q) apiUrl += `&q=${encodeURIComponent(q as string)}`;
@@ -23,16 +32,30 @@ router.get('/search', async (req, res) => {
 
     if (data.error) {
       console.error('YouTube API Error:', data.error);
+      
+      // Handle specific quota errors
+      if (data.error.code === 403 || data.error.message.includes('quota')) {
+        return res.status(403).json({ 
+          error: 'YouTube API quota exceeded. Quota resets daily at midnight PST.',
+          quotaExceeded: true,
+          resetTime: 'Daily at midnight PST',
+          fallbackSuggestion: 'Search manually on YouTube or try again tomorrow'
+        });
+      }
+      
       return res.status(response.status).json({ 
         error: data.error.message,
-        quotaExceeded: data.error.message.includes('quota') || response.status === 403
+        quotaExceeded: false
       });
     }
 
     res.json(data);
   } catch (error) {
     console.error('YouTube proxy error:', error);
-    res.status(500).json({ error: 'Failed to fetch YouTube data' });
+    res.status(500).json({ 
+      error: 'Failed to fetch YouTube data',
+      quotaExceeded: false 
+    });
   }
 });
 
