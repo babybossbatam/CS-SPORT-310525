@@ -16,6 +16,7 @@ import MatchDetailCard from "@/components/matches/MatchDetailCard";
 import MyHighlights from "@/components/matches/MyHighlights";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
 import MyLiveAction from "@/components/matches/MyLiveAction";
+import MyLMT from "@/components/matches/MyLMT";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
@@ -180,12 +181,23 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                   <>
                     {/* Show MyLiveAction only for live matches */}
                     {isLive && (
-                      <MyLiveAction
-                        matchId={selectedFixture?.fixture?.id}
-                        homeTeam={selectedFixture?.teams?.home}
-                        awayTeam={selectedFixture?.teams?.away}
-                        status={selectedFixture?.fixture?.status?.short}
-                      />
+                      <>
+                        <MyLiveAction
+                          matchId={selectedFixture?.fixture?.id}
+                          homeTeam={selectedFixture?.teams?.home}
+                          awayTeam={selectedFixture?.teams?.away}
+                          status={selectedFixture?.fixture?.status?.short}
+                        />
+                        
+                        {/* MyLMT - Live Match Tracker Widget */}
+                        <MyLMT
+                          matchId={selectedFixture?.fixture?.id}
+                          homeTeam={selectedFixture?.teams?.home}
+                          awayTeam={selectedFixture?.teams?.away}
+                          status={selectedFixture?.fixture?.status?.short}
+                          sportradarMatchId={selectedFixture?.fixture?.id}
+                        />
+                      </>
                     )}
 
                     {/* Show MyHighlights only for ended matches */}
