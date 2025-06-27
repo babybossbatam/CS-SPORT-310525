@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Video } from 'lucide-react';
@@ -42,44 +41,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   const teamData = getTeamNames();
 
-  useEffect(() => {
-    // Load ScoreBat script and embed
-    const loadScoreBatWidget = () => {
-      // Create the iframe
-      const iframe = document.createElement('iframe');
-      iframe.src = "https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDc0NTFfMmY1ZGNjNWFiNDM1MjVmNWEwYjgyMDc3YjRlNjcyYWRmODI3MmM0Yw==";
-      iframe.frameBorder = "0";
-      iframe.width = "100%";
-      iframe.height = "760";
-      iframe.allowFullscreen = true;
-      iframe.allow = 'autoplay; fullscreen';
-      iframe.style.cssText = "width:100%;height:760px;overflow:hidden;display:block;";
-      iframe.className = "_scorebatEmbeddedPlayer_";
-
-      // Clear existing content and add iframe
-      if (iframeContainerRef.current) {
-        iframeContainerRef.current.innerHTML = '';
-        iframeContainerRef.current.appendChild(iframe);
-      }
-
-      // Load ScoreBat script
-      const existingScript = document.getElementById('scorebat-jssdk');
-      if (!existingScript) {
-        const script = document.createElement('script');
-        script.id = 'scorebat-jssdk';
-        script.src = 'https://www.scorebat.com/embed/embed.js?v=arrv';
-        script.async = true;
-        document.body.appendChild(script);
-      }
-    };
-
-    // Load widget on component mount
-    const timer = setTimeout(loadScoreBatWidget, 100);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, []);
+  // YouTube test - no additional loading needed
 
   if (!teamData.home || !teamData.away) {
     return null;
@@ -120,15 +82,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             style={{ minHeight: '400px' }}
           >
             {/* Loading placeholder */}
-            <div className="flex items-center justify-center h-96 bg-gray-100">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-red-500 mx-auto mb-2"></div>
-                <p className="text-gray-600">Loading video highlights...</p>
-              </div>
-            </div>
+            <iframe width="728" height="407" src="https://www.youtube.com/embed/ypVg9Iv_-vw" title="Juventus vs Manchester City (2-5) | Resumen | Highlights Mundial de Clubes FIFA 2025™" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
           </div>
         </div>
-        
+
         <div className="mt-3 text-xs text-gray-500 text-center flex items-center justify-center">
           <Video className="h-3 w-3 mr-1" />
           Powered by ScoreBat • Live Football Highlights
