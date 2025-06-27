@@ -69,6 +69,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   // Local cache for video searches (24 hour cache)
   const [searchCache] = useState(() => new Map());
 
+  // ScoreBat API tokens
+  const SCOREBAT_VIDEO_API_TOKEN = 'MjExNjkxXzE3NTEwMDI4MzlfNmJkNDYzMzdlM2M5Y2I3OGE3YjAwY2UwZmU0NzliODJjZmRlOWFjYQ==';
+  const SCOREBAT_EMBED_TOKEN = 'MjExNjkxXzE3NTEwMDI4MzlfNzNkZmJkODBjMWNiZGFjZDhkMDNhNjM3OTI0MDA0ZGI0NjFkMDIwNw==';
+
   // Load ScoreBat widget script
   useEffect(() => {
     const script = document.createElement('script');
@@ -176,7 +180,50 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         console.warn('YouTube search failed:', youtubeError);
       }
 
-      // Fallback to ScoreBat Widget if no embeddable content found
+      // Try ScoreBat Video API first before falling back to widget
+      try {
+        console.log('🏈 Trying ScoreBat Video API for highlights');
+        const scorebatApiResponse = await fetch(`https://www.scorebat.com/video-api/v3/?token=${SCOREBAT_VIDEO_API_TOKEN}`);
+        
+        if (scorebatApiResponse.ok) {
+          const scorebatApiData = await scorebatApiResponse.json();
+          
+          if (scorebatApiData && scorebatApiData.response && scorebatApiData.response.length > 0) {
+            // Find match in ScoreBat API results
+            const matchVideo = scorebatApiData.response.find((video: any) => {
+              const title = video.title?.toLowerCase() || '';
+              return title.includes(home.toLowerCase()) && title.includes(away.toLowerCase());
+            }) || scorebatApiData.response[0]; // Fallback to first video
+
+            if (matchVideo) {
+              const scorebatApiVideoData = {
+                platform: 'scorebat-api',
+                id: matchVideo.matchId || 'api-video',
+                title: matchVideo.title || `${home} vs ${away} - Football Highlights`,
+                description: 'Live highlights from ScoreBat Video API.',
+                thumbnailUrl: matchVideo.thumbnail || '/assets/no-logo-available.png',
+                channelTitle: 'ScoreBat',
+                publishedAt: matchVideo.date || new Date().toISOString(),
+                watchUrl: matchVideo.url || 'https://www.scorebat.com/',
+                embedUrl: matchVideo.embed
+              };
+
+              searchCache.set(cacheKey, {
+                data: scorebatApiVideoData,
+                timestamp: now
+              });
+
+              setVideoData(scorebatApiVideoData);
+              setIsLoading(false);
+              return;
+            }
+          }
+        }
+      } catch (scorebatApiError) {
+        console.warn('ScoreBat Video API failed:', scorebatApiError);
+      }
+
+      // Fallback to ScoreBat Widget if Video API fails
       const scorebatData = {
         platform: 'scorebat-widget',
         id: 'widget',
@@ -578,10 +625,24 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                       allow="autoplay; fullscreen"
                       allowFullScreen
                     />
+                  ) : videoData.platform === 'scorebat-api' ? (
+                    <div style={{ width: '100%', height: '450px', overflow: 'hidden', display: 'block' }}>
+                      <iframe 
+                        src={videoData.embedUrl || `https://www.scorebat.com/embed/v/${videoData.id}/`}
+                        frameBorder="0" 
+                        width="100%" 
+                        height="450" 
+                        allowFullScreen 
+                        allow='autoplay; fullscreen' 
+                        style={{ width: '100%', height: '450px', overflow: 'hidden', display: 'block' }} 
+                        className="_scorebatEmbeddedPlayer_"
+                        title={videoData.title}
+                      />
+                    </div>
                   ) : videoData.platform === 'scorebat-widget' ? (
                     <div style={{ width: '100%', height: '760px', overflow: 'hidden', display: 'block' }}>
                       <iframe 
-                        src="https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDI4MzlfNzNkZmJkODBjMWNiZGFjZDhkMDNhNjM3OTI0MDA0ZGI0NjFkMDIwNw==" 
+                        src={`https://www.scorebat.com/embed/videofeed/?token=${SCOREBAT_EMBED_TOKEN}`}
                         frameBorder="0" 
                         width="100%" 
                         height="760" 
@@ -609,7 +670,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 {videoData.platform !== 'scorebat-widget' && (
                   <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm rounded px-2 py-1 z-10">
                     <span className="text-white text-xs font-medium">
-                      {videoData.platform === 'scorebat-widget' ? 'ScoreBat' : videoData.platform.charAt(0).toUpperCase() + videoData.platform.slice(1)}
+                      {videoData.platform === 'scorebat-api' ? 'ScoreBat HD' : 
+                       videoData.platform === 'scorebat-widget' ? 'ScoreBat' : 
+                       videoData.platform.charAt(0).toUpperCase() + videoData.platform.slice(1)}
                     </span>
                   </div>
                 )}
