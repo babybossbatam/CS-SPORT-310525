@@ -641,13 +641,15 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                       }}
                       className="match-star-button"
                       title="Add to favorites"
-                      onMouseEnter={() => {
-                        const container = document.querySelector(`[data-match-id="${match.fixture.id}"]`);
-                        if (container) container.classList.add('disable-hover');
+                      onMouseEnter={(e) => {
+                        e.currentTarget
+                          .closest(".match-card-container")
+                          ?.classList.add("disable-hover");
                       }}
-                      onMouseLeave={() => {
-                        const container = document.querySelector(`[data-match-id="${match.fixture.id}"]`);
-                        if (container) container.classList.remove('disable-hover');
+                      onMouseLeave={(e) => {
+                        e.currentTarget
+                          .closest(".match-card-container")
+                          ?.classList.remove("disable-hover");
                       }}
                     >
                       <Star
