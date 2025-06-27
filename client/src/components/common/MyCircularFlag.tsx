@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getCountryCode } from "@/lib/flagUtils";
 import { isNationalTeam } from "@/lib/teamLogoSources";
+import MyWorldTeamLogo from "./MyWorldTeamLogo";
 
 interface MyCircularFlagProps {
   teamName: string;
@@ -162,27 +163,15 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       onMouseEnter={() => showNextMatchOverlay && setIsHovered(true)}
       onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
     >
-      <img
-        src={getCircleFlagUrl(teamName, fallbackUrl)}
+      <MyWorldTeamLogo
+        teamName={teamName}
+        teamLogo={getCircleFlagUrl(teamName, fallbackUrl)}
         alt={alt || teamName}
+        size={size}
         className="team-logo"
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          borderRadius: "50%",
-          position: "relative",
-          zIndex: 1,
-
-          filter:
-            "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
-        }}
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          if (!target.src.includes("/assets/fallback-logo.svg")) {
-            target.src = fallbackUrl || "/assets/fallback-logo.svg";
-          }
-        }}
+        moveLeft={false}
+        nextMatchInfo={nextMatch}
+        showNextMatchOverlay={false}
       />
       <div className="gloss"></div>
 
