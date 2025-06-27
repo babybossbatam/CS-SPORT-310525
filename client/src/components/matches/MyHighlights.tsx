@@ -251,7 +251,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         }
       }
 
-      // Try Twitch as final fallback (currently returns empty results but infrastructure is ready)
+      // Try Twitch as fallback (currently returns empty results but infrastructure is ready)
       try {
         const twitchResponse = await fetch(`/api/twitch/search?q=${encodeURIComponent(queries[0])}&maxResults=5`);
         
@@ -281,8 +281,27 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         console.warn('Twitch search failed:', twitchError);
       }
 
-      // If no alternatives found after trying all queries
-      setError(`YouTube quota exceeded. Alternative video sources (Vimeo, Dailymotion) didn't return matches for "${homeTeam} vs ${awayTeam}". Try again later when YouTube quota resets.`);
+      // Try ScoreBat as final fallback - always available, no API limits
+      try {
+        console.log('🏈 Trying ScoreBat as final fallback for highlights');
+        setVideoData({
+          platform: 'scorebat',
+          id: 'embed-feed',
+          title: `${homeTeam} vs ${awayTeam} - Football Highlights`,
+          description: 'Live football highlights and match videos from ScoreBat',
+          thumbnailUrl: '/assets/no-logo-available.png', // Use fallback thumbnail
+          channelTitle: 'ScoreBat',
+          publishedAt: new Date().toISOString(),
+          watchUrl: 'https://www.scorebat.com'
+        });
+        setIsLoading(false);
+        return;
+      } catch (scorebatError) {
+        console.warn('ScoreBat fallback failed:', scorebatError);
+      }
+
+      // If no alternatives found after trying all sources
+      setError(`No highlight videos found for ${homeTeam} vs ${awayTeam}. YouTube quota exceeded and no alternatives available.`);
     } catch (altError) {
       console.error('Alternative platform search failed:', altError);
       setError(`YouTube quota exceeded. Alternative video platforms are temporarily unavailable. Quota resets daily at midnight PST.`);
@@ -453,6 +472,31 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                       allow="autoplay; fullscreen"
                       allowFullScreen
                     />
+                  ) : videoData.platform === 'scorebat' ? (
+                    <>
+                      <iframe
+                        src="https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDE2MTJfMDFmZDg0MWMyNzJkMWM0YTc1ZjEyY2ZjY2RmOGZjNmM3MDg2ZTEyOA=="
+                        title="ScoreBat Football Highlights"
+                        className="absolute top-0 left-0 w-full h-full border-0"
+                        allow="autoplay; fullscreen"
+                        allowFullScreen
+                        style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'block' }}
+                      />
+                      <script
+                        dangerouslySetInnerHTML={{
+                          __html: `
+                            (function(d, s, id) { 
+                              var js, fjs = d.getElementsByTagName(s)[0]; 
+                              if (d.getElementById(id)) return; 
+                              js = d.createElement(s); 
+                              js.id = id; 
+                              js.src = 'https://www.scorebat.com/embed/embed.js?v=arrv'; 
+                              fjs.parentNode.insertBefore(js, fjs); 
+                            }(document, 'script', 'scorebat-jssdk'));
+                          `
+                        }}
+                      />
+                    </>
                   ) : null}
                 </div>
 
@@ -469,7 +513,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 {/* Video Quality Indicator */}
                 <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm rounded px-2 py-1 z-10">
                   <span className="text-white text-xs font-medium">
-                    {videoData.platform.charAt(0).toUpperCase() + videoData.platform.slice(1)}
+                    {videoData.platform === 'scorebat' ? 'ScoreBat' : videoData.platform.charAt(0).toUpperCase() + videoData.platform.slice(1)}
                   </span>
                 </div>
               </div>
