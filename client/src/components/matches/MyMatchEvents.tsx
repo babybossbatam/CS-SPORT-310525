@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, MessageCircle, Target, AlertTriangle, CornerDownRight, Play, Pause } from 'lucide-react';
 
 interface MatchEvent {
@@ -423,9 +422,9 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
 
   return (
     <div className="sr-widget w-full">
-      <Card className="w-full shadow-lg border-gray-200">
-        <CardHeader className="pb-3 bg-gradient-to-r from-blue-50 to-indigo-50">
-          <CardTitle className="text-lg font-bold flex items-center justify-between">
+      <div className="w-full shadow-lg border border-gray-200 rounded-lg">
+        <div className="pb-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg px-6 py-4">
+          <div className="text-lg font-bold flex items-center justify-between">
             <div className="flex items-center">
               <MessageCircle className="h-5 w-5 mr-2 text-blue-500" />
               Live Match Events
@@ -435,10 +434,10 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
                 </span>
               )}
             </div>
-          </CardTitle>
-        </CardHeader>
+          </div>
+        </div>
 
-        <CardContent className="p-0">
+        <div className="p-0">
           {/* Tab Navigation - Only show for custom widget */}
           {widgetType === 'custom' && (
             <div className="flex border-b bg-gray-50">
@@ -487,8 +486,8 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
             {widgetType === 'sportradar' && <SportradarWidgetView />}
             {widgetType === 'api-football' && <ApiFootballWidgetView />}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 };
