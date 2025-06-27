@@ -96,7 +96,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
 
   // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
-  const leagueIds = [38, 15];
+  const leagueIds = [38, 15, 667];
 
   useEffect(() => {
     const fetchLeagueData = async () => {
