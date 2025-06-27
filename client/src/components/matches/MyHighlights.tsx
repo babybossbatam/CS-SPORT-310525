@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Video, Play, ExternalLink } from 'lucide-react';
+import { Video } from 'lucide-react';
 
 interface MyHighlightsProps {
   homeTeam?: string;
