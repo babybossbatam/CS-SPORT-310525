@@ -827,37 +827,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         <div className="flex justify-between items-center w-full">
           <span>Popular Football Leagues</span>
-          {/* Test Flash Effect Buttons - Remove these after testing */}
-          <div className="flex gap-2">
-            <button 
-              onClick={() => {
-                const firstMatchId = fixtures[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setHalftimeFlashMatches(new Set([firstMatchId]));
-                  setTimeout(() => setHalftimeFlashMatches(new Set()), 3000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-pink-200 rounded"
-            >
-              Test HT Flash
-            </button>
-            <button 
-              onClick={() => {
-                const firstMatchId = fixtures[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setFulltimeFlashMatches(new Set([firstMatchId]));
-                  setTimeout(() => setFulltimeFlashMatches(new Set()), 3000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-blue-200 rounded"
-            >
-              Test FT Flash
-            </button>
-            <button 
-              onClick={() => {
-                const firstMatchId = fixtures[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setGoalFlashMatches(new Set([firstMatchId]));
+        </div>irstMatchId]));
                   setTimeout(() => setGoalFlashMatches(new Set()), 2000);
                 }
               }}

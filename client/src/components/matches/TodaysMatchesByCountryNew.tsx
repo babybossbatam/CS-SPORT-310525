@@ -1315,29 +1315,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           >
             {getHeaderTitle()}
           </h3>
-          {/* Test Flash Effect Buttons - Remove these after testing */}
-          <div className="flex gap-2">
-            <button 
-              onClick={() => {
-                const firstMatchId = validFixtures[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setHalftimeFlashMatches(new Set([firstMatchId]));
-                  setTimeout(() => setHalftimeFlashMatches(new Set()), 3000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-pink-200 rounded"
-            >
-              Test HT Flash
-            </button>
-            <button 
-              onClick={() => {
-                const firstMatchId = validFixtures[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setFulltimeFlashMatches(new Set([firstMatchId]));
-                  setTimeout(() => setFulltimeFlashMatches(new Set()), 3000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-blue-200 rounded"
+          y-1 text-xs bg-blue-200 rounded"
             >
               Test FT Flash
             </button>
