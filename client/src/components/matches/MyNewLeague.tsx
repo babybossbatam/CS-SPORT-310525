@@ -1006,13 +1006,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   </span>
                 </div>
                 <div className="flex gap-2 items-center">
-                  <span
-                    className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium"
-                    style={{ fontSize: "calc(0.75rem * 0.85)" }}
-                  >
-                    {leagueGroup.matches.length} Match
-                    {leagueGroup.matches.length !== 1 ? "es" : ""}
-                  </span>
                   {expandedLeagues.has(`league-${leagueGroup.league.id}`) ? (
                     <ChevronUp className="h-4 w-4 text-gray-500" />
                   ) : (
