@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, MessageCircle, Target, AlertTriangle, CornerDownRight, Play, Pause } from 'lucide-react';
@@ -86,7 +85,7 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
         script.src = `https://widgets.media.sportradar.com/${sportradarConfig.clientAlias}/widgetloader`;
         script.setAttribute('data-sr-language', 'en_us');
         script.async = true;
-        
+
         script.onload = () => {
           // Initialize widget after script loads
           if (window.USW) {
@@ -145,9 +144,9 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
   // Generate enhanced sample events for demonstration
   const generateEnhancedSampleEvents = (): MatchEvent[] => {
     if (!match) return [];
-    
+
     const events: MatchEvent[] = [];
-    
+
     // Add goal events
     for (let i = 0; i < homeScore; i++) {
       events.push({
@@ -161,7 +160,7 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
         coordinates: { x: Math.random() * 100, y: Math.random() * 100 }
       });
     }
-    
+
     for (let i = 0; i < awayScore; i++) {
       events.push({
         id: events.length + 1,
@@ -198,7 +197,7 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
         });
       });
     }
-    
+
     return events.sort((a, b) => parseInt(a.time) - parseInt(b.time));
   };
 
@@ -325,14 +324,14 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
       <div className="relative">
         {/* Timeline line */}
         <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
-        
+
         {finalEvents.map((event, index) => (
           <div key={event.id} className="relative flex items-start gap-4 pb-4">
             {/* Timeline dot */}
             <div className={`relative z-10 w-3 h-3 rounded-full ${
               event.isImportant ? 'bg-red-500' : 'bg-blue-500'
             }`}></div>
-            
+
             {/* Event content */}
             <div className="flex-1 min-w-0 pb-4">
               <div className="flex items-center gap-2 mb-1">
@@ -364,7 +363,7 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
           <div className="text-xs text-gray-500">{displayAwayTeam}</div>
         </div>
       </div>
-      
+
       <div className="space-y-3">
         {['Shots', 'Corners', 'Fouls', 'Cards'].map((stat, index) => (
           <div key={stat} className="flex justify-between items-center p-2 border rounded">
@@ -438,7 +437,7 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
             </div>
           </CardTitle>
         </CardHeader>
-        
+
         <CardContent className="p-0">
           {/* Tab Navigation - Only show for custom widget */}
           {widgetType === 'custom' && (
