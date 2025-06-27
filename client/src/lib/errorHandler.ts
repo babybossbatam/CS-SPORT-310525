@@ -56,7 +56,6 @@ export const handleNetworkRecovery = () => {
         }
       });
 
-      // Don't automatically reload - let the app recover naturally
       console.log('🌐 Network recovery: Cleared stale cache data');
     } catch (error) {
       console.warn('Error during network recovery:', error);
@@ -145,89 +144,6 @@ export const setupGlobalErrorHandlers = () => {
       return;
     }
   });
-
-  // Add console override to catch and filter problematic logs
-  const originalConsoleError = console.error;
-  const originalConsoleWarn = console.warn;
-
-  console.error = (...args) => {
-    const message = args.join(' ');
-    
-    // Enhanced suppression patterns for sandbox and framework errors
-    const suppressPatterns = [
-      'MaxListenersExceededWarning',
-      'Possible EventEmitter memory leak',
-      'listeners added',
-      'Use emitter.setMaxListeners()',
-      'commitComplete listeners',
-      'fileDirty listeners',
-      'fileClean listeners',
-      'commitStart listeners',
-      'promptUserReconnect listeners',
-      'cursor listeners',
-      'removeCursor listeners',
-      'overrideMethod @ hook.js',
-      'Invalid or unexpected token',
-      'SyntaxError: Invalid or unexpected token',
-      'sandbox',
-      'allow-downloads-without-user-activation',
-      'Unrecognized feature',
-      'Allow attribute will take precedence',
-      'allowfullscreen',
-      'allowpaymentrequest',
-      'ambient-light-sensor',
-      'battery',
-      'execution-while-not-rendered',
-      'execution-while-out-of-viewport',
-      'layout-animations',
-      'legacy-image-formats',
-      'navigation-override',
-      'oversized-images',
-      'publickey-credentials',
-      'speaker-selection',
-      'unoptimized-images',
-      'unsized-media',
-      'pointer-lock',
-      'background.js',
-      'framework-',
-      'Uncaught SyntaxError',
-      'workspace_iframe.html',
-      'Error while parsing the',
-      'is an invalid sandbox flag',
-      'uD @',
-      'uI @',
-      'uM @',
-      'uS @',
-      '@ framework-',
-      'Understand this error'
-    ];
-
-    // Check for any of the patterns in the message or individual arguments
-    const shouldSuppress = suppressPatterns.some(pattern => 
-      message.includes(pattern) || 
-      args.some(arg => String(arg).includes(pattern))
-    );
-
-    if (shouldSuppress) {
-      return; // Suppress these warnings completely
-    }
-
-    originalConsoleError.apply(console, args);
-  };
-
-  console.warn = (...args) => {
-    const message = args.join(' ');
-
-    // Filter out EventEmitter warnings specifically
-    if (message.includes('MaxListenersExceededWarning') ||
-        message.includes('Possible EventEmitter memory leak') ||
-        message.includes('listeners added')) {
-      return; // Suppress EventEmitter warnings
-    }
-
-    // Call original console.warn for other warnings
-    originalConsoleWarn.apply(console, args);
-  };
 
   // Cleanup function for when page unloads
   window.addEventListener('beforeunload', () => {
