@@ -93,72 +93,96 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     setError(null);
 
     try {
-      // Strategy 1: Try most reliable channels first (reduced to top 3)
-      const topChannels = [
-        'UCKlcfZ3svGyESsxQCcV_x5g', // ESPN FC
-        'UCpcTrCXblq78GZrTUTLWeBw', // Sky Sports Football
-        'UCq6aw03fnIBFWs2fqgP32pA'  // Goal
-      ];
+      // Strategy 1: Try ScoreBat first - always available, no API limits
+      console.log('🏈 Trying ScoreBat as primary source for highlights');
+      const scorebatData = {
+        platform: 'scorebat',
+        id: 'embed-feed',
+        title: `${home} vs ${away} - Football Highlights`,
+        description: 'Live football highlights and match videos from ScoreBat. Watch directly on this page.',
+        thumbnailUrl: '/assets/no-logo-available.png',
+        channelTitle: 'ScoreBat',
+        publishedAt: new Date().toISOString(),
+        watchUrl: 'https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDI4MzlfNzNkZmJkODBjMWNiZGFjZDhkMDNhNjM3OTI0MDA0ZGI0NjFkMDIwNw=='
+      };
 
-      // Single optimized search query
-      const query = encodeURIComponent(`${home} vs ${away} highlights ${league || ''}`);
-      
-      for (const channelId of topChannels) {
-        try {
-          const apiUrl = `/api/youtube/search?channelId=${channelId}&maxResults=5&order=date&q=${query}`;
-          const response = await fetch(apiUrl);
-          const data = await response.json();
+      // Cache the ScoreBat result
+      searchCache.set(cacheKey, {
+        data: scorebatData,
+        timestamp: now
+      });
 
-          if (data.error) {
-            if (data.error.includes('quota')) {
-              // Switch to alternative platforms when quota is exceeded
-              setError('YouTube quota exceeded. Switching to alternative video sources...');
-              await searchAlternativePlatforms();
-              return;
-            }
-            continue;
-          }
-
-          if (data.items && data.items.length > 0) {
-            const perfectMatch = data.items.find((item: YouTubeVideo) => {
-              const title = item.snippet.title.toLowerCase();
-              return title.includes(home.toLowerCase()) && title.includes(away.toLowerCase());
-            });
-
-            if (perfectMatch) {
-              const videoData = {
-                platform: 'youtube',
-                id: perfectMatch.id.videoId,
-                title: perfectMatch.snippet.title,
-                description: perfectMatch.snippet.description,
-                thumbnailUrl: perfectMatch.snippet.thumbnails.medium.url,
-                channelTitle: perfectMatch.snippet.channelTitle,
-                publishedAt: perfectMatch.snippet.publishedAt,
-                watchUrl: `https://www.youtube.com/watch?v=${perfectMatch.id.videoId}`
-              };
-
-              // Cache the result
-              searchCache.set(cacheKey, {
-                data: videoData,
-                timestamp: now
-              });
-
-              setVideoData(videoData);
-              setIsLoading(false);
-              return;
-            }
-          }
-        } catch (channelError) {
-          console.warn(`Failed to search on channel ${channelId}:`, channelError);
-        }
-      }
-
-      // If YouTube fails, try alternative platforms
-      await searchAlternativePlatforms();
+      setVideoData(scorebatData);
+      setIsLoading(false);
+      return;
 
     } catch (err) {
-      console.error('Error fetching highlights:', err);
-      setError('Failed to load highlight videos. Please try again later.');
+      console.error('Error with ScoreBat:', err);
+      
+      // Fallback to YouTube and other platforms if ScoreBat fails
+      try {
+        const topChannels = [
+          'UCKlcfZ3svGyESsxQCcV_x5g', // ESPN FC
+          'UCpcTrCXblq78GZrTUTLWeBw', // Sky Sports Football
+          'UCq6aw03fnIBFWs2fqgP32pA'  // Goal
+        ];
+
+        const query = encodeURIComponent(`${home} vs ${away} highlights ${league || ''}`);
+        
+        for (const channelId of topChannels) {
+          try {
+            const apiUrl = `/api/youtube/search?channelId=${channelId}&maxResults=5&order=date&q=${query}`;
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            if (data.error) {
+              if (data.error.includes('quota')) {
+                setError('YouTube quota exceeded. Switching to alternative video sources...');
+                await searchAlternativePlatforms();
+                return;
+              }
+              continue;
+            }
+
+            if (data.items && data.items.length > 0) {
+              const perfectMatch = data.items.find((item: YouTubeVideo) => {
+                const title = item.snippet.title.toLowerCase();
+                return title.includes(home.toLowerCase()) && title.includes(away.toLowerCase());
+              });
+
+              if (perfectMatch) {
+                const videoData = {
+                  platform: 'youtube',
+                  id: perfectMatch.id.videoId,
+                  title: perfectMatch.snippet.title,
+                  description: perfectMatch.snippet.description,
+                  thumbnailUrl: perfectMatch.snippet.thumbnails.medium.url,
+                  channelTitle: perfectMatch.snippet.channelTitle,
+                  publishedAt: perfectMatch.snippet.publishedAt,
+                  watchUrl: `https://www.youtube.com/watch?v=${perfectMatch.id.videoId}`
+                };
+
+                searchCache.set(cacheKey, {
+                  data: videoData,
+                  timestamp: now
+                });
+
+                setVideoData(videoData);
+                setIsLoading(false);
+                return;
+              }
+            }
+          } catch (channelError) {
+            console.warn(`Failed to search on channel ${channelId}:`, channelError);
+          }
+        }
+
+        // If YouTube also fails, try other alternative platforms
+        await searchAlternativePlatforms();
+      } catch (fallbackError) {
+        console.error('All video sources failed:', fallbackError);
+        setError('Failed to load highlight videos. Please try again later.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -287,27 +311,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         console.warn('Twitch search failed:', twitchError);
       }
 
-      // Try ScoreBat as final fallback - always available, no API limits
-      try {
-        console.log('🏈 Trying ScoreBat as final fallback for highlights');
-        setVideoData({
-          platform: 'scorebat',
-          id: 'embed-feed',
-          title: `${teamData.home} vs ${teamData.away} - Football Highlights`,
-          description: 'Live football highlights and match videos from ScoreBat. Watch directly on this page.',
-          thumbnailUrl: '/assets/no-logo-available.png', // Use fallback thumbnail
-          channelTitle: 'ScoreBat',
-          publishedAt: new Date().toISOString(),
-          watchUrl: 'https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDI4MzlfNzNkZmJkODBjMWNiZGFjZDhkMDNhNjM3OTI0MDA0ZGI0NjFkMDIwNw=='
-        });
-        setIsLoading(false);
-        return;
-      } catch (scorebatError) {
-        console.warn('ScoreBat fallback failed:', scorebatError);
-      }
-
       // If no alternatives found after trying all sources
-      setError(`No highlight videos found for ${teamData.home} vs ${teamData.away}. YouTube quota exceeded and no alternatives available.`);
+      setError(`No highlight videos found for ${teamData.home} vs ${teamData.away}. All video sources are currently unavailable.`);
     } catch (altError) {
       console.error('Alternative platform search failed:', altError);
       setError(`YouTube quota exceeded. Alternative video platforms are temporarily unavailable. Quota resets daily at midnight PST.`);
