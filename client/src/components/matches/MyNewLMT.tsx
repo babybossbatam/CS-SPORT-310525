@@ -29,12 +29,46 @@ const MyNewLMT: React.FC<MyNewLMTProps> = ({
   const widgetInitializedRef = useRef<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Use a more reliable Sportradar match ID - try current live match first
-  const sportradarMatchId = matchId || 61239863; // Using the same working match ID as MyLMT
+  const [sportradarMatchId, setSportradarMatchId] = useState<number>(61239863); // Default fallback
 
   // Determine if match is currently live
   const isLive = status && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
+
+  // Fetch Sportradar match ID when component mounts
+  useEffect(() => {
+    const fetchSportradarMatchId = async () => {
+      if (matchId && isLive) {
+        try {
+          console.log('🔍 [MyNewLMT] Mapping RapidAPI match ID to Sportradar:', matchId);
+          
+          // Use the new mapping endpoint
+          const response = await fetch(`/api/sportsradar/match-id/${matchId}`);
+          if (response.ok) {
+            const data = await response.json();
+            
+            if (data.success && data.sportradarMatchId) {
+              console.log('✅ [MyNewLMT] Mapped to Sportradar match ID:', data.sportradarMatchId);
+              if (data.fallback) {
+                console.log('⚠️ [MyNewLMT] Using fallback match ID');
+              } else {
+                console.log('🎯 [MyNewLMT] Found exact match:', data.matchedTeams);
+              }
+              setSportradarMatchId(data.sportradarMatchId);
+              return;
+            }
+          }
+        } catch (error) {
+          console.warn('⚠️ [MyNewLMT] Failed to map Sportradar match ID:', error);
+        }
+      }
+      
+      // Fallback to working match ID
+      console.log('🔄 [MyNewLMT] Using default fallback Sportradar match ID');
+      setSportradarMatchId(61239863);
+    };
+
+    fetchSportradarMatchId();
+  }, [matchId, isLive]);
 
   useEffect(() => {
     const loadSportradarWidget = () => {

@@ -826,7 +826,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Check if cache is fresh (less than 4 hours old)
         const now = new Date();
         const cacheTime = new Date(cachedLeague.timestamp);
-        const cacheAge = now.getTime() - cacheTime.getTime();
+        const cacheAge```text
+= now.getTime() - cacheTime.getTime();
 
         if (cacheAge < 4 * 60 * 60 * 1000) {
           // 4 hours (increased from 1 hour)
@@ -2938,6 +2939,90 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Create HTTP server
   const httpServer = createServer(app);
+  
+  // Get Sportradar matches endpoint
+  apiRouter.get("/sportsradar/matches/live", async (req: Request, res: Response) => {
+    try {
+      const liveMatches = await sportsradarApi.getLiveFixtures();
+      res.json({
+        success: true,
+        matches: liveMatches
+      });
+    } catch (error) {
+      console.error("Error fetching Sportradar live matches:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch live matches"
+      });
+    }
+  });
+
+  // Get Sportradar match ID from RapidAPI match ID
+  apiRouter.get("/sportsradar/match-id/:rapidApiMatchId", async (req: Request, res: Response) => {
+    try {
+      const { rapidApiMatchId } = req.params;
+
+      // Get RapidAPI match details
+      const rapidApiMatch = await rapidApiService.getFixtureById(parseInt(rapidApiMatchId));
+      if (!rapidApiMatch) {
+        return res.status(404).json({
+          success: false,
+          error: "RapidAPI match not found"
+        });
+      }
+
+      // Get live Sportradar matches
+      const sportradarMatches = await sportsradarApi.getLiveFixtures();
+
+      if (sportradarMatches && sportradarMatches.length > 0) {
+        // Try to match by team names
+        const homeTeam = rapidApiMatch.teams?.home?.name || "";
+        const awayTeam = rapidApiMatch.teams?.away?.name || "";
+
+        const matchedSportradarMatch = sportradarMatches.find((match: any) => {
+          const srHomeTeam = match.home_team?.name || "";
+          const srAwayTeam = match.away_team?.name || "";
+
+          // Simple name matching
+          return (
+            srHomeTeam.toLowerCase().includes(homeTeam.toLowerCase().split(" ")[0]) &&
+            srAwayTeam.toLowerCase().includes(awayTeam.toLowerCase().split(" ")[0])
+          ) || (
+            srHomeTeam.toLowerCase().includes(awayTeam.toLowerCase().split(" ")[0]) &&
+            srAwayTeam.toLowerCase().includes(homeTeam.toLowerCase().split(" ")[0])
+          );
+        });
+
+        if (matchedSportradarMatch) {
+          return res.json({
+            success: true,
+            sportradarMatchId: matchedSportradarMatch.id,
+            rapidApiMatchId: rapidApiMatchId,
+            matchedTeams: {
+              home: matchedSportradarMatch.home_team?.name,
+              away: matchedSportradarMatch.away_team?.name
+            }
+          });
+        }
+      }
+
+      // Fallback to a working demo match ID
+      res.json({
+        success: true,
+        sportradarMatchId: 61239863, // Working demo match
+        rapidApiMatchId: rapidApiMatchId,
+        fallback: true
+      });
+
+    } catch (error) {
+      console.error("Error mapping match IDs:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to map match ID",
+        sportradarMatchId: 61239863 // Fallback
+      });
+    }
+  });
 
   return httpServer;
 }
