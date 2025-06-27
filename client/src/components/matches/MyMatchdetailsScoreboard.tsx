@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Calendar, MapPin, Users, Star, X } from "lucide-react";
-import MyHighlights from "./MyHighlights";
+
 import { Badge } from "@/components/ui/badge";
 import { User, Trophy } from "lucide-react";
 import { format } from "date-fns";
@@ -640,8 +640,7 @@ const MyMatchdetailsScoreboard = ({
           </button>
         </div>
       </Card>
-       {/* Highlights Section */}
-       <MyHighlights homeTeamName={displayMatch.teams.home.name} awayTeamName={displayMatch.teams.away.name} />
+       
     </Card>
   );
 };
