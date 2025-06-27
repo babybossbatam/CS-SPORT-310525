@@ -351,6 +351,11 @@ export const TodayMatchPageCard = ({
           {/* By time button */}
           <button
             onClick={() => {
+              // Check if Live is active but no live matches exist - disable functionality
+              if (liveFilterActive && (!sharedLiveFixtures || sharedLiveFixtures.length === 0)) {
+                return; // Do nothing if Live is active but no live matches
+              }
+
               if (!timeFilterActive) {
                 // Activating by time filter
                 setTimeFilterActive(true);
@@ -374,7 +379,10 @@ export const TodayMatchPageCard = ({
               }
             }}
             className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
-              timeFilterActive
+              // Disable button appearance when Live is active but no live matches
+              liveFilterActive && (!sharedLiveFixtures || sharedLiveFixtures.length === 0)
+                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                : timeFilterActive
                 ? "bg-blue-400 text-white hover:bg-blue-500"
                 : "bg-gray-300 text-black hover:bg-gray-400"
             }`}
