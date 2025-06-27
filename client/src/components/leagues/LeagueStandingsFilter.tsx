@@ -864,30 +864,22 @@ const LeagueStandingsFilter = () => {
                                 </TableCell>
                                 <TableCell className="flex flex-col font-normal px-0.5 py-3">
                                   <div className="flex items-center">
-                                    {isNationalTeam ? (
-                                      <div className="mr-3">
-                                        <MyCircularFlag
-                                          teamName={standing.team.name}
-                                          fallbackUrl={standing.team.logo}
-                                          alt={standing.team.name}
-                                          size="28px"
-                                          className="popular-leagues-size"
-                                          showNextMatchOverlay={true}
-                                        />
-                                      </div>
-                                    ) : (
-                                      <div className="relative">
-                                        <img
-                                          src={standing.team.logo}
-                                          alt={standing.team.name}
-                                          className="h-4 w-4 rounded-full mr-3 object-cover"
-                                          onError={(e) => {
-                                            (e.target as HTMLImageElement).src =
-                                              "/assets/fallback-logo.svg";
-                                          }}
-                                        />
-                                      </div>
-                                    )}
+                                    <div className="mr-3">
+                                      <MyWorldTeamLogo
+                                        teamName={standing.team.name}
+                                        teamLogo={standing.team.logo}
+                                        alt={standing.team.name}
+                                        size="28px"
+                                        className="popular-leagues-size"
+                                        leagueContext={{
+                                          name: selectedLeagueName,
+                                          country: popularLeagues.find(
+                                            (l) => l && l.id && l.id.toString() === selectedLeague,
+                                          )?.country || "World",
+                                        }}
+                                        showNextMatchOverlay={true}
+                                      />
+                                    </div>
                                     <span className="text-[0.85rem] truncate">
                                       {standing.team.name}
                                     </span>
