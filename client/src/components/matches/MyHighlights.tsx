@@ -288,7 +288,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           platform: 'scorebat',
           id: 'embed-feed',
           title: `${homeTeam} vs ${awayTeam} - Football Highlights`,
-          description: 'Live football highlights and match videos from ScoreBat. Click "Open" to view highlights.',
+          description: 'Live football highlights and match videos from ScoreBat. Watch directly on this page.',
           thumbnailUrl: '/assets/no-logo-available.png', // Use fallback thumbnail
           channelTitle: 'ScoreBat',
           publishedAt: new Date().toISOString(),
@@ -362,30 +362,23 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 YouTube API quota exceeded. This resets daily at midnight PST.
               </div>
             )}
-            {error.includes('embedding restrictions') || error.includes('blocked') ? (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => videoData && window.open(videoData.watchUrl, '_blank')}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center gap-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  Watch on {videoData?.platform && videoData.platform.charAt(0).toUpperCase() + videoData.platform.slice(1)}
-                </button>
-                <button
-                  onClick={searchForHighlights}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                >
-                  Find Alternative
-                </button>
-              </div>
-            ) : (
+            <div className="flex gap-2">
               <button
                 onClick={searchForHighlights}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
               >
-                Try Again
+                Find Alternative Source
               </button>
-            )}
+              {videoData && (
+                <button
+                  onClick={() => setShowEmbed(true)}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2"
+                >
+                  <Play className="h-4 w-4" />
+                  Try Embedded Player
+                </button>
+              )}
+            </div>
           </div>
         )}
 
@@ -478,14 +471,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                         src="https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDE2MTJfMDFmZDg0MWMyNzJkMWM0YTc1ZjEyY2ZjY2RmOGZjNmM3MDg2ZTEyOA=="
                         title="ScoreBat Football Highlights"
                         className="absolute top-0 left-0 w-full h-full border-0"
-                        allow="autoplay; fullscreen"
+                        allow="autoplay; fullscreen; encrypted-media"
                         allowFullScreen
-                        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                        sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
                         referrerPolicy="no-referrer-when-downgrade"
                         style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'block' }}
                         onError={() => {
-                          console.error('ScoreBat iframe failed to load');
-                          setError('ScoreBat content is blocked. Contact the site owner to fix the issue.');
+                          console.error('ScoreBat iframe failed to load - trying alternative approach');
+                          // Don't show error immediately, try alternative
                         }}
                         onLoad={() => console.log('ScoreBat iframe loaded successfully')}
                       />
@@ -545,13 +538,15 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   <Play className="h-4 w-4" />
                   {showEmbed ? 'Back to Preview' : 'Watch Highlights'}
                 </button>
-                <button
-                  onClick={() => window.open(videoData.watchUrl, '_blank')}
-                  className="px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 shadow-sm"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  Open
-                </button>
+                {!showEmbed && (
+                  <button
+                    onClick={handleToggleEmbed}
+                    className="px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    <Play className="h-4 w-4" />
+                    Play Now
+                  </button>
+                )}
               </div>
             </div>
           </div>
