@@ -4,18 +4,18 @@ import express from 'express';
 const router = express.Router();
 
 // Store API key securely on server
-const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY || 'AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o';
+const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
 
 router.get('/search', async (req, res) => {
   try {
     const { q, channelId, maxResults = 10, order = 'relevance', eventType } = req.query;
     
     // Check if API key is available
-    if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === 'AIzaSyA_hEdy01ChpBkp3MWKBmda6DsDDbcCw-o') {
+    if (!YOUTUBE_API_KEY) {
       return res.status(403).json({ 
-        error: 'YouTube API quota exceeded. Please wait for quota reset or configure a new API key.',
-        quotaExceeded: true,
-        fallbackSuggestion: 'Try searching manually on YouTube'
+        error: 'YouTube API key not configured. Please add YOUTUBE_API_KEY to environment variables.',
+        quotaExceeded: false,
+        fallbackSuggestion: 'Configure API key in Secrets'
       });
     }
     
