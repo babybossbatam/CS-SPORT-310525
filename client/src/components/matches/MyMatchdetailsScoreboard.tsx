@@ -77,38 +77,11 @@ const MyMatchdetailsScoreboard = ({
     league: displayMatch?.league?.name,
   });
 
-  // Function to fetch highlights
-  const fetchHighlights = useCallback(async () => {
-    if (!displayMatch?.teams?.home?.name || !displayMatch?.teams?.away?.name) return;
-
-    setHighlightsLoading(true);
-    try {
-      const response = await fetch(`/api/highlights/search?home=${encodeURIComponent(displayMatch.teams.home.name)}&away=${encodeURIComponent(displayMatch.teams.away.name)}&league=${encodeURIComponent(displayMatch.league.name)}`);
-      
-      if (response.ok) {
-        const highlightsData = await response.json();
-        setHighlights(highlightsData);
-        console.log("🎬 [MyMatchdetailsScoreboard] Highlights fetched:", highlightsData);
-      } else {
-        console.warn("🎬 [MyMatchdetailsScoreboard] Failed to fetch highlights");
-      }
-    } catch (error) {
-      console.error("🎬 [MyMatchdetailsScoreboard] Error fetching highlights:", error);
-    } finally {
-      setHighlightsLoading(false);
-    }
-  }, [displayMatch?.teams?.home?.name, displayMatch?.teams?.away?.name, displayMatch?.league?.name]);
 
   // State for real-time timer
   const [realTimeElapsed, setRealTimeElapsed] = useState<number | null>(null);
 
-  // Fetch highlights when highlights tab is active
-  useEffect(() => {
-    if (activeTab === "highlights") {
-      fetchHighlights();
-    }
-  }, [activeTab, fetchHighlights]);
-
+  
   // Real-time update effect for live matches with continuous timer
   useEffect(() => {
     if (!displayMatch) return;
@@ -738,29 +711,7 @@ const MyMatchdetailsScoreboard = ({
               Team trends and analysis
             </div>
           )}
-          
-          {activeTab === "highlights" && (
-            <div className="py-0 px-0">
-              <div className="w-full" style={{ paddingBottom: '56.25%', position: 'relative', height: 0 }}>
-                <iframe
-                  src={`https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&loading_spinner=off&teams=${encodeURIComponent(displayMatch.teams.home.name + ' vs ' + displayMatch.teams.away.name)}`}
-                  width="100%"
-                  height="100%"
-                  className="fw-iframe"
-                  scrolling="no"
-                  frameBorder="0"
-                  title={`${displayMatch.teams.home.name} vs ${displayMatch.teams.away.name} Highlights`}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%'
-                  }}
-                />
-              </div>
-            </div>
-          )}
+         
           
           {activeTab === "h2h" && (
             <div className="p-4 text-center text-gray-500">
