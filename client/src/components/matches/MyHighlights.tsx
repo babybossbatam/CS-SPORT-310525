@@ -269,46 +269,56 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         {videoData && (
           <div className="space-y-3">
             {!showEmbed ? (
-              /* Clickable Video Thumbnail */
+              /* 365scores-style Video Thumbnail */
               <div 
-                className="relative w-full cursor-pointer group rounded-lg overflow-hidden bg-gray-100"
+                className="relative w-full cursor-pointer group rounded-lg overflow-hidden bg-gray-900 shadow-lg"
                 style={{ paddingBottom: '56.25%' }}
                 onClick={handleToggleEmbed}
               >
                 <img
                   src={videoData.snippet.thumbnails.medium.url}
                   alt={videoData.snippet.title}
-                  className="absolute top-0 left-0 w-full h-full object-cover transition-transform group-hover:scale-105"
+                  className="absolute top-0 left-0 w-full h-full object-cover transition-all duration-300 group-hover:scale-105 group-hover:brightness-75"
                 />
 
-                {/* Play Button Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 group-hover:bg-opacity-50 transition-all">
-                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform">
-                    <Play className="h-6 w-6 text-white ml-1" fill="white" />
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 group-hover:from-black/70 transition-all duration-300"></div>
+
+                {/* Play Button Overlay - 365scores style */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-14 h-14 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center transform group-hover:scale-110 group-hover:bg-white transition-all duration-300 shadow-lg">
+                    <Play className="h-5 w-5 text-gray-800 ml-0.5" fill="currentColor" />
                   </div>
                 </div>
 
-                {/* YouTube Logo */}
-                <div className="absolute top-3 right-3 bg-black bg-opacity-70 rounded px-2 py-1">
-                  <span className="text-white text-xs font-semibold">YouTube</span>
+                {/* Video Info Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                      <span className="text-xs font-medium">Highlights</span>
+                    </div>
+                    <div className="text-xs opacity-75">
+                      {videoData.snippet.channelTitle}
+                    </div>
+                  </div>
                 </div>
 
-                {/* Duration Badge (if available) */}
-                <div className="absolute bottom-3 right-3 bg-black bg-opacity-80 rounded px-2 py-1">
-                  <span className="text-white text-xs">Play Here</span>
+                {/* Quality Badge */}
+                <div className="absolute top-3 right-3 bg-black/70 backdrop-blur-sm rounded px-2 py-1">
+                  <span className="text-white text-xs font-medium">HD</span>
                 </div>
               </div>
             ) : (
-              /* Embedded YouTube Player */
-              <div className="relative w-full rounded-lg overflow-hidden bg-gray-100">
+              /* 365scores-style Embedded Player */
+              <div className="relative w-full rounded-lg overflow-hidden bg-gray-900 shadow-xl">
                 <div style={{ paddingBottom: '56.25%', position: 'relative' }}>
                   <iframe
                     id={`youtube-player-${videoData.id.videoId}`}
-                    src={`https://www.youtube.com/embed/${videoData.id.videoId}?autoplay=0&rel=0&modestbranding=1&origin=${window.location.origin}&enablejsapi=1&controls=1&showinfo=0`}
+                    src={`https://www.youtube.com/embed/${videoData.id.videoId}?autoplay=1&rel=0&modestbranding=1&origin=${window.location.origin}&enablejsapi=1&controls=1&showinfo=0&color=white&iv_load_policy=3`}
                     title={videoData.snippet.title}
-                    className="absolute top-0 left-0 w-full h-full"
-                    frameBorder="0"
-                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    className="absolute top-0 left-0 w-full h-full border-0"
+                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; autoplay"
                     allowFullScreen
                     referrerPolicy="strict-origin-when-cross-origin"
                     sandbox="allow-scripts allow-same-origin allow-presentation"
@@ -319,12 +329,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                     }}
                     onLoad={() => {
                       console.log('YouTube iframe loaded successfully');
-
-                      // Enhanced error detection for blocked content
                       setTimeout(() => {
                         const iframe = document.getElementById(`youtube-player-${videoData.id.videoId}`) as HTMLIFrameElement;
                         if (iframe) {
-                          // Check if iframe is properly loaded
                           try {
                             if (iframe.contentWindow) {
                               console.log('YouTube player iframe is accessible');
@@ -332,8 +339,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                           } catch (e) {
                             console.log('YouTube iframe has normal cross-origin restrictions');
                           }
-
-                          // Additional check for blocked content by looking at iframe size
                           const rect = iframe.getBoundingClientRect();
                           if (rect.height < 100) {
                             console.warn('YouTube iframe may be blocked - unusually small height');
@@ -344,15 +349,21 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                     }}
                   />
                 </div>
-                {/* Close embed button */}
+                
+                {/* Minimal close button */}
                 <button
                   onClick={handleToggleEmbed}
-                  className="absolute top-2 right-2 bg-black bg-opacity-70 text-white rounded-full p-1 hover:bg-opacity-90 transition-opacity"
+                  className="absolute top-3 right-3 w-8 h-8 bg-black/70 backdrop-blur-sm text-white rounded-full flex items-center justify-center hover:bg-black/90 transition-all duration-200 z-10"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
+
+                {/* Video Quality Indicator */}
+                <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm rounded px-2 py-1 z-10">
+                  <span className="text-white text-xs font-medium">Playing...</span>
+                </div>
               </div>
             )}
 
@@ -366,28 +377,21 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 <span>{formatPublishDate(videoData.snippet.publishedAt)}</span>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-2 mt-2">
+              {/* 365scores-style Action Buttons */}
+              <div className="flex gap-2 mt-3">
                 <button
                   onClick={handleToggleEmbed}
-                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 shadow-sm"
                 >
                   <Play className="h-4 w-4" />
-                  {showEmbed ? 'Show Thumbnail' : 'Play Here'}
+                  {showEmbed ? 'Back to Preview' : 'Watch Highlights'}
                 </button>
                 <button
                   onClick={() => window.open(`https://www.youtube.com/watch?v=${videoData.id.videoId}`, '_blank')}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                  className="px-4 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 shadow-sm"
                 >
                   <ExternalLink className="h-4 w-4" />
-                  YouTube
-                </button>
-                <button
-                  onClick={() => window.open(`https://m.youtube.com/watch?v=${videoData.id.videoId}`, '_blank')}
-                  className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                  title="Try mobile YouTube"
-                >
-                  📱
+                  Open
                 </button>
               </div>
             </div>
