@@ -194,13 +194,13 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   useEffect(() => {
     const fetchFixturesData = async () => {
       if (!selectedDate) return;
-      
+
       setIsLoading(true);
       setError(null);
 
       try {
         console.log(`🔍 [TodaysMatchesByCountryNew] Fetching data for date: ${selectedDate}`);
-        
+
         const response = await apiRequest(
           "GET",
           `/api/fixtures/date/${selectedDate}?all=true`,
@@ -208,7 +208,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         const data = await response.json();
 
         console.log(`✅ [TodaysMatchesByCountryNew] Received ${data?.length || 0} fixtures`);
-        
+
         if (Array.isArray(data)) {
           setFixtures(data);
         } else {
@@ -229,7 +229,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
   // Simple fixture processing like MyNewLeague
   const processedFixtures = fixtures || [];
 
-  
+
 
   // Now validate after all hooks are called
   if (!selectedDate) {
@@ -991,7 +991,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     });
   };
 
-  
+
 
   const toggleLeague = (country: string, leagueId: number) => {
     const leagueKey = `${country}-${leagueId}`;
