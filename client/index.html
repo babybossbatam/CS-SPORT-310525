@@ -3,6 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://replit.com https://feed.mikle.com https://www.scorebat.com https://cdn.jsdelivr.net https://unpkg.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net;
+      img-src 'self' data: blob: https: http: https://media.api-sports.io https://hatscripts.github.io https://imagecache.365scores.com https://logos.api-sports.io https://via.placeholder.com https://feed.mikle.com https://www.scorebat.com;
+      font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com;
+      connect-src 'self' https: wss: https://api-sports.io https://feed.mikle.com https://www.scorebat.com https://webws.365scores.com;
+      frame-src 'self' https://feed.mikle.com https://www.scorebat.com https://www.youtube.com https://youtube.com https://replit.com;
+      media-src 'self' https: data: blob:;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+    ">
     <title>CSSPORT | 潮勝體育</title>
     
     <!-- EventEmitter Warning Suppression - Must load first -->
