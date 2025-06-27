@@ -124,7 +124,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   const [visibleMatches, setVisibleMatches] = useState<Set<number>>(new Set());
   const [selectedMatch, setSelectedMatch] = useState<any>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  
+
   // Flash animation states
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
   const [fulltimeFlashMatches, setFulltimeFlashMatches] = useState<Set<number>>(new Set());
@@ -201,6 +201,47 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   const { fixtures, liveFixtures, isLoading, error } = useCentralData();
 
   console.log(`📊 [TodayMatchByTime] Got ${fixtures?.length || 0} fixtures from central cache`);
+
+    // Define shouldExcludeFixture function
+    const shouldExcludeFixture = (leagueName: string, homeTeam: string, awayTeam: string): boolean => {
+      const excludedLeagues = ["Belarusian"];
+      const excludedTeams = ["BATE", "Dinamo Minsk", "Shakhtyor"];
+
+      if (excludedLeagues.some(excludedLeague => leagueName.includes(excludedLeague))) {
+        return true;
+      }
+
+      if (excludedTeams.some(excludedTeam => homeTeam.includes(excludedTeam) || awayTeam.includes(excludedTeam))) {
+        return true;
+      }
+
+      return false;
+    };
+
+  // Apply component-specific filtering
+  const filteredFixtures = useMemo(() => {
+    if (!fixtures?.length) {
+      console.log(`⚠️ [TodayMatchByTime] No fixtures available from central cache`);
+      return [];
+    }
+
+    // Apply smart time filtering
+    const timeFilterResult = MySmartTimeFilter.filterTodayFixtures(fixtures, selectedDate);
+    const timeFiltered = timeFilterResult.todayFixtures;
+    console.log(`📊 [TodayMatchByTime] After time filtering: ${timeFiltered.length} fixtures`);
+
+    // Apply exclusion filtering if needed
+    const exclusionFiltered = timeFiltered.filter(fixture => {
+      if (!fixture?.league || !fixture?.teams) return false;
+      const leagueName = fixture.league.name || '';
+      const homeTeam = fixture.teams.home.name || '';
+      const awayTeam = fixture.teams.away.name || '';
+      return !shouldExcludeFixture(leagueName, homeTeam, awayTeam);
+    });
+
+    console.log(`📊 [TodayMatchByTime] After exclusion filtering: ${exclusionFiltered.length} fixtures`);
+    return exclusionFiltered;
+  }, [fixtures, selectedDate]);
 
   // Effect to detect status and score changes with flash effects
   useEffect(() => {
@@ -294,47 +335,6 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       }, 2000);
     }
   }, [filteredFixtures]);
-
-    // Define shouldExcludeFixture function
-    const shouldExcludeFixture = (leagueName: string, homeTeam: string, awayTeam: string): boolean => {
-      const excludedLeagues = ["Belarusian"];
-      const excludedTeams = ["BATE", "Dinamo Minsk", "Shakhtyor"];
-
-      if (excludedLeagues.some(excludedLeague => leagueName.includes(excludedLeague))) {
-        return true;
-      }
-
-      if (excludedTeams.some(excludedTeam => homeTeam.includes(excludedTeam) || awayTeam.includes(excludedTeam))) {
-        return true;
-      }
-
-      return false;
-    };
-
-  // Apply component-specific filtering
-  const filteredFixtures = useMemo(() => {
-    if (!fixtures?.length) {
-      console.log(`⚠️ [TodayMatchByTime] No fixtures available from central cache`);
-      return [];
-    }
-
-    // Apply smart time filtering
-    const timeFilterResult = MySmartTimeFilter.filterTodayFixtures(fixtures, selectedDate);
-    const timeFiltered = timeFilterResult.todayFixtures;
-    console.log(`📊 [TodayMatchByTime] After time filtering: ${timeFiltered.length} fixtures`);
-
-    // Apply exclusion filtering if needed
-    const exclusionFiltered = timeFiltered.filter(fixture => {
-      if (!fixture?.league || !fixture?.teams) return false;
-      const leagueName = fixture.league.name || '';
-      const homeTeam = fixture.teams.home.name || '';
-      const awayTeam = fixture.teams.away.name || '';
-      return !shouldExcludeFixture(leagueName, homeTeam, awayTeam);
-    });
-
-    console.log(`📊 [TodayMatchByTime] After exclusion filtering: ${exclusionFiltered.length} fixtures`);
-    return exclusionFiltered;
-  }, [fixtures, selectedDate]);
 
   const allFixturesError = error;
 
