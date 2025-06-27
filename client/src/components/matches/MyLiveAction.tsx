@@ -409,8 +409,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         </div>
 
         {/* Professional Football Field */}
-        <div className="relative h-104 bg-gradient-to-br from-green-700 via-green-600 to-green-700 overflow-hidden" style={{
-          background: 'linear-gradient(135deg, #1e5631 0%, #2d7d32 25%, #388e3c 50%, #2d7d32 75%, #1e5631 100%)'
+        <div className="relative h-96 bg-gradient-to-br from-green-700 via-green-600 to-green-700 overflow-hidden" style={{
+          background: 'linear-gradient(135deg, #1e5631 0%, #2d7d32 25%, #388e3c 50%, #2d7d32 75%, #1e5631 100%)',
+          minHeight: '400px'
         }}>
 
           {/* Professional grass stripes */}
@@ -463,7 +464,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           ))}
 
           {/* Field markings - exact 365scores style */}
-          <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <svg className="absolute inset-0 w-full h-full z-10" viewBox="0 0 100 100" preserveAspectRatio="none">
             <defs>
               <filter id="whiteGlow">
                 <feGaussianBlur stdDeviation="0.3" result="coloredBlur"/>
@@ -501,7 +502,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
           {/* Professional ball with possession indicator */}
           <div 
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ease-out z-30"
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ease-out z-50"
             style={{
               left: `${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
@@ -512,14 +513,19 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               <div className="absolute w-4 h-2 bg-black/30 rounded-full blur-sm" 
                    style={{ left: '-8px', top: '12px' }}></div>
 
-              {/* Professional ball */}
-              <div className="w-3 h-3 bg-white rounded-full shadow-xl relative overflow-hidden">
+              {/* Professional ball - made larger and more visible */}
+              <div className="w-4 h-4 bg-white rounded-full shadow-xl relative overflow-hidden border border-gray-300">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/40 to-transparent"></div>
+                {/* Soccer ball pattern */}
+                <div className="absolute inset-0 rounded-full">
+                  <div className="absolute top-1 left-1 w-1 h-1 bg-black rounded-full opacity-60"></div>
+                  <div className="absolute bottom-1 right-1 w-1 h-1 bg-black rounded-full opacity-60"></div>
+                </div>
 
                 {/* Possession glow effect */}
                 {ballPossession && (
                   <div className="absolute -inset-2">
-                    <div className={`w-7 h-7 rounded-full animate-ping opacity-30 ${
+                    <div className={`w-8 h-8 rounded-full animate-ping opacity-30 ${
                       ballPossession === 'home' ? 'bg-blue-400' : 'bg-red-400'
                     }`}></div>
                   </div>
@@ -529,8 +535,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
 
           {/* Team positioning - 365scores style */}
-          <div className="absolute top-4 left-4 z-40">
-            <div className="flex items-center gap-2 bg-black/20 backdrop-blur-sm rounded-lg px-3 py-2">
+          <div className="absolute top-4 left-4 z-60">
+            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-lg px-3 py-2">
               <div className="w-4 h-4 bg-red-500 rounded-sm flex items-center justify-center">
                 <span className="text-white text-xs font-bold">👕</span>
               </div>
@@ -540,8 +546,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           </div>
 
-          <div className="absolute top-4 right-4 z-40">
-            <div className="flex items-center gap-2 bg-black/20 backdrop-blur-sm rounded-lg px-3 py-2">
+          <div className="absolute top-4 right-4 z-60">
+            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-lg px-3 py-2">
               <span className="text-white text-sm font-bold">
                 {awayTeamData?.name?.toUpperCase().substring(0, 12) || 'AWAY'}
               </span>
