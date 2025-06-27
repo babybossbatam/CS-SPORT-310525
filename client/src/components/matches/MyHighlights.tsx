@@ -233,6 +233,19 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             }) || scorebatApiData.response[0]; // Fallback to first video
 
             if (matchVideo) {
+              // Extract proper embed URL from ScoreBat API response
+              let embedUrl = null;
+              
+              if (matchVideo.embed) {
+                embedUrl = matchVideo.embed;
+              } else if (matchVideo.videos && matchVideo.videos.length > 0) {
+                // Try to get embed URL from videos array
+                const video = matchVideo.videos[0];
+                embedUrl = video.embed || `https://www.scorebat.com/embed/v/${video.id}/`;
+              } else if (matchVideo.matchId) {
+                embedUrl = `https://www.scorebat.com/embed/v/${matchVideo.matchId}/`;
+              }
+
               const scorebatApiVideoData = {
                 platform: 'scorebat-api',
                 id: matchVideo.matchId || 'api-video',
@@ -242,7 +255,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 channelTitle: 'ScoreBat',
                 publishedAt: matchVideo.date || new Date().toISOString(),
                 watchUrl: matchVideo.url || 'https://www.scorebat.com/',
-                embedUrl: matchVideo.embed
+                embedUrl: embedUrl
               };
 
               searchCache.set(cacheKey, {
@@ -664,30 +677,57 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                     />
                   ) : videoData.platform === 'scorebat-api' ? (
                     <div style={{ width: '100%', height: '450px', overflow: 'hidden', display: 'block' }}>
-                      <iframe 
-                        src={videoData.embedUrl || `https://www.scorebat.com/embed/v/${videoData.id}/`}
-                        frameBorder="0" 
-                        width="100%" 
-                        height="450" 
-                        allowFullScreen 
-                        allow='autoplay; fullscreen' 
-                        style={{ width: '100%', height: '450px', overflow: 'hidden', display: 'block' }} 
-                        className="_scorebatEmbeddedPlayer_"
-                        title={videoData.title}
-                      />
+                      {videoData.embedUrl ? (
+                        <iframe 
+                          src={videoData.embedUrl}
+                          frameBorder="0" 
+                          width="100%" 
+                          height="450" 
+                          allowFullScreen 
+                          allow="autoplay; fullscreen; picture-in-picture" 
+                          style={{ width: '100%', height: '450px', overflow: 'hidden', display: 'block' }} 
+                          className="_scorebatEmbeddedPlayer_"
+                          title={videoData.title}
+                          sandbox="allow-scripts allow-same-origin allow-presentation"
+                          onError={() => {
+                            console.log('ScoreBat API iframe failed, falling back to widget');
+                            setVideoData({
+                              ...videoData,
+                              platform: 'scorebat-widget'
+                            });
+                          }}
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full bg-gray-100 text-gray-600">
+                          <div className="text-center">
+                            <p>Video temporarily unavailable</p>
+                            <button
+                              onClick={() => window.open(videoData.watchUrl, '_blank')}
+                              className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            >
+                              Watch on ScoreBat
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : videoData.platform === 'scorebat-widget' ? (
-                    <div style={{ width: '100%', height: '760px', overflow: 'hidden', display: 'block' }}>
+                    <div style={{ width: '100%', height: '450px', overflow: 'hidden', display: 'block' }}>
                       <iframe 
                         src={`https://www.scorebat.com/embed/videofeed/?token=${SCOREBAT_EMBED_TOKEN}`}
                         frameBorder="0" 
                         width="100%" 
-                        height="760" 
+                        height="450" 
                         allowFullScreen 
-                        allow='autoplay; fullscreen' 
-                        style={{ width: '100%', height: '760px', overflow: 'hidden', display: 'block' }} 
+                        allow="autoplay; fullscreen; picture-in-picture" 
+                        style={{ width: '100%', height: '450px', overflow: 'hidden', display: 'block' }} 
                         className="_scorebatEmbeddedPlayer_"
                         title={videoData.title}
+                        sandbox="allow-scripts allow-same-origin allow-presentation"
+                        onError={() => {
+                          console.log('ScoreBat widget iframe failed');
+                          setError('Video player temporarily unavailable. Please try again later.');
+                        }}
                       />
                     </div>
                   ) : null}
@@ -742,6 +782,15 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   >
                     <Play className="h-4 w-4" />
                     Play Now
+                  </button>
+                )}
+                {(videoData.platform === 'scorebat-api' || videoData.platform === 'scorebat-widget') && (
+                  <button
+                    onClick={() => window.open(videoData.watchUrl, '_blank')}
+                    className="px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all duration-200 text-sm font-medium flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    ScoreBat
                   </button>
                 )}
               </div>
