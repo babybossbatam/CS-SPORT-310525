@@ -791,3 +791,28 @@
   justify-content: center;
   font-weight: 600;
 }
+
+/* Match status styling */
+.match-status-label {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-live {
+  background-color: #ef4444;
+  color: white;
+}
+
+.status-ended {
+  background-color: #6b7280;
+  color: white;
+}
+
+.status-upcoming {
+  background-color: #3b82f6;
+  color: white;
+}
