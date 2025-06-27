@@ -15,7 +15,7 @@ interface MyHighlightsProps {
 
 interface VideoSource {
   name: string;
-  type: 'youtube' | 'vimeo' | 'dailymotion' | 'scorebat' | 'feed';
+  type: 'youtube' | 'vimeo' | 'dailymotion' | 'feed';
   url?: string;
   embedUrl?: string;
   title?: string;
@@ -106,25 +106,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         throw new Error('No Dailymotion videos found');
       }
     },
-    {
-      name: 'ScoreBat',
-      type: 'scorebat' as const,
-      searchFn: async () => {
-        const response = await fetch(`/api/highlights/search?home=${encodeURIComponent(home)}&away=${encodeURIComponent(away)}&league=${encodeURIComponent(league)}`);
-        const data = await response.json();
-
-        if (data.videoUrl) {
-          return {
-            name: 'ScoreBat',
-            type: 'scorebat' as const,
-            url: data.videoUrl,
-            embedUrl: data.videoUrl,
-            title: data.title || `${home} vs ${away} Highlights`
-          };
-        }
-        throw new Error('No ScoreBat highlights found');
-      }
-    }
+    
   ];
 
   const tryNextSource = async () => {
