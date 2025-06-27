@@ -69,20 +69,25 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   // Local cache for video searches (24 hour cache)
   const [searchCache] = useState(() => new Map());
 
-  // Generate ScoreBat embed ID from team names
-  const generateScoreBatEmbedId = (homeTeam: string, awayTeam: string) => {
-    // For testing purposes, you can return a specific ScoreBat ID
-    // Replace this with actual ScoreBat API integration
-    if (homeTeam === "CRB" && awayTeam === "America Mineiro") {
-      return "685e2562445f4"; // Your specific embed ID
+  // Load ScoreBat widget script
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.id = 'scorebat-jssdk';
+    script.src = 'https://www.scorebat.com/embed/embed.js?v=arrv';
+    script.async = true;
+    
+    if (!document.getElementById('scorebat-jssdk')) {
+      document.head.appendChild(script);
     }
     
-    // ScoreBat uses specific ID formats - this is a basic implementation
-    // In practice, you'd need to fetch the actual ScoreBat embed IDs from their API
-    const timestamp = Math.floor(Date.now() / 1000).toString(16);
-    const teamHash = btoa(`${homeTeam}-${awayTeam}`).replace(/[^a-zA-Z0-9]/g, '').substring(0, 8);
-    return `${teamHash}${timestamp}`.substring(0, 12);
-  };
+    return () => {
+      // Cleanup script if component unmounts
+      const existingScript = document.getElementById('scorebat-jssdk');
+      if (existingScript) {
+        existingScript.remove();
+      }
+    };
+  }, []);
 
   const searchForHighlights = async () => {
     const { home, away, league } = teamData;
@@ -171,17 +176,16 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         console.warn('YouTube search failed:', youtubeError);
       }
 
-      // Fallback to ScoreBat-style display if no embeddable content found
-      const scorebatId = generateScoreBatEmbedId(home, away);
+      // Fallback to ScoreBat Widget if no embeddable content found
       const scorebatData = {
-        platform: 'scorebat',
-        id: scorebatId,
+        platform: 'scorebat-widget',
+        id: 'widget',
         title: `${home} vs ${away} - Football Highlights`,
         description: 'Live highlights available from ScoreBat.',
         thumbnailUrl: '/assets/no-logo-available.png',
         channelTitle: 'ScoreBat',
         publishedAt: new Date().toISOString(),
-        watchUrl: `https://www.scorebat.com/embed/v/${scorebatId}/`
+        watchUrl: 'https://www.scorebat.com/'
       };
 
       // Cache the ScoreBat result
@@ -574,15 +578,17 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                       allow="autoplay; fullscreen"
                       allowFullScreen
                     />
-                  ) : videoData.platform === 'scorebat' ? (
-                    <div style={{ width: '100%', height: '0px', position: 'relative', paddingBottom: '56.250%', background: '#000' }}>
+                  ) : videoData.platform === 'scorebat-widget' ? (
+                    <div style={{ width: '100%', height: '760px', overflow: 'hidden', display: 'block' }}>
                       <iframe
-                        src={`https://www.scorebat.com/embed/v/${videoData.id}/`}
+                        src="https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDI4MzlfNzNkZmJkODBjMWNiZGFjZDhkMDNhNjM3OTI0MDA0ZGI0NjFkMDIwNw=="
                         frameBorder="0"
                         width="100%"
-                        height="100%"
+                        height="760"
                         allowFullScreen
-                        style={{ width: '100%', height: '100%', position: 'absolute', left: '0px', top: '0px', overflow: 'hidden' }}
+                        allow="autoplay; fullscreen"
+                        style={{ width: '100%', height: '760px', overflow: 'hidden', display: 'block' }}
+                        className="_scorebatEmbeddedPlayer_"
                         title={videoData.title}
                       />
                     </div>
@@ -600,11 +606,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 </button>
 
                 {/* Video Quality Indicator */}
-                <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm rounded px-2 py-1 z-10">
-                  <span className="text-white text-xs font-medium">
-                    {videoData.platform === 'scorebat' ? 'ScoreBat' : videoData.platform.charAt(0).toUpperCase() + videoData.platform.slice(1)}
-                  </span>
-                </div>
+                {videoData.platform !== 'scorebat-widget' && (
+                  <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm rounded px-2 py-1 z-10">
+                    <span className="text-white text-xs font-medium">
+                      {videoData.platform === 'scorebat-widget' ? 'ScoreBat' : videoData.platform.charAt(0).toUpperCase() + videoData.platform.slice(1)}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 
