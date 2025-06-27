@@ -164,8 +164,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             style={{ minHeight: '400px' }}
           >
             <iframe 
-              src="https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&" 
-              height="455px" 
+              src="https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&loading_spinner=off" 
+              height="359px" 
               width="100%" 
               className="fw-iframe" 
               scrolling="no" 
