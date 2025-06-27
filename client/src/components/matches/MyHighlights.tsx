@@ -292,7 +292,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           thumbnailUrl: '/assets/no-logo-available.png', // Use fallback thumbnail
           channelTitle: 'ScoreBat',
           publishedAt: new Date().toISOString(),
-          watchUrl: 'https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDE2MTJfMDFmZDg0MWMyNzJkMWM0YTc1ZjEyY2ZjY2RmOGZjNmM3MDg2ZTEyOA=='
+          watchUrl: 'https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDI4MzlfNzNkZmJkODBjMWNiZGFjZDhkMDNhNjM3OTI0MDA0ZGI0NjFkMDIwNw=='
         });
         setIsLoading(false);
         return;
@@ -468,7 +468,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   ) : videoData.platform === 'scorebat' ? (
                     <div className="relative w-full h-full">
                       <iframe
-                        src="https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDE2MTJfMDFmZDg0MWMyNzJkMWM0YTc1ZjEyY2ZjY2RmOGZjNmM3MDg2ZTEyOA=="
+                        src="https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDI4MzlfNzNkZmJkODBjMWNiZGFjZDhkMDNhNjM3OTI0MDA0ZGI0NjFkMDIwNw=="
                         title="ScoreBat Football Highlights"
                         className="absolute top-0 left-0 w-full h-full border-0"
                         allow="autoplay; fullscreen; encrypted-media"
@@ -477,8 +477,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                         referrerPolicy="no-referrer-when-downgrade"
                         style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'block' }}
                         onError={() => {
-                          console.error('ScoreBat iframe failed to load - trying alternative approach');
-                          // Don't show error immediately, try alternative
+                          console.error('ScoreBat iframe failed to load - CSP or network issue');
                         }}
                         onLoad={() => console.log('ScoreBat iframe loaded successfully')}
                       />
