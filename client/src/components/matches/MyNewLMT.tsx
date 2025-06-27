@@ -31,7 +31,7 @@ const MyNewLMT: React.FC<MyNewLMTProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   // Use a more reliable Sportradar match ID - try current live match first
-  const sportradarMatchId = matchId || 36065; // Using a more reliable Sportradar demo match ID
+  const sportradarMatchId = matchId || 61239863; // Using the same working match ID as MyLMT
 
   // Determine if match is currently live
   const isLive = status && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
@@ -52,19 +52,10 @@ const MyNewLMT: React.FC<MyNewLMTProps> = ({
         script.onload = () => {
           console.log('🎯 [MyNewLMT] Sportradar script loaded successfully');
           scriptLoadedRef.current = true;
-          // Initialize SIR if not already available
-          if (!window.SIR) {
-            window.SIR = function(){(window.SIR.q=window.SIR.q||[]).push(arguments)};
-            window.SIR.l = 1*new Date();
-            window.SIR.o = {
-              theme: false,
-              language: "en"
-            };
-          }
-          // Wait a bit more for SIR to be fully ready
+          // Wait for SIR to be available
           setTimeout(() => {
             initializeWidget();
-          }, 1500);
+          }, 2000);
         };
         script.onerror = () => {
           console.error('🚫 [MyNewLMT] Failed to load Sportradar script');
@@ -99,6 +90,7 @@ const MyNewLMT: React.FC<MyNewLMTProps> = ({
           
           window.SIR("addWidget", ".sr-widget-new-lmt", "match.lmtPlus", {
             layout: "topdown",
+            scoreboardLargeJerseys: true,
             matchId: sportradarMatchId,
             theme: false,
             language: "en"
@@ -113,25 +105,41 @@ const MyNewLMT: React.FC<MyNewLMTProps> = ({
           setTimeout(() => {
             if (widgetRef.current && widgetRef.current.children.length === 0) {
               console.warn('⚠️ [MyNewLMT] Widget container is empty after initialization');
-              setError('Widget failed to load content');
+              // Try a different match ID if the current one fails
+              if (sportradarMatchId === matchId) {
+                console.log('🔄 [MyNewLMT] Trying fallback match ID...');
+                widgetInitializedRef.current = false;
+                // Use the working match ID from MyLMT
+                const fallbackMatchId = 61239863;
+                window.SIR("addWidget", ".sr-widget-new-lmt", "match.lmtPlus", {
+                  layout: "topdown",
+                  scoreboardLargeJerseys: true,
+                  matchId: fallbackMatchId,
+                  theme: false,
+                  language: "en"
+                });
+                widgetInitializedRef.current = true;
+              } else {
+                setError('No live match data available');
+              }
             }
-          }, 3000);
+          }, 5000);
           
         } catch (error) {
           console.error('🚫 [MyNewLMT] Error initializing Sportradar widget:', error);
           setError('Failed to initialize widget: ' + (error as Error).message);
           setIsLoading(false);
         }
-      } else {
-        console.log('🔄 [MyNewLMT] Retrying widget initialization in 1 second...');
+      } else if (!window.SIR && scriptLoadedRef.current) {
+        console.error('🚫 [MyNewLMT] SIR not available after script loaded');
+        setError('Sportradar widget not available');
+        setIsLoading(false);
+      } else if (!widgetInitializedRef.current) {
+        console.log('🔄 [MyNewLMT] Waiting for conditions...');
         // Retry initialization after a short delay
         setTimeout(() => {
-          if (window.SIR && !widgetInitializedRef.current) {
+          if (!widgetInitializedRef.current) {
             initializeWidget();
-          } else if (!window.SIR) {
-            console.error('🚫 [MyNewLMT] SIR not available after retries');
-            setError('Sportradar library not loaded');
-            setIsLoading(false);
           }
         }, 1000);
       }
