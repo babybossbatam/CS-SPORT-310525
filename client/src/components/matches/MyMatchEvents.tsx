@@ -1,16 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Clock, MessageCircle, Target, AlertTriangle, CornerDownRight } from 'lucide-react';
+import { Clock, MessageCircle, Target, AlertTriangle, CornerDownRight, Play, Pause } from 'lucide-react';
 
 interface MatchEvent {
   id: number;
   time: string;
-  type: 'goal' | 'card' | 'substitution' | 'corner' | 'offside' | 'foul';
+  type: 'goal' | 'card' | 'substitution' | 'corner' | 'offside' | 'foul' | 'shot' | 'save';
   player: string;
   team: 'home' | 'away';
   description: string;
   isImportant?: boolean;
+  coordinates?: { x: number; y: number };
 }
 
 interface MyMatchEventsProps {
@@ -18,15 +19,20 @@ interface MyMatchEventsProps {
   homeTeam?: string;
   awayTeam?: string;
   matchStatus?: string;
+  matchId?: string;
 }
 
 const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
   match,
   homeTeam,
   awayTeam,
-  matchStatus
+  matchStatus,
+  matchId
 }) => {
-  const [activeTab, setActiveTab] = useState<'all' | 'top' | 'commentary'>('top');
+  const [activeTab, setActiveTab] = useState<'playByPlay' | 'timeline' | 'stats'>('playByPlay');
+  const [isLive, setIsLive] = useState(false);
+  const [currentMinute, setCurrentMinute] = useState(0);
+  const [autoScroll, setAutoScroll] = useState(true);
 
   // Extract team names and match info from match data
   const displayHomeTeam = match?.teams?.home?.name || homeTeam || "Home Team";
@@ -34,6 +40,13 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
   const displayMatchStatus = match?.fixture?.status?.short || matchStatus || "NS";
   const homeScore = match?.goals?.home ?? 0;
   const awayScore = match?.goals?.away ?? 0;
+
+  // Check if match is live
+  useEffect(() => {
+    const liveStatuses = ['1H', '2H', 'HT', 'ET', 'LIVE', 'LIV'];
+    setIsLive(liveStatuses.includes(displayMatchStatus));
+    setCurrentMinute(match?.fixture?.status?.elapsed || 0);
+  }, [displayMatchStatus, match]);
 
   // Convert match events from API to our format
   const convertApiEventsToMatchEvents = (apiEvents: any[]): MatchEvent[] => {
@@ -46,26 +59,24 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
             event.type === 'Card' ? 'card' : 
             event.type === 'subst' ? 'substitution' : 
             event.detail === 'Corner' ? 'corner' :
-            event.detail === 'Offside' ? 'offside' : 'foul',
+            event.detail === 'Offside' ? 'offside' : 
+            event.detail === 'Shot' ? 'shot' :
+            event.detail === 'Save' ? 'save' : 'foul',
       player: event.player?.name || 'Unknown Player',
       team: event.team?.id === match?.teams?.home?.id ? 'home' : 'away',
       description: event.detail || event.type || 'Match event',
-      isImportant: event.type === 'Goal' || (event.type === 'Card' && (event.detail === 'Red Card' || event.detail === 'Yellow Card'))
+      isImportant: event.type === 'Goal' || (event.type === 'Card' && (event.detail === 'Red Card' || event.detail === 'Yellow Card')),
+      coordinates: event.coordinates ? { x: event.coordinates.x, y: event.coordinates.y } : undefined
     }));
   };
 
-  // Use real match events from the selected match
-  const matchEvents = match?.events ? convertApiEventsToMatchEvents(match.events) : [];
-
-  // Generate more realistic sample events based on actual match data
-  const generateSampleEvents = (): MatchEvent[] => {
+  // Generate enhanced sample events for demonstration
+  const generateEnhancedSampleEvents = (): MatchEvent[] => {
     if (!match) return [];
     
     const events: MatchEvent[] = [];
-    const homeScore = match.goals?.home || 0;
-    const awayScore = match.goals?.away || 0;
     
-    // Add goal events based on actual score
+    // Add goal events
     for (let i = 0; i < homeScore; i++) {
       events.push({
         id: events.length + 1,
@@ -74,7 +85,8 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
         player: `${displayHomeTeam} Player ${i + 1}`,
         team: 'home',
         description: 'Goal',
-        isImportant: true
+        isImportant: true,
+        coordinates: { x: Math.random() * 100, y: Math.random() * 100 }
       });
     }
     
@@ -86,220 +98,276 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
         player: `${displayAwayTeam} Player ${i + 1}`,
         team: 'away',
         description: 'Goal',
-        isImportant: true
+        isImportant: true,
+        coordinates: { x: Math.random() * 100, y: Math.random() * 100 }
+      });
+    }
+
+    // Add more realistic events for live matches
+    if (isLive) {
+      const liveEvents = [
+        { type: 'shot', description: 'Shot on target', isImportant: false },
+        { type: 'corner', description: 'Corner kick', isImportant: false },
+        { type: 'foul', description: 'Foul', isImportant: false },
+        { type: 'save', description: 'Great save', isImportant: true },
+        { type: 'card', description: 'Yellow Card', isImportant: true }
+      ];
+
+      liveEvents.forEach((eventTemplate, index) => {
+        events.push({
+          id: events.length + 1,
+          time: `${Math.min(currentMinute + Math.floor(Math.random() * 10), 90)}'`,
+          type: eventTemplate.type as any,
+          player: `${Math.random() > 0.5 ? displayHomeTeam : displayAwayTeam} Player`,
+          team: Math.random() > 0.5 ? 'home' : 'away',
+          description: eventTemplate.description,
+          isImportant: eventTemplate.isImportant,
+          coordinates: { x: Math.random() * 100, y: Math.random() * 100 }
+        });
       });
     }
     
-    // Add some cards if it's a finished match
-    if (displayMatchStatus === 'FT') {
-      events.push({
-        id: events.length + 1,
-        time: `${Math.floor(Math.random() * 90) + 1}'`,
-        type: 'card',
-        player: `${Math.random() > 0.5 ? displayHomeTeam : displayAwayTeam} Player`,
-        team: Math.random() > 0.5 ? 'home' : 'away',
-        description: 'Yellow Card',
-        isImportant: true
-      });
-    }
-    
-    // Sort by time
     return events.sort((a, b) => parseInt(a.time) - parseInt(b.time));
   };
 
-  // Use real events if available, otherwise generate sample based on match data
-  const finalEvents = matchEvents.length > 0 ? matchEvents : generateSampleEvents();
-
-  // Generate commentary events from match events
-  const generateCommentaryEvents = () => {
-    if (finalEvents.length > 0) {
-      return finalEvents
-        .filter(event => event.isImportant)
-        .map(event => ({
-          time: event.time,
-          score: event.type === 'goal' ? `${homeScore}-${awayScore}` : "",
-          description: `${event.player} (${event.team === 'home' ? displayHomeTeam : displayAwayTeam}) ${event.description}`
-        }));
-    }
-
-    // Fallback commentary for matches without events
-    if (displayMatchStatus === 'NS') {
-      return [
-        {
-          time: "Pre-match",
-          score: "",
-          description: `Match between ${displayHomeTeam} and ${displayAwayTeam} has not started yet.`
-        }
-      ];
-    }
-
-    return [
-      {
-        time: displayMatchStatus === 'FT' ? "90'" : "Live",
-        score: `${homeScore}-${awayScore}`,
-        description: displayMatchStatus === 'FT' 
-          ? `Match ended between ${displayHomeTeam} and ${displayAwayTeam}.`
-          : `Match is ongoing between ${displayHomeTeam} and ${displayAwayTeam}.`
-      }
-    ];
-  };
-
-  const commentaryEvents = generateCommentaryEvents();
+  const finalEvents = match?.events ? convertApiEventsToMatchEvents(match.events) : generateEnhancedSampleEvents();
 
   const getEventIcon = (type: string) => {
     switch (type) {
       case 'goal':
         return <Target className="w-4 h-4 text-green-600" />;
       case 'card':
-        return <div className="w-3 h-4 bg-yellow-400 rounded-sm" />;
+        return <div className="w-3 h-4 bg-yellow-400 rounded-sm border border-yellow-600" />;
       case 'substitution':
         return <CornerDownRight className="w-4 h-4 text-blue-600" />;
+      case 'shot':
+        return <div className="w-4 h-4 rounded-full bg-orange-500" />;
+      case 'save':
+        return <div className="w-4 h-4 rounded bg-purple-500" />;
+      case 'corner':
+        return <div className="w-4 h-4 bg-gray-600 transform rotate-45" />;
       default:
         return <Clock className="w-4 h-4 text-gray-600" />;
     }
   };
 
-  const getPlayerAvatar = (playerName: string) => {
-    // Generate a simple avatar with initials
-    const initials = playerName.split(' ').map(n => n[0]).join('').toUpperCase();
-    return (
-      <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-xs font-medium text-gray-700">
-        {initials}
-      </div>
-    );
+  const getEventColor = (type: string, team: string) => {
+    const baseColors = {
+      goal: team === 'home' ? 'bg-green-100 border-green-300' : 'bg-green-50 border-green-200',
+      card: 'bg-yellow-50 border-yellow-200',
+      substitution: 'bg-blue-50 border-blue-200',
+      shot: 'bg-orange-50 border-orange-200',
+      save: 'bg-purple-50 border-purple-200',
+      corner: 'bg-gray-50 border-gray-200'
+    };
+    return baseColors[type as keyof typeof baseColors] || 'bg-gray-50 border-gray-200';
   };
 
-  const filteredEvents = activeTab === 'top' 
-    ? finalEvents.filter(event => event.isImportant)
-    : finalEvents;
-
-  return (
-    <Card className="w-full shadow-md">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-bold flex items-center">
-          <MessageCircle className="h-5 w-5 mr-2 text-blue-500" />
-          Match Events
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {/* Tab Navigation */}
-        <div className="flex mb-4 border-b">
+  const PlayByPlayView = () => (
+    <div className="space-y-2">
+      {/* Live indicator */}
+      {isLive && (
+        <div className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+            <span className="text-red-700 font-semibold text-sm">LIVE - {currentMinute}'</span>
+          </div>
           <button
-            onClick={() => setActiveTab('all')}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'all' 
-                ? 'border-blue-500 text-blue-600' 
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
+            onClick={() => setAutoScroll(!autoScroll)}
+            className="flex items-center gap-1 px-2 py-1 text-xs bg-white border border-red-200 rounded hover:bg-red-50"
           >
-            All
-          </button>
-          <button
-            onClick={() => setActiveTab('top')}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'top' 
-                ? 'border-blue-500 text-blue-600 bg-blue-50' 
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Top
-          </button>
-          <button
-            onClick={() => setActiveTab('commentary')}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === 'commentary' 
-                ? 'border-blue-500 text-blue-600' 
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Commentary
+            {autoScroll ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
+            Auto-scroll
           </button>
         </div>
+      )}
 
-        {/* Match Score Header */}
-        <div className="flex justify-between items-center mb-4 p-3 bg-gray-50 rounded-lg">
-          <span className="text-sm text-gray-600">
+      {/* Score display */}
+      <div className="flex justify-center items-center p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="text-center">
+          <div className="text-sm text-gray-600 mb-1">
             {displayMatchStatus === 'FT' ? 'Full Time' : 
              displayMatchStatus === 'HT' ? 'Half Time' : 
              displayMatchStatus === 'NS' ? 'Not Started' : 
              displayMatchStatus === '1H' ? '1st Half' : 
              displayMatchStatus === '2H' ? '2nd Half' : 
-             'Match Status'}
-          </span>
-          <span className="text-lg font-bold">{homeScore} - {awayScore}</span>
+             'Live'}
+          </div>
+          <div className="text-2xl font-bold text-blue-900">
+            {displayHomeTeam.substring(0, 3).toUpperCase()} {homeScore} - {awayScore} {displayAwayTeam.substring(0, 3).toUpperCase()}
+          </div>
         </div>
+      </div>
 
-        {/* Events List */}
-        {activeTab === 'commentary' ? (
-          <div className="space-y-4">
-            <div className="text-center py-4">
-              <MessageCircle className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-              <h3 className="font-semibold text-gray-900 mb-2">Commentary</h3>
-            </div>
-            {commentaryEvents.map((event, index) => (
-              <div key={index} className="flex gap-3 p-3 border-l-2 border-gray-200">
-                <div className="text-sm font-medium text-gray-600 min-w-[40px]">
-                  {event.time}
-                </div>
-                <div className="flex-1">
-                  {event.score && (
-                    <div className="text-sm font-bold text-gray-900 mb-1">
-                      {event.score}
+      {/* Events timeline */}
+      <div className="space-y-3 max-h-96 overflow-y-auto">
+        {finalEvents.length > 0 ? (
+          finalEvents.map((event, index) => (
+            <div
+              key={event.id}
+              className={`flex items-start gap-3 p-3 border rounded-lg transition-all hover:shadow-sm ${getEventColor(event.type, event.team)}`}
+            >
+              {/* Time */}
+              <div className="flex-shrink-0 w-12 text-center">
+                <div className="text-sm font-bold text-gray-900">{event.time}</div>
+              </div>
+
+              {/* Event icon */}
+              <div className="flex-shrink-0 mt-1">
+                {getEventIcon(event.type)}
+              </div>
+
+              {/* Event details */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-sm font-semibold text-gray-900">
+                      {event.description}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">
+                      {event.player} ({event.team === 'home' ? displayHomeTeam : displayAwayTeam})
+                    </div>
+                  </div>
+                  {event.isImportant && (
+                    <div className="flex-shrink-0 ml-2">
+                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                     </div>
                   )}
-                  <div className="text-sm text-gray-700">
-                    {event.description}
-                  </div>
                 </div>
               </div>
-            ))}
-            <div className="text-center pt-4">
-              <button className="text-blue-600 text-sm font-medium hover:text-blue-800">
-                See All →
-              </button>
             </div>
-          </div>
+          ))
         ) : (
-          <div className="space-y-3">
-            {filteredEvents.map((event, index) => {
-              // Calculate score at this point in time for each event
-              const eventsUpToThis = finalEvents.slice(0, finalEvents.findIndex(e => e.id === event.id) + 1);
-              const goalsUpToThis = eventsUpToThis.filter(e => e.type === 'goal');
-              const homeGoalsAtTime = goalsUpToThis.filter(e => e.team === 'home').length;
-              const awayGoalsAtTime = goalsUpToThis.filter(e => e.team === 'away').length;
-              
-              return (
-                <div key={event.id} className="flex items-start gap-4 py-2">
-                  {/* Time column - left aligned */}
-                  <div className="text-sm font-medium text-gray-600 min-w-[40px] flex-shrink-0">
-                    {event.time}
-                  </div>
-                  
-                  {/* Score column - center */}
-                  <div className="text-lg font-bold text-gray-900 min-w-[50px] flex-shrink-0">
-                    {homeGoalsAtTime}-{awayGoalsAtTime}
-                  </div>
-                  
-                  {/* Player and team info - right side */}
-                  <div className="flex-1 text-sm text-gray-700">
-                    <div className="font-medium">
-                      {event.player} ({event.team === 'home' ? displayHomeTeam : displayAwayTeam}) {event.description}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {filteredEvents.length === 0 && activeTab !== 'commentary' && (
           <div className="text-center py-8 text-gray-500">
             <Clock className="w-12 h-12 mx-auto mb-2 text-gray-300" />
             <p>No events to display</p>
+            {isLive && <p className="text-xs mt-1">Waiting for live events...</p>}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
+  );
+
+  const TimelineView = () => (
+    <div className="space-y-4">
+      <div className="relative">
+        {/* Timeline line */}
+        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+        
+        {finalEvents.map((event, index) => (
+          <div key={event.id} className="relative flex items-start gap-4 pb-4">
+            {/* Timeline dot */}
+            <div className={`relative z-10 w-3 h-3 rounded-full ${
+              event.isImportant ? 'bg-red-500' : 'bg-blue-500'
+            }`}></div>
+            
+            {/* Event content */}
+            <div className="flex-1 min-w-0 pb-4">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-bold text-gray-900">{event.time}</span>
+                {getEventIcon(event.type)}
+                <span className="text-sm font-medium">{event.description}</span>
+              </div>
+              <div className="text-xs text-gray-600">
+                {event.player} - {event.team === 'home' ? displayHomeTeam : displayAwayTeam}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const StatsView = () => (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="text-center p-4 bg-blue-50 rounded-lg">
+          <div className="text-2xl font-bold text-blue-900">{homeScore}</div>
+          <div className="text-sm text-gray-600">Goals</div>
+          <div className="text-xs text-gray-500">{displayHomeTeam}</div>
+        </div>
+        <div className="text-center p-4 bg-red-50 rounded-lg">
+          <div className="text-2xl font-bold text-red-900">{awayScore}</div>
+          <div className="text-sm text-gray-600">Goals</div>
+          <div className="text-xs text-gray-500">{displayAwayTeam}</div>
+        </div>
+      </div>
+      
+      <div className="space-y-3">
+        {['Shots', 'Corners', 'Fouls', 'Cards'].map((stat, index) => (
+          <div key={stat} className="flex justify-between items-center p-2 border rounded">
+            <span className="text-sm font-medium">{stat}</span>
+            <div className="flex gap-4">
+              <span className="text-sm">{Math.floor(Math.random() * 10)}</span>
+              <span className="text-sm">{Math.floor(Math.random() * 10)}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="sr-widget w-full">
+      <Card className="w-full shadow-lg border-gray-200">
+        <CardHeader className="pb-3 bg-gradient-to-r from-blue-50 to-indigo-50">
+          <CardTitle className="text-lg font-bold flex items-center justify-between">
+            <div className="flex items-center">
+              <MessageCircle className="h-5 w-5 mr-2 text-blue-500" />
+              Live Match Events
+              {isLive && (
+                <span className="ml-2 px-2 py-1 text-xs bg-red-500 text-white rounded-full animate-pulse">
+                  LIVE
+                </span>
+              )}
+            </div>
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent className="p-0">
+          {/* Tab Navigation */}
+          <div className="flex border-b bg-gray-50">
+            <button
+              onClick={() => setActiveTab('playByPlay')}
+              className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'playByPlay' 
+                  ? 'border-blue-500 text-blue-600 bg-white' 
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Play by Play
+            </button>
+            <button
+              onClick={() => setActiveTab('timeline')}
+              className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'timeline' 
+                  ? 'border-blue-500 text-blue-600 bg-white' 
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Timeline
+            </button>
+            <button
+              onClick={() => setActiveTab('stats')}
+              className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'stats' 
+                  ? 'border-blue-500 text-blue-600 bg-white' 
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Stats
+            </button>
+          </div>
+
+          {/* Content */}
+          <div className="p-4">
+            {activeTab === 'playByPlay' && <PlayByPlayView />}
+            {activeTab === 'timeline' && <TimelineView />}
+            {activeTab === 'stats' && <StatsView />}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
