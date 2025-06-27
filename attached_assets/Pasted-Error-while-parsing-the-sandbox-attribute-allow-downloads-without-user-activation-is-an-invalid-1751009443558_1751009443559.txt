@@ -1,0 +1,32 @@
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.Understand this error
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'battery'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'layout-animations'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'navigation-override'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'oversized-images'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'publickey-credentials'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'speaker-selection'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'unoptimized-images'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'unsized-media'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Unrecognized feature: 'pointer-lock'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+framework-23f9cc8ad009a9e2.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
+_ @ framework-23f9cc8ad009a9e2.js:1Understand this warning
+background.js:1 Uncaught SyntaxError: Invalid or unexpected token
