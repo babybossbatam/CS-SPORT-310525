@@ -437,21 +437,15 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   // Show no matches when no data is available
   if (!allFixtures.length) {
     return (
-      <>
-        {/* Header Section */}
-        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-          Popular Football Live Score
-        </CardHeader>
-        <div className="bg-gray-100 min-h-[400px]">
-          <NoLiveMatchesEmpty 
-            showBackButton={true}
-            onBackToHome={() => {
-              window.location.href = '/';
-            }}
-            setLiveFilterActive={setLiveFilterActive}
-          />
-        </div>
-      </>
+      <div className="bg-gray-100 min-h-[400px]">
+        <NoLiveMatchesEmpty 
+          showBackButton={true}
+          onBackToHome={() => {
+            window.location.href = '/';
+          }}
+          setLiveFilterActive={setLiveFilterActive}
+        />
+      </div>
     );
   }
 
