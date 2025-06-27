@@ -159,7 +159,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   ];
 
   // Extract league IDs from the popular leagues list component
-  const POPULAR_LEAGUE_IDS = CURRENT_POPULAR_LEAGUES.map(league => league.id);
+  const POPULAR_LEAGUE_IDS = [...CURRENT_POPULAR_LEAGUES.map(league => league.id), 667]; // Add Friendlies Clubs
 
   // Enhanced leagues by country with tier-based filtering
   const POPULAR_LEAGUES_BY_COUNTRY = {

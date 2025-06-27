@@ -182,6 +182,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     327, 329, 361, 365, 218, 319, 373, 380,
     // Additional Regional Leagues
     114, 116, 120, 121, 122, 123, 124, 125, 126, 127,
+    // Club Friendlies
+    667, // Friendlies Clubs
   ]; // Significantly expanded to include major leagues from all continents
 
   // Direct API fetching without caching - like MyNewLeague
