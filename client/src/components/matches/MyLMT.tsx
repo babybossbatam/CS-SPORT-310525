@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from 'react';
 
 interface MyLMTProps {
@@ -155,25 +154,25 @@ const MyLMT: React.FC<MyLMTProps> = ({
           text-align: left;
           background: #FFFFFF;
         }
-        
+
         .sr-bb .srt-primary-1 {
           background-color: #FF0000;
           color: #ffffff;
           border-color: rgba(255, 255, 255, 0.16);
         }
-        
+
         .sr-bb .srt-base-1 {
           background-color: transparent;
           color: #000000;
           border-color: rgba(0, 0, 0, 0.12);
         }
-        
+
         .sr-bb .srt-home-1 {
           background-color: #00003c;
           color: #ffffff;
           border-color: #00003c;
         }
-        
+
         .sr-bb .srt-away-1 {
           background-color: #ff0000;
           color: #ffffff;
