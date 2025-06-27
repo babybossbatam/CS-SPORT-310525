@@ -16,6 +16,7 @@ import MatchDetailCard from "@/components/matches/MatchDetailCard";
 import MyHighlights from "@/components/matches/MyHighlights";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
 import MyLiveAction from "@/components/matches/MyLiveAction";
+import MyNewLMT from '@/components/matches/MyNewLMT';
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
@@ -181,6 +182,15 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                     {/* Show MyLiveAction only for live matches */}
                     {isLive && (
                       <MyLiveAction
+                        matchId={selectedFixture?.fixture?.id}
+                        homeTeam={selectedFixture?.teams?.home}
+                        awayTeam={selectedFixture?.teams?.away}
+                        status={selectedFixture?.fixture?.status?.short}
+                      />
+                    )}
+                     {/* Show MyNewLMT only for live matches */}
+                     {isLive && (
+                      <MyNewLMT
                         matchId={selectedFixture?.fixture?.id}
                         homeTeam={selectedFixture?.teams?.home}
                         awayTeam={selectedFixture?.teams?.away}
