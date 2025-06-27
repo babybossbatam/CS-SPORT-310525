@@ -344,9 +344,9 @@
     margin-left: calc(-50vw + 50%);
   }
   
-  .modern-live-action .h-80 {
-    height: 50vh;
-    min-height: 250px;
+  .modern-live-action .h-104 {
+    height: 65vh;
+    min-height: 325px;
   }
 }
 
@@ -575,9 +575,9 @@
     margin-left: calc(-50vw + 50%);
   }
   
-  .professional-live-action .h-80 {
-    height: 60vh;
-    min-height: 300px;
+  .professional-live-action .h-104 {
+    height: 78vh;
+    min-height: 390px;
   }
   
   .professional-live-action .team-text {

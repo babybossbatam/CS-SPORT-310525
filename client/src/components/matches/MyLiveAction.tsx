@@ -409,7 +409,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         </div>
 
         {/* Professional Football Field */}
-        <div className="relative h-80 bg-gradient-to-br from-green-700 via-green-600 to-green-700 overflow-hidden" style={{
+        <div className="relative h-104 bg-gradient-to-br from-green-700 via-green-600 to-green-700 overflow-hidden" style={{
           background: 'linear-gradient(135deg, #1e5631 0%, #2d7d32 25%, #388e3c 50%, #2d7d32 75%, #1e5631 100%)'
         }}>
 
