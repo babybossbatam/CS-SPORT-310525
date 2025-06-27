@@ -163,61 +163,15 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             className="w-full"
             style={{ minHeight: '400px' }}
           >
-            {isLoading ? (
-              <div className="flex items-center justify-center h-96 bg-gray-50">
-                <div className="text-center">
-                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-500 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading highlights...</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Searching for {teamData.home} vs {teamData.away}
-                  </p>
-                </div>
-              </div>
-            ) : error ? (
-              <div className="flex items-center justify-center h-96 bg-gray-50">
-                <div className="text-center">
-                  <Video className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p className="text-gray-600 mb-2">{error}</p>
-                  <button
-                    onClick={() => searchForHighlights(teamData.home, teamData.away, teamData.league)}
-                    className="flex items-center gap-2 mx-auto px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-                  >
-                    <Play className="h-4 w-4" />
-                    Try Again
-                  </button>
-                </div>
-              </div>
-            ) : highlightsUrl ? (
-              <iframe
-                src={highlightsUrl}
-                width="100%"
-                height="400"
-                frameBorder="0"
-                allowFullScreen
-                allow="autoplay; encrypted-media"
-                title={`${teamData.home} vs ${teamData.away} Highlights`}
-                className="w-full h-96"
-              />
-            ) : (
-              <div className="flex items-center justify-center h-96 bg-gray-50">
-                <div className="text-center">
-                  <Video className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p className="text-gray-600 mb-2">No highlights available yet</p>
-                  <p className="text-xs text-gray-500 mb-4">
-                    Highlights may become available after the match
-                  </p>
-                  <a
-                    href={`https://www.scorebat.com/search/?q=${encodeURIComponent(teamData.home + ' vs ' + teamData.away)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 mx-auto px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors w-fit"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Search on ScoreBat
-                  </a>
-                </div>
-              </div>
-            )}
+            <iframe 
+              src="https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&" 
+              height="455px" 
+              width="100%" 
+              className="fw-iframe" 
+              scrolling="no" 
+              frameBorder="0"
+              title="Football Feed Widget"
+            />
           </div>
         </div>
 
