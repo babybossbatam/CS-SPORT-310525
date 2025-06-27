@@ -10,41 +10,6 @@ interface MyLMTProps {
   sportradarMatchId?: number;
 }
 
-interface MatchEvent {
-  time: {
-    elapsed: number;
-    extra?: number;
-  };
-  team: {
-    id: number;
-    name: string;
-  };
-  player: {
-    id: number;
-    name: string;
-  };
-  type: string;
-  detail: string;
-  comments?: string;
-}
-
-interface LiveStats {
-  possession_home?: number;
-  possession_away?: number;
-  shots_home?: number;
-  shots_away?: number;
-  shots_on_target_home?: number;
-  shots_on_target_away?: number;
-  corners_home?: number;
-  corners_away?: number;
-  fouls_home?: number;
-  fouls_away?: number;
-  yellow_cards_home?: number;
-  yellow_cards_away?: number;
-  red_cards_home?: number;
-  red_cards_away?: number;
-}
-
 declare global {
   interface Window {
     SIR: any;
@@ -63,65 +28,9 @@ const MyLMT: React.FC<MyLMTProps> = ({
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [widgetInitialized, setWidgetInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [liveEvents, setLiveEvents] = useState<MatchEvent[]>([]);
-  const [liveStats, setLiveStats] = useState<LiveStats>({});
-  const [currentMinute, setCurrentMinute] = useState<number>(0);
-  const [showEvents, setShowEvents] = useState(true);
-  const [showStats, setShowStats] = useState(false);
 
   // Determine if match is currently live
   const isLive = status && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
-
-  // Fetch live events and stats (similar to 365scores network calls)
-  const fetchLiveData = async () => {
-    if (!isLive || !matchId) return;
-
-    try {
-      // Fetch match events
-      const eventsResponse = await fetch(`/api/fixtures/${matchId}/events`);
-      if (eventsResponse.ok) {
-        const events = await eventsResponse.json();
-        setLiveEvents(events || []);
-        
-        // Update current minute from latest event
-        if (events.length > 0) {
-          const latestEvent = events[events.length - 1];
-          setCurrentMinute(latestEvent.time?.elapsed || 0);
-        }
-      }
-
-      // Fetch live statistics
-      const statsResponse = await fetch(`/api/fixtures/${matchId}/statistics`);
-      if (statsResponse.ok) {
-        const statsData = await statsResponse.json();
-        if (statsData && statsData.length > 0) {
-          // Convert stats array to object format
-          const formattedStats: LiveStats = {};
-          statsData.forEach((teamStats: any) => {
-            const isHome = teamStats.team.id === homeTeam?.id;
-            teamStats.statistics?.forEach((stat: any) => {
-              const statType = stat.type.toLowerCase().replace(/\s+/g, '_');
-              const key = `${statType}_${isHome ? 'home' : 'away'}`;
-              formattedStats[key as keyof LiveStats] = stat.value;
-            });
-          });
-          setLiveStats(formattedStats);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching live data:', error);
-    }
-  };
-
-  // Fetch live data every 30 seconds (like 365scores)
-  useEffect(() => {
-    if (!isLive) return;
-
-    fetchLiveData();
-    const interval = setInterval(fetchLiveData, 30000);
-
-    return () => clearInterval(interval);
-  }, [isLive, matchId]);
 
   useEffect(() => {
     if (!isLive || !widgetRef.current) return;
@@ -265,161 +174,14 @@ const MyLMT: React.FC<MyLMTProps> = ({
           )}
         </div>
 
-        {/* 365scores-style Live Action Tabs */}
-        <div className="border-b border-gray-200">
-          <div className="flex space-x-1">
-            <button
-              onClick={() => { setShowEvents(true); setShowStats(false); }}
-              className={`px-4 py-2 text-sm font-medium rounded-t-lg ${
-                showEvents 
-                  ? 'bg-red-500 text-white' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              Live Events
-            </button>
-            <button
-              onClick={() => { setShowEvents(false); setShowStats(true); }}
-              className={`px-4 py-2 text-sm font-medium rounded-t-lg ${
-                showStats 
-                  ? 'bg-red-500 text-white' 
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              Match Stats
-            </button>
-          </div>
-        </div>
-
-        {/* Live Action Content */}
+        {/* Sportradar Widget Container */}
         <div className="relative min-h-96">
-          {showEvents && (
-            <div className="p-4">
-              {/* Live Events Timeline */}
-              <div className="space-y-3">
-                {liveEvents.length > 0 ? (
-                  liveEvents.map((event, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                      <div className="flex-shrink-0">
-                        <span className="inline-flex items-center justify-center w-8 h-8 bg-red-500 text-white rounded-full text-xs font-bold">
-                          {event.time.elapsed}'
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2">
-                          {event.type === 'Goal' && (
-                            <span className="text-green-600">⚽</span>
-                          )}
-                          {event.type === 'Card' && (
-                            <span className={event.detail === 'Yellow Card' ? 'text-yellow-500' : 'text-red-500'}>
-                              {event.detail === 'Yellow Card' ? '🟨' : '🟥'}
-                            </span>
-                          )}
-                          {event.type === 'subst' && (
-                            <span className="text-blue-600">🔄</span>
-                          )}
-                          <span className="font-medium text-sm">
-                            {event.player?.name || 'Unknown Player'}
-                          </span>
-                          <span className="text-xs text-gray-500">
-                            - {event.team?.name}
-                          </span>
-                        </div>
-                        <div className="text-xs text-gray-600 mt-1">
-                          {event.detail} {event.comments && `(${event.comments})`}
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <p>No live events yet</p>
-                    <p className="text-xs mt-1">Events will appear here as the match progresses</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {showStats && (
-            <div className="p-4">
-              {/* Live Statistics */}
-              <div className="space-y-4">
-                {/* Possession */}
-                {(liveStats.possession_home || liveStats.possession_away) && (
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium">Possession</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm font-bold w-8">{liveStats.possession_home || 0}%</span>
-                      <div className="flex-1 bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-500 h-2 rounded-full transition-all duration-500"
-                          style={{ width: `${liveStats.possession_home || 0}%` }}
-                        ></div>
-                      </div>
-                      <span className="text-sm font-bold w-8">{liveStats.possession_away || 0}%</span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Other Stats Grid */}
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Shots</div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-bold">{liveStats.shots_home || 0}</span>
-                      <span className="text-sm font-bold">{liveStats.shots_away || 0}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">On Target</div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-bold">{liveStats.shots_on_target_home || 0}</span>
-                      <span className="text-sm font-bold">{liveStats.shots_on_target_away || 0}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Corners</div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-bold">{liveStats.corners_home || 0}</span>
-                      <span className="text-sm font-bold">{liveStats.corners_away || 0}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Fouls</div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-bold">{liveStats.fouls_home || 0}</span>
-                      <span className="text-sm font-bold">{liveStats.fouls_away || 0}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Yellow Cards</div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-bold">{liveStats.yellow_cards_home || 0}</span>
-                      <span className="text-sm font-bold">{liveStats.yellow_cards_away || 0}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Red Cards</div>
-                    <div className="flex justify-between">
-                      <span className="text-sm font-bold text-red-600">{liveStats.red_cards_home || 0}</span>
-                      <span className="text-sm font-bold text-red-600">{liveStats.red_cards_away || 0}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Sportradar Widget (Hidden when showing custom live action) */}
           <div 
             ref={widgetRef}
-            className={`sr-widget sr-widget-lmt w-full ${(showEvents || showStats) ? 'hidden' : ''}`}
+            className="sr-widget sr-widget-lmt w-full"
             style={{ minHeight: '400px' }}
           >
-            {!widgetInitialized && !error && !(showEvents || showStats) && (
+            {!widgetInitialized && !error && (
               <div className="flex items-center justify-center h-64 text-gray-500">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-red-500 mx-auto mb-3"></div>
@@ -432,6 +194,25 @@ const MyLMT: React.FC<MyLMTProps> = ({
                       Match ID: {sportradarMatchId || matchId}
                     </p>
                   )}
+                </div>
+              </div>
+            )}
+            
+            {error && (
+              <div className="flex items-center justify-center h-64 text-gray-500">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4 mx-auto">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                  </div>
+                  <p className="text-sm mb-1">Widget unavailable</p>
+                  <p className="text-xs opacity-60">
+                    {homeTeamData?.name} vs {awayTeamData?.name}
+                  </p>
+                  <p className="text-xs mt-2 opacity-40">
+                    This match may not be covered by Sportradar
+                  </p>
                 </div>
               </div>
             )}

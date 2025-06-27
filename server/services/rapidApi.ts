@@ -719,30 +719,6 @@ export const rapidApiService = {
       console.error(`❌ [RapidAPI] Error fetching events for fixture ${fixtureId}:`, error);
       return null;
     }
-  }
-  ,
-  async getFixtureStatistics(fixtureId: number): Promise<any[] | null> {
-    try {
-      console.log(`📊 [RapidAPI] Fetching statistics for fixture: ${fixtureId}`);
-
-      const response = await apiClient.get("/fixtures/statistics", {
-        params: {
-          fixture: fixtureId
-        }
-      });
-
-      if (response.data?.response) {
-        const statistics = response.data.response;
-        console.log(`✅ [RapidAPI] Found statistics for fixture ${fixtureId}`);
-        return statistics;
-      }
-
-      console.log(`📊 [RapidAPI] No statistics found for fixture ${fixtureId}`);
-      return [];
-    } catch (error) {
-      console.error(`❌ [RapidAPI] Error fetching statistics for fixture ${fixtureId}:`, error);
-      return null;
-    }
   },
 
   /**
