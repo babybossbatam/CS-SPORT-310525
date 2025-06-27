@@ -349,7 +349,7 @@
 }
 
 .status-ended {
-  color: rgb(75 85 99);
+  color: rgb(173, 173, 174);
 }
 
 .status-postponed {
@@ -506,31 +506,39 @@
 
 /* Halftime flash animation */
 .match-card-container.halftime-flash {
-  background-color: #ff6b35 !important; /* Red-orange background */
+  background-color: #ff6b35 !important;
+  /* Red-orange background */
   animation: halftime-flash-fade 2s ease-out forwards;
 }
 
 @keyframes halftime-flash-fade {
   0% {
-    background-color: #ff6b35; /* Red-orange */
+    background-color: #ff6b35;
+    /* Red-orange */
   }
+
   100% {
-    background-color: white; /* Back to normal */
+    background-color: white;
+    /* Back to normal */
   }
 }
 
 /* Fulltime flash animation */
 .match-card-container.fulltime-flash {
-  background-color: #3b82f6 !important; /* Blue background */
+  background-color: #3b82f6 !important;
+  /* Blue background */
   animation: fulltime-flash-fade 2s ease-out forwards;
 }
 
 @keyframes fulltime-flash-fade {
   0% {
-    background-color: #3b82f6; /* Blue */
+    background-color: #3b82f6;
+    /* Blue */
   }
+
   100% {
-    background-color: white; /* Back to normal */
+    background-color: white;
+    /* Back to normal */
   }
 }
 
