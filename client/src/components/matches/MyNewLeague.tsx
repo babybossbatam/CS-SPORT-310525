@@ -681,6 +681,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                             ].includes(status)
                           ) {
                             let displayText = "";
+                            let elapsedText = "";
+                            
+                            // Show elapsed time for active play statuses
+                            if (elapsed && ["1H", "2H", "LIVE", "LIV"].includes(status)) {
+                              elapsedText = ` ${elapsed}'`;
+                            }
+                            
                             if (status === "HT") {
                               displayText = "Halftime";
                             } else if (status === "P") {
@@ -700,6 +707,9 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                             return (
                               <div className="match-status-label status-live">
                                 {displayText}
+                                {elapsedText && status !== "ET" && (
+                                  <span className="elapsed-time">{elapsedText}</span>
+                                )}
                               </div>
                             );
                           }
