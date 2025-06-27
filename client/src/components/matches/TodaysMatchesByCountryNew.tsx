@@ -42,6 +42,7 @@ import LazyMatchItem from "./LazyMatchItem";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/TodaysMatchByCountryNew.css";
+import "../../styles/flasheffect.css";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -827,9 +828,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
         // Check if either country is World
         const aIsWorld = countryA.toLowerCase() === "world";
-        const bIsWorld = countryB.toLowerCase() === "world";
-
-        // Check for live matches in each country
+        const bIsWorld = countryB.toLowerCase() === "world";        // Check for live matches in each country
         const aHasLive = Object.values(a.leagues).some((league: any) =>
           league.matches.some((match: any) =>
             ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
@@ -1648,6 +1647,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     return !hiddenMatches.has(match.fixture.id);
                                   })
                                   .map((match: any, matchIndex) => (
+                                    
                                     <div
                                       key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}-${matchIndex}`}
                                       className={`match-card-container group ${

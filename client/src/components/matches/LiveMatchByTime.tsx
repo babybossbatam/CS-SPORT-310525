@@ -545,15 +545,18 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
             {sortedMatches.map((match: any, index: number) => (
               <div
                 key={`${match.fixture.id}-${match.fixture.status.elapsed}-${index}`}
-                className={`match-card-container group ${
-                  halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
-                } ${
-                  fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
-                } ${
-                  goalFlashMatches.has(match.fixture.id) ? 'goal-flash' : ''
-                }`}
-                data-fixture-id={match.fixture.id}
+                className="country-matches-container"
               >
+                <div 
+                  className={`match-card-container group ${
+                    halftimeFlashMatches.has(match.fixture.id) ? 'halftime-flash' : ''
+                  } ${
+                    fulltimeFlashMatches.has(match.fixture.id) ? 'fulltime-flash' : ''
+                  } ${
+                    goalFlashMatches.has(match.fixture.id) ? 'goal-flash' : ''
+                  }`}
+                  data-fixture-id={match.fixture.id}
+                >
                 {/* Star Button with slide-in effect */}
                 <button
                   onClick={(e) => {
