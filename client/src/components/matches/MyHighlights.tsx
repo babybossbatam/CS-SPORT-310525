@@ -13,13 +13,20 @@ interface MyHighlightsProps {
   awayTeamName?: string;
 }
 
-const MyHighlights: React.FC<MyHighlightsProps> = () => {
+const MyHighlights: React.FC<MyHighlightsProps> = ({
+  homeTeamName,
+  awayTeamName,
+  leagueName,
+  matchId
+}) => {
   return (
     <Card className="w-full h-500 shadow-sm border-gray-200">
       <CardHeader className="py-2 px-2">
         <CardTitle className="text-base font-md flex items-center text-sm text-gray-800">
-
-          Official Highlights
+          {homeTeamName && awayTeamName 
+            ? `${homeTeamName} vs ${awayTeamName} Highlights`
+            : "Official Highlights"
+          }
         </CardTitle>
       </CardHeader>
       <CardContent className="py-0 px-0">

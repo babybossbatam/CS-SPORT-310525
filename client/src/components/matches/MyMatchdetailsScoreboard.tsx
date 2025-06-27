@@ -9,6 +9,7 @@ import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
+import MyHighlights from "./MyHighlights";
 interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
@@ -25,6 +26,9 @@ const MyMatchdetailsScoreboard = ({
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("match");
+  const [highlights, setHighlights] = useState<any>(null);
+  const [highlightsLoading, setHighlightsLoading] = useState<boolean>(false);
   // Sample match data for demonstration
   const sampleMatch = {
     fixture: {
@@ -73,8 +77,37 @@ const MyMatchdetailsScoreboard = ({
     league: displayMatch?.league?.name,
   });
 
+  // Function to fetch highlights
+  const fetchHighlights = useCallback(async () => {
+    if (!displayMatch?.teams?.home?.name || !displayMatch?.teams?.away?.name) return;
+
+    setHighlightsLoading(true);
+    try {
+      const response = await fetch(`/api/highlights/search?home=${encodeURIComponent(displayMatch.teams.home.name)}&away=${encodeURIComponent(displayMatch.teams.away.name)}&league=${encodeURIComponent(displayMatch.league.name)}`);
+      
+      if (response.ok) {
+        const highlightsData = await response.json();
+        setHighlights(highlightsData);
+        console.log("🎬 [MyMatchdetailsScoreboard] Highlights fetched:", highlightsData);
+      } else {
+        console.warn("🎬 [MyMatchdetailsScoreboard] Failed to fetch highlights");
+      }
+    } catch (error) {
+      console.error("🎬 [MyMatchdetailsScoreboard] Error fetching highlights:", error);
+    } finally {
+      setHighlightsLoading(false);
+    }
+  }, [displayMatch?.teams?.home?.name, displayMatch?.teams?.away?.name, displayMatch?.league?.name]);
+
   // State for real-time timer
   const [realTimeElapsed, setRealTimeElapsed] = useState<number | null>(null);
+
+  // Fetch highlights when highlights tab is active
+  useEffect(() => {
+    if (activeTab === "highlights") {
+      fetchHighlights();
+    }
+  }, [activeTab, fetchHighlights]);
 
   // Real-time update effect for live matches with continuous timer
   useEffect(() => {
@@ -620,25 +653,127 @@ const MyMatchdetailsScoreboard = ({
 
       {/* Navigation Tabs */}
       <Card>
-        <div className="flex space-x-1 pb-0  px-0">
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-600 border-b border-blue-500 pb-0 ">
+        <div className="flex space-x-1 pb-0 px-0">
+          <button 
+            onClick={() => setActiveTab("match")}
+            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
+              activeTab === "match" 
+                ? "text-gray-600 border-b border-blue-500" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
             Match
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
+          <button 
+            onClick={() => setActiveTab("lineups")}
+            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
+              activeTab === "lineups" 
+                ? "text-gray-600 border-b border-blue-500" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
             {displayMatch.fixture.status.short === "NS"
               ? "Probable Lineups"
               : "Lineups"}
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
+          <button 
+            onClick={() => setActiveTab("stats")}
+            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
+              activeTab === "stats" 
+                ? "text-gray-600 border-b border-blue-500" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
             Stats
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 relative pb-0">
+          <button 
+            onClick={() => setActiveTab("trends")}
+            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
+              activeTab === "trends" 
+                ? "text-gray-600 border-b border-blue-500" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
             Trends
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
+          <button 
+            onClick={() => setActiveTab("highlights")}
+            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
+              activeTab === "highlights" 
+                ? "text-gray-600 border-b border-blue-500" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Highlights
+          </button>
+          <button 
+            onClick={() => setActiveTab("h2h")}
+            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
+              activeTab === "h2h" 
+                ? "text-gray-600 border-b border-blue-500" 
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
             Head to Head
           </button>
         </div>
+      </Card>
+
+      {/* Tab Content */}
+      <Card className="mt-2">
+        <CardContent className="p-0">
+          {activeTab === "match" && (
+            <div className="p-4 text-center text-gray-500">
+              Match details content
+            </div>
+          )}
+          
+          {activeTab === "lineups" && (
+            <div className="p-4 text-center text-gray-500">
+              {displayMatch.fixture.status.short === "NS" 
+                ? "Probable lineups will be available here" 
+                : "Match lineups content"}
+            </div>
+          )}
+          
+          {activeTab === "stats" && (
+            <div className="p-4 text-center text-gray-500">
+              Match statistics content
+            </div>
+          )}
+          
+          {activeTab === "trends" && (
+            <div className="p-4 text-center text-gray-500">
+              Team trends and analysis
+            </div>
+          )}
+          
+          {activeTab === "highlights" && (
+            <div>
+              {highlightsLoading ? (
+                <div className="p-4 text-center text-gray-500">
+                  Loading highlights...
+                </div>
+              ) : highlights ? (
+                <MyHighlights 
+                  homeTeamName={displayMatch.teams.home.name}
+                  awayTeamName={displayMatch.teams.away.name}
+                  matchId={displayMatch.fixture.id.toString()}
+                />
+              ) : (
+                <div className="p-4 text-center text-gray-500">
+                  No highlights available for this match
+                </div>
+              )}
+            </div>
+          )}
+          
+          {activeTab === "h2h" && (
+            <div className="p-4 text-center text-gray-500">
+              Head to head statistics
+            </div>
+          )}
+        </CardContent>
       </Card>
        
     </Card>
