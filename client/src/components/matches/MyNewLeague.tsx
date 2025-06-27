@@ -827,15 +827,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         <div className="flex justify-between items-center w-full">
           <span>Popular Football Leagues</span>
-        </div>irstMatchId]));
-                  setTimeout(() => setGoalFlashMatches(new Set()), 2000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-green-200 rounded"
-            >
-              Test Goal Flash
-            </button>
-          </div>
         </div>
       </CardHeader>
 
