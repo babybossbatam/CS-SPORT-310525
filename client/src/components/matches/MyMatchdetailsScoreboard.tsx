@@ -723,8 +723,8 @@ const MyMatchdetailsScoreboard = ({
       <Card className="mt-2">
         <CardContent className="p-0">
           {activeTab === "match" && (
-            <div className="p-4 text-center text-gray-500">
-              {/* Match details will be implemented here */}
+            <div>
+              {/* Match tab content will be added here */}
             </div>
           )}
           
