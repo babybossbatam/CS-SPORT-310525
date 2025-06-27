@@ -236,19 +236,15 @@ const MyMatchdetailsScoreboard = ({
     const currentLiveStatus = liveStatus || apiStatus;
     const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(apiStatus);
 
-    // Check if match has likely ended based on time elapsed (beyond typical match duration)
+    // Check if match has definitively ended based on API status only
     const matchDate = new Date(displayMatch.fixture.date);
     const now = new Date();
     const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-    const isLikelyEnded = hoursElapsed > 3; // Matches typically don't exceed 3 hours
 
-    // Real-time check: if a match started more than 2.5 hours ago and still shows live status, it's likely ended
-    const isVeryLikelyEnded = hoursElapsed > 2.5 && ["HT", "1H", "2H", "LIVE", "LIV", "ET", "BT", "P", "INT"].includes(currentLiveStatus);
-
-    // If match is definitely ended or very likely ended, override status
+    // Only use definitive API status - don't override live matches
     let currentStatus = currentLiveStatus;
-    if (isEndedMatch || isLikelyEnded || isVeryLikelyEnded) {
-      currentStatus = isEndedMatch ? apiStatus : "FT"; // Use FT for likely ended matches
+    if (isEndedMatch) {
+      currentStatus = apiStatus;
     }
 
     console.log("🔍 [Status Check] Match status analysis:", {
@@ -258,8 +254,6 @@ const MyMatchdetailsScoreboard = ({
       currentLiveStatus,
       hoursElapsed: hoursElapsed.toFixed(2),
       isEndedMatch,
-      isLikelyEnded,
-      isVeryLikelyEnded,
       finalStatus: currentStatus
     });
 
@@ -536,15 +530,13 @@ const MyMatchdetailsScoreboard = ({
                     const currentLiveStatus = liveStatus || apiStatus;
                     const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(apiStatus);
 
-                    // Check if match has likely ended based on time elapsed
+                    // Check if match has definitively ended based on API status only
                     const matchDate = new Date(displayMatch.fixture.date);
                     const now = new Date();
                     const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-                    const isLikelyEnded = hoursElapsed > 3;
-                    const isVeryLikelyEnded = hoursElapsed > 2.5 && ["HT", "1H", "2H", "LIVE", "LIV", "ET", "BT", "P", "INT"].includes(currentLiveStatus);
 
-                    // If match is definitely ended or very likely ended, use static scores
-                    const isMatchEnded = isEndedMatch || isLikelyEnded || isVeryLikelyEnded;
+                    // Only consider match ended if API confirms it
+                    const isMatchEnded = isEndedMatch;
                     const isTrulyLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentLiveStatus) && !isMatchEnded;
 
                     // Use live scores only for truly live matches, static scores for ended matches
@@ -564,8 +556,6 @@ const MyMatchdetailsScoreboard = ({
                       apiStatus,
                       currentLiveStatus,
                       isEndedMatch,
-                      isLikelyEnded,
-                      isVeryLikelyEnded,
                       isMatchEnded,
                       isTrulyLive,
                       hoursElapsed: hoursElapsed.toFixed(2),
