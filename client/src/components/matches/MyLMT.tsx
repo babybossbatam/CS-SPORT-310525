@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import '../../styles/sportradar-theme.css';
 
 interface MyLMTProps {
   matchId?: number;
@@ -7,6 +8,30 @@ interface MyLMTProps {
   status?: string;
   className?: string;
   sportradarMatchId?: number;
+}
+
+interface RapidApiMatch {
+  fixture: {
+    id: number;
+    date: string;
+    status: {
+      short: string;
+      long: string;
+      elapsed: number | null;
+    };
+  };
+  teams: {
+    home: { name: string; logo: string; };
+    away: { name: string; logo: string; };
+  };
+  goals: {
+    home: number | null;
+    away: number | null;
+  };
+  league: {
+    name: string;
+    country: string;
+  };
 }
 
 interface Scores365Match {
@@ -37,43 +62,74 @@ const MyLMT: React.FC<MyLMTProps> = ({
 }) => {
   const widgetRef = useRef<HTMLDivElement>(null);
   const scriptLoadedRef = useRef<boolean>(false);
+  const widgetInitializedRef = useRef<boolean>(false);
+  const [rapidApiData, setRapidApiData] = useState<RapidApiMatch | null>(null);
   const [scores365Data, setScores365Data] = useState<Scores365Match | null>(null);
   const [isLoadingLiveData, setIsLoadingLiveData] = useState(false);
   const [lastUpdateId, setLastUpdateId] = useState<string | null>(null);
+  const [liveEvents, setLiveEvents] = useState<any[]>([]);
 
   // Determine if match is currently live
   const isLive = status && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
 
-  // 365scores-style API fetching
-  const fetch365ScoresData = useCallback(async () => {
+  // RapidAPI live data fetching
+  const fetchRapidApiData = useCallback(async () => {
     if (!isLive || !matchId) return;
 
     setIsLoadingLiveData(true);
     
     try {
-      const currentDate = new Date().toLocaleDateString('en-GB'); // DD/MM/YYYY format
+      console.log(`🎯 [MyLMT] Fetching RapidAPI data for match ${matchId}`);
+      
+      // Fetch specific match data
+      const matchResponse = await fetch(`/api/fixtures/${matchId}`);
+      if (matchResponse.ok) {
+        const matchData = await matchResponse.json();
+        setRapidApiData(matchData);
+        console.log(`✅ [MyLMT] Retrieved match data:`, matchData);
+      }
+
+      // Fetch live events
+      const eventsResponse = await fetch(`/api/fixtures/${matchId}/events`);
+      if (eventsResponse.ok) {
+        const eventsData = await eventsResponse.json();
+        setLiveEvents(eventsData || []);
+        console.log(`✅ [MyLMT] Retrieved ${eventsData?.length || 0} events`);
+      }
+
+    } catch (error) {
+      console.error('🚫 [MyLMT] RapidAPI fetch error:', error);
+    } finally {
+      setIsLoadingLiveData(false);
+    }
+  }, [isLive, matchId]);
+
+  // 365scores-style API fetching (fallback)
+  const fetch365ScoresData = useCallback(async () => {
+    if (!isLive || !matchId) return;
+
+    try {
+      const currentDate = new Date().toLocaleDateString('en-GB');
       const apiUrl = `https://webws.365scores.com/web/games/allscores/`;
       
       const params = new URLSearchParams({
         appTypeId: '5',
         langId: '1', 
         timezoneName: 'Asia/Manila',
-        sports: '1', // Football
+        sports: '1',
         startDate: currentDate,
         endDate: currentDate,
         showOdds: 'true',
-        favoriteCompetitions: '35', // Priority competitions
+        favoriteCompetitions: '35',
         onlyLiveGames: 'true',
         withTop: 'true',
         ...(lastUpdateId && { lastUpdateId })
       });
 
-      // Note: This would need CORS proxy in production
       const response = await fetch(`${apiUrl}?${params.toString()}`);
       const data = await response.json();
       
       if (data?.games) {
-        // Find matching game by team names or match ID
         const matchingGame = data.games.find((game: any) => 
           (game.homeCompetitor?.name === homeTeam?.name && 
            game.awayCompetitor?.name === awayTeam?.name) ||
@@ -90,21 +146,29 @@ const MyLMT: React.FC<MyLMTProps> = ({
       }
     } catch (error) {
       console.error('365scores API fetch error:', error);
-    } finally {
-      setIsLoadingLiveData(false);
     }
   }, [isLive, matchId, homeTeam?.name, awayTeam?.name, lastUpdateId]);
 
   useEffect(() => {
     if (!isLive) return;
 
-    // Initial data fetch
-    fetch365ScoresData();
+    console.log('🎯 [MyLMT] Setting up live match tracker for match:', matchId);
 
-    // Set up real-time updates every 15 seconds (365scores style)
-    const updateInterval = setInterval(fetch365ScoresData, 15000);
+    // Initial data fetch from RapidAPI
+    fetchRapidApiData();
 
-    // Load Sportradar widget as fallback
+    // Fallback to 365scores if needed
+    setTimeout(() => {
+      if (!rapidApiData) {
+        fetch365ScoresData();
+      }
+    }, 2000);
+
+    // Set up real-time updates every 30 seconds for live data
+    const rapidApiInterval = setInterval(fetchRapidApiData, 30000);
+    const scores365Interval = setInterval(fetch365ScoresData, 45000);
+
+    // Load Sportradar widget
     const loadSportradarWidget = () => {
       if (!widgetRef.current) return;
 
@@ -114,6 +178,8 @@ const MyLMT: React.FC<MyLMTProps> = ({
       }
 
       if (!document.querySelector('script[src*="sportradar.com"]')) {
+        console.log('🎯 [MyLMT] Loading Sportradar widget script');
+        
         const script = document.createElement('script');
         script.innerHTML = `
           (function(a,b,c,d,e,f,g,h,i){a[e]||(i=a[e]=function(){(a[e].q=a[e].q||[]).push(arguments)},i.l=1*new Date,i.o=f,
@@ -126,25 +192,35 @@ const MyLMT: React.FC<MyLMTProps> = ({
 
         document.head.appendChild(script);
 
-        setTimeout(() => {
+        // Wait for script to load, then initialize
+        const checkSIR = () => {
           if (window.SIR) {
             initializeWidget();
+          } else {
+            setTimeout(checkSIR, 500);
           }
-        }, 1000);
+        };
+        setTimeout(checkSIR, 1000);
       }
     };
 
     const initializeWidget = () => {
-      if (window.SIR && widgetRef.current && !scriptLoadedRef.current) {
+      if (window.SIR && widgetRef.current && !widgetInitializedRef.current) {
         try {
+          console.log('🎯 [MyLMT] Initializing Sportradar widget with matchId:', sportradarMatchId);
+          
           window.SIR("addWidget", ".sr-widget-lmt", "match.lmtPlus", {
             layout: "topdown", 
             scoreboardLargeJerseys: true,
-            matchId: sportradarMatchId
+            matchId: sportradarMatchId,
+            theme: false
           });
+          
+          widgetInitializedRef.current = true;
           scriptLoadedRef.current = true;
+          console.log('✅ [MyLMT] Sportradar widget initialized successfully');
         } catch (error) {
-          console.error('Error initializing Sportradar widget:', error);
+          console.error('🚫 [MyLMT] Error initializing Sportradar widget:', error);
         }
       }
     };
@@ -152,13 +228,20 @@ const MyLMT: React.FC<MyLMTProps> = ({
     loadSportradarWidget();
 
     return () => {
-      clearInterval(updateInterval);
-      scriptLoadedRef.current = false;
+      clearInterval(rapidApiInterval);
+      clearInterval(scores365Interval);
+      // Keep script loaded but reset initialization flag
+      widgetInitializedRef.current = false;
     };
-  }, [isLive, fetch365ScoresData, sportradarMatchId]);
+  }, [isLive, fetchRapidApiData, fetch365ScoresData, sportradarMatchId, rapidApiData]);
 
-  const homeTeamData = homeTeam;
-  const awayTeamData = awayTeam;
+  // Use RapidAPI data as primary source, fallback to props
+  const homeTeamData = rapidApiData?.teams?.home || homeTeam;
+  const awayTeamData = rapidApiData?.teams?.away || awayTeam;
+  const currentStatus = rapidApiData?.fixture?.status?.short || status;
+  const currentElapsed = rapidApiData?.fixture?.status?.elapsed;
+  const homeScore = rapidApiData?.goals?.home;
+  const awayScore = rapidApiData?.goals?.away;
 
   if (!isLive) {
     return (
@@ -245,21 +328,22 @@ const MyLMT: React.FC<MyLMTProps> = ({
               </div>
             </div>
 
-            {/* Match Status - 365scores Style */}
+            {/* Match Status - Enhanced with RapidAPI data */}
             <div className="bg-black bg-opacity-80 text-white px-4 py-2 rounded-lg backdrop-blur-sm text-center">
               <div className="text-2xl font-bold">
-                {scores365Data?.gameTime || (
+                {currentElapsed ? `${currentElapsed}'` : (
                   <>
-                    {status === '1H' && '1ST HALF'}
-                    {status === '2H' && '2ND HALF'}
-                    {status === 'HT' && 'HALF TIME'}
-                    {status === 'FT' && 'FULL TIME'}
-                    {!['1H', '2H', 'HT', 'FT'].includes(status || '') && 'LIVE'}
+                    {currentStatus === '1H' && '1ST HALF'}
+                    {currentStatus === '2H' && '2ND HALF'}
+                    {currentStatus === 'HT' && 'HALF TIME'}
+                    {currentStatus === 'FT' && 'FULL TIME'}
+                    {currentStatus === 'LIVE' && 'LIVE'}
+                    {!['1H', '2H', 'HT', 'FT', 'LIVE'].includes(currentStatus || '') && 'LIVE'}
                   </>
                 )}
               </div>
               <div className="text-xs opacity-80 mt-1">
-                {scores365Data ? '365scores Live' : 'Match Tracker Active'}
+                {rapidApiData ? 'RapidAPI Live' : scores365Data ? '365scores Live' : 'Match Tracker Active'}
               </div>
               {isLoadingLiveData && (
                 <div className="text-xs text-yellow-300 mt-1">
@@ -268,10 +352,22 @@ const MyLMT: React.FC<MyLMTProps> = ({
               )}
             </div>
 
-            {/* Live Score Display - 365scores Style */}
-            {scores365Data && (
+            {/* Live Score Display - Primary from RapidAPI */}
+            {(rapidApiData?.goals || scores365Data) && (
               <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-bold">
-                {scores365Data.homeScore} - {scores365Data.awayScore}
+                {homeScore !== null && awayScore !== null 
+                  ? `${homeScore} - ${awayScore}`
+                  : scores365Data 
+                    ? `${scores365Data.homeScore} - ${scores365Data.awayScore}`
+                    : '0 - 0'
+                }
+              </div>
+            )}
+
+            {/* Live Events Indicator */}
+            {liveEvents.length > 0 && (
+              <div className="absolute bottom-4 right-4 bg-blue-600 bg-opacity-90 text-white px-2 py-1 rounded text-xs">
+                {liveEvents.length} Events
               </div>
             )}
 
@@ -291,21 +387,27 @@ const MyLMT: React.FC<MyLMTProps> = ({
           {/* Sportradar Widget Integration */}
           <div 
             ref={widgetRef}
-            className="sr-widget sr-widget-lmt absolute inset-0 z-20 opacity-0 hover:opacity-100 transition-opacity duration-300"
+            className="sr-widget sr-widget-lmt absolute inset-0 z-20 bg-black bg-opacity-10 opacity-0 hover:opacity-95 transition-opacity duration-500 rounded-lg overflow-hidden"
           >
-            {/* Widget will overlay when loaded */}
+            {/* Sportradar widget will be injected here */}
+            {widgetInitializedRef.current && (
+              <div className="absolute top-2 left-2 bg-green-600 text-white px-2 py-1 rounded text-xs z-30">
+                Sportradar Live
+              </div>
+            )}
           </div>
 
-          {/* Competition Info - 365scores Style */}
-          {scores365Data && (
+          {/* Competition Info - Enhanced with RapidAPI */}
+          {(rapidApiData?.league || scores365Data) && (
             <div className="absolute bottom-4 left-4 bg-blue-600 bg-opacity-90 text-white px-2 py-1 rounded text-xs">
-              {scores365Data.competitionDisplayName}
-              {scores365Data.countryName && ` • ${scores365Data.countryName}`}
+              {rapidApiData?.league?.name || scores365Data?.competitionDisplayName}
+              {(rapidApiData?.league?.country || scores365Data?.countryName) && 
+                ` • ${rapidApiData?.league?.country || scores365Data?.countryName}`}
             </div>
           )}
 
           {/* Loading State */}
-          {!scriptLoadedRef.current && !scores365Data && (
+          {!rapidApiData && !scores365Data && !widgetInitializedRef.current && (
             <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-30">
               <div className="text-center text-white">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-white border-t-transparent mx-auto mb-3"></div>
@@ -313,9 +415,14 @@ const MyLMT: React.FC<MyLMTProps> = ({
                 <p className="text-xs mt-1 opacity-80">
                   {homeTeamData?.name} vs {awayTeamData?.name}
                 </p>
-                <p className="text-xs mt-1 text-blue-300">
-                  Connecting to 365scores...
-                </p>
+                <div className="text-xs mt-2 space-y-1">
+                  <p className="text-green-300">
+                    {rapidApiData ? '✓ RapidAPI Connected' : '⟳ Connecting to RapidAPI...'}
+                  </p>
+                  <p className="text-orange-300">
+                    {widgetInitializedRef.current ? '✓ Sportradar Widget Ready' : '⟳ Loading Sportradar...'}
+                  </p>
+                </div>
               </div>
             </div>
           )}
