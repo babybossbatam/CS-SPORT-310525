@@ -480,7 +480,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
   }
 
   return (
-    <div>
+    <>
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
         <div className="flex justify-between items-center w-full">
@@ -947,7 +947,7 @@ const LiveMatchByTime: React.FC<LiveMatchByTimeProps> = ({
           </div>
         </CardContent>
       </Card>
-    </div>
+    </>
   );
 };
 
