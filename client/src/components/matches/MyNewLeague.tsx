@@ -182,6 +182,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     };
 
     fetchLeagueData();
+    
+    // Set up periodic refresh for live match updates
+    const interval = setInterval(() => {
+      fetchLeagueData();
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   // Debug logging
@@ -302,8 +309,41 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       currentStatuses.set(matchId, currentStatus);
       currentScores.set(matchId, currentScore);
 
-      // Only check for changes if we have a previous status (not on first load)
+      // Log all status transitions for debugging
       if (previousStatus && previousStatus !== currentStatus) {
+        console.log(`🔄 [STATUS TRANSITION] Match ${matchId}:`, {
+          teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+          transition: `${previousStatus} → ${currentStatus}`,
+          time: new Date().toLocaleTimeString()
+        });
+
+        // Detect transition from upcoming to live
+        const wasUpcoming = ['NS', 'TBD'].includes(previousStatus);
+        const isNowLive = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(currentStatus);
+        
+        if (wasUpcoming && isNowLive) {
+          console.log(`🟢 [MATCH STARTED] Match ${matchId} started!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
+        }
+
+        // Detect transition from live to ended
+        const wasLive = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(previousStatus);
+        const isNowEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(currentStatus);
+        
+        if (wasLive && isNowEnded) {
+          console.log(`🏁 [MATCH ENDED] Match ${matchId} ended!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            finalScore: `${currentScore.home}-${currentScore.away}`,
+            previousStatus,
+            currentStatus
+          });
+        }
+
         // Check if status just changed to halftime
         if (currentStatus === 'HT') {
           console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
