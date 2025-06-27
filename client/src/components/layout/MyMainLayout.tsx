@@ -216,13 +216,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
               })()}
 
               <MatchDetailCard match={selectedFixture} />
-
-              <MyMatchEvents
-                homeTeam={selectedFixture?.teams?.home?.name}
-                awayTeam={selectedFixture?.teams?.away?.name}
-                matchStatus={selectedFixture?.fixture?.status?.short}
-                match={selectedFixture}
-              />
             </>
           ) : (
             <MyRightContent />
