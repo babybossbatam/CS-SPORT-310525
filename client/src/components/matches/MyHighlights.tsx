@@ -7,6 +7,8 @@ interface MyHighlightsProps {
   awayTeam?: string;
   leagueName?: string;
   matchStatus?: string;
+  match?: any; // Full match object from MyMatchdetailsScoreboard
+  matchId?: string;
 }
 
 interface YouTubeVideo {
@@ -41,7 +43,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   homeTeam,
   awayTeam,
   leagueName,
-  matchStatus = "NS"
+  matchStatus = "NS",
+  match,
+  matchId
 }) => {
   const [videoData, setVideoData] = useState<VideoData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -66,13 +70,15 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const [searchCache] = useState(() => new Map());
 
   const searchForHighlights = async () => {
-    if (!homeTeam || !awayTeam) {
+    const { home, away, league } = teamData;
+    
+    if (!home || !away) {
       setError('Team names are required for highlights search');
       return;
     }
 
     // Create cache key
-    const cacheKey = `${homeTeam}_${awayTeam}_${leagueName || ''}`.toLowerCase().replace(/\s+/g, '_');
+    const cacheKey = `${home}_${away}_${league || ''}`.toLowerCase().replace(/\s+/g, '_');
     
     // Check cache first (24 hour expiry)
     const cached = searchCache.get(cacheKey);
@@ -95,7 +101,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       ];
 
       // Single optimized search query
-      const query = encodeURIComponent(`${homeTeam} vs ${awayTeam} highlights ${leagueName || ''}`);
+      const query = encodeURIComponent(`${home} vs ${away} highlights ${league || ''}`);
       
       for (const channelId of topChannels) {
         try {
@@ -116,7 +122,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           if (data.items && data.items.length > 0) {
             const perfectMatch = data.items.find((item: YouTubeVideo) => {
               const title = item.snippet.title.toLowerCase();
-              return title.includes(homeTeam.toLowerCase()) && title.includes(awayTeam.toLowerCase());
+              return title.includes(home.toLowerCase()) && title.includes(away.toLowerCase());
             });
 
             if (perfectMatch) {
@@ -161,11 +167,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   // Alternative platform search when YouTube quota is exceeded
   const searchAlternativePlatforms = async () => {
     const queries = [
-      `${homeTeam} vs ${awayTeam} highlights`,
-      `${homeTeam} ${awayTeam} highlights`,
-      `${homeTeam} vs ${awayTeam}`,
-      `${homeTeam} ${awayTeam} goals`,
-      `${leagueName || ''} highlights ${homeTeam} ${awayTeam}`.trim()
+      `${teamData.home} vs ${teamData.away} highlights`,
+      `${teamData.home} ${teamData.away} highlights`,
+      `${teamData.home} vs ${teamData.away}`,
+      `${teamData.home} ${teamData.away} goals`,
+      `${teamData.league || ''} highlights ${teamData.home} ${teamData.away}`.trim()
     ];
     
     try {
@@ -181,8 +187,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               // More flexible matching - check for either team name
               const vimeoMatch = vimeoData.items.find((item: any) => {
                 const title = item.title?.toLowerCase() || '';
-                const homeMatch = title.includes(homeTeam.toLowerCase());
-                const awayMatch = title.includes(awayTeam.toLowerCase());
+                const homeMatch = title.includes(teamData.home.toLowerCase());
+                const awayMatch = title.includes(teamData.away.toLowerCase());
                 const hasHighlights = title.includes('highlight') || title.includes('goal') || title.includes('vs');
                 
                 return (homeMatch || awayMatch) && hasHighlights;
@@ -222,8 +228,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               // More flexible matching
               const dailymotionMatch = dailymotionData.items.find((item: any) => {
                 const title = item.title?.toLowerCase() || '';
-                const homeMatch = title.includes(homeTeam.toLowerCase());
-                const awayMatch = title.includes(awayTeam.toLowerCase());
+                const homeMatch = title.includes(teamData.home.toLowerCase());
+                const awayMatch = title.includes(teamData.away.toLowerCase());
                 const hasHighlights = title.includes('highlight') || title.includes('goal') || title.includes('vs');
                 
                 return (homeMatch || awayMatch) && hasHighlights;
@@ -287,7 +293,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         setVideoData({
           platform: 'scorebat',
           id: 'embed-feed',
-          title: `${homeTeam} vs ${awayTeam} - Football Highlights`,
+          title: `${teamData.home} vs ${teamData.away} - Football Highlights`,
           description: 'Live football highlights and match videos from ScoreBat. Watch directly on this page.',
           thumbnailUrl: '/assets/no-logo-available.png', // Use fallback thumbnail
           channelTitle: 'ScoreBat',
@@ -301,7 +307,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       }
 
       // If no alternatives found after trying all sources
-      setError(`No highlight videos found for ${homeTeam} vs ${awayTeam}. YouTube quota exceeded and no alternatives available.`);
+      setError(`No highlight videos found for ${teamData.home} vs ${teamData.away}. YouTube quota exceeded and no alternatives available.`);
     } catch (altError) {
       console.error('Alternative platform search failed:', altError);
       setError(`YouTube quota exceeded. Alternative video platforms are temporarily unavailable. Quota resets daily at midnight PST.`);
@@ -310,11 +316,31 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     }
   };
 
+  // Extract team names from match object if available
+  const getTeamNames = () => {
+    if (match) {
+      return {
+        home: match.teams?.home?.name || homeTeam,
+        away: match.teams?.away?.name || awayTeam,
+        league: match.league?.name || leagueName,
+        status: match.fixture?.status?.short || matchStatus
+      };
+    }
+    return {
+      home: homeTeam,
+      away: awayTeam,
+      league: leagueName,
+      status: matchStatus
+    };
+  };
+
+  const teamData = getTeamNames();
+
   useEffect(() => {
-    if (homeTeam && awayTeam) {
+    if (teamData.home && teamData.away) {
       searchForHighlights();
     }
-  }, [homeTeam, awayTeam, leagueName]);
+  }, [teamData.home, teamData.away, teamData.league, match?.fixture?.id]);
 
   const formatPublishDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -331,7 +357,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     setShowEmbed(!showEmbed);
   };
 
-  if (!homeTeam || !awayTeam) {
+  if (!teamData.home || !teamData.away) {
     return null;
   }
 
