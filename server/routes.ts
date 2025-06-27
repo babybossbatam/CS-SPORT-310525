@@ -1529,7 +1529,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .png()
         .toBuffer();
 
-```tool_code
+
       // Set appropriate headers
       res.set({
         'Content-Type': 'image/png',
