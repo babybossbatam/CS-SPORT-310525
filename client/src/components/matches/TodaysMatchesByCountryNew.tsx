@@ -1315,23 +1315,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           >
             {getHeaderTitle()}
           </h3>
-          y-1 text-xs bg-blue-200 rounded"
-            >
-              Test FT Flash
-            </button>
-            <button 
-              onClick={() => {
-                const firstMatchId = validFixtures[0]?.fixture?.id;
-                if (firstMatchId) {
-                  setGoalFlashMatches(new Set([firstMatchId]));
-                  setTimeout(() => setGoalFlashMatches(new Set()), 2000);
-                }
-              }}
-              className="px-2 py-1 text-xs bg-green-200 rounded"
-            >
-              Test Goal Flash
-            </button>
-          </div>
         </div>
       </CardHeader>
       <CardContent className="p-0">
