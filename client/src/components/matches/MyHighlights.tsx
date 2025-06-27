@@ -72,6 +72,18 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   // ScoreBat API tokens
   const SCOREBAT_VIDEO_API_TOKEN = 'MjExNjkxXzE3NTEwMDI4MzlfNmJkNDYzMzdlM2M5Y2I3OGE3YjAwY2UwZmU0NzliODJjZmRlOWFjYQ==';
   const SCOREBAT_EMBED_TOKEN = 'MjExNjkxXzE3NTEwMDI4MzlfNzNkZmJkODBjMWNiZGFjZDhkMDNhNjM3OTI0MDA0ZGI0NjFkMDIwNw==';
+  
+  // Competition-specific ScoreBat endpoints
+  const SCOREBAT_COMPETITION_ENDPOINTS = {
+    'Premier League': `https://www.scorebat.com/video-api/v3/competition/england-premier-league/?token=${SCOREBAT_VIDEO_API_TOKEN}`,
+    'Championship': `https://www.scorebat.com/video-api/v3/competition/england-championship/?token=${SCOREBAT_VIDEO_API_TOKEN}`,
+    'La Liga': `https://www.scorebat.com/video-api/v3/competition/spain-primera-division/?token=${SCOREBAT_VIDEO_API_TOKEN}`,
+    'Serie A': `https://www.scorebat.com/video-api/v3/competition/italy-serie-a/?token=${SCOREBAT_VIDEO_API_TOKEN}`,
+    'Bundesliga': `https://www.scorebat.com/video-api/v3/competition/germany-bundesliga/?token=${SCOREBAT_VIDEO_API_TOKEN}`,
+    'Ligue 1': `https://www.scorebat.com/video-api/v3/competition/france-ligue-1/?token=${SCOREBAT_VIDEO_API_TOKEN}`,
+    'Champions League': `https://www.scorebat.com/video-api/v3/competition/uefa-champions-league/?token=${SCOREBAT_VIDEO_API_TOKEN}`,
+    'Europa League': `https://www.scorebat.com/video-api/v3/competition/uefa-europa-league/?token=${SCOREBAT_VIDEO_API_TOKEN}`
+  };
 
   // Load ScoreBat widget script
   useEffect(() => {
@@ -180,10 +192,21 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         console.warn('YouTube search failed:', youtubeError);
       }
 
-      // Try ScoreBat Video API first before falling back to widget
+      // Try ScoreBat Video API first - check competition-specific endpoint
       try {
         console.log('🏈 Trying ScoreBat Video API for highlights');
-        const scorebatApiResponse = await fetch(`https://www.scorebat.com/video-api/v3/?token=${SCOREBAT_VIDEO_API_TOKEN}`);
+        
+        // Check if we have a competition-specific endpoint
+        const competitionEndpoint = SCOREBAT_COMPETITION_ENDPOINTS[league || ''];
+        let scorebatApiResponse;
+        
+        if (competitionEndpoint) {
+          console.log(`🎯 Using competition-specific endpoint for ${league}`);
+          scorebatApiResponse = await fetch(competitionEndpoint);
+        } else {
+          console.log('🌍 Using general ScoreBat Video API');
+          scorebatApiResponse = await fetch(`https://www.scorebat.com/video-api/v3/?token=${SCOREBAT_VIDEO_API_TOKEN}`);
+        }
         
         if (scorebatApiResponse.ok) {
           const scorebatApiData = await scorebatApiResponse.json();
@@ -192,7 +215,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             // Find match in ScoreBat API results
             const matchVideo = scorebatApiData.response.find((video: any) => {
               const title = video.title?.toLowerCase() || '';
-              return title.includes(home.toLowerCase()) && title.includes(away.toLowerCase());
+              const homeMatch = title.includes(home.toLowerCase());
+              const awayMatch = title.includes(away.toLowerCase());
+              return homeMatch && awayMatch;
+            }) || scorebatApiData.response.find((video: any) => {
+              const title = video.title?.toLowerCase() || '';
+              return title.includes(home.toLowerCase()) || title.includes(away.toLowerCase());
             }) || scorebatApiData.response[0]; // Fallback to first video
 
             if (matchVideo) {
@@ -200,7 +228,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 platform: 'scorebat-api',
                 id: matchVideo.matchId || 'api-video',
                 title: matchVideo.title || `${home} vs ${away} - Football Highlights`,
-                description: 'Live highlights from ScoreBat Video API.',
+                description: `${competitionEndpoint ? 'Competition-specific' : 'Live'} highlights from ScoreBat Video API.`,
                 thumbnailUrl: matchVideo.thumbnail || '/assets/no-logo-available.png',
                 channelTitle: 'ScoreBat',
                 publishedAt: matchVideo.date || new Date().toISOString(),
