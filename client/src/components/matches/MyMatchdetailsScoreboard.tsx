@@ -9,7 +9,7 @@ import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
-import MyHighlights from "./MyHighlights";
+
 interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
@@ -749,22 +749,25 @@ const MyMatchdetailsScoreboard = ({
           )}
           
           {activeTab === "highlights" && (
-            <div>
-              {highlightsLoading ? (
-                <div className="p-4 text-center text-gray-500">
-                  Loading highlights...
-                </div>
-              ) : highlights ? (
-                <MyHighlights 
-                  homeTeamName={displayMatch.teams.home.name}
-                  awayTeamName={displayMatch.teams.away.name}
-                  matchId={displayMatch.fixture.id.toString()}
+            <div className="py-0 px-0">
+              <div className="w-full" style={{ paddingBottom: '56.25%', position: 'relative', height: 0 }}>
+                <iframe
+                  src={`https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&loading_spinner=off&teams=${encodeURIComponent(displayMatch.teams.home.name + ' vs ' + displayMatch.teams.away.name)}`}
+                  width="100%"
+                  height="100%"
+                  className="fw-iframe"
+                  scrolling="no"
+                  frameBorder="0"
+                  title={`${displayMatch.teams.home.name} vs ${displayMatch.teams.away.name} Highlights`}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%'
+                  }}
                 />
-              ) : (
-                <div className="p-4 text-center text-gray-500">
-                  No highlights available for this match
-                </div>
-              )}
+              </div>
             </div>
           )}
           

@@ -33,13 +33,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         {/* Highlights iframe widget */}
         <div className="w-full" style={{ paddingBottom: '56.25%', position: 'relative', height: 0 }}>
           <iframe
-            src="https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&loading_spinner=off"
+            src={`https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&loading_spinner=off${homeTeamName && awayTeamName ? `&teams=${encodeURIComponent(homeTeamName + ' vs ' + awayTeamName)}` : ''}`}
             width="100%"
             height="100%"
             className="fw-iframe"
             scrolling="no"
             frameBorder="0"
-            title="Football Feed Widget"
+            title={homeTeamName && awayTeamName ? `${homeTeamName} vs ${awayTeamName} Highlights` : "Football Feed Widget"}
             style={{
               position: 'absolute',
               top: 0,
