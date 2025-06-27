@@ -1,13 +1,23 @@
+
+import React from 'react';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import MyLMTLive from '@/components/matches/MyLMTLive';
-
-// MyNewLMT component needs to be imported here. Assuming it is in the same directory
 import MyNewLMT from '@/components/matches/MyNewLMT';
 
-// Assuming this code is within a functional component like MyMainLayout
-function MyMainLayout({ selectedMatchId, selectedMatch }) {
+interface MyMainLayoutProps {
+  selectedMatchId?: number;
+  selectedMatch?: any;
+  children?: React.ReactNode;
+}
+
+const MyMainLayout: React.FC<MyMainLayoutProps> = ({ 
+  selectedMatchId, 
+  selectedMatch, 
+  children 
+}) => {
   return (
-    <div>
+    <div className="w-full space-y-6">
+      {/* MyLiveAction component */}
       <MyLiveAction 
         matchId={selectedMatchId}
         homeTeam={selectedMatch?.teams?.home}
@@ -16,6 +26,7 @@ function MyMainLayout({ selectedMatchId, selectedMatch }) {
         className="mb-6"
       />
 
+      {/* MyNewLMT component - this will appear below MyLiveAction */}
       <MyNewLMT 
         matchId={selectedMatchId}
         homeTeam={selectedMatch?.teams?.home}
@@ -23,8 +34,15 @@ function MyMainLayout({ selectedMatchId, selectedMatch }) {
         status={selectedMatch?.fixture?.status?.short}
         className="mb-6"
       />
+
+      {/* Any additional children content */}
+      {children && (
+        <div className="mt-6">
+          {children}
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default MyMainLayout;
