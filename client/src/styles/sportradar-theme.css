@@ -1,6 +1,7 @@
 
 /* Sportradar Live Match Tracker Enhanced Theme */
 @import url("https://fonts.googleapis.com/css?family=Roboto:300,400,500,700,900&subset=latin,latin-ext");
+@import './sportradar-new-lmt.css';
 
 .sr-bb {
   font-family: "Roboto", "Noto", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
