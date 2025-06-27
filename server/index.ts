@@ -34,20 +34,7 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-// Add middleware to set headers for video embedding
-app.use((req, res, next) => {
-  res.setHeader('Content-Security-Policy', 
-    "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://replit.com https://www.scorebat.com; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-    "font-src 'self' https://fonts.gstatic.com; " +
-    "img-src 'self' data: https: http:; " +
-    "connect-src 'self' https: wss:; " +
-    "frame-src 'self' https://www.scorebat.com https://www.youtube.com https://player.vimeo.com https://www.dailymotion.com https://player.twitch.tv; " +
-    "child-src 'self' https://www.scorebat.com https://www.youtube.com https://player.vimeo.com https://www.dailymotion.com https://player.twitch.tv;"
-  );
-  next();
-});
+
 
 app.use((req, res, next) => {
   const start = Date.now();
