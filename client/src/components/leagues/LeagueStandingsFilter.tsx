@@ -1009,22 +1009,31 @@ const LeagueStandingsFilter = () => {
                                             />
                                           </div>
                                         ) : (
-                                          <img
-                                            src={
+                                          <MyWorldTeamLogo
+                                            teamName={
                                               group.find(
                                                 (opponent) =>
                                                   opponent.team.id !==
                                                     standing.team.id &&
                                                   opponent.rank > standing.rank,
-                                              )?.team.logo
+                                              )?.team.name || ""
+                                            }
+                                            teamLogo={
+                                              group.find(
+                                                (opponent) =>
+                                                  opponent.team.id !==
+                                                    standing.team.id &&
+                                                  opponent.rank > standing.rank,
+                                              )?.team.logo || "/assets/fallback-logo.svg"
                                             }
                                             alt={`Next opponent`}
-                                            className="w-5 h-5 rounded-full object-contain"
-                                            onError={(e) => {
-                                              (
-                                                e.target as HTMLImageElement
-                                              ).src =
-                                                "/assets/fallback-logo.svg";
+                                            size="20px"
+                                            className="popular-leagues-size"
+                                            leagueContext={{
+                                              name: selectedLeagueName,
+                                              country: popularLeagues.find(
+                                                (l) => l && l.id && l.id.toString() === selectedLeague,
+                                              )?.country || "World",
                                             }}
                                           />
                                         )}
