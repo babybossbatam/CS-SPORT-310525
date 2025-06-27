@@ -446,20 +446,35 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
       return;
     }
 
-    // Filter fixtures that are actually live
+    // Filter fixtures that are actually live or finished within the last 2 hours
+    const now = new Date();
+    const recentlyFinishedThreshold = 2 * 60 * 60 * 1000; // 2 hours in milliseconds
+
     const actualLiveFixtures = fixtures.filter((fixture: any) => {
       const status = fixture.fixture?.status?.short;
       const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
+
+      // Check if the match is recently finished
+      const isFinished = ['FT', 'AET', 'PEN'].includes(status);
+      let isRecentlyFinished = false;
+      if (isFinished) {
+        const fixtureDate = new Date(fixture.fixture.date);
+        const timeDiff = now.getTime() - fixtureDate.getTime();
+        isRecentlyFinished = timeDiff <= recentlyFinishedThreshold;
+      }
 
       if (isLive) {
         console.log(`✅ [LiveMatchForAllCountry] Including live match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${status})`);
       }
 
-      return isLive;
+      if (isRecentlyFinished) {
+          console.log(`✅ [LiveMatchForAllCountry] Including recently finished match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${status})`);
+      }
+
+      return isLive || isRecentlyFinished;
     });
 
-    console.log('🔍 [LiveMatchForAllCountry] Live matches filtering result:', {
-      isLoading,
+    console.log(`🔍 [LiveMatchForAllCountry] Live and recently finished matches check:`, {
       totalFixtures: fixtures.length,
       filteredFixtures: actualLiveFixtures.length,
       hasLiveMatches: actualLiveFixtures.length > 0,
@@ -718,7 +733,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
   );
 
-  console.log(`🔍 [LiveMatchForAllCountry] Live matches check:`, {
+  console.log(`🔍 [LiveMatchForAllCountry] Live and recently finished matches check:`, {
     totalFixtures: fixtures.length,
     filteredFixtures: filteredFixtures.length,
     hasLiveMatches: actuallyHasLiveMatches,
