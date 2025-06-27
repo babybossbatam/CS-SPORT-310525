@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { getPopularLeagues, LeagueData } from "@/lib/leagueDataCache";
+import { getCachedFixturesForDate } from "@/lib/fixtureCache";
 import { format, parseISO } from "date-fns";
 import {
   Select,
@@ -540,11 +541,29 @@ const LeagueStandingsFilter = () => {
   const { data: fixtures, isLoading: fixturesLoading } = useQuery({
     queryKey: ["fixtures", selectedLeague, todayDateKey],
     queryFn: async () => {
+      // Try to get cached fixtures first
+      const today = new Date().toISOString().slice(0, 10);
+      const cachedTodayFixtures = getCachedFixturesForDate(today);
+      
       const response = await apiRequest(
         "GET",
         `/api/leagues/${selectedLeague}/fixtures`,
       );
-      return response.json();
+      const fixturesData = await response.json();
+      
+      // Merge with cached fixtures for better opponent data
+      if (cachedTodayFixtures && fixturesData?.response) {
+        const mergedFixtures = {
+          ...fixturesData,
+          response: [...fixturesData.response, ...cachedTodayFixtures]
+            .filter((fixture, index, arr) => 
+              index === arr.findIndex(f => f.fixture.id === fixture.fixture.id)
+            ) // Remove duplicates
+        };
+        return mergedFixtures;
+      }
+      
+      return fixturesData;
     },
     enabled: !!selectedLeague && selectedLeague !== "", // Only run when we have a valid league ID
     staleTime: 24 * 60 * 60 * 1000, // 24 hours - keeps data fresh for the whole day
@@ -913,42 +932,67 @@ const LeagueStandingsFilter = () => {
                                       // Find next match for this team from fixtures
                                       if (!fixtures?.response) return null;
 
-                                      const nextMatch = fixtures.response.find((fixture: any) => {
-                                        const isTeamInMatch = 
-                                          fixture.teams.home.id === standing.team.id || 
-                                          fixture.teams.away.id === standing.team.id;
-                                        const isUpcoming = new Date(fixture.fixture.date) > new Date();
-                                        return isTeamInMatch && isUpcoming;
+                                      // Get both upcoming and recent fixtures for better context
+                                      const teamFixtures = fixtures.response.filter((fixture: any) => {
+                                        return fixture.teams.home.id === standing.team.id || 
+                                               fixture.teams.away.id === standing.team.id;
                                       });
 
-                                      if (!nextMatch) return null;
+                                      // Sort by date to get the most relevant match
+                                      const sortedFixtures = teamFixtures.sort((a: any, b: any) => {
+                                        return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
+                                      });
 
-                                      // Get the opponent team
-                                      const opponentTeam = nextMatch.teams.home.id === standing.team.id 
-                                        ? nextMatch.teams.away 
-                                        : nextMatch.teams.home;
+                                      // Find next upcoming match
+                                      const nextMatch = sortedFixtures.find((fixture: any) => {
+                                        const isUpcoming = new Date(fixture.fixture.date) > new Date();
+                                        return isUpcoming;
+                                      });
+
+                                      // If no upcoming match, show the most recent finished match
+                                      const relevantMatch = nextMatch || sortedFixtures[sortedFixtures.length - 1];
+
+                                      if (!relevantMatch) return null;
+
+                                      // Determine if this team is home or away to get the correct opponent
+                                      const isTeamHome = relevantMatch.teams.home.id === standing.team.id;
+                                      const opponentTeam = isTeamHome 
+                                        ? relevantMatch.teams.away 
+                                        : relevantMatch.teams.home;
+
+                                      // For display purposes, always show the away team logo when possible
+                                      const displayTeam = relevantMatch.teams.away.id !== standing.team.id 
+                                        ? relevantMatch.teams.away 
+                                        : relevantMatch.teams.home;
 
                                       const nextMatchInfo = {
                                         opponent: opponentTeam.name,
-                                        date: nextMatch.fixture.date,
-                                        venue: nextMatch.fixture.venue?.name || "TBD"
+                                        date: relevantMatch.fixture.date,
+                                        venue: relevantMatch.fixture.venue?.name || "TBD",
+                                        isUpcoming: nextMatch ? true : false,
+                                        status: relevantMatch.fixture.status.short
                                       };
+
+                                      // Use cached fixture data if available
+                                      const teamLogoUrl = displayTeam.id
+                                        ? `/api/team-logo/square/${displayTeam.id}?size=24`
+                                        : displayTeam.logo || "/assets/fallback-logo.svg";
 
                                       return isNationalTeam ? (
                                         <MyCircularFlag
                                           showNextMatchOverlay={true}
-                                          teamName={opponentTeam.name}
-                                          fallbackUrl={opponentTeam.logo}
-                                          alt={`Next opponent: ${opponentTeam.name}`}
+                                          teamName={displayTeam.name}
+                                          fallbackUrl={teamLogoUrl}
+                                          alt={`${nextMatchInfo.isUpcoming ? 'Next opponent' : 'Last opponent'}: ${displayTeam.name}`}
                                           size="24px"
                                           className="popular-leagues-size"
                                           nextMatchInfo={nextMatchInfo}
                                         />
                                       ) : (
                                         <MyWorldTeamLogo
-                                          teamName={opponentTeam.name}
-                                          teamLogo={opponentTeam.logo}
-                                          alt={`Next opponent: ${opponentTeam.name}`}
+                                          teamName={displayTeam.name}
+                                          teamLogo={teamLogoUrl}
+                                          alt={`${nextMatchInfo.isUpcoming ? 'Next opponent' : 'Last opponent'}: ${displayTeam.name}`}
                                           size="20px"
                                           className="popular-leagues-size"
                                           leagueContext={{
