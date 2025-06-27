@@ -504,6 +504,10 @@
   background-color: white !important;
 }
 
+.match-card-container.disable-hover:hover {
+  background-color: white !important;
+}
+
 /* Halftime flash animation */
 .match-card-container.halftime-flash {
   background-color: #ff6b35 !important;
@@ -544,7 +548,7 @@
 
 /* Status label hover effects to match card background */
 .match-card-container:hover .match-status-label {
-  background-color:transparent !important;
+  background-color: transparent !important;
 }
 
 .match-card-container.disable-hover .match-status-label {
