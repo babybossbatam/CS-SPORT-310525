@@ -1704,7 +1704,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       }`}
                                       onClick={() => onMatchCardClick?.(match)}
                                       style={{
-                                        cursor: onMatchCardClick
+                                        cursor: onMatchFilterActive
                                           ? "pointer"
                                           : "default",
                                       }}
@@ -1921,11 +1921,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                     "fifa club world cup",
                                                   );
 
-                                              // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup
+                                              // Check if this is a Brazilian team
+                                              const isBrazilianTeam = leagueData?.country?.toLowerCase() === "brazil" || 
+                                                                     match.teams.home.name?.toLowerCase().includes("brazil");
+
+                                              // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions, FIFA Club World Cup or Brazilian teams
                                               if (
                                                 (isActualNationalTeam ||
                                                   isYouthTeam) &&
-                                                !isFifaClubWorldCup
+                                                !isFifaClubWorldCup &&
+                                                !isBrazilianTeam
                                               ) {
                                                 return (
                                                   <MyCircularFlag
@@ -2157,11 +2162,16 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                     "fifa club world cup",
                                                   );
 
-                                              // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup
+                                              // Check if this is a Brazilian team
+                                              const isBrazilianTeam = leagueData?.country?.toLowerCase() === "brazil" || 
+                                                                     match.teams.away.name?.toLowerCase().includes("brazil");
+
+                                              // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions, FIFA Club World Cup or Brazilian teams
                                               if (
                                                 (isActualNationalTeam ||
                                                   isYouthTeam) &&
-                                                !isFifaClubWorldCup
+                                                !isFifaClubWorldCup &&
+                                                !isBrazilianTeam
                                               ) {
                                                 return (
                                                   <MyCircularFlag
