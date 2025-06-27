@@ -270,7 +270,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         allFixtures.push(...liveFixtures);
 
         // Fetch non-live matches from cached data only on initial load or force refresh
-        if (forceRefresh) {
+        if (forceRefresh || allFixtures.length === 0) {
           // Fetch non-live matches from cached data (priority leagues)
           for (const leagueId of priorityLeagueIds) {
             try {
@@ -424,6 +424,76 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               );
             }
           }
+
+          // If we still don't have enough fixtures, expand search to all popular leagues
+          if (allFixtures.length < 3) {
+            console.log(
+              `🔄 [MyHomeFeaturedMatchNew] Only ${allFixtures.length} fixtures found, expanding to all popular leagues`,
+            );
+            
+            for (const dateInfo of dates) {
+              try {
+                const response = await apiRequest(
+                  "GET",
+                  `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
+                );
+                const fixtures = await response.json();
+
+                if (fixtures?.length) {
+                  const expandedFixtures = fixtures
+                    .filter((fixture: any) => {
+                      const hasValidTeams =
+                        fixture.teams?.home?.name && fixture.teams?.away?.name;
+                      const isNotLive = !isLiveMatch(
+                        fixture.fixture.status.short,
+                      );
+                      const isNotDuplicate = !allFixtures.some(
+                        (existing) => existing.fixture.id === fixture.fixture.id,
+                      );
+
+                      return hasValidTeams && isNotLive && isNotDuplicate;
+                    })
+                    .slice(0, 5) // Limit to prevent overwhelming
+                    .map((fixture: any) => ({
+                      fixture: {
+                        id: fixture.fixture.id,
+                        date: fixture.fixture.date,
+                        status: fixture.fixture.status,
+                      },
+                      league: {
+                        id: fixture.league.id,
+                        name: fixture.league.name,
+                        country: fixture.league.country,
+                        logo: fixture.league.logo,
+                      },
+                      teams: {
+                        home: {
+                          id: fixture.teams.home.id,
+                          name: fixture.teams.home.name,
+                          logo: fixture.teams.home.logo,
+                        },
+                        away: {
+                          id: fixture.teams.away.id,
+                          name: fixture.teams.away.name,
+                          logo: fixture.teams.away.logo,
+                        },
+                      },
+                      goals: {
+                        home: fixture.goals?.home ?? null,
+                        away: fixture.goals?.away ?? null,
+                      },
+                    }));
+
+                  allFixtures.push(...expandedFixtures);
+                }
+              } catch (error) {
+                console.error(
+                  `❌ [MyHomeFeaturedMatchNew] Error in expanded search for ${dateInfo.label}:`,
+                  error,
+                );
+              }
+            }
+          }
         }
 
         // Remove duplicates based on fixture ID
@@ -436,6 +506,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         console.log(
           `📋 [MyHomeFeaturedMatchNew] Total unique fixtures found:`,
           uniqueFixtures.length,
+        );
+        console.log(
+          `📋 [MyHomeFeaturedMatchNew] Fixture details:`,
+          uniqueFixtures.map(f => ({
+            id: f.fixture.id,
+            teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+            league: f.league.name,
+            status: f.fixture.status.short,
+            date: f.fixture.date
+          }))
         );
 
         // Group fixtures by date
