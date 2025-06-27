@@ -288,11 +288,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           platform: 'scorebat',
           id: 'embed-feed',
           title: `${homeTeam} vs ${awayTeam} - Football Highlights`,
-          description: 'Live football highlights and match videos from ScoreBat',
+          description: 'Live football highlights and match videos from ScoreBat. Click "Open" to view highlights.',
           thumbnailUrl: '/assets/no-logo-available.png', // Use fallback thumbnail
           channelTitle: 'ScoreBat',
           publishedAt: new Date().toISOString(),
-          watchUrl: 'https://www.scorebat.com'
+          watchUrl: 'https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDE2MTJfMDFmZDg0MWMyNzJkMWM0YTc1ZjEyY2ZjY2RmOGZjNmM3MDg2ZTEyOA=='
         });
         setIsLoading(false);
         return;
@@ -473,14 +473,21 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                       allowFullScreen
                     />
                   ) : videoData.platform === 'scorebat' ? (
-                    <>
+                    <div className="relative w-full h-full">
                       <iframe
                         src="https://www.scorebat.com/embed/videofeed/?token=MjExNjkxXzE3NTEwMDE2MTJfMDFmZDg0MWMyNzJkMWM0YTc1ZjEyY2ZjY2RmOGZjNmM3MDg2ZTEyOA=="
                         title="ScoreBat Football Highlights"
                         className="absolute top-0 left-0 w-full h-full border-0"
                         allow="autoplay; fullscreen"
                         allowFullScreen
+                        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                        referrerPolicy="no-referrer-when-downgrade"
                         style={{ width: '100%', height: '100%', overflow: 'hidden', display: 'block' }}
+                        onError={() => {
+                          console.error('ScoreBat iframe failed to load');
+                          setError('ScoreBat content is blocked. Contact the site owner to fix the issue.');
+                        }}
+                        onLoad={() => console.log('ScoreBat iframe loaded successfully')}
                       />
                       <script
                         dangerouslySetInnerHTML={{
@@ -496,7 +503,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                           `
                         }}
                       />
-                    </>
+                    </div>
                   ) : null}
                 </div>
 
