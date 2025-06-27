@@ -544,7 +544,7 @@
 
 /* Status label hover effects to match card background */
 .match-card-container:hover .match-status-label {
-  background-color: rgb(243 244 246) !important;
+  background-color:transparent !important;
 }
 
 .match-card-container.disable-hover .match-status-label {
