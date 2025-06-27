@@ -96,7 +96,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
 
   // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
-  const leagueIds = [38, 15, 667];
+  const leagueIds = [38, 15, 72, 128, 667]; // Added Brasileirão - Série B (72) and Copa Argentina (128) before Friendlies Clubs
 
   useEffect(() => {
     const fetchLeagueData = async () => {
@@ -472,14 +472,21 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       {/* Create individual league cards - prioritize league 38 first, then 15 */}
       {Object.values(matchesByLeague)
         .sort((a, b) => {
-          // League 38 (UEFA U21) first priority
-          if (a.league.id === 38 && b.league.id !== 38) return -1;
-          if (a.league.id !== 38 && b.league.id === 38) return 1;
-
-          // League 15 (FIFA Club World Cup) second priority
-          if (a.league.id === 15 && b.league.id !== 15) return -1;
-          if (a.league.id !== 15 && b.league.id === 15) return 1;
-
+          // Define priority order
+          const priorityOrder = [38, 15, 72, 128, 667]; // UEFA U21, FIFA Club World Cup, Brasileirão - Série B, Copa Argentina, Friendlies Clubs
+          
+          const aIndex = priorityOrder.indexOf(a.league.id);
+          const bIndex = priorityOrder.indexOf(b.league.id);
+          
+          // If both leagues are in priority list, sort by their position
+          if (aIndex !== -1 && bIndex !== -1) {
+            return aIndex - bIndex;
+          }
+          
+          // If only one is in priority list, prioritize it
+          if (aIndex !== -1) return -1;
+          if (bIndex !== -1) return 1;
+          
           // For other leagues, maintain original order
           return 0;
         })
