@@ -175,20 +175,9 @@ export const setupGlobalErrorHandlers = () => {
       return; // Suppress these warnings
     }
 
-    originalConsoleError.apply(console, args);st message = args.join(' ');
-
-    // Filter out known harmless frame errors and memory warnings
-    if (message.includes('Cannot read properties of undefined (reading \'frame\')') ||
-        message.includes('ErrorOverlay') ||
-        message.includes('vite/client') ||
-        message.includes('MaxListenersExceededWarning') ||
-        message.includes('Possible EventEmitter memory leak')) {
-      return; // Suppress these specific errors
-    }
-
-    // Call original console.error for other errors
     originalConsoleError.apply(console, args);
-  };
+
+    };
 
   console.warn = (...args) => {
     const message = args.join(' ');
