@@ -94,8 +94,13 @@ const MyLMT: React.FC<MyLMTProps> = ({
       if (!window.SIR || !widgetRef.current || widgetInitialized) return;
 
       try {
-        // Use the provided sportradarMatchId or fallback to demo
-        const useMatchId = sportradarMatchId || matchId || 61239863;
+        // Use the provided match ID - no demo fallback for live matches
+        const useMatchId = sportradarMatchId || matchId;
+        
+        if (!useMatchId) {
+          setError('No match ID available');
+          return;
+        }
         
         console.log('Initializing Sportradar widget with match ID:', useMatchId);
         
@@ -184,9 +189,11 @@ const MyLMT: React.FC<MyLMTProps> = ({
                   <p className="text-xs mt-1 opacity-60">
                     {homeTeamData?.name} vs {awayTeamData?.name}
                   </p>
-                  <p className="text-xs mt-1 opacity-40">
-                    Match ID: {sportradarMatchId || matchId || 61239863}
-                  </p>
+                  {(sportradarMatchId || matchId) && (
+                    <p className="text-xs mt-1 opacity-40">
+                      Match ID: {sportradarMatchId || matchId}
+                    </p>
+                  )}
                 </div>
               </div>
             )}
