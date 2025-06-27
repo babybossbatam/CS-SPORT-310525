@@ -696,16 +696,7 @@ const MyMatchdetailsScoreboard = ({
           >
             Trends
           </button>
-          <button 
-            onClick={() => setActiveTab("highlights")}
-            className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
-              activeTab === "highlights" 
-                ? "text-gray-600 border-b border-blue-500" 
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            Highlights
-          </button>
+         
           <button 
             onClick={() => setActiveTab("h2h")}
             className={`flex-0 py-0 px-4 text-sm font-normal pb-0 ${
