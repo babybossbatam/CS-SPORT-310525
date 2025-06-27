@@ -26,6 +26,7 @@ import featuredMatchRoutes from './routes/featuredMatchRoutes';
 import youtubeRoutes from './routes/youtubeRoutes';
 import vimeoRoutes from './routes/vimeoRoutes';
 import dailymotionRoutes from './routes/dailymotionRoutes';
+import twitchRoutes from './routes/twitchRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -38,6 +39,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/youtube', youtubeRoutes);
   app.use('/api/vimeo', vimeoRoutes);
   app.use('/api/dailymotion', dailymotionRoutes);
+  app.use('/api/twitch', twitchRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
@@ -2399,7 +2401,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         success: false, 
         message: 'Flag not found in SportsRadar - using fallback',
         fallbackUrl: '/assets/fallback-logo.svg',
-        shouldExclude: false // Don't exclude, just use fallback
+        shouldExclude: false // Don't exclude, just keep writing the code.
       });
 
     } catch (error) {

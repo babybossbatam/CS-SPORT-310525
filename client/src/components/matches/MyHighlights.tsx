@@ -160,66 +160,132 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   // Alternative platform search when YouTube quota is exceeded
   const searchAlternativePlatforms = async () => {
-    const query = `${homeTeam} vs ${awayTeam} highlights`;
+    const queries = [
+      `${homeTeam} vs ${awayTeam} highlights`,
+      `${homeTeam} ${awayTeam} highlights`,
+      `${homeTeam} vs ${awayTeam}`,
+      `${homeTeam} ${awayTeam} goals`,
+      `${leagueName || ''} highlights ${homeTeam} ${awayTeam}`.trim()
+    ];
     
     try {
-      // Try Vimeo first
-      const vimeoResponse = await fetch(`/api/vimeo/search?q=${encodeURIComponent(query)}&maxResults=5`);
-      const vimeoData = await vimeoResponse.json();
-      
-      if (vimeoData.items && vimeoData.items.length > 0) {
-        const vimeoMatch = vimeoData.items.find((item: any) => {
-          const title = item.title.toLowerCase();
-          return title.includes(homeTeam.toLowerCase()) && title.includes(awayTeam.toLowerCase());
-        });
+      // Try multiple search variations for Vimeo
+      for (const query of queries) {
+        try {
+          const vimeoResponse = await fetch(`/api/vimeo/search?q=${encodeURIComponent(query)}&maxResults=10`);
+          
+          if (vimeoResponse.ok) {
+            const vimeoData = await vimeoResponse.json();
+            
+            if (vimeoData.items && vimeoData.items.length > 0) {
+              // More flexible matching - check for either team name
+              const vimeoMatch = vimeoData.items.find((item: any) => {
+                const title = item.title?.toLowerCase() || '';
+                const homeMatch = title.includes(homeTeam.toLowerCase());
+                const awayMatch = title.includes(awayTeam.toLowerCase());
+                const hasHighlights = title.includes('highlight') || title.includes('goal') || title.includes('vs');
+                
+                return (homeMatch || awayMatch) && hasHighlights;
+              }) || vimeoData.items[0]; // Fallback to first result
 
-        if (vimeoMatch) {
-          setVideoData({
-            platform: 'vimeo',
-            id: vimeoMatch.id,
-            title: vimeoMatch.title,
-            description: vimeoMatch.description,
-            thumbnailUrl: vimeoMatch.thumbnail,
-            channelTitle: vimeoMatch.user_name,
-            publishedAt: vimeoMatch.created_time,
-            watchUrl: vimeoMatch.url
-          });
-          setIsLoading(false);
-          return;
+              if (vimeoMatch && vimeoMatch.title) {
+                setVideoData({
+                  platform: 'vimeo',
+                  id: vimeoMatch.id,
+                  title: vimeoMatch.title,
+                  description: vimeoMatch.description || '',
+                  thumbnailUrl: vimeoMatch.thumbnail || '',
+                  channelTitle: vimeoMatch.user_name || 'Vimeo User',
+                  publishedAt: vimeoMatch.created_time || new Date().toISOString(),
+                  watchUrl: vimeoMatch.url || `https://vimeo.com/${vimeoMatch.id}`
+                });
+                setIsLoading(false);
+                return;
+              }
+            }
+          }
+        } catch (vimeoError) {
+          console.warn(`Vimeo search failed for query "${query}":`, vimeoError);
+          continue;
         }
       }
 
-      // Try Dailymotion as fallback
-      const dailymotionResponse = await fetch(`/api/dailymotion/search?q=${encodeURIComponent(query)}&maxResults=5`);
-      const dailymotionData = await dailymotionResponse.json();
-      
-      if (dailymotionData.items && dailymotionData.items.length > 0) {
-        const dailymotionMatch = dailymotionData.items.find((item: any) => {
-          const title = item.title.toLowerCase();
-          return title.includes(homeTeam.toLowerCase()) && title.includes(awayTeam.toLowerCase());
-        });
+      // Try multiple search variations for Dailymotion
+      for (const query of queries) {
+        try {
+          const dailymotionResponse = await fetch(`/api/dailymotion/search?q=${encodeURIComponent(query)}&maxResults=10`);
+          
+          if (dailymotionResponse.ok) {
+            const dailymotionData = await dailymotionResponse.json();
+            
+            if (dailymotionData.items && dailymotionData.items.length > 0) {
+              // More flexible matching
+              const dailymotionMatch = dailymotionData.items.find((item: any) => {
+                const title = item.title?.toLowerCase() || '';
+                const homeMatch = title.includes(homeTeam.toLowerCase());
+                const awayMatch = title.includes(awayTeam.toLowerCase());
+                const hasHighlights = title.includes('highlight') || title.includes('goal') || title.includes('vs');
+                
+                return (homeMatch || awayMatch) && hasHighlights;
+              }) || dailymotionData.items[0]; // Fallback to first result
 
-        if (dailymotionMatch) {
-          setVideoData({
-            platform: 'dailymotion',
-            id: dailymotionMatch.id,
-            title: dailymotionMatch.title,
-            description: dailymotionMatch.description,
-            thumbnailUrl: dailymotionMatch.thumbnail_240_url,
-            channelTitle: dailymotionMatch.owner,
-            publishedAt: dailymotionMatch.created_time,
-            watchUrl: `https://www.dailymotion.com/video/${dailymotionMatch.id}`
-          });
-          setIsLoading(false);
-          return;
+              if (dailymotionMatch && dailymotionMatch.title) {
+                setVideoData({
+                  platform: 'dailymotion',
+                  id: dailymotionMatch.id,
+                  title: dailymotionMatch.title,
+                  description: dailymotionMatch.description || '',
+                  thumbnailUrl: dailymotionMatch.thumbnail_240_url || '',
+                  channelTitle: dailymotionMatch.owner || 'Dailymotion User',
+                  publishedAt: dailymotionMatch.created_time || new Date().toISOString(),
+                  watchUrl: `https://www.dailymotion.com/video/${dailymotionMatch.id}`
+                });
+                setIsLoading(false);
+                return;
+              }
+            }
+          }
+        } catch (dailymotionError) {
+          console.warn(`Dailymotion search failed for query "${query}":`, dailymotionError);
+          continue;
         }
       }
 
-      // If no alternatives found
-      setError(`No highlight videos found for ${homeTeam} vs ${awayTeam}. YouTube quota exceeded and no alternatives available.`);
+      // Try Twitch as final fallback (currently returns empty results but infrastructure is ready)
+      try {
+        const twitchResponse = await fetch(`/api/twitch/search?q=${encodeURIComponent(queries[0])}&maxResults=5`);
+        
+        if (twitchResponse.ok) {
+          const twitchData = await twitchResponse.json();
+          
+          if (twitchData.items && twitchData.items.length > 0) {
+            const twitchMatch = twitchData.items[0]; // Use first result for now
+            
+            if (twitchMatch && twitchMatch.title) {
+              setVideoData({
+                platform: 'twitch',
+                id: twitchMatch.id,
+                title: twitchMatch.title,
+                description: twitchMatch.description || '',
+                thumbnailUrl: twitchMatch.thumbnail || '',
+                channelTitle: twitchMatch.broadcaster_name || 'Twitch User',
+                publishedAt: twitchMatch.created_at || new Date().toISOString(),
+                watchUrl: twitchMatch.url || `https://www.twitch.tv/videos/${twitchMatch.id}`
+              });
+              setIsLoading(false);
+              return;
+            }
+          }
+        }
+      } catch (twitchError) {
+        console.warn('Twitch search failed:', twitchError);
+      }
+
+      // If no alternatives found after trying all queries
+      setError(`YouTube quota exceeded. Alternative video sources (Vimeo, Dailymotion) didn't return matches for "${homeTeam} vs ${awayTeam}". Try again later when YouTube quota resets.`);
     } catch (altError) {
       console.error('Alternative platform search failed:', altError);
-      setError(`No highlight videos found for ${homeTeam} vs ${awayTeam}. YouTube quota exceeded.`);
+      setError(`YouTube quota exceeded. Alternative video platforms are temporarily unavailable. Quota resets daily at midnight PST.`);
     } finally {
       setIsLoading(false);
     }
@@ -374,6 +440,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   ) : videoData.platform === 'dailymotion' ? (
                     <iframe
                       src={`https://www.dailymotion.com/embed/video/${videoData.id}?autoplay=1`}
+                      title={videoData.title}
+                      className="absolute top-0 left-0 w-full h-full border-0"
+                      allow="autoplay; fullscreen"
+                      allowFullScreen
+                    />
+                  ) : videoData.platform === 'twitch' ? (
+                    <iframe
+                      src={`https://player.twitch.tv/?video=${videoData.id}&parent=${window.location.hostname}&autoplay=true`}
                       title={videoData.title}
                       className="absolute top-0 left-0 w-full h-full border-0"
                       allow="autoplay; fullscreen"
