@@ -1,33 +1,32 @@
-import sharp from 'sharp';
+import sharp from "sharp";
 
 import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { rapidApiService } from "./services/rapidApi";
 
-
-import sportsradarApi from './services/sportsradarApi';
-import soccersApi from './services/soccersApi';
+import sportsradarApi from "./services/sportsradarApi";
+import soccersApi from "./services/soccersApi";
 import { supabaseService } from "./services/supabase";
-import { 
-  insertUserSchema, 
+import {
+  insertUserSchema,
   insertUserPreferencesSchema,
   insertCachedFixturesSchema,
   insertCachedLeaguesSchema,
   insertNewsArticleSchema,
   CachedFixture,
-  NewsArticle
+  NewsArticle,
 } from "@shared/schema";
 import { z } from "zod";
-import { format, addDays, subDays } from 'date-fns';
+import { format, addDays, subDays } from "date-fns";
 // Removing uefaU21Routes import as requested
-import cors from 'cors';
-import featuredMatchRoutes from './routes/featuredMatchRoutes';
-import youtubeRoutes from './routes/youtubeRoutes';
-import vimeoRoutes from './routes/vimeoRoutes';
-import dailymotionRoutes from './routes/dailymotionRoutes';
-import twitchRoutes from './routes/twitchRoutes';
-import highlightsRoutes from './routes/highlightsRoutes';
+import cors from "cors";
+import featuredMatchRoutes from "./routes/featuredMatchRoutes";
+import youtubeRoutes from "./routes/youtubeRoutes";
+import vimeoRoutes from "./routes/vimeoRoutes";
+import dailymotionRoutes from "./routes/dailymotionRoutes";
+import twitchRoutes from "./routes/twitchRoutes";
+import highlightsRoutes from "./routes/highlightsRoutes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -36,30 +35,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Featured match routes for MyHomeFeaturedMatch component
   apiRouter.use("/featured-match", featuredMatchRoutes);
-  app.use('/api/featured-match', featuredMatchRoutes);
-  app.use('/api/youtube', youtubeRoutes);
-  app.use('/api/vimeo', vimeoRoutes);
-  app.use('/api/dailymotion', dailymotionRoutes);
-  app.use('/api/twitch', twitchRoutes);
-  app.use('/api/highlights', highlightsRoutes);
+  app.use("/api/featured-match", featuredMatchRoutes);
+  app.use("/api/youtube", youtubeRoutes);
+  app.use("/api/vimeo", vimeoRoutes);
+  app.use("/api/dailymotion", dailymotionRoutes);
+  app.use("/api/twitch", twitchRoutes);
+  app.use("/api/highlights", highlightsRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
     try {
       // Test database connection
-      await storage.getCachedFixturesByDate(new Date().toISOString().split('T')[0]);
-      res.json({ 
-        status: 'healthy', 
-        database: 'connected',
-        timestamp: new Date().toISOString()
+      await storage.getCachedFixturesByDate(
+        new Date().toISOString().split("T")[0],
+      );
+      res.json({
+        status: "healthy",
+        database: "connected",
+        timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      console.error('Health check failed:', error);
-      res.status(503).json({ 
-        status: 'unhealthy', 
-        database: 'disconnected',
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
+      console.error("Health check failed:", error);
+      res.status(503).json({
+        status: "unhealthy",
+        database: "disconnected",
+        error: error instanceof Error ? error.message : "Unknown error",
+        timestamp: new Date().toISOString(),
       });
     }
   });
@@ -72,7 +73,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(userData.email);
       if (existingUser) {
-        return res.status(409).json({ message: "User with this email already exists" });
+        return res
+          .status(409)
+          .json({ message: "User with this email already exists" });
       }
 
       // Create user in storage
@@ -84,7 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         favoriteTeams: [],
         favoriteLeagues: [],
         favoriteMatches: [],
-        region: "global"
+        region: "global",
       });
 
       // Return user without password
@@ -92,7 +95,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(userWithoutPassword);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
+        return res
+          .status(400)
+          .json({ message: "Invalid data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to register user" });
     }
@@ -103,13 +108,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { username, password } = req.body;
 
       if (!username || !password) {
-        return res.status(400).json({ message: "Username and password are required" });
+        return res
+          .status(400)
+          .json({ message: "Username and password are required" });
       }
 
       const user = await storage.getUserByUsername(username);
 
       if (!user || user.password !== password) {
-        return res.status(401).json({ message: "Invalid username or password" });
+        return res
+          .status(401)
+          .json({ message: "Invalid username or password" });
       }
 
       // Return user without password
@@ -121,100 +130,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User preferences routes
-  apiRouter.get("/user/:userId/preferences", async (req: Request, res: Response) => {
-    try {
-      const userId = parseInt(req.params.userId);
+  apiRouter.get(
+    "/user/:userId/preferences",
+    async (req: Request, res: Response) => {
+      try {
+        const userId = parseInt(req.params.userId);
 
-      if (isNaN(userId)) {
-        return res.status(400).json({ message: "Invalid user ID" });
+        if (isNaN(userId)) {
+          return res.status(400).json({ message: "Invalid user ID" });
+        }
+
+        let preferences = await storage.getUserPreferences(userId);
+
+        // If preferences don't exist, create default preferences
+        if (!preferences) {
+          // Check if user exists first
+          const user = await storage.getUser(userId);
+
+          if (!user) {
+            // For demo purposes, we'll create a default preferences without checking for user existence
+            // In production, you would return a 404 if the user doesn't exist
+
+            const defaultPreferences = {
+              userId,
+              favoriteTeams: [33, 42, 49], // Default to Manchester United, Arsenal, Chelsea
+              favoriteLeagues: [39, 2, 140], // Default to Premier League, Champions League, La Liga
+              notifications: true,
+              theme: "light",
+              region: "global",
+            };
+
+            preferences =
+              await storage.createUserPreferences(defaultPreferences);
+          } else {
+            // Create preferences for existing user
+            preferences = await storage.createUserPreferences({
+              userId,
+              favoriteTeams: [],
+              favoriteLeagues: [],
+              notifications: true,
+              theme: "light",
+              region: "global",
+            });
+          }
+        }
+
+        res.json(preferences);
+      } catch (error) {
+        console.error("Error fetching user preferences:", error);
+        res.status(500).json({ message: "Failed to fetch user preferences" });
       }
+    },
+  );
 
-      let preferences = await storage.getUserPreferences(userId);
+  apiRouter.patch(
+    "/user/:userId/preferences",
+    async (req: Request, res: Response) => {
+      try {
+        const userId = parseInt(req.params.userId);
 
-      // If preferences don't exist, create default preferences
-      if (!preferences) {
-        // Check if user exists first
-        const user = await storage.getUser(userId);
+        if (isNaN(userId)) {
+          return res.status(400).json({ message: "Invalid user ID" });
+        }
 
-        if (!user) {
-          // For demo purposes, we'll create a default preferences without checking for user existence
-          // In production, you would return a 404 if the user doesn't exist
+        // Partial validation of preferences
+        const preferencesData = req.body;
 
-          const defaultPreferences = {
-            userId,
-            favoriteTeams: [33, 42, 49], // Default to Manchester United, Arsenal, Chelsea
-            favoriteLeagues: [39, 2, 140], // Default to Premier League, Champions League, La Liga
-            notifications: true,
-            theme: 'light',
-            region: 'global'
-          };
+        // Check if preferences exist
+        let preferences = await storage.getUserPreferences(userId);
 
-          preferences = await storage.createUserPreferences(defaultPreferences);
-        } else {
-          // Create preferences for existing user
+        if (!preferences) {
+          // Create default preferences first
           preferences = await storage.createUserPreferences({
             userId,
             favoriteTeams: [],
             favoriteLeagues: [],
             notifications: true,
-            theme: 'light',
-            region: 'global'
+            theme: "light",
+            region: "global",
+            ...preferencesData, // Apply the requested changes to new preferences
           });
+
+          return res.status(201).json(preferences);
         }
-      }
 
-      res.json(preferences);
-    } catch (error) {
-      console.error("Error fetching user preferences:", error);
-      res.status(500).json({ message: "Failed to fetch user preferences" });
-    }
-  });
-
-  apiRouter.patch("/user/:userId/preferences", async (req: Request, res: Response) => {
-    try {
-      const userId = parseInt(req.params.userId);
-
-      if (isNaN(userId)) {
-        return res.status(400).json({ message: "Invalid user ID" });
-      }
-
-      // Partial validation of preferences
-      const preferencesData = req.body;
-
-      // Check if preferences exist
-      let preferences = await storage.getUserPreferences(userId);
-
-      if (!preferences) {
-        // Create default preferences first
-        preferences = await storage.createUserPreferences({
+        // Update existing preferences
+        const updatedPreferences = await storage.updateUserPreferences(
           userId,
-          favoriteTeams: [],
-          favoriteLeagues: [],
-          notifications: true,
-          theme: 'light',
-          region: 'global',
-          ...preferencesData // Apply the requested changes to new preferences
-        });
+          preferencesData,
+        );
 
-        return res.status(201).json(preferences);
+        if (!updatedPreferences) {
+          return res
+            .status(404)
+            .json({ message: "Failed to update user preferences" });
+        }
+
+        res.json(updatedPreferences);
+      } catch (error) {
+        console.error("Error updating user preferences:", error);
+        if (error instanceof z.ZodError) {
+          return res
+            .status(400)
+            .json({ message: "Invalid data", errors: error.errors });
+        }
+        res.status(500).json({ message: "Failed to update user preferences" });
       }
-
-      // Update existing preferences
-      const updatedPreferences = await storage.updateUserPreferences(userId, preferencesData);
-
-      if (!updatedPreferences) {
-        return res.status(404).json({ message: "Failed to update user preferences" });
-      }
-
-      res.json(updatedPreferences);
-    } catch (error) {
-      console.error("Error updating user preferences:", error);
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
-      }
-      res.status(500).json({ message: "Failed to update user preferences" });
-    }
-  });
+    },
+  );
 
   // Football API routes - Using API-Football
   apiRouter.get("/fixtures/live", async (req: Request, res: Response) => {
@@ -224,18 +247,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Use API-Football (RapidAPI) only
       try {
         const fixtures = await rapidApiService.getLiveFixtures();
-        console.log(`Retrieved ${fixtures.length} live fixtures from RapidAPI ${skipFilter ? '(SKIP FILTER MODE)' : ''}`);
+        console.log(
+          `Retrieved ${fixtures.length} live fixtures from RapidAPI ${skipFilter ? "(SKIP FILTER MODE)" : ""}`,
+        );
 
         // NO CACHING for live fixtures - they need real-time updates
-        console.log(`🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`);
+        console.log(
+          `🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`,
+        );
 
         // Only cache ended matches from the live response
-        const endedMatches = fixtures.filter(fixture => 
-          ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC'].includes(fixture.fixture.status.short)
+        const endedMatches = fixtures.filter((fixture) =>
+          ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC"].includes(
+            fixture.fixture.status.short,
+          ),
         );
 
         if (endedMatches.length > 0) {
-          console.log(`💾 [LIVE API] Caching ${endedMatches.length} ended matches from live response`);
+          console.log(
+            `💾 [LIVE API] Caching ${endedMatches.length} ended matches from live response`,
+          );
           for (const fixture of endedMatches) {
             try {
               const fixtureId = fixture.fixture.id.toString();
@@ -246,27 +277,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
               } else {
                 await storage.createCachedFixture({
                   fixtureId: fixtureId,
-                  date: new Date().toISOString().split('T')[0],
+                  date: new Date().toISOString().split("T")[0],
                   league: fixture.league.id.toString(),
-                  data: fixture
+                  data: fixture,
                 });
               }
             } catch (cacheError) {
-              console.error(`Error caching ended fixture ${fixture.fixture.id}:`, cacheError);
+              console.error(
+                `Error caching ended fixture ${fixture.fixture.id}:`,
+                cacheError,
+              );
             }
           }
         }
 
         return res.json(fixtures);
       } catch (rapidApiError) {
-        console.error('RapidAPI error for live fixtures:', rapidApiError);
+        console.error("RapidAPI error for live fixtures:", rapidApiError);
 
         // If API fails, return empty array for live fixtures - no stale cache for live matches
-        console.log(`❌ [LIVE API] RapidAPI failed for live fixtures - returning empty array (no stale cache for live data)`);
+        console.log(
+          `❌ [LIVE API] RapidAPI failed for live fixtures - returning empty array (no stale cache for live data)`,
+        );
         return res.json([]);
       }
     } catch (error) {
-      console.error('Error fetching live fixtures:', error);
+      console.error("Error fetching live fixtures:", error);
       res.status(500).json({ message: "Failed to fetch live fixtures" });
     }
   });
@@ -279,21 +315,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate date format first
       if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
         console.log(`❌ [Routes] Invalid date format: ${date}`);
-        return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+        return res
+          .status(400)
+          .json({ error: "Invalid date format. Use YYYY-MM-DD" });
       }
 
       // Additional date validation - ensure it's a valid date
       const dateObj = new Date(date);
-      if (isNaN(dateObj.getTime()) || dateObj.toISOString().split('T')[0] !== date) {
+      if (
+        isNaN(dateObj.getTime()) ||
+        dateObj.toISOString().split("T")[0] !== date
+      ) {
         console.log(`❌ [Routes] Invalid date value: ${date}`);
-        return res.status(400).json({ error: 'Invalid date value' });
+        return res.status(400).json({ error: "Invalid date value" });
       }
 
-      console.log(`🎯 [Routes] Processing multi-timezone request for date: ${date} (all=${all})`);
-    console.log(`🎯 [Routes] Current server date: ${new Date().toISOString()}, requested date: ${date}`);
+      console.log(
+        `🎯 [Routes] Processing multi-timezone request for date: ${date} (all=${all})`,
+      );
+      console.log(
+        `🎯 [Routes] Current server date: ${new Date().toISOString()}, requested date: ${date}`,
+      );
 
       // Enhanced cache checking - check multiple cache layers
-      const cacheKey = all === 'true' ? `multi-tz-all:${date}` : `multi-tz:${date}`;
+      const cacheKey =
+        all === "true" ? `multi-tz-all:${date}` : `multi-tz:${date}`;
       const simpleCacheKey = `fixtures-date:${date}`;
 
       // First check dedicated multi-timezone cache
@@ -302,7 +348,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If not found, check simple date-based cache
       if (!cachedFixtures || cachedFixtures.length === 0) {
         cachedFixtures = await storage.getCachedFixturesByDate(date);
-        console.log(`🔄 [Routes] Fallback to date cache for ${date}: ${cachedFixtures.length} fixtures found`);
+        console.log(
+          `🔄 [Routes] Fallback to date cache for ${date}: ${cachedFixtures.length} fixtures found`,
+        );
       }
 
       if (cachedFixtures && cachedFixtures.length > 0) {
@@ -311,29 +359,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cacheAge = now.getTime() - cacheTime.getTime();
 
         // Use smart cache durations based on date - EXTENDED CACHE TIMES
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toISOString().split("T")[0];
         const isPastDate = date < today;
         const isToday = date === today;
 
         // Past dates: 7 days cache (matches are finished and stable)
         // Today: 2 hours cache (only live matches need frequent updates)
         // Future dates: 12 hours cache (schedules rarely change)
-        const maxCacheAge = isPastDate ? 7 * 24 * 60 * 60 * 1000 : 
-                       isToday ? 2 * 60 * 60 * 1000 : 
-                       12 * 60 * 60 * 1000;
+        const maxCacheAge = isPastDate
+          ? 7 * 24 * 60 * 60 * 1000
+          : isToday
+            ? 2 * 60 * 60 * 1000
+            : 12 * 60 * 60 * 1000;
 
         if (cacheAge < maxCacheAge) {
-          console.log(`✅ [Routes] Returning ${cachedFixtures.length} cached fixtures for date ${date} (age: ${Math.round(cacheAge / 60000)}min, maxAge: ${Math.round(maxCacheAge / 60000)}min)`);
-          return res.json(cachedFixtures.map(fixture => fixture.data));
+          console.log(
+            `✅ [Routes] Returning ${cachedFixtures.length} cached fixtures for date ${date} (age: ${Math.round(cacheAge / 60000)}min, maxAge: ${Math.round(maxCacheAge / 60000)}min)`,
+          );
+          return res.json(cachedFixtures.map((fixture) => fixture.data));
         } else {
-          console.log(`⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxCacheAge / 60000)}min)`);
+          console.log(
+            `⏰ [Routes] Cache expired for date ${date} (age: ${Math.round(cacheAge / 60000)}min > maxAge: ${Math.round(maxCacheAge / 60000)}min)`,
+          );
         }
       }
 
       let fetchedFreshData = false;
 
       // Calculate date ranges for multiple timezones
-      const targetDate = new Date(date + 'T00:00:00Z');
+      const targetDate = new Date(date + "T00:00:00Z");
       const previousDay = new Date(targetDate);
       previousDay.setDate(previousDay.getDate() - 1);
       const nextDay = new Date(targetDate);
@@ -341,12 +395,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Format dates for API calls
       const datesToFetch = [
-        previousDay.toISOString().split('T')[0],
+        previousDay.toISOString().split("T")[0],
         date,
-        nextDay.toISOString().split('T')[0]
+        nextDay.toISOString().split("T")[0],
       ];
 
-      console.log(`🌍 [Routes] Fetching fixtures for multi-timezone coverage:`, datesToFetch);
+      console.log(
+        `🌍 [Routes] Fetching fixtures for multi-timezone coverage:`,
+        datesToFetch,
+      );
 
       let allFixtures: any[] = [];
 
@@ -355,17 +412,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           let dateFixtures: any[] = [];
 
-          if (all === 'true') {
-            dateFixtures = await rapidApiService.getFixturesByDate(fetchDate, true);
+          if (all === "true") {
+            dateFixtures = await rapidApiService.getFixturesByDate(
+              fetchDate,
+              true,
+            );
             fetchedFreshData = true;
           } else {
             const popularLeagues = [2, 3, 15, 39, 140, 135, 78, 848];
-            dateFixtures = await rapidApiService.getFixturesByDate(fetchDate, false);
-            dateFixtures = dateFixtures.filter(fixture => popularLeagues.includes(fixture.league.id));
+            dateFixtures = await rapidApiService.getFixturesByDate(
+              fetchDate,
+              false,
+            );
+            dateFixtures = dateFixtures.filter((fixture) =>
+              popularLeagues.includes(fixture.league.id),
+            );
             fetchedFreshData = true;
           }
 
-          console.log(`📅 [Routes] Got ${dateFixtures.length} fixtures for ${fetchDate}`);
+          console.log(
+            `📅 [Routes] Got ${dateFixtures.length} fixtures for ${fetchDate}`,
+          );
           allFixtures = [...allFixtures, ...dateFixtures];
         } catch (error) {
           console.error(`Error fetching fixtures for ${fetchDate}:`, error);
@@ -374,63 +441,88 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Remove duplicates based on fixture ID
-      const uniqueFixtures = allFixtures.filter((fixture, index, self) => 
-        index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
+      const uniqueFixtures = allFixtures.filter(
+        (fixture, index, self) =>
+          index === self.findIndex((f) => f.fixture.id === fixture.fixture.id),
       );
 
-      console.log(`📊 [Routes] Multi-timezone fetch results: ${allFixtures.length} total, ${uniqueFixtures.length} unique fixtures`);
+      console.log(
+        `📊 [Routes] Multi-timezone fetch results: ${allFixtures.length} total, ${uniqueFixtures.length} unique fixtures`,
+      );
 
       // Cache the multi-timezone fixtures with World competition priority (only for fresh data)
-      if (fetchedFreshData && allFixtures.length > 0) { // Only cache if we fetched fresh data
+      if (fetchedFreshData && allFixtures.length > 0) {
+        // Only cache if we fetched fresh data
         for (const fixture of uniqueFixtures) {
           try {
             const fixtureId = `${cacheKey}:${fixture.fixture.id}`;
-            const isWorldFixture = fixture.league?.country === 'World' || 
-                                  fixture.league?.country === 'Europe' ||
-                                  fixture.league?.name?.toLowerCase().includes('fifa') ||
-                                  fixture.league?.name?.toLowerCase().includes('uefa');
+            const isWorldFixture =
+              fixture.league?.country === "World" ||
+              fixture.league?.country === "Europe" ||
+              fixture.league?.name?.toLowerCase().includes("fifa") ||
+              fixture.league?.name?.toLowerCase().includes("uefa");
 
             const existingFixture = await storage.getCachedFixture(fixtureId);
 
             if (existingFixture) {
               await storage.updateCachedFixture(fixtureId, fixture);
               // Only log World competition updates for LIVE matches to reduce noise
-              if (isWorldFixture && ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P'].includes(fixture.fixture?.status?.short)) {
-                console.log(`🌍 [Routes] Updated LIVE World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.fixture.status.short})`);
+              if (
+                isWorldFixture &&
+                ["LIVE", "1H", "HT", "2H", "ET", "BT", "P"].includes(
+                  fixture.fixture?.status?.short,
+                )
+              ) {
+                console.log(
+                  `🌍 [Routes] Updated LIVE World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.fixture.status.short})`,
+                );
               }
             } else {
               await storage.createCachedFixture({
                 fixtureId: fixtureId,
                 data: fixture,
                 league: cacheKey,
-                date: date
+                date: date,
               });
               // Only log new World fixtures on first cache, not every refresh
               if (isWorldFixture) {
-                console.log(`🌍 [Routes] Cached new World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🌍 [Routes] Cached new World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
               }
             }
           } catch (error) {
             const individualError = error as Error;
-            console.error(`Error caching fixture ${fixture.fixture.id}:`, individualError.message);
+            console.error(
+              `Error caching fixture ${fixture.fixture.id}:`,
+              individualError.message,
+            );
           }
         }
       } else if (!fetchedFreshData) {
-        console.log(`📦 [Routes] Skipped caching - using existing cached data for ${date}`);
+        console.log(
+          `📦 [Routes] Skipped caching - using existing cached data for ${date}`,
+        );
       }
 
-      console.log(`✅ [Routes] Returning ${uniqueFixtures.length} multi-timezone fixtures for ${date}`);
+      console.log(
+        `✅ [Routes] Returning ${uniqueFixtures.length} multi-timezone fixtures for ${date}`,
+      );
       return res.json(uniqueFixtures);
       // Fallback to cached fixtures if API fails
       if (cachedFixtures && cachedFixtures.length > 0) {
-        console.log(`📦 [Routes] Returning ${cachedFixtures.length} stale cached fixtures for ${date}`);
-        return res.json(cachedFixtures.map(fixture => fixture.data));
+        console.log(
+          `📦 [Routes] Returning ${cachedFixtures.length} stale cached fixtures for ${date}`,
+        );
+        return res.json(cachedFixtures.map((fixture) => fixture.data));
       }
 
-      console.log(`📭 [Routes] No fixtures found for multi-timezone request: ${date}`);
+      console.log(
+        `📭 [Routes] No fixtures found for multi-timezone request: ${date}`,
+      );
       return res.json([]);
     } catch (error) {
-      console.error('Error fetching multi-timezone fixtures:', error);
+      console.error("Error fetching multi-timezone fixtures:", error);
       return res.json([]);
     }
   });
@@ -452,7 +544,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cacheTime = new Date(cachedFixture.timestamp);
         const cacheAge = now.getTime() - cacheTime.getTime();
 
-        if (cacheAge < 60 * 60 * 1000) { // 1 hour (increased from 5 minutes)
+        if (cacheAge < 60 * 60 * 1000) {
+          // 1 hour (increased from 5 minutes)
           return res.json(cachedFixture.data);
         }
       }
@@ -478,7 +571,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             fixtureId: id.toString(),
             data: fixture,
             league: fixture.league.id.toString(),
-            date: new Date(fixture.fixture.date).toISOString().split('T')[0]
+            date: new Date(fixture.fixture.date).toISOString().split("T")[0],
           });
         }
       } catch (cacheError) {
@@ -488,15 +581,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(fixture);
     } catch (error) {
-      console.error('Error fetching fixture:', error);
+      console.error("Error fetching fixture:", error);
       res.status(500).json({ message: "Failed to fetch fixture" });
     }
   });
 
   // Get popular leagues endpoint - MUST be before parameterized routes
-  apiRouter.get('/leagues/popular', async (req: Request, res: Response) => {
+  apiRouter.get("/leagues/popular", async (req: Request, res: Response) => {
     try {
-      console.log('API: Fetching popular leagues');
+      console.log("API: Fetching popular leagues");
 
       // Try to get from cached leagues first
       const allLeagues = await storage.getAllCachedLeagues();
@@ -564,20 +657,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { id: 137, priority: 18 }, // Coppa Italia
         { id: 45, priority: 19 }, // FA Cup
         { id: 40, priority: 20 }, // Community Shield
-        { id: 48, priority: 21 } // EFL Cup
+        { id: 48, priority: 21 }, // EFL Cup
       ];
 
       // If we have cached leagues, filter and sort them
       if (allLeagues && allLeagues.length > 0) {
         const popularLeagues = popularLeagueIds
           .map(({ id, priority }) => {
-            const league = allLeagues.find((l: any) => l.data?.league?.id === id);
+            const league = allLeagues.find(
+              (l: any) => l.data?.league?.id === id,
+            );
             return league && league.data ? { ...league.data, priority } : null;
           })
           .filter((item): item is any => Boolean(item))
           .sort((a: any, b: any) => (a?.priority || 0) - (b?.priority || 0));
 
-        console.log(`API: Returning ${popularLeagues.length} popular leagues from cache`);
+        console.log(
+          `API: Returning ${popularLeagues.length} popular leagues from cache`,
+        );
         return res.json(popularLeagues);
       }
 
@@ -591,11 +688,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .filter((item): item is any => Boolean(item))
         .sort((a: any, b: any) => (a?.priority || 0) - (b?.priority || 0));
 
-      console.log(`API: Returning ${popularLeagues.length} popular leagues from API`);
+      console.log(
+        `API: Returning ${popularLeagues.length} popular leagues from API`,
+      );
       res.json(popularLeagues);
     } catch (error) {
-      console.error('Error fetching popular leagues:', error);
-      res.status(500).json({ error: 'Failed to fetch popular leagues' });
+      console.error("Error fetching popular leagues:", error);
+      res.status(500).json({ error: "Failed to fetch popular leagues" });
     }
   });
 
@@ -606,7 +705,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (cachedLeagues && cachedLeagues.length > 0) {
         // Transform to the expected format
-        const leagues = cachedLeagues.map(league => league.data);
+        const leagues = cachedLeagues.map((league) => league.data);
         return res.json(leagues);
       }
 
@@ -626,25 +725,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
               } else {
                 await storage.createCachedLeague({
                   leagueId: leagueId,
-                  data: league
+                  data: league,
                 });
               }
             } catch (individualError) {
               // Log and continue with other leagues
-              console.error(`Error caching league ${league.league.id}:`, individualError);
+              console.error(
+                `Error caching league ${league.league.id}:`,
+                individualError,
+              );
             }
           }
         } catch (cacheError) {
-          console.error('Error caching leagues from RapidAPI:', cacheError);
+          console.error("Error caching leagues from RapidAPI:", cacheError);
         }
 
         return res.json(leagues);
       } catch (rapidApiError) {
-        console.error('RapidAPI error for leagues:', rapidApiError);
+        console.error("RapidAPI error for leagues:", rapidApiError);
 
         // If we reached here, try to use any cached leagues we have
         if (cachedLeagues && cachedLeagues.length > 0) {
-          const leagues = cachedLeagues.map(league => league.data);
+          const leagues = cachedLeagues.map((league) => league.data);
           return res.json(leagues);
         }
 
@@ -656,13 +758,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
               name: "Premier League",
               type: "League",
               logo: "https://media.api-sports.io/football/leagues/39.png",
-              country: "England"
+              country: "England",
             },
             country: {
               name: "England",
               code: "GB",
-              flag: "https://media.api-sports.io/flags/gb.svg"
-            }
+              flag: "https://media.api-sports.io/flags/gb.svg",
+            },
           },
           {
             league: {
@@ -670,12 +772,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
               name: "Bundesliga",
               type: "League",
               logo: "https://media.api-sports.io/football/leagues/78.png",
-              country: "Germany"
+              country: "Germany",
             },
             country: {
               name: "Germany",
               code: "DE",
-              flag: "https://media.api-sports.io/flags/de.svg"
+              flag: "https://media.api-sports.io/flags/de.svg",
             },
           },
           {
@@ -684,23 +786,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
               name: "UEFA Champions League",
               type: "Cup",
               logo: "https://media.api-sports.io/football/leagues/2.png",
-              country: "World"
+              country: "World",
             },
             country: {
               name: "World",
               code: "WO",
-              flag: "https://media.api-sports.io/flags/wo.svg"
-            }
-          }
+              flag: "https://media.api-sports.io/flags/wo.svg",
+            },
+          },
         ]);
       }
     } catch (error) {
-      console.error('Error fetching leagues:', error);
+      console.error("Error fetching leagues:", error);
       // Return cached data if available as a fallback
       const cachedLeagues = await storage.getAllCachedLeagues();
 
       if (cachedLeagues && cachedLeagues.length > 0) {
-        const leagues = cachedLeagues.map(league => league.data);
+        const leagues = cachedLeagues.map((league) => league.data);
         return res.json(leagues);
       }
 
@@ -713,8 +815,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
 
-      if (isNaN(id) || !req.params.id || req.params.id.trim() === '') {
-        return res.status(400).json({ message: 'Invalid league ID' });
+      if (isNaN(id) || !req.params.id || req.params.id.trim() === "") {
+        return res.status(400).json({ message: "Invalid league ID" });
       }
 
       // Check cache first
@@ -726,7 +828,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const cacheTime = new Date(cachedLeague.timestamp);
         const cacheAge = now.getTime() - cacheTime.getTime();
 
-        if (cacheAge < 4 * 60 * 60 * 1000) { // 4 hours (increased from 1 hour)
+        if (cacheAge < 4 * 60 * 60 * 1000) {
+          // 4 hours (increased from 1 hour)
           return res.json(cachedLeague.data);
         }
       }
@@ -750,7 +853,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } else {
           await storage.createCachedLeague({
             leagueId: id.toString(),
-            data: league
+            data: league,
           });
         }
       } catch (cacheError) {
@@ -759,404 +862,520 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json(league);
-    }```tool_code
-// Applying the changes to add highlights routes to the main router and register them.
-//Adding highlights routes to main router
-//Register highlights routes
+
+      // Applying the changes to add highlights routes to the main router and register them.
+      //Adding highlights routes to main router
+      //Register highlights routes
     } catch (error) {
       console.error(`Error fetching league with ID ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to fetch league" });
     }
   });
 
-  apiRouter.get("/leagues/:id/fixtures", async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      const { skipFilter } = req.query;
-
-      // Calculate current season based on date
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
-      // If we're in the second half of the year, use next year as season
-      const currentSeason = currentMonth >= 7 ? 
-        currentDate.getFullYear() + 1 : 
-        currentDate.getFullYear();
-      const season = parseInt(req.query.season as string) || currentSeason;
-
-      if (isNaN(id) || !req.params.id ||req.params.id.trim() === '') {
-        return res.status(400).json({ message: 'Invalid league ID' });
-      }
-
-      // Check cache first with 2 hour duration for league fixtures
-      const cacheKey = `league-fixtures-${id}-${season}`;
-      const cachedFixtures = await storage.getCachedFixture(cacheKey);
-
-      if (cachedFixtures) {
-        const now = new Date();
-        const cacheTime = new Date(cachedFixtures.timestamp);
-        const cacheAge = now.getTime() - cacheTime.getTime();
-
-        // Use 2 hour cache for league fixtures
-        if (cacheAge < 2 * 60 * 60 * 100) {
-          console.log(`Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
-          return res.json(cachedFixtures.data);
-        }
-      }
-
-      console.log(`Fetching fresh fixtures for league ${id} with fixed season ${season}`);
-
-      // Use API-Football (RapidAPI) only
-      const fixtures = await rapidApiService.getFixturesByLeague(id, season);
-      console.log(`Received ${fixtures ? fixtures.length : 0} fixtures for league ${id} from RapidAPI`);
-
-      // Cache the fixtures data
+  apiRouter.get(
+    "/leagues/:id/fixtures",
+    async (req: Request, res: Response) => {
       try {
+        const id = parseInt(req.params.id);
+        const { skipFilter } = req.query;
+
+        // Calculate current season based on date
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
+        // If we're in the second half of the year, use next year as season
+        const currentSeason =
+          currentMonth >= 7
+            ? currentDate.getFullYear() + 1
+            : currentDate.getFullYear();
+        const season = parseInt(req.query.season as string) || currentSeason;
+
+        if (isNaN(id) || !req.params.id || req.params.id.trim() === "") {
+          return res.status(400).json({ message: "Invalid league ID" });
+        }
+
+        // Check cache first with 2 hour duration for league fixtures
+        const cacheKey = `league-fixtures-${id}-${season}`;
+        const cachedFixtures = await storage.getCachedFixture(cacheKey);
+
         if (cachedFixtures) {
-          await storage.updateCachedFixture(cacheKey, fixtures);
-        } else {
-          await storage.createCachedFixture({
-            fixtureId: cacheKey,
-            data: fixtures,
-            league: id.toString(),
-            date: new Date().toISOString().split('T')[0]
-          });
+          const now = new Date();
+          const cacheTime = new Date(cachedFixtures.timestamp);
+          const cacheAge = now.getTime() - cacheTime.getTime();
+
+          // Use 2 hour cache for league fixtures
+          if (cacheAge < 2 * 60 * 60 * 100) {
+            console.log(
+              `Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`,
+            );
+            return res.json(cachedFixtures.data);
+          }
         }
-      } catch (cacheError) {
-        console.error(`Error caching fixtures for league ${id}:`, cacheError);
-      }
 
-      res.json(fixtures);
-    } catch (error) {
-      console.error(`Error fetching fixtures for league ID ${req.params.id}:`, error);
-      res.status(500).json({ message: "Failed to fetch league fixtures" });
-    }
-  });
+        console.log(
+          `Fetching fresh fixtures for league ${id} with fixed season ${season}`,
+        );
 
-  apiRouter.get("/leagues/:id/topscorers", async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      // Calculate current season based on date
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
-      // If we're in the second half of the year, use next year as season
-      const currentSeason = currentMonth >= 7 ? 
-        currentDate.getFullYear() + 1 : 
-        currentDate.getFullYear();
-      const season = parseInt(req.query.season as string) || currentSeason;
+        // Use API-Football (RapidAPI) only
+        const fixtures = await rapidApiService.getFixturesByLeague(id, season);
+        console.log(
+          `Received ${fixtures ? fixtures.length : 0} fixtures for league ${id} from RapidAPI`,
+        );
 
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid league ID" });
-      }
-
-      // Check cache first with longer duration for top scorers
-      const cacheKey = `topscorers-${id}-${season}`;
-      const cachedTopScorers = await storage.getCachedFixture(cacheKey);
-
-      if (cachedTopScorers) {
-        const now = new Date();
-        const cacheTime = new Date(cachedTopScorers.timestamp);
-        const cacheAge = now.getTime() - cacheTime.getTime();
-
-        // Use 2 hour cache for top scorers for better performance
-        if (cacheAge < 2 * 60 * 60 * 1000) {
-          console.log(`Using cached top scorers for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
-          return res.json(cachedTopScorers.data);
+        // Cache the fixtures data
+        try {
+          if (cachedFixtures) {
+            await storage.updateCachedFixture(cacheKey, fixtures);
+          } else {
+            await storage.createCachedFixture({
+              fixtureId: cacheKey,
+              data: fixtures,
+              league: id.toString(),
+              date: new Date().toISOString().split("T")[0],
+            });
+          }
+        } catch (cacheError) {
+          console.error(`Error caching fixtures for league ${id}:`, cacheError);
         }
+
+        res.json(fixtures);
+      } catch (error) {
+        console.error(
+          `Error fetching fixtures for league ID ${req.params.id}:`,
+          error,
+        );
+        res.status(500).json({ message: "Failed to fetch league fixtures" });
       }
+    },
+  );
 
-      console.log(`Fetching fresh top scorers for league ${id} with fixed season ${season}`);
-
-      // Use API-Football (RapidAPI) only
-      const topScorers = await rapidApiService.getTopScorers(id, season);
-      console.log(`Received top scorers data for league ${id} from RapidAPI`);
-
-      // Cache the top scorers data
+  apiRouter.get(
+    "/leagues/:id/topscorers",
+    async (req: Request, res: Response) => {
       try {
-        if (cachedTopScorers) {
-          await storage.updateCachedFixture(cacheKey, topScorers);
-        } else {
-          await storage.createCachedFixture({
-            fixtureId: cacheKey,
-            data: topScorers,
-            league: id.toString(),
-            date: new Date().toISOString().split('T')[0]
-          });
-        }
-      } catch (cacheError) {
-        console.error(`Error caching top scorers for league ${id}:`, cacheError);
-      }
+        const id = parseInt(req.params.id);
+        // Calculate current season based on date
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
+        // If we're in the second half of the year, use next year as season
+        const currentSeason =
+          currentMonth >= 7
+            ? currentDate.getFullYear() + 1
+            : currentDate.getFullYear();
+        const season = parseInt(req.query.season as string) || currentSeason;
 
-      res.json(topScorers);
-    } catch (error) {
-      console.error(`Error fetching top scorers for league ID ${req.params.id}:`, error);
-      res.status(500).json({ message: "Failed to fetch top scorers" });
-    }
-  });
+        if (isNaN(id)) {
+          return res.status(400).json({ message: "Invalid league ID" });
+        }
+
+        // Check cache first with longer duration for top scorers
+        const cacheKey = `topscorers-${id}-${season}`;
+        const cachedTopScorers = await storage.getCachedFixture(cacheKey);
+
+        if (cachedTopScorers) {
+          const now = new Date();
+          const cacheTime = new Date(cachedTopScorers.timestamp);
+          const cacheAge = now.getTime() - cacheTime.getTime();
+
+          // Use 2 hour cache for top scorers for better performance
+          if (cacheAge < 2 * 60 * 60 * 1000) {
+            console.log(
+              `Using cached top scorers for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`,
+            );
+            return res.json(cachedTopScorers.data);
+          }
+        }
+
+        console.log(
+          `Fetching fresh top scorers for league ${id} with fixed season ${season}`,
+        );
+
+        // Use API-Football (RapidAPI) only
+        const topScorers = await rapidApiService.getTopScorers(id, season);
+        console.log(`Received top scorers data for league ${id} from RapidAPI`);
+
+        // Cache the top scorers data
+        try {
+          if (cachedTopScorers) {
+            await storage.updateCachedFixture(cacheKey, topScorers);
+          } else {
+            await storage.createCachedFixture({
+              fixtureId: cacheKey,
+              data: topScorers,
+              league: id.toString(),
+              date: new Date().toISOString().split("T")[0],
+            });
+          }
+        } catch (cacheError) {
+          console.error(
+            `Error caching top scorers for league ${id}:`,
+            cacheError,
+          );
+        }
+
+        res.json(topScorers);
+      } catch (error) {
+        console.error(
+          `Error fetching top scorers for league ID ${req.params.id}:`,
+          error,
+        );
+        res.status(500).json({ message: "Failed to fetch top scorers" });
+      }
+    },
+  );
 
   // New endpoint for league standings
-  apiRouter.get("/leagues/:id/standings", async (req: Request, res: Response) => {
-    try {
-      const id = parseInt(req.params.id);
-      // Calculate current season based on date
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
-      // If we're in the second half of the year, use next year as season
-      const currentSeason = currentMonth >= 7 ? 
-        currentDate.getFullYear() + 1 : 
-        currentDate.getFullYear();
-      const season = parseInt(req.query.season as string) || currentSeason;
-
-      if (isNaN(id) || !req.params.id || req.params.id.trim() === '') {
-        return res.status(400).json({ message: 'Invalid league ID' });
-      }
-
-      // Check cache first with 4 hour duration for standings
-      const cacheKey = `standings-${id}-${season}`;
-      const cachedStandings = await storage.getCachedFixture(cacheKey);
-
-      if (cachedStandings) {
-        const now = new Date();
-        const cacheTime = new Date(cachedStandings.timestamp);
-        const cacheAge = now.getTime() - cacheTime.getTime();
-
-        // Use 4 hour cache for standings
-        if (cacheAge < 4 * 60 * 60 * 1000) {
-          console.log(`Using cached standings for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`);
-          return res.json(cachedStandings.data);
-        }
-      }
-
-      console.log(`Fetching fresh standings for league ${id} with fixed season ${season}`);
-
-      // Use API-Football (RapidAPI) only
-      const standings = await rapidApiService.getLeagueStandings(id, season);
-      console.log(`Received standings data for league ${id} from RapidAPI`);
-
-      // Cache the standings data
+  apiRouter.get(
+    "/leagues/:id/standings",
+    async (req: Request, res: Response) => {
       try {
-        if (cachedStandings) {
-          await storage.updateCachedFixture(cacheKey, standings);
-        } else {
-          await storage.createCachedFixture({
-            fixtureId: cacheKey,
-            data: standings,
-            league: id.toString(),
-            date: new Date().toISOString().split('T')[0]
-          });
+        const id = parseInt(req.params.id);
+        // Calculate current season based on date
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
+        // If we're in the second half of the year, use next year as season
+        const currentSeason =
+          currentMonth >= 7
+            ? currentDate.getFullYear() + 1
+            : currentDate.getFullYear();
+        const season = parseInt(req.query.season as string) || currentSeason;
+
+        if (isNaN(id) || !req.params.id || req.params.id.trim() === "") {
+          return res.status(400).json({ message: "Invalid league ID" });
         }
-      } catch (cacheError) {
-        console.error(`Error caching standings for league ${id}:`, cacheError);
+
+        // Check cache first with 4 hour duration for standings
+        const cacheKey = `standings-${id}-${season}`;
+        const cachedStandings = await storage.getCachedFixture(cacheKey);
+
+        if (cachedStandings) {
+          const now = new Date();
+          const cacheTime = new Date(cachedStandings.timestamp);
+          const cacheAge = now.getTime() - cacheTime.getTime();
+
+          // Use 4 hour cache for standings
+          if (cacheAge < 4 * 60 * 60 * 1000) {
+            console.log(
+              `Using cached standings for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`,
+            );
+            return res.json(cachedStandings.data);
+          }
+        }
+
+        console.log(
+          `Fetching fresh standings for league ${id} with fixed season ${season}`,
+        );
+
+        // Use API-Football (RapidAPI) only
+        const standings = await rapidApiService.getLeagueStandings(id, season);
+        console.log(`Received standings data for league ${id} from RapidAPI`);
+
+        // Cache the standings data
+        try {
+          if (cachedStandings) {
+            await storage.updateCachedFixture(cacheKey, standings);
+          } else {
+            await storage.createCachedFixture({
+              fixtureId: cacheKey,
+              data: standings,
+              league: id.toString(),
+              date: new Date().toISOString().split("T")[0],
+            });
+          }
+        } catch (cacheError) {
+          console.error(
+            `Error caching standings for league ${id}:`,
+            cacheError,
+          );
+        }
+
+        res.json(standings);
+      } catch (error) {
+        console.error(
+          `Error fetching standings for league ID ${req.params.id}:`,
+          error,
+        );
+        res.status(500).json({ message: "Failed to fetch standings data" });
       }
-
-      res.json(standings);
-    } catch (error) {
-      console.error(`Error fetching standings for league ID ${req.params.id}:`, error);
-      res.status(500).json({ message: "Failed to fetch standings data" });
-    }
-  });
-
-
+    },
+  );
 
   // Conference League fixtures endpoint (League ID 848)
-  apiRouter.get("/conference-league/fixtures", async (_req: Request, res: Response) => {
-    try {
-      console.log("Conference League fixtures API call initiated");
+  apiRouter.get(
+    "/conference-league/fixtures",
+    async (_req: Request, res: Response) => {
+      try {
+        console.log("Conference League fixtures API call initiated");
 
-      // Conference League ID is 848
-      const leagueId = 848;
-      // Always use 2025 season data as requested
-      const seasonToUse = 2025;
+        // Conference League ID is 848
+        const leagueId = 848;
+        // Always use 2025 season data as requested
+        const seasonToUse = 2025;
 
-      console.log(`Attempting to fetch Conference League (ID: ${leagueId}) fixtures for season ${seasonToUse}`);
+        console.log(
+          `Attempting to fetch Conference League (ID: ${leagueId}) fixtures for season ${seasonToUse}`,
+        );
 
-      // Use API-Football (RapidAPI) only
-      // First, let's verify the league exists
-      const leagueData = await rapidApiService.getLeagueById(leagueId);
-      if (!leagueData) {
-        console.error("Conference League data not found in API");
-        // Return empty array instead of 404 error to avoid breaking frontend
-        return res.json([]);
-      }
+        // Use API-Football (RapidAPI) only
+        // First, let's verify the league exists
+        const leagueData = await rapidApiService.getLeagueById(leagueId);
+        if (!leagueData) {
+          console.error("Conference League data not found in API");
+          // Return empty array instead of 404 error to avoid breaking frontend
+          return res.json([]);
+        }
 
-      console.log(`Conference League found in RapidAPI: ${leagueData.league.name}, attempting to fetch fixtures...`);
-      console.log(`Using fixed season ${seasonToUse} for Conference League fixtures as requested`);
+        console.log(
+          `Conference League found in RapidAPI: ${leagueData.league.name}, attempting to fetch fixtures...`,
+        );
+        console.log(
+          `Using fixed season ${seasonToUse} for Conference League fixtures as requested`,
+        );
 
-      // Fetch fixtures using the verified season
-      const fixtures = await rapidApiService.getFixturesByLeague(leagueId, seasonToUse);
+        // Fetch fixtures using the verified season
+        const fixtures = await rapidApiService.getFixturesByLeague(
+          leagueId,
+          seasonToUse,
+        );
 
-      console.log(`Conference League fixtures response received from RapidAPI, count: ${fixtures ? fixtures.length : 0}`);
+        console.log(
+          `Conference League fixtures response received from RapidAPI, count: ${fixtures ? fixtures.length : 0}`,
+        );
 
-      if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
-        console.warn("No Conference League fixtures found in API response");
-        // Return empty array instead of 404 error to avoid breaking frontend
-        return res.json([]);
-      }
+        if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
+          console.warn("No Conference League fixtures found in API response");
+          // Return empty array instead of 404 error to avoid breaking frontend
+          return res.json([]);
+        }
 
-      // Sort fixtures by date (newest first)
-      const sortedFixtures = [...fixtures].sort((a, b) => {
-        return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
-      });
+        // Sort fixtures by date (newest first)
+        const sortedFixtures = [...fixtures].sort((a, b) => {
+          return (
+            new Date(b.fixture.date).getTime() -
+            new Date(a.fixture.date).getTime()
+          );
+        });
 
-      console.log(`Returning ${sortedFixtures.length} sorted Conference League fixtures from RapidAPI`);
-      return res.json(sortedFixtures);
-    } catch (error) {
-      console.error("Error fetching Conference League fixtures:", error);
-      // Return empty array instead of error to avoid breaking frontend
-      return res.json([]);      }
-  });
-
-  // Europa Leaguefixtures endpoint (League ID 3)
-  apiRouter.get("/europa-league/fixtures", async (_req: Request, res: Response) => {
-    try {
-      console.log("Europa League fixtures API call initiated");
-
-      // Europa League ID is 3
-      const leagueId = 3;
-      // Always use 2025 season data as requested
-      const seasonToUse = 2025;
-
-      console.log(`Attempting to fetch Europa League (ID: ${leagueId}) fixtures for season ${seasonToUse}`);
-
-      // Use API-Football (RapidAPI) only
-      // First, let's verify the league exists
-      const leagueData = await rapidApiService.getLeagueById(leagueId);
-      if (!leagueData) {
-        console.error("Europa League data not found in API");
-        // Return empty array instead of 404 error to avoid breaking frontend
-        return res.json([]);
-      }
-
-      console.log(`Europa League found in RapidAPI: ${leagueData.league.name}, attempting to fetch fixtures...`);
-      console.log(`Using fixed season ${seasonToUse} for Europa League fixtures as requested`);
-
-      // Fetch fixtures using the verified season
-      const fixtures = await rapidApiService.getFixturesByLeague(leagueId, seasonToUse);
-
-      console.log(`Europa League fixtures response received from RapidAPI, count: ${fixtures ? fixtures.length : 0}`);
-
-      if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
-        console.warn("No Europa League fixtures found in API response");
-        // Return empty array instead of 404 error to avoid breaking frontend
-        return res.json([]);
-      }
-
-      // Sort fixtures by date (newest first)
-      const sortedFixtures = [...fixtures].sort((a, b) => {
-        return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
-      });
-
-      console.log(`Returning ${sortedFixtures.length} sorted Europa League fixtures from RapidAPI`);
-      return res.json(sortedFixtures);
-    } catch (error) {
-      console.error("Error fetching Europa League fixtures:", error);
-      // Return empty array instead of error to avoid breaking frontend
-      return res.json([]);
-    }
-  });
-
-  // Champions League fixtures endpoint (League ID 2)
-  apiRouter.get("/champions-league/fixtures", async (_req: Request, res: Response) => {
-    try {
-      console.log("Champions League fixtures API call initiated");
-
-      // Champions League ID is 2
-      const leagueId = 2;
-      // Use current year for the season
-      const currentYear = new Date().getFullYear();
-
-      console.log(`Attempting to fetch Champions League (ID: ${leagueId}) fixtures for season ${currentYear}`);
-
-      // First, let's verify the league exists
-      const leagueData = await rapidApiService.getLeagueById(leagueId);
-      if (!leagueData) {
-        console.error("Champions League data not found in API");
-        // Return empty array instead of 404 error to avoid breaking frontend
-        return res.json([]);
-      }
-
-      console.log(`Champions League found: ${leagueData.league.name}, attempting to fetch fixtures...`);
-
-      // Always use 2025 season data as requested
-      const seasonToUse = 2025;
-
-      console.log(`Using fixed season ${seasonToUse} for Champions League fixtures as requested`);
-
-      // Fetch fixtures using the verified season
-      const fixtures = await rapidApiService.getFixturesByLeague(leagueId, seasonToUse);
-
-      console.log(`Champions League fixtures response received, count: ${fixtures ? fixtures.length : 0}`);
-
-      if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
-        console.warn("No Champions League fixtures found in API response");
+        console.log(
+          `Returning ${sortedFixtures.length} sorted Conference League fixtures from RapidAPI`,
+        );
+        return res.json(sortedFixtures);
+      } catch (error) {
+        console.error("Error fetching Conference League fixtures:", error);
         // Return empty array instead of error to avoid breaking frontend
         return res.json([]);
       }
+    },
+  );
 
-      // Sort fixtures by date (newest first)
-      const sortedFixtures = [...fixtures].sort((a, b) => {
-        return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
-      });
+  // Europa Leaguefixtures endpoint (League ID 3)
+  apiRouter.get(
+    "/europa-league/fixtures",
+    async (_req: Request, res: Response) => {
+      try {
+        console.log("Europa League fixtures API call initiated");
 
-      console.log(`Returning ${sortedFixtures.length} sorted Champions League fixtures`);
-      return res.json(sortedFixtures);
-    } catch (error) {
-      console.error("Error fetching Champions League fixtures:", error);
-      // Return empty array instead of error to avoid breaking frontend
-      return res.json([]);
-    }
-  });
+        // Europa League ID is 3
+        const leagueId = 3;
+        // Always use 2025 season data as requested
+        const seasonToUse = 2025;
+
+        console.log(
+          `Attempting to fetch Europa League (ID: ${leagueId}) fixtures for season ${seasonToUse}`,
+        );
+
+        // Use API-Football (RapidAPI) only
+        // First, let's verify the league exists
+        const leagueData = await rapidApiService.getLeagueById(leagueId);
+        if (!leagueData) {
+          console.error("Europa League data not found in API");
+          // Return empty array instead of 404 error to avoid breaking frontend
+          return res.json([]);
+        }
+
+        console.log(
+          `Europa League found in RapidAPI: ${leagueData.league.name}, attempting to fetch fixtures...`,
+        );
+        console.log(
+          `Using fixed season ${seasonToUse} for Europa League fixtures as requested`,
+        );
+
+        // Fetch fixtures using the verified season
+        const fixtures = await rapidApiService.getFixturesByLeague(
+          leagueId,
+          seasonToUse,
+        );
+
+        console.log(
+          `Europa League fixtures response received from RapidAPI, count: ${fixtures ? fixtures.length : 0}`,
+        );
+
+        if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
+          console.warn("No Europa League fixtures found in API response");
+          // Return empty array instead of 404 error to avoid breaking frontend
+          return res.json([]);
+        }
+
+        // Sort fixtures by date (newest first)
+        const sortedFixtures = [...fixtures].sort((a, b) => {
+          return (
+            new Date(b.fixture.date).getTime() -
+            new Date(a.fixture.date).getTime()
+          );
+        });
+
+        console.log(
+          `Returning ${sortedFixtures.length} sorted Europa League fixtures from RapidAPI`,
+        );
+        return res.json(sortedFixtures);
+      } catch (error) {
+        console.error("Error fetching Europa League fixtures:", error);
+        // Return empty array instead of error to avoid breaking frontend
+        return res.json([]);
+      }
+    },
+  );
+
+  // Champions League fixtures endpoint (League ID 2)
+  apiRouter.get(
+    "/champions-league/fixtures",
+    async (_req: Request, res: Response) => {
+      try {
+        console.log("Champions League fixtures API call initiated");
+
+        // Champions League ID is 2
+        const leagueId = 2;
+        // Use current year for the season
+        const currentYear = new Date().getFullYear();
+
+        console.log(
+          `Attempting to fetch Champions League (ID: ${leagueId}) fixtures for season ${currentYear}`,
+        );
+
+        // First, let's verify the league exists
+        const leagueData = await rapidApiService.getLeagueById(leagueId);
+        if (!leagueData) {
+          console.error("Champions League data not found in API");
+          // Return empty array instead of 404 error to avoid breaking frontend
+          return res.json([]);
+        }
+
+        console.log(
+          `Champions League found: ${leagueData.league.name}, attempting to fetch fixtures...`,
+        );
+
+        // Always use 2025 season data as requested
+        const seasonToUse = 2025;
+
+        console.log(
+          `Using fixed season ${seasonToUse} for Champions League fixtures as requested`,
+        );
+
+        // Fetch fixtures using the verified season
+        const fixtures = await rapidApiService.getFixturesByLeague(
+          leagueId,
+          seasonToUse,
+        );
+
+        console.log(
+          `Champions League fixtures response received, count: ${fixtures ? fixtures.length : 0}`,
+        );
+
+        if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
+          console.warn("No Champions League fixtures found in API response");
+          // Return empty array instead of error to avoid breaking frontend
+          return res.json([]);
+        }
+
+        // Sort fixtures by date (newest first)
+        const sortedFixtures = [...fixtures].sort((a, b) => {
+          return (
+            new Date(b.fixture.date).getTime() -
+            new Date(a.fixture.date).getTime()
+          );
+        });
+
+        console.log(
+          `Returning ${sortedFixtures.length} sorted Champions League fixtures`,
+        );
+        return res.json(sortedFixtures);
+      } catch (error) {
+        console.error("Error fetching Champions League fixtures:", error);
+        // Return empty array instead of error to avoid breaking frontend
+        return res.json([]);
+      }
+    },
+  );
 
   // Bundesliga fixtures endpoint (League ID 78)
-  apiRouter.get("/bundesliga/fixtures", async (_req: Request, res: Response) => {
-    try {
-      console.log("Bundesliga fixtures API call initiated");
+  apiRouter.get(
+    "/bundesliga/fixtures",
+    async (_req: Request, res: Response) => {
+      try {
+        console.log("Bundesliga fixtures API call initiated");
 
-      // Bundesliga ID is 78
-      const leagueId = 78;
-      // Use current year for the season
-      const currentYear = new Date().getFullYear();
+        // Bundesliga ID is 78
+        const leagueId = 78;
+        // Use current year for the season
+        const currentYear = new Date().getFullYear();
 
-      console.log(`Attempting to fetch Bundesliga (ID: ${leagueId}) fixtures for season ${currentYear}`);
+        console.log(
+          `Attempting to fetch Bundesliga (ID: ${leagueId}) fixtures for season ${currentYear}`,
+        );
 
-      // First, let's verify the leaguedata exists
-      const leagueData = await rapidApiService.getLeagueById(leagueId);
-      if (!leagueData) {
-        console.error("Bundesliga data not found in API");
-        // Return empty array instead of 404 error to avoid breaking frontend
+        // First, let's verify the leaguedata exists
+        const leagueData = await rapidApiService.getLeagueById(leagueId);
+        if (!leagueData) {
+          console.error("Bundesliga data not found in API");
+          // Return empty array instead of 404 error to avoid breaking frontend
+          return res.json([]);
+        }
+
+        console.log(
+          `Bundesliga found: ${leagueData.league.name}, attempting to fetch fixtures...`,
+        );
+
+        // Always use 2025 season data as requested
+        const seasonToUse = 2025;
+
+        console.log(
+          `Using fixed season ${seasonToUse} for Bundesliga fixtures as requested`,
+        );
+
+        // Fetch fixtures using the verified season
+        const fixtures = await rapidApiService.getFixturesByLeague(
+          leagueId,
+          seasonToUse,
+        );
+
+        console.log(
+          `Bundesliga fixtures response received, count: ${fixtures ? fixtures.length : 0}`,
+        );
+
+        if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
+          console.warn("No Bundesliga fixtures found in API response");
+          // Return empty array instead of 404 error to avoid breaking frontend
+          return res.json([]);
+        }
+
+        // Sort fixtures by date (newest first)
+        const sortedFixtures = [...fixtures].sort((a, b) => {
+          return (
+            new Date(b.fixture.date).getTime() -
+            new Date(a.fixture.date).getTime()
+          );
+        });
+
+        console.log(
+          `Returning ${sortedFixtures.length} sorted Bundesliga fixtures`,
+        );
+        return res.json(sortedFixtures);
+      } catch (error) {
+        console.error("Error fetching Bundesliga fixtures:", error);
+        // Return empty array instead of error to avoid breaking frontend
         return res.json([]);
       }
-
-      console.log(`Bundesliga found: ${leagueData.league.name}, attempting to fetch fixtures...`);
-
-      // Always use 2025 season data as requested
-      const seasonToUse = 2025;
-
-      console.log(`Using fixed season ${seasonToUse} for Bundesliga fixtures as requested`);
-
-      // Fetch fixtures using the verified season
-      const fixtures = await rapidApiService.getFixturesByLeague(leagueId, seasonToUse);
-
-      console.log(`Bundesliga fixtures response received, count: ${fixtures ? fixtures.length : 0}`);
-
-      if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
-        console.warn("No Bundesliga fixtures found in API response");
-        // Return empty array instead of 404 error to avoid breaking frontend
-        return res.json([]);
-      }
-
-      // Sort fixtures by date (newest first)
-      const sortedFixtures = [...fixtures].sort((a, b) => {
-        return new Date(b.fixture.date).getTime() - new Date(a.fixture.date).getTime();
-      });
-
-      console.log(`Returning ${sortedFixtures.length} sorted Bundesliga fixtures`);
-      return res.json(sortedFixtures);
-    } catch (error) {
-      console.error("Error fetching Bundesliga fixtures:", error);
-      // Return empty array instead of error to avoid breaking frontend
-      return res.json([]);
-    }
-  });
+    },
+  );
 
   // News Article Routes
   apiRouter.get("/news", async (req: Request, res: Response) => {
@@ -1195,9 +1414,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let articleData = insertNewsArticleSchema.parse(req.body);
 
       // Replace example.com URLs with our domain
-      if (articleData.url && articleData.url.includes('example.com')) {
+      if (articleData.url && articleData.url.includes("example.com")) {
         // Use our primary domain directly
-        articleData.url = articleData.url.replace(/https?:\/\/example\.com/i, 'https://cssport.vip');
+        articleData.url = articleData.url.replace(
+          /https?:\/\/example\.com/i,
+          "https://cssport.vip",
+        );
       }
 
       const article = await storage.createNewsArticle(articleData);
@@ -1205,7 +1427,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error creating news article:", error);
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid article data", errors: error.errors });
+        return res
+          .status(400)
+          .json({ message: "Invalid article data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to create news article" });
     }
@@ -1226,9 +1450,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let updates = req.body;
 
       // Replace example.com URLs with our domain
-      if (updates.url && updates.url.includes('example.com')) {
+      if (updates.url && updates.url.includes("example.com")) {
         // Use our primary domain directly
-        updates.url = updates.url.replace(/https?:\/\/example\.com/i, 'https://cssport.vip');
+        updates.url = updates.url.replace(
+          /https?:\/\/example\.com/i,
+          "https://cssport.vip",
+        );
       }
 
       const updatedArticle = await storage.updateNewsArticle(id, updates);
@@ -1260,1058 +1487,1234 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // BetsAPI specific news endpoints
-  apiRouter.get("/news/betsapi/sports/:sportId", async (req: Request, res: Response) => {
-    try {
-      const sportId = parseInt(req.params.sportId);
-      const page = parseInt(req.query.page as string) || 1;
-      const perPage = parseInt(req.query.per_page as string) || 10;
+  apiRouter.get(
+    "/news/betsapi/sports/:sportId",
+    async (req: Request, res: Response) => {
+      try {
+        const sportId = parseInt(req.params.sportId);
+        const page = parseInt(req.query.page as string) || 1;
+        const perPage = parseInt(req.query.per_page as string) || 10;
 
-      if (isNaN(sportId)) {
-        return res.status(400).json({ message: "Invalid sport ID" });
+        if (isNaN(sportId)) {
+          return res.status(400).json({ message: "Invalid sport ID" });
+        }
+
+        // BetsAPI service temporarily disabled
+        const formattedArticles: any[] = [];
+
+        res.json(formattedArticles);
+      } catch (error) {
+        console.error("Error fetching BetsAPI sports news:", error);
+        res.status(500).json({
+          message: "Failed to fetch sports news from BetsAPI",
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
+    },
+  );
 
-      // BetsAPI service temporarily disabled
-      const formattedArticles: any[] = [];
+  apiRouter.get(
+    "/news/betsapi/league/:leagueId",
+    async (req: Request, res: Response) => {
+      try {
+        const leagueId = parseInt(req.params.leagueId);
+        const page = parseInt(req.query.page as string) || 1;
+        const perPage = parseInt(req.query.per_page as string) || 10;
 
-      res.json(formattedArticles);
-    } catch (error) {
-      console.error("Error fetching BetsAPI sports news:", error);
-      res.status(500).json({ 
-        message: "Failed to fetch sports news from BetsAPI",
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
+        if (isNaN(leagueId)) {
+          return res.status(400).json({ message: "Invalid league ID" });
+        }
 
-  apiRouter.get("/news/betsapi/league/:leagueId", async (req: Request, res: Response) => {
-    try {
-      const leagueId = parseInt(req.params.leagueId);
-      const page = parseInt(req.query.page as string) || 1;
-      const perPage = parseInt(req.query.per_page as string) || 10;
+        // BetsAPI service temporarily disabled
+        const formattedArticles: any[] = [];
 
-      if (isNaN(leagueId)) {
-        return res.status(400).json({ message: "Invalid league ID" });
+        res.json(formattedArticles);
+      } catch (error) {
+        console.error("Error fetching BetsAPI league news:", error);
+        res.status(500).json({
+          message: "Failed to fetch league news from BetsAPI",
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
-
-      // BetsAPI service temporarily disabled
-      const formattedArticles: any[] = [];
-
-      res.json(formattedArticles);
-    } catch (error) {
-      console.error("Error fetching BetsAPI league news:", error);
-      res.status(500).json({ 
-        message: "Failed to fetch league news from BetsAPI",
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
+    },
+  );
 
   // SportsRadar flag endpoint (server-side to avoid CORS)
-  apiRouter.get('/sportsradar/flags/:country', async (req: Request, res: Response) => {
-    try {
-      const { country } = req.params;
-      const sanitizedCountry = country.toLowerCase().replace(/\s+/g, '_');
+  apiRouter.get(
+    "/sportsradar/flags/:country",
+    async (req: Request, res: Response) => {
+      try {
+        const { country } = req.params;
+        const sanitizedCountry = country.toLowerCase().replace(/\s+/g, "_");
 
-      // SportsRadar flag URL
-      const flagUrl = `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${sanitizedCountry}/flag_24x24.png`;
+        // SportsRadar flag URL
+        const flagUrl = `https://api.sportradar.com/flags-images-t3/sr/country-flags/flags/${sanitizedCountry}/flag_24x24.png`;
 
-      // Fetch the flag image
-      const response = await fetch(flagUrl, {
-        headers: {
-          'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
-          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        // Fetch the flag image
+        const response = await fetch(flagUrl, {
+          headers: {
+            accept: "image/png,image/jpeg,image/svg+xml,image/*",
+            "user-agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+          },
+        });
+
+        if (response.ok) {
+          const contentType =
+            response.headers.get("content-type") || "image/png";
+          const buffer = await response.arrayBuffer();
+
+          res.set("Content-Type", contentType);
+          res.set("Cache-Control", "public, max-age=86400"); // Cache for 24 hours
+          res.send(Buffer.from(buffer));
+        } else {
+          console.warn(`SportsRadar flag not found for country: ${country}`);
+          res.status(404).json({ error: "Flag not found" });
         }
-      });
-
-      if (response.ok) {
-        const contentType = response.headers.get('content-type') || 'image/png';
-        const buffer = await response.arrayBuffer();
-
-        res.set('Content-Type', contentType);
-        res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-        res.send(Buffer.from(buffer));
-      } else {
-        console.warn(`SportsRadar flag not found for country: ${country}`);
-        res.status(404).json({ error: 'Flag not found' });
+      } catch (error) {
+        console.error(
+          `Error fetching SportsRadar flag for ${req.params.country}:`,
+          error,
+        );
+        res.status(500).json({ error: "Failed to fetch flag" });
       }
-    } catch (error) {
-      console.error(`Error fetching SportsRadar flag for ${req.params.country}:`, error);
-      res.status(500).json({ error: 'Failed to fetch flag' });
-    }
-  });
+    },
+  );
 
   // SportsRadar league logo endpoint (server-side to avoid CORS)
-  apiRouter.get('/sportsradar/leagues/:leagueId/logo', async (req: Request, res: Response) => {
-    try {
-      let { leagueId } = req.params;
+  apiRouter.get(
+    "/sportsradar/leagues/:leagueId/logo",
+    async (req: Request, res: Response) => {
+      try {
+        let { leagueId } = req.params;
 
-      // If leagueId contains a URL, extract the actual league ID
-      if (leagueId.includes('http')) {
-        const urlDecoded = decodeURIComponent(leagueId);
-        const leagueIdMatch = urlDecoded.match(/\/leagues\/(\d+)\.png/);
-        if (leagueIdMatch && leagueIdMatch[1]) {
-          leagueId = leagueIdMatch[1];
-        } else {
-          console.warn(`Could not extract league ID from URL: ${urlDecoded}`);
-          return res.status(400).json({ error: 'Invalid league ID format' });
-        }
-      }
-
-      // Validate that leagueId is numeric
-      if (!/^\d+$/.test(leagueId)) {
-        console.warn(`Invalid league ID format: ${leagueId}`);
-        return res.status(400).json({ error: 'League ID must be numeric' });
-      }
-
-      console.log(`SportsRadar: Fetching logo for league ID: ${leagueId}`);
-
-      // Try multiple SportsRadar logo formats for leagues
-      const logoUrls = [
-        `https://api.sportradar.com/soccer/production/v4/en/tournaments/${leagueId}/logo.png`,
-        `https://api.sportradar.com/soccer-images/production/tournaments/${leagueId}/logo.png`,
-        `https://imagecache.sportradar.com/production/soccer/tournaments/${leagueId}/logo.png`
-      ];
-
-      for (const logoUrl of logoUrls) {
-        try {
-          const response = await fetch(logoUrl, {
-            headers: {
-              'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
-              'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-          });
-
-          if (response.ok) {
-            const contentType = response.headers.get('content-type') || 'image/png';
-            const buffer = await response.arrayBuffer();
-
-            res.set('Content-Type', contentType);
-            res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-            res.send(Buffer.from(buffer));
-            return;
+        // If leagueId contains a URL, extract the actual league ID
+        if (leagueId.includes("http")) {
+          const urlDecoded = decodeURIComponent(leagueId);
+          const leagueIdMatch = urlDecoded.match(/\/leagues\/(\d+)\.png/);
+          if (leagueIdMatch && leagueIdMatch[1]) {
+            leagueId = leagueIdMatch[1];
+          } else {
+            console.warn(`Could not extract league ID from URL: ${urlDecoded}`);
+            return res.status(400).json({ error: "Invalid league ID format" });
           }
-        } catch (error) {
-          console.warn(`SportsRadar league logo URL failed: ${logoUrl}`, error);
-          continue;
         }
-      }
 
-      console.warn(`SportsRadar league logo not found for league: ${leagueId}`);
-      res.status(404).json({ error: 'League logo not found' });
-    } catch (error) {
-      console.error(`Error fetching SportsRadar league logo for ${req.params.leagueId}:`, error);
-      res.status(500).json({ error: 'Failed to fetch league logo' });
-    }
-  });
-
-  // New endpoint for 365scores league logos
-  apiRouter.get('/365scores/leagues/:leagueId/logo', async (req: Request, res: Response) => {
-    try {
-      let { leagueId } = req.params;
-
-      // If leagueId contains a URL, extract the actual league ID
-      if (leagueId.includes('http')) {
-        const urlDecoded = decodeURIComponent(leagueId);
-        const leagueIdMatch = urlDecoded.match(/\/leagues\/(\d+)\.png/);
-        if (leagueIdMatch && leagueIdMatch[1]) {
-          leagueId = leagueIdMatch[1];
-        } else {
-          console.warn(`Could not extract league ID from URL: ${urlDecoded}`);
-          return res.status(400).json({ error: 'Invalid league ID format' });
+        // Validate that leagueId is numeric
+        if (!/^\d+$/.test(leagueId)) {
+          console.warn(`Invalid league ID format: ${leagueId}`);
+          return res.status(400).json({ error: "League ID must be numeric" });
         }
-      }
 
-      // Validate that leagueId is numeric
-      if (!/^\d+$/.test(leagueId)) {
-        console.warn(`Invalid league ID format: ${leagueId}`);
-        return res.status(400).json({ error: 'League ID must be numeric' });
-      }
+        console.log(`SportsRadar: Fetching logo for league ID: ${leagueId}`);
 
-      console.log(`365scores: Fetching logo for league ID: ${leagueId}`);
+        // Try multiple SportsRadar logo formats for leagues
+        const logoUrls = [
+          `https://api.sportradar.com/soccer/production/v4/en/tournaments/${leagueId}/logo.png`,
+          `https://api.sportradar.com/soccer-images/production/tournaments/${leagueId}/logo.png`,
+          `https://imagecache.sportradar.com/production/soccer/tournaments/${leagueId}/logo.png`,
+        ];
 
-      // Try multiple 365scores logo formats for leagues
-      const logoUrls = [
-        `https://www.365scores.com/images/leagues/${leagueId}.png`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
-        `https://365scores.com/images/competitions/${leagueId}.png`,
-        `https://static.365scores.com/images/leagues/${leagueId}.png`
-      ];
+        for (const logoUrl of logoUrls) {
+          try {
+            const response = await fetch(logoUrl, {
+              headers: {
+                accept: "image/png,image/jpeg,image/svg+xml,image/*",
+                "user-agent":
+                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+              },
+            });
 
-      for (const logoUrl of logoUrls) {
-        try {
-          const response = await fetch(logoUrl, {
-            headers: {
-              'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
-              'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            if (response.ok) {
+              const contentType =
+                response.headers.get("content-type") || "image/png";
+              const buffer = await response.arrayBuffer();
+
+              res.set("Content-Type", contentType);
+              res.set("Cache-Control", "public, max-age=86400"); // Cache for 24 hours
+              res.send(Buffer.from(buffer));
+              return;
             }
-          });
-
-          if (response.ok) {
-            const contentType = response.headers.get('content-type') || 'image/png';
-            const buffer = await response.arrayBuffer();
-
-            res.set('Content-Type', contentType);
-            res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-            res.send(Buffer.from(buffer));
-            return;
-          }
-        } catch (error) {
-          console.warn(`365scores league logo URL failed: ${logoUrl}`, error);
-          continue;
-        }
-      }
-
-      console.warn(`365scores league logo not found for league: ${leagueId}`);
-      res.status(404).json({ error: 'League logo not found' });
-    } catch (error) {
-      console.error(`Error fetching 365scores league logo for ${req.params.leagueId}:`, error);
-      res.status(500).json({ error: 'Failed to fetch league logo' });
-    }
-  });
-
-  // New endpoint for square team logos
-  apiRouter.get('/team-logo/square/:teamId', async (req: Request, res: Response) => {
-    try {
-      const { teamId } = req.params;
-      const size = parseInt(req.query.size as string) || 72; // Default 72x72 pixels
-
-      console.log(`Fetching and resizing team logo for ID: ${teamId} to ${size}x${size}`);
-
-      // Validate teamId
-      if (!/^\d+$/.test(teamId)) {
-        return res.status(400).json({ error: 'Invalid team ID format' });
-      }
-
-      // Try multiple logo sources
-      const logoUrls = [
-        `https://media.api-sports.io/football/teams/${teamId}.png`,
-        `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`,
-        `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`
-      ];
-
-      let imageBuffer = null;
-      let sourceUrl = '';
-
-      // Try each logo source
-      for (const logoUrl of logoUrls) {
-        try {
-          const response = await fetch(logoUrl, {
-            headers: {
-              'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
-              'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-          });
-
-          if (response.ok) {
-            const arrayBuffer = await response.arrayBuffer();
-            imageBuffer = Buffer.from(arrayBuffer);
-            sourceUrl = logoUrl;
-            console.log(`Successfully fetched logo from: ${logoUrl}`);
-            break;
-          }
-        } catch (error) {
-          console.warn(`Failed to fetch from ${logoUrl}:`, error instanceof Error ? error.message : 'Unknown error');
-          continue;
-        }
-      }
-
-      // If no image found, return fallback
-      if (!imageBuffer) {
-        return res.status(404).json({ error: 'Logo not found from any source' });
-      }
-
-      // Resize image to square dimensions using Sharp
-      const resizedBuffer = await sharp(imageBuffer)
-        .resize(size, size, {
-          fit: 'cover', // This will crop the image to fill the square
-          position: 'center'
-        })
-        .png()
-        .toBuffer();
-
-
-      // Set appropriate headers
-      res.set({
-        'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=86400', // Cache for 24 hours
-        'X-Source-URL': sourceUrl
-      });
-
-      res.send(resizedBuffer);
-
-    } catch (error) {
-      console.error('Error processing square team logo:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  });
-
-  // SportsRadar team logo endpoint (server-side to avoid CORS)
-  apiRouter.get('/sportsradar/teams/:teamId/logo', async (req: Request, res: Response) => {
-    try {
-      let { teamId } = req.params;
-
-      // If teamId contains a URL, extract the actual team ID
-      if (teamId.includes('http')) {
-        const urlDecoded = decodeURIComponent(teamId);
-        const teamIdMatch = urlDecoded.match(/\/teams\/(\d+)\.png/);
-        if (teamIdMatch && teamIdMatch[1]) {
-          teamId = teamIdMatch[1];                } else {
-          console.warn(`Could not extract team ID from URL: ${urlDecoded}`);
-          return res.status(400).json({ error: 'Invalid team ID format' });
-        }
-      }
-
-      // Validate that teamId is numeric
-      if (!/^\d+$/.test(teamId)) {
-        console.warn(`Invalid team ID format: ${teamId}`);
-return res.status(400).json({ error: 'Team ID must be numeric' });
-      }
-
-      console.log(`SportsRadar: Fetching logo for team ID: ${teamId}`);
-
-      // Try multiple SportsRadar logo formats
-      const logoUrls = [
-        `https://api.sportradar.com/soccer/production/v4/en/competitors/${teamId}/profile.png`,
-        `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`,
-        `https://imagecache.sportradar.com/production/soccer/competitors/${teamId}/logo.png`
-      ];
-
-      for (const logoUrl of logoUrls) {
-        try {
-          const response = await fetch(logoUrl, {
-            headers: {
-              'accept': 'image/png,image/jpeg,image/svg+xml,image/*',
-              'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-          });
-
-          if (response.ok) {
-            const contentType = response.headers.get('content-type') || 'image/png';
-            const buffer = await response.arrayBuffer();
-
-            res.set('Content-Type', contentType);
-            res.set('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
-            res.send(Buffer.from(buffer));
-            return;
-          }
-        } catch (error) {
-          console.warn(`SportsRadar logo URL failed: ${logoUrl}`, error);
-          continue;
-        }
-      }
-
-      console.warn(`SportsRadar team logo not found for team: ${teamId}`);
-      res.status(404).json({ error: 'Team logo not found' });
-    } catch (error) {
-      console.error(`Error fetching SportsRadar team logo for ${req.params.teamId}:`, error);
-      res.status(500).json({ error: 'Failed to fetch team logo' });
-    }
-  });
-
-  // Get fixtures by country and season
-  apiRouter.get('/fixtures/country/:country', async (req: Request, res: Response) => {
-    try {
-      const { country } = req.params;
-      const { season, league } = req.query;
-
-      console.log(`API: Getting fixtures for country: ${country}, season: ${season}, league: ${league}`);
-
-      // Get all available leagues first
-      const allLeagues = await rapidApiService.getLeagues();
-
-      // Filter leagues by country
-      const countryLeagues = allLeagues.filter(leagueResponse => {
-        const leagueCountry = leagueResponse.country?.name?.toLowerCase() || '';
-        return leagueCountry.includes(country.toLowerCase());
-      });
-
-      console.log(`Found ${countryLeagues.length} leagues for country: ${country}`);
-
-      let allFixtures: any[] = [];
-
-      // Fetch fixtures for each league in the country
-      for (const leagueResponse of countryLeagues.slice(0, 10)) { // Limit to top 10 leagues to avoid timeout
-        try {
-          const leagueId = leagueResponse.league.id;
-          const seasonYear = season ? parseInt(season as string) : 2024;
-
-          const leagueFixtures = await rapidApiService.getFixturesByLeague(leagueId, seasonYear);
-
-          // Filter by specific league if requested
-          if (league && !leagueResponse.league.name.toLowerCase().includes((league as string).toLowerCase())) {
+          } catch (error) {
+            console.warn(
+              `SportsRadar league logo URL failed: ${logoUrl}`,
+              error,
+            );
             continue;
           }
-
-          allFixtures = [...allFixtures, ...leagueFixtures];
-
-          console.log(`Added ${leagueFixtures.length} fixtures from ${leagueResponse.league.name}`);
-        } catch (error) {
-          console.error(`Error fetching fixtures for league ${leagueResponse.league.id}:`, error);
-          continue;
         }
+
+        console.warn(
+          `SportsRadar league logo not found for league: ${leagueId}`,
+        );
+        res.status(404).json({ error: "League logo not found" });
+      } catch (error) {
+        console.error(
+          `Error fetching SportsRadar league logo for ${req.params.leagueId}:`,
+          error,
+        );
+        res.status(500).json({ error: "Failed to fetch league logo" });
       }
+    },
+  );
 
-      // Sort by date
-      allFixtures.sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
+  // New endpoint for 365scores league logos
+  apiRouter.get(
+    "/365scores/leagues/:leagueId/logo",
+    async (req: Request, res: Response) => {
+      try {
+        let { leagueId } = req.params;
 
-      console.log(`Total fixtures for ${country}: ${allFixtures.length}`);
+        // If leagueId contains a URL, extract the actual league ID
+        if (leagueId.includes("http")) {
+          const urlDecoded = decodeURIComponent(leagueId);
+          const leagueIdMatch = urlDecoded.match(/\/leagues\/(\d+)\.png/);
+          if (leagueIdMatch && leagueIdMatch[1]) {
+            leagueId = leagueIdMatch[1];
+          } else {
+            console.warn(`Could not extract league ID from URL: ${urlDecoded}`);
+            return res.status(400).json({ error: "Invalid league ID format" });
+          }
+        }
 
-      // Server-side: Keep all fixtures - let client do precise date filtering
-  // This ensures we capture fixtures from all timezones that might be valid
-  const validatedFixtures = allFixtures.filter(fixture => {
-    try {
-      const apiDateString = fixture.fixture.date;
-      const extractedDate = apiDateString.split('T')[0];
+        // Validate that leagueId is numeric
+        if (!/^\d+$/.test(leagueId)) {
+          console.warn(`Invalid league ID format: ${leagueId}`);
+          return res.status(400).json({ error: "League ID must be numeric" });
+        }
 
-      // Allow fixtures from ±1 day to capture all timezone variations
-      const today = new Date();
-      const targetDateObj = new Date(today);
-      const previousDay = new Date(targetDateObj);
-      previousDay.setDate(previousDay.getDate() - 1);
-      const nextDay = new Date(targetDateObj);
-      nextDay.setDate(nextDay.getDate() + 1);
+        console.log(`365scores: Fetching logo for league ID: ${leagueId}`);
 
-      const validDates = [
-        previousDay.toISOString().split('T')[0],
-        today.toISOString().split('T')[0],
-        nextDay.toISOString().split('T')[0]
-      ];
+        // Try multiple 365scores logo formats for leagues
+        const logoUrls = [
+          `https://www.365scores.com/images/leagues/${leagueId}.png`,
+          `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Competitions:default1.png/v12/Competitions/${leagueId}`,
+          `https://365scores.com/images/competitions/${leagueId}.png`,
+          `https://static.365scores.com/images/leagues/${leagueId}.png`,
+        ];
 
-      if (!validDates.includes(extractedDate)) {
-        console.log(`🚫 [Routes] Final validation - rejecting fixture outside date range: {
-  requestedDate: '${today.toISOString().split('T')[0]}',
+        for (const logoUrl of logoUrls) {
+          try {
+            const response = await fetch(logoUrl, {
+              headers: {
+                accept: "image/png,image/jpeg,image/svg+xml,image/*",
+                "user-agent":
+                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+              },
+            });
+
+            if (response.ok) {
+              const contentType =
+                response.headers.get("content-type") || "image/png";
+              const buffer = await response.arrayBuffer();
+
+              res.set("Content-Type", contentType);
+              res.set("Cache-Control", "public, max-age=86400"); // Cache for 24 hours
+              res.send(Buffer.from(buffer));
+              return;
+            }
+          } catch (error) {
+            console.warn(`365scores league logo URL failed: ${logoUrl}`, error);
+            continue;
+          }
+        }
+
+        console.warn(`365scores league logo not found for league: ${leagueId}`);
+        res.status(404).json({ error: "League logo not found" });
+      } catch (error) {
+        console.error(
+          `Error fetching 365scores league logo for ${req.params.leagueId}:`,
+          error,
+        );
+        res.status(500).json({ error: "Failed to fetch league logo" });
+      }
+    },
+  );
+
+  // New endpoint for square team logos
+  apiRouter.get(
+    "/team-logo/square/:teamId",
+    async (req: Request, res: Response) => {
+      try {
+        const { teamId } = req.params;
+        const size = parseInt(req.query.size as string) || 72; // Default 72x72 pixels
+
+        console.log(
+          `Fetching and resizing team logo for ID: ${teamId} to ${size}x${size}`,
+        );
+
+        // Validate teamId
+        if (!/^\d+$/.test(teamId)) {
+          return res.status(400).json({ error: "Invalid team ID format" });
+        }
+
+        // Try multiple logo sources
+        const logoUrls = [
+          `https://media.api-sports.io/football/teams/${teamId}.png`,
+          `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${teamId}`,
+          `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`,
+        ];
+
+        let imageBuffer = null;
+        let sourceUrl = "";
+
+        // Try each logo source
+        for (const logoUrl of logoUrls) {
+          try {
+            const response = await fetch(logoUrl, {
+              headers: {
+                accept: "image/png,image/jpeg,image/svg+xml,image/*",
+                "user-agent":
+                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+              },
+            });
+
+            if (response.ok) {
+              const arrayBuffer = await response.arrayBuffer();
+              imageBuffer = Buffer.from(arrayBuffer);
+              sourceUrl = logoUrl;
+              console.log(`Successfully fetched logo from: ${logoUrl}`);
+              break;
+            }
+          } catch (error) {
+            console.warn(
+              `Failed to fetch from ${logoUrl}:`,
+              error instanceof Error ? error.message : "Unknown error",
+            );
+            continue;
+          }
+        }
+
+        // If no image found, return fallback
+        if (!imageBuffer) {
+          return res
+            .status(404)
+            .json({ error: "Logo not found from any source" });
+        }
+
+        // Resize image to square dimensions using Sharp
+        const resizedBuffer = await sharp(imageBuffer)
+          .resize(size, size, {
+            fit: "cover", // This will crop the image to fill the square
+            position: "center",
+          })
+          .png()
+          .toBuffer();
+
+        // Set appropriate headers
+        res.set({
+          "Content-Type": "image/png",
+          "Cache-Control": "public, max-age=86400", // Cache for 24 hours
+          "X-Source-URL": sourceUrl,
+        });
+
+        res.send(resizedBuffer);
+      } catch (error) {
+        console.error("Error processing square team logo:", error);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    },
+  );
+
+  // SportsRadar team logo endpoint (server-side to avoid CORS)
+  apiRouter.get(
+    "/sportsradar/teams/:teamId/logo",
+    async (req: Request, res: Response) => {
+      try {
+        let { teamId } = req.params;
+
+        // If teamId contains a URL, extract the actual team ID
+        if (teamId.includes("http")) {
+          const urlDecoded = decodeURIComponent(teamId);
+          const teamIdMatch = urlDecoded.match(/\/teams\/(\d+)\.png/);
+          if (teamIdMatch && teamIdMatch[1]) {
+            teamId = teamIdMatch[1];
+          } else {
+            console.warn(`Could not extract team ID from URL: ${urlDecoded}`);
+            return res.status(400).json({ error: "Invalid team ID format" });
+          }
+        }
+
+        // Validate that teamId is numeric
+        if (!/^\d+$/.test(teamId)) {
+          console.warn(`Invalid team ID format: ${teamId}`);
+          return res.status(400).json({ error: "Team ID must be numeric" });
+        }
+
+        console.log(`SportsRadar: Fetching logo for team ID: ${teamId}`);
+
+        // Try multiple SportsRadar logo formats
+        const logoUrls = [
+          `https://api.sportradar.com/soccer/production/v4/en/competitors/${teamId}/profile.png`,
+          `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`,
+          `https://imagecache.sportradar.com/production/soccer/competitors/${teamId}/logo.png`,
+        ];
+
+        for (const logoUrl of logoUrls) {
+          try {
+            const response = await fetch(logoUrl, {
+              headers: {
+                accept: "image/png,image/jpeg,image/svg+xml,image/*",
+                "user-agent":
+                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+              },
+            });
+
+            if (response.ok) {
+              const contentType =
+                response.headers.get("content-type") || "image/png";
+              const buffer = await response.arrayBuffer();
+
+              res.set("Content-Type", contentType);
+              res.set("Cache-Control", "public, max-age=86400"); // Cache for 24 hours
+              res.send(Buffer.from(buffer));
+              return;
+            }
+          } catch (error) {
+            console.warn(`SportsRadar logo URL failed: ${logoUrl}`, error);
+            continue;
+          }
+        }
+
+        console.warn(`SportsRadar team logo not found for team: ${teamId}`);
+        res.status(404).json({ error: "Team logo not found" });
+      } catch (error) {
+        console.error(
+          `Error fetching SportsRadar team logo for ${req.params.teamId}:`,
+          error,
+        );
+        res.status(500).json({ error: "Failed to fetch team logo" });
+      }
+    },
+  );
+
+  // Get fixtures by country and season
+  apiRouter.get(
+    "/fixtures/country/:country",
+    async (req: Request, res: Response) => {
+      try {
+        const { country } = req.params;
+        const { season, league } = req.query;
+
+        console.log(
+          `API: Getting fixtures for country: ${country}, season: ${season}, league: ${league}`,
+        );
+
+        // Get all available leagues first
+        const allLeagues = await rapidApiService.getLeagues();
+
+        // Filter leagues by country
+        const countryLeagues = allLeagues.filter((leagueResponse) => {
+          const leagueCountry =
+            leagueResponse.country?.name?.toLowerCase() || "";
+          return leagueCountry.includes(country.toLowerCase());
+        });
+
+        console.log(
+          `Found ${countryLeagues.length} leagues for country: ${country}`,
+        );
+
+        let allFixtures: any[] = [];
+
+        // Fetch fixtures for each league in the country
+        for (const leagueResponse of countryLeagues.slice(0, 10)) {
+          // Limit to top 10 leagues to avoid timeout
+          try {
+            const leagueId = leagueResponse.league.id;
+            const seasonYear = season ? parseInt(season as string) : 2024;
+
+            const leagueFixtures = await rapidApiService.getFixturesByLeague(
+              leagueId,
+              seasonYear,
+            );
+
+            // Filter by specific league if requested
+            if (
+              league &&
+              !leagueResponse.league.name
+                .toLowerCase()
+                .includes((league as string).toLowerCase())
+            ) {
+              continue;
+            }
+
+            allFixtures = [...allFixtures, ...leagueFixtures];
+
+            console.log(
+              `Added ${leagueFixtures.length} fixtures from ${leagueResponse.league.name}`,
+            );
+          } catch (error) {
+            console.error(
+              `Error fetching fixtures for league ${leagueResponse.league.id}:`,
+              error,
+            );
+            continue;
+          }
+        }
+
+        // Sort by date
+        allFixtures.sort(
+          (a, b) =>
+            new Date(a.fixture.date).getTime() -
+            new Date(b.fixture.date).getTime(),
+        );
+
+        console.log(`Total fixtures for ${country}: ${allFixtures.length}`);
+
+        // Server-side: Keep all fixtures - let client do precise date filtering
+        // This ensures we capture fixtures from all timezones that might be valid
+        const validatedFixtures = allFixtures.filter((fixture) => {
+          try {
+            const apiDateString = fixture.fixture.date;
+            const extractedDate = apiDateString.split("T")[0];
+
+            // Allow fixtures from ±1 day to capture all timezone variations
+            const today = new Date();
+            const targetDateObj = new Date(today);
+            const previousDay = new Date(targetDateObj);
+            previousDay.setDate(previousDay.getDate() - 1);
+            const nextDay = new Date(targetDateObj);
+            nextDay.setDate(nextDay.getDate() + 1);
+
+            const validDates = [
+              previousDay.toISOString().split("T")[0],
+              today.toISOString().split("T")[0],
+              nextDay.toISOString().split("T")[0],
+            ];
+
+            if (!validDates.includes(extractedDate)) {
+              console.log(`🚫 [Routes] Final validation - rejecting fixture outside date range: {
+  requestedDate: '${today.toISOString().split("T")[0]}',
   apiReturnedDate: '${apiDateString}',
   extractedDate: '${extractedDate}',
   fixtureId: ${fixture.fixture.id}
 }`);
-        return false;
+              return false;
+            }
+
+            return true;
+          } catch (error) {
+            console.error("Error in final date validation:", error);
+            return false;
+          }
+        });
+
+        res.json({
+          success: true,
+          fixtures: validatedFixtures,
+          country: country,
+          season: season || 2024,
+          totalLeagues: countryLeagues.length,
+          totalFixtures: validatedFixtures.length,
+        });
+      } catch (error) {
+        console.error("Error fetching fixtures by country:", error);
+        res.status(500).json({
+          success: false,
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to fetch fixtures by country",
+        });
       }
-
-      return true;
-    } catch (error) {
-      console.error('Error in final date validation:', error);
-      return false;
-    }
-  });
-
-      res.json({ 
-        success: true, 
-        fixtures: validatedFixtures,
-        country: country,
-        season: season || 2024,
-        totalLeagues: countryLeagues.length,
-        totalFixtures: validatedFixtures.length
-      });
-    } catch (error) {
-      console.error('Error fetching fixtures by country:', error);
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch fixtures by country'
-      });
-    }
-  });
+    },
+  );
 
   // Debug endpoint to compare fixture data between RapidAPI and SportsRadar
-  apiRouter.get('/debug/fixture/:fixtureId/compare', async (req: Request, res: Response) => {
-    try {
-      const { fixtureId } = req.params;
-
-      console.log(`🔍 [DEBUG] Comparing fixture ${fixtureId} between APIs`);
-
-      if (!fixtureId || fixtureId.trim() === '') {
-        return res.status(400).json({ 
-          error: 'Invalid fixture ID',
-          fixtureId: fixtureId
-        });
-      }
-
-      // Fetch from RapidAPI (our current source)
-      let rapidApiData = null;
-      let rapidApiError = null;
+  apiRouter.get(
+    "/debug/fixture/:fixtureId/compare",
+    async (req: Request, res: Response) => {
       try {
-        const rapidApiKey = process.env.RAPID_API_KEY;
-        if (!rapidApiKey) {
-          rapidApiError = 'RapidAPI key not configured';
-        } else {
-          const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?id=${fixtureId}`, {
-            headers: {
-              'X-RapidAPI-Key': rapidApiKey,
-              'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-            }
-          });
+        const { fixtureId } = req.params;
 
-          if (response.ok) {
-            const apiResponse = await response.json();
-            if (apiResponse.response && apiResponse.response.length > 0) {
-              rapidApiData = apiResponse.response[0];
-            } else {
-              rapidApiError = 'No fixture found in RapidAPI response';
-            }
-          } else {
-            rapidApiError = `RapidAPI responded with status ${response.status}`;
-          }
-        }
-      } catch (error) {
-        rapidApiError = error instanceof Error ? error.message : 'Unknown RapidAPI error';
-        console.error(`Error fetching from RapidAPI for fixture ${fixtureId}:`, error);
-      }
+        console.log(`🔍 [DEBUG] Comparing fixture ${fixtureId} between APIs`);
 
-      // Fetch from SportsRadar API
-      let sportsRadarData = null;
-      let sportsRadarError = null;
-      try {
-        const sportsRadarKey = process.env.SPORTSRADAR_API_KEY || 'GyxLqseloLhoo4ietUKotcYT89QjqHuYS6xDNAyY';
-
-        // Try to find the fixture in SportsRadar by searching live matches first
-        const liveResponse = await fetch(`https://api.sportradar.com/soccer/trial/v4/en/matches/live.json?api_key=${sportsRadarKey}`);
-
-        if (liveResponse.ok) {
-          const liveData = await liveResponse.json();
-
-          // Look for the match by team names if we have RapidAPI data
-          if (rapidApiData) {
-            const rapidHomeTeam = rapidApiData.teams?.home?.name || '';
-            const rapidAwayTeam = rapidApiData.teams?.away?.name || '';
-
-            const sportsRadarMatch = liveData.matches?.find((match: any) => {
-              const homeTeam = match.home_team?.name || '';
-              const awayTeam = match.away_team?.name || '';
-              return (homeTeam.includes(rapidHomeTeam.split(' ')[0]) && awayTeam.includes(rapidAwayTeam.split(' ')[0])) ||
-                     (homeTeam.includes(rapidAwayTeam.split(' ')[0]) && awayTeam.includes(rapidHomeTeam.split(' ')[0]));
-            });
-
-            if (sportsRadarMatch) {
-              sportsRadarData = sportsRadarMatch;
-            } else {
-              sportsRadarError = 'Matching fixture not found in SportsRadar live data';
-            }
-          } else {
-            sportsRadarError = 'Cannot search SportsRadar without RapidAPI data for comparison';
-          }
-        } else {
-          sportsRadarError = `SportsRadar API responded with status ${liveResponse.status}`;
-        }
-      } catch (error) {
-        sportsRadarError = error instanceof Error ? error.message : 'Unknown SportsRadar error';
-        console.error(`Error fetching from SportsRadar:`, error);
-      }
-
-      // Build comparison response
-      const comparison = {
-        fixtureId,
-        serverTime: new Date().toISOString(),
-        rapidApi: {
-          available: !!rapidApiData,
-          error: rapidApiError,
-          data: rapidApiData ? {
-            status: rapidApiData.fixture?.status?.short,
-            statusLong: rapidApiData.fixture?.status?.long,
-            homeTeam: rapidApiData.teams?.home?.name,
-            awayTeam: rapidApiData.teams?.away?.name,
-            homeGoals: rapidApiData.goals?.home,
-            awayGoals: rapidApiData.goals?.away,
-            date: rapidApiData.fixture?.date,
-            elapsed: rapidApiData.fixture?.status?.elapsed,
-            league: rapidApiData.league?.name
-          } : null
-        },
-        sportsRadar: {
-          available: !!sportsRadarData,
-          error: sportsRadarError,
-          data: sportsRadarData ? {
-            status: sportsRadarData.status,
-            homeTeam: sportsRadarData.home_team?.name,
-            awayTeam: sportsRadarData.away_team?.name,
-            homeGoals: sportsRadarData.home_score,
-            awayGoals: sportsRadarData.away_score,
-            date: sportsRadarData.scheduled,
-            elapsed: sportsRadarData.clock?.minute,
-            league: sportsRadarData.tournament?.name
-          } : null
-        },
-        differences: [] as any[],
-        recommendation: ''
-      };
-
-      // Compare key fields if both APIs have data
-      if (rapidApiData && sportsRadarData) {
-        const rapidHomeGoals = rapidApiData.goals?.home;
-        const rapidAwayGoals = rapidApiData.goals?.away;
-        const rapidElapsed = rapidApiData.fixture?.status?.elapsed;
-
-        const sportsRadarHomeGoals = sportsRadarData.home_score;
-        const sportsRadarAwayGoals = sportsRadarData.away_score;
-        const sportsRadarElapsed = sportsRadarData.clock?.minute;
-
-        if (rapidHomeGoals !== sportsRadarHomeGoals) {
-          comparison.differences.push({
-            field: 'home_goals',
-            rapidApi: rapidHomeGoals,
-            sportsRadar: sportsRadarHomeGoals
+        if (!fixtureId || fixtureId.trim() === "") {
+          return res.status(400).json({
+            error: "Invalid fixture ID",
+            fixtureId: fixtureId,
           });
         }
 
-        if (rapidAwayGoals !== sportsRadarAwayGoals) {
-          comparison.differences.push({
-            field: 'away_goals',
-            rapidApi: rapidAwayGoals,
-            sportsRadar: sportsRadarAwayGoals
-          });
-        }
-
-        if (rapidElapsed !== sportsRadarElapsed) {
-          comparison.differences.push({
-            field: 'elapsed_time',
-            rapidApi: rapidElapsed,
-            sportsRadar: sportsRadarElapsed
-          });
-        }
-
-        comparison.recommendation = comparison.differences.length > 0 
-          ? 'Data differs between APIs - consider cross-referencing'
-          : 'Data is consistent between both APIs';
-      } else if (rapidApiError && sportsRadarError) {
-        comparison.recommendation = 'Both APIs failed - check API configurations';
-      } else if (rapidApiError) {
-        comparison.recommendation = 'RapidAPI failed - using SportsRadar data if available';
-      } else if (sportsRadarError) {
-        comparison.recommendation = 'SportsRadar data not available - using RapidAPI data';
-      } else {
-        comparison.recommendation = 'No data available from either API';
-      }
-
-      res.json(comparison);
-
-    } catch (error) {
-      console.error('Debug fixture comparison error:', error);
-      res.status(500).json({ 
-        error: 'Comparison test failed',
-        details: error instanceof Error ? error.message : 'Unknown error',
-        fixtureId: req.params.fixtureId
-      });
-    }
-  });
-
-  // Debug endpoint to check specific fixture freshness
-  apiRouter.get('/debug/fixture/:fixtureId', async (req: Request, res: Response) => {
-    try {
-      const { fixtureId } = req.params;
-
-      console.log(`🔍 [DEBUG] Checking fixture ${fixtureId} freshness`);
-
-      if (!fixtureId || fixtureId.trim() === '') {
-        return res.status(400).json({ 
-          error: 'Invalid fixture ID',
-          fixtureId: fixtureId
-        });
-      }
-
-      // Check cached version
-      let cacheInfo = null;
-      try {
-        const cachedFixture = await storage.getCachedFixture(fixtureId);
-
-        if (cachedFixture) {
-          const cacheAge = Date.now() - new Date(cachedFixture.timestamp).getTime();
-          cacheInfo = {
-            exists: true,
-            age: Math.round(cacheAge / 60000), // in minutes
-            lastUpdated: cachedFixture.timestamp,
-            data: cachedFixture.data
-          };
-        } else {
-          cacheInfo = {
-            exists: false,
-            message: 'No cached data found'
-          };
-        }
-      } catch (cacheError) {
-        console.error(`Error checking cache for fixture ${fixtureId}:`, cacheError);
-        cacheInfo = {
-          exists: false,
-          error: cacheError instanceof Error ? cacheError.message : 'Cache error'
-        };
-      }
-
-      // Fetch fresh data from API
-      let freshData = null;
-      let apiError = null;
-      try {
-        const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?id=${fixtureId}`, {
-          headers: {
-            'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
-            'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-          }
-        });
-
-        const apiResponse = await response.json();
-        if (apiResponse.response && apiResponse.response.length > 0) {
-          freshData = apiResponse.response[0];
-        } else {
-          apiError = 'No fixture found in API response';
-        }
-      } catch (error) {
-        console.error(`Error fetching fresh data for fixture ${fixtureId}:`, error);
-        apiError = error instanceof Error ? error.message : 'API fetch error';
-      }
-
-      // Compare data
-      const comparison: {
-        fixtureId: any;
-        serverTime: string;
-        cache: any;
-        fresh: any;
-        apiError: any;
-        isOutdated: boolean;
-        differences: any[];
-      } = {
-        fixtureId,
-        serverTime: new Date().toISOString(),
-        cache: cacheInfo,
-        fresh: freshData,
-        apiError: apiError,
-        isOutdated: false,
-        differences: []
-      };
-
-      if (cacheInfo?.exists && freshData) {
-        // Compare key fields safely
-        const fieldsToCompare = [
-          'fixture.status.short',
-          'fixture.status.long',
-          'goals.home',
-          'goals.away',
-          'score.halftime.home',
-          'score.halftime.away',
-          'score.fulltime.home',
-          'score.fulltime.away'
-        ];
-
-        for (const field of fieldsToCompare) {
-          try {
-            const cachedValue = field.split('.').reduce((obj: any, key: string) => {
-              return (obj && typeof obj === 'object') ? obj[key] : undefined;
-            }, cacheInfo.data);
-
-            const freshValue = field.split('.').reduce((obj: any, key: string) => {
-              return (obj && typeof obj === 'object') ? obj[key] : undefined;
-            }, freshData);
-
-            // Safe comparison - convert to strings to avoid type issues
-            const cachedStr = cachedValue !== null && cachedValue !== undefined ? String(cachedValue) : 'null';
-            const freshStr = freshValue !== null && freshValue !== undefined ? String(freshValue) : 'null';
-
-            if (cachedStr !== freshStr) {
-              comparison.differences.push({
-                field,
-                cached: cachedValue,
-                fresh: freshValue
-              });
-              comparison.isOutdated = true;
-            }
-          } catch (error) {
-            console.error(`Error comparing field ${field}:`, error);
-            comparison.differences.push({
-              field,
-              cached: 'ERROR',
-              fresh: 'ERROR',
-              error: error instanceof Error ? error.message : 'Unknown error'
-            });
-          }
-        }
-      }
-
-      console.log(`✅ [DEBUG] Successfully processed fixture ${fixtureId} debug request`);
-      res.json(comparison);
-
-    } catch (error) {
-      console.error(`❌ [DEBUG] Error in debug fixture endpoint for ${req.params.fixtureId}:`, error);
-      res.status(500).json({ 
-        error: 'Debug test failed',
-        details: error instanceof Error ? error.message : 'Unknown error',
-        fixtureId: req.params.fixtureId
-      });
-    }
-  });
-
-  // Debug endpoint to test RapidAPI date requests directly
-  apiRouter.get('/debug/rapidapi-date/:date', async (req: Request, res: Response) => {
-    try {
-      const { date } = req.params;
-
-      console.log(`🔬 [DEBUG] Testing RapidAPI direct call for date: ${date}`);
-
-      // Make direct API call with different timezone parameters
-      const tests = [
-        { timezone: 'UTC', name: 'UTC' },
-        { timezone: 'Europe/London', name: 'London' },
-        { timezone: 'America/New_York', name: 'New_York' },
-        { name: 'No_Timezone' } // No timezone parameter
-      ];
-
-      const results = [];
-
-      for (const test of tests) {
+        // Fetch from RapidAPI (our current source)
+        let rapidApiData = null;
+        let rapidApiError = null;
         try {
-          const params: any = { date };
-          if (test.timezone) {
-            params.timezone = test.timezone;
-          }
-
-          console.log(`🧪 [DEBUG] Testing with params:`, params);
-
-          const response = await fetch(`https://api-football-v1.p.rapidapi.com/v3/fixtures?${new URLSearchParams(params)}`, {
-            headers: {
-              'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
-              'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-            }
-          });
-
-          const data = await response.json();
-
-          if (data.response?.length > 0) {
-            const sampleDates = data.response.slice(0, 5).map((f: any) => {
-              const fixtureDate = new Date(f.fixture?.date);
-              return {
-                id: f.fixture?.id,
-                returnedDate: f.fixture?.date,
-                extractedDate: fixtureDate.toISOString().split('T')[0],
-                matchesRequested: fixtureDate.toISOString().split('T')[0] === date
-              };
-            });
-
-            results.push({
-              testName: test.name,
-              timezone: test.timezone || 'none',
-              totalResults: data.response.length,
-              sampleDates,
-              correctDateCount: data.response.filter((f: any) => {
-                const fixtureDate = new Date(f.fixture?.date);
-                return fixtureDate.toISOString().split('T')[0] === date;
-              }).length
-            });
+          const rapidApiKey = process.env.RAPID_API_KEY;
+          if (!rapidApiKey) {
+            rapidApiError = "RapidAPI key not configured";
           } else {
-            results.push({
-              testName: test.name,
-              timezone: test.timezone || 'none',
-              totalResults: 0,
-              error: 'No fixtures returned'
-            });
+            const response = await fetch(
+              `https://api-football-v1.p.rapidapi.com/v3/fixtures?id=${fixtureId}`,
+              {
+                headers: {
+                  "X-RapidAPI-Key": rapidApiKey,
+                  "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
+                },
+              },
+            );
+
+            if (response.ok) {
+              const apiResponse = await response.json();
+              if (apiResponse.response && apiResponse.response.length > 0) {
+                rapidApiData = apiResponse.response[0];
+              } else {
+                rapidApiError = "No fixture found in RapidAPI response";
+              }
+            } else {
+              rapidApiError = `RapidAPI responded with status ${response.status}`;
+            }
           }
         } catch (error) {
-          results.push({
-            testName: test.name,
-            timezone: test.timezone || 'none',
-            error: error instanceof Error ? error.message : 'Unknown error'
+          rapidApiError =
+            error instanceof Error ? error.message : "Unknown RapidAPI error";
+          console.error(
+            `Error fetching from RapidAPI for fixture ${fixtureId}:`,
+            error,
+          );
+        }
+
+        // Fetch from SportsRadar API
+        let sportsRadarData = null;
+        let sportsRadarError = null;
+        try {
+          const sportsRadarKey =
+            process.env.SPORTSRADAR_API_KEY ||
+            "GyxLqseloLhoo4ietUKotcYT89QjqHuYS6xDNAyY";
+
+          // Try to find the fixture in SportsRadar by searching live matches first
+          const liveResponse = await fetch(
+            `https://api.sportradar.com/soccer/trial/v4/en/matches/live.json?api_key=${sportsRadarKey}`,
+          );
+
+          if (liveResponse.ok) {
+            const liveData = await liveResponse.json();
+
+            // Look for the match by team names if we have RapidAPI data
+            if (rapidApiData) {
+              const rapidHomeTeam = rapidApiData.teams?.home?.name || "";
+              const rapidAwayTeam = rapidApiData.teams?.away?.name || "";
+
+              const sportsRadarMatch = liveData.matches?.find((match: any) => {
+                const homeTeam = match.home_team?.name || "";
+                const awayTeam = match.away_team?.name || "";
+                return (
+                  (homeTeam.includes(rapidHomeTeam.split(" ")[0]) &&
+                    awayTeam.includes(rapidAwayTeam.split(" ")[0])) ||
+                  (homeTeam.includes(rapidAwayTeam.split(" ")[0]) &&
+                    awayTeam.includes(rapidHomeTeam.split(" ")[0]))
+                );
+              });
+
+              if (sportsRadarMatch) {
+                sportsRadarData = sportsRadarMatch;
+              } else {
+                sportsRadarError =
+                  "Matching fixture not found in SportsRadar live data";
+              }
+            } else {
+              sportsRadarError =
+                "Cannot search SportsRadar without RapidAPI data for comparison";
+            }
+          } else {
+            sportsRadarError = `SportsRadar API responded with status ${liveResponse.status}`;
+          }
+        } catch (error) {
+          sportsRadarError =
+            error instanceof Error
+              ? error.message
+              : "Unknown SportsRadar error";
+          console.error(`Error fetching from SportsRadar:`, error);
+        }
+
+        // Build comparison response
+        const comparison = {
+          fixtureId,
+          serverTime: new Date().toISOString(),
+          rapidApi: {
+            available: !!rapidApiData,
+            error: rapidApiError,
+            data: rapidApiData
+              ? {
+                  status: rapidApiData.fixture?.status?.short,
+                  statusLong: rapidApiData.fixture?.status?.long,
+                  homeTeam: rapidApiData.teams?.home?.name,
+                  awayTeam: rapidApiData.teams?.away?.name,
+                  homeGoals: rapidApiData.goals?.home,
+                  awayGoals: rapidApiData.goals?.away,
+                  date: rapidApiData.fixture?.date,
+                  elapsed: rapidApiData.fixture?.status?.elapsed,
+                  league: rapidApiData.league?.name,
+                }
+              : null,
+          },
+          sportsRadar: {
+            available: !!sportsRadarData,
+            error: sportsRadarError,
+            data: sportsRadarData
+              ? {
+                  status: sportsRadarData.status,
+                  homeTeam: sportsRadarData.home_team?.name,
+                  awayTeam: sportsRadarData.away_team?.name,
+                  homeGoals: sportsRadarData.home_score,
+                  awayGoals: sportsRadarData.away_score,
+                  date: sportsRadarData.scheduled,
+                  elapsed: sportsRadarData.clock?.minute,
+                  league: sportsRadarData.tournament?.name,
+                }
+              : null,
+          },
+          differences: [] as any[],
+          recommendation: "",
+        };
+
+        // Compare key fields if both APIs have data
+        if (rapidApiData && sportsRadarData) {
+          const rapidHomeGoals = rapidApiData.goals?.home;
+          const rapidAwayGoals = rapidApiData.goals?.away;
+          const rapidElapsed = rapidApiData.fixture?.status?.elapsed;
+
+          const sportsRadarHomeGoals = sportsRadarData.home_score;
+          const sportsRadarAwayGoals = sportsRadarData.away_score;
+          const sportsRadarElapsed = sportsRadarData.clock?.minute;
+
+          if (rapidHomeGoals !== sportsRadarHomeGoals) {
+            comparison.differences.push({
+              field: "home_goals",
+              rapidApi: rapidHomeGoals,
+              sportsRadar: sportsRadarHomeGoals,
+            });
+          }
+
+          if (rapidAwayGoals !== sportsRadarAwayGoals) {
+            comparison.differences.push({
+              field: "away_goals",
+              rapidApi: rapidAwayGoals,
+              sportsRadar: sportsRadarAwayGoals,
+            });
+          }
+
+          if (rapidElapsed !== sportsRadarElapsed) {
+            comparison.differences.push({
+              field: "elapsed_time",
+              rapidApi: rapidElapsed,
+              sportsRadar: sportsRadarElapsed,
+            });
+          }
+
+          comparison.recommendation =
+            comparison.differences.length > 0
+              ? "Data differs between APIs - consider cross-referencing"
+              : "Data is consistent between both APIs";
+        } else if (rapidApiError && sportsRadarError) {
+          comparison.recommendation =
+            "Both APIs failed - check API configurations";
+        } else if (rapidApiError) {
+          comparison.recommendation =
+            "RapidAPI failed - using SportsRadar data if available";
+        } else if (sportsRadarError) {
+          comparison.recommendation =
+            "SportsRadar data not available - using RapidAPI data";
+        } else {
+          comparison.recommendation = "No data available from either API";
+        }
+
+        res.json(comparison);
+      } catch (error) {
+        console.error("Debug fixture comparison error:", error);
+        res.status(500).json({
+          error: "Comparison test failed",
+          details: error instanceof Error ? error.message : "Unknown error",
+          fixtureId: req.params.fixtureId,
+        });
+      }
+    },
+  );
+
+  // Debug endpoint to check specific fixture freshness
+  apiRouter.get(
+    "/debug/fixture/:fixtureId",
+    async (req: Request, res: Response) => {
+      try {
+        const { fixtureId } = req.params;
+
+        console.log(`🔍 [DEBUG] Checking fixture ${fixtureId} freshness`);
+
+        if (!fixtureId || fixtureId.trim() === "") {
+          return res.status(400).json({
+            error: "Invalid fixture ID",
+            fixtureId: fixtureId,
           });
         }
+
+        // Check cached version
+        let cacheInfo = null;
+        try {
+          const cachedFixture = await storage.getCachedFixture(fixtureId);
+
+          if (cachedFixture) {
+            const cacheAge =
+              Date.now() - new Date(cachedFixture.timestamp).getTime();
+            cacheInfo = {
+              exists: true,
+              age: Math.round(cacheAge / 60000), // in minutes
+              lastUpdated: cachedFixture.timestamp,
+              data: cachedFixture.data,
+            };
+          } else {
+            cacheInfo = {
+              exists: false,
+              message: "No cached data found",
+            };
+          }
+        } catch (cacheError) {
+          console.error(
+            `Error checking cache for fixture ${fixtureId}:`,
+            cacheError,
+          );
+          cacheInfo = {
+            exists: false,
+            error:
+              cacheError instanceof Error ? cacheError.message : "Cache error",
+          };
+        }
+
+        // Fetch fresh data from API
+        let freshData = null;
+        let apiError = null;
+        try {
+          const response = await fetch(
+            `https://api-football-v1.p.rapidapi.com/v3/fixtures?id=${fixtureId}`,
+            {
+              headers: {
+                "X-RapidAPI-Key": process.env.RAPID_API_KEY || "",
+                "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
+              },
+            },
+          );
+
+          const apiResponse = await response.json();
+          if (apiResponse.response && apiResponse.response.length > 0) {
+            freshData = apiResponse.response[0];
+          } else {
+            apiError = "No fixture found in API response";
+          }
+        } catch (error) {
+          console.error(
+            `Error fetching fresh data for fixture ${fixtureId}:`,
+            error,
+          );
+          apiError = error instanceof Error ? error.message : "API fetch error";
+        }
+
+        // Compare data
+        const comparison: {
+          fixtureId: any;
+          serverTime: string;
+          cache: any;
+          fresh: any;
+          apiError: any;
+          isOutdated: boolean;
+          differences: any[];
+        } = {
+          fixtureId,
+          serverTime: new Date().toISOString(),
+          cache: cacheInfo,
+          fresh: freshData,
+          apiError: apiError,
+          isOutdated: false,
+          differences: [],
+        };
+
+        if (cacheInfo?.exists && freshData) {
+          // Compare key fields safely
+          const fieldsToCompare = [
+            "fixture.status.short",
+            "fixture.status.long",
+            "goals.home",
+            "goals.away",
+            "score.halftime.home",
+            "score.halftime.away",
+            "score.fulltime.home",
+            "score.fulltime.away",
+          ];
+
+          for (const field of fieldsToCompare) {
+            try {
+              const cachedValue = field
+                .split(".")
+                .reduce((obj: any, key: string) => {
+                  return obj && typeof obj === "object" ? obj[key] : undefined;
+                }, cacheInfo.data);
+
+              const freshValue = field
+                .split(".")
+                .reduce((obj: any, key: string) => {
+                  return obj && typeof obj === "object" ? obj[key] : undefined;
+                }, freshData);
+
+              // Safe comparison - convert to strings to avoid type issues
+              const cachedStr =
+                cachedValue !== null && cachedValue !== undefined
+                  ? String(cachedValue)
+                  : "null";
+              const freshStr =
+                freshValue !== null && freshValue !== undefined
+                  ? String(freshValue)
+                  : "null";
+
+              if (cachedStr !== freshStr) {
+                comparison.differences.push({
+                  field,
+                  cached: cachedValue,
+                  fresh: freshValue,
+                });
+                comparison.isOutdated = true;
+              }
+            } catch (error) {
+              console.error(`Error comparing field ${field}:`, error);
+              comparison.differences.push({
+                field,
+                cached: "ERROR",
+                fresh: "ERROR",
+                error: error instanceof Error ? error.message : "Unknown error",
+              });
+            }
+          }
+        }
+
+        console.log(
+          `✅ [DEBUG] Successfully processed fixture ${fixtureId} debug request`,
+        );
+        res.json(comparison);
+      } catch (error) {
+        console.error(
+          `❌ [DEBUG] Error in debug fixture endpoint for ${req.params.fixtureId}:`,
+          error,
+        );
+        res.status(500).json({
+          error: "Debug test failed",
+          details: error instanceof Error ? error.message : "Unknown error",
+          fixtureId: req.params.fixtureId,
+        });
       }
+    },
+  );
 
-      res.json({
-        requestedDate: date,
-        serverTime: new Date().toISOString(),
-        serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        testResults: results
-      });
+  // Debug endpoint to test RapidAPI date requests directly
+  apiRouter.get(
+    "/debug/rapidapi-date/:date",
+    async (req: Request, res: Response) => {
+      try {
+        const { date } = req.params;
 
-    } catch (error) {
-      console.error('Debug endpoint error:', error);
-      res.status(500).json({ error: 'Debug test failed' });
-    }
-  });
+        console.log(
+          `🔬 [DEBUG] Testing RapidAPI direct call for date: ${date}`,
+        );
+
+        // Make direct API call with different timezone parameters
+        const tests = [
+          { timezone: "UTC", name: "UTC" },
+          { timezone: "Europe/London", name: "London" },
+          { timezone: "America/New_York", name: "New_York" },
+          { name: "No_Timezone" }, // No timezone parameter
+        ];
+
+        const results = [];
+
+        for (const test of tests) {
+          try {
+            const params: any = { date };
+            if (test.timezone) {
+              params.timezone = test.timezone;
+            }
+
+            console.log(`🧪 [DEBUG] Testing with params:`, params);
+
+            const response = await fetch(
+              `https://api-football-v1.p.rapidapi.com/v3/fixtures?${new URLSearchParams(params)}`,
+              {
+                headers: {
+                  "X-RapidAPI-Key": process.env.RAPID_API_KEY || "",
+                  "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
+                },
+              },
+            );
+
+            const data = await response.json();
+
+            if (data.response?.length > 0) {
+              const sampleDates = data.response.slice(0, 5).map((f: any) => {
+                const fixtureDate = new Date(f.fixture?.date);
+                return {
+                  id: f.fixture?.id,
+                  returnedDate: f.fixture?.date,
+                  extractedDate: fixtureDate.toISOString().split("T")[0],
+                  matchesRequested:
+                    fixtureDate.toISOString().split("T")[0] === date,
+                };
+              });
+
+              results.push({
+                testName: test.name,
+                timezone: test.timezone || "none",
+                totalResults: data.response.length,
+                sampleDates,
+                correctDateCount: data.response.filter((f: any) => {
+                  const fixtureDate = new Date(f.fixture?.date);
+                  return fixtureDate.toISOString().split("T")[0] === date;
+                }).length,
+              });
+            } else {
+              results.push({
+                testName: test.name,
+                timezone: test.timezone || "none",
+                totalResults: 0,
+                error: "No fixtures returned",
+              });
+            }
+          } catch (error) {
+            results.push({
+              testName: test.name,
+              timezone: test.timezone || "none",
+              error: error instanceof Error ? error.message : "Unknown error",
+            });
+          }
+        }
+
+        res.json({
+          requestedDate: date,
+          serverTime: new Date().toISOString(),
+          serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          testResults: results,
+        });
+      } catch (error) {
+        console.error("Debug endpoint error:", error);
+        res.status(500).json({ error: "Debug test failed" });
+      }
+    },
+  );
 
   // Get fixtures by date
-  apiRouter.get('/fixtures/date/:date', async (req: Request, res: Response) => {
+  apiRouter.get("/fixtures/date/:date", async (req: Request, res: Response) => {
     try {
       const { date } = req.params;
       const { all } = req.query;
 
       if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
+        return res
+          .status(400)
+          .json({ error: "Invalid date format. Use YYYY-MM-DD" });
       }
-        // Get fixtures for the requested date without timezone restrictions
+      // Get fixtures for the requested date without timezone restrictions
       // This allows us to capture fixtures from all timezones for the given date
       const apiFromDate = date; // Use the date as-is
       const apiToDate = date; // Same day
 
-      const fixtures = await rapidApiService.getFixturesByDate(date, all === 'true');
-      console.log(`Got ${fixtures.length} fixtures ${all === 'true' ? 'from all leagues' : 'from popular leagues'} for date ${date}`);
+      const fixtures = await rapidApiService.getFixturesByDate(
+        date,
+        all === "true",
+      );
+      console.log(
+        `Got ${fixtures.length} fixtures ${all === "true" ? "from all leagues" : "from popular leagues"} for date ${date}`,
+      );
       res.json(fixtures);
     } catch (error) {
-      console.error('Error fetching fixtures by date:', error);
-      res.status(500).json({ error: 'Failed to fetch fixtures' });
+      console.error("Error fetching fixtures by date:", error);
+      res.status(500).json({ error: "Failed to fetch fixtures" });
     }
   });
 
   // Sportsradar API routes
-  apiRouter.get('/sportsradar/fixtures/:id/events', async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      console.log(`📊 [Sportsradar] Fetching events for fixture: ${id}`);
+  apiRouter.get(
+    "/sportsradar/fixtures/:id/events",
+    async (req: Request, res: Response) => {
+      try {
+        const { id } = req.params;
+        console.log(`📊 [Sportsradar] Fetching events for fixture: ${id}`);
 
-      // Return empty events array since Sportsradar events API is not accessible
-      res.json({
-        success: true,
-        events: [],
-        message: 'Sportsradar events API not accessible'
-      });
-    } catch (error) {
-      console.error('❌ [Sportsradar] Error fetching events:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to fetch Sportsradar events',
-        events: []
-      });
-    }
-  });
+        // Return empty events array since Sportsradar events API is not accessible
+        res.json({
+          success: true,
+          events: [],
+          message: "Sportsradar events API not accessible",
+        });
+      } catch (error) {
+        console.error("❌ [Sportsradar] Error fetching events:", error);
+        res.status(500).json({
+          success: false,
+          error: "Failed to fetch Sportsradar events",
+          events: [],
+        });
+      }
+    },
+  );
 
-  apiRouter.get('/sportsradar/fixtures/:id/stats', async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      console.log(`📊 [Sportsradar] Fetching stats for fixture: ${id}`);
+  apiRouter.get(
+    "/sportsradar/fixtures/:id/stats",
+    async (req: Request, res: Response) => {
+      try {
+        const { id } = req.params;
+        console.log(`📊 [Sportsradar] Fetching stats for fixture: ${id}`);
 
-      // Return empty stats since Sportsradar stats API is not accessible
-      res.json({
-        success: true,
-        statistics: null,
-        message: 'Sportsradar stats API not accessible'
-      });
-    } catch (error) {
-      console.error('❌ [Sportsradar] Error fetching stats:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to fetch Sportsradar stats',
-        statistics: null
-      });
-    }
-  });
+        // Return empty stats since Sportsradar stats API is not accessible
+        res.json({
+          success: true,
+          statistics: null,
+          message: "Sportsradar stats API not accessible",
+        });
+      } catch (error) {
+        console.error("❌ [Sportsradar] Error fetching stats:", error);
+        res.status(500).json({
+          success: false,
+          error: "Failed to fetch Sportsradar stats",
+          statistics: null,
+        });
+      }
+    },
+  );
 
   // SoccersAPI routes for live action data
-  apiRouter.get('/soccersapi/leagues', async (req: Request, res: Response) => {
+  apiRouter.get("/soccersapi/leagues", async (req: Request, res: Response) => {
     try {
-      console.log('🏈 [SoccersAPI] Fetching leagues');
+      console.log("🏈 [SoccersAPI] Fetching leagues");
       const leagues = await soccersApi.getLeagues();
       res.json({
         success: true,
         data: leagues,
-        count: leagues.length
+        count: leagues.length,
       });
     } catch (error) {
-      console.error('❌ [SoccersAPI] Error fetching leagues:', error);
+      console.error("❌ [SoccersAPI] Error fetching leagues:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to fetch SoccersAPI leagues',
-        data: []
+        error: "Failed to fetch SoccersAPI leagues",
+        data: [],
       });
     }
   });
 
-  apiRouter.get('/soccersapi/live', async (req: Request, res: Response) => {
+  apiRouter.get("/soccersapi/live", async (req: Request, res: Response) => {
     try {
-      console.log('🔴 [SoccersAPI] Fetching live matches');
+      console.log("🔴 [SoccersAPI] Fetching live matches");
       const liveMatches = await soccersApi.getLiveMatches();
       res.json({
         success: true,
         data: liveMatches,
-        count: liveMatches.length
+        count: liveMatches.length,
       });
     } catch (error) {
-      console.error('❌ [SoccersAPI] Error fetching live matches:', error);
+      console.error("❌ [SoccersAPI] Error fetching live matches:", error);
       res.status(500).json({
         success: false,
-        error: 'Failed to fetch SoccersAPI live matches',
-        data: []
+        error: "Failed to fetch SoccersAPI live matches",
+        data: [],
       });
     }
   });
 
-  apiRouter.get('/soccersapi/matches/:id', async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      console.log(`📋 [SoccersAPI] Fetching match details for: ${id}`);
+  apiRouter.get(
+    "/soccersapi/matches/:id",
+    async (req: Request, res: Response) => {
+      try {
+        const { id } = req.params;
+        console.log(`📋 [SoccersAPI] Fetching match details for: ${id}`);
 
-      const matchDetails = await soccersApi.getMatchDetails(id);
+        const matchDetails = await soccersApi.getMatchDetails(id);
 
-      if (matchDetails) {
-        res.json({
-          success: true,
-          data: matchDetails
-        });
-      } else {
-        res.status(404).json({
+        if (matchDetails) {
+          res.json({
+            success: true,
+            data: matchDetails,
+          });
+        } else {
+          res.status(404).json({
+            success: false,
+            error: "Match not found",
+          });
+        }
+      } catch (error) {
+        console.error("❌ [SoccersAPI] Error fetching match details:", error);
+        res.status(500).json({
           success: false,
-          error: 'Match not found'
+          error: "Failed to fetch SoccersAPI match details",
         });
       }
-    } catch (error) {
-      console.error('❌ [SoccersAPI] Error fetching match details:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to fetch SoccersAPI match details'
-      });
-    }
-  });
+    },
+  );
 
-  apiRouter.get('/soccersapi/matches/:id/events', async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      console.log(`⚽ [SoccersAPI] Fetching events for match: ${id}`);
+  apiRouter.get(
+    "/soccersapi/matches/:id/events",
+    async (req: Request, res: Response) => {
+      try {
+        const { id } = req.params;
+        console.log(`⚽ [SoccersAPI] Fetching events for match: ${id}`);
 
-      const events = await soccersApi.getMatchEvents(id);
-      res.json({
-        success: true,
-        events: events,
-        count: events.length
-      });
-    } catch (error) {
-      console.error('❌ [SoccersAPI] Error fetching match events:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to fetch SoccersAPI match events',
-        events: []
-      });
-    }
-  });
+        const events = await soccersApi.getMatchEvents(id);
+        res.json({
+          success: true,
+          events: events,
+          count: events.length,
+        });
+      } catch (error) {
+        console.error("❌ [SoccersAPI] Error fetching match events:", error);
+        res.status(500).json({
+          success: false,
+          error: "Failed to fetch SoccersAPI match events",
+          events: [],
+        });
+      }
+    },
+  );
 
-  apiRouter.get('/soccersapi/matches/:id/stats', async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      console.log(`📊 [SoccersAPI] Fetching statistics for match: ${id}`);
+  apiRouter.get(
+    "/soccersapi/matches/:id/stats",
+    async (req: Request, res: Response) => {
+      try {
+        const { id } = req.params;
+        console.log(`📊 [SoccersAPI] Fetching statistics for match: ${id}`);
 
-      const stats = await soccersApi.getMatchStatistics(id);
-      res.json({
-        success: true,
-        statistics: stats
-      });
-    } catch (error) {
-      console.error('❌ [SoccersAPI] Error fetching match statistics:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to fetch SoccersAPI match statistics',
-        statistics: null
-      });
-    }
-  });
+        const stats = await soccersApi.getMatchStatistics(id);
+        res.json({
+          success: true,
+          statistics: stats,
+        });
+      } catch (error) {
+        console.error(
+          "❌ [SoccersAPI] Error fetching match statistics:",
+          error,
+        );
+        res.status(500).json({
+          success: false,
+          error: "Failed to fetch SoccersAPI match statistics",
+          statistics: null,
+        });
+      }
+    },
+  );
 
-  apiRouter.get('/soccersapi/matches/:id/lineups', async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);
+  apiRouter.get(
+    "/soccersapi/matches/:id/lineups",
+    async (req: Request, res: Response) => {
+      try {
+        const { id } = req.params;
+        console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);
 
-      const lineups = await soccersApi.getMatchLineups(id);
-      res.json({
-        success: true,
-        lineups: lineups
-      });
-    } catch (error) {
-      console.error('❌ [SoccersAPI] Error fetching match lineups:', error);
-      res.status(500).json({
-        success: false,
-        error: 'Failed to fetch SoccersAPI match lineups',
-        lineups: null
-      });
-    }
-  });
+        const lineups = await soccersApi.getMatchLineups(id);
+        res.json({
+          success: true,
+          lineups: lineups,
+        });
+      } catch (error) {
+        console.error("❌ [SoccersAPI] Error fetching match lineups:", error);
+        res.status(500).json({
+          success: false,
+          error: "Failed to fetch SoccersAPI match lineups",
+          lineups: null,
+        });
+      }
+    },
+  );
 
   // Get live fixtures (with B365API fallback)
   apiRouter.get("/fixtures/live", async (_req: Request, res: Response) => {
@@ -2322,15 +2725,21 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
         console.log(`Retrieved ${fixtures.length} live fixtures from RapidAPI`);
 
         // NO CACHING for live fixtures - they need real-time updates
-        console.log(`🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`);
+        console.log(
+          `🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`,
+        );
 
         // Only cache ended matches from the live response
-        const endedMatches = fixtures.filter(fixture => 
-          ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC'].includes(fixture.fixture.status.short)
+        const endedMatches = fixtures.filter((fixture) =>
+          ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC"].includes(
+            fixture.fixture.status.short,
+          ),
         );
 
         if (endedMatches.length > 0) {
-          console.log(`💾 [LIVE API] Caching ${endedMatches.length} ended matches from live response`);
+          console.log(
+            `💾 [LIVE API] Caching ${endedMatches.length} ended matches from live response`,
+          );
           for (const fixture of endedMatches) {
             try {
               const fixtureId = fixture.fixture.id.toString();
@@ -2341,42 +2750,47 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
               } else {
                 await storage.createCachedFixture({
                   fixtureId: fixtureId,
-                  date: new Date().toISOString().split('T')[0],
+                  date: new Date().toISOString().split("T")[0],
                   league: fixture.league.id.toString(),
-                  data: fixture
+                  data: fixture,
                 });
               }
             } catch (cacheError) {
-              console.error(`Error caching ended fixture ${fixture.fixture.id}:`, cacheError);
+              console.error(
+                `Error caching ended fixture ${fixture.fixture.id}:`,
+                cacheError,
+              );
             }
           }
         }
 
         return res.json(fixtures);
       } catch (rapidApiError) {
-        console.error('RapidAPI error for live fixtures:', rapidApiError);
+        console.error("RapidAPI error for live fixtures:", rapidApiError);
 
         // If API fails, return empty array for live fixtures - no stale cache for live matches
-        console.log(`❌ [LIVE API] RapidAPI failed for live fixtures - returning empty array (no stale cache for live data)`);
+        console.log(
+          `❌ [LIVE API] RapidAPI failed for live fixtures - returning empty array (no stale cache for live data)`,
+        );
         return res.json([]);
       }
     } catch (error) {
-      console.error('Error fetching live fixtures:', error);
+      console.error("Error fetching live fixtures:", error);
       res.status(500).json({ message: "Failed to fetch live fixtures" });
     }
   });
 
   // Get country flag with SportsRadar fallback
-  apiRouter.get('/flags/:country', async (req: Request, res: Response) => {
+  apiRouter.get("/flags/:country", async (req: Request, res: Response) => {
     try {
       const { country } = req.params;
 
       if (!country) {
-        return res.status(400).json({ 
-          success: false, 
-          error: 'Country parameter is required',
-          fallbackUrl: '/assets/fallback-logo.svg',
-          shouldExclude: true
+        return res.status(400).json({
+          success: false,
+          error: "Country parameter is required",
+          fallbackUrl: "/assets/fallback-logo.svg",
+          shouldExclude: true,
         });
       }
 
@@ -2384,58 +2798,61 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
 
       // Try SportsRadar flag with timeout
       try {
-        const sportsRadarFlag = await Promise.race([
+        const sportsRadarFlag = (await Promise.race([
           sportsradarApi.getCountryFlag(country),
-          new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('SportsRadar timeout')), 5000)
-          )
-        ]) as string | null;
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("SportsRadar timeout")), 5000),
+          ),
+        ])) as string | null;
 
         if (sportsRadarFlag) {
-          return res.json({ 
-            success: true, 
+          return res.json({
+            success: true,
             flagUrl: sportsRadarFlag,
-            source: 'SportsRadar'
+            source: "SportsRadar",
           });
         }
       } catch (sportsRadarError) {
-        console.warn(`SportsRadar flag failed for ${country}:`, sportsRadarError);
+        console.warn(
+          `SportsRadar flag failed for ${country}:`,
+          sportsRadarError,
+        );
       }
 
       // If SportsRadar fails, return fallback response
       console.warn(`🚫 Country ${country} will use fallback flag`);
-      res.json({ 
-        success: false, 
-        message: 'Flag not found in SportsRadar - using fallback',
-        fallbackUrl: '/assets/fallback-logo.svg',
-        shouldExclude: false // Don't exclude, just keep writing the code.
+      res.json({
+        success: false,
+        message: "Flag not found in SportsRadar - using fallback",
+        fallbackUrl: "/assets/fallback-logo.svg",
+        shouldExclude: false, // Don't exclude, just keep writing the code.
       });
-
     } catch (error) {
-      console.error('Error fetching flag:', error);
-      res.status(200).json({ // Return 200 to avoid network errors
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch flag',
-        fallbackUrl: '/assets/fallback-logo.svg',
-        shouldExclude: false
+      console.error("Error fetching flag:", error);
+      res.status(200).json({
+        // Return 200 to avoid network errors
+        success: false,
+        error: error instanceof Error ? error.message : "Failed to fetch flag",
+        fallbackUrl: "/assets/fallback-logo.svg",
+        shouldExclude: false,
       });
     }
   });
 
   // Get available countries and their seasons
-  apiRouter.get('/countries', async (req: Request, res: Response) => {
+  apiRouter.get("/countries", async (req: Request, res: Response) => {
     try {
-      console.log('API: Getting available countries and seasons');
+      console.log("API: Getting available countries and seasons");
 
       const allLeagues = await rapidApiService.getLeagues();
 
       // Group leagues by country and extract season information
       const countriesMap = new Map();
 
-      allLeagues.forEach(leagueResponse => {
-        const countryName = leagueResponse.country?.name || 'Unknown';
-        const countryCode = leagueResponse.country?.code || '';
-        const countryFlag = leagueResponse.country?.flag || '';
+      allLeagues.forEach((leagueResponse) => {
+        const countryName = leagueResponse.country?.name || "Unknown";
+        const countryCode = leagueResponse.country?.code || "";
+        const countryFlag = leagueResponse.country?.flag || "";
 
         if (!countriesMap.has(countryName)) {
           countriesMap.set(countryName, {
@@ -2443,7 +2860,7 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
             code: countryCode,
             flag: countryFlag,
             leagues: [],
-            seasons: new Set()
+            seasons: new Set(),
           });
         }
 
@@ -2452,37 +2869,42 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
           id: leagueResponse.league.id,
           name: leagueResponse.league.name,
           type: leagueResponse.league.type,
-          logo: leagueResponse.league.logo
+          logo: leagueResponse.league.logo,
         });
 
         // Add available seasons for this league
         if (leagueResponse.seasons) {
-          leagueResponse.seasons.forEach(season => {
+          leagueResponse.seasons.forEach((season) => {
             countryData.seasons.add(season.year);
           });
         }
       });
 
       // Convert to array and sort
-      const countries = Array.from(countriesMap.values()).map(country => ({
-        ...country,
-        seasons: Array.from(country.seasons).sort((a: any, b: any) => (b as number) - (a as number)), // Sort seasons descending
-        leagueCount: country.leagues.length
-      })).sort((a, b) => a.name.localeCompare(b.name));
+      const countries = Array.from(countriesMap.values())
+        .map((country) => ({
+          ...country,
+          seasons: Array.from(country.seasons).sort(
+            (a: any, b: any) => (b as number) - (a as number),
+          ), // Sort seasons descending
+          leagueCount: country.leagues.length,
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
 
       console.log(`Found ${countries.length} countries with leagues`);
 
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         countries: countries,
         totalCountries: countries.length,
-        totalLeagues: allLeagues.length
+        totalLeagues: allLeagues.length,
       });
     } catch (error) {
-      console.error('Error fetching countries:', error);
-      res.status(500).json({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch countries'
+      console.error("Error fetching countries:", error);
+      res.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Failed to fetch countries",
       });
     }
   });
@@ -2490,25 +2912,27 @@ return res.status(400).json({ error: 'Team ID must be numeric' });
   // Removing UEFA U21 routes registration as requested
 
   // API endpoint to fetch match events
-  apiRouter.get('/fixtures/:id/events', async (req: Request, res: Response) => {
+  apiRouter.get("/fixtures/:id/events", async (req: Request, res: Response) => {
     try {
       const fixtureId = parseInt(req.params.id);
       if (isNaN(fixtureId)) {
-        return res.status(400).json({ error: 'Invalid fixture ID' });
+        return res.status(400).json({ error: "Invalid fixture ID" });
       }
 
       const events = await rapidApiService.getFixtureEvents(fixtureId);
 
       if (!events) {
-        return res.status(404).json({ error: 'Events not found' });
+        return res.status(404).json({ error: "Events not found" });
       }
 
-      console.log(`📊 [Events API] Fetched ${events?.length || 0} events for fixture ${fixtureId}`);
+      console.log(
+        `📊 [Events API] Fetched ${events?.length || 0} events for fixture ${fixtureId}`,
+      );
 
       res.json(events || []);
     } catch (error) {
-      console.error('❌ Error fetching fixture events:', error);
-      res.status(500).json({ error: 'Failed to fetch fixture events' });
+      console.error("❌ Error fetching fixture events:", error);
+      res.status(500).json({ error: "Failed to fetch fixture events" });
     }
   });
 
@@ -2529,11 +2953,13 @@ async function getCountryFlag(country: string): Promise<string | null> {
     }
 
     // If SportsRadar fails, try 365scores CDN
-    console.log(`SportsRadar flag not found for ${country}, trying 365scores CDN fallback`);
+    console.log(
+      `SportsRadar flag not found for ${country}, trying 365scores CDN fallback`,
+    );
     flagUrl = `https://sports.365scores.com/CDN/images/flags/${country}.svg`;
 
     // Check if the 365scores flag exists (naive check)
-    const response = await fetch(flagUrl, { method: 'HEAD' });
+    const response = await fetch(flagUrl, { method: "HEAD" });
     if (response.ok) {
       return flagUrl;
     } else {
@@ -2541,7 +2967,7 @@ async function getCountryFlag(country: string): Promise<string | null> {
       return null;
     }
   } catch (error) {
-    console.error('Error fetching country flag:', error);
+    console.error("Error fetching country flag:", error);
     return null;
   }
 }

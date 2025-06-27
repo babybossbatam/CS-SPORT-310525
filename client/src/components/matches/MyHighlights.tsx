@@ -161,14 +161,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       <CardHeader className="py-2 px-2">
         <CardTitle className="text-base font-md flex items-center justify-between text-sm text-gray-800">
           <div className="flex items-center">
-            <Video className="w-4 h-4 mr-2" />
+    
             Official Highlights
           </div>
-          {currentSource && (
-            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-              {currentSource.name}
-            </span>
-          )}
+          
         </CardTitle>
       </CardHeader>
       <CardContent className="py-0 px-0">
