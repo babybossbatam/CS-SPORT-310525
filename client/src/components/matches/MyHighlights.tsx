@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Video } from 'lucide-react';
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Video } from "lucide-react";
 
 interface MyHighlightsProps {
   homeTeam?: string;
@@ -15,29 +15,24 @@ interface MyHighlightsProps {
 
 const MyHighlights: React.FC<MyHighlightsProps> = () => {
   return (
-    <Card className="w-full shadow-sm border-gray-200">
-      <CardHeader className="pb-2 pt-4">
-        <CardTitle className="text-base font-semibold flex items-center text-gray-800">
-          <Video className="h-4 w-4 mr-2 text-red-500" />
-          Match Highlights
+    <Card className="w-full h-500 shadow-sm border-gray-200">
+      <CardHeader className="py-2 px-2">
+        <CardTitle className="text-base font-md flex items-center text-sm text-gray-800">
+
+          Official Highlights
         </CardTitle>
       </CardHeader>
-      <CardContent className="pb-4">
+      <CardContent className=" py-0 px-0">
         {/* Highlights iframe widget */}
-        <iframe 
-          src="https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&loading_spinner=off" 
-          height="359px" 
-          width="100%" 
-          className="fw-iframe" 
-          scrolling="no" 
+        <iframe
+          src="https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&loading_spinner=off"
+          height="100%"
+          width="100%"
+          className="fw-iframe"
+          scrolling="no"
           frameBorder="0"
           title="Football Feed Widget"
         />
-
-        <div className="mt-3 text-xs text-gray-500 text-center flex items-center justify-center">
-          <Video className="h-3 w-3 mr-1" />
-          Powered by ScoreBat • Live Football Highlights
-        </div>
       </CardContent>
     </Card>
   );
