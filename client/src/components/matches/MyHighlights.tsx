@@ -159,13 +159,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       // Fallback to ScoreBat-style display if no embeddable content found
       const scorebatData = {
         platform: 'scorebat',
-        id: 'embedded-search',
+        id: `${home.toLowerCase().replace(/\s+/g, '-')}-vs-${away.toLowerCase().replace(/\s+/g, '-')}`,
         title: `${home} vs ${away} - Football Highlights`,
-        description: 'Highlights available from our integrated video sources.',
+        description: 'Live highlights available from ScoreBat.',
         thumbnailUrl: '/assets/no-logo-available.png',
-        channelTitle: 'Highlights Hub',
+        channelTitle: 'ScoreBat',
         publishedAt: new Date().toISOString(),
-        watchUrl: '#embedded'
+        watchUrl: `https://www.scorebat.com/video/${home.toLowerCase().replace(/\s+/g, '-')}-vs-${away.toLowerCase().replace(/\s+/g, '-')}`
       };
 
       // Cache the ScoreBat result
@@ -559,33 +559,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                       allowFullScreen
                     />
                   ) : videoData.platform === 'scorebat' ? (
-                    <div className="relative w-full h-full bg-gray-900 flex items-center justify-center">
-                      {/* Embedded ScoreBat-style player that stays on your site */}
-                      <div className="text-center text-white p-8">
-                        <div className="mb-4">
-                          <Play className="h-12 w-12 mx-auto text-red-500 mb-4" />
-                          <h3 className="text-lg font-semibold mb-2">Match Highlights</h3>
-                          <p className="text-gray-300 text-sm mb-4">
-                            {teamData.home} vs {teamData.away}
-                          </p>
-                        </div>
-                        <div className="bg-gray-800 rounded-lg p-6">
-                          <p className="text-gray-300 text-sm mb-4">
-                            Highlights available from multiple sources. Click play to watch on our platform.
-                          </p>
-                          <button
-                            onClick={() => {
-                              // Try to find and embed a working video source
-                              searchForHighlights();
-                            }}
-                            className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center justify-center gap-2"
-                          >
-                            <Play className="w-5 h-5" />
-                            Watch Highlights Here
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                    <iframe
+                      src={`https://www.scorebat.com/embed/${videoData.id}?autoplay=1`}
+                      title={videoData.title}
+                      className="absolute top-0 left-0 w-full h-full border-0"
+                      allow="autoplay; fullscreen"
+                      allowFullScreen
+                    />
                   ) : null}
                 </div>
 
