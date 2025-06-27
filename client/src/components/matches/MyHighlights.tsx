@@ -85,6 +85,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     'Europa League': `https://www.scorebat.com/video-api/v3/competition/uefa-europa-league/?token=${SCOREBAT_VIDEO_API_TOKEN}`
   };
 
+  // ScoreBat video feed endpoint (general highlights feed)
+  const SCOREBAT_FEED_ENDPOINT = `https://www.scorebat.com/video-api/v3/feed/?token=${SCOREBAT_VIDEO_API_TOKEN}`;
+
   // Load ScoreBat widget script
   useEffect(() => {
     const script = document.createElement('script');
@@ -208,6 +211,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           scorebatApiResponse = await fetch(`https://www.scorebat.com/video-api/v3/?token=${SCOREBAT_VIDEO_API_TOKEN}`);
         }
         
+        // If competition/general API fails or has no results, try the feed endpoint
+        if (!scorebatApiResponse.ok || (scorebatApiResponse.ok && !(await scorebatApiResponse.clone().json())?.response?.length)) {
+          console.log('🔄 Trying ScoreBat video feed endpoint as fallback');
+          scorebatApiResponse = await fetch(SCOREBAT_FEED_ENDPOINT);
+        }
+        
         if (scorebatApiResponse.ok) {
           const scorebatApiData = await scorebatApiResponse.json();
           
@@ -228,7 +237,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 platform: 'scorebat-api',
                 id: matchVideo.matchId || 'api-video',
                 title: matchVideo.title || `${home} vs ${away} - Football Highlights`,
-                description: `${competitionEndpoint ? 'Competition-specific' : 'Live'} highlights from ScoreBat Video API.`,
+                description: `${competitionEndpoint ? 'Competition-specific' : scorebatApiResponse.url?.includes('/feed/') ? 'Video feed' : 'Live'} highlights from ScoreBat Video API.`,
                 thumbnailUrl: matchVideo.thumbnail || '/assets/no-logo-available.png',
                 channelTitle: 'ScoreBat',
                 publishedAt: matchVideo.date || new Date().toISOString(),
