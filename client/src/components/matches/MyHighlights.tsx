@@ -196,6 +196,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             <div className="text-center">
               <AlertCircle className="w-8 h-8 mx-auto mb-2 text-red-500" />
               <p className="text-sm text-gray-600 mb-2">Unable to load highlights</p>
+              <p className="text-xs text-gray-500 mb-3">
+                {error.includes('No video sources') 
+                  ? 'All video sources failed. Check API configurations.'
+                  : error
+                }
+              </p>
               <button 
                 onClick={handleRetry}
                 className="text-xs bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
