@@ -958,8 +958,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                     "P",
                     "INT",
                   ].includes(aStatus);
-                  const bLive```text
- = [
+                  const bLive = [
                     "LIVE",
                     "LIV",
                     "1H",
