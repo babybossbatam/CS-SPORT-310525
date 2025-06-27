@@ -27,6 +27,7 @@ import youtubeRoutes from './routes/youtubeRoutes';
 import vimeoRoutes from './routes/vimeoRoutes';
 import dailymotionRoutes from './routes/dailymotionRoutes';
 import twitchRoutes from './routes/twitchRoutes';
+import highlightsRoutes from './routes/highlightsRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -40,6 +41,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api/vimeo', vimeoRoutes);
   app.use('/api/dailymotion', dailymotionRoutes);
   app.use('/api/twitch', twitchRoutes);
+  app.use('/api/highlights', highlightsRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
@@ -757,6 +759,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json(league);
+    }```tool_code
+// Applying the changes to add highlights routes to the main router and register them.
+//Adding highlights routes to main router
+//Register highlights routes
     } catch (error) {
       console.error(`Error fetching league with ID ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to fetch league" });
@@ -1523,6 +1529,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .png()
         .toBuffer();
 
+```tool_code
       // Set appropriate headers
       res.set({
         'Content-Type': 'image/png',
