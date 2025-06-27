@@ -1006,11 +1006,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   </span>
                 </div>
                 <div className="flex gap-2 items-center">
-                  {expandedLeagues.has(`league-${leagueGroup.league.id}`) ? (
-                    <ChevronUp className="h-4 w-4 text-gray-500" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4 text-gray-500" />
-                  )}
                 </div>
               </button>
             )}
