@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useId } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Video, AlertCircle, Loader2 } from "lucide-react";
 
@@ -28,6 +28,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   leagueName, 
   match 
 }) => {
+  const uniqueId = useId();
   const [currentSource, setCurrentSource] = useState<VideoSource | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -224,6 +225,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         ) : currentSource ? (
           <div className="w-full" style={{ paddingBottom: '56.25%', position: 'relative', height: 0 }}>
             <iframe
+              id={`highlights-iframe-${uniqueId}`}
               src={currentSource.embedUrl}
               width="100%"
               height="100%"
