@@ -48,11 +48,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(searchQuery)}&maxResults=1&order=relevance`);
         const data = await response.json();
-        
+
         if (data.error || data.quotaExceeded) {
           throw new Error(data.error || 'YouTube quota exceeded');
         }
-        
+
         if (data.items && data.items.length > 0) {
           const video = data.items[0];
           return {
@@ -72,7 +72,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         const response = await fetch(`/api/vimeo/search?q=${encodeURIComponent(searchQuery)}&maxResults=1`);
         const data = await response.json();
-        
+
         if (data.items && data.items.length > 0) {
           const video = data.items[0];
           return {
@@ -92,7 +92,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         const response = await fetch(`/api/dailymotion/search?q=${encodeURIComponent(searchQuery)}&maxResults=1`);
         const data = await response.json();
-        
+
         if (data.items && data.items.length > 0) {
           const video = data.items[0];
           return {
@@ -112,7 +112,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         const response = await fetch(`/api/highlights/search?home=${encodeURIComponent(home)}&away=${encodeURIComponent(away)}&league=${encodeURIComponent(league)}`);
         const data = await response.json();
-        
+
         if (data.videoUrl) {
           return {
             name: 'ScoreBat',
@@ -129,12 +129,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   const tryNextSource = async () => {
     if (sourceIndex >= videoSources.length) {
-      // All sources failed, use fallback feed widget
+      // All sources failed, use ScoreBat embed as fallback with fixed ID
+      // Generate a more generic match ID format that ScoreBat might recognize
+      const matchId = `${home.toLowerCase().replace(/\s+/g, '-')}-vs-${away.toLowerCase().replace(/\s+/g, '-')}`;
       setCurrentSource({
-        name: 'Football Feed',
-        type: 'feed',
-        embedUrl: "https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&loading_spinner=off",
-        title: 'Football Highlights Feed'
+        name: 'ScoreBat',
+        type: 'scorebat',
+        embedUrl: `https://www.scorebat.com/embed/g/1716203/`,
+        title: `${home} vs ${away} Highlights`
       });
       setLoading(false);
       return;
@@ -256,7 +258,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             </div>
           </div>
         )}
-        
+
         {currentSource && !loading && (
           <div className="p-2 bg-gray-50 border-t">
             <p className="text-xs text-gray-600 truncate" title={currentSource.title}>
