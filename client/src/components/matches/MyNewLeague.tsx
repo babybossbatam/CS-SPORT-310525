@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { Card, CardContent, CardHeader } from "../ui/card";
-import { Star, Calendar } from "lucide-react";
+import { Star, Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
@@ -85,6 +85,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
+  const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(new Set());
 
   // Flash animation states
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(new Set());
@@ -207,6 +208,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     return () => clearInterval(interval);
   }, [fetchLeagueData]);
 
+  // Auto-expand all leagues by default when data changes
+  useEffect(() => {
+    const leagueKeys = Object.keys(matchesByLeague).map(leagueId => `league-${leagueId}`);
+    setExpandedLeagues(new Set(leagueKeys));
+  }, [Object.keys(matchesByLeague).length]);
+
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
   fixtures.forEach((f) => {
@@ -299,6 +306,19 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         newStarred.add(matchId);
       }
       return newStarred;
+    });
+  }, []);
+
+  const toggleLeague = useCallback((leagueId: number) => {
+    setExpandedLeagues((prev) => {
+      const newExpanded = new Set(prev);
+      const leagueKey = `league-${leagueId}`;
+      if (newExpanded.has(leagueKey)) {
+        newExpanded.delete(leagueKey);
+      } else {
+        newExpanded.add(leagueKey);
+      }
+      return newExpanded;
     });
   }, []);
 
@@ -900,9 +920,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             key={`mynewleague-${leagueGroup.league.id}`}
             className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing"
           >
-            {/* League Header */}
+            {/* League Header - Now clickable and collapsible */}
             {!timeFilterActive && (
-              <CardContent className="flex items-center gap-2 p-2 bg-white border-b border-gray-200">
+              <button
+                onClick={() => toggleLeague(leagueGroup.league.id)}
+                className="w-full flex items-center gap-2 p-2 bg-white border-b border-gray-200 transition-colors cursor-pointer group hover:bg-gray-50"
+              >
                 {/* League Star Toggle Button */}
                 <button
                   onClick={(e) => {
@@ -931,30 +954,56 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                       "/assets/fallback-logo.svg";
                   }}
                 />
-                <div className="flex flex-col flex-1">
+                <div className="flex flex-col flex-1 text-left">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="font-semibold text-gray-800 group-hover:underline transition-all duration-200"
+                      style={{
+                        fontFamily:
+                          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                        fontSize: "13.3px",
+                      }}
+                    >
+                      {safeSubstring(leagueGroup.league.name, 0) ||
+                        "Unknown League"}
+                    </span>
+                    <span
+                      className="text-gray-500"
+                      style={{
+                        fontFamily:
+                          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                        fontSize: "13.3px",
+                      }}
+                    >
+                      ({leagueGroup.matches.length})
+                    </span>
+                    {(() => {
+                      const liveMatchesInLeague = leagueGroup.matches.filter((match: any) =>
+                        ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(match.fixture.status.short)
+                      ).length;
+
+                      if (liveMatchesInLeague > 0) {
+                        return (
+                          <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold animate-pulse">
+                            {liveMatchesInLeague} LIVE
+                          </span>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
                   <span
-                    className="font-semibold text-gray-800"
+                    className="text-xs text-gray-600"
                     style={{
                       fontFamily:
                         "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                      fontSize: "13.3px",
-                    }}
-                  >
-                    {safeSubstring(leagueGroup.league.name, 0) ||
-                      "Unknown League"}
-                  </span>
-                  <span
-                    className="text-gray-600"
-                    style={{
-                      fontFamily:
-                        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                      fontSize: "13.3px",
+                      fontSize: "12px",
                     }}
                   >
                     {leagueGroup.league.country || "Unknown Country"}
                   </span>
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-2 items-center">
                   <span
                     className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium"
                     style={{ fontSize: "calc(0.75rem * 0.85)" }}
@@ -962,12 +1011,18 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                     {leagueGroup.matches.length} Match
                     {leagueGroup.matches.length !== 1 ? "es" : ""}
                   </span>
+                  {expandedLeagues.has(`league-${leagueGroup.league.id}`) ? (
+                    <ChevronUp className="h-4 w-4 text-gray-500" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-gray-500" />
+                  )}
                 </div>
-              </CardContent>
+              </button>
             )}
 
-            {/* Matches */}
-            <div className="match-cards-wrapper">
+            {/* Matches - Show when league is expanded */}
+            {(timeFilterActive || expandedLeagues.has(`league-${leagueGroup.league.id}`)) && (
+              <div className="match-cards-wrapper">
               {leagueGroup.matches
                 .slice(0, timeFilterActive && showTop10 ? 10 : undefined)
                 .sort((a: any, b: any) => {
@@ -1359,7 +1414,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                         </div>
                   );
                 })}
-            </div>
+              </div>
+            )}
           </Card>
         );
       })}
