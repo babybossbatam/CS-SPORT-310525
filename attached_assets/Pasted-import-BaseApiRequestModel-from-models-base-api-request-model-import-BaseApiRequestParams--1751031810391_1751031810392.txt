@@ -1,0 +1,140 @@
+import {BaseApiRequestModel} from "../models/base-api-request-model";
+import {BaseApiRequestParams} from "../models/params/base-api-request-params";
+import {BaseApiResponseModel} from "../models/base-api-response-model";
+import {BaseFactory} from "../factories/base-factory";
+import {BaseUtilsService} from "./base-utils-service";
+import {DomUtils} from "../utils/dom-utils";
+import {LoggerUtils} from "../utils/logger/logger-utils";
+import {SiteConfig} from "../../core/bootstrap/models/site-config";
+import {DeviceViewModel} from "../../core/models/device.view-model";
+import {contractsUtils} from "../utils/contracts-utils";
+import {UrlRequestParams} from "../models/params/url-request-params";
+import {BaseFetchModel} from "../models/base-fetch-model";
+import {BaseDomainParams} from "../models/params/base-domain-params";
+import {singleton} from "../decorators/singleton";
+
+@singleton
+export class BaseApiService extends BaseUtilsService {
+  requests: Array<BaseApiRequestModel>;
+  factory: BaseFactory;
+
+  static injectables = [...BaseUtilsService.injectables, BaseFactory];
+
+  constructor(
+    domUtils: DomUtils,
+    logger: LoggerUtils,
+    siteConfig: SiteConfig,
+    device: DeviceViewModel,
+    factory: BaseFactory
+  ) {
+    super(domUtils, logger, siteConfig, device);
+
+    contractsUtils.requiredType(factory, BaseFactory);
+
+    this.requests = [];
+    this.factory = factory;
+  }
+
+  get root() {
+    return this.siteConfig.rootApi;
+  }
+
+  get prefix() {
+    return this.siteConfig.dataApi;
+  }
+
+  fetch(params: BaseApiRequestParams, force: Boolean = false, isFullDeltaResponse: Boolean) {
+    let existingRequest: BaseApiRequestModel = this._findRequest(params);
+
+    const shouldCreateNewRequest = !existingRequest;
+    if (shouldCreateNewRequest) {
+      existingRequest = this._createRequest(params);
+      this._updateResponse(existingRequest, params, isFullDeltaResponse);
+
+      return existingRequest.promise;
+    }
+
+    if (force) {
+      this._resetRequest(existingRequest);
+    }
+
+    this._updateResponse(existingRequest, params, isFullDeltaResponse);
+
+    return existingRequest.promise;
+  }
+
+  _updateResponse(request: BaseApiRequestModel, params: BaseApiRequestParams, isFullDeltaResponse: Boolean) {
+    params.lastUpdateId = request.response?.lastUpdateId;
+    request.params.requestedUpdateId = params.lastUpdateId;
+    const prefix = this.siteConfig.rootApi + (params instanceof UrlRequestParams ? '' : '/web/');
+    const url = (params.usePrefix ? prefix : '') + params.fullUrl;
+    request.promise = this.execute(url, params.fetchModel).then((response: BaseApiResponseModel) => {
+      if (!isFullDeltaResponse && request.response) {
+        this.factory.updateApiResponseModel(request.response, response)
+      } else if (response) {
+        const apiResponseModel: BaseApiResponseModel = this.factory.createResponse(response, request);
+        request.response = apiResponseModel;
+      } else {
+        return null;
+      }
+      request.params.lastUpdateId = request.response.lastUpdateId;
+      request.params.requestedUpdateId = request.response.requestedUpdateId;
+
+      return request.response;
+    });
+  }
+
+  _findRequest(newParams: BaseApiRequestParams = {}) {
+    const request: BaseApiRequestModel = this.requests.find((request: BaseApiRequestModel) => newParams.equals(request.params));
+
+    return request;
+  }
+
+  _createRequest(params: BaseApiRequestParams, promise: Promise<BaseApiResponseModel>, response: BaseApiResponseModel) {
+    const prefix = this.siteConfig.rootApi + (params instanceof UrlRequestParams ? '' : '/web/');
+    const url = (params.usePrefix ? prefix : '') + params.fullUrl;
+    const request = new BaseApiRequestModel(url, params, promise, response);
+    this.requests.push(request);
+
+    return request;
+  }
+
+  _deleteRequest(params: BaseDomainParams) {
+    this.requests = this.requests.filter((request: BaseApiRequestModel) => {
+      const isEqual = params.requestParams.equals(request.params);
+
+      return !isEqual;
+    });
+  }
+
+  _resetRequest(existingRequest) {
+    existingRequest.params.lastUpdateId = null;
+    existingRequest.params.requestedUpdateId = null;
+    existingRequest.response = null;
+    existingRequest.promise = null;
+  }
+
+  async execute(url, model: BaseFetchModel = null) {
+    // const workerUrl: String = (this.siteConfig.isWidget && process.env.PUBLIC_URL) ? this.domUtils.getBlobUrl(`${process.env.PUBLIC_URL}/workers/fetch-thread.js`) : '/workers/fetch-thread.js';
+    // const worker: Worker = new Worker(workerUrl);
+    // const response: Promise<BaseApiResponseModel> = new Promise((resolve) => {
+    //   worker.addEventListener("message", (e) => resolve(e.data.response));
+    //
+    //   worker.postMessage({
+    //     payload: {url, data: model}
+    //   });
+    // });
+    //
+    // return response;
+
+    return fetch(url, model)
+      .then(res => {
+        return res.json()
+      })
+      .catch(error => {
+        console.log('Request Error: ', error);
+
+        return null;
+      });
+  }
+}
