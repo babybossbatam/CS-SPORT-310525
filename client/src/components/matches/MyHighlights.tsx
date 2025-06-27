@@ -684,11 +684,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                           width="100%" 
                           height="450" 
                           allowFullScreen 
-                          allow="autoplay; fullscreen; picture-in-picture" 
+                          allow="autoplay; fullscreen; picture-in-picture; camera; microphone; clipboard-read; clipboard-write" 
                           style={{ width: '100%', height: '450px', overflow: 'hidden', display: 'block' }} 
                           className="_scorebatEmbeddedPlayer_"
                           title={videoData.title}
-                          sandbox="allow-scripts allow-same-origin allow-presentation"
+                          sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
                           onError={() => {
                             console.log('ScoreBat API iframe failed, falling back to widget');
                             setVideoData({
@@ -719,11 +719,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                         width="100%" 
                         height="450" 
                         allowFullScreen 
-                        allow="autoplay; fullscreen; picture-in-picture" 
+                        allow="autoplay; fullscreen; picture-in-picture; camera; microphone; clipboard-read; clipboard-write" 
                         style={{ width: '100%', height: '450px', overflow: 'hidden', display: 'block' }} 
                         className="_scorebatEmbeddedPlayer_"
                         title={videoData.title}
-                        sandbox="allow-scripts allow-same-origin allow-presentation"
+                        sandbox="allow-scripts allow-same-origin allow-presentation allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
                         onError={() => {
                           console.log('ScoreBat widget iframe failed');
                           setError('Video player temporarily unavailable. Please try again later.');
