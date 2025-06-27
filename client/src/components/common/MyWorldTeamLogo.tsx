@@ -50,8 +50,11 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   // Check if this is Friendlies Club (club competition, not national teams)
   const isFriendliesClub = leagueContext?.name?.toLowerCase().includes("friendlies clubs");
 
-  // Use MyCircularFlag for ONLY actual national teams and youth teams, but NOT for club competitions
-  if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isFriendliesClub) {
+  // Check if this is a Brazilian league (treat as club teams, not national teams)
+  const isBrazilianLeague = leagueContext?.country?.toLowerCase() === "brazil";
+
+  // Use MyCircularFlag for ONLY actual national teams and youth teams, but NOT for club competitions or Brazilian leagues
+  if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isFriendliesClub && !isBrazilianLeague) {
     return (
       <MyCircularFlag
         teamName={teamName}
