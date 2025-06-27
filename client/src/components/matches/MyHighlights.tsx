@@ -129,15 +129,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   const tryNextSource = async () => {
     if (sourceIndex >= videoSources.length) {
-      // All sources failed, use ScoreBat embed as fallback with fixed ID
-      // Generate a more generic match ID format that ScoreBat might recognize
-      const matchId = `${home.toLowerCase().replace(/\s+/g, '-')}-vs-${away.toLowerCase().replace(/\s+/g, '-')}`;
-      setCurrentSource({
-        name: 'ScoreBat',
-        type: 'scorebat',
-        embedUrl: `https://www.scorebat.com/embed/g/1716203/`,
-        title: `${home} vs ${away} Highlights`
-      });
+      // All sources failed, show error with retry option
+      setError('No video sources available');
       setLoading(false);
       return;
     }
@@ -203,9 +196,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-blue-500" />
               <p className="text-sm text-gray-600">
                 Searching for highlights...
+                {sourceIndex === 0 && (
+                  <span className="block text-xs text-blue-500">
+                    Trying YouTube first
+                  </span>
+                )}
                 {sourceIndex > 0 && (
                   <span className="block text-xs text-gray-400">
-                    Trying {videoSources[sourceIndex]?.name || 'next source'}
+                    Trying {videoSources[sourceIndex]?.name || 'alternative source'}
                   </span>
                 )}
               </p>
