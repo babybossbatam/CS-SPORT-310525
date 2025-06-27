@@ -1704,7 +1704,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       }`}
                                       onClick={() => onMatchCardClick?.(match)}
                                       style={{
-                                        cursor: onMatchFilterActive
+                                        cursor: onMatchCardClick
                                           ? "pointer"
                                           : "default",
                                       }}
