@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, MessageCircle, Target, AlertTriangle, CornerDownRight, Play, Pause } from 'lucide-react';
 
@@ -20,6 +20,16 @@ interface MyMatchEventsProps {
   awayTeam?: string;
   matchStatus?: string;
   matchId?: string;
+  widgetType?: 'custom' | 'sportradar' | 'api-football';
+  sportradarConfig?: {
+    clientAlias: string;
+    matchId: string;
+  };
+  apiFootballConfig?: {
+    apiKey: string;
+    fixtureId: string;
+    theme?: string;
+  };
 }
 
 const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
@@ -27,12 +37,17 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
   homeTeam,
   awayTeam,
   matchStatus,
-  matchId
+  matchId,
+  widgetType = 'custom',
+  sportradarConfig,
+  apiFootballConfig
 }) => {
   const [activeTab, setActiveTab] = useState<'playByPlay' | 'timeline' | 'stats'>('playByPlay');
   const [isLive, setIsLive] = useState(false);
   const [currentMinute, setCurrentMinute] = useState(0);
   const [autoScroll, setAutoScroll] = useState(true);
+  const sportradarWidgetRef = useRef<HTMLDivElement>(null);
+  const apiFootballWidgetRef = useRef<HTMLDivElement>(null);
 
   // Extract team names and match info from match data
   const displayHomeTeam = match?.teams?.home?.name || homeTeam || "Home Team";
@@ -47,6 +62,63 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
     setIsLive(liveStatuses.includes(displayMatchStatus));
     setCurrentMinute(match?.fixture?.status?.elapsed || 0);
   }, [displayMatchStatus, match]);
+
+  // Load Sportradar widget
+  useEffect(() => {
+    if (widgetType === 'sportradar' && sportradarConfig && sportradarWidgetRef.current) {
+      // Load Sportradar widget script
+      const loadSportradarWidget = () => {
+        // Check if script already exists
+        if (document.querySelector('script[src*="widgets.media.sportradar.com"]')) {
+          // Script already loaded, initialize widget
+          if (window.USW) {
+            window.USW('addWidget', '#sr-widget', 'us.match.playByPlay', {
+              border: false,
+              matchId: parseInt(sportradarConfig.matchId)
+            });
+          }
+          return;
+        }
+
+        // Create and load the script
+        const script = document.createElement('script');
+        script.type = 'application/javascript';
+        script.src = `https://widgets.media.sportradar.com/${sportradarConfig.clientAlias}/widgetloader`;
+        script.setAttribute('data-sr-language', 'en_us');
+        script.async = true;
+        
+        script.onload = () => {
+          // Initialize widget after script loads
+          if (window.USW) {
+            window.USW('addWidget', '#sr-widget', 'us.match.playByPlay', {
+              border: false,
+              matchId: parseInt(sportradarConfig.matchId)
+            });
+          }
+        };
+
+        document.head.appendChild(script);
+      };
+
+      loadSportradarWidget();
+    }
+  }, [widgetType, sportradarConfig]);
+
+  // Load API-Football widget
+  useEffect(() => {
+    if (widgetType === 'api-football' && apiFootballConfig && apiFootballWidgetRef.current) {
+      // Check if script already exists
+      if (document.querySelector('script[src*="widgets.api-sports.io"]')) {
+        return;
+      }
+
+      // Create and load the API-Football widget script
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.src = 'https://widgets.api-sports.io/2.0.3/widgets.js';
+      document.head.appendChild(script);
+    }
+  }, [widgetType, apiFootballConfig]);
 
   // Convert match events from API to our format
   const convertApiEventsToMatchEvents = (apiEvents: any[]): MatchEvent[] => {
@@ -307,6 +379,49 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
     </div>
   );
 
+  // Sportradar Widget View
+  const SportradarWidgetView = () => (
+    <div className="w-full min-h-96">
+      <div 
+        id="sr-widget"
+        ref={sportradarWidgetRef}
+        className="w-full h-full"
+      >
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mx-auto mb-3"></div>
+            <p>Loading Sportradar widget...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // API-Football Widget View
+  const ApiFootballWidgetView = () => (
+    <div className="w-full min-h-96">
+      <div 
+        id="wg-api-football-game"
+        ref={apiFootballWidgetRef}
+        data-host="v3.football.api-sports.io"
+        data-key={apiFootballConfig?.apiKey || ""}
+        data-id={apiFootballConfig?.fixtureId || ""}
+        data-theme={apiFootballConfig?.theme || ""}
+        data-refresh="15"
+        data-show-errors="false"
+        data-show-logos="true"
+        className="w-full h-full"
+      >
+        <div className="flex items-center justify-center h-64 text-gray-500">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mx-auto mb-3"></div>
+            <p>Loading API-Football widget...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="sr-widget w-full">
       <Card className="w-full shadow-lg border-gray-200">
@@ -325,45 +440,53 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
         </CardHeader>
         
         <CardContent className="p-0">
-          {/* Tab Navigation */}
-          <div className="flex border-b bg-gray-50">
-            <button
-              onClick={() => setActiveTab('playByPlay')}
-              className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'playByPlay' 
-                  ? 'border-blue-500 text-blue-600 bg-white' 
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Play by Play
-            </button>
-            <button
-              onClick={() => setActiveTab('timeline')}
-              className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'timeline' 
-                  ? 'border-blue-500 text-blue-600 bg-white' 
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Timeline
-            </button>
-            <button
-              onClick={() => setActiveTab('stats')}
-              className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'stats' 
-                  ? 'border-blue-500 text-blue-600 bg-white' 
-                  : 'border-transparent text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Stats
-            </button>
-          </div>
+          {/* Tab Navigation - Only show for custom widget */}
+          {widgetType === 'custom' && (
+            <div className="flex border-b bg-gray-50">
+              <button
+                onClick={() => setActiveTab('playByPlay')}
+                className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'playByPlay' 
+                    ? 'border-blue-500 text-blue-600 bg-white' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Play by Play
+              </button>
+              <button
+                onClick={() => setActiveTab('timeline')}
+                className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'timeline' 
+                    ? 'border-blue-500 text-blue-600 bg-white' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Timeline
+              </button>
+              <button
+                onClick={() => setActiveTab('stats')}
+                className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'stats' 
+                    ? 'border-blue-500 text-blue-600 bg-white' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Stats
+              </button>
+            </div>
+          )}
 
           {/* Content */}
-          <div className="p-4">
-            {activeTab === 'playByPlay' && <PlayByPlayView />}
-            {activeTab === 'timeline' && <TimelineView />}
-            {activeTab === 'stats' && <StatsView />}
+          <div className={widgetType === 'custom' ? "p-4" : "p-0"}>
+            {widgetType === 'custom' && (
+              <>
+                {activeTab === 'playByPlay' && <PlayByPlayView />}
+                {activeTab === 'timeline' && <TimelineView />}
+                {activeTab === 'stats' && <StatsView />}
+              </>
+            )}
+            {widgetType === 'sportradar' && <SportradarWidgetView />}
+            {widgetType === 'api-football' && <ApiFootballWidgetView />}
           </div>
         </CardContent>
       </Card>
