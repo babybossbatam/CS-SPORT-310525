@@ -24,22 +24,15 @@ const MyHighlights: React.FC<MyHighlightsProps> = () => {
       </CardHeader>
       <CardContent className="pb-4">
         {/* Highlights iframe widget */}
-        <div className="relative w-full rounded-lg overflow-hidden bg-white shadow-xl">
-          <div 
-            className="w-full"
-            style={{ minHeight: '400px' }}
-          >
-            <iframe 
-              src="https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&loading_spinner=off" 
-              height="359px" 
-              width="100%" 
-              className="fw-iframe" 
-              scrolling="no" 
-              frameBorder="0"
-              title="Football Feed Widget"
-            />
-          </div>
-        </div>
+        <iframe 
+          src="https://feed.mikle.com/widget/v2/173779/?preloader-text=Loading&loading_spinner=off" 
+          height="359px" 
+          width="100%" 
+          className="fw-iframe" 
+          scrolling="no" 
+          frameBorder="0"
+          title="Football Feed Widget"
+        />
 
         <div className="mt-3 text-xs text-gray-500 text-center flex items-center justify-center">
           <Video className="h-3 w-3 mr-1" />
