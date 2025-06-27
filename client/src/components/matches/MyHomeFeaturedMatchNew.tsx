@@ -10,7 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { format, addDays } from "date-fns";
+import { format, addDays, parseISO } from "date-fns";
 import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import TeamLogo from "./TeamLogo";
@@ -99,6 +99,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState(0);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  const [countdownTimer, setCountdownTimer] = useState<string>('Loading...');
 
   const fetchFeaturedMatches = useCallback(
     async (forceRefresh = false) => {
@@ -574,6 +575,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         text: formatMatchTime(match.fixture.date),
         color: "bg-blue-500",
         isLive: false,
+        isUpcoming: true,
       };
     }
 
@@ -594,6 +596,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         text: displayText,
         color: "bg-red-500 animate-pulse",
         isLive: true,
+        isUpcoming: false,
       };
     }
 
@@ -602,6 +605,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         text: "Full Time",
         color: "bg-gray-500",
         isLive: false,
+        isUpcoming: false,
       };
     }
 
@@ -610,6 +614,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         text: "Postponed",
         color: "bg-yellow-500",
         isLive: false,
+        isUpcoming: false,
       };
     }
 
@@ -618,6 +623,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         text: "Cancelled",
         color: "bg-red-600",
         isLive: false,
+        isUpcoming: false,
       };
     }
 
@@ -625,6 +631,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       text: status,
       color: "bg-gray-400",
       isLive: false,
+      isUpcoming: false,
     };
   };
 
@@ -794,6 +801,79 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
   }, [currentMatch, extractDominantColorFromLogo, teamLogoColors]);
 
+  // Countdown timer effect for upcoming matches
+  useEffect(() => {
+    if (!currentMatch) {
+      setCountdownTimer('--:--:--');
+      return;
+    }
+
+    const statusInfo = getStatusDisplay(currentMatch);
+    
+    // Only show countdown for upcoming matches
+    if (!statusInfo.isUpcoming) {
+      setCountdownTimer('');
+      return;
+    }
+
+    function updateTimer() {
+      try {
+        const targetDate = parseISO(currentMatch.fixture.date);
+        
+        // Use current real time for accurate countdown
+        const now = new Date();
+        
+        const diff = targetDate.getTime() - now.getTime();
+        
+        if (diff <= 0) {
+          setCountdownTimer('Starting now');
+          return;
+        }
+        
+        // Calculate time components
+        const totalHours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        // Only show countdown if match is within 8 hours
+        if (totalHours > 8) {
+          setCountdownTimer('');
+          return;
+        }
+        
+        // If more than 99 hours, show days and hours
+        if (totalHours > 99) {
+          const days = Math.floor(totalHours / 24);
+          const remainingHours = totalHours % 24;
+          setCountdownTimer(`${days}d ${remainingHours}h`);
+        } else {
+          // Format with leading zeros for HH:mm:ss format
+          const formattedHours = totalHours.toString().padStart(2, '0');
+          const formattedMinutes = minutes.toString().padStart(2, '0');
+          const formattedSeconds = seconds.toString().padStart(2, '0');
+          
+          setCountdownTimer(`${formattedHours}:${formattedMinutes}:${formattedSeconds}`);
+        }
+      } catch (error) {
+        console.error('Error calculating countdown:', error);
+        setCountdownTimer('--:--:--');
+      }
+    }
+    
+    // Calculate initial time
+    updateTimer();
+    
+    // Set interval to update every second
+    const interval = setInterval(updateTimer, 1000);
+    
+    // Cleanup interval on unmount
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [currentMatch]);
+
   const getEnhancedTeamColor = useCallback(
     (teamName: string, isHome: boolean = false) => {
       // Use extracted logo color if available, otherwise fallback to team color
@@ -960,8 +1040,23 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           );
                         }
 
-                        // Upcoming matches - smart date labeling with hidden score space
+                        // Upcoming matches - show countdown timer if within 8 hours, otherwise date
                         const upcomingContent = (() => {
+                          // Show countdown timer if available and not empty
+                          if (countdownTimer && countdownTimer !== '' && countdownTimer !== 'Loading...' && countdownTimer !== '--:--:--') {
+                            return (
+                              <div className="space-y-1">
+                                <div className="text-sm text-gray-600">
+                                  Starts in
+                                </div>
+                                <div className="font-mono tabular-nums text-2xl font-bold text-gray-800">
+                                  {countdownTimer}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          // Fallback to date labeling
                           if (matchDateString === todayString) {
                             return "Today";
                           } else if (matchDateString === tomorrowString) {
