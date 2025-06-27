@@ -241,13 +241,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           </div>
         )}
 
-        {currentSource && !loading && (
-          <div className="p-2 bg-gray-50 border-t">
-            <p className="text-xs text-gray-600 truncate" title={currentSource.title}>
-              {currentSource.title}
-            </p>
-          </div>
-        )}
+        
       </CardContent>
     </Card>
   );
