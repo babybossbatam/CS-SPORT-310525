@@ -829,7 +829,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         const aIsWorld = countryA.toLowerCase() === "world";
         const bIsWorld = countryB.toLowerCase() === "world";
 
-        // Check for live matches in each country        const aHasLive = Object.values(a.leagues).some((league: any) =>
+        // Check for live matches in each country
+        const aHasLive = Object.values(a.leagues).some((league: any) =>
           league.matches.some((match: any) =>
             ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
               match.fixture.status.short,
