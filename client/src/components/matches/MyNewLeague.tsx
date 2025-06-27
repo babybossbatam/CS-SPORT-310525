@@ -208,11 +208,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     return () => clearInterval(interval);
   }, [fetchLeagueData]);
 
-  // Auto-expand all leagues by default when data changes
-  useEffect(() => {
-    const leagueKeys = Object.keys(matchesByLeague).map(leagueId => `league-${leagueId}`);
-    setExpandedLeagues(new Set(leagueKeys));
-  }, [Object.keys(matchesByLeague).length]);
+  
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
@@ -252,6 +248,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     },
     {} as Record<number, { league: any; matches: FixtureData[] }>,
   );
+
+  // Auto-expand all leagues by default when data changes
+  useEffect(() => {
+    const leagueKeys = Object.keys(matchesByLeague).map(leagueId => `league-${leagueId}`);
+    setExpandedLeagues(new Set(leagueKeys));
+  }, [Object.keys(matchesByLeague).length]);
 
   // Sort matches within each league by status priority: live > ended > upcoming
   Object.values(matchesByLeague).forEach((leagueGroup) => {
