@@ -30,8 +30,8 @@ const MyNewLMT: React.FC<MyNewLMTProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Use a real match ID from your live fixtures or fallback to demo
-  const sportradarMatchId = matchId || 1330692; // Using one of your live match IDs
+  // Use a more reliable Sportradar match ID - try current live match first
+  const sportradarMatchId = matchId || 36065; // Using a more reliable Sportradar demo match ID
 
   // Determine if match is currently live
   const isLive = status && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
@@ -46,24 +46,34 @@ const MyNewLMT: React.FC<MyNewLMTProps> = ({
           return;
         }
 
-        // Create and load the Sportradar script
+        // Create and load the Sportradar script properly
         const script = document.createElement('script');
-        script.innerHTML = `
-          (function(a,b,c,d,e,f,g,h,i){a[e]||(i=a[e]=function(){(a[e].q=a[e].q||[]).push(arguments)},i.l=1*new Date,i.o=f,
-          g=b.createElement(c),h=b.getElementsByTagName(c)[0],g.async=1,g.src=d,g.setAttribute("n",e),h.parentNode.insertBefore(g,h)
-          )})(window,document,"script", "https://widgets.sir.sportradar.com/684f7b877efd1cd0e619d23b/widgetloader", "SIR", {
+        script.async = true;
+        script.onload = () => {
+          console.log('🎯 [MyNewLMT] Sportradar script loaded successfully');
+          scriptLoadedRef.current = true;
+          // Initialize SIR if not already available
+          if (!window.SIR) {
+            window.SIR = function(){(window.SIR.q=window.SIR.q||[]).push(arguments)};
+            window.SIR.l = 1*new Date();
+            window.SIR.o = {
               theme: false,
               language: "en"
-          });
-        `;
+            };
+          }
+          // Wait a bit more for SIR to be fully ready
+          setTimeout(() => {
+            initializeWidget();
+          }, 1500);
+        };
+        script.onerror = () => {
+          console.error('🚫 [MyNewLMT] Failed to load Sportradar script');
+          setError('Failed to load Sportradar script');
+          setIsLoading(false);
+        };
+        script.src = "https://widgets.sir.sportradar.com/684f7b877efd1cd0e619d23b/widgetloader";
         
         document.head.appendChild(script);
-        scriptLoadedRef.current = true;
-
-        // Wait a bit for the script to load and then initialize
-        setTimeout(() => {
-          initializeWidget();
-        }, 1000);
 
       } catch (error) {
         console.error('🚫 [MyNewLMT] Error loading Sportradar script:', error);
@@ -73,37 +83,57 @@ const MyNewLMT: React.FC<MyNewLMTProps> = ({
     };
 
     const initializeWidget = () => {
+      console.log('🔄 [MyNewLMT] Attempting widget initialization...', {
+        hasSIR: !!window.SIR,
+        hasWidgetRef: !!widgetRef.current,
+        isInitialized: widgetInitializedRef.current,
+        matchId: sportradarMatchId
+      });
+
       if (window.SIR && widgetRef.current && !widgetInitializedRef.current) {
         try {
           console.log('🎯 [MyNewLMT] Initializing Sportradar widget with matchId:', sportradarMatchId);
           
+          // Clear any existing content
+          widgetRef.current.innerHTML = '';
+          
           window.SIR("addWidget", ".sr-widget-new-lmt", "match.lmtPlus", {
-            streamToggle: "streamSwitchTabs",
-            activeStreamToggle: "stream",
-            showOdds: true,
             layout: "topdown",
-            detailedScoreboard: "disable",
-            tabsPosition: "disable",
-            logoLink: "www.cssport.vip",
-            matchId: sportradarMatchId
+            matchId: sportradarMatchId,
+            theme: false,
+            language: "en"
           });
           
           widgetInitializedRef.current = true;
           setIsLoading(false);
           setError(null);
           console.log('✅ [MyNewLMT] Sportradar widget initialized successfully');
+          
+          // Check if widget content appears after a delay
+          setTimeout(() => {
+            if (widgetRef.current && widgetRef.current.children.length === 0) {
+              console.warn('⚠️ [MyNewLMT] Widget container is empty after initialization');
+              setError('Widget failed to load content');
+            }
+          }, 3000);
+          
         } catch (error) {
           console.error('🚫 [MyNewLMT] Error initializing Sportradar widget:', error);
-          setError('Failed to initialize widget');
+          setError('Failed to initialize widget: ' + (error as Error).message);
           setIsLoading(false);
         }
       } else {
+        console.log('🔄 [MyNewLMT] Retrying widget initialization in 1 second...');
         // Retry initialization after a short delay
         setTimeout(() => {
           if (window.SIR && !widgetInitializedRef.current) {
             initializeWidget();
+          } else if (!window.SIR) {
+            console.error('🚫 [MyNewLMT] SIR not available after retries');
+            setError('Sportradar library not loaded');
+            setIsLoading(false);
           }
-        }, 500);
+        }, 1000);
       }
     };
 
@@ -181,6 +211,17 @@ const MyNewLMT: React.FC<MyNewLMTProps> = ({
                     {homeTeamData?.name || homeTeamData} vs {awayTeamData?.name || awayTeamData}
                   </p>
                 )}
+                <div className="text-xs mt-2 space-y-1">
+                  <p className="text-blue-500">
+                    {scriptLoadedRef.current ? '✓ Script Loaded' : '⟳ Loading Script...'}
+                  </p>
+                  <p className="text-orange-500">
+                    Match ID: {sportradarMatchId}
+                  </p>
+                  <p className="text-green-500">
+                    {widgetInitializedRef.current ? '✓ Widget Ready' : '⟳ Initializing Widget...'}
+                  </p>
+                </div>
               </div>
             </div>
           )}
