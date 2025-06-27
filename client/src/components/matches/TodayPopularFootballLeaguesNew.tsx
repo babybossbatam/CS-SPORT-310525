@@ -842,7 +842,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = filteredFixtures.reduce(
-    (acc: any, fixture: any) {
+    (acc: any, fixture: any) => {
       // Add comprehensive null checks
       if (!fixture || !fixture.league || !fixture.fixture|| !fixture.teams) {
         return acc;
