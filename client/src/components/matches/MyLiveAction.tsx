@@ -534,28 +534,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           </div>
 
-          {/* Team positioning - 365scores style */}
-          <div className="absolute top-4 left-4 z-60">
-            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-lg px-3 py-2">
-              <div className="w-4 h-4 bg-red-500 rounded-sm flex items-center justify-center">
-                <span className="text-white text-xs font-bold">👕</span>
-              </div>
-              <span className="text-white text-sm font-bold">
-                {homeTeamData?.name?.toUpperCase().substring(0, 12) || 'HOME'}
-              </span>
-            </div>
-          </div>
-
-          <div className="absolute top-4 right-4 z-60">
-            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm rounded-lg px-3 py-2">
-              <span className="text-white text-sm font-bold">
-                {awayTeamData?.name?.toUpperCase().substring(0, 12) || 'AWAY'}
-              </span>
-              <div className="w-4 h-4 bg-gray-300 rounded-sm flex items-center justify-center">
-                <span className="text-gray-700 text-xs font-bold">👕</span>
-              </div>
-            </div>
-          </div>
+          
 
           {/* Current event display - exact 365scores style */}
           {currentEvent && currentView === 'event' && (
