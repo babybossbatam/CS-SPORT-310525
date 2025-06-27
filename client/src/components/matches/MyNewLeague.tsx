@@ -960,7 +960,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   ].includes(aStatus);
                   const bLive = [
                     "LIVE",
-                    "LIV",
+                    ```text
+"LIV",
                     "1H",
                     "HT",
                     "2H",
@@ -983,7 +984,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   const isHalftimeFlash = halftimeFlashMatches.has(matchId);
                   const isFulltimeFlash = fulltimeFlashMatches.has(matchId);
                   const isGoalFlash = goalFlashMatches.has(matchId);
-
+                  const isStarred = starredMatches.has(matchId)
                   return (
                     <div
                           key={match.fixture.id}
@@ -1023,7 +1024,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             }}
           >
             <Star
-              className={`match-star-icon ${isStarred ? "starred" : ""}`}
+              className={`match-star-icon ${starredMatches.has(match.fixture.id) ? "starred" : ""}`}
             />
           </button>
 
