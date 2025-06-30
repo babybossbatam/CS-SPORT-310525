@@ -304,6 +304,7 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  margin-right: 35px;
 }
 
 .match-event-away-player-info {
