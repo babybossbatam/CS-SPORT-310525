@@ -199,8 +199,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   const isHomeTeam = (event: MatchEvent) => {
-    if (!event.team?.name || !homeTeam) return false;
-    return event.team.name.toLowerCase().trim() === homeTeam.toLowerCase().trim();
+    if (!event.team?.name || !homeTeam) {
+      console.warn('Missing team data:', { eventTeam: event.team?.name, homeTeam });
+      return false;
+    }
+    
+    const eventTeamName = event.team.name.toLowerCase().trim();
+    const homeTeamName = homeTeam.toLowerCase().trim();
+    const isMatch = eventTeamName === homeTeamName;
+    
+    console.log('Team matching:', {
+      eventTeam: eventTeamName,
+      homeTeam: homeTeamName,
+      isMatch
+    });
+    
+    return isMatch;
   };
 
   const isDarkTheme = theme === "dark";
@@ -347,11 +361,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         </div>
         {homeTeam && awayTeam && (
           <div className="text-sm text-gray-600 flex justify-between">
-            <span>{homeTeam}</span>
+            <span>Home: {homeTeam}</span>
             <span>vs</span>
-            <span>{awayTeam}</span>
+            <span>Away: {awayTeam}</span>
           </div>
         )}
+        {/* Debug info */}
+        <div className="text-xs text-gray-400">
+          Debug - Home: "{homeTeam}" | Away: "{awayTeam}"
+        </div>
       </CardHeader>
 
       <CardContent className="p-6">
@@ -377,7 +395,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               .map((event, index) => {
                 const isHome = isHomeTeam(event);
                 
-                // Debug logging
+                // Debug logging - remove after fixing
                 console.log(`Event ${index}:`, {
                   eventTeam: event.team?.name,
                   homeTeam: homeTeam,
