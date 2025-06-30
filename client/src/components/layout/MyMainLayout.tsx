@@ -190,18 +190,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                       />
                     )}
 
-                    {/* Show MyMatchEventNew for live and ended matches */}
-                    {(isLive || isEnded) && (
-                      <MyMatchEventNew
-                        fixtureId={selectedFixture?.fixture?.id}
-                        homeTeam={selectedFixture?.teams?.home?.name}
-                        awayTeam={selectedFixture?.teams?.away?.name}
-                        refreshInterval={15}
-                        showLogos={true}
-                        className="mt-4"
-                      />
-                    )}
-
                     {/* Show MyHighlights for ended matches with proper spacing */}
                     {isEnded && (
                       <div className="mt-6 relative z-10">
@@ -212,6 +200,18 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                           match={selectedFixture}
                         />
                       </div>
+                    )}
+
+                    {/* Show MyMatchEventNew for live and ended matches - moved to bottom */}
+                    {(isLive || isEnded) && (
+                      <MyMatchEventNew
+                        fixtureId={selectedFixture?.fixture?.id}
+                        homeTeam={selectedFixture?.teams?.home?.name}
+                        awayTeam={selectedFixture?.teams?.away?.name}
+                        refreshInterval={15}
+                        showLogos={true}
+                        className="mt-4"
+                      />
                     )}
 
                     {/* For upcoming matches, neither component is shown */}
