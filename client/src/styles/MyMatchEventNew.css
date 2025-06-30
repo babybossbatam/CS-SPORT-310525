@@ -39,9 +39,7 @@
   transition: all 0.2s ease;
 }
 
-.match-event-container:hover {
-  background-color: var(--surfacePrimary);
-}
+
 
 /* Three-grid layout container */
 .match-event-three-grid-container {
