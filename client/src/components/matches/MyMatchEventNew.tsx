@@ -1,8 +1,6 @@
-typescript
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Clock, RefreshCw, AlertCircle } from 'lucide-react';
-import { getPlayerImage, preloadPlayerImages } from '@/lib/playerImageCache';
 import '@/styles/MyPlayer.css';
 
 interface MyMatchEventNewProps {
@@ -78,18 +76,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       setEvents(eventData || []);
       setLastUpdated(new Date());
       setError(null);
-
-      // Preload player images
-      if (eventData && eventData.length > 0) {
-        const players = eventData.flatMap((event: MatchEvent) => [
-          { id: event.player?.id, name: event.player?.name },
-          ...(event.assist ? [{ id: event.assist.id, name: event.assist.name }] : [])
-        ]).filter((player, index, self) => 
-          player.id && self.findIndex(p => p.id === player.id) === index
-        );
-
-        preloadPlayerImages(players);
-      }
     } catch (error) {
       console.error(`❌ [MyMatchEventNew] Error fetching events:`, error);
       setError(error instanceof Error ? error.message : 'Failed to fetch events');
@@ -126,29 +112,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       default:
         return '📝';
     }
-  };
-
-  // Player image cache state
-  const [playerImages, setPlayerImages] = useState<Record<string, string>>({});
-
-  const getCachedPlayerImage = async (playerId?: number, playerName?: string): Promise<string> => {
-    const cacheKey = `${playerId || 'unknown'}_${playerName || 'unknown'}`;
-
-    // Return cached image if available
-    if (playerImages[cacheKey]) {
-      return playerImages[cacheKey];
-    }
-
-    // Get image from cache system
-    const imageUrl = await getPlayerImage(playerId, playerName);
-
-    // Update local state
-    setPlayerImages(prev => ({
-      ...prev,
-      [cacheKey]: imageUrl
-    }));
-
-    return imageUrl;
   };
 
   const formatTime = (elapsed: number, extra?: number) => {
@@ -225,26 +188,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const EventItem = ({ event, isLast }: { event: MatchEvent; isLast: boolean }) => {
     const isHome = isHomeTeam(event);
-    const isSubstitution = event.type.toLowerCase() === 'subst';
-    const [mainPlayerImg, setMainPlayerImg] = useState<string>('');
-    const [assistPlayerImg, setAssistPlayerImg] = useState<string>('');
-
-    // Load player images when component mounts
-    useEffect(() => {
-      const loadImages = async () => {
-        if (event.player?.id || event.player?.name) {
-          const img = await getCachedPlayerImage(event.player.id, event.player.name);
-          setMainPlayerImg(img);
-        }
-
-        if (isSubstitution && (event.assist?.id || event.assist?.name)) {
-          const assistImg = await getCachedPlayerImage(event.assist.id, event.assist.name);
-          setAssistPlayerImg(assistImg);
-        }
-      };
-
-      loadImages();
-    }, [event.player?.id, event.player?.name, event.assist?.id, event.assist?.name, isSubstitution]);
 
     return (
       <div className="relative flex items-center">
@@ -263,42 +206,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 </div>
                 <div className="text-xs text-gray-500">{event.team?.name}</div>
               </div>
-              {isSubstitution ? (
-                <div className="player-image-substitution flex -space-x-2">
-                  <img
-                    src={mainPlayerImg || `https://ui-avatars.com/api/?name=${event.player?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P'}&size=40&background=4F46E5&color=fff&bold=true&format=svg`}
-                    alt={event.player?.name}
-                    className="player-image player-image-home-team"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      const initials = event.player?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P';
-                      const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=40&background=4F46E5&color=fff&bold=true&format=svg`;
-                      if (target.src !== fallbackUrl) {
-                        target.src = fallbackUrl;
-                      }
-                    }}
-                  />
-                  <img
-                    src={assistPlayerImg || `https://ui-avatars.com/api/?name=${event.assist?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'S'}&size=40&background=ef4444&color=fff&bold=true&format=svg`}
-                    alt={event.assist?.name || 'Sub'}
-                    className="player-image player-image-home-team"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      const initials = event.assist?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'S';
-                      const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=40&background=ef4444&color=fff&bold=true&format=svg`;
-                      if (target.src !== fallbackUrl) {
-                        target.src = fallbackUrl;
-                      }
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="event-icon-container event-icon-home">
-                  <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
-                </div>
-              )}
+              <div className="event-icon-container event-icon-home">
+                <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
+              </div>
             </div>
           )}
         </div>
@@ -314,42 +224,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         <div className="flex-1 pl-4">
           {!isHome && (
             <div className="flex items-center gap-3">
-              {isSubstitution ? (
-                <div className="player-image-substitution flex -space-x-2">
-                  <img
-                    src={mainPlayerImg || `https://ui-avatars.com/api/?name=${event.player?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P'}&size=40&background=4F46E5&color=fff&bold=true&format=svg`}
-                    alt={event.player?.name}
-                    className="player-image player-image-away-team"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      const initials = event.player?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P';
-                      const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=40&background=4F46E5&color=fff&bold=true&format=svg`;
-                      if (target.src !== fallbackUrl) {
-                        target.src = fallbackUrl;
-                      }
-                    }}
-                  />
-                  <img
-                    src={assistPlayerImg || `https://ui-avatars.com/api/?name=${event.assist?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'S'}&size=40&background=ef4444&color=fff&bold=true&format=svg`}
-                    alt={event.assist?.name || 'Sub'}
-                    className="player-image player-image-away-team"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      const initials = event.assist?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'S';
-                      const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=40&background=ef4444&color=fff&bold=true&format=svg`;
-                      if (target.src !== fallbackUrl) {
-                        target.src = fallbackUrl;
-                      }
-                    }}
-                  />
-                </div>
-              ) : (
-                <div className="event-icon-container event-icon-away">
-                  <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
-                </div>
-              )}
+              <div className="event-icon-container event-icon-away">
+                <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
+              </div>
 
               <div className="text-left">
                 <div className="text-sm font-medium text-gray-900">
