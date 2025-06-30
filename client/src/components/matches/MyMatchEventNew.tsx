@@ -452,20 +452,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               className=" w-4 h-4 mr-8"
                             />
                           ) : (
-                              {event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
-                                <div className="flex items-center gap-1 mr-4">
-                                  <img
-                                    src="/assets/matchdetaillogo/soccer-ball.svg"
-                                    alt="Goal"
-                                    className="w-3 h-3"
-                                  />
-                                  <span className="text-xs">(P)</span>
-                                </div>
-                              ) : (
-                                <span className="text-xs mr-4">
-                                  {getEventIcon(event.type, event.detail)}
-                                </span>
-                              )}
+                            event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
+                              <div className="flex items-center gap-1 mr-4">
+                                <img
+                                  src="/assets/matchdetaillogo/soccer-ball.svg"
+                                  alt="Goal"
+                                  className="w-3 h-3"
+                                />
+                                <span className="text-xs">(P)</span>
+                              </div>
+                            ) : (
+                              <span className="text-xs mr-4">
+                                {getEventIcon(event.type, event.detail)}
+                              </span>
+                            )
                           )}
                         </div>
 
@@ -484,20 +484,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               className="w-4 h-4 ml-8"
                             />
                           ) : (
-                              {event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
-                                <div className="flex items-center gap-1">
-                                  <img
-                                    src="/assets/matchdetaillogo/soccer-ball.svg"
-                                    alt="Goal"
-                                    className="w-3 h-3"
-                                  />
-                                  <span className="text-xs">(P)</span>
-                                </div>
-                              ) : (
-                                <span className="text-xs">
-                                  {getEventIcon(event.type, event.detail)}
-                                </span>
-                              )}
+                            event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
+                              <div className="flex items-center gap-1">
+                                <img
+                                  src="/assets/matchdetaillogo/soccer-ball.svg"
+                                  alt="Goal"
+                                  className="w-3 h-3"
+                                />
+                                <span className="text-xs">(P)</span>
+                              </div>
+                            ) : (
+                              <span className="text-xs">
+                                {getEventIcon(event.type, event.detail)}
+                              </span>
+                            )
                           )}
                         </div>
                         {/* Time display moved to middle content area */}
