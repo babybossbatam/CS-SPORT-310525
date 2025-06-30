@@ -16,7 +16,7 @@ interface MyMatchEventNewProps {
 
 const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   fixtureId,
-  apiKey = "",
+  apiKey,
   theme = "",
   refreshInterval = 15,
   showErrors = false,
@@ -25,6 +25,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   homeTeam,
   awayTeam
 }) => {
+  // Use provided apiKey or fetch from environment
+  const effectiveApiKey = apiKey || import.meta.env.VITE_RAPID_API_KEY || "";
   const widgetContainerRef = useRef<HTMLDivElement>(null);
   const scriptRef = useRef<HTMLScriptElement | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,9 +39,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       scriptRef.current = null;
     }
 
-    // Only load widget if we have a fixture ID
+    // Only load widget if we have a fixture ID and API key
     if (!fixtureId || !widgetContainerRef.current) {
       setError('No fixture ID provided');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!effectiveApiKey) {
+      setError('No API key available. Please configure VITE_RAPID_API_KEY environment variable.');
       setIsLoading(false);
       return;
     }
@@ -59,7 +67,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         const widgetDiv = document.createElement('div');
         widgetDiv.id = `wg-api-football-game-${fixtureId}`;
         widgetDiv.setAttribute('data-host', 'v3.football.api-sports.io');
-        widgetDiv.setAttribute('data-key', apiKey);
+        widgetDiv.setAttribute('data-key', effectiveApiKey);
         widgetDiv.setAttribute('data-id', fixtureId.toString());
         widgetDiv.setAttribute('data-theme', theme);
         widgetDiv.setAttribute('data-refresh', Math.max(refreshInterval, 15).toString());
@@ -105,7 +113,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         scriptRef.current = null;
       }
     };
-  }, [fixtureId, apiKey, theme, refreshInterval, showErrors, showLogos]);
+  }, [fixtureId, effectiveApiKey, theme, refreshInterval, showErrors, showLogos]);
 
   if (!fixtureId) {
     return (
