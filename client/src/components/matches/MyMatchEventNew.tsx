@@ -496,7 +496,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <span className="text-xs ml-6">
                               {event.type === "goal" ? (
                                 <img
-                                  src="/client/public/assets/matchdetaillogo/soccer-ball.svg"
+                                  src="/assets/matchdetaillogo/soccer-ball.svg"
                                   alt="Goal"
                                   className="w-4 h-4"
                                 />
