@@ -115,22 +115,31 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
     switch (eventType.toLowerCase()) {
       case "goal":
-        return detail?.toLowerCase().includes("penalty") ? (
-          <div className="flex items-center gap-1">
+        if (detail?.toLowerCase().includes("missed penalty")) {
+          return (
             <img
-              src="/assets/matchdetaillogo/soccer-ball.svg"
+              src="/assets/matchdetaillogo/missed-penalty.svg"
+              alt="Missed Penalty"
+              className="w-4 h-4"
+            />
+          );
+        } else if (detail?.toLowerCase().includes("penalty")) {
+          return (
+            <img
+              src="/assets/matchdetaillogo/penalty.svg"
               alt="Penalty Goal"
               className="w-4 h-4"
             />
-            <span>(P)</span>
-          </div>
-        ) : (
-          <img
-            src="/assets/matchdetaillogo/soccer-ball.svg"
-            alt="Goal"
-            className="w-4 h-4"
-          />
-        );
+          );
+        } else {
+          return (
+            <img
+              src="/assets/matchdetaillogo/soccer-ball.svg"
+              alt="Goal"
+              className="w-4 h-4"
+            />
+          );
+        }
       case "card":
         return detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥";
       case "subst":
