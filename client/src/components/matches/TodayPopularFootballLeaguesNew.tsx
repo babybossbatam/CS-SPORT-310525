@@ -1940,8 +1940,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                                     } else if (status === "INT") {
                                       displayText = "Interrupted";
                                     } else {
-                                      // For LIVE, LIV, 1H, 2H - use API elapsed time
-                                      displayText = elapsed ? `${elapsed}'` : "LIVE";
+                                      // For LIVE, LIV, 1H, 2H - use API elapsed time, ensure it's current
+                                      displayText = elapsed && elapsed > 0 ? `${elapsed}'` : "LIVE";
                                     }
 
                                     return (
