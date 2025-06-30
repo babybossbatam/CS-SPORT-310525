@@ -475,9 +475,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         <div
                           className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"} flex justify-center`}
                         >
-                          <span className="text-xs mr-6">
+                          <div className="mr-6">
                             {getEventIcon(event.type, event.detail)}
-                          </span>
+                          </div>
                         </div>
 
                         {/* Time display in middle content area */}
@@ -489,9 +489,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         <div
                           className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"} flex justify-center`}
                         >
-                          <span className="text-xs ml-6">
+                          <div className="ml-6">
                             {getEventIcon(event.type, event.detail)}
-                          </span>
+                          </div>
                         </div>
                       </div>
 
