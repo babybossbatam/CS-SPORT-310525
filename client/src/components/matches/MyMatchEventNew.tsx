@@ -308,6 +308,68 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     </div>
   );
 
+  const PenaltyShootoutDisplay = ({ homeScore, awayScore }: { homeScore: number, awayScore: number }) => (
+    <div className="penalty-shootout-container">
+      {/* Home team penalties */}
+      <div className="penalty-home-side">
+        {/* Example penalty data - replace with actual penalty events */}
+        {[
+          { player: "Damion Downs", result: "scored" },
+          { player: "John Tolkin", result: "scored" },
+          { player: "Alex Freeman", result: "missed" },
+          { player: "Sebastian Berhalter", result: "scored" },
+          { player: "Malik Tillman", result: "missed" },
+        ].map((penalty, index) => (
+          <div key={index} className="penalty-row penalty-row-home">
+            <div className="penalty-player-info penalty-player-info-home">
+              <Avatar className="w-8 h-8 border-2 border-gray-300">
+                <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
+                  {penalty.player.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="penalty-player-name">{penalty.player}</span>
+            </div>
+            <div className={`penalty-result ${penalty.result}`}>
+              {penalty.result === "scored" ? "⚽" : penalty.result === "missed" ? "❌" : "🥅"}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Center score */}
+      <div className="penalty-score-center">
+        <div className="penalty-score-display">{homeScore} - {awayScore}</div>
+        <div className="penalty-label">Penalties</div>
+      </div>
+
+      {/* Away team penalties */}
+      <div className="penalty-away-side">
+        {/* Example penalty data - replace with actual penalty events */}
+        {[
+          { player: "Andy Rojas", result: "scored" },
+          { player: "Francisco Calvo", result: "scored" },
+          { player: "Jefferson Brenes", result: "scored" },
+          { player: "Santiago van der Putten", result: "scored" },
+          { player: "Juan Pablo Vargas", result: "scored" },
+        ].map((penalty, index) => (
+          <div key={index} className="penalty-row penalty-row-away">
+            <div className={`penalty-result ${penalty.result}`}>
+              {penalty.result === "scored" ? "⚽" : penalty.result === "missed" ? "❌" : "🥅"}
+            </div>
+            <div className="penalty-player-info penalty-player-info-away">
+              <Avatar className="w-8 h-8 border-2 border-gray-300">
+                <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
+                  {penalty.player.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <span className="penalty-player-name">{penalty.player}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <Card
       className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
@@ -355,6 +417,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           </div>
         ) : (
           <div className="space-y-4">
+            {/* Show penalty shootout if match ended with penalties */}
+            {events.some(event => event.type === "penalty") && (
+              <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
+            )}
+            
             {/* All events in chronological order without period separators */}
             {events
               .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first

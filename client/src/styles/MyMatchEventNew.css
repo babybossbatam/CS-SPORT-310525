@@ -1,4 +1,3 @@
-
 /* MyMatchEventNew.css - 365scores-inspired Match Events Design System */
 
 /* Design system variables */
@@ -18,13 +17,13 @@
   --ratePrimary: #e38218;
   --grayPrimary: #9c9b9b;
   --scrollerPrimary: #d0d8de;
-  
+
   /* Font weights */
   --regular-font-weight: 400;
   --medium-font-weight: 500;
   --semiBold-font-weight: 600;
   --bold-font-weight: 700;
-  
+
   /* Animation variables */
   --animation-duration: 500ms;
   --slide-from-side-delay: 3500ms;
@@ -52,6 +51,161 @@
   gap: 8px;
   padding: 12px 8px;
   min-height: 60px;
+}
+
+/* Bottom grid for additional details */
+.match-event-details-bottom {
+  grid-area: details;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 20px;
+}
+
+/* Penalty Shootout Layout */
+.penalty-shootout-container {
+  display: grid;
+  grid-template-columns: 1fr 120px 1fr;
+  grid-template-areas: "home-penalties score-center away-penalties";
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+  padding: 12px 8px;
+  min-height: 60px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin: 8px 0;
+}
+
+/* Home penalties (left side) */
+.penalty-home-side {
+  grid-area: home-penalties;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+/* Away penalties (right side) */
+.penalty-away-side {
+  grid-area: away-penalties;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Center score display */
+.penalty-score-center {
+  grid-area: score-center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: var(--bold-font-weight);
+  color: var(--textPrimary);
+  background: var(--surfaceSecondary);
+  border: 2px solid var(--dividerPrimary);
+  border-radius: 12px;
+  padding: 12px 8px;
+  min-height: 80px;
+  min-width: 100px;
+}
+
+/* Individual penalty row */
+.penalty-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 4px 0;
+}
+
+/* Penalty row for home team (right-aligned) */
+.penalty-row-home {
+  justify-content: flex-end;
+}
+
+/* Penalty row for away team (left-aligned) */
+.penalty-row-away {
+  justify-content: flex-start;
+}
+
+/* Player info in penalty */
+.penalty-player-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Player info for home team (text on left, avatar on right) */
+.penalty-player-info-home {
+  flex-direction: row-reverse;
+}
+
+/* Player info for away team (avatar on left, text on right) */
+.penalty-player-info-away {
+  flex-direction: row;
+}
+
+/* Player name in penalty */
+.penalty-player-name {
+  font-size: 12px;
+  font-weight: var(--medium-font-weight);
+  color: var(--textPrimary);
+  white-space: nowrap;
+}
+
+/* Penalty result indicator */
+.penalty-result {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: var(--semiBold-font-weight);
+  margin: 0 4px;
+}
+
+/* Penalty scored */
+.penalty-result.scored {
+  background: var(--successPrimary);
+  color: var(--whitePrimary);
+  border: 2px solid var(--successPrimary);
+}
+
+/* Penalty missed */
+.penalty-result.missed {
+  background: var(--dangerPrimary);
+  color: var(--whitePrimary);
+  border: 2px solid var(--dangerPrimary);
+}
+
+/* Penalty saved */
+.penalty-result.saved {
+  background: var(--warningPrimary);
+  color: var(--whitePrimary);
+  border: 2px solid var(--warningPrimary);
+}
+
+/* Score display in center */
+.penalty-score-display {
+  font-size: 24px;
+  font-weight: var(--bold-font-weight);
+  color: var(--textPrimary);
+  margin-bottom: 4px;
+}
+
+/* Penalty shootout label */
+.penalty-label {
+  font-size: 11px;
+  font-weight: var(--medium-font-weight);
+  color: var(--textSecondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Home team events (left side) */
@@ -102,7 +256,7 @@
   min-width: 72px;
   padding: 4px;
   border-radius: 12px;
-  
+
   transition: all 0.2s ease;
 }
 
@@ -385,7 +539,7 @@
   .match-event-icon {
     border-width: 3px;
   }
-  
+
   .match-event-time-center,
   .match-event-time-center-simple {
     border-width: 3px;
