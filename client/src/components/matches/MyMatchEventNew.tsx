@@ -199,7 +199,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   const isHomeTeam = (event: MatchEvent) => {
-    return event.team?.name?.toLowerCase() === homeTeam?.toLowerCase();
+    if (!event.team?.name || !homeTeam) return false;
+    return event.team.name.toLowerCase().trim() === homeTeam.toLowerCase().trim();
   };
 
   const isDarkTheme = theme === "dark";
@@ -374,7 +375,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {events
               .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
               .map((event, index) => {
-                const isHome = event.team?.name === homeTeam;
+                const isHome = isHomeTeam(event);
+                
+                // Debug logging
+                console.log(`Event ${index}:`, {
+                  eventTeam: event.team?.name,
+                  homeTeam: homeTeam,
+                  awayTeam: awayTeam,
+                  isHome: isHome,
+                  player: event.player?.name
+                });
 
                 return (
                   <div key={`event-${index}`} className="match-event-container">
