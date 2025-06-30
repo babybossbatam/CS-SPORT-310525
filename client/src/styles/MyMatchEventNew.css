@@ -341,15 +341,15 @@
 }
 
 .match-event-icon.card {
-  background: linear-gradient(135deg, var(--warningPrimary), #fbbf24);
+  background:none;
   color: var(--whitePrimary);
-  border-color: var(--warningPrimary);
+  border-color: none;
 }
 
 .match-event-icon.substitution {
-  background: linear-gradient(135deg, var(--grayPrimary), #9ca3af);
+  background: none;
   color: var(--whitePrimary);
-  border-color: var(--grayPrimary);
+  border-color: none;
 }
 
 /* Event details styling */
