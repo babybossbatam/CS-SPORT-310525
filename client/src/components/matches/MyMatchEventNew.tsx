@@ -115,22 +115,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
     switch (eventType.toLowerCase()) {
       case "goal":
-        return detail?.toLowerCase().includes("penalty") ? (
-          <div className="flex items-center gap-1">
-            <img
-              src="/assets/matchdetaillogo/soccer-ball.svg"
-              alt="Penalty Goal"
-              className="w-4 h-4"
-            />
-            <span>(P)</span>
-          </div>
-        ) : (
-          <img
-            src="/assets/matchdetaillogo/soccer-ball.svg"
-            alt="Goal"
-            className="w-4 h-4"
-          />
-        );
+        return detail?.toLowerCase().includes("penalty") ? "⚽(P)" : "⚽";
       case "card":
         return detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥";
       case "subst":
@@ -199,22 +184,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   const isHomeTeam = (event: MatchEvent) => {
-    if (!event.team?.name || !homeTeam) {
-      console.warn('Missing team data:', { eventTeam: event.team?.name, homeTeam });
-      return false;
-    }
-    
-    const eventTeamName = event.team.name.toLowerCase().trim();
-    const homeTeamName = homeTeam.toLowerCase().trim();
-    const isMatch = eventTeamName === homeTeamName;
-    
-    console.log('Team matching:', {
-      eventTeam: eventTeamName,
-      homeTeam: homeTeamName,
-      isMatch
-    });
-    
-    return isMatch;
+    return event.team?.name?.toLowerCase() === homeTeam?.toLowerCase();
   };
 
   const isDarkTheme = theme === "dark";
@@ -361,15 +331,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         </div>
         {homeTeam && awayTeam && (
           <div className="text-sm text-gray-600 flex justify-between">
-            <span>Home: {homeTeam}</span>
+            <span>{homeTeam}</span>
             <span>vs</span>
-            <span>Away: {awayTeam}</span>
+            <span>{awayTeam}</span>
           </div>
         )}
-        {/* Debug info */}
-        <div className="text-xs text-gray-400">
-          Debug - Home: "{homeTeam}" | Away: "{awayTeam}"
-        </div>
       </CardHeader>
 
       <CardContent className="p-6">
@@ -393,16 +359,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {events
               .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
               .map((event, index) => {
-                const isHome = isHomeTeam(event);
-                
-                // Debug logging - remove after fixing
-                console.log(`Event ${index}:`, {
-                  eventTeam: event.team?.name,
-                  homeTeam: homeTeam,
-                  awayTeam: awayTeam,
-                  isHome: isHome,
-                  player: event.player?.name
-                });
+                const isHome = event.team?.name === homeTeam;
 
                 return (
                   <div key={`event-${index}`} className="match-event-container">
@@ -484,53 +441,50 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       {/* Center Grid: Time and event*/}
 
-                      <div className="match-event-time-center w-12">
-                        {/* Single event icon in center */}
-                        <div className="flex justify-center mb-2">
-                          <div
-                            className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"} flex justify-center items-center`}
-                          >
-                            {event.type === "subst" ? (
-                              <img
-                                src="/assets/matchdetaillogo/substitution.svg"
-                                alt="Substitution"
-                                className="w-4 h-4"
-                              />
-                            ) : event.type === "goal" &&
-                              event.detail?.toLowerCase().includes("penalty") ? (
-                              <div className="flex items-center gap-1">
-                                <img
-                                  src="/assets/matchdetaillogo/soccer-ball.svg"
-                                  alt="Penalty Goal"
-                                  className="w-4 h-4"
-                                />
-                                <span className="text-xs font-medium">(P)</span>
-                              </div>
-                            ) : event.type === "goal" ? (
-                              <img
-                                src="/assets/matchdetaillogo/soccer-ball.svg"
-                                alt="Goal"
-                                className="w-4 h-4"
-                              />
-                            ) : (
-                              <span className="text-xs">
-                                {getEventIcon(event.type, event.detail)}
-                              </span>
-                            )}
-                          </div>
+                      <div className="match-event-time-center  w-12 ">
+                        <div
+                          className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"}flex justify-center `}
+                        >
+                          {event.type === "subst" ? (
+                            <img
+                              src="/assets/matchdetaillogo/substitution.svg"
+                              alt="Substitution"
+                              className=" w-4 h-4 mr-8"
+                            />
+                          ) : (
+                              <span className="text-xs mr-4">
+                              {getEventIcon(event.type, event.detail)}
+                            </span>
+                          )}
                         </div>
 
-                        {/* Time display in center */}
+                        {/* Time display in middle content area */}
                         <div className="text-xs font-bold text-gray-600 text-center">
                           {event.time?.elapsed}'
                           {event.time?.extra && ` +${event.time.extra}`}
                         </div>
+                        <div
+                          className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"}flex justify-center`}
+                        >
+                          {event.type === "subst" ? (
+                            <img
+                              src="/assets/matchdetaillogo/substitution.svg"
+                              alt="Substitution"
+                              className="w-4 h-4 ml-8"
+                            />
+                          ) : (
+                              <span className="text-xs">
+                              {getEventIcon(event.type, event.detail)}
+                            </span>
+                          )}
+                        </div>
+                        {/* Time display moved to middle content area */}
                       </div>
 
                       {/* Right Grid: Away Team Events */}
                       <div className="match-event-away-side">
                         {!isHome && (
-                          <div className="flex items-center gap-3 pl-32 ">
+                          <div className="flex items-center gap-3 pl-36 ">
                             <div className="flex-1 text-right">
                               {event.type === "subst" && event.assist?.name ? (
                                 <>
