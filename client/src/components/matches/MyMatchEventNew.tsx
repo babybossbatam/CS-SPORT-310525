@@ -441,35 +441,38 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       {/* Center Grid: Time and event*/}
 
-                      <div className="match-event-time-center w-12 flex flex-col items-center">
-                        {/* Time display */}
-                        <div className="text-xs font-bold text-gray-600 text-center mb-1">
-                          {event.time?.elapsed}'
-                          {event.time?.extra && ` +${event.time.extra}`}
-                        </div>
-                        
-                        {/* Event icon - only show if there's an actual event */}
-                        {event.type && (
-                          <div
-                            className={`match-event-icon ${
-                              event.type === "goal" ? "goal" : 
-                              event.type === "card" ? "card" : 
-                              "substitution"
-                            } flex justify-center items-center`}
-                          >
-                            {event.type === "subst" ? (
-                              <img
-                                src="/assets/matchdetaillogo/substitution.svg"
-                                alt="Substitution"
-                                className="w-4 h-4"
-                              />
-                            ) : (
-                              <span className="text-xs">
-                                {getEventIcon(event.type, event.detail)}
-                              </span>
-                            )}
+                      <div className="match-event-time-center w-12 flex flex-col items-center justify-center">
+                        {/* Combined time and event icon container */}
+                        <div className="flex flex-col items-center justify-center space-y-1">
+                          {/* Time display */}
+                          <div className="text-xs font-bold text-gray-600 text-center">
+                            {event.time?.elapsed}'
+                            {event.time?.extra && ` +${event.time.extra}`}
                           </div>
-                        )}
+                          
+                          {/* Event icon - only show if there's an actual event */}
+                          {event.type && (
+                            <div
+                              className={`match-event-icon ${
+                                event.type === "goal" ? "goal" : 
+                                event.type === "card" ? "card" : 
+                                "substitution"
+                              } flex justify-center items-center`}
+                            >
+                              {event.type === "subst" ? (
+                                <img
+                                  src="/assets/matchdetaillogo/substitution.svg"
+                                  alt="Substitution"
+                                  className="w-4 h-4"
+                                />
+                              ) : (
+                                <span className="text-xs">
+                                  {getEventIcon(event.type, event.detail)}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Right Grid: Away Team Events */}
