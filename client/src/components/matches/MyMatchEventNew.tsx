@@ -234,22 +234,31 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       .toUpperCase()
       .slice(0, 2) || 'P';
 
+    console.log(`🖼️ [PlayerAvatar] Player: ${event.player.name}, ID: ${event.player.id}, Image URL: ${imageUrl}`);
+
     return (
       <div className="player-image-container">
-        {imageUrl ? (
+        {imageUrl && !imageUrl.includes('ui-avatars.com') ? (
           <img
             src={imageUrl}
             alt={event.player.name}
             className={`player-image ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}
             onError={(e) => {
+              console.warn(`❌ [PlayerAvatar] Image failed to load for ${event.player.name}: ${imageUrl}`);
               // Fallback to initials if image fails to load
               e.currentTarget.style.display = 'none';
-              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
+              if (fallbackElement) {
+                fallbackElement.classList.remove('hidden');
+              }
+            }}
+            onLoad={() => {
+              console.log(`✅ [PlayerAvatar] Image loaded successfully for ${event.player.name}: ${imageUrl}`);
             }}
           />
         ) : null}
         <div
-          className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'} ${imageUrl ? 'hidden' : ''}`}
+          className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'} ${imageUrl && !imageUrl.includes('ui-avatars.com') ? 'hidden' : ''}`}
         >
           {initials}
         </div>

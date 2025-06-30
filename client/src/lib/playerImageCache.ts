@@ -118,9 +118,13 @@ class PlayerImageCache {
   // Validate image URL
   private async validateImageUrl(url: string): Promise<boolean> {
     try {
-      // For local API endpoints, assume they're valid
+      // For local API endpoints, do a proper validation
       if (url.startsWith('/api/')) {
-        return true;
+        const response = await fetch(url, { 
+          method: 'HEAD',
+          signal: AbortSignal.timeout(2000)
+        });
+        return response.ok && response.headers.get('content-type')?.startsWith('image/');
       }
 
       // For external URLs, do a quick validation
@@ -131,6 +135,7 @@ class PlayerImageCache {
       
       return response.ok && response.headers.get('content-type')?.startsWith('image/');
     } catch (error) {
+      console.warn(`⚠️ [PlayerImageCache] URL validation failed for ${url}:`, error);
       return false;
     }
   }
