@@ -449,20 +449,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <img
                               src="/assets/matchdetaillogo/substitution.svg"
                               alt="Substitution"
-                              className=" w-4 h-4 mr-8"
+                              className=" w-4 h-4 mr-6"
                             />
                           ) : (
                             event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
-                              <div className="flex items-center gap-1 mr-8">
+                              <div className="flex items-center gap-3 mr-6">
                                 <img
                                   src="/assets/matchdetaillogo/soccer-ball.svg"
                                   alt="Penalty Goal"
-                                  className="w-4 h-4"
+                                  className="w-4 h-4 "
                                 />
                                 <span className="text-xs font-medium">(P)</span>
                               </div>
                             ) : (
-                              <span className="text-xs mr-4">
+                              <span className="text-xs mr-6">
                                 {getEventIcon(event.type, event.detail)}
                               </span>
                             )
@@ -481,11 +481,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <img
                               src="/assets/matchdetaillogo/substitution.svg"
                               alt="Substitution"
-                              className="w-4 h-4 ml-8"
+                              className="w-4 h-4 ml-6"
                             />
                           ) : (
                             event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
-                              <div className="flex items-center gap-1 ml-8">
+                              <div className="flex items-center gap-3 ml-8">
                                 <img
                                   src="/assets/matchdetaillogo/soccer-ball.svg"
                                   alt="Penalty Goal"
