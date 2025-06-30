@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Clock, RefreshCw, AlertCircle } from 'lucide-react';
 
 import '@/styles/MyPlayer.css';
@@ -197,7 +198,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
     const playerId = event.player.id;
     const playerName = event.player.name;
-    
+    const apiImageUrl = `/api/player-photo/${playerId}`;
+
     const initials = playerName
       .split(' ')
       .map(name => name[0])
@@ -205,57 +207,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       .toUpperCase()
       .slice(0, 2) || 'P';
 
-    // Check cache first
-    const cachedImage = imageCache.get(playerId);
-    const apiImageUrl = `/api/player-photo/${playerId}`;
-
-    // If we have a cached failed result, show initials immediately
-    if (cachedImage?.failed) {
-      return (
-        <div className="player-image-container">
-          <div className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}>
-            {initials}
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className="player-image-container">
-        <img
-          src={apiImageUrl}
-          alt={playerName}
-          className={`player-image ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}
-          onError={(e) => {
-            console.log(`⚠️ [PlayerAvatar] API image failed for ${playerName} (${playerId}), caching failure`);
-            // Cache the failure to prevent future requests
-            setImageCache(prev => new Map(prev).set(playerId, { url: apiImageUrl, loaded: false, failed: true }));
-            e.currentTarget.style.display = 'none';
-            const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
-            if (fallbackElement) {
-              fallbackElement.classList.remove('hidden');
-            }
-          }}
-          onLoad={(e) => {
-            console.log(`✅ [PlayerAvatar] API image loaded for ${playerName} (${playerId}), caching success`);
-            // Cache the successful load
-            setImageCache(prev => new Map(prev).set(playerId, { url: apiImageUrl, loaded: true, failed: false }));
-            const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
-            if (fallbackElement) {
-              fallbackElement.classList.add('hidden');
-            }
-          }}
-          loading="lazy"
-          style={{
-            // Add browser-level caching hints
-            imageRendering: 'auto'
-          }}
-        />
-        <div
-          className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'} ${cachedImage?.loaded ? 'hidden' : ''}`}
-        >
-          {initials}
-        </div>
+        <Avatar className="h-12 w-12 rounded-full overflow-hidden border border-gray-200">
+          <AvatarImage
+            src={apiImageUrl}
+            alt={playerName}
+            className="object-cover object-center scale-110"
+          />
+          <AvatarFallback className={`text-xs ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}>
+            {initials}
+          </AvatarFallback>
+        </Avatar>
       </div>
     );
   };
