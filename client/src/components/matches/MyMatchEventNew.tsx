@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Clock, RefreshCw, AlertCircle } from 'lucide-react';
-import { getPlayerImage } from '@/lib/playerImageCache';
+
 import '@/styles/MyPlayer.css';
 
 interface MyMatchEventNewProps {
@@ -53,35 +53,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-  const [playerImages, setPlayerImages] = useState<Record<string, string>>({});
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  const loadPlayerImages = async (events: MatchEvent[]) => {
-    const imagePromises = events.map(async (event) => {
-      if (event.player?.id && event.player?.name) {
-        try {
-          const imageUrl = await getPlayerImage(event.player.id, event.player.name);
-          return [`${event.player.id}-${event.player.name}`, imageUrl];
-        } catch (error) {
-          console.warn(`⚠️ [MyMatchEventNew] Failed to load image for player ${event.player.name}:`, error);
-          return null;
-        }
-      }
-      return null;
-    });
-
-    const results = await Promise.allSettled(imagePromises);
-    const newPlayerImages: Record<string, string> = {};
-
-    results.forEach((result) => {
-      if (result.status === 'fulfilled' && result.value) {
-        const [key, url] = result.value as [string, string];
-        newPlayerImages[key] = url;
-      }
-    });
-
-    setPlayerImages(prev => ({ ...prev, ...newPlayerImages }));
-  };
 
   const fetchMatchEvents = async () => {
     if (!fixtureId) {
@@ -105,11 +77,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       setEvents(eventData || []);
       setLastUpdated(new Date());
       setError(null);
-
-      // Load player images after setting events
-      if (eventData && eventData.length > 0) {
-        loadPlayerImages(eventData);
-      }
     } catch (error) {
       console.error(`❌ [MyMatchEventNew] Error fetching events:`, error);
       setError(error instanceof Error ? error.message : 'Failed to fetch events');
@@ -221,8 +188,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   }
 
   const PlayerAvatar = ({ event }: { event: MatchEvent }) => {
-    const playerKey = event.player?.id && event.player?.name ? `${event.player.id}-${event.player.name}` : '';
-    const imageUrl = playerImages[playerKey];
     const isHome = isHomeTeam(event);
 
     if (!event.player?.name) return null;
@@ -234,45 +199,35 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       .toUpperCase()
       .slice(0, 2) || 'P';
 
-    console.log(`🖼️ [PlayerAvatar] Player: ${event.player.name}, ID: ${event.player.id}, Image URL: ${imageUrl}`);
+    // Simple: if we have a player ID, use the API endpoint directly
+    const apiImageUrl = event.player.id ? `/api/player-photo/${event.player.id}` : null;
 
     return (
       <div className="player-image-container">
-        {imageUrl && imageUrl.startsWith('/api/player-photo/') ? (
+        {apiImageUrl ? (
           <img
-            src={imageUrl}
+            src={apiImageUrl}
             alt={event.player.name}
             className={`player-image ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}
             onError={(e) => {
-              console.warn(`❌ [PlayerAvatar] API image failed to load for ${event.player.name}: ${imageUrl}`);
-              // Fallback to initials if API image fails to load
+              console.log(`⚠️ [PlayerAvatar] API image failed for ${event.player.name}, showing initials`);
               e.currentTarget.style.display = 'none';
               const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
               if (fallbackElement) {
                 fallbackElement.classList.remove('hidden');
               }
             }}
-            onLoad={(e) => {
-              console.log(`✅ [PlayerAvatar] API image loaded successfully for ${event.player.name}: ${imageUrl}`);
-              // Hide the fallback element when API image loads successfully
+            onLoad={() => {
+              console.log(`✅ [PlayerAvatar] API image loaded for ${event.player.name}`);
               const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
               if (fallbackElement) {
                 fallbackElement.classList.add('hidden');
               }
             }}
           />
-        ) : imageUrl && imageUrl.includes('ui-avatars.com') ? (
-          <img
-            src={imageUrl}
-            alt={event.player.name}
-            className={`player-image ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}
-            onLoad={() => {
-              console.log(`✅ [PlayerAvatar] Fallback avatar loaded for ${event.player.name}`);
-            }}
-          />
         ) : null}
         <div
-          className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'} ${imageUrl ? 'hidden' : ''}`}
+          className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'} ${apiImageUrl ? 'hidden' : ''}`}
         >
           {initials}
         </div>
