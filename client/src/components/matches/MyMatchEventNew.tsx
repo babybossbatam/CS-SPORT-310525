@@ -453,7 +453,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             />
                           ) : (
                             event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
-                              <div className="flex items-center gap-1 mr-4">
+                              <div className="flex items-center gap-1 mr-12">
                                 <img
                                   src="/assets/matchdetaillogo/soccer-ball.svg"
                                   alt="Goal"
@@ -506,7 +506,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       {/* Right Grid: Away Team Events */}
                       <div className="match-event-away-side">
                         {!isHome && (
-                          <div className="flex items-center gap-3 pl-36 ">
+                          <div className="flex items-center gap-3 pl-32 ">
                             <div className="flex-1 text-right">
                               {event.type === "subst" && event.assist?.name ? (
                                 <>
