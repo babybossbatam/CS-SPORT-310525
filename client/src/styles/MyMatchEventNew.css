@@ -1,177 +1,99 @@
 
-/* MyMatchEventNew.css - Structured Three-Section Layout for Match Events */
+/* MyMatchEventNew.css - 3-Grid Layout for Match Events */
 
 /* Main event container */
 .match-event-container {
   width: 100%;
-  margin-bottom: 12px;
-  padding: 8px 0;
-  border-bottom: 1px solid #f3f4f6;
+  margin-bottom: 8px;
 }
 
-.match-event-container:last-child {
-  border-bottom: none;
-}
-
-/* Structured three-section layout */
-.match-event-structured-layout {
+/* Three-grid layout container */
+.match-event-three-grid-container {
   display: grid;
-  grid-template-columns: 1fr 100px 1fr;
-  grid-template-areas: "left-section middle-section right-section";
+  grid-template-columns: 1fr 80px 1fr;
+  grid-template-areas: "home-side time-center away-side";
+  grid-template-rows: auto;
   align-items: center;
-  gap: 16px;
   width: 100%;
+  gap: 8px;
+  padding: 8px 0;
 }
 
-/* LEFT SECTION: Home Team Events */
-.match-event-left-section {
-  grid-area: left-section;
+/* Home team events (left side) */
+.match-event-home-side {
+  grid-area: home-side;
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  padding-right: 8px;
 }
 
-.home-event-content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  background-color: #eff6ff;
-  border-radius: 8px;
-  border-left: 3px solid #3b82f6;
-}
-
-/* MIDDLE SECTION: Time */
-.match-event-middle-section {
-  grid-area: middle-section;
+/* Time display (center) */
+.match-event-time-center {
+  grid-area: time-center;
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.time-display {
-  background-color: #f8fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 20px;
-  padding: 8px 12px;
   text-align: center;
-  font-weight: 700;
-  font-size: 14px;
-  color: #1e293b;
-  min-width: 60px;
+  font-weight: bold;
+  color: #374151;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 4px 8px;
+  min-height: 32px;
 }
 
-.extra-time {
-  color: #ef4444;
-  font-weight: 600;
-}
-
-/* RIGHT SECTION: Away Team Events */
-.match-event-right-section {
-  grid-area: right-section;
+/* Away team events (right side) */
+.match-event-away-side {
+  grid-area: away-side;
   display: flex;
   justify-content: flex-start;
   align-items: center;
+  padding-left: 8px;
 }
 
-.away-event-content {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  background-color: #fef2f2;
-  border-radius: 8px;
-  border-right: 3px solid #ef4444;
-}
-
-/* Player Info Components */
-.player-info-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.player-avatars {
-  display: flex;
-  align-items: center;
-}
-
-.player-names {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-/* Event Action Icons */
-.event-action-icon {
+/* Match event icons */
+.match-event-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 12px;
 }
 
-.icon.goal-icon {
+.match-event-icon.goal {
   background-color: #10b981;
   color: white;
 }
 
-.icon.card-icon {
+.match-event-icon.card {
   background-color: #f59e0b;
   color: white;
 }
 
-.icon.substitution-icon {
-  background-color: #6366f1;
+.match-event-icon.substitution {
+  background-color: #6b7280;
   color: white;
 }
 
-/* Responsive Design */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .match-event-structured-layout {
-    grid-template-columns: 1fr 80px 1fr;
-    gap: 8px;
-  }
-  
-  .home-event-content,
-  .away-event-content {
-    padding: 6px 8px;
-    gap: 8px;
-  }
-  
-  .time-display {
-    padding: 6px 8px;
-    font-size: 12px;
-    min-width: 50px;
-  }
-  
-  .event-action-icon {
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
-  }
-  
-  .player-names {
-    font-size: 11px;
-  }
-}
-
-@media (max-width: 480px) {
-  .match-event-structured-layout {
-    grid-template-columns: 1fr 70px 1fr;
+  .match-event-three-grid-container {
+    grid-template-columns: 1fr 60px 1fr;
     gap: 4px;
   }
   
-  .player-info-container {
-    gap: 4px;
+  .match-event-time-center {
+    font-size: 12px;
+    padding: 2px 4px;
+    min-height: 28px;
   }
   
-  .home-event-content,
-  .away-event-content {
-    padding: 4px 6px;
-    gap: 6px;
+  .match-event-home-side,
+  .match-event-away-side {
+    padding: 0 4px;
   }
 }

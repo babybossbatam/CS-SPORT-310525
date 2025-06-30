@@ -321,168 +321,156 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 const isHome = event.team?.name === homeTeam;
 
                 return (
-                  <div key={`event-${index}`} className="match-event-container mb-3">
-                    {/* Structured Three-Section Layout */}
-                    <div className="match-event-structured-layout">
-                      {/* LEFT SECTION: Home Team Events */}
-                      <div className="match-event-left-section">
+                  <div key={`event-${index}`} className="match-event-container">
+                    {/* Three-grid layout container */}
+                    <div className="match-event-three-grid-container">
+                      {/* Left Grid: Home Team Events */}
+                      <div className="match-event-home-side">
                         {isHome && (
-                          <div className="home-event-content">
-                            {/* Player Info */}
-                            <div className="player-info-container">
-                              <div className="player-avatars">
-                                <Avatar className="w-8 h-8 border-2 border-blue-200 shadow-sm">
+                          <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                            <div className="flex items-center gap-2">
+                              <Avatar className="w-8 h-8 border-2 border-white shadow-sm">
+                                <AvatarImage
+                                  src={getPlayerImage(event.player?.id, event.player?.name)}
+                                  alt={event.player?.name || 'Player'}
+                                  className="object-cover"
+                                />
+                                <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
+                                  {event.player?.name
+                                    ?.split(' ')
+                                    .map(n => n[0])
+                                    .join('')
+                                    .slice(0, 2) || 'P'}
+                                </AvatarFallback>
+                              </Avatar>
+
+                              {event.type === 'subst' && event.assist?.name && (
+                                <Avatar className="w-8 h-8 border-2 border-white shadow-sm -ml-2">
                                   <AvatarImage
-                                    src={getPlayerImage(event.player?.id, event.player?.name)}
-                                    alt={event.player?.name || 'Player'}
+                                    src={getPlayerImage(event.assist?.id, event.assist?.name)}
+                                    alt={event.assist?.name || 'Player'}
                                     className="object-cover"
                                   />
-                                  <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
-                                    {event.player?.name
+                                  <AvatarFallback className="bg-blue-400 text-white text-xs font-bold">
+                                    {event.assist?.name
                                       ?.split(' ')
                                       .map(n => n[0])
                                       .join('')
                                       .slice(0, 2) || 'P'}
                                   </AvatarFallback>
                                 </Avatar>
-
-                                {event.type === 'subst' && event.assist?.name && (
-                                  <Avatar className="w-8 h-8 border-2 border-blue-200 shadow-sm ml-2">
-                                    <AvatarImage
-                                      src={getPlayerImage(event.assist?.id, event.assist?.name)}
-                                      alt={event.assist?.name || 'Player'}
-                                      className="object-cover"
-                                    />
-                                    <AvatarFallback className="bg-blue-400 text-white text-xs font-bold">
-                                      {event.assist?.name
-                                        ?.split(' ')
-                                        .map(n => n[0])
-                                        .join('')
-                                        .slice(0, 2) || 'P'}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                )}
-                              </div>
-
-                              <div className="player-names">
-                                {event.type === 'subst' && event.assist?.name ? (
-                                  <>
-                                    <div className="text-xs font-medium text-gray-800">
-                                      {event.assist.name}
-                                    </div>
-                                    <div className="text-xs font-medium text-gray-800">
-                                      {event.player?.name || 'Unknown Player'}
-                                    </div>
-                                  </>
-                                ) : (
-                                  <div className="text-xs font-medium text-gray-800">
-                                    {event.player?.name || 'Unknown Player'}
-                                  </div>
-                                )}
-                                {event.type === 'goal' && event.assist?.name && (
-                                  <div className="text-xs text-gray-500">
-                                    (Assist: {event.assist.name})
-                                  </div>
-                                )}
-                                {event.type !== 'subst' && (
-                                  <div className="text-xs text-gray-400">
-                                    {event.detail || event.type}
-                                  </div>
-                                )}
-                              </div>
+                              )}
                             </div>
 
-                            <div className="event-action-icon">
-                              <span className={`icon ${event.type === 'goal' ? 'goal-icon' : event.type === 'card' ? 'card-icon' : 'substitution-icon'}`}>
-                                {getEventIcon(event.type, event.detail)}
-                              </span>
+                            <div className="flex-1 text-right">
+                              {event.type === 'subst' && event.assist?.name ? (
+                                <>
+                                  <div className="text-xs font-medium text-gray-900">
+                                    {event.assist.name}
+                                  </div>
+                                  <div className="text-xs font-medium text-gray-900">
+                                    {event.player?.name || 'Unknown Player'}
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="text-xs font-medium text-gray-900">
+                                  {event.player?.name || 'Unknown Player'}
+                                </div>
+                              )}
+                              {event.type === 'goal' && event.assist?.name && (
+                                <div className="text-xs text-gray-600">
+                                  (Assist: {event.assist.name})
+                                </div>
+                              )}
+                              {event.type !== 'subst' && (
+                                <div className="text-xs text-gray-400">
+                                  {event.detail || event.type}
+                                </div>
+                              )}
+                            </div>
+
+                            <div className={`match-event-icon ${event.type === 'goal' ? 'goal' : event.type === 'card' ? 'card' : 'substitution'}`}>
+                              <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
                             </div>
                           </div>
                         )}
                       </div>
 
-                      {/* MIDDLE SECTION: Time */}
-                      <div className="match-event-middle-section">
-                        <div className="time-display">
+                      {/* Center Grid: Time */}
+                      <div className="match-event-time-center">
+                        <div className="text-sm font-bold text-gray-700">
                           {event.time?.elapsed}'
-                          {event.time?.extra && (
-                            <span className="extra-time">+{event.time.extra}</span>
-                          )}
+                          {event.time?.extra && ` +${event.time.extra}`}
                         </div>
                       </div>
 
-                      {/* RIGHT SECTION: Away Team Events */}
-                      <div className="match-event-right-section">
+                      {/* Right Grid: Away Team Events */}
+                      <div className="match-event-away-side">
                         {!isHome && (
-                          <div className="away-event-content">
-                            <div className="event-action-icon">
-                              <span className={`icon ${event.type === 'goal' ? 'goal-icon' : event.type === 'card' ? 'card-icon' : 'substitution-icon'}`}>
-                                {getEventIcon(event.type, event.detail)}
-                              </span>
+                          <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg">
+                            <div className={`match-event-icon ${event.type === 'goal' ? 'goal' : event.type === 'card' ? 'card' : 'substitution'}`}>
+                              <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
                             </div>
 
-                            {/* Player Info */}
-                            <div className="player-info-container">
-                              <div className="player-names">
-                                {event.type === 'subst' && event.assist?.name ? (
-                                  <>
-                                    <div className="text-xs font-medium text-gray-800">
-                                      {event.assist.name}
-                                    </div>
-                                    <div className="text-xs font-medium text-gray-800">
-                                      {event.player?.name || 'Unknown Player'}
-                                    </div>
-                                  </>
-                                ) : (
-                                  <div className="text-xs font-medium text-gray-800">
+                            <div className="flex-1 text-left">
+                              {event.type === 'subst' && event.assist?.name ? (
+                                <>
+                                  <div className="text-xs font-medium text-gray-900">
+                                    {event.assist.name}
+                                  </div>
+                                  <div className="text-xs font-medium text-gray-900">
                                     {event.player?.name || 'Unknown Player'}
                                   </div>
-                                )}
-                                {event.type === 'goal' && event.assist?.name && (
-                                  <div className="text-xs text-gray-500">
-                                    (Assist: {event.assist.name})
-                                  </div>
-                                )}
-                                {event.type !== 'subst' && (
-                                  <div className="text-xs text-gray-400">
-                                    {event.detail || event.type}
-                                  </div>
-                                )}
-                              </div>
+                                </>
+                              ) : (
+                                <div className="text-xs font-medium text-gray-900">
+                                  {event.player?.name || 'Unknown Player'}
+                                </div>
+                              )}
+                              {event.type === 'goal' && event.assist?.name && (
+                                <div className="text-xs text-gray-500">
+                                  (Assist: {event.assist.name})
+                                </div>
+                              )}
+                              {event.type !== 'subst' && (
+                                <div className="text-xs text-gray-400">
+                                  {event.detail || event.type}
+                                </div>
+                              )}
+                            </div>
 
-                              <div className="player-avatars">
-                                {event.type === 'subst' && event.assist?.name && (
-                                  <Avatar className="w-8 h-8 border-2 border-red-200 shadow-sm mr-2">
-                                    <AvatarImage
-                                      src={getPlayerImage(event.assist?.id, event.assist?.name)}
-                                      alt={event.assist?.name || 'Player'}
-                                      className="object-cover"
-                                    />
-                                    <AvatarFallback className="bg-red-400 text-white text-xs font-bold">
-                                      {event.assist?.name
-                                        ?.split(' ')
-                                        .map(n => n[0])
-                                        .join('')
-                                        .slice(0, 2) || 'P'}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                )}
-
-                                <Avatar className="w-8 h-8 border-2 border-red-200 shadow-sm">
+                            <div className="flex items-center gap-2">
+                              {event.type === 'subst' && event.assist?.name && (
+                                <Avatar className="w-8 h-8 border-2 border-white shadow-sm -mr-2">
                                   <AvatarImage
-                                    src={getPlayerImage(event.player?.id, event.player?.name)}
-                                    alt={event.player?.name || 'Player'}
+                                    src={getPlayerImage(event.assist?.id, event.assist?.name)}
+                                    alt={event.assist?.name || 'Player'}
                                     className="object-cover"
                                   />
-                                  <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
-                                    {event.player?.name
+                                  <AvatarFallback className="bg-red-400 text-white text-xs font-bold">
+                                    {event.assist?.name
                                       ?.split(' ')
                                       .map(n => n[0])
                                       .join('')
                                       .slice(0, 2) || 'P'}
                                   </AvatarFallback>
                                 </Avatar>
-                              </div>
+                              )}
+
+                              <Avatar className="w-8 h-8 border-2 border-white shadow-sm">
+                                <AvatarImage
+                                  src={getPlayerImage(event.player?.id, event.player?.name)}
+                                  alt={event.player?.name || 'Player'}
+                                  className="object-cover"
+                                />
+                                <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
+                                  {event.player?.name
+                                    ?.split(' ')
+                                    .map(n => n[0])
+                                    .join('')
+                                    .slice(0, 2) || 'P'}
+                                </AvatarFallback>
+                              </Avatar>
                             </div>
                           </div>
                         )}
