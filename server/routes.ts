@@ -27,6 +27,7 @@ import vimeoRoutes from "./routes/vimeoRoutes";
 import dailymotionRoutes from "./routes/dailymotionRoutes";
 import twitchRoutes from "./routes/twitchRoutes";
 import highlightsRoutes from "./routes/highlightsRoutes";
+import playerRoutes from './routes/playerRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -41,6 +42,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/dailymotion", dailymotionRoutes);
   app.use("/api/twitch", twitchRoutes);
   app.use("/api/highlights", highlightsRoutes);
+  app.use('/api', playerRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
@@ -825,6 +827,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (cachedLeague) {
         // Check if cache is fresh (less than 4 hours old)
         const now = new Date();
+```text
         const cacheTime = new Date(cachedLeague.timestamp);
         const cacheAge = now.getTime() - cacheTime.getTime();
 

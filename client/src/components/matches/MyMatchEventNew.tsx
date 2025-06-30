@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Clock, RefreshCw, AlertCircle } from 'lucide-react';
@@ -63,16 +62,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
     try {
       console.log(`📊 [MyMatchEventNew] Fetching events for fixture: ${fixtureId}`);
-      
+
       const response = await fetch(`/api/fixtures/${fixtureId}/events`);
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch events: ${response.status}`);
       }
 
       const eventData = await response.json();
       console.log(`✅ [MyMatchEventNew] Received ${eventData.length} events`);
-      
+
       setEvents(eventData || []);
       setLastUpdated(new Date());
       setError(null);
@@ -114,9 +113,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     }
   };
 
-  const getPlayerImage = (playerId?: number) => {
+  const getPlayerImage = (playerId?: number, playerName?: string) => {
     // Placeholder for player images - you can replace with actual API calls
-    return `https://via.placeholder.com/32x32/E5E7EB/6B7280?text=${playerId ? playerId.toString().slice(-2) : 'P'}`;
+    // return `https://via.placeholder.com/32x32/E5E7EB/6B7280?text=${playerId ? playerId.toString().slice(-2) : 'P'}`;
+    const initials = playerName?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'P';
+    return `https://ui-avatars.com/api/?name=${initials}&size=32&background=4F46E5&color=fff&bold=true`;
   };
 
   const formatTime = (elapsed: number, extra?: number) => {
@@ -129,7 +130,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const getEventDescription = (event: MatchEvent) => {
     const playerName = event.player?.name || 'Unknown Player';
     const assistName = event.assist?.name;
-    
+
     switch (event.type.toLowerCase()) {
       case 'goal':
         return `${playerName}${assistName ? ` (assist: ${assistName})` : ''}`;
@@ -194,14 +195,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const EventItem = ({ event, isLast }: { event: MatchEvent; isLast: boolean }) => {
     const isHome = isHomeTeam(event);
     const isSubstitution = event.type.toLowerCase() === 'subst';
-    
+
     return (
       <div className="relative flex items-center">
         {/* Timeline line */}
         {!isLast && (
           <div className="absolute left-1/2 top-12 w-0.5 h-12 bg-gray-300 transform -translate-x-px"></div>
         )}
-        
+
         {/* Left side - Home team events */}
         <div className="flex-1 pr-4">
           {isHome && (
@@ -212,18 +213,31 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 </div>
                 <div className="text-xs text-gray-500">{event.team?.name}</div>
               </div>
-              
               {isSubstitution ? (
                 <div className="flex -space-x-2">
                   <img
-                    src={getPlayerImage(event.player?.id)}
+                    src={getPlayerImage(event.player?.id, event.player?.name)}
                     alt={event.player?.name}
                     className="w-8 h-8 rounded-full border-2 border-white"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.includes('ui-avatars.com')) {
+                        const initials = event.player?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'P';
+                        target.src = `https://ui-avatars.com/api/?name=${initials}&size=32&background=4F46E5&color=fff&bold=true`;
+                      }
+                    }}
                   />
                   <img
-                    src={getPlayerImage(event.assist?.id)}
+                    src={getPlayerImage(event.assist?.id, event.assist?.name)}
                     alt={event.assist?.name || 'Sub'}
                     className="w-8 h-8 rounded-full border-2 border-white"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.includes('ui-avatars.com')) {
+                        const initials = event.assist?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'S';
+                        target.src = `https://ui-avatars.com/api/?name=${initials}&size=32&background=22C55E&color=fff&bold=true`;
+                      }
+                    }}
                   />
                 </div>
               ) : (
@@ -249,14 +263,28 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               {isSubstitution ? (
                 <div className="flex -space-x-2">
                   <img
-                    src={getPlayerImage(event.player?.id)}
+                    src={getPlayerImage(event.player?.id, event.player?.name)}
                     alt={event.player?.name}
                     className="w-8 h-8 rounded-full border-2 border-white"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.includes('ui-avatars.com')) {
+                        const initials = event.player?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'P';
+                        target.src = `https://ui-avatars.com/api/?name=${initials}&size=32&background=EF4444&color=fff&bold=true`;
+                      }
+                    }}
                   />
                   <img
-                    src={getPlayerImage(event.assist?.id)}
+                    src={getPlayerImage(event.assist?.id, event.assist?.name)}
                     alt={event.assist?.name || 'Sub'}
                     className="w-8 h-8 rounded-full border-2 border-white"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.src.includes('ui-avatars.com')) {
+                        const initials = event.assist?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'S';
+                        target.src = `https://ui-avatars.com/api/?name=${initials}&size=32&background=F59E0B&color=fff&bold=true`;
+                      }
+                    }}
                   />
                 </div>
               ) : (
@@ -264,7 +292,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
                 </div>
               )}
-              
+
               <div className="text-left">
                 <div className="text-sm font-medium text-gray-900">
                   {getEventDescription(event)}
