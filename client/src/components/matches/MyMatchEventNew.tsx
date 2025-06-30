@@ -238,14 +238,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
     return (
       <div className="player-image-container">
-        {imageUrl && !imageUrl.includes('ui-avatars.com') ? (
+        {imageUrl && imageUrl.startsWith('/api/player-photo/') ? (
           <img
             src={imageUrl}
             alt={event.player.name}
             className={`player-image ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}
             onError={(e) => {
-              console.warn(`❌ [PlayerAvatar] Image failed to load for ${event.player.name}: ${imageUrl}`);
-              // Fallback to initials if image fails to load
+              console.warn(`❌ [PlayerAvatar] API image failed to load for ${event.player.name}: ${imageUrl}`);
+              // Fallback to initials if API image fails to load
               e.currentTarget.style.display = 'none';
               const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
               if (fallbackElement) {
@@ -253,12 +253,26 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               }
             }}
             onLoad={() => {
-              console.log(`✅ [PlayerAvatar] Image loaded successfully for ${event.player.name}: ${imageUrl}`);
+              console.log(`✅ [PlayerAvatar] API image loaded successfully for ${event.player.name}: ${imageUrl}`);
+              // Hide the fallback element when API image loads successfully
+              const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
+              if (fallbackElement) {
+                fallbackElement.classList.add('hidden');
+              }
+            }}
+          />
+        ) : imageUrl && imageUrl.includes('ui-avatars.com') ? (
+          <img
+            src={imageUrl}
+            alt={event.player.name}
+            className={`player-image ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}
+            onLoad={() => {
+              console.log(`✅ [PlayerAvatar] Fallback avatar loaded for ${event.player.name}`);
             }}
           />
         ) : null}
         <div
-          className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'} ${imageUrl && !imageUrl.includes('ui-avatars.com') ? 'hidden' : ''}`}
+          className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'} ${imageUrl && imageUrl.startsWith('/api/player-photo/') ? 'hidden' : ''}`}
         >
           {initials}
         </div>

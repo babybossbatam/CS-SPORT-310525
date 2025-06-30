@@ -79,23 +79,21 @@ class PlayerImageCache {
       return cached.url;
     }
 
-    // Try API endpoint if we have a player ID
+    // Try API endpoint if we have a player ID - trust it works since console shows 200 responses
     if (playerId) {
       try {
         const apiUrl = `/api/player-photo/${playerId}`;
+        console.log(`🔍 [PlayerImageCache] Using API endpoint: ${apiUrl}`);
         
-        // Validate the API endpoint
-        const isValid = await this.validateImageUrl(apiUrl);
-        if (isValid) {
-          this.setCachedImage(playerId, playerName, apiUrl, 'api');
-          return apiUrl;
-        }
+        // Cache and return API URL directly - validation will happen when the image loads
+        this.setCachedImage(playerId, playerName, apiUrl, 'api');
+        return apiUrl;
       } catch (error) {
         console.warn(`⚠️ [PlayerImageCache] API failed for player ${playerId}:`, error);
       }
     }
 
-    // Generate initials fallback
+    // Generate initials fallback only if no player ID
     const initials = this.generateInitials(playerName);
     const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=32&background=4F46E5&color=fff&bold=true&format=svg`;
     
