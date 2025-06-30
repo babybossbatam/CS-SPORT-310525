@@ -472,71 +472,39 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       {/* Center Grid: Time and event*/}
 
                       <div className="match-event-time-center w-12">
-                        <div className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"} flex justify-center`}>
-                          {event.type === "subst" ? (
-                            <img
-                              src="/assets/matchdetaillogo/substitution.svg"
-                              alt="Substitution"
-                              className="w-4 h-4 mr-6"
-                            />
-                          ) : event.type === "goal" && event.detail?.toLowerCase().includes("missed penalty") ? (
-                            <img
-                              src="/assets/matchdetaillogo/missed-penalty.svg"
-                              alt="Missed Penalty"
-                              className="w-4 h-4 mr-6"
-                            />
-                          ) : event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
-                            <img
-                              src="/assets/matchdetaillogo/penalty.svg"
-                              alt="Penalty Goal"
-                              className="w-4 h-4 mr-6"
-                            />
-                          ) : event.type === "goal" ? (
-                            <img
-                              src="/assets/matchdetaillogo/soccer-ball.svg"
-                              alt="Goal"
-                              className="w-4 h-4 mr-6"
-                            />
-                          ) : (
-                            <span className="text-xs mr-6">
-                              {getEventIcon(event.type, event.detail)}
-                            </span>
-                          )}
-                        </div>
-
                         {/* Time display in middle content area */}
                         <div className="text-xs font-bold text-gray-600 text-center">
                           {event.time?.elapsed}'
                           {event.time?.extra && ` +${event.time.extra}`}
                         </div>
 
-                        <div className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"} flex justify-center`}>
+                        <div className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"} flex justify-center items-center`}>
                           {event.type === "subst" ? (
                             <img
                               src="/assets/matchdetaillogo/substitution.svg"
                               alt="Substitution"
-                              className="w-4 h-4 ml-6"
+                              className="w-4 h-4"
                             />
                           ) : event.type === "goal" && event.detail?.toLowerCase().includes("missed penalty") ? (
                             <img
                               src="/assets/matchdetaillogo/missed-penalty.svg"
                               alt="Missed Penalty"
-                              className="w-4 h-4 ml-6"
+                              className="w-4 h-4"
                             />
                           ) : event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
                             <img
                               src="/assets/matchdetaillogo/penalty.svg"
                               alt="Penalty Goal"
-                              className="w-4 h-4 ml-6"
+                              className="w-4 h-4"
                             />
                           ) : event.type === "goal" ? (
                             <img
                               src="/assets/matchdetaillogo/soccer-ball.svg"
                               alt="Goal"
-                              className="w-4 h-4 ml-6"
+                              className="w-4 h-4"
                             />
                           ) : (
-                            <span className="text-xs ml-6">
+                            <span className="text-xs">
                               {getEventIcon(event.type, event.detail)}
                             </span>
                           )}
