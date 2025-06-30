@@ -46,6 +46,15 @@
   min-width: 72px;
 }
 
+/* Ensure time text is perfectly centered */
+.match-event-time-center .text-xs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  height: 100%;
+}
+
 /* Away team events (right side) */
 .match-event-away-side {
   grid-area: away-side;

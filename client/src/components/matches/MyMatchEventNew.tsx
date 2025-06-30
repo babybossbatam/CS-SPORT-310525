@@ -468,7 +468,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           )}
                           
                           {/* Time display - vertically centered */}
-                          <div className="text-xs font-bold text-gray-600 text-center flex items-center">
+                          <div className="text-xs font-bold text-gray-600 text-center flex items-center justify-center" style={{ lineHeight: '1', height: '100%' }}>
                             {event.time?.elapsed}'
                             {event.time?.extra && ` +${event.time.extra}`}
                           </div>
