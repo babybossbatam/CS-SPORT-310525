@@ -1,6 +1,7 @@
 
-import React, { useEffect, useRef, useState } from 'react';
-import { Card, CardContent, CardHeader } from '../ui/card';
+import React, { useState, useEffect, useRef } from 'react';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Clock, User, RefreshCw, AlertCircle } from 'lucide-react';
 
 interface MyMatchEventNewProps {
   fixtureId: string | number;
@@ -14,10 +15,32 @@ interface MyMatchEventNewProps {
   awayTeam?: string;
 }
 
+interface MatchEvent {
+  time: {
+    elapsed: number;
+    extra?: number;
+  };
+  team: {
+    id: number;
+    name: string;
+    logo: string;
+  };
+  player: {
+    id?: number;
+    name: string;
+  };
+  assist?: {
+    id?: number;
+    name: string;
+  };
+  type: string;
+  detail: string;
+  comments?: string;
+}
+
 const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   fixtureId,
-  apiKey,
-  theme = "",
+  theme = "light",
   refreshInterval = 15,
   showErrors = false,
   showLogos = true,
@@ -25,102 +48,104 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   homeTeam,
   awayTeam
 }) => {
-  // Use provided apiKey or fetch from environment
-  const effectiveApiKey = apiKey || import.meta.env.VITE_RAPID_API_KEY || "";
-  const widgetContainerRef = useRef<HTMLDivElement>(null);
-  const scriptRef = useRef<HTMLScriptElement | null>(null);
+  const [events, setEvents] = useState<MatchEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    // Clean up any existing script and widget
-    if (scriptRef.current) {
-      scriptRef.current.remove();
-      scriptRef.current = null;
-    }
-
-    // Only load widget if we have a fixture ID and API key
-    if (!fixtureId || !widgetContainerRef.current) {
+  const fetchMatchEvents = async () => {
+    if (!fixtureId) {
       setError('No fixture ID provided');
       setIsLoading(false);
       return;
     }
 
-    if (!effectiveApiKey) {
-      setError('No API key available. Please configure VITE_RAPID_API_KEY environment variable.');
+    try {
+      console.log(`📊 [MyMatchEventNew] Fetching events for fixture: ${fixtureId}`);
+      
+      const response = await fetch(`/api/fixtures/${fixtureId}/events`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch events: ${response.status}`);
+      }
+
+      const eventData = await response.json();
+      console.log(`✅ [MyMatchEventNew] Received ${eventData.length} events`);
+      
+      setEvents(eventData || []);
+      setLastUpdated(new Date());
+      setError(null);
+    } catch (error) {
+      console.error(`❌ [MyMatchEventNew] Error fetching events:`, error);
+      setError(error instanceof Error ? error.message : 'Failed to fetch events');
+    } finally {
       setIsLoading(false);
-      return;
+    }
+  };
+
+  useEffect(() => {
+    fetchMatchEvents();
+
+    // Set up refresh interval
+    if (refreshInterval > 0) {
+      intervalRef.current = setInterval(fetchMatchEvents, refreshInterval * 1000);
     }
 
-    const loadWidget = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-
-        const container = widgetContainerRef.current;
-        if (!container) return;
-
-        // Clear the container
-        container.innerHTML = '';
-
-        // Create the widget div with all required attributes
-        const widgetDiv = document.createElement('div');
-        widgetDiv.id = `wg-api-football-game-${fixtureId}`;
-        widgetDiv.setAttribute('data-host', 'v3.football.api-sports.io');
-        widgetDiv.setAttribute('data-key', effectiveApiKey);
-        widgetDiv.setAttribute('data-id', fixtureId.toString());
-        widgetDiv.setAttribute('data-theme', theme);
-        widgetDiv.setAttribute('data-refresh', Math.max(refreshInterval, 15).toString());
-        widgetDiv.setAttribute('data-show-errors', showErrors.toString());
-        widgetDiv.setAttribute('data-show-logos', showLogos.toString());
-
-        container.appendChild(widgetDiv);
-
-        // Load the API-Football widget script
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.src = 'https://widgets.api-sports.io/2.0.3/widgets.js';
-        script.async = true;
-        
-        script.onload = () => {
-          console.log(`✅ API-Football widget loaded successfully for fixture ${fixtureId}`);
-          setIsLoading(false);
-        };
-        
-        script.onerror = () => {
-          console.error(`❌ Failed to load API-Football widget for fixture ${fixtureId}`);
-          setError('Failed to load match events widget');
-          setIsLoading(false);
-        };
-
-        document.head.appendChild(script);
-        scriptRef.current = script;
-
-      } catch (err) {
-        console.error('Error loading API-Football widget:', err);
-        setError('Error initializing widget');
-        setIsLoading(false);
-      }
-    };
-
-    // Load widget after a short delay to ensure DOM is ready
-    const timeoutId = setTimeout(loadWidget, 100);
-
     return () => {
-      clearTimeout(timeoutId);
-      if (scriptRef.current) {
-        scriptRef.current.remove();
-        scriptRef.current = null;
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
       }
     };
-  }, [fixtureId, effectiveApiKey, theme, refreshInterval, showErrors, showLogos]);
+  }, [fixtureId, refreshInterval]);
 
-  if (!fixtureId) {
+  const getEventIcon = (eventType: string, detail: string) => {
+    switch (eventType.toLowerCase()) {
+      case 'goal':
+        return detail.toLowerCase().includes('penalty') ? '⚽(P)' : '⚽';
+      case 'card':
+        return detail.toLowerCase().includes('yellow') ? '🟨' : '🟥';
+      case 'subst':
+        return '🔄';
+      case 'var':
+        return '📺';
+      default:
+        return '📝';
+    }
+  };
+
+  const getEventDescription = (event: MatchEvent) => {
+    const playerName = event.player?.name || 'Unknown Player';
+    const assistName = event.assist?.name;
+    
+    switch (event.type.toLowerCase()) {
+      case 'goal':
+        return `${playerName}${assistName ? ` (assist: ${assistName})` : ''}`;
+      case 'card':
+        return `${playerName} - ${event.detail}`;
+      case 'subst':
+        return `${playerName} ${event.detail}`;
+      default:
+        return `${playerName} - ${event.detail}`;
+    }
+  };
+
+  const formatTime = (elapsed: number, extra?: number) => {
+    if (extra) {
+      return `${elapsed}+${extra}'`;
+    }
+    return `${elapsed}'`;
+  };
+
+  const isDarkTheme = theme === 'dark';
+
+  if (error && showErrors) {
     return (
-      <Card className={`w-full ${className}`}>
-        <CardContent className="p-6 text-center">
-          <div className="text-gray-500">
-            No fixture ID provided for match events
+      <Card className={`${className} ${isDarkTheme ? 'bg-gray-800 text-white' : 'bg-white'}`}>
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2 text-red-500">
+            <AlertCircle className="h-5 w-5" />
+            <span>Error: {error}</span>
           </div>
         </CardContent>
       </Card>
@@ -128,52 +153,115 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   }
 
   return (
-    <Card className={`w-full ${className}`}>
-      <CardHeader className="pb-3">
+    <Card className={`${className} ${isDarkTheme ? 'bg-gray-800 text-white border-gray-700' : 'bg-white border-gray-200'}`}>
+      <CardHeader className={`pb-3 ${isDarkTheme ? 'bg-gray-700' : 'bg-gray-50'} border-b`}>
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800">
-            Match Events & Statistics
-          </h3>
-          {(homeTeam && awayTeam) && (
-            <div className="text-sm text-gray-600">
-              {homeTeam} vs {awayTeam}
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-semibold">Match Events</h3>
+            {isLoading && (
+              <RefreshCw className="h-4 w-4 animate-spin text-blue-500" />
+            )}
+          </div>
+          {lastUpdated && (
+            <div className="flex items-center gap-1 text-sm text-gray-500">
+              <Clock className="h-4 w-4" />
+              <span>
+                Updated: {lastUpdated.toLocaleTimeString()}
+              </span>
             </div>
           )}
         </div>
-        <div className="text-xs text-gray-500">
-          Live updates every {refreshInterval} seconds • Fixture ID: {fixtureId}
-        </div>
+        {homeTeam && awayTeam && (
+          <div className="text-sm text-gray-600">
+            {homeTeam} vs {awayTeam}
+          </div>
+        )}
       </CardHeader>
-      
+
       <CardContent className="p-0">
-        {error ? (
-          <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4 mx-auto">
-              <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
+        {isLoading && events.length === 0 ? (
+          <div className="flex items-center justify-center p-8">
+            <div className="text-center">
+              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin mx-auto mb-2"></div>
+              <p className="text-gray-600">Loading match events...</p>
             </div>
-            <p className="text-red-600 font-medium mb-1">Widget Error</p>
-            <p className="text-gray-500 text-sm">{error}</p>
           </div>
-        ) : isLoading ? (
-          <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4 mx-auto">
-              <div className="w-8 h-8 border-4 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+        ) : events.length === 0 ? (
+          <div className="flex items-center justify-center p-8">
+            <div className="text-center text-gray-500">
+              <User className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>No events recorded yet</p>
+              <p className="text-sm">Events will appear as they happen</p>
             </div>
-            <p className="text-gray-600 font-medium mb-1">Loading Match Events</p>
-            <p className="text-gray-500 text-sm">Initializing API-Football widget...</p>
           </div>
-        ) : null}
-        
-        {/* Widget container */}
-        <div 
-          ref={widgetContainerRef} 
-          className="api-football-match-events w-full min-h-[400px]"
-          style={{ 
-            display: isLoading || error ? 'none' : 'block' 
-          }}
-        />
+        ) : (
+          <div className="max-h-96 overflow-y-auto">
+            <div className="space-y-1">
+              {events.map((event, index) => (
+                <div
+                  key={index}
+                  className={`flex items-start gap-3 p-3 border-b last:border-b-0 hover:bg-gray-50 transition-colors ${
+                    isDarkTheme ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-100'
+                  }`}
+                >
+                  {/* Time */}
+                  <div className="flex-shrink-0 w-12 text-center">
+                    <span className="text-sm font-mono font-medium text-blue-600">
+                      {formatTime(event.time.elapsed, event.time.extra)}
+                    </span>
+                  </div>
+
+                  {/* Event Icon */}
+                  <div className="flex-shrink-0 text-lg">
+                    {getEventIcon(event.type, event.detail)}
+                  </div>
+
+                  {/* Event Details */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      {showLogos && event.team?.logo && (
+                        <img
+                          src={event.team.logo}
+                          alt={event.team.name}
+                          className="w-4 h-4 rounded-full"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      )}
+                      <span className="text-sm font-medium text-gray-700">
+                        {event.team?.name}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600 mt-1">
+                      {getEventDescription(event)}
+                    </div>
+                    {event.comments && (
+                      <div className="text-xs text-gray-500 mt-1 italic">
+                        {event.comments}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Event Type Badge */}
+                  <div className="flex-shrink-0">
+                    <span className={`px-2 py-1 text-xs rounded-full font-medium ${
+                      event.type.toLowerCase() === 'goal' 
+                        ? 'bg-green-100 text-green-700'
+                        : event.type.toLowerCase() === 'card'
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : event.type.toLowerCase() === 'subst'
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'bg-gray-100 text-gray-700'
+                    }`}>
+                      {event.type}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
