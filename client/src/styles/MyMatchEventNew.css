@@ -1,9 +1,47 @@
-/* MyMatchEventNew.css - 3-Grid Layout for Match Events */
+
+/* MyMatchEventNew.css - 365scores-inspired Match Events Design System */
+
+/* Design system variables */
+:root {
+  --accentPrimary: #2194ff;
+  --successPrimary: #5bb849;
+  --dangerPrimary: #ff495c;
+  --warningPrimary: #ffb800;
+  --surfacePrimary: #f3f3f3;
+  --surfaceSecondary: #fff;
+  --dividerPrimary: #ced0d0;
+  --textPrimary: #151e22;
+  --textSecondary: #6b7173;
+  --whitePrimary: #fff;
+  --blackPrimary: #000;
+  --highlightPrimary: rgba(0, 0, 0, 0.102);
+  --ratePrimary: #e38218;
+  --grayPrimary: #9c9b9b;
+  --scrollerPrimary: #d0d8de;
+  
+  /* Font weights */
+  --regular-font-weight: 400;
+  --medium-font-weight: 500;
+  --semiBold-font-weight: 600;
+  --bold-font-weight: 700;
+  
+  /* Animation variables */
+  --animation-duration: 500ms;
+  --slide-from-side-delay: 3500ms;
+  --fade-in-delay: 4000ms;
+}
 
 /* Main event container */
 .match-event-container {
   width: 100%;
   margin-bottom: 8px;
+  background-color: var(--surfaceSecondary);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.match-event-container:hover {
+  background-color: var(--surfacePrimary);
 }
 
 /* Three-grid layout container */
@@ -15,7 +53,8 @@
   align-items: center;
   width: 100%;
   gap: 8px;
-  padding: 8px 0;
+  padding: 12px 8px;
+  min-height: 60px;
 }
 
 /* Home team events (left side) */
@@ -35,14 +74,21 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  font-weight: semi-bold;
-  color: #374151;
-  background: transparent;
-  border: none;
-  border-radius: 12px;
-  padding: 4px;
+  font-weight: var(--semiBold-font-weight);
+  color: var(--textPrimary);
+  background: var(--surfaceSecondary);
+  border: 2px solid var(--dividerPrimary);
+  border-radius: 20px;
+  padding: 8px 4px;
   min-height: 40px;
   min-width: 72px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.match-event-time-center:hover {
+  border-color: var(--accentPrimary);
+  transform: scale(1.05);
 }
 
 /* Simple 3-column grid for time and icons */
@@ -58,6 +104,15 @@
   min-height: 40px;
   min-width: 72px;
   padding: 4px;
+  background: var(--surfaceSecondary);
+  border-radius: 12px;
+  border: 1px solid var(--dividerPrimary);
+  transition: all 0.2s ease;
+}
+
+.match-event-time-center-simple:hover {
+  background: var(--surfacePrimary);
+  border-color: var(--accentPrimary);
 }
 
 /* Left icon area */
@@ -66,6 +121,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  position: relative;
 }
 
 /* Center time display */
@@ -76,8 +132,8 @@
   align-items: center;
   text-align: center;
   font-size: 12px;
-  font-weight: bold;
-  color: #374151;
+  font-weight: var(--semiBold-font-weight);
+  color: var(--textPrimary);
   line-height: 1;
   white-space: nowrap;
   height: 40px;
@@ -90,15 +146,7 @@
   display: flex;
   justify-content: flex-start;
   align-items: center;
-}
-
-/* Ensure time text is perfectly centered */
-.match-event-time-center .text-xs {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  height: 100%;
+  position: relative;
 }
 
 /* Away team events (right side) */
@@ -112,31 +160,158 @@
   min-width: 25px;
 }
 
-/* Match event icons */
+/* Match event icons with enhanced styling */
 .match-event-icon {
   display: flex;
   align-items: center;
-  max-width: 50px;
   justify-content: center;
-  width: 30px;
+  width: 24px;
   height: 24px;
   border-radius: 50%;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: var(--semiBold-font-weight);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.match-event-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .match-event-icon.goal {
-  background-color: #10b981;
-  color: white;
+  background: linear-gradient(135deg, var(--successPrimary), #4ade80);
+  color: var(--whitePrimary);
+  border-color: var(--successPrimary);
 }
 
 .match-event-icon.card {
-  background-color: #f59e0b;
-  color: white;
+  background: linear-gradient(135deg, var(--warningPrimary), #fbbf24);
+  color: var(--whitePrimary);
+  border-color: var(--warningPrimary);
 }
 
 .match-event-icon.substitution {
-  background-color: #6b7280;
-  color: white;
+  background: linear-gradient(135deg, var(--grayPrimary), #9ca3af);
+  color: var(--whitePrimary);
+  border-color: var(--grayPrimary);
+}
+
+/* Event details styling */
+.match-event-event-details {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  text-align: left;
+  margin-top: 0;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.match-event-event-details:hover {
+  opacity: 0.8;
+}
+
+/* Event text styling */
+.match-event-event-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  line-height: normal;
+  font-weight: var(--medium-font-weight);
+  color: var(--textPrimary);
+  font-size: 12px;
+}
+
+.match-event-event-subtitle {
+  color: var(--textSecondary);
+  font-size: 11px;
+  font-weight: var(--regular-font-weight);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+/* Substitution-specific styling */
+.match-event-switch-event-title {
+  color: var(--successPrimary);
+}
+
+.match-event-switch-event-subtitle {
+  margin-bottom: 0;
+  color: var(--dangerPrimary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Player image styling */
+.match-event-player-image {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--surfaceSecondary);
+  display: inline-block;
+  border: 2px solid var(--dividerPrimary);
+  transition: all 0.2s ease;
+  object-fit: cover;
+}
+
+.match-event-player-image:hover {
+  border-color: var(--accentPrimary);
+  transform: scale(1.05);
+}
+
+.match-event-player-image-sub-in {
+  border-color: var(--successPrimary);
+}
+
+.match-event-player-image-sub-out {
+  border-color: var(--dangerPrimary);
+  position: relative;
+}
+
+/* Animation classes */
+.match-event-module-animation .match-event-icon {
+  opacity: 0;
+  animation: fadeIn var(--animation-duration) forwards var(--fade-in-delay);
+}
+
+.match-event-module-animation .match-event-event-details-home {
+  position: relative;
+  left: -200px;
+  animation: slideFromLeft var(--animation-duration) forwards var(--slide-from-side-delay);
+}
+
+.match-event-module-animation .match-event-event-details-away {
+  position: relative;
+  right: -200px;
+  animation: slideFromRight var(--animation-duration) forwards var(--slide-from-side-delay);
+}
+
+@keyframes fadeIn {
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slideFromLeft {
+  100% {
+    left: 0;
+  }
+}
+
+@keyframes slideFromRight {
+  100% {
+    right: 0;
+  }
 }
 
 /* Responsive adjustments */
@@ -144,16 +319,80 @@
   .match-event-three-grid-container {
     grid-template-columns: 1fr 60px 1fr;
     gap: 4px;
+    padding: 8px 4px;
+    min-height: 50px;
   }
 
   .match-event-time-center {
-    font-size: 12px;
-    padding: 2px 4px;
-    min-height: 28px;
+    font-size: 11px;
+    padding: 6px 2px;
+    min-height: 32px;
+    min-width: 56px;
+  }
+
+  .match-event-time-center-simple {
+    min-height: 32px;
+    min-width: 56px;
+  }
+
+  .match-event-time-display {
+    font-size: 11px;
+    height: 32px;
+    min-height: 32px;
+  }
+
+  .match-event-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
   }
 
   .match-event-home-side,
   .match-event-away-side {
     padding: 0 4px;
+  }
+
+  .match-event-event-title {
+    font-size: 11px;
+  }
+
+  .match-event-event-subtitle {
+    font-size: 10px;
+  }
+
+  .match-event-player-image {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surfacePrimary: #1f2937;
+    --surfaceSecondary: #374151;
+    --textPrimary: #f9fafb;
+    --textSecondary: #9ca3af;
+    --dividerPrimary: #4b5563;
+  }
+}
+
+/* Focus states for accessibility */
+.match-event-icon:focus,
+.match-event-time-center:focus,
+.match-event-time-center-simple:focus {
+  outline: 2px solid var(--accentPrimary);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .match-event-icon {
+    border-width: 3px;
+  }
+  
+  .match-event-time-center,
+  .match-event-time-center-simple {
+    border-width: 3px;
   }
 }
