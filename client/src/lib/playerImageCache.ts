@@ -189,6 +189,13 @@ class PlayerImageCache {
     this.cache.clear();
     console.log('🗑️ [PlayerImageCache] Cache cleared');
   }
+
+  // Force refresh cache for specific player
+  forceRefresh(playerId?: number, playerName?: string): void {
+    const key = this.getCacheKey(playerId, playerName);
+    this.cache.delete(key);
+    console.log(`🔄 [PlayerImageCache] Force refreshed cache for player: ${playerName} (${playerId})`);
+  }
 }
 
 // Export singleton instance
@@ -201,6 +208,14 @@ export const getPlayerImage = async (playerId?: number, playerName?: string): Pr
 
 export const preloadPlayerImages = async (players: Array<{ id?: number; name?: string }>): Promise<void> => {
   return playerImageCache.preloadPlayerImages(players);
+};
+
+export const clearPlayerImageCache = (): void => {
+  return playerImageCache.clear();
+};
+
+export const forceRefreshPlayer = (playerId?: number, playerName?: string): void => {
+  return playerImageCache.forceRefresh(playerId, playerName);
 };
 
 export default playerImageCache;

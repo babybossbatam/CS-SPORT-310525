@@ -252,7 +252,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 fallbackElement.classList.remove('hidden');
               }
             }}
-            onLoad={() => {
+            onLoad={(e) => {
               console.log(`✅ [PlayerAvatar] API image loaded successfully for ${event.player.name}: ${imageUrl}`);
               // Hide the fallback element when API image loads successfully
               const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
@@ -272,7 +272,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           />
         ) : null}
         <div
-          className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'} ${imageUrl && imageUrl.startsWith('/api/player-photo/') ? 'hidden' : ''}`}
+          className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'} ${imageUrl ? 'hidden' : ''}`}
         >
           {initials}
         </div>
