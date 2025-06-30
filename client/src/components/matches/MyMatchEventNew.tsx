@@ -114,16 +114,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   const getPlayerImage = (playerId?: number, playerName?: string) => {
-    // Try server endpoint first if we have a player ID
+    // Always try server endpoint first if we have a player ID
     if (playerId) {
-      console.log(`🔍 [Player Photo] Requesting image for player ID: ${playerId}`);
       return `/api/player-photo/${playerId}`;
     }
-    // Fallback to avatar generator with initials
+    // Simple fallback with initials if no player ID
     const initials = playerName?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'P';
-    const avatarUrl = `https://ui-avatars.com/api/?name=${initials}&size=32&background=4F46E5&color=fff&bold=true`;
-    console.log(`🎯 [Player Photo] Using avatar for ${playerName}: ${avatarUrl}`);
-    return avatarUrl;
+    return `https://ui-avatars.com/api/?name=${initials}&size=32&background=4F46E5&color=fff&bold=true`;
   };
 
   const formatTime = (elapsed: number, extra?: number) => {
@@ -225,25 +222,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     src={getPlayerImage(event.player?.id, event.player?.name)}
                     alt={event.player?.name}
                     className="w-8 h-8 rounded-full border-2 border-white"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      if (!target.src.includes('ui-avatars.com')) {
-                        const initials = event.player?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'P';
-                        target.src = `https://ui-avatars.com/api/?name=${initials}&size=32&background=4F46E5&color=fff&bold=true`;
-                      }
-                    }}
                   />
                   <img
                     src={getPlayerImage(event.assist?.id, event.assist?.name)}
                     alt={event.assist?.name || 'Sub'}
                     className="w-8 h-8 rounded-full border-2 border-white"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      if (!target.src.includes('ui-avatars.com')) {
-                        const initials = event.assist?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'S';
-                        target.src = `https://ui-avatars.com/api/?name=${initials}&size=32&background=22C55E&color=fff&bold=true`;
-                      }
-                    }}
                   />
                 </div>
               ) : (
@@ -272,25 +255,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     src={getPlayerImage(event.player?.id, event.player?.name)}
                     alt={event.player?.name}
                     className="w-8 h-8 rounded-full border-2 border-white"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      if (!target.src.includes('ui-avatars.com')) {
-                        const initials = event.player?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'P';
-                        target.src = `https://ui-avatars.com/api/?name=${initials}&size=32&background=EF4444&color=fff&bold=true`;
-                      }
-                    }}
                   />
                   <img
                     src={getPlayerImage(event.assist?.id, event.assist?.name)}
                     alt={event.assist?.name || 'Sub'}
                     className="w-8 h-8 rounded-full border-2 border-white"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      if (!target.src.includes('ui-avatars.com')) {
-                        const initials = event.assist?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'S';
-                        target.src = `https://ui-avatars.com/api/?name=${initials}&size=32&background=F59E0B&color=fff&bold=true`;
-                      }
-                    }}
                   />
                 </div>
               ) : (
