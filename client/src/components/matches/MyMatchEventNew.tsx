@@ -453,7 +453,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             />
                           ) : (
                             event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
-                              <div className="flex items-center gap-2 mr-8">
+                              <div className="flex items-center gap-1 mr-8">
                                 <img
                                   src="/assets/matchdetaillogo/soccer-ball.svg"
                                   alt="Penalty Goal"
@@ -485,7 +485,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             />
                           ) : (
                             event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
-                              <div className="flex items-center gap-2 ml-8">
+                              <div className="flex items-center gap-1 ml-8">
                                 <img
                                   src="/assets/matchdetaillogo/soccer-ball.svg"
                                   alt="Penalty Goal"
