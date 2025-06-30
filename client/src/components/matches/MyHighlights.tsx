@@ -41,6 +41,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   const searchQuery = `${home} vs ${away} highlights ${league}`.trim();
 
+  // Check if this is a CONCACAF competition
+  const isConcacafCompetition = league.toLowerCase().includes('concacaf') || 
+                               league.toLowerCase().includes('gold cup') ||
+                               searchQuery.toLowerCase().includes('concacaf');
+
   const videoSources = [
     {
       name: 'YouTube',
@@ -66,6 +71,32 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         throw new Error('No YouTube videos found');
       }
     },
+    // CONCACAF Official Channel fallback
+    ...(isConcacafCompetition ? [{
+      name: 'CONCACAF Official',
+      type: 'youtube' as const,
+      searchFn: async () => {
+        const concacafChannelId = 'UCqn7r-so0mBLaJTtTms9dAQ';
+        const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(searchQuery)}&maxResults=1&channelId=${concacafChannelId}&order=relevance`);
+        const data = await response.json();
+
+        if (data.error || data.quotaExceeded) {
+          throw new Error(data.error || 'CONCACAF channel search failed');
+        }
+
+        if (data.items && data.items.length > 0) {
+          const video = data.items[0];
+          return {
+            name: 'CONCACAF Official',
+            type: 'youtube' as const,
+            url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+            embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+            title: video.snippet.title
+          };
+        }
+        throw new Error('No CONCACAF official videos found');
+      }
+    }] : []),
     {
       name: 'Vimeo',
       type: 'vimeo' as const,
@@ -106,7 +137,32 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         throw new Error('No Dailymotion videos found');
       }
     },
-    
+    // Additional fallback with broader search terms
+    {
+      name: 'YouTube Extended',
+      type: 'youtube' as const,
+      searchFn: async () => {
+        const fallbackQuery = `${home} ${away} highlights football soccer`;
+        const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(fallbackQuery)}&maxResults=3&order=relevance`);
+        const data = await response.json();
+
+        if (data.error || data.quotaExceeded) {
+          throw new Error(data.error || 'YouTube extended search failed');
+        }
+
+        if (data.items && data.items.length > 0) {
+          const video = data.items[0];
+          return {
+            name: 'YouTube Extended',
+            type: 'youtube' as const,
+            url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+            embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+            title: video.snippet.title
+          };
+        }
+        throw new Error('No extended YouTube videos found');
+      }
+    }
   ];
 
   const tryNextSource = async () => {
@@ -179,7 +235,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                     Trying YouTube first
                   </span>
                 )}
-                {sourceIndex > 0 && (
+                {sourceIndex === 1 && isConcacafCompetition && (
+                  <span className="block text-xs text-green-500">
+                    Checking CONCACAF Official Channel
+                  </span>
+                )}
+                {sourceIndex > 0 && !(sourceIndex === 1 && isConcacafCompetition) && (
                   <span className="block text-xs text-gray-400">
                     Trying {videoSources[sourceIndex]?.name || 'alternative source'}
                   </span>
@@ -191,7 +252,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           <div className="w-full h-64 flex items-center justify-center bg-gray-50">
             <div className="text-center">
               <Video className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-              <p className="text-sm text-gray-600">No highlights available at the moment</p>
+              <p className="text-sm text-gray-600 mb-2">No highlights available at the moment</p>
+              <button 
+                onClick={handleRetry}
+                className="text-xs text-blue-500 hover:text-blue-700 underline"
+              >
+                Try searching again
+              </button>
             </div>
           </div>
         ) : currentSource ? (

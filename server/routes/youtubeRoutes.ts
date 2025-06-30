@@ -1,4 +1,3 @@
-
 import express from 'express';
 
 const router = express.Router();
@@ -14,8 +13,8 @@ QUOTA_RESET_TIME.setHours(24, 0, 0, 0); // Reset at midnight PST (approximate)
 
 router.get('/search', async (req, res) => {
   try {
-    const { q, channelId, maxResults = 10, order = 'relevance', eventType } = req.query;
-    
+    const { q, maxResults = 10, order = 'relevance', eventType } = req.query;
+
     // Check if API key is available
     if (!YOUTUBE_API_KEY) {
       return res.status(403).json({ 
@@ -42,9 +41,9 @@ router.get('/search', async (req, res) => {
         fallbackSuggestion: 'Try Vimeo or Dailymotion alternatives'
       });
     }
-    
+
     let apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=${YOUTUBE_API_KEY}`;
-    
+
     if (q) apiUrl += `&q=${encodeURIComponent(q as string)}`;
     if (channelId) apiUrl += `&channelId=${channelId}`;
     if (maxResults) apiUrl += `&maxResults=${maxResults}`;
@@ -56,7 +55,7 @@ router.get('/search', async (req, res) => {
 
     if (data.error) {
       console.error('YouTube API Error:', data.error);
-      
+
       // Handle specific quota errors
       if (data.error.code === 403 || data.error.message.includes('quota')) {
         dailyQuotaUsed = DAILY_QUOTA_LIMIT; // Mark as quota exceeded
@@ -69,7 +68,7 @@ router.get('/search', async (req, res) => {
           fallbackSuggestion: 'Using alternative video platforms'
         });
       }
-      
+
       return res.status(response.status).json({ 
         error: data.error.message,
         quotaExceeded: false
@@ -78,7 +77,7 @@ router.get('/search', async (req, res) => {
 
     // Track successful API usage (each search costs ~100 quota units)
     dailyQuotaUsed += 100;
-    
+
     console.log(`📊 YouTube quota usage: ${dailyQuotaUsed}/${DAILY_QUOTA_LIMIT} units`);
 
     res.json(data);
