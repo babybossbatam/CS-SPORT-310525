@@ -4,6 +4,7 @@ import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Clock, RefreshCw, AlertCircle } from 'lucide-react';
 
 import '@/styles/MyPlayer.css';
+import '@/styles/MyMatchEventNew.css';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 
 interface MyMatchEventNewProps {
@@ -320,12 +321,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 const isHome = event.team?.name === homeTeam;
 
                 return (
-                  <div key={`event-${index}`} className="flex items-center w-full py-2">
-                    {isHome ? (
-                      // Home team event (left side)
-                      <>
-                        <div className="flex items-center justify-end flex-1 pr-4">
-                          <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg max-w-sm">
+                  <div key={`event-${index}`} className="match-event-container">
+                    {/* Three-grid layout container */}
+                    <div className="match-event-three-grid-container">
+                      {/* Left Grid: Home Team Events */}
+                      <div className="match-event-home-side">
+                        {isHome && (
+                          <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
                             <div className="flex items-center gap-2">
                               <Avatar className="w-8 h-8 border-2 border-white shadow-sm">
                                 <AvatarImage
@@ -371,7 +373,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   </div>
                                 </>
                               ) : (
-                                <div className="text-xs font-regular text-gray-900">
+                                <div className="text-xs font-medium text-gray-900">
                                   {event.player?.name || 'Unknown Player'}
                                 </div>
                               )}
@@ -391,31 +393,21 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
                             </div>
                           </div>
-                        </div>
+                        )}
+                      </div>
 
-                        {/* Center time */}
-                        <div className="flex-shrink-0 text-sm font-bold text-gray-700 min-w-[50px] text-center px-3">
+                      {/* Center Grid: Time */}
+                      <div className="match-event-time-center">
+                        <div className="text-sm font-bold text-gray-700">
                           {event.time?.elapsed}'
                           {event.time?.extra && ` +${event.time.extra}`}
                         </div>
+                      </div>
 
-                        {/* Empty right side for home events */}
-                        <div className="flex-1 pl-4"></div>
-                      </>
-                    ) : (
-                      // Away team event (right side)
-                      <>
-                        {/* Empty left side for away events */}
-                        <div className="flex-1 pr-4"></div>
-
-                        {/* Center time */}
-                        <div className="flex-shrink-0 text-sm font-bold text-gray-700 min-w-[50px] text-center px-3">
-                          {event.time?.elapsed}'
-                          {event.time?.extra && ` +${event.time.extra}`}
-                        </div>
-
-                        <div className="flex items-center justify-start flex-1 pl-4">
-                          <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg max-w-sm">
+                      {/* Right Grid: Away Team Events */}
+                      <div className="match-event-away-side">
+                        {!isHome && (
+                          <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg">
                             <div className={`match-event-icon ${event.type === 'goal' ? 'goal' : event.type === 'card' ? 'card' : 'substitution'}`}>
                               <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
                             </div>
@@ -423,15 +415,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <div className="flex-1 text-left">
                               {event.type === 'subst' && event.assist?.name ? (
                                 <>
-                                  <div className="text-sm font-medium text-gray-900">
+                                  <div className="text-xs font-medium text-gray-900">
                                     {event.assist.name}
                                   </div>
-                                  <div className="text-sm font-medium text-gray-900">
+                                  <div className="text-xs font-medium text-gray-900">
                                     {event.player?.name || 'Unknown Player'}
                                   </div>
                                 </>
                               ) : (
-                                <div className="text-sm font-medium text-gray-900">
+                                <div className="text-xs font-medium text-gray-900">
                                   {event.player?.name || 'Unknown Player'}
                                 </div>
                               )}
@@ -481,9 +473,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               </Avatar>
                             </div>
                           </div>
-                        </div>
-                      </>
-                    )}
+                        )}
+                      </div>
+                    </div>
                   </div>
                 );
               })}
