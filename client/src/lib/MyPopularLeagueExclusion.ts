@@ -61,12 +61,14 @@ export const popularLeagueExclusionTerms = [
   "matogrossense 2",
   "gaúcho - 2",
   "carioca c",
+  "baiano - 2",
 
   // Brazilian youth leagues
   "paranaense u20",
   "mineiro u20",
   "paraibano u20",
   "estadual junior u20",
+  "cearense u20",
 
   // Brazilian regional cups
   "copa espírito santo",
