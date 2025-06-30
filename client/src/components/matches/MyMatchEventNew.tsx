@@ -224,7 +224,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <div className="event-icon-container event-icon-home">
-                  <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
+                  {event.type === 'subst' ? (
+                    <img 
+                      src="/assets/matchdetaillogo/substitution.svg" 
+                      alt="Substitution" 
+                      className="w-4 h-4"
+                    />
+                  ) : (
+                    <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
+                  )}
                 </div>
               </div>
             </div>
@@ -244,7 +252,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <div className="event-icon-container event-icon-away">
-                  <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
+                  {event.type === 'subst' ? (
+                    <img 
+                      src="/assets/matchdetaillogo/substitution.svg" 
+                      alt="Substitution" 
+                      className="w-4 h-4"
+                    />
+                  ) : (
+                    <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
+                  )}
                 </div>
               </div>
 
@@ -390,7 +406,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             </div>
 
                             <div className={`match-event-icon ${event.type === 'goal' ? 'goal' : event.type === 'card' ? 'card' : 'substitution'}`}>
-                              <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
+                              {event.type === 'subst' ? (
+                                <img 
+                                  src="/assets/matchdetaillogo/substitution.svg" 
+                                  alt="Substitution" 
+                                  className="w-4 h-4"
+                                />
+                              ) : (
+                                <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
+                              )}
                             </div>
                           </div>
                         )}
@@ -409,7 +433,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         {!isHome && (
                           <div className="flex items-center gap-3 pl-12 ">
                             <div className={`match-event-icon ${event.type === 'goal' ? 'goal' : event.type === 'card' ? 'card' : 'substitution'}`}>
-                              <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
+                              {event.type === 'subst' ? (
+                                <img 
+                                  src="/assets/matchdetaillogo/substitution.svg" 
+                                  alt="Substitution" 
+                                  className="w-4 h-4"
+                                />
+                              ) : (
+                                <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
+                              )}
                             </div>
 
                             <div className="flex-1 text-right">
