@@ -242,19 +242,21 @@
   transform: scale(1.05);
 }
 
-/* 3-grid layout for complete event display */
+/* Simple 3-column grid for time and icons */
 .match-event-time-center-simple {
   grid-area: time-center;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
-  grid-template-areas: "home-player-section time-display away-player-section";
+  grid-template-areas: "icon-left time-display icon-right";
   align-items: center;
-  gap: 8px;
-  height: 50px;
-  min-height: 50px;
-  min-width: 200px;
+  justify-items: center;
+  gap: 4px;
+  height: 40px;
+  min-height: 40px;
+  min-width: 72px;
   padding: 4px;
   border-radius: 12px;
+
   transition: all 0.2s ease;
 }
 
@@ -262,59 +264,13 @@
   border-color: var(--accentPrimary);
 }
 
-/* Home player section (left) */
-.match-event-home-player-section {
-  grid-area: home-player-section;
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-template-areas: "home-player-info home-event-icon";
-  align-items: center;
-  gap: 4px;
+/* Left icon area */
+.match-event-icon-left {
+  grid-area: icon-left;
+  display: flex;
   justify-content: flex-end;
-}
-
-/* Away player section (right) */
-.match-event-away-player-section {
-  grid-area: away-player-section;
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-template-areas: "away-event-icon away-player-info";
   align-items: center;
-  gap: 4px;
-  justify-content: flex-start;
-}
-
-/* Player info containers */
-.match-event-player-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.match-event-home-player-info {
-  grid-area: home-player-info;
-  text-align: right;
-}
-
-.match-event-away-player-info {
-  grid-area: away-player-info;
-  text-align: left;
-}
-
-/* Event icons in center grid */
-.match-event-home-event-icon {
-  grid-area: home-event-icon;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.match-event-away-event-icon {
-  grid-area: away-event-icon;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
 }
 
 /* Center time display */
@@ -331,30 +287,15 @@
   white-space: nowrap;
   height: 40px;
   min-height: 40px;
-  background: var(--surfaceSecondary);
-  border: 2px solid var(--dividerPrimary);
-  border-radius: 20px;
-  padding: 8px 12px;
-  min-width: 60px;
 }
 
-/* Player name styling */
-.match-event-player-name {
-  font-size: 10px;
-  font-weight: var(--medium-font-weight);
-  color: var(--textPrimary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 80px;
-}
-
-/* Player avatar in center grid */
-.match-event-player-avatar {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 1px solid var(--dividerPrimary);
+/* Right icon area */
+.match-event-icon-right {
+  grid-area: icon-right;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  position: relative;
 }
 
 /* Away team events (right side) */
