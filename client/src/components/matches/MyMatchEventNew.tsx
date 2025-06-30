@@ -442,16 +442,39 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       {/* Center Grid: Time and event*/}
 
                       <div className="match-event-time-center w-16 flex flex-row items-center justify-center">
-                        {/* Combined time and event icon container */}
+                        {/* Combined time and event icon container - icon position based on team */}
                         <div className="flex flex-row items-center justify-center space-x-1">
-                          {/* Time display */}
-                          <div className="text-xs font-bold text-gray-600 text-center">
+                          {/* For home team events: show icon on LEFT side of time */}
+                          {isHome && event.type && (
+                            <div
+                              className={`match-event-icon ${
+                                event.type === "goal" ? "goal" : 
+                                event.type === "card" ? "card" : 
+                                "substitution"
+                              } flex justify-center items-center`}
+                            >
+                              {event.type === "subst" ? (
+                                <img
+                                  src="/assets/matchdetaillogo/substitution.svg"
+                                  alt="Substitution"
+                                  className="w-4 h-4"
+                                />
+                              ) : (
+                                <span className="text-xs">
+                                  {getEventIcon(event.type, event.detail)}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Time display - vertically centered */}
+                          <div className="text-xs font-bold text-gray-600 text-center flex items-center">
                             {event.time?.elapsed}'
                             {event.time?.extra && ` +${event.time.extra}`}
                           </div>
                           
-                          {/* Event icon - only show if there's an actual event */}
-                          {event.type && (
+                          {/* For away team events: show icon on RIGHT side of time */}
+                          {!isHome && event.type && (
                             <div
                               className={`match-event-icon ${
                                 event.type === "goal" ? "goal" : 
