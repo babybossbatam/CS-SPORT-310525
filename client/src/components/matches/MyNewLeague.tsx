@@ -969,16 +969,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                       {safeSubstring(leagueGroup.league.name, 0) ||
                         "Unknown League"}
                     </span>
-                    <span
-                      className="text-gray-500"
-                      style={{
-                        fontFamily:
-                          "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                        fontSize: "13.3px",
-                      }}
-                    >
-                      ({leagueGroup.matches.length})
-                    </span>
+                    
                     {(() => {
                       const liveMatchesInLeague = leagueGroup.matches.filter((match: any) =>
                         ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(match.fixture.status.short)
@@ -1006,6 +997,16 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   </span>
                 </div>
                 <div className="flex gap-2 items-center">
+                  <span
+                    className="text-gray-500"
+                    style={{
+                      fontFamily:
+                        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                      fontSize: "13.3px",
+                    }}
+                  >
+                    ({leagueGroup.matches.length})
+                  </span>
                 </div>
               </button>
             )}
