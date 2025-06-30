@@ -312,27 +312,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             </div>
           </div>
         ) : (
-          <div className="relative">
-            {/* Central Timeline */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-300 transform -translate-x-px"></div>
-
-            <div className="space-y-4">
+          <div className="space-y-2">
               {/* Full Time Events */}
               {groupedEvents.fullTime.length > 0 && (
                 <>
                   <PeriodHeader title="End of 90 Minutes" />
-                  <div className="space-y-6 relative">
+                  <div className="space-y-2">
                     {groupedEvents.fullTime.map((event, index) => {
                       const isHome = event.team?.name === homeTeam;
-                      const isLast = index === groupedEvents.fullTime.length - 1;
 
                       return (
-                        <div key={`fulltime-${index}`} className="relative flex items-center">
-                          {/* Connecting line to timeline */}
-                          <div className={`absolute top-6 w-4 h-0.5 bg-gray-300 ${isHome ? 'right-1/2 mr-2' : 'left-1/2 ml-2'}`}></div>
-
-                          {/* Timeline dot */}
-                          <div className="absolute left-1/2 top-6 w-3 h-3 bg-white border-2 border-gray-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 z-10"></div>
+                        <div key={`fulltime-${index}`} className="relative flex items-center mb-4">
 
                           {isHome ? (
                             // Home team event (left side)
@@ -700,13 +690,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       const isHome = event.team?.name === homeTeam;
 
                       return (
-                        <div key={`firsthalf-${index}`} className="relative flex items-center">
-                          <div className={`absolute top-6 w-4 h-0.5 bg-gray-300 ${isHome ? 'right-1/2 mr-2' : 'left-1/2 ml-2'}`}></div>
-                          <div className="absolute left-1/2 top-6 w-3 h-3 bg-white border-2 border-gray-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 z-10"></div>
-
+                        <div key={`firsthalf-${index}`} className="relative flex items-center mb-4">
                           {isHome ? (
-                            <div className="flex items-center justify-end w-1/2 pr-6">
-                              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg max-w-sm">
+                            <div className="flex items-center w-full">
+                              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg max-w-sm flex-1">
                                 <div className="flex items-center gap-2">
                                   <Avatar className="w-8 h-8 border-2 border-white shadow-sm">
                                     <AvatarImage src={getPlayerImage(event.player?.id, event.player?.name)} alt={event.player?.name || 'Player'} className="object-cover" />
@@ -733,16 +720,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
                                 </div>
                               </div>
-                              <div className="ml-3 text-xs font-medium text-gray-600 min-w-[40px] text-center bg-white px-2 py-1 rounded border">
+                              
+                              <div className="mx-4 text-sm font-bold text-gray-700 min-w-[50px] text-center">
                                 {event.time?.elapsed}'{event.time?.extra && ` +${event.time.extra}`}
                               </div>
+                              
+                              <div className="flex-1"></div>
                             </div>
                           ) : (
-                            <div className="flex items-center justify-start w-1/2 pl-6 ml-auto">
-                              <div className="mr-3 text-xs font-medium text-gray-600 min-w-[40px] text-center bg-white px-2 py-1 rounded border">
+                            <div className="flex items-center w-full">
+                              <div className="flex-1"></div>
+                              
+                              <div className="mx-4 text-sm font-bold text-gray-700 min-w-[50px] text-center">
                                 {event.time?.elapsed}'{event.time?.extra && ` +${event.time.extra}`}
                               </div>
-                              <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg max-w-sm">
+                              
+                              <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg max-w-sm flex-1">
                                 <div className={`match-event-icon ${event.type === 'goal' ? 'goal' : event.type === 'card' ? 'card' : 'substitution'}`}>
                                   <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
                                 </div>
