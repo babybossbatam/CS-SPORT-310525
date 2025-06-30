@@ -188,16 +188,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                         status={selectedFixture?.fixture?.status?.short}
                       />
                     )}
-                     {/* Show MyNewLMT only for live matches */}
-                     {isLive && (
-                      <MyNewLMT
-                        matchId={selectedFixture?.fixture?.id}
-                        homeTeam={selectedFixture?.teams?.home}
-                        awayTeam={selectedFixture?.teams?.away}
-                        status={selectedFixture?.fixture?.status?.short}
-                      />
-                    )}
-
+                    
                     {/* For upcoming matches, neither component is shown */}
                   </>
                 );
