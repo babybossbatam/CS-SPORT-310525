@@ -488,12 +488,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               <img
                                 src="/assets/matchdetaillogo/soccer-ball.svg"
                                 alt="Penalty Goal"
-                                className="w-4 h-4 ml-8"
+                                className="w-4 h-4 "
                               />
                               <span className="text-xs font-medium">(P)</span>
                             </div>
                           ) : (
-                            <span className="text-xs">
+                            <span className="text-xs ml-6">
                               {getEventIcon(event.type, event.detail)}
                             </span>
                           )}
