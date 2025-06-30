@@ -827,7 +827,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (cachedLeague) {
         // Check if cache is fresh (less than 4 hours old)
         const now = new Date();
-```text
+
         const cacheTime = new Date(cachedLeague.timestamp);
         const cacheAge = now.getTime() - cacheTime.getTime();
 
