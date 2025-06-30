@@ -430,14 +430,14 @@ export const TodayMatchPageCard = ({
             selectedDate={selectedDate}
             timeFilterActive={false}
             showTop10={false}
-            liveFilterActive={false}
+            liveFilterActive={liveFilterActive}
             onMatchCardClick={handleMatchCardClick}
             useUTCOnly={true}
           />
           <TodayPopularFootballLeaguesNew
             selectedDate={selectedDate}
-            timeFilterActive={timeFilterActive}
-            showTop20={timeFilterActive}
+            timeFilterActive={false}
+            showTop20={false}
             liveFilterActive={liveFilterActive}
             onMatchCardClick={onMatchCardClick}
           />
