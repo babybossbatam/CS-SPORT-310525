@@ -249,10 +249,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       alt="Substitution"
                       className="w-4 h-4"
                     />
-                  ) : event.type === "goal" ? (
-                                  <div className="text-xs flex items-center justify-center">
-                                    {getEventIcon(event.type, event.detail)}
-                                  </div>
+                  ) : (event.type === "goal" || (event.type === "goal" && event.detail?.toLowerCase().includes("penalty"))) ? (
+                                  <img
+                                    src="/assets/matchdetaillogo/soccer-ball.svg"
+                                    alt={event.detail?.toLowerCase().includes("penalty") ? "Penalty Goal" : "Goal"}
+                                    className="w-4 h-4"
+                                  />
                                 ) : (
                     <span className="text-sm flex">
                       {getEventIcon(event.type, event.detail)}
@@ -283,10 +285,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       alt="Substitution"
                       className="w-4 h-4"
                     />
-                  ) : event.type === "goal" ? (
-                                  <div className="text-xs flex items-center justify-center">
-                                    {getEventIcon(event.type, event.detail)}
-                                  </div>
+                  ) : (event.type === "goal" || (event.type === "goal" && event.detail?.toLowerCase().includes("penalty"))) ? (
+                                  <img
+                                    src="/assets/matchdetaillogo/soccer-ball.svg"
+                                    alt={event.detail?.toLowerCase().includes("penalty") ? "Penalty Goal" : "Goal"}
+                                    className="w-4 h-4"
+                                  />
                                 ) : (
                     <span className="text-sm">
                       {getEventIcon(event.type, event.detail)}
@@ -529,10 +533,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt="Substitution"
                                     className="w-4 h-4"
                                   />
-                                ) : event.type === "goal" ? (
+                                ) : (event.type === "goal" || (event.type === "goal" && event.detail?.toLowerCase().includes("penalty"))) ? (
                                   <img
                                     src="/assets/matchdetaillogo/soccer-ball.svg"
-                                    alt="Goal"
+                                    alt={event.detail?.toLowerCase().includes("penalty") ? "Penalty Goal" : "Goal"}
                                     className="w-4 h-4"
                                   />
                                 ) : (
@@ -574,10 +578,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt="Substitution"
                                     className="w-4 h-4"
                                   />
-                                ) : event.type === "goal" ? (
+                                ) : (event.type === "goal" || (event.type === "goal" && event.detail?.toLowerCase().includes("penalty"))) ? (
                                   <img
                                     src="/assets/matchdetaillogo/soccer-ball.svg"
-                                    alt="Goal"
+                                    alt={event.detail?.toLowerCase().includes("penalty") ? "Penalty Goal" : "Goal"}
                                     className="w-4 h-4"
                                   />
                                 ) : (
