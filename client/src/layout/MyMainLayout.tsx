@@ -1,4 +1,3 @@
-
 import React from 'react';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import MyLMTLive from '@/components/matches/MyLMTLive';
@@ -19,15 +18,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
     <div className="w-full space-y-6">
       {/* MyLiveAction component */}
       <MyLiveAction 
-        matchId={selectedMatchId}
-        homeTeam={selectedMatch?.teams?.home}
-        awayTeam={selectedMatch?.teams?.away}
-        status={selectedMatch?.fixture?.status?.short}
-        className="mb-6"
-      />
-
-      {/* MyNewLMT component - this will appear below MyLiveAction */}
-      <MyNewLMT 
         matchId={selectedMatchId}
         homeTeam={selectedMatch?.teams?.home}
         awayTeam={selectedMatch?.teams?.away}
