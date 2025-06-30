@@ -41,49 +41,17 @@
 
 
 
-/* Three-grid layout container - EXACTLY like other components */
+/* Three-grid layout container */
 .match-event-three-grid-container {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  grid-template-areas: 
-    "status"
-    "content"
-    "details";
-  min-height: 60px;
-  width: 100%;
-  padding: 8px;
-}
-
-/* Top grid for event status/type */
-.match-event-status-top {
-  grid-area: status;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 20px;
-}
-
-/* Middle grid for main content - 3-column layout */
-.match-event-content-container {
-  grid-area: content;
   display: grid;
   grid-template-columns: 1fr 80px 1fr;
   grid-template-areas: "home-side time-center away-side";
-  grid-template-rows: 42px;
+  grid-template-rows: auto;
   align-items: center;
-  justify-items: center;
-  align-content: center;
   width: 100%;
   gap: 8px;
-}
-
-/* Bottom grid for additional details */
-.match-event-details-bottom {
-  grid-area: details;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 20px;
+  padding: 12px 8px;
+  min-height: 60px;
 }
 
 /* Home team events (left side) */
@@ -134,6 +102,7 @@
   min-width: 72px;
   padding: 4px;
   border-radius: 12px;
+  
   transition: all 0.2s ease;
 }
 
