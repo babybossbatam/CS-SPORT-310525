@@ -201,7 +201,19 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                         className="mt-4"
                       />
                     )}
-                    
+
+                    {/* Show MyHighlights for ended matches with proper spacing */}
+                    {isEnded && (
+                      <div className="mt-6 relative z-10">
+                        <MyHighlights
+                          homeTeam={selectedFixture?.teams?.home?.name}
+                          awayTeam={selectedFixture?.teams?.away?.name}
+                          leagueName={selectedFixture?.league?.name}
+                          match={selectedFixture}
+                        />
+                      </div>
+                    )}
+
                     {/* For upcoming matches, neither component is shown */}
                   </>
                 );
