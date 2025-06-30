@@ -449,7 +449,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <img
                               src="/assets/matchdetaillogo/substitution.svg"
                               alt="Substitution"
-                              className=" w-4 h-4 mr-24"
+                              className=" w-4 h-4 mr-8"
                             />
                           ) : (
                             <span className="text-xs mr-4">
@@ -459,7 +459,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         </div>
 
                         {/* Time display in middle content area */}
-                        <div className="text-xs font-bold text-gray-600 text-center ">
+                        <div className="text-xs font-bold text-gray-600 text-center">
                           {event.time?.elapsed}'
                           {event.time?.extra && ` +${event.time.extra}`}
                         </div>
@@ -470,7 +470,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <img
                               src="/assets/matchdetaillogo/substitution.svg"
                               alt="Substitution"
-                              className="w-4 h-4 ml-12"
+                              className="w-4 h-4 ml-8"
                             />
                           ) : (
                             <span className="text-xs">
