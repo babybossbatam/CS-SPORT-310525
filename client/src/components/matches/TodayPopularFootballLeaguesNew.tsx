@@ -1154,9 +1154,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
     return () => clearInterval(timer);
   }, []);
 
-  // Enhanced effect to detect status and score changes with flash effects
+  // Enhanced effect to detect status and score changes with flash effects - matches MyNewLeague implementation
   useEffect(() => {
-    if (!filteredFixtures?.length) return;
+    if (!fixtures?.length) return;
 
     const newHalftimeMatches = new Set<number>();
     const newFulltimeMatches = new Set<number>();
@@ -1164,7 +1164,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const currentStatuses = new Map<number, string>();
     const currentScores = new Map<number, {home: number, away: number}>();
 
-    filteredFixtures.forEach((fixture) => {
+    fixtures.forEach((fixture) => {
       const matchId = fixture.fixture.id;
       const currentStatus = fixture.fixture.status.short;
       const previousStatus = previousMatchStatuses.get(matchId);
@@ -1177,20 +1177,42 @@ const TodayPopularFootballLeaguesNew: React.FC<
       currentStatuses.set(matchId, currentStatus);
       currentScores.set(matchId, currentScore);
 
-      // Log all status transitions for debugging
+      // Only check for changes if we have a previous status (not on first load)
       if (previousStatus && previousStatus !== currentStatus) {
-        console.log(`🔄 [STATUS TRANSITION] Match ${matchId}:`, {
+        console.log(`🔄 [TodayPopularLeagueNew STATUS TRANSITION] Match ${matchId}:`, {
           teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
           transition: `${previousStatus} → ${currentStatus}`,
           time: new Date().toLocaleTimeString()
         });
+
+        // Check if status just changed to halftime
+        if (currentStatus === 'HT') {
+          console.log(`🟠 [TodayPopularLeagueNew HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
+          newHalftimeMatches.add(matchId);
+        }
+
+        // Check if status just changed to fulltime
+        if (currentStatus === 'FT') {
+          console.log(`🔵 [TodayPopularLeagueNew FULLTIME FLASH] Match ${matchId} just finished!`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
+          newFulltimeMatches.add(matchId);
+        }
 
         // Detect transition from upcoming to live
         const wasUpcoming = ['NS', 'TBD'].includes(previousStatus);
         const isNowLive = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(currentStatus);
 
         if (wasUpcoming && isNowLive) {
-          console.log(`🟢 [MATCH STARTED] Match ${matchId} started!`, {
+          console.log(`🟢 [TodayPopularLeagueNew MATCH STARTED] Match ${matchId} started!`, {
             home: fixture.teams?.home?.name,
             away: fixture.teams?.away?.name,
             previousStatus,
@@ -1203,7 +1225,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         const isNowEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(currentStatus);
 
         if (wasLive && isNowEnded) {
-          console.log(`🏁 [MATCH ENDED] Match ${matchId} ended!`, {
+          console.log(`🏁 [TodayPopularLeagueNew MATCH ENDED] Match ${matchId} ended!`, {
             home: fixture.teams?.home?.name,
             away: fixture.teams?.away?.name,
             finalScore: `${currentScore.home}-${currentScore.away}`,
@@ -1211,50 +1233,32 @@ const TodayPopularFootballLeaguesNew: React.FC<
             currentStatus
           });
         }
-
-        // Check if status just changed to halftime
-        if (currentStatus === 'HT') {
-          console.log(`🟠 [HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            previousStatus,
-            currentStatus
-          });
-          newHalftimeMatches.add(matchId);
-        }
-
-        // Check if status just changed to fulltime
-        if (currentStatus === 'FT') {
-          console.log(`🔵 [FULLTIME FLASH] Match ${matchId} just finished!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            previousStatus,
-            currentStatus
-          });
-          newFulltimeMatches.add(matchId);
-        }
       }
 
-      // Check for goal changes
+      // Check for goal changes during live matches
       if (previousScore && 
-          (currentScore.home !== previousScore.home || currentScore.away !== previousScore.away)) {
-        console.log(`⚽ [GOAL FLASH] Match ${matchId} score changed!`, {
+          (currentScore.home !== previousScore.home || currentScore.away !== previousScore.away) &&
+          ['1H', '2H', 'LIVE', 'LIV'].includes(currentStatus)) {
+        console.log(`⚽ [TodayPopularLeagueNew GOAL FLASH] Match ${matchId} score changed!`, {
           home: fixture.teams?.home?.name,
           away: fixture.teams?.away?.name,
           previousScore,
-          currentScore
+          currentScore,
+          status: currentStatus
         });
         newGoalMatches.add(matchId);
       }
     });
 
-    // Update previous statuses and scores for next comparison
+    // Update previous statuses and scores AFTER checking for changes
     setPreviousMatchStatuses(currentStatuses);
     setPreviousMatchScores(currentScores);
 
     // Trigger flash for new halftime matches
     if (newHalftimeMatches.size > 0) {
       setHalftimeFlashMatches(newHalftimeMatches);
+
+      // Remove flash after 3 seconds (increased duration)
       setTimeout(() => {
         setHalftimeFlashMatches(new Set());
       }, 3000);
@@ -1263,6 +1267,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
     // Trigger flash for new fulltime matches
     if (newFulltimeMatches.size > 0) {
       setFulltimeFlashMatches(newFulltimeMatches);
+
+      // Remove flash after 3 seconds (increased duration)
       setTimeout(() => {
         setFulltimeFlashMatches(new Set());
       }, 3000);
@@ -1271,11 +1277,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
     // Trigger flash for new goal matches
     if (newGoalMatches.size > 0) {
       setGoalFlashMatches(newGoalMatches);
+
+      // Remove flash after 2 seconds for goals
       setTimeout(() => {
         setGoalFlashMatches(new Set());
       }, 2000);
     }
-  }, [filteredFixtures]);
+  }, [fixtures]);
 
 
 
