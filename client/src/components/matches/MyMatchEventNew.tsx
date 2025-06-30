@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Clock, RefreshCw, AlertCircle } from 'lucide-react';
+import { getPlayerImage } from '@/lib/playerImageCache';
+import '@/styles/MyPlayer.css';
 
 interface MyMatchEventNewProps {
   fixtureId: string | number;
@@ -51,7 +53,35 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [playerImages, setPlayerImages] = useState<Record<string, string>>({});
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const loadPlayerImages = async (events: MatchEvent[]) => {
+    const imagePromises = events.map(async (event) => {
+      if (event.player?.id && event.player?.name) {
+        try {
+          const imageUrl = await getPlayerImage(event.player.id, event.player.name);
+          return [`${event.player.id}-${event.player.name}`, imageUrl];
+        } catch (error) {
+          console.warn(`⚠️ [MyMatchEventNew] Failed to load image for player ${event.player.name}:`, error);
+          return null;
+        }
+      }
+      return null;
+    });
+
+    const results = await Promise.allSettled(imagePromises);
+    const newPlayerImages: Record<string, string> = {};
+
+    results.forEach((result) => {
+      if (result.status === 'fulfilled' && result.value) {
+        const [key, url] = result.value as [string, string];
+        newPlayerImages[key] = url;
+      }
+    });
+
+    setPlayerImages(prev => ({ ...prev, ...newPlayerImages }));
+  };
 
   const fetchMatchEvents = async () => {
     if (!fixtureId) {
@@ -75,6 +105,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       setEvents(eventData || []);
       setLastUpdated(new Date());
       setError(null);
+
+      // Load player images after setting events
+      if (eventData && eventData.length > 0) {
+        loadPlayerImages(eventData);
+      }
     } catch (error) {
       console.error(`❌ [MyMatchEventNew] Error fetching events:`, error);
       setError(error instanceof Error ? error.message : 'Failed to fetch events');
@@ -185,6 +220,43 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
+  const PlayerAvatar = ({ event }: { event: MatchEvent }) => {
+    const playerKey = event.player?.id && event.player?.name ? `${event.player.id}-${event.player.name}` : '';
+    const imageUrl = playerImages[playerKey];
+    const isHome = isHomeTeam(event);
+
+    if (!event.player?.name) return null;
+
+    const initials = event.player.name
+      .split(' ')
+      .map(name => name[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) || 'P';
+
+    return (
+      <div className="player-image-container">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={event.player.name}
+            className={`player-image ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}
+            onError={(e) => {
+              // Fallback to initials if image fails to load
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+            }}
+          />
+        ) : null}
+        <div
+          className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'} ${imageUrl ? 'hidden' : ''}`}
+        >
+          {initials}
+        </div>
+      </div>
+    );
+  };
+
   const EventItem = ({ event, isLast }: { event: MatchEvent; isLast: boolean }) => {
     const isHome = isHomeTeam(event);
 
@@ -205,8 +277,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 </div>
                 <div className="text-xs text-gray-500">{event.team?.name}</div>
               </div>
-              <div className="event-icon-container event-icon-home">
-                <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
+              <div className="flex items-center gap-2">
+                <PlayerAvatar event={event} />
+                <div className="event-icon-container event-icon-home">
+                  <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
+                </div>
               </div>
             </div>
           )}
@@ -223,8 +298,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         <div className="flex-1 pl-4">
           {!isHome && (
             <div className="flex items-center gap-3">
-              <div className="event-icon-container event-icon-away">
-                <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
+              <div className="flex items-center gap-2">
+                <div className="event-icon-container event-icon-away">
+                  <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
+                </div>
+                <PlayerAvatar event={event} />
               </div>
 
               <div className="text-left">
