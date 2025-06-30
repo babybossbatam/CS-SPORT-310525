@@ -327,9 +327,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       {/* Left Grid: Home Team Events */}
                       <div className="match-event-home-side">
                         {isHome && (
-                          <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                          <div className="flex items-center gap-3 pr-16 ">
                             <div className="flex items-center gap-2">
-                              <Avatar className="w-8 h-8 border-2 border-white shadow-sm">
+                              <Avatar className="w-9 h-9 border-2 border-green-300 shadow-sm">
                                 <AvatarImage
                                   src={getPlayerImage(event.player?.id, event.player?.name)}
                                   alt={event.player?.name || 'Player'}
@@ -345,7 +345,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               </Avatar>
 
                               {event.type === 'subst' && event.assist?.name && (
-                                <Avatar className="w-8 h-8 border-2 border-white shadow-sm -ml-2">
+                                <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 relative-z20">
                                   <AvatarImage
                                     src={getPlayerImage(event.assist?.id, event.assist?.name)}
                                     alt={event.assist?.name || 'Player'}
@@ -362,18 +362,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               )}
                             </div>
 
-                            <div className="flex-1 text-right">
+                            <div className="flex-1 text-left">
                               {event.type === 'subst' && event.assist?.name ? (
                                 <>
-                                  <div className="text-xs font-medium text-gray-900">
+                                  <div className="text-xs font-medium text-green-600">
                                     {event.assist.name}
                                   </div>
-                                  <div className="text-xs font-medium text-gray-900">
+                                  <div className="text-xs font-medium text-red-600">
                                     {event.player?.name || 'Unknown Player'}
                                   </div>
                                 </>
                               ) : (
-                                <div className="text-xs font-medium text-gray-900">
+                                <div className="text-xs font-medium text-gray-700">
                                   {event.player?.name || 'Unknown Player'}
                                 </div>
                               )}
@@ -398,7 +398,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       {/* Center Grid: Time */}
                       <div className="match-event-time-center">
-                        <div className="text-sm font-bold text-gray-700">
+                        <div className="text-xs font-semibold text-gray-700">
                           {event.time?.elapsed}'
                           {event.time?.extra && ` +${event.time.extra}`}
                         </div>
@@ -407,33 +407,33 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       {/* Right Grid: Away Team Events */}
                       <div className="match-event-away-side">
                         {!isHome && (
-                          <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg">
+                          <div className="flex items-center gap-3 pl-12 ">
                             <div className={`match-event-icon ${event.type === 'goal' ? 'goal' : event.type === 'card' ? 'card' : 'substitution'}`}>
                               <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
                             </div>
 
-                            <div className="flex-1 text-left">
+                            <div className="flex-1 text-right">
                               {event.type === 'subst' && event.assist?.name ? (
                                 <>
-                                  <div className="text-xs font-medium text-gray-900">
+                                  <div className="text-xs font-md text-green-600">
                                     {event.assist.name}
                                   </div>
-                                  <div className="text-xs font-medium text-gray-900">
+                                  <div className="text-xs font-medium text-red-600">
                                     {event.player?.name || 'Unknown Player'}
                                   </div>
                                 </>
                               ) : (
-                                <div className="text-xs font-medium text-gray-900">
+                                <div className="text-xs font-medium text-black-600">
                                   {event.player?.name || 'Unknown Player'}
                                 </div>
                               )}
                               {event.type === 'goal' && event.assist?.name && (
-                                <div className="text-xs text-gray-500">
+                                <div className="text-xs text-gray-600">
                                   (Assist: {event.assist.name})
                                 </div>
                               )}
                               {event.type !== 'subst' && (
-                                <div className="text-xs text-gray-400">
+                                <div className="text-xs text-gray-600">
                                   {event.detail || event.type}
                                 </div>
                               )}
@@ -441,7 +441,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                             <div className="flex items-center gap-2">
                               {event.type === 'subst' && event.assist?.name && (
-                                <Avatar className="w-8 h-8 border-2 border-white shadow-sm -mr-2">
+                                <Avatar className="w-9 h-9 border-2 border-red-400 shadow-sm -mr-3 z-20">
                                   <AvatarImage
                                     src={getPlayerImage(event.assist?.id, event.assist?.name)}
                                     alt={event.assist?.name || 'Player'}
@@ -457,7 +457,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 </Avatar>
                               )}
 
-                              <Avatar className="w-8 h-8 border-2 border-white shadow-sm">
+                              <Avatar className="w-9 h-9 border-2 border-green-400 shadow-sm -mr-2 ">
                                 <AvatarImage
                                   src={getPlayerImage(event.player?.id, event.player?.name)}
                                   alt={event.player?.name || 'Player'}
