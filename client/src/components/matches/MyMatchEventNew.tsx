@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+
 import { Clock, RefreshCw, AlertCircle } from 'lucide-react';
 
 import '@/styles/MyPlayer.css';
@@ -188,61 +188,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  // Image cache to prevent duplicate API calls
-  const [imageCache, setImageCache] = useState<Map<number, { url: string; loaded: boolean; failed: boolean }>>(new Map());
-
-  const PlayerAvatar = ({ event }: { event: MatchEvent }) => {
-    const isHome = isHomeTeam(event);
-
-    if (!event.player?.name || !event.player?.id) return null;
-
-    const playerId = event.player.id;
-    const playerName = event.player.name;
-    
-    // Try both the constructed API URL and direct photo URL if available
-    const apiImageUrl = `/api/player-photo/${playerId}`;
-    const directPhotoUrl = event.player.photo;
-    const imageUrl = directPhotoUrl || apiImageUrl;
-
-    const initials = playerName
-      .split(' ')
-      .map(name => name[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || 'P';
-
-    return (
-      <div className="player-image-container">
-        <Avatar className="h-12 w-12 rounded-full overflow-hidden border border-gray-200">
-          <AvatarImage
-            src={imageUrl}
-            alt={playerName}
-            className="object-cover object-center scale-110"
-            onError={(e) => {
-              console.log(`⚠️ [MyMatchEventNew] Player image failed for ${playerName} (${playerId}):`, imageUrl);
-              // Try alternative URL if we haven't already
-              if (e.currentTarget.src === directPhotoUrl && apiImageUrl !== directPhotoUrl) {
-                console.log(`🔄 [MyMatchEventNew] Trying API URL fallback for ${playerName}`);
-                e.currentTarget.src = apiImageUrl;
-              } else if (e.currentTarget.src === apiImageUrl && directPhotoUrl && directPhotoUrl !== apiImageUrl) {
-                console.log(`🔄 [MyMatchEventNew] Trying direct photo URL fallback for ${playerName}`);
-                e.currentTarget.src = directPhotoUrl;
-              } else {
-                // Force fallback by clearing src
-                e.currentTarget.src = '';
-              }
-            }}
-            onLoad={() => {
-              console.log(`✅ [MyMatchEventNew] Player image loaded for ${playerName} (${playerId}):`, imageUrl);
-            }}
-          />
-          <AvatarFallback className={`text-xs font-semibold ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}>
-            {initials}
-          </AvatarFallback>
-        </Avatar>
-      </div>
-    );
-  };
+  
 
   const EventItem = ({ event, isLast }: { event: MatchEvent; isLast: boolean }) => {
     const isHome = isHomeTeam(event);
@@ -265,7 +211,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 <div className="text-xs text-gray-500">{event.team?.name}</div>
               </div>
               <div className="flex items-center gap-2">
-                <PlayerAvatar event={event} />
                 <div className="event-icon-container event-icon-home">
                   <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
                 </div>
@@ -289,7 +234,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 <div className="event-icon-container event-icon-away">
                   <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
                 </div>
-                <PlayerAvatar event={event} />
               </div>
 
               <div className="text-left">
