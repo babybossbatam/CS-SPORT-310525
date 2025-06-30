@@ -101,14 +101,12 @@
   min-height: 40px;
   min-width: 72px;
   padding: 4px;
-  background: var(--surfaceSecondary);
   border-radius: 12px;
   border: 1px solid var(--dividerPrimary);
   transition: all 0.2s ease;
 }
 
 .match-event-time-center-simple:hover {
-  background: var(--surfacePrimary);
   border-color: var(--accentPrimary);
 }
 
