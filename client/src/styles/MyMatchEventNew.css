@@ -35,7 +35,6 @@
 .match-event-container {
   width: 100%;
   margin-bottom: 8px;
-  background-color: var(--surfaceSecondary);
   border-radius: 8px;
   transition: all 0.2s ease;
 }
