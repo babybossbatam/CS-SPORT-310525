@@ -413,7 +413,7 @@
   border-radius: 50%;
   background-color: var(--surfaceSecondary);
   display: inline-block;
-  border: 2px solid var(--dividerPrimary);
+  border: 1px solid var(--dividerPrimary);
   transition: all 0.2s ease;
   object-fit: cover;
 }
@@ -478,10 +478,10 @@
   }
 
   .match-event-time-center {
-    font-size: 11px;
+      font-size: 8px;
     padding: 6px 2px;
     min-height: 32px;
-    min-width: 56px;
+    min-width: 45px;
   }
 
   .match-event-time-center-simple {
