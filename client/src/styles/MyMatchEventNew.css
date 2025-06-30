@@ -297,15 +297,15 @@
   gap: 3px;
   align-items: center;
   padding-right: 2px;
-  padding-left: 4px;
-  margin-right: 45px;
+  margin-right: 12px;
+  
 }
 
 .match-event-away-icon-column {
   display: relatix;
   justify-content: flex-start;
   align-items: center;
-  margin-right: 35px;
+ 
 }
 
 .match-event-away-player-info {
