@@ -441,9 +441,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       {/* Center Grid: Time and event*/}
 
-                      <div className="match-event-time-center w-12 flex flex-col items-center justify-center">
+                      <div className="match-event-time-center w-16 flex flex-row items-center justify-center">
                         {/* Combined time and event icon container */}
-                        <div className="flex flex-col items-center justify-center space-y-1">
+                        <div className="flex flex-row items-center justify-center space-x-1">
                           {/* Time display */}
                           <div className="text-xs font-bold text-gray-600 text-center">
                             {event.time?.elapsed}'

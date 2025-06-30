@@ -32,7 +32,7 @@
 .match-event-time-center {
   grid-area: time-center;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
   text-align: center;
@@ -43,7 +43,7 @@
   border-radius: 12px;
   padding: 4px;
   min-height: 40px;
-  min-width: 48px;
+  min-width: 64px;
 }
 
 /* Away team events (right side) */
