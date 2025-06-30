@@ -340,6 +340,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   <div key={`event-${index}`} className="match-event-container">
                     {/* Three-grid layout container */}
                     <div className="match-event-three-grid-container">
+                      {/* Time display in middle content area */}
+                      <div className="text-xs font-semibold text-gray-700 text-center mb-2">
+                        {event.time?.elapsed}'
+                        {event.time?.extra && ` +${event.time.extra}`}
+                      </div>
+                      
                       {/* Left Grid: Home Team Events */}
                       <div className="match-event-home-side">
                         {isHome && (
@@ -422,10 +428,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       {/* Center Grid: Time */}
                       <div className="match-event-time-center">
-                        <div className="text-xs font-semibold text-gray-700">
-                          {event.time?.elapsed}'
-                          {event.time?.extra && ` +${event.time.extra}`}
-                        </div>
+                        {/* Time display moved to middle content area */}
                       </div>
 
                       {/* Right Grid: Away Team Events */}
