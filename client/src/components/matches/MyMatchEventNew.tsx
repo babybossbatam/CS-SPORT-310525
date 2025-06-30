@@ -361,12 +361,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             </div>
 
                             <div className="flex-1 text-right">
-                              <div className="text-sm font-medium text-gray-900">
-                                {event.player?.name || 'Unknown Player'}
-                              </div>
-                              {event.type === 'subst' && event.assist?.name && (
-                                <div className="text-xs text-gray-500">
-                                  {event.assist.name}
+                              {event.type === 'subst' && event.assist?.name ? (
+                                <>
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {event.assist.name}
+                                  </div>
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {event.player?.name || 'Unknown Player'}
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="text-sm font-medium text-gray-900">
+                                  {event.player?.name || 'Unknown Player'}
                                 </div>
                               )}
                               {event.type === 'goal' && event.assist?.name && (
@@ -374,9 +380,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   (Assist: {event.assist.name})
                                 </div>
                               )}
-                              <div className="text-xs text-gray-400">
-                                {event.detail || event.type}
-                              </div>
+                              {event.type !== 'subst' && (
+                                <div className="text-xs text-gray-400">
+                                  {event.detail || event.type}
+                                </div>
+                              )}
                             </div>
 
                             <div className={`match-event-icon ${event.type === 'goal' ? 'goal' : event.type === 'card' ? 'card' : 'substitution'}`}>
@@ -413,12 +421,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             </div>
 
                             <div className="flex-1 text-left">
-                              <div className="text-sm font-medium text-gray-900">
-                                {event.player?.name || 'Unknown Player'}
-                              </div>
-                              {event.type === 'subst' && event.assist?.name && (
-                                <div className="text-xs text-gray-500">
-                                  {event.assist.name}
+                              {event.type === 'subst' && event.assist?.name ? (
+                                <>
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {event.assist.name}
+                                  </div>
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {event.player?.name || 'Unknown Player'}
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="text-sm font-medium text-gray-900">
+                                  {event.player?.name || 'Unknown Player'}
                                 </div>
                               )}
                               {event.type === 'goal' && event.assist?.name && (
@@ -426,9 +440,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   (Assist: {event.assist.name})
                                 </div>
                               )}
-                              <div className="text-xs text-gray-400">
-                                {event.detail || event.type}
-                              </div>
+                              {event.type !== 'subst' && (
+                                <div className="text-xs text-gray-400">
+                                  {event.detail || event.type}
+                                </div>
+                              )}
                             </div>
 
                             <div className="flex items-center gap-2">
