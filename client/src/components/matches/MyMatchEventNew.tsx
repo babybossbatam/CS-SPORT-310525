@@ -114,8 +114,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   const getPlayerImage = (playerId?: number, playerName?: string) => {
-    // Placeholder for player images - you can replace with actual API calls
-    // return `https://via.placeholder.com/32x32/E5E7EB/6B7280?text=${playerId ? playerId.toString().slice(-2) : 'P'}`;
+    // Try server endpoint first if we have a player ID
+    if (playerId) {
+      return `/api/player-photo/${playerId}`;
+    }
+    // Fallback to avatar generator with initials
     const initials = playerName?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'P';
     return `https://ui-avatars.com/api/?name=${initials}&size=32&background=4F46E5&color=fff&bold=true`;
   };
