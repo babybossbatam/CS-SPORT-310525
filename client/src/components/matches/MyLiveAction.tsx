@@ -536,8 +536,92 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
           
 
+          {/* Penalty Shootout Display */}
+          {currentStatus === 'P' && (
+            <div className="absolute inset-0 z-50">
+              {/* Penalty Action Banner */}
+              <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg px-4 py-2 flex items-center gap-2">
+                <div className="bg-orange-500 text-white px-2 py-1 rounded text-xs font-bold">
+                  PEN
+                </div>
+                <span className="text-sm font-semibold">Rojas, Andy</span>
+                <div className="flex items-center gap-1">
+                  <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
+                  <span className="text-orange-500 font-bold text-xs">MISSED</span>
+                </div>
+              </div>
+
+              {/* Penalty Shootout Results */}
+              <div className="absolute bottom-0 left-0 right-0 bg-white border-t-4 border-green-600">
+                <div className="text-center py-2">
+                  <span className="text-gray-600 text-sm font-semibold uppercase tracking-wider">PENALTY SHOOTOUT</span>
+                </div>
+                
+                <div className="flex justify-between items-center px-6 pb-4">
+                  {/* Home Team Penalties */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      <MyCircularFlag 
+                        countryName={homeTeamData?.name?.includes('USA') ? 'United States' : 'Unknown'}
+                        size="w-6 h-6"
+                      />
+                    </div>
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5, 6].map((penalty) => (
+                        <div key={penalty} className="flex flex-col items-center">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                            penalty <= 4 
+                              ? penalty === 4 
+                                ? 'bg-red-500 text-white' // Miss
+                                : 'bg-blue-500 text-white' // Goal
+                              : 'bg-gray-200 text-gray-400' // Not taken
+                          }`}>
+                            {penalty <= 4 ? (penalty === 4 ? '✕' : '✓') : '○'}
+                          </div>
+                          <span className="text-xs text-gray-500 mt-1">{penalty}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Score */}
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-gray-800">2 - 2</div>
+                    <div className="text-xs text-gray-500">After penalties</div>
+                  </div>
+
+                  {/* Away Team Penalties */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5, 6].map((penalty) => (
+                        <div key={penalty} className="flex flex-col items-center">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                            penalty <= 5 
+                              ? penalty === 3 || penalty === 5
+                                ? 'bg-red-500 text-white' // Miss
+                                : 'bg-red-500 text-white' // Goal
+                              : 'bg-gray-200 text-gray-400' // Not taken
+                          }`}>
+                            {penalty <= 5 ? (penalty === 3 || penalty === 5 ? '✕' : '✓') : '○'}
+                          </div>
+                          <span className="text-xs text-gray-500 mt-1">{penalty}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MyCircularFlag 
+                        countryName={awayTeamData?.name?.includes('Costa Rica') ? 'Costa Rica' : 'Unknown'}
+                        size="w-6 h-6"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Current event display - exact 365scores style */}
-          {currentEvent && currentView === 'event' && (
+          {currentEvent && currentView === 'event' && currentStatus !== 'P' && (
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
               <div className="text-center text-white">
                 <div className="text-3xl font-bold mb-2">
