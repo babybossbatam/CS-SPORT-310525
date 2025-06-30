@@ -143,7 +143,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       case "card":
         return detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥";
       case "subst":
-        return "🔄";
+        return (
+          <img
+            src="/assets/matchdetaillogo/substitution.svg"
+            alt="Substitution"
+            className="w-4 h-4"
+          />
+        );
       case "var":
         return "📺";
       default:
@@ -467,39 +473,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       <div className="match-event-time-center w-12">
                         <div className="match-event-icon flex justify-center">
-                          {event.type === "subst" ? (
-                            <img
-                              src="/assets/matchdetaillogo/substitution.svg"
-                              alt="Substitution"
-                              className="w-4 h-4 mr-6"
-                            />
-                          ) : event.type === "goal" &&
-                            event.detail?.toLowerCase().includes("missed penalty") ? (
-                            <img
-                              src="/assets/matchdetaillogo/missed-penalty.svg"
-                              alt="Missed Penalty"
-                              className="w-4 h-4 mr-6"
-                            />
-                          ) : event.type === "goal" &&
-                            event.detail?.toLowerCase().includes("penalty") ? (
-                            <img
-                              src="/assets/matchdetaillogo/penalty.svg"
-                              alt="Penalty Goal"
-                              className="w-4 h-4 mr-6"
-                            />
-                          ) : event.type === "goal" ? (
-                            <img
-                              src="/assets/matchdetaillogo/soccer-ball.svg"
-                              alt="Goal"
-                              className="w-4 h-4 mr-6"
-                            />
-                          ) : event.type === "card" ? (
-                            <span className="text-xs mr-6">
-                              {event.detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥"}
-                            </span>
-                          ) : (
-                            <span className="text-xs mr-6">📝</span>
-                          )}
+                          <span className="text-sm mr-6">
+                            {getEventIcon(event.type, event.detail)}
+                          </span>
                         </div>
 
                         {/* Time display in middle content area */}
@@ -509,39 +485,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         </div>
 
                         <div className="match-event-icon flex justify-center">
-                          {event.type === "subst" ? (
-                            <img
-                              src="/assets/matchdetaillogo/substitution.svg"
-                              alt="Substitution"
-                              className="w-4 h-4 ml-6"
-                            />
-                          ) : event.type === "goal" &&
-                            event.detail?.toLowerCase().includes("missed penalty") ? (
-                            <img
-                              src="/assets/matchdetaillogo/missed-penalty.svg"
-                              alt="Missed Penalty"
-                              className="w-4 h-4 ml-6"
-                            />
-                          ) : event.type === "goal" &&
-                            event.detail?.toLowerCase().includes("penalty") ? (
-                            <img
-                              src="/assets/matchdetaillogo/penalty.svg"
-                              alt="Penalty Goal"
-                              className="w-4 h-4 ml-6"
-                            />
-                          ) : event.type === "goal" ? (
-                            <img
-                              src="/assets/matchdetaillogo/soccer-ball.svg"
-                              alt="Goal"
-                              className="w-4 h-4 ml-6"
-                            />
-                          ) : event.type === "card" ? (
-                            <span className="text-xs ml-6">
-                              {event.detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥"}
-                            </span>
-                          ) : (
-                            <span className="text-xs ml-6">📝</span>
-                          )}
+                          <span className="text-sm ml-6">
+                            {getEventIcon(event.type, event.detail)}
+                          </span>
                         </div>
                       </div>
 
