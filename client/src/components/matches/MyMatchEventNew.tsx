@@ -469,12 +469,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           ) : event.type === "goal" &&
                             event.detail?.toLowerCase().includes("penalty") ? (
                             <div className="flex items-center gap-3 mr-6">
+                              {isHome && <span className="text-xs font-medium">(P)</span>}
                               <img
                                 src="/assets/matchdetaillogo/soccer-ball.svg"
                                 alt="Penalty Goal"
                                 className="w-4 h-4 "
                               />
-                              <span className="text-xs font-medium">(P)</span>
+                              {!isHome && <span className="text-xs font-medium">(P)</span>}
                             </div>
                           ) : (
                             <span className="text-xs mr-6">
@@ -500,12 +501,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           ) : event.type === "goal" &&
                             event.detail?.toLowerCase().includes("penalty") ? (
                             <div className="flex items-center gap-3 ml-8">
+                              {isHome && <span className="text-xs font-medium">(P)</span>}
                               <img
                                 src="/assets/matchdetaillogo/soccer-ball.svg"
                                 alt="Penalty Goal"
                                 className="w-4 h-4 "
                               />
-                              <span className="text-xs font-medium">(P)</span>
+                              {!isHome && <span className="text-xs font-medium">(P)</span>}
                             </div>
                           ) : (
                             <span className="text-xs ml-6">
