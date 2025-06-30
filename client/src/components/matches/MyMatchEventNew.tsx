@@ -771,7 +771,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 </>
               )}
             </div>
-          </div>
         )}
       </CardContent>
     </Card>
