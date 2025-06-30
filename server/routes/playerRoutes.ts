@@ -15,6 +15,8 @@ router.get('/player-photo/:playerId', async (req, res) => {
     // Try multiple sources for player photos
     const photoSources = [
       `https://media.api-sports.io/football/players/${playerId}.png`,
+      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:${playerId}.png,r_max,c_thumb,g_face,z_0.65/v16/Athletes/NationalTeam/${playerId}`,
+      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:${playerId}.png/v16/Athletes/${playerId}`,
       `https://cdn.sportmonks.com/images/soccer/players/${playerId}.png`,
       `https://img.a.transfermarkt.technology/portrait/big/${playerId}.jpg`,
       `https://imagecache.365scores.com/image/upload/f_png,w_82,h_82,c_limit,q_auto:eco,dpr_2,d_Competitors:default1.png/v12/Competitors/${playerId}`,
