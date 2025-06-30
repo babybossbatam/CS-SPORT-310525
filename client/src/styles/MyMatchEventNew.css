@@ -294,14 +294,15 @@
   grid-area: away-side;
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 12px;
+  gap: 3px;
   align-items: center;
-  padding-left: 16px;
-  min-width: 25px;
+  padding-right: 2px;
+  padding-left: 4px;
+  margin-right: 45px;
 }
 
 .match-event-away-icon-column {
-  display: flex;
+  display: relatix;
   justify-content: flex-start;
   align-items: center;
   margin-right: 35px;
@@ -310,7 +311,7 @@
 .match-event-away-player-info {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 3px;
   justify-content: flex-start;
 }
 
@@ -319,7 +320,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
+  width: 24px;
   height: 24px;
   border-radius: 50%;
   margin-left: 40px;
