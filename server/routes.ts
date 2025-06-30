@@ -867,8 +867,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(league);
 
       // Applying the changes to add highlights routes to the main router and register them.
-      //Adding highlights routes to main router
-      //Register highlights routes
+      // Adding highlights routes to main router
+      // Register highlights routes
     } catch (error) {
       console.error(`Error fetching league with ID ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to fetch league" });
