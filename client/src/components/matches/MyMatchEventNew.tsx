@@ -453,13 +453,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             />
                           ) : (
                             event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
-                              <div className="flex items-center gap-1 mr-12">
+                              <div className="flex items-center gap-2 mr-8">
                                 <img
                                   src="/assets/matchdetaillogo/soccer-ball.svg"
-                                  alt="Goal"
-                                  className="w-3 h-3"
+                                  alt="Penalty Goal"
+                                  className="w-4 h-4"
                                 />
-                                <span className="text-xs">(P)</span>
+                                <span className="text-xs font-medium">(P)</span>
                               </div>
                             ) : (
                               <span className="text-xs mr-4">
@@ -485,13 +485,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             />
                           ) : (
                             event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
-                              <div className="flex items-center gap-1">
+                              <div className="flex items-center gap-2 ml-8">
                                 <img
                                   src="/assets/matchdetaillogo/soccer-ball.svg"
-                                  alt="Goal"
-                                  className="w-3 h-3"
+                                  alt="Penalty Goal"
+                                  className="w-4 h-4"
                                 />
-                                <span className="text-xs">(P)</span>
+                                <span className="text-xs font-medium">(P)</span>
                               </div>
                             ) : (
                               <span className="text-xs">
