@@ -1,3 +1,4 @@
+typescript
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Clock, RefreshCw, AlertCircle } from 'lucide-react';
@@ -132,7 +133,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const getCachedPlayerImage = async (playerId?: number, playerName?: string): Promise<string> => {
     const cacheKey = `${playerId || 'unknown'}_${playerName || 'unknown'}`;
-    
+
     // Return cached image if available
     if (playerImages[cacheKey]) {
       return playerImages[cacheKey];
@@ -140,7 +141,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
     // Get image from cache system
     const imageUrl = await getPlayerImage(playerId, playerName);
-    
+
     // Update local state
     setPlayerImages(prev => ({
       ...prev,
@@ -235,7 +236,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           const img = await getCachedPlayerImage(event.player.id, event.player.name);
           setMainPlayerImg(img);
         }
-        
+
         if (isSubstitution && (event.assist?.id || event.assist?.name)) {
           const assistImg = await getCachedPlayerImage(event.assist.id, event.assist.name);
           setAssistPlayerImg(assistImg);
@@ -265,16 +266,32 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               {isSubstitution ? (
                 <div className="player-image-substitution flex -space-x-2">
                   <img
-                    src={mainPlayerImg || '/assets/fallback-logo.svg'}
+                    src={mainPlayerImg || `https://ui-avatars.com/api/?name=${event.player?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P'}&size=40&background=4F46E5&color=fff&bold=true&format=svg`}
                     alt={event.player?.name}
                     className="player-image player-image-home-team"
                     loading="lazy"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      const initials = event.player?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P';
+                      const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=40&background=4F46E5&color=fff&bold=true&format=svg`;
+                      if (target.src !== fallbackUrl) {
+                        target.src = fallbackUrl;
+                      }
+                    }}
                   />
                   <img
-                    src={assistPlayerImg || '/assets/fallback-logo.svg'}
+                    src={assistPlayerImg || `https://ui-avatars.com/api/?name=${event.assist?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'S'}&size=40&background=ef4444&color=fff&bold=true&format=svg`}
                     alt={event.assist?.name || 'Sub'}
                     className="player-image player-image-home-team"
                     loading="lazy"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      const initials = event.assist?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'S';
+                      const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=40&background=ef4444&color=fff&bold=true&format=svg`;
+                      if (target.src !== fallbackUrl) {
+                        target.src = fallbackUrl;
+                      }
+                    }}
                   />
                 </div>
               ) : (
@@ -300,16 +317,32 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               {isSubstitution ? (
                 <div className="player-image-substitution flex -space-x-2">
                   <img
-                    src={mainPlayerImg || '/assets/fallback-logo.svg'}
+                    src={mainPlayerImg || `https://ui-avatars.com/api/?name=${event.player?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P'}&size=40&background=4F46E5&color=fff&bold=true&format=svg`}
                     alt={event.player?.name}
                     className="player-image player-image-away-team"
                     loading="lazy"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      const initials = event.player?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P';
+                      const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=40&background=4F46E5&color=fff&bold=true&format=svg`;
+                      if (target.src !== fallbackUrl) {
+                        target.src = fallbackUrl;
+                      }
+                    }}
                   />
                   <img
-                    src={assistPlayerImg || '/assets/fallback-logo.svg'}
+                    src={assistPlayerImg || `https://ui-avatars.com/api/?name=${event.assist?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'S'}&size=40&background=ef4444&color=fff&bold=true&format=svg`}
                     alt={event.assist?.name || 'Sub'}
                     className="player-image player-image-away-team"
                     loading="lazy"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      const initials = event.assist?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'S';
+                      const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=40&background=ef4444&color=fff&bold=true&format=svg`;
+                      if (target.src !== fallbackUrl) {
+                        target.src = fallbackUrl;
+                      }
+                    }}
                   />
                 </div>
               ) : (
