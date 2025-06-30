@@ -467,20 +467,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               className=" w-4 h-4 mr-6"
                             />
                           ) : event.type === "goal" &&
-                            event.detail?.toLowerCase().includes("penalty") ? (
-                            <div className="flex items-center gap-1 mr-6">
-                              <img
-                                src="/assets/matchdetaillogo/penalty.svg"
-                                alt="Penalty Goal"
-                                className="w-4 h-4"
-                              />
-                            </div>
-                          ) : event.type === "goal" &&
                             event.detail?.toLowerCase().includes("missed penalty") ? (
                             <div className="flex items-center gap-1 mr-6">
                               <img
                                 src="/assets/matchdetaillogo/missed-penalty.svg"
                                 alt="Missed Penalty"
+                                className="w-4 h-4"
+                              />
+                            </div>
+                          ) : event.type === "goal" &&
+                            event.detail?.toLowerCase().includes("penalty") ? (
+                            <div className="flex items-center gap-1 mr-6">
+                              <img
+                                src="/assets/matchdetaillogo/penalty.svg"
+                                alt="Penalty Goal"
                                 className="w-4 h-4"
                               />
                             </div>
@@ -506,20 +506,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               className="w-4 h-4 ml-6"
                             />
                           ) : event.type === "goal" &&
-                            event.detail?.toLowerCase().includes("penalty") ? (
-                            <div className="flex items-center gap-1 ml-8">
-                              <img
-                                src="/assets/matchdetaillogo/penalty.svg"
-                                alt="Penalty Goal"
-                                className="w-4 h-4"
-                              />
-                            </div>
-                          ) : event.type === "goal" &&
                             event.detail?.toLowerCase().includes("missed penalty") ? (
                             <div className="flex items-center gap-1 ml-8">
                               <img
                                 src="/assets/matchdetaillogo/missed-penalty.svg"
                                 alt="Missed Penalty"
+                                className="w-4 h-4"
+                              />
+                            </div>
+                          ) : event.type === "goal" &&
+                            event.detail?.toLowerCase().includes("penalty") ? (
+                            <div className="flex items-center gap-1 ml-8">
+                              <img
+                                src="/assets/matchdetaillogo/penalty.svg"
+                                alt="Penalty Goal"
                                 className="w-4 h-4"
                               />
                             </div>
