@@ -249,7 +249,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       alt="Substitution"
                       className="w-4 h-4"
                     />
-                  ) : (
+                  ) : event.type === "goal" ? (
+                                  <div className="text-xs flex items-center justify-center">
+                                    {getEventIcon(event.type, event.detail)}
+                                  </div>
+                                ) : (
                     <span className="text-sm flex">
                       {getEventIcon(event.type, event.detail)}
                     </span>
@@ -279,7 +283,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       alt="Substitution"
                       className="w-4 h-4"
                     />
-                  ) : (
+                  ) : event.type === "goal" ? (
+                                  <div className="text-xs flex items-center justify-center">
+                                    {getEventIcon(event.type, event.detail)}
+                                  </div>
+                                ) : (
                     <span className="text-sm">
                       {getEventIcon(event.type, event.detail)}
                     </span>
@@ -421,7 +429,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {events.some(event => event.type === "penalty") && (
               <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
             )}
-            
+
             {/* All events in chronological order without period separators */}
             {events
               .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
@@ -521,6 +529,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt="Substitution"
                                     className="w-4 h-4"
                                   />
+                                ) : event.type === "goal" ? (
+                                  <div className="text-xs flex items-center justify-center">
+                                    {getEventIcon(event.type, event.detail)}
+                                  </div>
                                 ) : (
                                   <span className="text-xs">
                                     {getEventIcon(event.type, event.detail)}
@@ -560,6 +572,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt="Substitution"
                                     className="w-4 h-4"
                                   />
+                                ) : event.type === "goal" ? (
+                                  <div className="text-xs flex items-center justify-center">
+                                    {getEventIcon(event.type, event.detail)}
+                                  </div>
                                 ) : (
                                   <span className="text-xs">
                                     {getEventIcon(event.type, event.detail)}
