@@ -187,47 +187,72 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
+  // Image cache to prevent duplicate API calls
+  const [imageCache, setImageCache] = useState<Map<number, { url: string; loaded: boolean; failed: boolean }>>(new Map());
+
   const PlayerAvatar = ({ event }: { event: MatchEvent }) => {
     const isHome = isHomeTeam(event);
 
-    if (!event.player?.name) return null;
+    if (!event.player?.name || !event.player?.id) return null;
 
-    const initials = event.player.name
+    const playerId = event.player.id;
+    const playerName = event.player.name;
+    
+    const initials = playerName
       .split(' ')
       .map(name => name[0])
       .join('')
       .toUpperCase()
       .slice(0, 2) || 'P';
 
-    // Simple: if we have a player ID, use the API endpoint directly
-    const apiImageUrl = event.player.id ? `/api/player-photo/${event.player.id}` : null;
+    // Check cache first
+    const cachedImage = imageCache.get(playerId);
+    const apiImageUrl = `/api/player-photo/${playerId}`;
+
+    // If we have a cached failed result, show initials immediately
+    if (cachedImage?.failed) {
+      return (
+        <div className="player-image-container">
+          <div className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}>
+            {initials}
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className="player-image-container">
-        {apiImageUrl ? (
-          <img
-            src={apiImageUrl}
-            alt={event.player.name}
-            className={`player-image ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}
-            onError={(e) => {
-              console.log(`⚠️ [PlayerAvatar] API image failed for ${event.player.name}, showing initials`);
-              e.currentTarget.style.display = 'none';
-              const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
-              if (fallbackElement) {
-                fallbackElement.classList.remove('hidden');
-              }
-            }}
-            onLoad={() => {
-              console.log(`✅ [PlayerAvatar] API image loaded for ${event.player.name}`);
-              const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
-              if (fallbackElement) {
-                fallbackElement.classList.add('hidden');
-              }
-            }}
-          />
-        ) : null}
+        <img
+          src={apiImageUrl}
+          alt={playerName}
+          className={`player-image ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}
+          onError={(e) => {
+            console.log(`⚠️ [PlayerAvatar] API image failed for ${playerName} (${playerId}), caching failure`);
+            // Cache the failure to prevent future requests
+            setImageCache(prev => new Map(prev).set(playerId, { url: apiImageUrl, loaded: false, failed: true }));
+            e.currentTarget.style.display = 'none';
+            const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
+            if (fallbackElement) {
+              fallbackElement.classList.remove('hidden');
+            }
+          }}
+          onLoad={(e) => {
+            console.log(`✅ [PlayerAvatar] API image loaded for ${playerName} (${playerId}), caching success`);
+            // Cache the successful load
+            setImageCache(prev => new Map(prev).set(playerId, { url: apiImageUrl, loaded: true, failed: false }));
+            const fallbackElement = e.currentTarget.nextElementSibling as HTMLElement;
+            if (fallbackElement) {
+              fallbackElement.classList.add('hidden');
+            }
+          }}
+          loading="lazy"
+          style={{
+            // Add browser-level caching hints
+            imageRendering: 'auto'
+          }}
+        />
         <div
-          className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'} ${apiImageUrl ? 'hidden' : ''}`}
+          className={`player-image player-image-error ${isHome ? 'player-image-home-team' : 'player-image-away-team'} ${cachedImage?.loaded ? 'hidden' : ''}`}
         >
           {initials}
         </div>

@@ -1,4 +1,3 @@
-
 import express from 'express';
 
 const router = express.Router();
@@ -7,7 +6,7 @@ const router = express.Router();
 router.get('/player-photo/:playerId', async (req, res) => {
   try {
     const { playerId } = req.params;
-    
+
     if (!playerId) {
       return res.status(400).json({ error: 'Player ID is required' });
     }
@@ -32,10 +31,10 @@ router.get('/player-photo/:playerId', async (req, res) => {
           },
           timeout: 5000,
         });
-        
+
         if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
           const buffer = await response.arrayBuffer();
-          
+
           // Verify we actually got image data, not an error page
           if (buffer.byteLength > 100) { // Minimum size check
             console.log(`✅ [Player Photo] Success from: ${photoUrl}`);
@@ -56,7 +55,7 @@ router.get('/player-photo/:playerId', async (req, res) => {
     // If all sources fail, return a proper 404
     console.log(`❌ [Player Photo] All sources failed for player ${playerId}`);
     res.status(404).json({ error: 'Player photo not found' });
-    
+
   } catch (error) {
     console.error(`❌ [Player Photo] Error fetching photo for player ${req.params.playerId}:`, error);
     res.status(404).json({ error: 'Player photo not found' });
