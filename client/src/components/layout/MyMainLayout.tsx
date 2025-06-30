@@ -17,6 +17,7 @@ import MyHighlights from "@/components/matches/MyHighlights";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
 import MyLiveAction from "@/components/matches/MyLiveAction";
 import MyNewLMT from '@/components/matches/MyNewLMT';
+import MyMatchEventNew from '@/components/matches/MyMatchEventNew';
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
@@ -186,6 +187,18 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                         homeTeam={selectedFixture?.teams?.home}
                         awayTeam={selectedFixture?.teams?.away}
                         status={selectedFixture?.fixture?.status?.short}
+                      />
+                    )}
+
+                    {/* Show MyMatchEventNew for live and ended matches */}
+                    {(isLive || isEnded) && (
+                      <MyMatchEventNew
+                        fixtureId={selectedFixture?.fixture?.id}
+                        homeTeam={selectedFixture?.teams?.home?.name}
+                        awayTeam={selectedFixture?.teams?.away?.name}
+                        refreshInterval={15}
+                        showLogos={true}
+                        className="mt-4"
                       />
                     )}
                     
