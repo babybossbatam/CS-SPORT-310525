@@ -365,8 +365,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   <div key={`event-${index}`} className="match-event-container">
                     {/* Three-grid layout container */}
                     <div className="match-event-three-grid-container">
-                      {/* Left Grid: Home Team Events */}
-                      <div className="match-event-home-side">
+                      {/* Top Grid: Event Status/Type */}
+                      <div className="match-event-status-top">
+                        {/* Event type indicator could go here */}
+                      </div>
+
+                      {/* Middle Grid: Main Content Container */}
+                      <div className="match-event-content-container">
+                        {/* Left Grid: Home Team Events */}
+                        <div className="match-event-home-side"></div>
                         {isHome && (
                           <div className="flex items-center gap-3 pr-36 ">
                             <div className="flex items-center gap-1">
