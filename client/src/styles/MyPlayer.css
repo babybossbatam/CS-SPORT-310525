@@ -54,6 +54,30 @@
   border: 3px solid #ef4444;
 }
 
+/* Match Event Player Images */
+.match-event-player-avatar {
+  transition: transform 0.2s ease;
+}
+
+.match-event-player-avatar:hover {
+  transform: scale(1.05);
+}
+
+.match-event-substitution {
+  position: relative;
+}
+
+.match-event-substitution .player-in {
+  border: 3px solid #10b981;
+  z-index: 10;
+}
+
+.match-event-substitution .player-out {
+  border: 3px solid #ef4444;
+  margin-left: -12px;
+  z-index: 5;
+}
+
 .player-image-cache-indicator {
   position: absolute;
   top: -2px;

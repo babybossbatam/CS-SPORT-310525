@@ -4,6 +4,7 @@ import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Clock, RefreshCw, AlertCircle } from 'lucide-react';
 
 import '@/styles/MyPlayer.css';
+import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 
 interface MyMatchEventNewProps {
   fixtureId: string | number;
@@ -188,7 +189,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  
+  const getPlayerImage = (playerId: number | undefined, playerName: string | undefined) => {
+    if (!playerId) {
+      return '';
+    }
+    return `/api/player-photo/${playerId}`;
+  };
+
 
   const EventItem = ({ event, isLast }: { event: MatchEvent; isLast: boolean }) => {
     const isHome = isHomeTeam(event);
@@ -308,14 +315,52 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 <PeriodHeader title="End of 90 Minutes" />
                 <div className="space-y-4">
                   {groupedEvents.fullTime.map((event, index) => (
-                    <EventItem 
-                      key={`ft-${index}`} 
-                      event={event} 
-                      isLast={index === groupedEvents.fullTime.length - 1 && 
-                              groupedEvents.secondHalf.length === 0 && 
-                              groupedEvents.halfTime.length === 0 && 
-                              groupedEvents.firstHalf.length === 0} 
-                    />
+                    <div className="flex items-center gap-3">
+                      {/* Player Avatar */}
+                      <Avatar className="w-10 h-10 border-2 border-white shadow-md">
+                        <AvatarImage
+                          src={getPlayerImage(event.player?.id, event.player?.name)}
+                          alt={event.player?.name || 'Player'}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className={`text-white text-sm font-bold ${
+                          event.team?.name === homeTeam ? 'bg-blue-500' : 'bg-red-500'
+                        }`}>
+                          {event.player?.name
+                            ?.split(' ')
+                            .map(n => n[0])
+                            .join('')
+                            .slice(0, 2) || 'P'}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      {/* Event Icon Overlay */}
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold -ml-8 mt-6 border-2 border-white shadow ${
+                        event.team?.name === homeTeam ? 'bg-blue-600' : 'bg-red-600'
+                      }`}>
+                        {getEventIcon(event.type)}
+                      </div>
+
+                      <div className="flex-1 ml-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900">
+                            {event.player?.name || 'Unknown Player'}
+                          </span>
+                          {event.assist?.name && (
+                            <span className="text-sm text-gray-500">
+                              (Assist: {event.assist.name})
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {event.detail || event.type}
+                        </div>
+                      </div>
+                      <div className="text-sm font-medium text-gray-700">
+                        {event.time?.elapsed}'
+                        {event.time?.extra && ` +${event.time.extra}`}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </>
@@ -327,13 +372,52 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 <PeriodHeader title="Second Half" />
                 <div className="space-y-4">
                   {groupedEvents.secondHalf.map((event, index) => (
-                    <EventItem 
-                      key={`2h-${index}`} 
-                      event={event} 
-                      isLast={index === groupedEvents.secondHalf.length - 1 && 
-                              groupedEvents.halfTime.length === 0 && 
-                              groupedEvents.firstHalf.length === 0} 
-                    />
+                    <div className="flex items-center gap-3">
+                      {/* Player Avatar */}
+                      <Avatar className="w-10 h-10 border-2 border-white shadow-md">
+                        <AvatarImage
+                          src={getPlayerImage(event.player?.id, event.player?.name)}
+                          alt={event.player?.name || 'Player'}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className={`text-white text-sm font-bold ${
+                          event.team?.name === homeTeam ? 'bg-blue-500' : 'bg-red-500'
+                        }`}>
+                          {event.player?.name
+                            ?.split(' ')
+                            .map(n => n[0])
+                            .join('')
+                            .slice(0, 2) || 'P'}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      {/* Event Icon Overlay */}
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold -ml-8 mt-6 border-2 border-white shadow ${
+                        event.team?.name === homeTeam ? 'bg-blue-600' : 'bg-red-600'
+                      }`}>
+                        {getEventIcon(event.type)}
+                      </div>
+
+                      <div className="flex-1 ml-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900">
+                            {event.player?.name || 'Unknown Player'}
+                          </span>
+                          {event.assist?.name && (
+                            <span className="text-sm text-gray-500">
+                              (Assist: {event.assist.name})
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {event.detail || event.type}
+                        </div>
+                      </div>
+                      <div className="text-sm font-medium text-gray-700">
+                        {event.time?.elapsed}'
+                        {event.time?.extra && ` +${event.time.extra}`}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </>
@@ -345,12 +429,52 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 <PeriodHeader title="Half Time" />
                 <div className="space-y-4">
                   {groupedEvents.halfTime.map((event, index) => (
-                    <EventItem 
-                      key={`ht-${index}`} 
-                      event={event} 
-                      isLast={index === groupedEvents.halfTime.length - 1 && 
-                              groupedEvents.firstHalf.length === 0} 
-                    />
+                    <div className="flex items-center gap-3">
+                      {/* Player Avatar */}
+                      <Avatar className="w-10 h-10 border-2 border-white shadow-md">
+                        <AvatarImage
+                          src={getPlayerImage(event.player?.id, event.player?.name)}
+                          alt={event.player?.name || 'Player'}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className={`text-white text-sm font-bold ${
+                          event.team?.name === homeTeam ? 'bg-blue-500' : 'bg-red-500'
+                        }`}>
+                          {event.player?.name
+                            ?.split(' ')
+                            .map(n => n[0])
+                            .join('')
+                            .slice(0, 2) || 'P'}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      {/* Event Icon Overlay */}
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold -ml-8 mt-6 border-2 border-white shadow ${
+                        event.team?.name === homeTeam ? 'bg-blue-600' : 'bg-red-600'
+                      }`}>
+                        {getEventIcon(event.type)}
+                      </div>
+
+                      <div className="flex-1 ml-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900">
+                            {event.player?.name || 'Unknown Player'}
+                          </span>
+                          {event.assist?.name && (
+                            <span className="text-sm text-gray-500">
+                              (Assist: {event.assist.name})
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {event.detail || event.type}
+                        </div>
+                      </div>
+                      <div className="text-sm font-medium text-gray-700">
+                        {event.time?.elapsed}'
+                        {event.time?.extra && ` +${event.time.extra}`}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </>
@@ -362,11 +486,52 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 <PeriodHeader title="First Half" />
                 <div className="space-y-4">
                   {groupedEvents.firstHalf.map((event, index) => (
-                    <EventItem 
-                      key={`1h-${index}`} 
-                      event={event} 
-                      isLast={index === groupedEvents.firstHalf.length - 1} 
-                    />
+                    <div className="flex items-center gap-3">
+                      {/* Player Avatar */}
+                      <Avatar className="w-10 h-10 border-2 border-white shadow-md">
+                        <AvatarImage
+                          src={getPlayerImage(event.player?.id, event.player?.name)}
+                          alt={event.player?.name || 'Player'}
+                          className="object-cover"
+                        />
+                        <AvatarFallback className={`text-white text-sm font-bold ${
+                          event.team?.name === homeTeam ? 'bg-blue-500' : 'bg-red-500'
+                        }`}>
+                          {event.player?.name
+                            ?.split(' ')
+                            .map(n => n[0])
+                            .join('')
+                            .slice(0, 2) || 'P'}
+                        </AvatarFallback>
+                      </Avatar>
+
+                      {/* Event Icon Overlay */}
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold -ml-8 mt-6 border-2 border-white shadow ${
+                        event.team?.name === homeTeam ? 'bg-blue-600' : 'bg-red-600'
+                      }`}>
+                        {getEventIcon(event.type)}
+                      </div>
+
+                      <div className="flex-1 ml-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-gray-900">
+                            {event.player?.name || 'Unknown Player'}
+                          </span>
+                          {event.assist?.name && (
+                            <span className="text-sm text-gray-500">
+                              (Assist: {event.assist.name})
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {event.detail || event.type}
+                        </div>
+                      </div>
+                      <div className="text-sm font-medium text-gray-700">
+                        {event.time?.elapsed}'
+                        {event.time?.extra && ` +${event.time.extra}`}
+                      </div>
+                    </div>
                   ))}
                 </div>
               </>
