@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Clock, RefreshCw, AlertCircle } from 'lucide-react';
-import '@/styles/MyPlayer.css';
 
 interface MyMatchEventNewProps {
   fixtureId: string | number;
