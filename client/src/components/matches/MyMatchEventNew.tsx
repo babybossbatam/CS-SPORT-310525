@@ -250,9 +250,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       className="w-4 h-4"
                     />
                   ) : (
-                    <div className="text-sm flex items-center justify-center">
+                    <span className="text-sm flex">
                       {getEventIcon(event.type, event.detail)}
-                    </div>
+                    </span>
                   )}
                 </div>
               </div>
@@ -280,9 +280,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       className="w-4 h-4"
                     />
                   ) : (
-                    <div className="text-sm flex items-center justify-center">
+                    <span className="text-sm">
                       {getEventIcon(event.type, event.detail)}
-                    </div>
+                    </span>
                   )}
                 </div>
               </div>
@@ -452,9 +452,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               className=" w-4 h-4 mr-8"
                             />
                           ) : (
-                            <div className="text-sm flex items-center justify-center">
+                              <span className="text-xs mr-4">
                               {getEventIcon(event.type, event.detail)}
-                            </div>
+                            </span>
                           )}
                         </div>
 
@@ -473,9 +473,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               className="w-4 h-4 ml-8"
                             />
                           ) : (
-                            <div className="text-sm flex items-center justify-center">
+                              <span className="text-xs">
                               {getEventIcon(event.type, event.detail)}
-                            </div>
+                            </span>
                           )}
                         </div>
                         {/* Time display moved to middle content area */}
