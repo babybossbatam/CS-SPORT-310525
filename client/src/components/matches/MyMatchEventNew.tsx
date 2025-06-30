@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import React, { useState, useEffect, useRef } from "react";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
-import { Clock, RefreshCw, AlertCircle } from 'lucide-react';
+import { Clock, RefreshCw, AlertCircle } from "lucide-react";
 
-import '@/styles/MyPlayer.css';
-import '@/styles/MyMatchEventNew.css';
-import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
+import "@/styles/MyPlayer.css";
+import "@/styles/MyMatchEventNew.css";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 
 interface MyMatchEventNewProps {
   fixtureId: string | number;
   apiKey?: string;
-  theme?: 'light' | 'dark' | '';
+  theme?: "light" | "dark" | "";
   refreshInterval?: number;
   showErrors?: boolean;
   showLogos?: boolean;
@@ -50,7 +50,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   showLogos = true,
   className = "",
   homeTeam,
-  awayTeam
+  awayTeam,
 }) => {
   const [events, setEvents] = useState<MatchEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,13 +60,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const fetchMatchEvents = async () => {
     if (!fixtureId) {
-      setError('No fixture ID provided');
+      setError("No fixture ID provided");
       setIsLoading(false);
       return;
     }
 
     try {
-      console.log(`📊 [MyMatchEventNew] Fetching events for fixture: ${fixtureId}`);
+      console.log(
+        `📊 [MyMatchEventNew] Fetching events for fixture: ${fixtureId}`,
+      );
 
       const response = await fetch(`/api/fixtures/${fixtureId}/events`);
 
@@ -82,7 +84,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       setError(null);
     } catch (error) {
       console.error(`❌ [MyMatchEventNew] Error fetching events:`, error);
-      setError(error instanceof Error ? error.message : 'Failed to fetch events');
+      setError(
+        error instanceof Error ? error.message : "Failed to fetch events",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +97,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
     // Set up refresh interval
     if (refreshInterval > 0) {
-      intervalRef.current = setInterval(fetchMatchEvents, refreshInterval * 1000);
+      intervalRef.current = setInterval(
+        fetchMatchEvents,
+        refreshInterval * 1000,
+      );
     }
 
     return () => {
@@ -104,19 +111,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   }, [fixtureId, refreshInterval]);
 
   const getEventIcon = (eventType: string, detail: string) => {
-    if (!eventType) return '📝';
+    if (!eventType) return "📝";
 
     switch (eventType.toLowerCase()) {
-      case 'goal':
-        return detail?.toLowerCase().includes('penalty') ? '⚽(P)' : '⚽';
-      case 'card':
-        return detail?.toLowerCase().includes('yellow') ? '🟨' : '🟥';
-      case 'subst':
-        return '🔄';
-      case 'var':
-        return '📺';
+      case "goal":
+        return detail?.toLowerCase().includes("penalty") ? "⚽(P)" : "⚽";
+      case "card":
+        return detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥";
+      case "subst":
+        return "🔄";
+      case "var":
+        return "📺";
       default:
-        return '📝';
+        return "📝";
     }
   };
 
@@ -128,17 +135,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   const getEventDescription = (event: MatchEvent) => {
-    const playerName = event.player?.name || 'Unknown Player';
+    const playerName = event.player?.name || "Unknown Player";
     const assistName = event.assist?.name;
 
     if (!event.type) return playerName;
 
     switch (event.type.toLowerCase()) {
-      case 'goal':
-        return `${playerName}${assistName ? ` (assist: ${assistName})` : ''}`;
-      case 'card':
+      case "goal":
+        return `${playerName}${assistName ? ` (assist: ${assistName})` : ""}`;
+      case "card":
         return `${playerName}`;
-      case 'subst':
+      case "subst":
         return `${playerName}`;
       default:
         return `${playerName}`;
@@ -150,10 +157,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       fullTime: [] as MatchEvent[],
       secondHalf: [] as MatchEvent[],
       halfTime: [] as MatchEvent[],
-      firstHalf: [] as MatchEvent[]
+      firstHalf: [] as MatchEvent[],
     };
 
-    events.forEach(event => {
+    events.forEach((event) => {
       const minute = event.time.elapsed;
       if (minute >= 90) {
         periods.fullTime.push(event);
@@ -167,8 +174,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     });
 
     // Sort each period by time (descending for display from top to bottom)
-    Object.keys(periods).forEach(key => {
-      periods[key as keyof typeof periods].sort((a, b) => b.time.elapsed - a.time.elapsed);
+    Object.keys(periods).forEach((key) => {
+      periods[key as keyof typeof periods].sort(
+        (a, b) => b.time.elapsed - a.time.elapsed,
+      );
     });
 
     return periods;
@@ -178,12 +187,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     return event.team?.name?.toLowerCase() === homeTeam?.toLowerCase();
   };
 
-  const isDarkTheme = theme === 'dark';
+  const isDarkTheme = theme === "dark";
   const groupedEvents = groupEventsByPeriod(events);
 
   if (error && showErrors) {
     return (
-      <Card className={`${className} ${isDarkTheme ? 'bg-gray-800 text-white' : 'bg-white'}`}>
+      <Card
+        className={`${className} ${isDarkTheme ? "bg-gray-800 text-white" : "bg-white"}`}
+      >
         <CardContent className="p-4">
           <div className="flex items-center gap-2 text-red-500">
             <AlertCircle className="h-5 w-5" />
@@ -194,15 +205,23 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  const getPlayerImage = (playerId: number | undefined, playerName: string | undefined) => {
+  const getPlayerImage = (
+    playerId: number | undefined,
+    playerName: string | undefined,
+  ) => {
     if (!playerId) {
-      return '';
+      return "";
     }
     return `/api/player-photo/${playerId}`;
   };
 
-
-  const EventItem = ({ event, isLast }: { event: MatchEvent; isLast: boolean }) => {
+  const EventItem = ({
+    event,
+    isLast,
+  }: {
+    event: MatchEvent;
+    isLast: boolean;
+  }) => {
     const isHome = isHomeTeam(event);
 
     return (
@@ -224,14 +243,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <div className="event-icon-container event-icon-home">
-                  {event.type === 'subst' ? (
-                    <img 
-                      src="/assets/matchdetaillogo/substitution.svg" 
-                      alt="Substitution" 
+                  {event.type === "subst" ? (
+                    <img
+                      src="/assets/matchdetaillogo/substitution.svg"
+                      alt="Substitution"
                       className="w-4 h-4"
                     />
                   ) : (
-                    <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
+                    <span className="text-sm">
+                      {getEventIcon(event.type, event.detail)}
+                    </span>
                   )}
                 </div>
               </div>
@@ -252,14 +273,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <div className="event-icon-container event-icon-away">
-                  {event.type === 'subst' ? (
-                    <img 
-                      src="/assets/matchdetaillogo/substitution.svg" 
-                      alt="Substitution" 
+                  {event.type === "subst" ? (
+                    <img
+                      src="/assets/matchdetaillogo/substitution.svg"
+                      alt="Substitution"
                       className="w-4 h-4"
                     />
                   ) : (
-                    <span className="text-sm">{getEventIcon(event.type, event.detail)}</span>
+                    <span className="text-sm">
+                      {getEventIcon(event.type, event.detail)}
+                    </span>
                   )}
                 </div>
               </div>
@@ -286,8 +309,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   );
 
   return (
-    <Card className={`${className} ${isDarkTheme ? 'bg-gray-800 text-white border-gray-700' : 'bg-white border-gray-200'}`}>
-      <CardHeader className={`pb-3 ${isDarkTheme ? 'bg-gray-700' : 'bg-gray-50'} border-b`}>
+    <Card
+      className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
+    >
+      <CardHeader
+        className={`pb-3 ${isDarkTheme ? "bg-gray-700" : "bg-gray-50"} border-b`}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-lg font-semibold">Match Events</h3>
@@ -298,9 +325,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           {lastUpdated && (
             <div className="flex items-center gap-1 text-sm text-gray-500">
               <Clock className="h-4 w-4" />
-              <span>
-                Updated: {lastUpdated.toLocaleTimeString()}
-              </span>
+              <span>Updated: {lastUpdated.toLocaleTimeString()}</span>
             </div>
           )}
         </div>
@@ -340,138 +365,147 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   <div key={`event-${index}`} className="match-event-container">
                     {/* Three-grid layout container */}
                     <div className="match-event-three-grid-container">
-                     
-                      
                       {/* Left Grid: Home Team Events */}
                       <div className="match-event-home-side">
                         {isHome && (
-                          <div className="flex items-center gap-3 pr-16 ">
-                            <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-3 pr-36 ">
+                            <div className="flex items-center gap-1">
                               <Avatar className="w-9 h-9 border-2 border-green-300 shadow-sm">
                                 <AvatarImage
-                                  src={getPlayerImage(event.player?.id, event.player?.name)}
-                                  alt={event.player?.name || 'Player'}
+                                  src={getPlayerImage(
+                                    event.player?.id,
+                                    event.player?.name,
+                                  )}
+                                  alt={event.player?.name || "Player"}
                                   className="object-cover"
                                 />
                                 <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
                                   {event.player?.name
-                                    ?.split(' ')
-                                    .map(n => n[0])
-                                    .join('')
-                                    .slice(0, 2) || 'P'}
+                                    ?.split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .slice(0, 2) || "P"}
                                 </AvatarFallback>
                               </Avatar>
 
-                              {event.type === 'subst' && event.assist?.name && (
+                              {event.type === "subst" && event.assist?.name && (
                                 <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 relative-z20">
                                   <AvatarImage
-                                    src={getPlayerImage(event.assist?.id, event.assist?.name)}
-                                    alt={event.assist?.name || 'Player'}
+                                    src={getPlayerImage(
+                                      event.assist?.id,
+                                      event.assist?.name,
+                                    )}
+                                    alt={event.assist?.name || "Player"}
                                     className="object-cover"
                                   />
                                   <AvatarFallback className="bg-blue-400 text-white text-xs font-bold">
                                     {event.assist?.name
-                                      ?.split(' ')
-                                      .map(n => n[0])
-                                      .join('')
-                                      .slice(0, 2) || 'P'}
+                                      ?.split(" ")
+                                      .map((n) => n[0])
+                                      .join("")
+                                      .slice(0, 2) || "P"}
                                   </AvatarFallback>
                                 </Avatar>
                               )}
                             </div>
 
                             <div className="flex-1 text-left">
-                              {event.type === 'subst' && event.assist?.name ? (
+                              {event.type === "subst" && event.assist?.name ? (
                                 <>
                                   <div className="text-xs font-medium text-green-600">
                                     {event.assist.name}
                                   </div>
                                   <div className="text-xs font-medium text-red-600">
-                                    {event.player?.name || 'Unknown Player'}
+                                    {event.player?.name || "Unknown Player"}
                                   </div>
                                 </>
                               ) : (
                                 <div className="text-xs font-medium text-gray-700">
-                                  {event.player?.name || 'Unknown Player'}
+                                  {event.player?.name || "Unknown Player"}
                                 </div>
                               )}
-                              {event.type === 'goal' && event.assist?.name && (
+                              {event.type === "goal" && event.assist?.name && (
                                 <div className="text-xs text-gray-600">
                                   (Assist: {event.assist.name})
                                 </div>
                               )}
-                              {event.type !== 'subst' && (
+                              {event.type !== "subst" && (
                                 <div className="text-xs text-gray-400">
                                   {event.detail || event.type}
                                 </div>
                               )}
                             </div>
-
-                            
                           </div>
                         )}
                       </div>
 
-                      {/* Center Grid: Time */}
-                      
-                      <div className="match-event-time-center">
+                      {/* Center Grid: Time and event*/}
+
+                      <div className="match-event-time-center  w-12 ">
+                        <div
+                          className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"}flex justify-center `}
+                        >
+                          {event.type === "subst" ? (
+                            <img
+                              src="/assets/matchdetaillogo/substitution.svg"
+                              alt="Substitution"
+                              className=" w-4 h-4 mr-24"
+                            />
+                          ) : (
+                            <span className="text-xs mr-4">
+                              {getEventIcon(event.type, event.detail)}
+                            </span>
+                          )}
+                        </div>
+
                         {/* Time display in middle content area */}
-                        <div className="text-xs font-semi-bold text-gray-600 text-center mb-2">
-                          <div className={`match-event-icon ${event.type === 'goal' ? 'goal' : event.type === 'card' ? 'card' : 'substitution'}`}>
-                            {event.type === 'subst' ? (
-                              <img 
-                                src="/assets/matchdetaillogo/substitution.svg" 
-                                alt="Substitution" 
-                                className="ml-4 w-4 h-4 "
-                              />
-                            ) : (
-                              <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
-                            )}
-                          </div>
+                        <div className="text-xs font-bold text-gray-600 text-center ">
                           {event.time?.elapsed}'
                           {event.time?.extra && ` +${event.time.extra}`}
+                        </div>
+                        <div
+                          className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"}flex justify-center`}
+                        >
+                          {event.type === "subst" ? (
+                            <img
+                              src="/assets/matchdetaillogo/substitution.svg"
+                              alt="Substitution"
+                              className="w-4 h-4 ml-12"
+                            />
+                          ) : (
+                            <span className="text-xs">
+                              {getEventIcon(event.type, event.detail)}
+                            </span>
+                          )}
                         </div>
                         {/* Time display moved to middle content area */}
                       </div>
 
                       {/* Right Grid: Away Team Events */}
                       <div className="match-event-away-side">
-                        
                         {!isHome && (
-                          <div className="flex items-center gap-3 pl-12 ">
-                            <div className={`match-event-icon ${event.type === 'goal' ? 'goal' : event.type === 'card' ? 'card' : 'substitution'}`}>
-                              {event.type === 'subst' ? (
-                                <img 
-                                  src="/assets/matchdetaillogo/substitution.svg" 
-                                  alt="Substitution" 
-                                  className="w-4 h-4"
-                                />
-                              ) : (
-                                <span className="text-xs">{getEventIcon(event.type, event.detail)}</span>
-                              )}
-                            </div>
-
+                          <div className="flex items-center gap-3 pl-36 ">
                             <div className="flex-1 text-right">
-                              {event.type === 'subst' && event.assist?.name ? (
+                              {event.type === "subst" && event.assist?.name ? (
                                 <>
                                   <div className="text-xs font-md text-green-600">
                                     {event.assist.name}
                                   </div>
                                   <div className="text-xs font-medium text-red-600">
-                                    {event.player?.name || 'Unknown Player'}
+                                    {event.player?.name || "Unknown Player"}
                                   </div>
                                 </>
                               ) : (
                                 <div className="text-xs font-medium text-black-600">
-                                  {event.player?.name || 'Unknown Player'}
+                                  {event.player?.name || "Unknown Player"}
                                 </div>
                               )}
-                              {event.type === 'goal' && event.assist?.name && (
+                              {event.type === "goal" && event.assist?.name && (
                                 <div className="text-xs text-gray-600">
                                   (Assist: {event.assist.name})
                                 </div>
                               )}
-                              {event.type !== 'subst' && (
+                              {event.type !== "subst" && (
                                 <div className="text-xs text-gray-600">
                                   {event.detail || event.type}
                                 </div>
@@ -479,35 +513,41 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             </div>
 
                             <div className="flex items-center gap-2">
-                              {event.type === 'subst' && event.assist?.name && (
+                              {event.type === "subst" && event.assist?.name && (
                                 <Avatar className="w-9 h-9 border-2 border-red-400 shadow-sm -mr-3 z-20">
                                   <AvatarImage
-                                    src={getPlayerImage(event.assist?.id, event.assist?.name)}
-                                    alt={event.assist?.name || 'Player'}
+                                    src={getPlayerImage(
+                                      event.assist?.id,
+                                      event.assist?.name,
+                                    )}
+                                    alt={event.assist?.name || "Player"}
                                     className="object-cover"
                                   />
                                   <AvatarFallback className="bg-red-400 text-white text-xs font-bold">
                                     {event.assist?.name
-                                      ?.split(' ')
-                                      .map(n => n[0])
-                                      .join('')
-                                      .slice(0, 2) || 'P'}
+                                      ?.split(" ")
+                                      .map((n) => n[0])
+                                      .join("")
+                                      .slice(0, 2) || "P"}
                                   </AvatarFallback>
                                 </Avatar>
                               )}
 
                               <Avatar className="w-9 h-9 border-2 border-green-400 shadow-sm -mr-2 ">
                                 <AvatarImage
-                                  src={getPlayerImage(event.player?.id, event.player?.name)}
-                                  alt={event.player?.name || 'Player'}
+                                  src={getPlayerImage(
+                                    event.player?.id,
+                                    event.player?.name,
+                                  )}
+                                  alt={event.player?.name || "Player"}
                                   className="object-cover"
                                 />
                                 <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
                                   {event.player?.name
-                                    ?.split(' ')
-                                    .map(n => n[0])
-                                    .join('')
-                                    .slice(0, 2) || 'P'}
+                                    ?.split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .slice(0, 2) || "P"}
                                 </AvatarFallback>
                               </Avatar>
                             </div>
