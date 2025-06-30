@@ -32,14 +32,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
-  const [isComponentMounted, setIsComponentMounted] = useState(false);
-
-  // Ensure component is properly mounted before rendering complex content
-  React.useEffect(() => {
-    setIsComponentMounted(true);
-    return () => setIsComponentMounted(false);
-  }, []);
-
+  
   // Apply smart time filtering to fixtures
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) return [];
@@ -171,8 +164,8 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
 
         {/* Right column (7 columns) */}
         <div className="lg:col-span-7 space-y-4">
-          {selectedFixture && isComponentMounted ? (
-            <div key={selectedFixture?.fixture?.id || 'no-fixture'}>
+          {selectedFixture ? (
+            <>
               <ScoreDetailsCard
                 currentFixture={selectedFixture}
                 onClose={handleBackToMain}
@@ -180,13 +173,12 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
 
               {/* Conditional rendering based on match status */}
               {(() => {
-                try {
-                  const matchStatus = selectedFixture?.fixture?.status?.short;
-                  const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(matchStatus);
-                  const isEnded = ["FT", "AET", "PEN"].includes(matchStatus);
-                  const isUpcoming = matchStatus === "NS";
+              const matchStatus = selectedFixture?.fixture?.status?.short;
+              const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(matchStatus);
+              const isEnded = ["FT", "AET", "PEN"].includes(matchStatus);
+              const isUpcoming = matchStatus === "NS";
 
-                  return (
+              return (
                   <>
                     {/* Show MyLiveAction only for live matches */}
                     {isLive && (
@@ -225,14 +217,11 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                     {/* For upcoming matches, neither component is shown */}
                   </>
                   );
-                } catch (error) {
-                  console.error('Error rendering match details:', error);
-                  return <div>Error loading match details</div>;
-                }
+                
               })()}
 
               <MatchDetailCard match={selectedFixture} />
-            </div>
+            </>
           ) : (
             <MyRightContent />
           )}
