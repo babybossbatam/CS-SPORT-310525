@@ -439,19 +439,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         )}
                       </div>
 
-                      {/* Center Grid: Time and event*/}
-
-                      <div className="match-event-time-center w-16 flex flex-row items-center justify-center">
-                        {/* Combined time and event icon container - icon position based on team */}
-                        <div className="flex flex-row items-center justify-center space-x-1">
-                          {/* For home team events: show icon on LEFT side of time */}
+                      {/* Center Grid: Simple 3-column layout for time and icons */}
+                      <div className="match-event-time-center-simple">
+                        {/* Left: Home team icon */}
+                        <div className="match-event-icon-left">
                           {isHome && event.type && (
                             <div
                               className={`match-event-icon ${
                                 event.type === "goal" ? "goal" : 
                                 event.type === "card" ? "card" : 
                                 "substitution"
-                              } flex justify-center items-center`}
+                              }`}
                             >
                               {event.type === "subst" ? (
                                 <img
@@ -466,21 +464,23 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               )}
                             </div>
                           )}
-                          
-                          {/* Time display - vertically centered */}
-                          <div className="text-xs font-bold text-gray-600 text-center flex items-center justify-center" style={{ lineHeight: '1', height: '100%' }}>
-                            {event.time?.elapsed}'
-                            {event.time?.extra && ` +${event.time.extra}`}
-                          </div>
-                          
-                          {/* For away team events: show icon on RIGHT side of time */}
+                        </div>
+                        
+                        {/* Middle: Time display */}
+                        <div className="match-event-time-display">
+                          {event.time?.elapsed}'
+                          {event.time?.extra && ` +${event.time.extra}`}
+                        </div>
+                        
+                        {/* Right: Away team icon */}
+                        <div className="match-event-icon-right">
                           {!isHome && event.type && (
                             <div
                               className={`match-event-icon ${
                                 event.type === "goal" ? "goal" : 
                                 event.type === "card" ? "card" : 
                                 "substitution"
-                              } flex justify-center items-center`}
+                              }`}
                             >
                               {event.type === "subst" ? (
                                 <img
