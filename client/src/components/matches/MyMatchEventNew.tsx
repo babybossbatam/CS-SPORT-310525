@@ -103,11 +103,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   }, [fixtureId, refreshInterval]);
 
   const getEventIcon = (eventType: string, detail: string) => {
+    if (!eventType) return '📝';
+    
     switch (eventType.toLowerCase()) {
       case 'goal':
-        return detail.toLowerCase().includes('penalty') ? '⚽(P)' : '⚽';
+        return detail?.toLowerCase().includes('penalty') ? '⚽(P)' : '⚽';
       case 'card':
-        return detail.toLowerCase().includes('yellow') ? '🟨' : '🟥';
+        return detail?.toLowerCase().includes('yellow') ? '🟨' : '🟥';
       case 'subst':
         return '🔄';
       case 'var':
@@ -127,6 +129,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const getEventDescription = (event: MatchEvent) => {
     const playerName = event.player?.name || 'Unknown Player';
     const assistName = event.assist?.name;
+
+    if (!event.type) return playerName;
 
     switch (event.type.toLowerCase()) {
       case 'goal':
