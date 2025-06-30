@@ -115,41 +115,26 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
     switch (eventType.toLowerCase()) {
       case "goal":
-        if (detail?.toLowerCase().includes("missed penalty")) {
-          return (
+        return detail?.toLowerCase().includes("penalty") ? (
+          <div className="flex items-center gap-1">
             <img
-              src="/assets/matchdetaillogo/missed-penalty.svg"
-              alt="Missed Penalty"
-              className="w-4 h-4"
-            />
-          );
-        } else if (detail?.toLowerCase().includes("penalty")) {
-          return (
-            <img
-              src="/assets/matchdetaillogo/penalty.svg"
+              src="/assets/matchdetaillogo/soccer-ball.svg"
               alt="Penalty Goal"
               className="w-4 h-4"
             />
-          );
-        } else {
-          return (
-            <img
-              src="/assets/matchdetaillogo/soccer-ball.svg"
-              alt="Goal"
-              className="w-4 h-4"
-            />
-          );
-        }
-      case "card":
-        return detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥";
-      case "subst":
-        return (
+            <span>(P)</span>
+          </div>
+        ) : (
           <img
-            src="/assets/matchdetaillogo/substitution.svg"
-            alt="Substitution"
+            src="/assets/matchdetaillogo/soccer-ball.svg"
+            alt="Goal"
             className="w-4 h-4"
           />
         );
+      case "card":
+        return detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥";
+      case "subst":
+        return "🔄";
       case "var":
         return "📺";
       default:
@@ -471,44 +456,74 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       {/* Center Grid: Time and event*/}
 
-                      <div className="match-event-time-center w-12">
+                      <div className="match-event-time-center  w-12 ">
+                        <div
+                          className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"}flex justify-center `}
+                        >
+                          {event.type === "subst" ? (
+                            <img
+                              src="/assets/matchdetaillogo/substitution.svg"
+                              alt="Substitution"
+                              className=" w-4 h-4 mr-6"
+                            />
+                          ) : event.type === "goal" &&
+                            event.detail?.toLowerCase().includes("penalty") ? (
+                            <div className="flex items-center gap-3 mr-6">
+                              {isHome && <span className="text-xs font-medium">(P)</span>}
+                              <img
+                                src="/assets/matchdetaillogo/soccer-ball.svg"
+                                alt="Penalty Goal"
+                                className="w-4 h-4 "
+                              />
+                              {!isHome && <span className="text-xs font-medium">(P)</span>}
+                            </div>
+                          ) : (
+                            <span className="text-xs mr-6">
+                              {getEventIcon(event.type, event.detail)}
+                            </span>
+                          )}
+                        </div>
+
                         {/* Time display in middle content area */}
                         <div className="text-xs font-bold text-gray-600 text-center">
                           {event.time?.elapsed}'
                           {event.time?.extra && ` +${event.time.extra}`}
                         </div>
-
-                        <div className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"} flex justify-center items-center`}>
+                        <div
+                          className={`match-event-icon ${event.type === "goal" ? "goal" : event.type === "card" ? "card" : "substitution"}flex justify-center`}
+                        >
                           {event.type === "subst" ? (
                             <img
                               src="/assets/matchdetaillogo/substitution.svg"
                               alt="Substitution"
-                              className="w-4 h-4"
+                              className="w-4 h-4 ml-6"
                             />
-                          ) : event.type === "goal" && event.detail?.toLowerCase().includes("missed penalty") ? (
-                            <img
-                              src="/assets/matchdetaillogo/missed-penalty.svg"
-                              alt="Missed Penalty"
-                              className="w-4 h-4"
-                            />
-                          ) : event.type === "goal" && event.detail?.toLowerCase().includes("penalty") ? (
-                            <img
-                              src="/assets/matchdetaillogo/penalty.svg"
-                              alt="Penalty Goal"
-                              className="w-4 h-4"
-                            />
-                          ) : event.type === "goal" ? (
-                            <img
-                              src="/assets/matchdetaillogo/soccer-ball.svg"
-                              alt="Goal"
-                              className="w-4 h-4"
-                            />
+                          ) : event.type === "goal" &&
+                            event.detail?.toLowerCase().includes("penalty") ? (
+                            <div className="flex items-center gap-3 ml-8">
+                              {isHome && <span className="text-xs font-medium">(P)</span>}
+                              <img
+                                src="/assets/matchdetaillogo/soccer-ball.svg"
+                                alt="Penalty Goal"
+                                className="w-4 h-4 "
+                              />
+                              {!isHome && <span className="text-xs font-medium">(P)</span>}
+                            </div>
                           ) : (
-                            <span className="text-xs">
-                              {getEventIcon(event.type, event.detail)}
+                            <span className="text-xs ml-6">
+                              {event.type === "goal" ? (
+                                <img
+                                  src="/assets/matchdetaillogo/soccer-ball.svg"
+                                  alt="Goal"
+                                  className="w-4 h-4"
+                                />
+                              ) : (
+                                getEventIcon(event.type, event.detail)
+                              )}
                             </span>
                           )}
                         </div>
+                        {/* Time display moved to middle content area */}
                       </div>
 
                       {/* Right Grid: Away Team Events */}
