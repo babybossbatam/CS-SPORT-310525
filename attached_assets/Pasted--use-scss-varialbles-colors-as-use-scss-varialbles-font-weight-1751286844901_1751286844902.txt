@@ -1,0 +1,279 @@
+@use "../../../../../scss/varialbles/colors" as *;
+@use "../../../../../scss/varialbles/font-weights" as *;
+
+$animation-duration: 500ms;
+$slide-from-side-delay: 3500ms;
+$fade-in-delay: 4000ms;
+
+.container {
+  background-color: $surfaceSecondary;
+}
+
+.small_view {}
+
+.icon {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  font-size: 12px;
+  font-weight: $semiBold-font-weight;
+  top: 0;
+}
+
+.small_view .icon {
+  font-size: 11px;
+}
+
+.match-event-module-animation .icon {
+  opacity: 0;
+  animation: fade-in $animation-duration forwards $fade-in-delay;
+}
+
+@keyframes fade-in {
+  100% {
+    opacity: 1;
+  }
+}
+
+.penalty_down {
+  top: 8px;
+}
+
+.penalty_up {
+  top: -8px;
+}
+
+.icon_logo {
+  min-height: 16px;
+}
+
+.event {
+  flex: 1px;
+  font-size: 12px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: $regular-font-weight;
+}
+
+[dir=rtl] .home_event {
+  margin-left: 2px;
+}
+
+[dir=ltr] .home_event {
+  margin-right: 2px;
+}
+
+[dir=rtl] .home_substitution_event {
+  margin-right: 24px;
+}
+
+[dir=ltr] .home_substitution_event {
+  margin-left: 24px;
+}
+
+[dir=rtl] .small_view .home_substitution_event {
+  margin-right: 16px;
+}
+
+[dir=ltr] .small_view .home_substitution_event {
+  margin-left: 16px;
+}
+
+[dir=ltr].away_event {
+  margin-left: 2px;
+}
+
+[dir=rtl] .away_event {
+  margin-right: 2px;
+}
+
+[dir=rtl] .away_substitution_event {
+  margin-left: 24px;
+}
+
+[dir=ltr] .away_substitution_event {
+  margin-right: 24px;
+}
+
+[dir=rtl] .small_view .away_substitution_event {
+  margin-left: 16px;
+}
+
+[dir=ltr] .small_view .away_substitution_event {
+  margin-right: 16px;
+}
+
+.event_title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  line-height: normal;
+}
+
+.switch_event_title {
+  color: $successPrimary;
+}
+
+.event_subtitle {
+  color: $textSecondary;
+  font-size: 11px;
+  font-weight: $regular-font-weight;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.switch_event_subtitle {
+  margin-bottom: 0;
+  color: $dangerPrimary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event_details {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  text-align: left;
+  margin-top: 0;
+  box-sizing: border-box;
+}
+
+.clickable_event_details {
+  cursor: pointer;
+}
+
+.clickable_event_details:hover {
+  opacity: 0.8;
+}
+
+[dir=ltr] .match-event-module-animation .event_details_home_animations {
+  position: absolute;
+  left: -200px;
+  animation: slideFromLeft $animation-duration forwards $slide-from-side-delay;
+}
+
+[dir=rtl] .match-event-module-animation .event_details_home_animations {
+  position: absolute;
+  right: -200px;
+  animation: slideFromRight $animation-duration forwards $slide-from-side-delay;
+}
+
+[dir=ltr] .match-event-module-animation .event_details_away_animations {
+  position: absolute;
+  right: -200px;
+  animation: slideFromRight $animation-duration forwards $slide-from-side-delay;
+}
+
+[dir=rtl] .match-event-module-animation .event_details_away_animations {
+  position: absolute;
+  left: -200px;
+  animation: slideFromLeft $animation-duration forwards $slide-from-side-delay;
+}
+
+@keyframes slideFromLeft {
+  100% {
+    left: 0;
+  }
+}
+
+@keyframes slideFromRight {
+  100% {
+    right: 0;
+  }
+}
+
+.event_details_reverse {
+  text-align: right;
+}
+
+.event_image {
+  display: flex;
+  position: relative;
+  margin: 0 6px;
+  justify-content: flex-start;
+  width: 35px;
+}
+
+.event_image_swap_direction {
+  justify-content: flex-end
+}
+
+.event_image_logo {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: $surfaceSecondary;
+  display: inline-block;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.event_image_substitution {
+  width: 48px;
+}
+
+.event_image_sub_in_logo {
+  border: 1px solid $successPrimary;
+}
+
+.event_image_sub_out_logo {
+  position: absolute;
+  border: 1px solid $dangerPrimary;
+}
+
+[dir=ltr] .event_image_away_sub_out_logo {
+  right: 30px;
+}
+
+[dir=rtl] .event_image_away_sub_out_logo {
+  left: 30px;
+}
+
+[dir=ltr] .event_image_home_sub_out_logo {
+  left: 30px;
+}
+
+[dir=rtl] .event_image_home_sub_out_logo {
+  right: 30px;
+}
+
+.tabs {
+  padding: 25px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.footer {
+  height: 34px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup {
+  width: 440px;
+  height: 664px;
+}
+
+.small_view.popup {
+  width: 85%;
+  max-width: 385px;
+  height: 90%;
+  max-height: 787px;
+}
+
+.clock_icon{
+  width: 16px;
+  height: 16px;
+}
