@@ -2212,7 +2212,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                               return (
                                                 <div className="penalty-result-display">
-                                                  <span className="penalty-winner">
+                                                  <span className="penalty-winner" style={{ backgroundColor: 'transparent' }}>
                                                     {winnerText}
                                                   </span>
                                                 </div>
