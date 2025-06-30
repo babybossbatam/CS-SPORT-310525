@@ -363,20 +363,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <div className="flex-1 text-right">
                               {event.type === 'subst' && event.assist?.name ? (
                                 <>
-                                  <div className="text-sm font-medium text-gray-900">
+                                  <div className="text-xs font-medium text-gray-900">
                                     {event.assist.name}
                                   </div>
-                                  <div className="text-sm font-medium text-gray-900">
+                                  <div className="text-xs font-medium text-gray-900">
                                     {event.player?.name || 'Unknown Player'}
                                   </div>
                                 </>
                               ) : (
-                                <div className="text-sm font-medium text-gray-900">
+                                <div className="text-xs font-regular text-gray-900">
                                   {event.player?.name || 'Unknown Player'}
                                 </div>
                               )}
                               {event.type === 'goal' && event.assist?.name && (
-                                <div className="text-xs text-gray-500">
+                                <div className="text-xs text-gray-600">
                                   (Assist: {event.assist.name})
                                 </div>
                               )}
