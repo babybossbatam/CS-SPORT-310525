@@ -14,7 +14,7 @@ import TodayMatchByTime from "./TodayMatchByTime";
 import MyNewPopularLeague from "./MyNewPopularLeague";
 import EnhancementLeague from "./EnhancementLeague";
 import MyNewLeague from "./MyNewLeague";
-import MyLiveScoreWidget from "./MyLiveScoreWidget";
+
 
 import { useCachedQuery } from "@/lib/cachingHelper";
 import { format, parseISO, addDays, subDays } from "date-fns";
@@ -447,7 +447,7 @@ export const TodayMatchPageCard = ({
             timeFilterActive={timeFilterActive}
             onMatchCardClick={onMatchCardClick}
           />
-          <MyLiveScoreWidget />
+          
         </>
       )
     }
