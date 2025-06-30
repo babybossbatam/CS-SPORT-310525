@@ -211,10 +211,24 @@
 /* Home team events (left side) */
 .match-event-home-side {
   grid-area: home-side;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding-right: 8px;
+}
+
+.match-event-home-player-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.match-event-home-icon-column {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding-right: 8px;
 }
 
 /* Time display (center) */
@@ -278,12 +292,25 @@
 /* Away team events (right side) */
 .match-event-away-side {
   grid-area: away-side;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
   align-items: center;
   padding-left: 16px;
   min-width: 25px;
+}
+
+.match-event-away-icon-column {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.match-event-away-player-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
 }
 
 /* Match event icons with enhanced styling */
