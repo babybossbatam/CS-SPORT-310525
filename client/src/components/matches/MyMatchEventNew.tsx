@@ -198,7 +198,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
     const playerId = event.player.id;
     const playerName = event.player.name;
+    
+    // Try both the constructed API URL and direct photo URL if available
     const apiImageUrl = `/api/player-photo/${playerId}`;
+    const directPhotoUrl = event.player.photo;
+    const imageUrl = directPhotoUrl || apiImageUrl;
 
     const initials = playerName
       .split(' ')
@@ -211,11 +215,28 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       <div className="player-image-container">
         <Avatar className="h-12 w-12 rounded-full overflow-hidden border border-gray-200">
           <AvatarImage
-            src={apiImageUrl}
+            src={imageUrl}
             alt={playerName}
             className="object-cover object-center scale-110"
+            onError={(e) => {
+              console.log(`⚠️ [MyMatchEventNew] Player image failed for ${playerName} (${playerId}):`, imageUrl);
+              // Try alternative URL if we haven't already
+              if (e.currentTarget.src === directPhotoUrl && apiImageUrl !== directPhotoUrl) {
+                console.log(`🔄 [MyMatchEventNew] Trying API URL fallback for ${playerName}`);
+                e.currentTarget.src = apiImageUrl;
+              } else if (e.currentTarget.src === apiImageUrl && directPhotoUrl && directPhotoUrl !== apiImageUrl) {
+                console.log(`🔄 [MyMatchEventNew] Trying direct photo URL fallback for ${playerName}`);
+                e.currentTarget.src = directPhotoUrl;
+              } else {
+                // Force fallback by clearing src
+                e.currentTarget.src = '';
+              }
+            }}
+            onLoad={() => {
+              console.log(`✅ [MyMatchEventNew] Player image loaded for ${playerName} (${playerId}):`, imageUrl);
+            }}
           />
-          <AvatarFallback className={`text-xs ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}>
+          <AvatarFallback className={`text-xs font-semibold ${isHome ? 'player-image-home-team' : 'player-image-away-team'}`}>
             {initials}
           </AvatarFallback>
         </Avatar>
