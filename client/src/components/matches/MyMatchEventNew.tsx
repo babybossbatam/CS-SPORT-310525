@@ -1052,7 +1052,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             </div>
                           </div>
                         ) : event.type === "subst" ? (
-                          <div className="text-sm text-gray-700 leading-relaxed ml-6">
+                          <div className="text-sm text-gray-700 leading-relaxed" style={{ marginLeft: '-16px' }}>
                             {eventDescription}
                           </div>
                         ) : event.type === "var" ? (
