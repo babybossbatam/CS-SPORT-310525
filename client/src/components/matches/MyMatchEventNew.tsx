@@ -189,39 +189,39 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           const corner = corners[Math.floor(Math.random() * corners.length)];
           return `Goal! ${homeTeamName} ${currentHomeScore}, ${awayTeamName} ${currentAwayScore}. ${playerName} (${teamName}) ${shotType} to the ${corner}.`;
         }
-      
+
       case "card":
         const cardType = event.detail?.toLowerCase().includes("yellow") ? "Yellow card" : "Red card";
         const cardReasons = ["unsporting behaviour", "dissent by word or action", "persistent fouling", "delaying the restart of play", "failure to respect the required distance", "entering or re-entering the field of play without the referee's permission"];
         const cardReason = cardReasons[Math.floor(Math.random() * cardReasons.length)];
         return `${cardType}, ${teamName}. ${playerName} is shown the ${cardType.toLowerCase()} for ${cardReason}.`;
-      
+
       case "subst":
         if (assistName) {
           return `Substitution, ${teamName}. ${assistName} replaces ${playerName} because of tactical reasons.`;
         } else {
           return `Substitution, ${teamName}. ${playerName} comes on for tactical reasons.`;
         }
-      
+
       case "var":
         return `VAR Review: ${event.detail || "Decision under review"} - ${teamName}. The referee is checking a potential incident.`;
-      
+
       case "foul":
         const foulTypes = ["holding", "pushing", "tripping", "kicking", "jumping into"];
         const foulType = foulTypes[Math.floor(Math.random() * foulTypes.length)];
         return `Foul by ${playerName} (${teamName}). ${playerName} commits a foul for ${foulType} an opponent.`;
-      
+
       case "freekick":
         const freeKickAreas = ["in the attacking half", "in the defensive half", "on the right wing", "on the left wing", "in a dangerous position"];
         const freeKickArea = freeKickAreas[Math.floor(Math.random() * freeKickAreas.length)];
         return `${playerName} (${teamName}) wins a free kick ${freeKickArea}.`;
-      
+
       case "offside":
         return `Offside, ${teamName}. ${playerName} is caught offside and the flag is raised by the assistant referee.`;
-      
+
       case "corner":
         return `Corner, ${teamName}. Conceded by ${assistName || "a defender"} after the ball goes out of play.`;
-      
+
       case "attempt":
         if (event.detail?.toLowerCase().includes("saved")) {
           const saveTypes = ["brilliant save", "comfortable save", "diving save", "reflex save", "easy save"];
@@ -238,15 +238,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           const attemptType = attemptTypes[Math.floor(Math.random() * attemptTypes.length)];
           return `${playerName} (${teamName}) attempts ${attemptType} from outside the penalty area.`;
         }
-      
+
       case "delay":
         const delayReasons = ["due to an injury", "due to a VAR check", "due to crowd trouble", "due to weather conditions"];
         const delayReason = event.detail || delayReasons[Math.floor(Math.random() * delayReasons.length)];
         return `Delay in match ${delayReason}. The referee has stopped play temporarily.`;
-      
+
       case "injury":
         return `Delay in match because of an injury to ${playerName} (${teamName}). Medical staff are attending to the player.`;
-      
+
       default:
         if (event.comments) {
           return event.comments;
@@ -367,7 +367,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     />
                   ) : (event.type === "goal" || (event.type === "goal" && event.detail?.toLowerCase().includes("penalty"))) ? (
                                   <img
-                                    src="/assets/matchdetaillogo/soccer-ball.svg"
+                                    src="/assets/matchdetaillogo/soccer-goal.svg"
                                     alt={event.detail?.toLowerCase().includes("penalty") ? "Penalty Goal" : "Goal"}
                                     className="w-4 h-4"
                                   />
@@ -403,7 +403,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     />
                   ) : (event.type === "goal" || (event.type === "goal" && event.detail?.toLowerCase().includes("penalty"))) ? (
                                   <img
-                                    src="/assets/matchdetaillogo/soccer-ball.svg"
+                                    src="/assets/matchdetaillogo/soccer-goal.svg"
                                     alt={event.detail?.toLowerCase().includes("penalty") ? "Penalty Goal" : "Goal"}
                                     className="w-4 h-4"
                                   />
@@ -651,7 +651,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   />
                                 ) : (event.type === "goal" || (event.type === "goal" && event.detail?.toLowerCase().includes("penalty"))) ? (
                                   <img
-                                    src="/assets/matchdetaillogo/soccer-ball.svg"
+                                    src="/assets/matchdetaillogo/soccer-goal.svg"
                                     alt={event.detail?.toLowerCase().includes("penalty") ? "Penalty Goal" : "Goal"}
                                     className="w-4 h-4"
                                   />
@@ -696,7 +696,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   />
                                 ) : (event.type === "goal" || (event.type === "goal" && event.detail?.toLowerCase().includes("penalty"))) ? (
                                   <img
-                                    src="/assets/matchdetaillogo/soccer-ball.svg"
+                                    src="/assets/matchdetaillogo/soccer-goal.svg"
                                     alt={event.detail?.toLowerCase().includes("penalty") ? "Penalty Goal" : "Goal"}
                                     className="w-4 h-4"
                                   />
@@ -806,7 +806,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           {events.map((event, index) => {
             const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
             const commentaryText = generateCommentaryText(event);
-            
+
             return (
             <div key={`commentary-${index}`} className="commentary-event-container">
               <div className="flex gap-3">
