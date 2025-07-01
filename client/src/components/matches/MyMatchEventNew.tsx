@@ -952,6 +952,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   event.type === "period_start" ||
                   event.type === "period_end"
                 ) {
+                  // For Half Time, show Second Half begins with team names and scores
+                  const displayText = event.detail === "Half Time" 
+                    ? `Second Half begins ${homeTeam || "Home"} ${events.filter(e => isHomeTeam(e) && e.type === "goal").length}, ${awayTeam || "Away"} ${events.filter(e => !isHomeTeam(e) && e.type === "goal").length}`
+                    : event.detail;
+
                   return (
                     <div
                       key={`period-${index}`}
@@ -961,9 +966,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         {/* Time Column */}
                         <div className="flex flex-col items-center min-w-[50px]">
                           <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">
-                              {event.type === "period_start" ? "🏁" : "⏱️"}
-                            </span>
+                            {event.detail === "Half Time" ? (
+                              <img
+                                src="/assets/matchdetaillogo/i mark.svg"
+                                alt="Half Time"
+                                className="w-3 h-3"
+                              />
+                            ) : (
+                              <span className="text-white text-xs font-bold">
+                                {event.type === "period_start" ? "🏁" : "⏱️"}
+                              </span>
+                            )}
                           </div>
                           {index < allCommentaryItems.length - 1 && (
                             <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
@@ -973,7 +986,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         {/* Content Column */}
                         <div className="flex-1">
                           <div className="text-sm font-bold text-green-700 leading-relaxed">
-                            {event.detail}
+                            {displayText}
                           </div>
                         </div>
                       </div>
