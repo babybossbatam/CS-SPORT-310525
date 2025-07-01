@@ -997,16 +997,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   </span>
                 </div>
                 <div className="flex gap-2 items-center">
-                  <span
-                    className="text-gray-500"
-                    style={{
-                      fontFamily:
-                        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                      fontSize: "13.3px",
-                    }}
-                  >
-                    ({leagueGroup.matches.length})
-                  </span>
                 </div>
               </button>
             )}
