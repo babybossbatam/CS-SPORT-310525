@@ -181,11 +181,53 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       case "var":
         return `VAR Review: ${event.detail || "Decision under review"} - ${teamName}.`;
       
+      case "foul":
+        return `Foul by ${playerName} (${teamName}).`;
+      
+      case "freekick":
+        return `${playerName} (${teamName}) wins a free kick ${event.detail || "in the attacking half"}.`;
+      
+      case "offside":
+        return `Offside, ${teamName}. ${playerName} is caught offside.`;
+      
+      case "corner":
+        return `Corner, ${teamName}. Conceded by ${assistName || "defender"}.`;
+      
+      case "attempt":
+        if (event.detail?.toLowerCase().includes("saved")) {
+          return `Attempt saved. ${playerName} (${teamName}) ${event.detail?.toLowerCase() || "shot"} is saved by the goalkeeper.`;
+        } else if (event.detail?.toLowerCase().includes("missed")) {
+          return `Attempt missed. ${playerName} (${teamName}) ${event.detail?.toLowerCase() || "shot"} misses the target.`;
+        } else if (event.detail?.toLowerCase().includes("blocked")) {
+          return `Attempt blocked. ${playerName} (${teamName}) ${event.detail?.toLowerCase() || "shot"} is blocked.`;
+        } else {
+          return `${playerName} (${teamName}) attempts ${event.detail || "a shot"}.`;
+        }
+      
+      case "delay":
+        return `Delay in match${event.detail ? ` ${event.detail}` : ""}.`;
+      
+      case "injury":
+        return `Delay in match because of an injury ${playerName} (${teamName}).`;
+      
       default:
         if (event.comments) {
           return event.comments;
         }
-        return `${event.detail || event.type} - ${teamName}. ${playerName}.`;
+        // Enhanced default case to handle more event types
+        if (event.detail?.toLowerCase().includes("foul")) {
+          return `Foul by ${playerName} (${teamName}).`;
+        } else if (event.detail?.toLowerCase().includes("free kick")) {
+          return `${playerName} (${teamName}) wins a free kick.`;
+        } else if (event.detail?.toLowerCase().includes("offside")) {
+          return `Offside, ${teamName}. ${playerName} is caught offside.`;
+        } else if (event.detail?.toLowerCase().includes("corner")) {
+          return `Corner, ${teamName}.`;
+        } else if (event.detail?.toLowerCase().includes("attempt")) {
+          return `${playerName} (${teamName}) ${event.detail}.`;
+        } else {
+          return `${event.detail || event.type} - ${teamName}. ${playerName}.`;
+        }
     }
   };
 
@@ -762,17 +804,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <span className="text-sm">
                         {event.detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥"}
                       </span>
-                      <div className="text-sm text-gray-700 leading-relaxed">
-                        {commentaryText}
-                      </div>
-                    </div>
-                  ) : event.type === "subst" ? (
-                    <div className="flex items-center gap-2">
-                      <img 
-                        src="/assets/matchdetaillogo/substitution.svg" 
-                        alt="Substitution" 
-                        className="w-4 h-4 opacity-60"
-                      />
                       <div className="text-sm text-gray-700 leading-relaxed">
                         {commentaryText}
                       </div>
