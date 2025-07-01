@@ -965,12 +965,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <div className="flex gap-1">
                         {/* Time Column */}
                         <div className="flex flex-col items-center min-w-[50px]">
-                          <div className="w-3 h-3  rounded-full flex items-center justify-center">
+                          <div className="w-3 h-6  flex items-center justify-center">
                             {event.detail === "Half Time" ? (
                               <img
                                 src="/assets/matchdetaillogo/i mark.svg"
                                 alt="Half Time"
-                                className="w-3 h-3"
+                                className="w-6 h-6"
                               />
                             ) : (
                               <span className="text-white text-xs font-semi-bold">
@@ -1008,13 +1008,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         <div className="text-xs font-md text-red-500">
                           {timeDisplay}
                         </div>
-                        <div className="text-xs text-gray-800" style={{ marginTop: '-5px' }}>
+                        <div className="text-xs text-gray-800" style={{ marginTop: '-8px' }}>
                           {event.time.elapsed}'
 
                         </div>
                         
                         {index < allCommentaryItems.length - 1 && (
-                          <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
+                          <div className="w-0.5 h-6 bg-gray-600 mb-1 mr-1"></div>
                         )}
                       </div>
 
