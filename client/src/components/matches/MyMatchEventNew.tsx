@@ -153,115 +153,44 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   const generateCommentaryText = (event: MatchEvent) => {
-    // Use only real API commentary if available
+    // Prioritize real API commentary if available
     if (event.comments && event.comments.trim().length > 0) {
       return event.comments;
     }
 
-    // Enhanced commentary generation for comprehensive play-by-play
+    // Simple fallback commentary for basic event types
     const playerName = event.player?.name || "Unknown Player";
     const teamName = event.team?.name || "Unknown Team";
     const assistName = event.assist?.name;
-    const homeTeamName = homeTeam || "Home Team";
-    const awayTeamName = awayTeam || "Away Team";
-    const isHome = event.team?.name === homeTeamName;
-
-    // Get current score context (this would need to be calculated from events up to this point)
-    const currentHomeScore = events.filter(e => e.type === "goal" && e.team?.name === homeTeamName && e.time.elapsed <= event.time.elapsed).length;
-    const currentAwayScore = events.filter(e => e.type === "goal" && e.team?.name === awayTeamName && e.time.elapsed <= event.time.elapsed).length;
 
     switch (event.type?.toLowerCase()) {
       case "goal":
         if (event.detail?.toLowerCase().includes("penalty")) {
-          return `Goal! ${homeTeamName} ${currentHomeScore}, ${awayTeamName} ${currentAwayScore}. ${playerName} (${teamName}) converts the penalty kick${assistName ? ` assisted by ${assistName}` : ""}.`;
+          return `${playerName} (${teamName}) converts the penalty kick${assistName ? ` assisted by ${assistName}` : ""}.`;
         } else if (event.detail?.toLowerCase().includes("own goal")) {
-          return `Own Goal! ${homeTeamName} ${currentHomeScore}, ${awayTeamName} ${currentAwayScore}. ${playerName} (${teamName}) scores an unfortunate own goal.`;
+          return `${playerName} (${teamName}) scores an own goal.`;
         } else {
-          const shotTypes = [
-            "right footed shot from the centre of the box to the bottom left corner",
-            "left footed shot from outside the box to the top right corner",
-            "header from the centre of the box to the bottom right corner",
-            "right footed shot from the right side of the box to the centre of the goal",
-            "left footed shot from the left side of the box to the bottom left corner"
-          ];
-          const randomShot = shotTypes[Math.floor(Math.random() * shotTypes.length)];
-          return `Goal! ${homeTeamName} ${currentHomeScore}, ${awayTeamName} ${currentAwayScore}. ${playerName} (${teamName}) ${randomShot}${assistName ? `. Assisted by ${assistName} with a cross` : ""}.`;
+          return `Goal! ${playerName} (${teamName})${assistName ? ` assisted by ${assistName}` : ""}.`;
         }
 
       case "card":
         if (event.detail?.toLowerCase().includes("yellow")) {
-          const yellowReasons = [
-            "is shown the yellow card for a bad foul",
-            "is shown the yellow card",
-            "receives a yellow card for unsporting behavior",
-            "is booked for dissent",
-            "is cautioned for simulation"
-          ];
-          const reason = yellowReasons[Math.floor(Math.random() * yellowReasons.length)];
-          return `${playerName} (${teamName}) ${reason}.`;
+          return `${playerName} (${teamName}) is shown the yellow card.`;
         } else {
-          const redReasons = [
-            "is shown the red card for serious foul play",
-            "receives a straight red card",
-            "is sent off for violent conduct",
-            "is dismissed for a second yellow card",
-            "is shown a red card for dangerous play"
-          ];
-          const reason = redReasons[Math.floor(Math.random() * redReasons.length)];
-          return `${playerName} (${teamName}) ${reason}.`;
+          return `${playerName} (${teamName}) is shown the red card.`;
         }
 
       case "subst":
         if (assistName) {
           return `Substitution, ${teamName}. ${assistName} replaces ${playerName}.`;
         }
-        return `Substitution, ${teamName}. ${playerName} comes on as a substitute.`;
+        return `Substitution, ${teamName}. ${playerName} comes on.`;
 
       case "var":
-        const varOutcomes = [
-          "VAR Decision: Goal cancelled",
-          "VAR Decision: Penalty awarded",
-          "VAR Decision: No penalty",
-          "VAR Review: Offside check",
-          "VAR Decision: Red card upheld"
-        ];
-        const outcome = varOutcomes[Math.floor(Math.random() * varOutcomes.length)];
-        return `${outcome}. ${playerName} (${teamName}) involved in the decision.`;
+        return `VAR Review involving ${playerName} (${teamName}).`;
 
       default:
-        // Handle other common events with detailed commentary
-        const detail = event.detail?.toLowerCase() || "";
-        
-        if (detail.includes("foul")) {
-          return `Foul by ${playerName} (${teamName}). The referee awards a free kick to the opposing team.`;
-        } else if (detail.includes("corner")) {
-          return `Corner, ${teamName}. Conceded by ${playerName}.`;
-        } else if (detail.includes("offside")) {
-          return `Offside, ${teamName}. ${playerName} is caught offside.`;
-        } else if (detail.includes("free kick")) {
-          return `${playerName} (${teamName}) wins a free kick in the attacking half.`;
-        } else if (detail.includes("attempt") || detail.includes("shot")) {
-          const attemptTypes = [
-            "right footed shot from outside the box is too high",
-            "left footed shot from the centre of the box misses to the right",
-            "header from the centre of the box is saved in the bottom left corner",
-            "right footed shot from the right side of the box is blocked",
-            "left footed shot from outside the box misses to the left"
-          ];
-          const attemptType = attemptTypes[Math.floor(Math.random() * attemptTypes.length)];
-          return `Attempt missed. ${playerName} (${teamName}) ${attemptType}.`;
-        } else if (detail.includes("save")) {
-          return `Attempt saved. ${playerName} (${teamName}) shot is saved by the goalkeeper.`;
-        } else if (detail.includes("block")) {
-          return `Attempt blocked. ${playerName} (${teamName}) shot is blocked by a defender.`;
-        } else if (detail.includes("delay")) {
-          return `Delay in match because of an injury to ${playerName} (${teamName}). Medical staff are attending to the player.`;
-        } else if (detail.includes("throw")) {
-          return `Throw-in for ${teamName} near the ${isHome ? "attacking" : "defensive"} third.`;
-        } else {
-          // Generic fallback with more detail
-          return `${event.detail || event.type} involving ${playerName} (${teamName}). The referee makes a decision.`;
-        }
+        return `${event.detail || event.type} - ${playerName} (${teamName}).`;
     }
   };
 
