@@ -830,11 +830,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           {(() => {
             // Create array with events and period markers
             const allCommentaryItems = [...events];
-
+            
             // Add period markers based on existing events
             const hasEventsInFirstHalf = events.some(e => e.time.elapsed >= 1 && e.time.elapsed <= 45);
             const hasEventsInSecondHalf = events.some(e => e.time.elapsed > 45);
-
+            
             if (hasEventsInFirstHalf) {
               // Add "First Half begins" marker
               allCommentaryItems.push({
@@ -844,7 +844,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 team: { name: "", logo: "" },
                 player: { name: "" }
               } as any);
-
+              
               // Add "Half Time" marker if there are events after minute 45
               if (hasEventsInSecondHalf) {
                 allCommentaryItems.push({
@@ -856,16 +856,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 } as any);
               }
             }
-
+            
             return allCommentaryItems
               .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
               .map((event, index) => {
                 const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
-
+                
                 // Handle period markers
                 if (event.type === "period_start" || event.type === "period_end") {
                   return (
-                    <div key={`period-${index}`} className="commentary-event-item py-2 border-b border-gray-100 last:border-0">
+                    <div key={`period-${index}`} className="commentary-event-container">
                       <div className="flex gap-3">
                         {/* Time Column */}
                         <div className="flex flex-col items-center min-w-[50px]">
@@ -875,7 +875,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             </span>
                           </div>
                           {index < allCommentaryItems.length - 1 && (
-                            <div className="w-0.5 h-4 bg-gray-300 mt-1"></div>
+                            <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
                           )}
                         </div>
 
@@ -889,20 +889,23 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     </div>
                   );
                 }
-
+                
                 // Use event description for regular events
                 const eventDescription = getEventDescription(event);
 
                 return (
-                  <div key={`commentary-${index}`} className="commentary-event-item py-2 border-b border-gray-100 last:border-0">
+                  <div key={`commentary-${index}`} className="commentary-event-container">
                     <div className="flex gap-3">
                       {/* Time Column */}
                       <div className="flex flex-col items-center min-w-[50px]">
-                        <div className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">
+                        <div className="text-xs font-md text-red-500">
                           {timeDisplay}
                         </div>
+                        <div className="text-xs text-gray-800">
+                          {event.time.elapsed}{event.time.extra ? `+${event.time.extra}` : ''}
+                        </div>
                         {index < allCommentaryItems.length - 1 && (
-                          <div className="w-0.5 h-4 bg-gray-300 mt-1"></div>
+                          <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
                         )}
                       </div>
 
@@ -929,20 +932,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             </div>
                           </div>
                         ) : event.type === "subst" ? (
-                          <div className="flex items-start gap-2">
-                            <img 
-                              src="/assets/matchdetaillogo/substitution.svg" 
-                              alt="Substitution" 
-                              className="w-4 h-4 opacity-80 mt-1"
-                            />
-                            <div className="text-sm text-gray-700 leading-relaxed">
-                              {eventDescription}
-                            </div>
+                          <div className="text-sm text-gray-700 leading-relaxed ml-6">
+                            {eventDescription}
                           </div>
                         ) : event.type === "var" ? (
                           <div className="flex items-start gap-2">
                             <span className="text-xs mt-0.5">📺</span>
-                            <div className="text-sm text-gray-700 leading-relaxed">
+                            <div className="text-xs text-gray-700 leading-relaxed">
                               {eventDescription}
                             </div>
                           </div>
