@@ -672,8 +672,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         )}
       </CardContent>
       
-      <div className="p-4 bg-gray-50 border-t">
-        <p className="text-sm text-gray-600">Additional match information or actions can be placed here</p>
+      <div className="p-4 bg-gray-50 border-t flex justify-center items-center">
+        <img 
+          src="/assets/matchdetaillogo/clock.png" 
+          alt="Match Clock" 
+          className="w-8 h-8 opacity-60"
+        />
       </div>
     </Card>
   );
