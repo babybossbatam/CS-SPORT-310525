@@ -152,6 +152,43 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     }
   };
 
+  const generateCommentaryText = (event: MatchEvent) => {
+    const playerName = event.player?.name || "Unknown Player";
+    const teamName = event.team?.name || "Unknown Team";
+    const assistName = event.assist?.name;
+
+    switch (event.type?.toLowerCase()) {
+      case "goal":
+        if (event.detail?.toLowerCase().includes("penalty")) {
+          return `Goal! ${teamName}. ${playerName} converts the penalty kick.`;
+        } else if (assistName) {
+          return `Goal! ${teamName}. ${playerName} scores. Assisted by ${assistName}.`;
+        } else {
+          return `Goal! ${teamName}. ${playerName} scores.`;
+        }
+      
+      case "card":
+        const cardType = event.detail?.toLowerCase().includes("yellow") ? "Yellow card" : "Red card";
+        return `${cardType}, ${teamName}. ${playerName} is shown the ${cardType.toLowerCase()}.`;
+      
+      case "subst":
+        if (assistName) {
+          return `Substitution, ${teamName}. ${assistName} replaces ${playerName}.`;
+        } else {
+          return `Substitution, ${teamName}. ${playerName} comes on.`;
+        }
+      
+      case "var":
+        return `VAR Review: ${event.detail || "Decision under review"} - ${teamName}.`;
+      
+      default:
+        if (event.comments) {
+          return event.comments;
+        }
+        return `${event.detail || event.type} - ${teamName}. ${playerName}.`;
+    }
+  };
+
   const groupEventsByPeriod = (events: MatchEvent[]) => {
     const periods = {
       fullTime: [] as MatchEvent[],
@@ -686,83 +723,69 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       {/* Commentary Events Section */}
       <div className="border-t bg-gray-50">
         <div className="p-4 space-y-3 max-h-64 overflow-y-auto">
-          {/* Sample Commentary Events */}
-          {[
-            {
-              time: "+4'",
-              period: "120",
-              type: "fulltime",
-              comment: "Full Time: 3-4",
-              isResult: true
-            },
-            {
-              time: "+3'",
-              period: "120",
-              type: "corner",
-              comment: "Corner, Manchester City. Conceded by Ali Lajami."
-            },
-            {
-              time: "+3'",
-              period: "120",
-              type: "attempt",
-              comment: "Attempt blocked. Jérémy Doku (Manchester City) right footed shot from outside the box is blocked. Assisted by Rayan Cherki."
-            },
-            {
-              time: "+2'",
-              period: "120",
-              type: "foul",
-              comment: "Foul by Kevin De Bruyne (Manchester City)."
-            },
-            {
-              time: "+1'",
-              period: "120",
-              type: "substitution",
-              comment: "Substitution, Al Hilal. Salem Al Dawsari replaces Malcom."
-            },
-            {
-              time: "120'",
-              period: "120",
-              type: "whistle",
-              comment: "Second Half Extra Time ends, Manchester City 3, Al Hilal 4."
-            }
-          ].map((commentary, index) => (
-            <div key={index} className="commentary-event-container">
+          {/* Real-time Commentary Events */}
+          {events.map((event, index) => {
+            const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
+            const commentaryText = generateCommentaryText(event);
+            
+            return (
+            <div key={`commentary-${index}`} className="commentary-event-container">
               <div className="flex gap-3">
                 {/* Time Column */}
                 <div className="flex flex-col items-center min-w-[50px]">
                   <div className="text-xs font-bold text-orange-500">
-                    {commentary.time}
+                    {timeDisplay}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {commentary.period}
+                    {event.time.elapsed}
                   </div>
-                  {index < 5 && (
+                  {index < events.length - 1 && (
                     <div className="w-0.5 h-8 bg-gray-300 mt-1"></div>
                   )}
                 </div>
 
                 {/* Content Column */}
                 <div className="flex-1">
-                  {commentary.isResult ? (
+                  {event.type === "goal" ? (
                     <div className="flex items-center gap-2">
                       <img 
-                        src="/assets/matchdetaillogo/clock.png" 
-                        alt="Full Time" 
+                        src="/assets/matchdetaillogo/soccer-ball.svg" 
+                        alt="Goal" 
                         className="w-4 h-4 opacity-60"
                       />
                       <div className="text-sm font-bold text-gray-900">
-                        {commentary.comment}
+                        {commentaryText}
+                      </div>
+                    </div>
+                  ) : event.type === "card" ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">
+                        {event.detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥"}
+                      </span>
+                      <div className="text-sm text-gray-700 leading-relaxed">
+                        {commentaryText}
+                      </div>
+                    </div>
+                  ) : event.type === "subst" ? (
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src="/assets/matchdetaillogo/substitution.svg" 
+                        alt="Substitution" 
+                        className="w-4 h-4 opacity-60"
+                      />
+                      <div className="text-sm text-gray-700 leading-relaxed">
+                        {commentaryText}
                       </div>
                     </div>
                   ) : (
                     <div className="text-sm text-gray-700 leading-relaxed">
-                      {commentary.comment}
+                      {commentaryText}
                     </div>
                   )}
                 </div>
               </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </Card>
