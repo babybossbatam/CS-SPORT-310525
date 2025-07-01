@@ -753,9 +753,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       {/* Center Grid: Time display only */}
                       <div className="match-event-time-center-simple">
-                        {/* Middle: Time display - show only extra time when available */}
+                        {/* Middle: Time display - show elapsed time in black and extra time in red */}
                         <div className="match-event-time-display">
-                          {event.time?.extra ? `+${event.time.extra}'` : `${event.time?.elapsed}'`}
+                          <span style={{ color: 'black' }}>{event.time?.elapsed}'</span>
+                          {event.time?.extra && (
+                            <span style={{ color: 'red' }}>+{event.time.extra}</span>
+                          )}
                         </div>
                       </div>
 
