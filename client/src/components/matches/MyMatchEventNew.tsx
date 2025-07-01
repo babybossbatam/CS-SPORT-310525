@@ -699,70 +699,162 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       {/* Commentary Events Section */}
       <div className="border-t ">
         <div className="p-4 space-y-3 max-h-200 overflow-y-auto">
-          {/* Real-time Commentary Events */}
-          {events.map((event, index) => {
-            const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
-            const commentaryText = generateCommentaryText(event);
+          {/* Complete Match Timeline with Period Markers */}
+          {(() => {
+            // Create a complete timeline including period markers
+            const timelineEvents = [];
+            
+            // Add match start marker
+            timelineEvents.push({
+              type: 'period-marker',
+              time: { elapsed: 0 },
+              content: 'First Half begins.',
+              isImportant: true
+            });
 
-            return (
-            <div key={`commentary-${index}`} className="commentary-event-container">
-              <div className="flex gap-3">
-                {/* Time Column */}
-                <div className="flex flex-col items-center min-w-[50px]">
-                  <div className="text-xs font-md text-red-500">
-                    {timeDisplay}
-                  </div>
-                  <div className="text-xs text-gray-800 ">
-                    {event.time.elapsed}
-                  </div>
-                  {index < events.length - 0 && (
-                    <div className="w-0.5 h-4 bg-gray-800 mt-1"></div>
-                  )}
-                </div>
+            // Add actual events
+            events.forEach(event => {
+              timelineEvents.push({
+                ...event,
+                type: event.type,
+                isActualEvent: true
+              });
+            });
 
-                {/* Content Column */}
-                <div className="flex-1">
-                  {event.type === "goal" ? (
-                    <div className="flex items-start gap-2">
-                      <img 
-                        src="/assets/matchdetaillogo/soccer-ball.svg" 
-                        alt="Goal" 
-                        className="w-5 h-5 opacity-80 mt-0.5"
-                      />
-                      <div className="text-sm font-bold text-gray-900 leading-relaxed">
-                        {commentaryText}
+            // Add half-time marker if there are events after 45 minutes
+            const hasSecondHalfEvents = events.some(e => e.time.elapsed > 45);
+            if (hasSecondHalfEvents) {
+              timelineEvents.push({
+                type: 'period-marker',
+                time: { elapsed: 45 },
+                content: 'Second Half begins.',
+                isImportant: true
+              });
+            }
+
+            // Add full-time marker if there are events around 90 minutes
+            const hasFullTimeEvents = events.some(e => e.time.elapsed >= 90);
+            if (hasFullTimeEvents) {
+              timelineEvents.push({
+                type: 'period-marker',
+                time: { elapsed: 90 },
+                content: 'Match ends.',
+                isImportant: true
+              });
+            }
+
+            // Sort by time
+            timelineEvents.sort((a, b) => {
+              if (a.time.elapsed === b.time.elapsed) {
+                // Period markers should come before events at the same time
+                if (a.type === 'period-marker' && b.type !== 'period-marker') return -1;
+                if (b.type === 'period-marker' && a.type !== 'period-marker') return 1;
+              }
+              return a.time.elapsed - b.time.elapsed;
+            });
+
+            return timelineEvents.map((event, index) => {
+              if (event.type === 'period-marker') {
+                return (
+                  <div key={`period-${index}`} className="commentary-event-container">
+                    <div className="flex gap-3">
+                      {/* Time Column */}
+                      <div className="flex flex-col items-center min-w-[50px]">
+                        <div className="text-xs font-md text-gray-600">
+                          {event.time.elapsed === 0 ? '0\'' : 
+                           event.time.elapsed === 45 ? '45\'' : 
+                           event.time.elapsed === 90 ? '90\'' : `${event.time.elapsed}'`}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          {event.time.elapsed}
+                        </div>
+                        {index < timelineEvents.length - 1 && (
+                          <div className="w-0.5 h-4 bg-gray-800 mt-1"></div>
+                        )}
+                      </div>
+
+                      {/* Content Column */}
+                      <div className="flex-1">
+                        <div className="flex items-start gap-2">
+                          <img 
+                            src="/assets/matchdetaillogo/i mark.svg" 
+                            alt="Period Marker" 
+                            className="w-4 h-4 opacity-80 mt-0.5"
+                          />
+                          <div className="text-sm text-gray-800 leading-relaxed font-medium">
+                            {event.content}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  ) : event.type === "card" ? (
-                    <div className="flex items-start gap-2">
-                      <span className="text-sm mt-0.5">
-                        {event.detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥"}
-                      </span>
-                      <div className="text-sm text-gray-700 leading-relaxed">
-                        {commentaryText}
+                  </div>
+                );
+              }
+
+              // Regular events
+              const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
+              const commentaryText = generateCommentaryText(event);
+
+              return (
+                <div key={`commentary-${index}`} className="commentary-event-container">
+                  <div className="flex gap-3">
+                    {/* Time Column */}
+                    <div className="flex flex-col items-center min-w-[50px]">
+                      <div className="text-xs font-md text-red-500">
+                        {timeDisplay}
                       </div>
-                    </div>
-                  ) : event.type === "subst" ? (
-                    <div className="text-sm text-gray-700 leading-relaxed ml-6">
-                      {commentaryText}
-                    </div>
-                  ) : event.type === "var" ? (
-                    <div className="flex items-start gap-2">
-                      <span className="text-xs mt-0.5">📺</span>
-                      <div className="text-xs text-gray-700 leading-relaxed">
-                        {commentaryText}
+                      <div className="text-xs text-gray-800 ">
+                        {event.time.elapsed}
                       </div>
+                      {index < timelineEvents.length - 1 && (
+                        <div className="w-0.5 h-4 bg-gray-800 mt-1"></div>
+                      )}
                     </div>
-                  ) : (
-                    <div className="text-sm text-gray-700 leading-relaxed ml-6">
-                      {commentaryText}
+
+                    {/* Content Column */}
+                    <div className="flex-1">
+                      {event.type === "goal" ? (
+                        <div className="flex items-start gap-2">
+                          <img 
+                            src="/assets/matchdetaillogo/soccer-ball.svg" 
+                            alt="Goal" 
+                            className="w-5 h-5 opacity-80 mt-0.5"
+                          />
+                          <div className="text-sm font-bold text-gray-900 leading-relaxed">
+                            {commentaryText}
+                          </div>
+                        </div>
+                      ) : event.type === "card" ? (
+                        <div className="flex items-start gap-2">
+                          <span className="text-sm mt-0.5">
+                            {event.detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥"}
+                          </span>
+                          <div className="text-sm text-gray-700 leading-relaxed">
+                            {commentaryText}
+                          </div>
+                        </div>
+                      ) : event.type === "subst" ? (
+                        <div className="text-sm text-gray-700 leading-relaxed ml-6">
+                          {commentaryText}
+                        </div>
+                      ) : event.type === "var" ? (
+                        <div className="flex items-start gap-2">
+                          <span className="text-xs mt-0.5">📺</span>
+                          <div className="text-xs text-gray-700 leading-relaxed">
+                            {commentaryText}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-gray-700 leading-relaxed ml-6">
+                          {commentaryText}
+                        </div>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            </div>
-            );
-          })}
+              );
+            });
+          })()}
         </div>
       </div>
     </Card>
