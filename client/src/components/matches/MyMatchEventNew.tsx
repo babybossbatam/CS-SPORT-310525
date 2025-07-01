@@ -1039,9 +1039,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 alt="Goal"
                                 className="w-4 h-4 opacity-80 mt-0.5 flex-shrink-0"
                               />
-                              <div className="goal-event-wrapper">
+                              <div className="goal-event-wrapper bg-green-50 p-2 rounded-md border-l-4 border-green-500">
                                 <div className="text-sm font-bold text-gray-900 leading-relaxed">
                                   {eventDescription}
+                                </div>
+                                <div className="text-xs text-green-600 mt-1 font-medium">
+                                  ⚽ Goal Event
                                 </div>
                               </div>
                             </div>
