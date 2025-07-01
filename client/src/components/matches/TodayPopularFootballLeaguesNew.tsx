@@ -785,8 +785,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
       })),
     );
 
-    // Debug: Check final result for target leagues
-    const targetLeaguesInFinal = [38, 15, 16, 914];
+    // Debug: Check final result for target leagues INCLUDING Serie D (75)
+    const targetLeaguesInFinal = [38, 15, 16, 914, 75];
     targetLeaguesInFinal.forEach((leagueId) => {
       const leagueFixtures = finalFiltered.filter(
         (f) => f.league?.id === leagueId,
@@ -831,11 +831,51 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     country: originalLeagueFixtures[0].league?.country,
                   }
                 : null,
+              // Show actual dates for Serie D fixtures
+              actualDates: leagueId === 75 ? originalLeagueFixtures.slice(0, 5).map(f => ({
+                date: f.fixture?.date,
+                home: f.teams?.home?.name,
+                away: f.teams?.away?.name,
+                localDate: f.fixture?.date ? f.fixture.date.split('T')[0] : 'Invalid'
+              })) : undefined
             },
           );
         }
       }
     });
+
+    // Special debugging for Serie D - show what dates their fixtures are actually on
+    const serieDFixtures = processedFixtures.filter((f) => f.league?.id === 75);
+    if (serieDFixtures.length > 0) {
+      const serieDDates = serieDFixtures.map(f => ({
+        fixtureDate: f.fixture?.date,
+        localDate: f.fixture?.date ? f.fixture.date.split('T')[0] : 'Invalid',
+        home: f.teams?.home?.name,
+        away: f.teams?.away?.name,
+        status: f.fixture?.status?.short
+      }));
+      
+      // Group by date
+      const dateGroups = serieDDates.reduce((acc: any, fixture) => {
+        const date = fixture.localDate;
+        if (!acc[date]) acc[date] = [];
+        acc[date].push(fixture);
+        return acc;
+      }, {});
+      
+      console.log(`🏆 [SERIE D DEBUG] Serie D fixtures grouped by date:`, {
+        selectedDate,
+        totalFixtures: serieDFixtures.length,
+        dateGroups: Object.keys(dateGroups).sort().reduce((acc: any, date) => {
+          acc[date] = dateGroups[date].length;
+          return acc;
+        }, {}),
+        sampleFixturesPerDate: Object.keys(dateGroups).sort().slice(0, 3).reduce((acc: any, date) => {
+          acc[date] = dateGroups[date].slice(0, 2);
+          return acc;
+        }, {})
+      });
+    }
 
     return finalFiltered;
   }, [processedFixtures, selectedDate]);
