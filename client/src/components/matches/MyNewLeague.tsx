@@ -133,6 +133,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             "GET",
             `/api/leagues/${leagueId}/fixtures`,
           );
+          
+          if (!fixturesResponse.ok) {
+            console.warn(`Failed to fetch fixtures for league ${leagueId}, status: ${fixturesResponse.status}`);
+            continue; // Skip this league and try the next one
+          }
+          
           const fixturesData = await fixturesResponse.json();
           console.log(
             `MyNewLeague - League ${leagueId} fixtures count:`,
@@ -169,10 +175,16 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             allFixtures.push(...filteredFixtures);
           }
         } catch (leagueError) {
+          const errorMessage = leagueError instanceof Error ? leagueError.message : 'Unknown error';
           console.warn(
             `Failed to fetch data for league ${leagueId}:`,
-            leagueError,
+            errorMessage,
           );
+          
+          // If it's a network error, don't spam the console
+          if (errorMessage.includes('Network error') || errorMessage.includes('Failed to fetch')) {
+            console.log(`🌐 Network connectivity issue for league ${leagueId}, will retry later`);
+          }
         }
       }
 

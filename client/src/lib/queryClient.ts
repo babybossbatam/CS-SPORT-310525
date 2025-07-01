@@ -29,24 +29,51 @@ const checkRateLimit = (key: string) => {
   return true;
 };
 
-// API request helper
+// API request helper with improved error handling
 export async function apiRequest(
   method: string,
   url: string,
   data?: unknown | undefined
 ): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
   try {
-    const res = await fetch(url, {
+    // Ensure URL is properly formatted
+    const apiUrl = url.startsWith('/') ? `${window.location.origin}${url}` : url;
+    
+    const res = await fetch(apiUrl, {
       method,
-      headers: data ? { "Content-Type": "application/json" } : {},
+      headers: {
+        ...(data ? { "Content-Type": "application/json" } : {}),
+        'Accept': 'application/json',
+      },
       body: data ? JSON.stringify(data) : undefined,
-      credentials: "include"
+      credentials: "include",
+      signal: controller.signal,
+      mode: 'cors'
     });
 
+    clearTimeout(timeoutId);
     await throwIfResNotOk(res);
     return res;
   } catch (error) {
-    console.error(`API request error for ${method} ${url}:`, error);
+    clearTimeout(timeoutId);
+    
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
+    // Handle specific error types
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error(`🚫 API request timeout for ${method} ${url} after 15 seconds`);
+      throw new Error(`Request timeout: ${url}`);
+    }
+    
+    if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch')) {
+      console.error(`🌐 Network connectivity issue for ${method} ${url}: ${errorMessage}`);
+      throw new Error(`Network error: Please check your connection and try again`);
+    }
+    
+    console.error(`❌ API request error for ${method} ${url}:`, error);
     throw error;
   }
 }
@@ -65,10 +92,23 @@ export const getQueryFn: <T>(options: {
       return null as any;
     }
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
     try {
-      const res = await fetch(queryKey[0] as string, {
-        credentials: "include"
+      const url = queryKey[0] as string;
+      const apiUrl = url.startsWith('/') ? `${window.location.origin}${url}` : url;
+      
+      const res = await fetch(apiUrl, {
+        credentials: "include",
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+        },
+        mode: 'cors'
       });
+
+      clearTimeout(timeoutId);
 
       if (unauthorizedBehavior === "returnNull" && res.status === 401) {
         return null;
@@ -77,6 +117,20 @@ export const getQueryFn: <T>(options: {
       await throwIfResNotOk(res);
       return await res.json();
     } catch (error) {
+      clearTimeout(timeoutId);
+      
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.warn(`⏱️ Query timeout for ${queryKey[0]}`);
+        return null as any; // Return null instead of throwing for queries
+      }
+      
+      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch')) {
+        console.warn(`🌐 Network issue for query ${queryKey[0]}: ${errorMessage}`);
+        return null as any; // Return null for network issues in queries
+      }
+      
       console.error(`Query error for ${queryKey[0]}:`, error);
       throw error;
     }
