@@ -136,19 +136,49 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const getEventDescription = (event: MatchEvent) => {
     const playerName = event.player?.name || "Unknown Player";
+    const teamName = event.team?.name || "Unknown Team";
     const assistName = event.assist?.name;
+    const detail = event.detail || "";
 
-    if (!event.type) return playerName;
+    if (!event.type) return `${playerName} (${teamName})`;
 
     switch (event.type.toLowerCase()) {
       case "goal":
-        return `${playerName}${assistName ? ` (assist: ${assistName})` : ""}`;
+        if (detail.toLowerCase().includes("penalty")) {
+          return `${playerName} (${teamName}) - Penalty Goal${assistName ? `, assist: ${assistName}` : ""}`;
+        } else if (detail.toLowerCase().includes("own goal")) {
+          return `${playerName} (${teamName}) - Own Goal`;
+        } else {
+          return `${playerName} (${teamName}) - Goal${assistName ? `, assist: ${assistName}` : ""}`;
+        }
       case "card":
-        return `${playerName}`;
+        if (detail.toLowerCase().includes("yellow")) {
+          return `${playerName} (${teamName}) - Yellow Card`;
+        } else if (detail.toLowerCase().includes("red")) {
+          return `${playerName} (${teamName}) - Red Card`;
+        } else {
+          return `${playerName} (${teamName}) - ${detail || "Card"}`;
+        }
       case "subst":
-        return `${playerName}`;
+        if (assistName) {
+          return `${teamName} - Substitution: ${assistName} on, ${playerName} off`;
+        }
+        return `${playerName} (${teamName}) - Substitution`;
+      case "var":
+        return `VAR Review - ${detail || "Video Review"} involving ${playerName} (${teamName})`;
       default:
-        return `${playerName}`;
+        // Handle other event types like fouls, offside, etc.
+        if (event.type.toLowerCase() === "foul" || detail.toLowerCase().includes("foul")) {
+          return `${playerName} (${teamName}) - Foul${detail ? `: ${detail}` : ""}`;
+        } else if (detail.toLowerCase().includes("offside")) {
+          return `${playerName} (${teamName}) - Offside`;
+        } else if (detail.toLowerCase().includes("corner")) {
+          return `${teamName} - Corner Kick`;
+        } else if (detail.toLowerCase().includes("free kick")) {
+          return `${playerName} (${teamName}) - Free Kick`;
+        } else {
+          return `${playerName} (${teamName}) - ${detail || event.type}`;
+        }
     }
   };
 
@@ -163,6 +193,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     const teamName = event.team?.name || "Unknown Team";
     const assistName = event.assist?.name;
     const minute = event.time?.elapsed || 0;
+    const detail = event.detail || "";
 
     // Add contextual descriptions based on timing
     const getTimingContext = (minute: number) => {
@@ -233,7 +264,27 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         return `VAR Review: The referee is ${varReason} involving ${playerName} (${teamName}).`;
 
       default:
-        return `${event.detail || event.type} - ${playerName} (${teamName}) ${timingContext}.`;
+        // Handle other event types with detailed descriptions
+        if (event.type?.toLowerCase() === "foul" || detail.toLowerCase().includes("foul")) {
+          const foulTypes = [
+            "commits a foul",
+            "is penalized for a foul",
+            "makes an illegal challenge",
+            "commits an infringement"
+          ];
+          const foulType = foulTypes[Math.floor(Math.random() * foulTypes.length)];
+          return `${playerName} (${teamName}) ${foulType} ${timingContext}${detail ? `. ${detail}` : ""}.`;
+        } else if (detail.toLowerCase().includes("offside")) {
+          return `Offside! ${playerName} (${teamName}) is caught in an offside position ${timingContext}.`;
+        } else if (detail.toLowerCase().includes("corner")) {
+          return `Corner kick awarded to ${teamName} ${timingContext}.`;
+        } else if (detail.toLowerCase().includes("free kick")) {
+          return `Free kick to ${teamName}. ${playerName} prepares to take it ${timingContext}.`;
+        } else if (detail.toLowerCase().includes("throw")) {
+          return `Throw-in for ${teamName}. ${playerName} takes the throw ${timingContext}.`;
+        } else {
+          return `${detail || event.type} - ${playerName} (${teamName}) ${timingContext}.`;
+        }
     }
   };
 
