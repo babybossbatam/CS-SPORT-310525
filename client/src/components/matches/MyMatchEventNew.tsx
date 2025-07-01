@@ -1038,6 +1038,21 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <div className="text-sm font-bold text-gray-900 leading-relaxed">
                               {eventDescription}
                             </div>
+                            <div className="flex items-center gap-1 ml-2 text-xs bg-green-100 px-2 py-1 rounded-full">
+                              <span>⚽</span>
+                              <span className="font-semibold">
+                                {(() => {
+                                  // Calculate score up to this event (simplified example)
+                                  const homeGoals = events
+                                    .filter(e => e.type === "goal" && e.time.elapsed <= event.time.elapsed && isHomeTeam(e))
+                                    .length;
+                                  const awayGoals = events
+                                    .filter(e => e.type === "goal" && e.time.elapsed <= event.time.elapsed && !isHomeTeam(e))
+                                    .length;
+                                  return `${homeGoals}-${awayGoals}`;
+                                })()}
+                              </span>
+                            </div>
                           </div>
                         ) : event.type === "card" ? (
                           <div className="flex items-start gap-2">
