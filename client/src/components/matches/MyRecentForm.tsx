@@ -66,6 +66,15 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
 
   useEffect(() => {
     const fetchTeamForm = async () => {
+      console.log('🔍 [MyRecentForm] Starting form data fetch:', {
+        homeTeamId: effectiveHomeTeam?.id,
+        homeTeamName: effectiveHomeTeam?.name,
+        awayTeamId: effectiveAwayTeam?.id,
+        awayTeamName: effectiveAwayTeam?.name,
+        leagueId: effectiveLeagueId,
+        season: effectiveSeason
+      });
+
       if (!effectiveHomeTeam?.id || !effectiveAwayTeam?.id) {
         console.log('⚠️ [MyRecentForm] Missing team IDs, using fallback data');
         setIsLoading(false);
@@ -76,11 +85,26 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
         setIsLoading(true);
         setError(null);
 
+        const currentSeason = effectiveSeason || new Date().getFullYear();
+        
+        // Build API URLs
+        const homeUrl = `/api/teams/${effectiveHomeTeam.id}/fixtures?last=5&league=${effectiveLeagueId || ''}&season=${currentSeason}`;
+        const awayUrl = `/api/teams/${effectiveAwayTeam.id}/fixtures?last=5&league=${effectiveLeagueId || ''}&season=${currentSeason}`;
+        
+        console.log('📡 [MyRecentForm] Fetching from URLs:', { homeUrl, awayUrl });
+
         // Fetch recent fixtures for both teams
         const [homeFixtures, awayFixtures] = await Promise.all([
-          fetch(`/api/teams/${effectiveHomeTeam.id}/fixtures?last=5&league=${effectiveLeagueId}&season=${effectiveSeason || new Date().getFullYear()}`),
-          fetch(`/api/teams/${effectiveAwayTeam.id}/fixtures?last=5&league=${effectiveLeagueId}&season=${effectiveSeason || new Date().getFullYear()}`)
+          fetch(homeUrl),
+          fetch(awayUrl)
         ]);
+
+        console.log('📊 [MyRecentForm] API Response status:', {
+          homeStatus: homeFixtures.status,
+          awayStatus: awayFixtures.status,
+          homeOk: homeFixtures.ok,
+          awayOk: awayFixtures.ok
+        });
 
         let homeFormData: TeamForm | null = null;
         let awayFormData: TeamForm | null = null;
@@ -88,18 +112,49 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
         // Process home team form
         if (homeFixtures.ok) {
           const homeData = await homeFixtures.json();
+          console.log('🏠 [MyRecentForm] Home team data:', {
+            hasResponse: !!homeData?.response,
+            fixtureCount: homeData?.response?.length || 0,
+            teamName: effectiveHomeTeam.name
+          });
+          
           if (homeData?.response) {
             homeFormData = processTeamFixtures(homeData.response, effectiveHomeTeam.id, effectiveHomeTeam.name);
           }
+        } else {
+          const homeError = await homeFixtures.text();
+          console.error('❌ [MyRecentForm] Home team API error:', {
+            status: homeFixtures.status,
+            error: homeError,
+            teamId: effectiveHomeTeam.id
+          });
         }
 
         // Process away team form
         if (awayFixtures.ok) {
           const awayData = await awayFixtures.json();
+          console.log('🏃 [MyRecentForm] Away team data:', {
+            hasResponse: !!awayData?.response,
+            fixtureCount: awayData?.response?.length || 0,
+            teamName: effectiveAwayTeam.name
+          });
+          
           if (awayData?.response) {
             awayFormData = processTeamFixtures(awayData.response, effectiveAwayTeam.id, effectiveAwayTeam.name);
           }
+        } else {
+          const awayError = await awayFixtures.text();
+          console.error('❌ [MyRecentForm] Away team API error:', {
+            status: awayFixtures.status,
+            error: awayError,
+            teamId: effectiveAwayTeam.id
+          });
         }
+
+        console.log('✅ [MyRecentForm] Final form data:', {
+          homeForm: homeForm ? `${homeForm.wins}W ${homeForm.draws}D ${homeForm.losses}L` : 'null',
+          awayForm: awayForm ? `${awayForm.wins}W ${awayForm.draws}D ${awayForm.losses}L` : 'null'
+        });
 
         setHomeForm(homeFormData);
         setAwayForm(awayFormData);
