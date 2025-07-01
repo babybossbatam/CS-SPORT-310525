@@ -906,7 +906,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
       {/* Commentary Events Section */}
       <div className="border-t ">
-        <div className="p-4 space-y-3 max-h-200 overflow-y-auto">
+        <div className="p-4 space-y-2 max-h-200 overflow-y-auto">
           {/* Simplified Timeline - Events Only */}
           {(() => {
             // Create array with events and period markers
@@ -962,10 +962,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       key={`period-${index}`}
                       className="commentary-event-container"
                     >
-                      <div className="flex gap-3">
+                      <div className="flex gap-1">
                         {/* Time Column */}
                         <div className="flex flex-col items-center min-w-[50px]">
-                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                          <div className="w-3 h-3  rounded-full flex items-center justify-center">
                             {event.detail === "Half Time" ? (
                               <img
                                 src="/assets/matchdetaillogo/i mark.svg"
@@ -973,13 +973,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 className="w-3 h-3"
                               />
                             ) : (
-                              <span className="text-white text-xs font-bold">
+                              <span className="text-white text-xs font-semi-bold">
                                 {event.type === "period_start" ? "🏁" : "⏱️"}
                               </span>
                             )}
                           </div>
                           {index < allCommentaryItems.length - 1 && (
-                            <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
+                            <div className="w-0.5 h-5 bg-gray-800 "></div>
                           )}
                         </div>
 
