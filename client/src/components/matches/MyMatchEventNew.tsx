@@ -1029,20 +1029,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <div className="flex-1">
                         
                         {event.type === "goal" ? (
-                          <div className="flex items-start gap-2">
-                            <img
-                              src="/assets/matchdetaillogo/soccer-ball.svg"
-                              alt="Goal"
-                              className="w-5 h-5 opacity-80 mt-0.5"
-                            />
-                            <div className="text-sm font-bold text-gray-900 leading-relaxed">
-                              {eventDescription}
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-start gap-2">
+                              <img
+                                src="/assets/matchdetaillogo/soccer-ball.svg"
+                                alt="Goal"
+                                className="w-5 h-5 opacity-80 mt-0.5"
+                              />
+                              <div className="text-sm font-bold text-gray-900 leading-relaxed">
+                                {eventDescription}
+                              </div>
                             </div>
-                            <div className="flex items-center gap-1 ml-2 text-xs bg-green-100 px-2 py-1 rounded-full">
+                            <div className="flex items-center justify-center gap-1 ml-7 text-xs bg-green-100 px-3 py-1 rounded-full w-fit">
                               <span>⚽</span>
-                              <span className="font-semibold">
+                              <span className="font-semibold text-green-700">
                                 {(() => {
-                                  // Calculate score up to this event (simplified example)
+                                  // Calculate score up to this event
                                   const homeGoals = events
                                     .filter(e => e.type === "goal" && e.time.elapsed <= event.time.elapsed && isHomeTeam(e))
                                     .length;
