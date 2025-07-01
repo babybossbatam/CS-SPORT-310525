@@ -21,6 +21,7 @@ import MyNewLMT from "@/components/matches/MyNewLMT";
 import MyMatchEventNew from "@/components/matches/MyMatchEventNew";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
+import MyRecentForm from '@/components/matches/MyRecentForm';
 
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -230,6 +231,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                     {/* Match Prediction for upcoming matches - moved below MyMatchEventNew */}
                     {/* Match Prediction Component */}
                     <MatchPrediction />
+                    <MyRecentForm />
                     {!isLive && !isEnded && (
                       <MatchPrediction
                         homeTeam={{
