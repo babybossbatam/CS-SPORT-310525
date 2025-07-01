@@ -1,6 +1,6 @@
-import { QueryClient, QueryFunction } from '@tanstack/react-query';
-import { CACHE_STALE_TIMES } from './constants';
-import { CACHE_DURATIONS } from './cacheConfig';
+import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { CACHE_STALE_TIMES } from "./constants";
+import { CACHE_DURATIONS } from "./cacheConfig";
 
 // Helper to throw error for non-ok responses
 async function throwIfResNotOk(res: Response) {
@@ -16,8 +16,8 @@ const MIN_REQUEST_INTERVAL = 600000; // 10 minutes for non-central requests
 
 const checkRateLimit = (key: string) => {
   // Skip rate limiting for central cache keys
-  if (key.includes('central-')) return true;
-  
+  if (key.includes("central-")) return true;
+
   const now = Date.now();
   const lastRequest = requestTimestamps.get(key);
 
@@ -33,37 +33,45 @@ const checkRateLimit = (key: string) => {
 export async function apiRequest(
   method: string,
   url: string,
-  data?: unknown | undefined
+  data?: unknown | undefined,
 ): Promise<Response> {
   const controller = new AbortController();
   let timeoutId: NodeJS.Timeout | null = null;
 
   try {
     // Dynamic timeout based on request type - events need more time
-    const isEventRequest = url.includes('/events');
-    const isFixtureRequest = url.includes('/fixtures/');
-    const timeoutDuration = isEventRequest ? 30000 : (isFixtureRequest ? 20000 : 15000);
-    
+    const isEventRequest = url.includes("/events");
+    const isFixtureRequest = url.includes("/fixtures/");
+    const timeoutDuration = isEventRequest
+      ? 30000
+      : isFixtureRequest
+        ? 20000
+        : 15000;
+
     // Set timeout with proper cleanup
     timeoutId = setTimeout(() => {
       if (!controller.signal.aborted) {
-        controller.abort(new Error(`Request timeout after ${timeoutDuration/1000} seconds`));
+        controller.abort(
+          `Request timeout after ${timeoutDuration / 1000} seconds`,
+        );
       }
     }, timeoutDuration);
 
     // Ensure URL is properly formatted
-    const apiUrl = url.startsWith('/') ? `${window.location.origin}${url}` : url;
-    
+    const apiUrl = url.startsWith("/")
+      ? `${window.location.origin}${url}`
+      : url;
+
     const res = await fetch(apiUrl, {
       method,
       headers: {
         ...(data ? { "Content-Type": "application/json" } : {}),
-        'Accept': 'application/json',
+        Accept: "application/json",
       },
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
       signal: controller.signal,
-      mode: 'cors'
+      mode: "cors",
     });
 
     if (timeoutId) {
@@ -79,21 +87,38 @@ export async function apiRequest(
       clearTimeout(timeoutId);
       timeoutId = null;
     }
-    
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    
+
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+
     // Handle specific error types
-    if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('aborted') || errorMessage.includes('timeout'))) {
-      console.warn(`⏱️ API request timed out for ${method} ${url}:`, errorMessage);
+    if (
+      error instanceof Error &&
+      (error.name === "AbortError" ||
+        errorMessage.includes("aborted") ||
+        errorMessage.includes("timeout"))
+    ) {
+      console.warn(
+        `⏱️ API request timed out for ${method} ${url}:`,
+        errorMessage,
+      );
       // Return a more user-friendly error for timeouts
       throw new Error(`Request timed out. Please try again.`);
     }
-    
-    if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch')) {
-      console.error(`🌐 Network connectivity issue for ${method} ${url}: ${errorMessage}`);
-      throw new Error(`Network error: Please check your connection and try again`);
+
+    if (
+      errorMessage.includes("Failed to fetch") ||
+      errorMessage.includes("NetworkError") ||
+      errorMessage.includes("fetch")
+    ) {
+      console.error(
+        `🌐 Network connectivity issue for ${method} ${url}: ${errorMessage}`,
+      );
+      throw new Error(
+        `Network error: Please check your connection and try again`,
+      );
     }
-    
+
     console.error(`❌ API request error for ${method} ${url}:`, error);
     throw error;
   }
@@ -106,10 +131,12 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey, signal }) => {
-    const keyString = Array.isArray(queryKey) ? queryKey.join('-') : String(queryKey);
+    const keyString = Array.isArray(queryKey)
+      ? queryKey.join("-")
+      : String(queryKey);
 
     if (!checkRateLimit(keyString)) {
-      console.warn('Rate limiting request to:', keyString);
+      console.warn("Rate limiting request to:", keyString);
       return null as any;
     }
 
@@ -120,30 +147,38 @@ export const getQueryFn: <T>(options: {
 
     try {
       const url = queryKey[0] as string;
-      
+
       // Dynamic timeout based on query type
-      const isEventQuery = url.includes('/events');
-      const isFixtureQuery = url.includes('/fixtures/');
-      const queryTimeout = isEventQuery ? 25000 : (isFixtureQuery ? 18000 : 10000);
-      
+      const isEventQuery = url.includes("/events");
+      const isFixtureQuery = url.includes("/fixtures/");
+      const queryTimeout = isEventQuery
+        ? 25000
+        : isFixtureQuery
+          ? 18000
+          : 10000;
+
       // Only set timeout if we created our own controller
       if (controller) {
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort(new Error(`Query timeout after ${queryTimeout/1000} seconds`));
+            controller.abort(
+              `Query timeout after ${queryTimeout / 1000} seconds`,
+            );
           }
         }, queryTimeout);
       }
 
-      const apiUrl = url.startsWith('/') ? `${window.location.origin}${url}` : url;
-      
+      const apiUrl = url.startsWith("/")
+        ? `${window.location.origin}${url}`
+        : url;
+
       const res = await fetch(apiUrl, {
         credentials: "include",
         signal: requestSignal,
         headers: {
-          'Accept': 'application/json',
+          Accept: "application/json",
         },
-        mode: 'cors'
+        mode: "cors",
       });
 
       if (timeoutId) {
@@ -162,19 +197,31 @@ export const getQueryFn: <T>(options: {
         clearTimeout(timeoutId);
         timeoutId = null;
       }
-      
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      
-      if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('aborted') || errorMessage.includes('timeout'))) {
+
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+
+      if (
+        error instanceof Error &&
+        (error.name === "AbortError" ||
+          errorMessage.includes("aborted") ||
+          errorMessage.includes("timeout"))
+      ) {
         console.warn(`⏱️ Query timed out for ${queryKey[0]}: ${errorMessage}`);
         return null as any; // Return null instead of throwing for queries
       }
-      
-      if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch')) {
-        console.warn(`🌐 Network issue for query ${queryKey[0]}: ${errorMessage}`);
+
+      if (
+        errorMessage.includes("Failed to fetch") ||
+        errorMessage.includes("NetworkError") ||
+        errorMessage.includes("fetch")
+      ) {
+        console.warn(
+          `🌐 Network issue for query ${queryKey[0]}: ${errorMessage}`,
+        );
         return null as any; // Return null for network issues in queries
       }
-      
+
       console.error(`Query error for ${queryKey[0]}:`, error);
       throw error;
     }
@@ -184,8 +231,8 @@ export const getQueryFn: <T>(options: {
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      queryFn: getQueryFn({ 
-        on401: "throw"
+      queryFn: getQueryFn({
+        on401: "throw",
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
@@ -193,7 +240,10 @@ export const queryClient = new QueryClient({
       gcTime: CACHE_DURATIONS.SIX_HOURS, // 6 hours
       retry: (failureCount, error) => {
         // Don't retry timeout errors
-        if (error?.message?.includes('timeout') || error?.message?.includes('timed out')) {
+        if (
+          error?.message?.includes("timeout") ||
+          error?.message?.includes("timed out")
+        ) {
           return false;
         }
         // Retry other errors up to 2 times
@@ -203,18 +253,21 @@ export const queryClient = new QueryClient({
       refetchOnMount: false,
       refetchOnReconnect: false,
       // Prevent memory leaks
-      networkMode: 'online',
+      networkMode: "online",
     },
     mutations: {
       retry: (failureCount, error) => {
         // Don't retry timeout errors for mutations either
-        if (error?.message?.includes('timeout') || error?.message?.includes('timed out')) {
+        if (
+          error?.message?.includes("timeout") ||
+          error?.message?.includes("timed out")
+        ) {
           return false;
         }
         return failureCount < 1;
       },
       retryDelay: 2000,
-      networkMode: 'online',
+      networkMode: "online",
     },
   },
   // Increase max query cache size to prevent excessive cleanup

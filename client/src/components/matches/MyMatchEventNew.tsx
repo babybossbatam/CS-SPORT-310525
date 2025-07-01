@@ -755,9 +755,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <div className="match-event-time-center-simple">
                         {/* Middle: Time display - show elapsed time in black and extra time in red */}
                         <div className="match-event-time-display">
-                          <span style={{ color: 'black' }}>{event.time?.elapsed}'</span>
+                          <span style={{ color: "black" }}>
+                            {event.time?.elapsed}'
+                          </span>
                           {event.time?.extra && (
-                            <span style={{ color: 'red' }}>+{event.time.extra}</span>
+                            <span style={{ color: "red" }}>
+                              +{event.time.extra}
+                            </span>
                           )}
                         </div>
                       </div>
@@ -879,7 +883,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       .join("")
                                       .slice(0, 2) || "P"}
                                   </AvatarFallback>
-                                                               </Avatar>
+                                </Avatar>
                               </div>
                             </div>
                           </>
@@ -953,9 +957,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   event.type === "period_end"
                 ) {
                   // For Half Time, show Second Half begins with team names and scores
-                  const displayText = event.detail === "Half Time" 
-                    ? `Second Half begins ${homeTeam || "Home"} ${events.filter(e => isHomeTeam(e) && e.type === "goal").length}, ${awayTeam || "Away"} ${events.filter(e => !isHomeTeam(e) && e.type === "goal").length}`
-                    : event.detail;
+                  const displayText =
+                    event.detail === "Half Time"
+                      ? `Second Half begins ${homeTeam || "Home"} ${events.filter((e) => isHomeTeam(e) && e.type === "goal").length}, ${awayTeam || "Away"} ${events.filter((e) => !isHomeTeam(e) && e.type === "goal").length}`
+                      : event.detail;
 
                   return (
                     <div
@@ -964,7 +969,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     >
                       <div className="flex gap-1">
                         {/* Time Column */}
-                        <div className="flex flex-col items-center min-w-[50px]">
+                        <div className="flex flex-col items-center min-w-[45px]">
                           <div className="w-3 h-6  flex items-center justify-center">
                             {event.detail === "Half Time" ? (
                               <img
@@ -1008,13 +1013,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         <div className="text-xs font-md text-red-500">
                           {timeDisplay}
                         </div>
-                        <div className="text-xs text-gray-800" style={{ marginTop: '-8px' }}>
+                        <div
+                          className="text-xs text-gray-800"
+                          style={{ marginTop: "-1px", marginBottom: "4px" }}
+                        >
                           {event.time.elapsed}'
-
                         </div>
-                        
+
                         {index < allCommentaryItems.length - 1 && (
-                          <div className="w-0.5 h-6 bg-gray-600 mb-1 mr-1"></div>
+                          <div className="w-0.5 h-6 bg-gray-600 mb-1 "></div>
                         )}
                       </div>
 
