@@ -158,39 +158,82 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       return event.comments;
     }
 
-    // Simple fallback commentary for basic event types
+    // Enhanced commentary for basic event types with more descriptive language
     const playerName = event.player?.name || "Unknown Player";
     const teamName = event.team?.name || "Unknown Team";
     const assistName = event.assist?.name;
+    const minute = event.time?.elapsed || 0;
+
+    // Add contextual descriptions based on timing
+    const getTimingContext = (minute: number) => {
+      if (minute <= 15) return "early in the match";
+      if (minute <= 30) return "in the first half";
+      if (minute <= 45) return "before the break";
+      if (minute <= 60) return "early in the second half";
+      if (minute <= 75) return "in the second half";
+      if (minute <= 90) return "late in the match";
+      return "in stoppage time";
+    };
+
+    const timingContext = getTimingContext(minute);
 
     switch (event.type?.toLowerCase()) {
       case "goal":
         if (event.detail?.toLowerCase().includes("penalty")) {
-          return `${playerName} (${teamName}) converts the penalty kick${assistName ? ` assisted by ${assistName}` : ""}.`;
+          return `${playerName} (${teamName}) converts the penalty kick ${timingContext}${assistName ? `, with the assist credited to ${assistName}` : ""}.`;
         } else if (event.detail?.toLowerCase().includes("own goal")) {
-          return `${playerName} (${teamName}) scores an own goal.`;
+          return `Own goal! ${playerName} (${teamName}) accidentally puts the ball into his own net ${timingContext}.`;
         } else {
-          return `Goal! ${playerName} (${teamName})${assistName ? ` assisted by ${assistName}` : ""}.`;
+          const goalTypes = [
+            `Goal! Brilliant finish by ${playerName} (${teamName}) ${timingContext}`,
+            `Goal! ${playerName} (${teamName}) finds the back of the net ${timingContext}`,
+            `Goal! What a strike from ${playerName} (${teamName}) ${timingContext}`,
+            `Goal! ${playerName} (${teamName}) breaks the deadlock ${timingContext}`
+          ];
+          const randomGoal = goalTypes[Math.floor(Math.random() * goalTypes.length)];
+          return `${randomGoal}${assistName ? `. Assist by ${assistName}` : ""}.`;
         }
 
       case "card":
         if (event.detail?.toLowerCase().includes("yellow")) {
-          return `${playerName} (${teamName}) is shown the yellow card.`;
+          const yellowReasons = [
+            "for a reckless challenge",
+            "for dissent",
+            "for unsporting behavior", 
+            "for delaying the restart",
+            "for a tactical foul"
+          ];
+          const reason = yellowReasons[Math.floor(Math.random() * yellowReasons.length)];
+          return `${playerName} (${teamName}) is booked ${reason}.`;
         } else {
-          return `${playerName} (${teamName}) is shown the red card.`;
+          const redReasons = [
+            "for serious foul play",
+            "for violent conduct", 
+            "for a second bookable offense",
+            "for denying an obvious goal-scoring opportunity"
+          ];
+          const reason = redReasons[Math.floor(Math.random() * redReasons.length)];
+          return `Red card! ${playerName} (${teamName}) is sent off ${reason}.`;
         }
 
       case "subst":
         if (assistName) {
-          return `Substitution, ${teamName}. ${assistName} replaces ${playerName}.`;
+          return `Substitution for ${teamName}. ${assistName} replaces ${playerName} ${timingContext}.`;
         }
-        return `Substitution, ${teamName}. ${playerName} comes on.`;
+        return `Substitution for ${teamName}. ${playerName} enters the match ${timingContext}.`;
 
       case "var":
-        return `VAR Review involving ${playerName} (${teamName}).`;
+        const varReasons = [
+          "checking for a possible penalty",
+          "reviewing the goal decision",
+          "checking for offside",
+          "reviewing a potential red card incident"
+        ];
+        const varReason = varReasons[Math.floor(Math.random() * varReasons.length)];
+        return `VAR Review: The referee is ${varReason} involving ${playerName} (${teamName}).`;
 
       default:
-        return `${event.detail || event.type} - ${playerName} (${teamName}).`;
+        return `${event.detail || event.type} - ${playerName} (${teamName}) ${timingContext}.`;
     }
   };
 
@@ -740,6 +783,42 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               content: 'First Half begins.',
               isImportant: true
             });
+
+            // Add synthetic commentary for different match phases
+            const addSyntheticCommentary = () => {
+              const syntheticEvents = [];
+              
+              // Add commentary at regular intervals if no real events exist
+              for (let minute = 5; minute <= 85; minute += 10) {
+                const hasRealEventNearby = events.some(e => 
+                  Math.abs(e.time.elapsed - minute) <= 2
+                );
+                
+                if (!hasRealEventNearby) {
+                  const commentaries = [
+                    `Both teams are testing each other's defenses.`,
+                    `Play continues in the middle of the park.`,
+                    `The tempo of the game remains steady.`,
+                    `Players are looking for opportunities to break forward.`,
+                    `The match continues with both sides probing for openings.`,
+                    `Good movement off the ball from both teams.`
+                  ];
+                  
+                  syntheticEvents.push({
+                    type: 'commentary',
+                    time: { elapsed: minute },
+                    content: commentaries[Math.floor(Math.random() * commentaries.length)],
+                    isSynthetic: true
+                  });
+                }
+              }
+              
+              return syntheticEvents;
+            };
+
+            // Add synthetic events
+            const syntheticEvents = addSyntheticCommentary();
+            timelineEvents.push(...syntheticEvents);
 
             // Add actual events
             events.forEach(event => {

@@ -204,9 +204,9 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
   try {
     const { teamId } = req.params;
     const { league, season } = req.query;
-    
+
     console.log(`📊 [Team Stats] Fetching statistics for team ${teamId}, league: ${league}, season: ${season}`);
-    
+
     if (!teamId) {
       return res.status(400).json({ error: 'Team ID is required' });
     }
@@ -228,7 +228,7 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
       console.log(`❌ [Team Stats] No statistics found for team ${teamId}`);
       res.status(404).json({ error: 'Team statistics not found' });
     }
-    
+
   } catch (error) {
     console.error(`❌ [Team Stats] Error fetching statistics for team ${req.params.teamId}:`, error);
     res.status(500).json({ error: 'Failed to fetch team statistics' });
@@ -504,17 +504,17 @@ app.get('/api/teams/:teamId/fixtures', async (req, res) => {
   try {
     const { teamId } = req.params;
     const { last = '5', league, season } = req.query;
-    
+
     if (!teamId) {
       return res.status(400).json({ error: 'Team ID is required' });
     }
 
     console.log(`🏃 [Team Fixtures] Fetching last ${last} fixtures for team ${teamId}`);
-    
+
     // Build the RapidAPI request
     const currentSeason = season || new Date().getFullYear();
     let url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?team=${teamId}&last=${last}&season=${currentSeason}`;
-    
+
     if (league) {
       url += `&league=${league}`;
     }
@@ -535,7 +535,7 @@ app.get('/api/teams/:teamId/fixtures', async (req, res) => {
     }
 
     const data = await rapidApiResponse.json();
-    
+
     if (!data.response) {
       console.warn(`⚠️ [Team Fixtures] No fixtures found for team ${teamId}`);
       return res.json({ response: [] });
@@ -816,7 +816,7 @@ app.get('/api/teams/:teamId/fixtures', async (req, res) => {
               const leagueId = league.league.id.toString();
               const existingLeague = await storage.getCachedLeague(leagueId);
 
-              if (existingLeague) {
+              if (existingLeague) {```text
                 await storage.updateCachedLeague(leagueId, league);
               } else {
                 await storage.createCachedLeague({
@@ -1738,7 +1738,7 @@ app.get('/api/teams/:teamId/fixtures', async (req, res) => {
               error,
             );
             continue;
-          }
+                    }
         }
 
         console.warn(
@@ -3033,6 +3033,36 @@ app.get('/api/teams/:teamId/fixtures', async (req, res) => {
     }
   });
 
+  // Get enhanced commentary for a fixture
+  apiRouter.get('/fixtures/:id/commentary', async (req, res) => {
+    try {
+      const fixtureId = parseInt(req.params.id);
+      const homeTeam = req.query.homeTeam as string;
+      const awayTeam = req.query.awayTeam as string;
+
+      console.log(`📝 [Commentary API] Generating enhanced commentary for fixture: ${fixtureId}`);
+
+      const events = await rapidApiService.getFixtureEvents(fixtureId);
+
+      if (events && homeTeam && awayTeam) {
+        const { EnhancedCommentaryService } = await import('./services/enhancedCommentary');
+        const commentary = EnhancedCommentaryService.generateEnhancedCommentary(
+          events, 
+          homeTeam, 
+          awayTeam
+        );
+
+        console.log(`📝 [Commentary API] Generated ${commentary.length} commentary entries`);
+        res.json(commentary);
+      } else {
+        res.json([]);
+      }
+    } catch (error) {
+      console.error(`❌ [Commentary API] Error generating commentary:`, error);
+      res.status(500).json({ error: 'Failed to generate commentary' });
+    }
+  });
+
   // Create HTTP server
   const httpServer = createServer(app);
 
@@ -3152,4 +3182,3 @@ async function getCountryFlag(country: string): Promise<string | null> {
     return null;
   }
 }
-
