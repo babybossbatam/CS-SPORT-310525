@@ -1008,7 +1008,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         <div className="text-xs font-md text-red-500">
                           {timeDisplay}
                         </div>
-                        <div className="text-xs text-gray-800">
+                        <div className="text-xs text-gray-800" style={{ marginTop: '-5px' }}>
                           {event.time.elapsed}'
 
                         </div>
