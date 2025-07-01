@@ -975,7 +975,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               <img
                                 src="/assets/matchdetaillogo/i mark.svg"
                                 alt="Half Time"
-                                className="w-6 h-6"
+                                className="w-4 h-4 ml-1"
                               />
                             ) : (
                               <span className="text-white text-xs font-semi-bold">
@@ -984,13 +984,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             )}
                           </div>
                           {index < allCommentaryItems.length - 1 && (
-                            <div className="w-0.5 h-5 bg-gray-800 "></div>
+                            <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
                           )}
                         </div>
 
                         {/* Content Column */}
                         <div className="flex-1">
-                          <div className="text-sm font-bold text-gray-700 leading-relaxed">
+                          <div className="text-sm font-md ml-4 text-gray-600 leading-relaxed">
                             {displayText}
                           </div>
                         </div>
