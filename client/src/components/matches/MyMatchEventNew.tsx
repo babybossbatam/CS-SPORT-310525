@@ -164,12 +164,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     const currentHomeScore = events.filter(e => 
       e.type === "goal" && 
       e.team?.name?.toLowerCase() === homeTeam?.toLowerCase() && 
-      e.time.elapsed <= event.time.elapsed
+      (e.time.elapsed < event.time.elapsed || (e.time.elapsed === event.time.elapsed && e === event))
     ).length;
     const currentAwayScore = events.filter(e => 
       e.type === "goal" && 
       e.team?.name?.toLowerCase() === awayTeam?.toLowerCase() && 
-      e.time.elapsed <= event.time.elapsed
+      (e.time.elapsed < event.time.elapsed || (e.time.elapsed === event.time.elapsed && e === event))
     ).length;
 
     switch (event.type?.toLowerCase()) {
@@ -846,15 +846,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
                     </div>
                   ) : event.type === "subst" ? (
-                    <div className="flex items-start gap-2">
-                      <img 
-                        src="/assets/matchdetaillogo/substitution.svg" 
-                        alt="Substitution" 
-                        className="w-4 h-4 opacity-60 mt-0.5"
-                      />
-                      <div className="text-sm text-gray-700 leading-relaxed">
-                        {commentaryText}
-                      </div>
+                    <div className="text-sm text-gray-700 leading-relaxed ml-6">
+                      {commentaryText}
                     </div>
                   ) : event.type === "var" ? (
                     <div className="flex items-start gap-2">
