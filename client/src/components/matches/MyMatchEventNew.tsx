@@ -153,6 +153,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   const generateCommentaryText = (event: MatchEvent) => {
+    // Always prioritize real API commentary if available
+    if (event.comments && event.comments.trim().length > 0) {
+      return event.comments;
+    }
+
     const playerName = event.player?.name || "Unknown Player";
     const teamName = event.team?.name || "Unknown Team";
     const assistName = event.assist?.name;
@@ -248,9 +253,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         return `Delay in match because of an injury to ${playerName} (${teamName}). Medical staff are attending to the player.`;
 
       default:
-        if (event.comments) {
-          return event.comments;
-        }
         // Enhanced default case to handle more event types
         if (event.detail?.toLowerCase().includes("foul")) {
           return `Foul by ${playerName} (${teamName}). The referee awards a free kick to the opposing team.`;
