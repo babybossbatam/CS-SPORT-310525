@@ -692,8 +692,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <div className="match-event-time-center-simple">
                         {/* Middle: Time display */}
                         <div className="match-event-time-display">
-                          {event.time?.elapsed}'
-                          {event.time?.extra && ` +${event.time.extra}`}
+                          {event.time?.extra && (
+                            <div className="text-[10px] text-gray-500 leading-none mb-1">
+                              +{event.time.extra}
+                            </div>
+                          )}
+                          <div>{event.time?.elapsed}'</div>
                         </div>
                       </div>
 
