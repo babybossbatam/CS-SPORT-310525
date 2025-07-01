@@ -205,7 +205,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                       </div>
                     )}
 
-                    {/* Show MyMatchEventNew for live and ended matches - moved to bottom */}
+                    {/* Show MyMatchEventNew for live and ended matches */}
                     {(isLive || isEnded) && (
                       <MyMatchEventNew
                         fixtureId={selectedFixture?.fixture?.id}
@@ -217,10 +217,26 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                       />
                     )}
 
-                    {/* For upcoming matches, neither component is shown */}
+                    {/* Match Prediction for upcoming matches - moved below MyMatchEventNew */}
+                    {!isLive && !isEnded && (
+                      <MatchPrediction
+                        homeTeam={{
+                          id: selectedFixture?.teams?.home?.id,
+                          name: selectedFixture?.teams?.home?.name || 'Home Team',
+                          logo: selectedFixture?.teams?.home?.logo || ''
+                        }}
+                        awayTeam={{
+                          id: selectedFixture?.teams?.away?.id,
+                          name: selectedFixture?.teams?.away?.name || 'Away Team',
+                          logo: selectedFixture?.teams?.away?.logo || ''
+                        }}
+                        fixtureId={selectedFixture?.fixture?.id}
+                        leagueId={selectedFixture?.league?.id}
+                        season={selectedFixture?.league?.season}
+                      />
+                    )}
                   </>
                   );
-
               })()}
 
               <MatchDetailCard match={selectedFixture} />
