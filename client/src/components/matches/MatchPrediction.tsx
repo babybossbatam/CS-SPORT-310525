@@ -56,6 +56,22 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
   const [predictionData, setPredictionData] = useState<PredictionData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Early return if teams are not provided
+  if (!homeTeam || !awayTeam) {
+    return (
+      <Card className="w-full shadow-md">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-lg font-bold">Match Prediction</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-32">
+            <p className="text-sm text-gray-500">Team data not available</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Use props as fallback if API data is not available
   const homeWinProbability = predictionData?.homeWinProbability ?? propHomeWin ?? 33;
   const drawProbability = predictionData?.drawProbability ?? propDraw ?? 34;
@@ -249,9 +265,9 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
     const confidenceText = confidence >= 70 ? 'High confidence' : confidence >= 50 ? 'Moderate confidence' : 'Low confidence';
 
     if (highest === homeWinProbability && highest > 50) {
-      return `${homeTeam.name} is favored to win this match with a ${homeWinProbability}% probability. (${confidenceText})`;
+      return `${homeTeam?.name || 'Home Team'} is favored to win this match with a ${homeWinProbability}% probability. (${confidenceText})`;
     } else if (highest === awayWinProbability && highest > 50) {
-      return `${awayTeam.name} is favored to win this match with a ${awayWinProbability}% probability. (${confidenceText})`;
+      return `${awayTeam?.name || 'Away Team'} is favored to win this match with a ${awayWinProbability}% probability. (${confidenceText})`;
     } else if (highest === drawProbability && highest > 40) {
       return `This match is likely to end in a draw with a ${drawProbability}% probability. (${confidenceText})`;
     } else {
@@ -332,17 +348,17 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
               <div className="flex items-center">
                 <img 
                   src={
-                    homeTeam.id
+                    homeTeam?.id
                       ? `/api/team-logo/square/${homeTeam.id}?size=24`
-                      : homeTeam.logo || "/assets/fallback-logo.svg"
+                      : homeTeam?.logo || "/assets/fallback-logo.svg"
                   }
-                  alt={homeTeam.name} 
+                  alt={homeTeam?.name || 'Home Team'} 
                   className="w-6 h-6 mr-2"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
                   }}  
                 />
-                <span className="text-sm font-medium">{homeTeam.name} Win</span>
+                <span className="text-sm font-medium">{homeTeam?.name || 'Home Team'} Win</span>
               </div>
               <span className="text-sm font-bold">{homeWinProbability}%</span>
             </div>
@@ -369,17 +385,17 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
               <div className="flex items-center">
                 <img 
                   src={
-                    awayTeam.id
+                    awayTeam?.id
                       ? `/api/team-logo/square/${awayTeam.id}?size=24`
-                      : awayTeam.logo || "/assets/fallback-logo.svg"
+                      : awayTeam?.logo || "/assets/fallback-logo.svg"
                   }
-                  alt={awayTeam.name} 
+                  alt={awayTeam?.name || 'Away Team'} 
                   className="w-6 h-6 mr-2"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
                   }}  
                 />
-                <span className="text-sm font-medium">{awayTeam.name} Win</span>
+                <span className="text-sm font-medium">{awayTeam?.name || 'Away Team'} Win</span>
               </div>
               <span className="text-sm font-bold">{awayWinProbability}%</span>
             </div>
@@ -396,7 +412,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
         {/* Team Stats Comparison */}
         <div className="mt-6 grid grid-cols-3 gap-2 pt-4 border-t border-gray-200">
           <div className="space-y-2">
-            <h4 className="text-sm font-medium text-center">{homeTeam.name}</h4>
+            <h4 className="text-sm font-medium text-center">{homeTeam?.name || 'Home Team'}</h4>
             <div className="flex flex-col space-y-1 text-xs">
               <div className="flex justify-between">
                 <span>Form:</span>
@@ -431,7 +447,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           </div>
 
           <div className="space-y-2">
-            <h4 className="text-sm font-medium text-center">{awayTeam.name}</h4>
+            <h4 className="text-sm font-medium text-center">{awayTeam?.name || 'Away Team'}</h4>
             <div className="flex flex-col space-y-1 text-xs">
               <div className="flex justify-between">
                 <span>Form:</span>
