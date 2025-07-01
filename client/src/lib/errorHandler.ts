@@ -74,10 +74,16 @@ export const setupGlobalErrorHandlers = () => {
   window.addEventListener('unhandledrejection', (event) => {
     const error = event.reason;
 
-    // Prevent default handling that might cause cascade errors
-    event.preventDefault();
+    // Suppress runtime plugin errors and other development-specific errors
+    if (error?.message?.includes('plugin:runtime-error-plugin') ||
+        error?.message?.includes('unknown runtime error') ||
+        error?.stack?.includes('runtime-error-plugin')) {
+      console.log('🔧 Runtime plugin error suppressed');
+      event.preventDefault();
+      return;
+    }
 
-    console.error('🚨 Unhandled promise rejection:', error);
+    console.error('🚨 Unhandled Promise Rejection:', error);
 
     // Handle specific error types
     if (error instanceof Error) {
@@ -88,6 +94,7 @@ export const setupGlobalErrorHandlers = () => {
           error.message?.includes('dynamically imported module')) {
         console.log('🌐 Network/import connectivity issue detected, attempting recovery...');
         handleNetworkRecovery();
+        event.preventDefault();
         return;
       }
 
@@ -96,6 +103,7 @@ export const setupGlobalErrorHandlers = () => {
           error.message?.includes('space after cleanup') ||
           error.message?.includes('MaxListenersExceededWarning')) {
         console.log('🖼️ Frame/memory-related error detected, suppressing cascade...');
+        event.preventDefault();
         return;
       }
     }
@@ -105,9 +113,11 @@ export const setupGlobalErrorHandlers = () => {
         (error.includes('Failed to fetch') || 
          error.includes('Network') || 
          error.includes('dynamically imported') ||
-         error.includes('MaxListenersExceeded'))) {
+         error.includes('MaxListenersExceeded') ||
+         error.includes('runtime-error-plugin'))) {
       console.log('🌐 Network/import error string detected, attempting recovery...');
       handleNetworkRecovery();
+      event.preventDefault();
       return;
     }
   });
@@ -115,6 +125,15 @@ export const setupGlobalErrorHandlers = () => {
   // Handle global JavaScript errors
   window.addEventListener('error', (event) => {
     const error = event.error;
+
+    // Suppress runtime plugin errors
+    if (event.message?.includes('plugin:runtime-error-plugin') ||
+        event.message?.includes('unknown runtime error') ||
+        event.filename?.includes('runtime-error-plugin')) {
+      console.log('🔧 Runtime plugin error suppressed');
+      event.preventDefault();
+      return;
+    }
 
     console.error('🚨 Global error:', error);
 

@@ -38,15 +38,22 @@ export default class ErrorBoundary extends Component<Props, State> {
       'SyntaxError: Invalid or unexpected token',
       'Uncaught SyntaxError',
       'sandbox',
-      'allow-downloads-without-user-activation'
+      'allow-downloads-without-user-activation',
+      'plugin:runtime-error-plugin',
+      'unknown runtime error',
+      'runtime-error-plugin'
     ];
 
     const shouldSuppress = suppressPatterns.some(pattern => 
-      error.message?.includes(pattern) || error.toString().includes(pattern)
+      error.message?.includes(pattern) || 
+      error.toString().includes(pattern) ||
+      error.stack?.includes(pattern)
     );
 
     if (!shouldSuppress) {
       console.error('Error caught by boundary:', error, errorInfo);
+    } else {
+      console.log('🔧 Error suppressed by boundary:', error.message);
     }
   }
 

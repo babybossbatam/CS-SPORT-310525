@@ -87,18 +87,38 @@ function App() {
   // Initialize global error handlers
   React.useEffect(() => {
     setupGlobalErrorHandlers();
-    // Add additional error handling for dynamic imports
-    window.addEventListener("unhandledrejection", (event) => {
+    
+    // Add additional error handling for dynamic imports and runtime errors
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       if (
         event.reason?.message?.includes(
           "Failed to fetch dynamically imported module",
-        )
+        ) ||
+        event.reason?.message?.includes("plugin:runtime-error-plugin") ||
+        event.reason?.message?.includes("unknown runtime error")
       ) {
-        console.error("Dynamic import error caught:", event.reason);
-        // Optionally show a user-friendly message
+        console.log("Runtime/dynamic import error caught and suppressed:", event.reason?.message);
         event.preventDefault();
       }
-    });
+    };
+
+    const handleError = (event: ErrorEvent) => {
+      if (
+        event.message?.includes("plugin:runtime-error-plugin") ||
+        event.message?.includes("unknown runtime error")
+      ) {
+        console.log("Runtime error caught and suppressed:", event.message);
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
+    window.addEventListener("error", handleError);
+
+    return () => {
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+      window.removeEventListener("error", handleError);
+    };
   }, []);
 
   return (
