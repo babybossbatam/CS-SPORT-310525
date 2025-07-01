@@ -331,11 +331,15 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <img 
-                  src={homeTeam.logo} 
+                  src={
+                    homeTeam.id
+                      ? `/api/team-logo/square/${homeTeam.id}?size=24`
+                      : homeTeam.logo || "/assets/fallback-logo.svg"
+                  }
                   alt={homeTeam.name} 
                   className="w-6 h-6 mr-2"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
+                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
                   }}  
                 />
                 <span className="text-sm font-medium">{homeTeam.name} Win</span>
@@ -364,11 +368,15 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             <div className="flex justify-between items-center">
               <div className="flex items-center">
                 <img 
-                  src={awayTeam.logo} 
+                  src={
+                    awayTeam.id
+                      ? `/api/team-logo/square/${awayTeam.id}?size=24`
+                      : awayTeam.logo || "/assets/fallback-logo.svg"
+                  }
                   alt={awayTeam.name} 
                   className="w-6 h-6 mr-2"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/24?text=Team';
+                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
                   }}  
                 />
                 <span className="text-sm font-medium">{awayTeam.name} Win</span>
