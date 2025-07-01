@@ -475,26 +475,26 @@
   .match-event-three-grid-container {
     grid-template-columns: 1fr 60px 1fr;
     gap: 4px;
-    padding: 8px 4px;
+    padding: 4px 4px;
     min-height: 50px;
   }
 
   .match-event-time-center {
       font-size: 8px;
-    padding: 6px 2px;
+    padding: 2px 2px;
     min-height: 32px;
     min-width: 45px;
   }
 
   .match-event-time-center-simple {
     min-height: 32px;
-    min-width: 56px;
+    min-width: 35px;
   }
 
   .match-event-time-display {
     font-size: 11px;
     height: 32px;
-    min-height: 32px;
+    min-height: 25px;
   }
 
   .match-event-icon {
