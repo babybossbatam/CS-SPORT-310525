@@ -648,7 +648,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 )}
                                 {event.type !== "subst" && (
                                   <div className="text-xs text-gray-400">
-                                    {event.detail || event.type}
+                                    {event.type === "foul" || event.detail?.toLowerCase().includes("foul") 
+                                      ? `Foul by ${event.player?.name || "Unknown Player"}` 
+                                      : (event.detail || event.type)}
                                   </div>
                                 )}
                               </div>
@@ -752,7 +754,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 )}
                                 {event.type !== "subst" && (
                                   <div className="text-xs text-gray-400">
-                                    {event.detail || event.type}
+                                    {event.type === "foul" || event.detail?.toLowerCase().includes("foul") 
+                                      ? `Foul by ${event.player?.name || "Unknown Player"}` 
+                                      : (event.detail || event.type)}
                                   </div>
                                 )}
                               </div>
