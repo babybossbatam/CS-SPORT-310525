@@ -31,10 +31,10 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
   const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
     // Check if teamName is valid
-    if (!teamName || typeof teamName !== 'string') {
+    if (!teamName || typeof teamName !== "string") {
       return fallbackUrl || "/assets/fallback-logo.svg";
     }
-    
+
     // Extract country from team name or use direct country mapping
     const countryCode = getCountryCode(teamName);
 
@@ -87,6 +87,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Algeria: "dz",
       Angola: "ao",
       Afghanistan: "af",
+      Azerbaijan: "az",
+      Belarus: "by",
       Bhutan: "bt",
       Dominican: "do",
       Estonia: "ee",
