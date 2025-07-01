@@ -990,7 +990,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                         {/* Content Column */}
                         <div className="flex-1">
-                          <div className="text-sm font-bold text-green-700 leading-relaxed">
+                          <div className="text-sm font-bold text-gray-700 leading-relaxed">
                             {displayText}
                           </div>
                         </div>
