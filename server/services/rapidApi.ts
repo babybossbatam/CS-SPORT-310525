@@ -66,6 +66,55 @@ const popularLeagues: { [leagueId: number]: string[] } = {
 
 export const rapidApiService = {
   /**
+   * Get team statistics for a specific league and season
+   */
+  async getTeamStatistics(teamId: number, leagueId: number, season: number): Promise<any> {
+    const cacheKey = `team-stats-${teamId}-${leagueId}-${season}`;
+    const cached = playersCache.get(cacheKey);
+
+    const now = Date.now();
+    // Use longer cache duration for team stats (4 hours)
+    if (cached && now - cached.timestamp < 4 * 60 * 60 * 1000) {
+      console.log(`📦 [RapidAPI] Using cached team statistics for team ${teamId}`);
+      return cached.data;
+    }
+
+    try {
+      console.log(`📊 [RapidAPI] Fetching team statistics for team ${teamId}, league ${leagueId}, season ${season}`);
+
+      const response = await apiClient.get("/teams/statistics", {
+        params: { 
+          team: teamId, 
+          league: leagueId, 
+          season: season 
+        },
+      });
+
+      console.log(`📊 [RapidAPI] Team stats API response status: ${response.status}, results count: ${response.data?.results || 0}`);
+
+      if (response.data && response.data.response) {
+        const statsData = response.data.response;
+        playersCache.set(cacheKey, {
+          data: statsData,
+          timestamp: now,
+        });
+        console.log(`✅ [RapidAPI] Successfully cached team statistics for team ${teamId}`);
+        return statsData;
+      }
+
+      console.log(`❌ [RapidAPI] No statistics data for team ${teamId}, league ${leagueId}, season ${season}`);
+      return null;
+    } catch (error) {
+      console.error(`❌ [RapidAPI] Error fetching team statistics for team ${teamId}:`, error);
+      if (cached?.data) {
+        console.log("Using cached data due to API error");
+        return cached.data;
+      }
+      console.error("API request failed and no cache available");
+      return null;
+    }
+  },
+  /**
    * Get fixtures by date with comprehensive timezone handling (365scores.com approach)
    */
   async getFixturesByDate(

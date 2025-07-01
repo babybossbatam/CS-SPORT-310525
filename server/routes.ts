@@ -198,6 +198,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Partial validation of preferences
         const preferencesData = req.body;
 
+
+// Team statistics endpoint
+app.get('/api/teams/:teamId/statistics', async (req, res) => {
+  try {
+    const { teamId } = req.params;
+    const { league, season } = req.query;
+    
+    console.log(`📊 [Team Stats] Fetching statistics for team ${teamId}, league: ${league}, season: ${season}`);
+    
+    if (!teamId) {
+      return res.status(400).json({ error: 'Team ID is required' });
+    }
+
+    const currentSeason = season || new Date().getFullYear();
+    const leagueId = league || null;
+
+    // Try to get team statistics from RapidAPI
+    const response = await rapidApiService.getTeamStatistics(
+      parseInt(teamId),
+      parseInt(leagueId),
+      parseInt(currentSeason)
+    );
+
+    if (response) {
+      console.log(`✅ [Team Stats] Successfully retrieved statistics for team ${teamId}`);
+      res.json({ success: true, response: [response] });
+    } else {
+      console.log(`❌ [Team Stats] No statistics found for team ${teamId}`);
+      res.status(404).json({ error: 'Team statistics not found' });
+    }
+    
+  } catch (error) {
+    console.error(`❌ [Team Stats] Error fetching statistics for team ${req.params.teamId}:`, error);
+    res.status(500).json({ error: 'Failed to fetch team statistics' });
+  }
+});
+
+
         // Check if preferences exist
         let preferences = await storage.getUserPreferences(userId);
 
