@@ -1040,37 +1040,32 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 {eventDescription}
                               </div>
                             </div>
-                            {/* Only show score for actual goals, not own goals or other goal-related events */}
-                            {!event.detail?.toLowerCase().includes("own goal") && (
-                              <div className="flex items-center gap-1 ml-6 text-xs bg-green-100 px-2 py-1 rounded-full w-fit">
-                                <span>⚽</span>
-                                <span className="font-semibold text-green-700">
-                                  {(() => {
-                                    // Calculate score up to and including this event
-                                    const currentEventTime = event.time.elapsed + (event.time.extra || 0);
-                                    const homeGoals = events
-                                      .filter(e => {
-                                        const eventTime = e.time.elapsed + (e.time.extra || 0);
-                                        return e.type === "goal" && 
-                                               eventTime <= currentEventTime && 
-                                               e.team?.name === homeTeam &&
-                                               !e.detail?.toLowerCase().includes("own goal");
-                                      })
-                                      .length;
-                                    const awayGoals = events
-                                      .filter(e => {
-                                        const eventTime = e.time.elapsed + (e.time.extra || 0);
-                                        return e.type === "goal" && 
-                                               eventTime <= currentEventTime && 
-                                               e.team?.name === awayTeam &&
-                                               !e.detail?.toLowerCase().includes("own goal");
-                                      })
-                                      .length;
-                                    return `${homeGoals}-${awayGoals}`;
-                                  })()}
-                                </span>
-                              </div>
-                            )}
+                            <div className="flex items-center gap-1 ml-6 text-xs bg-green-100 px-2 py-1 rounded-full w-fit">
+                              <span>⚽</span>
+                              <span className="font-semibold text-green-700">
+                                {(() => {
+                                  // Calculate score up to and including this event
+                                  const currentEventTime = event.time.elapsed + (event.time.extra || 0);
+                                  const homeGoals = events
+                                    .filter(e => {
+                                      const eventTime = e.time.elapsed + (e.time.extra || 0);
+                                      return e.type === "goal" && 
+                                             eventTime <= currentEventTime && 
+                                             e.team?.name === homeTeam;
+                                    })
+                                    .length;
+                                  const awayGoals = events
+                                    .filter(e => {
+                                      const eventTime = e.time.elapsed + (e.time.extra || 0);
+                                      return e.type === "goal" && 
+                                             eventTime <= currentEventTime && 
+                                             e.team?.name === awayTeam;
+                                    })
+                                    .length;
+                                  return `${homeGoals}-${awayGoals}`;
+                                })()}
+                              </span>
+                            </div>
                           </div>
                         ) : event.type === "card" ? (
                           <div className="flex items-start gap-2">
