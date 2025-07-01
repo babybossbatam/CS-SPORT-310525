@@ -671,6 +671,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           </div>
         )}
       </CardContent>
+      
+      <div className="p-4 bg-gray-50 border-t">
+        <p className="text-sm text-gray-600">Additional match information or actions can be placed here</p>
+      </div>
     </Card>
   );
 };
