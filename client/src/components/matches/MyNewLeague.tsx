@@ -146,33 +146,21 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           );
 
           if (Array.isArray(fixturesData)) {
-            // Filter for Club World Cup matches specifically
-            const filteredFixtures = fixturesData.filter((fixture) => {
-              const isClubWorldCup =
-                fixture.league?.name
-                  ?.toLowerCase()
-                  .includes("club world cup") ||
-                fixture.league?.name
-                  ?.toLowerCase()
-                  .includes("fifa club world cup");
-              const isRelevantMatch =
-                fixture.teams?.home?.name === "Juventus" ||
-                fixture.teams?.away?.name === "Juventus" ||
-                fixture.teams?.home?.name === "Wydad AC" ||
-                fixture.teams?.away?.name === "Wydad AC";
-
-              console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
-                teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-                league: fixture.league?.name,
-                status: fixture.fixture?.status?.short,
-                isClubWorldCup,
-                isRelevantMatch,
-              });
-
-              return true; // Show all matches for now to debug
+            // Show all matches without restrictive filtering
+            console.log(`MyNewLeague - Processing ${fixturesData.length} fixtures for league ${leagueId}`);
+            
+            fixturesData.forEach((fixture, index) => {
+              if (index < 5) { // Only log first 5 to avoid spam
+                console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
+                  teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+                  league: fixture.league?.name,
+                  status: fixture.fixture?.status?.short,
+                  date: fixture.fixture?.date,
+                });
+              }
             });
 
-            allFixtures.push(...filteredFixtures);
+            allFixtures.push(...fixturesData);
           }
         } catch (leagueError) {
           const errorMessage = leagueError instanceof Error ? leagueError.message : 'Unknown error';
