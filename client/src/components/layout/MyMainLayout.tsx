@@ -9,7 +9,7 @@ import HomeTopScorersList from "@/components/leagues/HomeTopScorersList";
 import LeagueStandingsFilter from "@/components/leagues/LeagueStandingsFilter";
 import PopularLeaguesList from "@/components/leagues/PopularLeaguesList";
 import PopularTeamsList from "@/components/teams/PopularTeamsList";
-import MatchPrediction from '@/components/matches/MatchPrediction';
+import MatchPrediction from "@/components/matches/MatchPrediction";
 import ScoreDetailsCard from "@/components/matches/ScoreDetailsCard";
 import MyRightContent from "@/components/layout/MyRightContent";
 import MyMatchdetailsScoreboard from "../matches/MyMatchdetailsScoreboard";
@@ -17,8 +17,8 @@ import MatchDetailCard from "@/components/matches/MatchDetailCard";
 import MyHighlights from "@/components/matches/MyHighlights";
 import MyMatchEvents from "@/components/matches/MyMatchEvents";
 import MyLiveAction from "@/components/matches/MyLiveAction";
-import MyNewLMT from '@/components/matches/MyNewLMT';
-import MyMatchEventNew from '@/components/matches/MyMatchEventNew';
+import MyNewLMT from "@/components/matches/MyNewLMT";
+import MyMatchEventNew from "@/components/matches/MyMatchEventNew";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
@@ -29,7 +29,10 @@ interface MyMainLayoutProps {
   loading?: boolean;
 }
 
-const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }) => {
+const MyMainLayout: React.FC<MyMainLayoutProps> = ({
+  fixtures,
+  loading = false,
+}) => {
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
@@ -161,8 +164,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
               loading={loading}
             />
           </div>
-           {/* Match Prediction Component */}
-           <MatchPrediction />
         </div>
 
         {/* Right column (7 columns) */}
@@ -176,12 +177,21 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
 
               {/* Conditional rendering based on match status */}
               {(() => {
-              const matchStatus = selectedFixture?.fixture?.status?.short;
-              const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(matchStatus);
-              const isEnded = ["FT", "AET", "PEN"].includes(matchStatus);
-              const isUpcoming = matchStatus === "NS";
+                const matchStatus = selectedFixture?.fixture?.status?.short;
+                const isLive = [
+                  "1H",
+                  "2H",
+                  "LIVE",
+                  "LIV",
+                  "HT",
+                  "ET",
+                  "P",
+                  "INT",
+                ].includes(matchStatus);
+                const isEnded = ["FT", "AET", "PEN"].includes(matchStatus);
+                const isUpcoming = matchStatus === "NS";
 
-              return (
+                return (
                   <>
                     {/* Show MyLiveAction only for live matches */}
                     {isLive && (
@@ -218,17 +228,21 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                     )}
 
                     {/* Match Prediction for upcoming matches - moved below MyMatchEventNew */}
+                    {/* Match Prediction Component */}
+                    <MatchPrediction />
                     {!isLive && !isEnded && (
                       <MatchPrediction
                         homeTeam={{
                           id: selectedFixture?.teams?.home?.id,
-                          name: selectedFixture?.teams?.home?.name || 'Home Team',
-                          logo: selectedFixture?.teams?.home?.logo || ''
+                          name:
+                            selectedFixture?.teams?.home?.name || "Home Team",
+                          logo: selectedFixture?.teams?.home?.logo || "",
                         }}
                         awayTeam={{
                           id: selectedFixture?.teams?.away?.id,
-                          name: selectedFixture?.teams?.away?.name || 'Away Team',
-                          logo: selectedFixture?.teams?.away?.logo || ''
+                          name:
+                            selectedFixture?.teams?.away?.name || "Away Team",
+                          logo: selectedFixture?.teams?.away?.logo || "",
                         }}
                         fixtureId={selectedFixture?.fixture?.id}
                         leagueId={selectedFixture?.league?.id}
@@ -236,7 +250,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                       />
                     )}
                   </>
-                  );
+                );
               })()}
 
               <MatchDetailCard match={selectedFixture} />
