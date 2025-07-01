@@ -1070,7 +1070,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
 
                       {/* Content Column */}
-                      {event.type === "goal" ? (
+                      <div className="flex-1">
+                        {event.type === "goal" ? (
                           <div className="flex flex-col gap-2">
                             <div className="goal-header-info bg-green-50 px-2 py-1 rounded-md text-xs text-green-700 font-medium">
                               Goal scored at {event.time.elapsed}' - Score: {(() => {
