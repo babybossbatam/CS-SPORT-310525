@@ -879,41 +879,75 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               });
             }
 
-            // Add full-time marker
+            // Add full-time marker with proper timing
             if (maxTime >= 90) {
               const finalHomeScore = events.filter(e => e.type === "goal" && e.team?.name === homeTeam).length;
               const finalAwayScore = events.filter(e => e.type === "goal" && e.team?.name === awayTeam).length;
 
-              if (hasExtraTime) {
-                timelineEvents.push({
-                  type: 'period-marker',
-                  time: { elapsed: 90 },
-                  content: `90 minutes played. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
-                  isImportant: true
-                });
+              // Calculate the actual match end time including stoppage time
+              const matchEndTime = Math.max(...events.map(e => e.time.elapsed + (e.time.extra || 0)));
+              const hasStoppageTime = events.some(e => e.time.extra && e.time.elapsed <= 90);
+              const maxStoppageTime = hasStoppageTime ? Math.max(...events.filter(e => e.time.extra && e.time.elapsed <= 90).map(e => e.time.extra || 0)) : 0;
 
-                if (hasPenalties) {
+              if (hasExtraTime) {
+                // Regular time end with stoppage
+                if (hasStoppageTime && maxStoppageTime > 0) {
                   timelineEvents.push({
                     type: 'period-marker',
-time: { elapsed: 120 },
-                    content: `Full Time after Extra Time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}. Penalty shootout follows.`,
+                    time: { elapsed: 90, extra: maxStoppageTime },
+                    content: `90+${maxStoppageTime} minutes. End of regular time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}. Extra time follows.`,
                     isImportant: true
                   });
                 } else {
                   timelineEvents.push({
                     type: 'period-marker',
-                    time: { elapsed: Math.max(...events.map(e => e.time.elapsed)) },
+                    time: { elapsed: 90 },
+                    content: `90 minutes played. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}. Extra time follows.`,
+                    isImportant: true
+                  });
+                }
+
+                if (hasPenalties) {
+                  timelineEvents.push({
+                    type: 'period-marker',
+                    time: { elapsed: 120 },
+                    content: `Full Time after Extra Time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}. Penalty shootout follows.`,
+                    isImportant: true
+                  });
+                } else {
+                  const extraTimeEndTime = Math.max(...events.filter(e => e.time.elapsed > 90).map(e => e.time.elapsed + (e.time.extra || 0)));
+                  timelineEvents.push({
+                    type: 'period-marker',
+                    time: { elapsed: Math.floor(extraTimeEndTime), extra: extraTimeEndTime % 1 === 0 ? undefined : Math.floor((extraTimeEndTime % 1) * 60) },
                     content: `Full Time after Extra Time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
                     isImportant: true
                   });
                 }
               } else {
-                timelineEvents.push({
-                  type: 'period-marker',
-                  time: { elapsed: 90 },
-                  content: `Full Time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
-                  isImportant: true
-                });
+                // Regular match end - check for stoppage time
+                if (hasStoppageTime && maxStoppageTime > 0) {
+                  timelineEvents.push({
+                    type: 'period-marker',
+                    time: { elapsed: 90, extra: maxStoppageTime },
+                    content: `Full Time after 90+${maxStoppageTime} minutes. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
+                    isImportant: true
+                  });
+                } else if (matchEndTime > 90) {
+                  // Handle cases where events go beyond 90 minutes without extra time flag
+                  timelineEvents.push({
+                    type: 'period-marker',
+                    time: { elapsed: Math.floor(matchEndTime) },
+                    content: `Full Time after ${Math.floor(matchEndTime)} minutes. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
+                    isImportant: true
+                  });
+                } else {
+                  timelineEvents.push({
+                    type: 'period-marker',
+                    time: { elapsed: 90 },
+                    content: `Full Time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
+                    isImportant: true
+                  });
+                }
               }
             }
 
@@ -936,11 +970,12 @@ time: { elapsed: 120 },
                       <div className="flex flex-col items-center min-w-[50px]">
                         <div className="text-xs font-md text-gray-600">
                           {event.time.elapsed === 0 ? '0\'' : 
-                           event.time.elapsed === 45 ? '45\'' : 
-                           event.time.elapsed === 90 ? '90\'' : `${event.time.elapsed}'`}
+                           event.time.elapsed === 45 ? (event.time.extra ? `45+${event.time.extra}'` : '45\'') : 
+                           event.time.elapsed === 90 ? (event.time.extra ? `90+${event.time.extra}'` : '90\'') : 
+                           event.time.extra ? `${event.time.elapsed}+${event.time.extra}'` : `${event.time.elapsed}'`}
                         </div>
                         <div className="text-xs text-gray-600">
-                          {event.time.elapsed}
+                          {event.time.elapsed}{event.time.extra ? `+${event.time.extra}` : ''}
                         </div>
                         {index < timelineEvents.length - 1 && (
                           <div className="w-0.5 h-4 bg-gray-800 mt-1"></div>
@@ -977,8 +1012,8 @@ time: { elapsed: 120 },
                       <div className="text-xs font-md text-red-500">
                         {timeDisplay}
                       </div>
-                      <div className="text-xs text-gray-800 ">
-                        {event.time.elapsed}
+                      <div className="text-xs text-gray-800">
+                        {event.time.elapsed}{event.time.extra ? `+${event.time.extra}` : ''}
                       </div>
                       {index > 0 && (
                         <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
