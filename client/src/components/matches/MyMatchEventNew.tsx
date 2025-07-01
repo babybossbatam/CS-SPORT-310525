@@ -743,14 +743,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               });
             }
 
-            // Sort by time
+            // Sort by time in descending order (match end to beginning)
             timelineEvents.sort((a, b) => {
               if (a.time.elapsed === b.time.elapsed) {
-                // Period markers should come before events at the same time
-                if (a.type === 'period-marker' && b.type !== 'period-marker') return -1;
-                if (b.type === 'period-marker' && a.type !== 'period-marker') return 1;
+                // Period markers should come after events at the same time when in descending order
+                if (a.type === 'period-marker' && b.type !== 'period-marker') return 1;
+                if (b.type === 'period-marker' && a.type !== 'period-marker') return -1;
               }
-              return a.time.elapsed - b.time.elapsed;
+              return b.time.elapsed - a.time.elapsed;
             });
 
             return timelineEvents.map((event, index) => {
