@@ -945,7 +945,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             return allCommentaryItems
               .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
               .map((event, index) => {
-                const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ""}`;
+                const timeDisplay = `${event.time.extra ? `+${event.time.extra}` : ""}`;
 
                 // Handle period markers
                 if (
@@ -996,9 +996,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           {timeDisplay}
                         </div>
                         <div className="text-xs text-gray-800">
-                          {event.time.elapsed}
-                          {event.time.extra ? `+${event.time.extra}` : ""}
+                          {event.time.elapsed}'
+
                         </div>
+                        
                         {index < allCommentaryItems.length - 1 && (
                           <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
                         )}
