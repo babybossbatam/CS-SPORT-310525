@@ -672,13 +672,21 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         )}
       </CardContent>
       
-      <div className="p-4 bg-gray-50 border-t flex justify-center items-center">
+      <div className="p-2 border-t flex justify-center items-center">
         <img 
           src="/assets/matchdetaillogo/clock.png" 
           alt="Match Clock" 
-          className="w-8 h-8 opacity-60"
+          className="w-4 h-4 opacity-80"
         />
       </div>
+      <div className="p-2 border-t flex justify-center items-center text-xs">
+      <span>
+      Commentary
+      </span>
+      </div>
+      <div className="p-2 border-t flex justify-center items-center text-xs">
+       
+        </div>
     </Card>
   );
 };
