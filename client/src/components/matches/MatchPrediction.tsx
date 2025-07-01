@@ -56,20 +56,47 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
   const [predictionData, setPredictionData] = useState<PredictionData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Early return if teams are not provided
-  if (!homeTeam || !awayTeam) {
-    return (
-      <Card className="w-full shadow-md">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-bold">Match Prediction</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center h-32">
-            <p className="text-sm text-gray-500">Team data not available</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
+  // Debug logging
+  console.log('🔍 [MatchPrediction] Props received:', {
+    homeTeam: homeTeam ? { id: homeTeam.id, name: homeTeam.name, hasLogo: !!homeTeam.logo } : null,
+    awayTeam: awayTeam ? { id: awayTeam.id, name: awayTeam.name, hasLogo: !!awayTeam.logo } : null,
+    propHomeWin,
+    propDraw,
+    propAwayWin,
+    fixtureId,
+    leagueId,
+    season
+  });
+
+  // More robust team data validation
+  if (!homeTeam || !awayTeam || !homeTeam.name || !awayTeam.name) {
+    console.warn('❌ [MatchPrediction] Missing team data:', { 
+      homeTeam: homeTeam ? { name: homeTeam.name, logo: homeTeam.logo } : null, 
+      awayTeam: awayTeam ? { name: awayTeam.name, logo: awayTeam.logo } : null 
+    });
+    
+    // Try to show basic prediction even with incomplete data
+    if (homeTeam?.name && awayTeam?.name) {
+      console.log('✅ [MatchPrediction] Found team names, proceeding with basic prediction');
+    } else {
+      return (
+        <Card className="w-full shadow-md">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg font-bold">Match Prediction</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-center h-32">
+              <div className="text-center">
+                <p className="text-sm text-gray-500">Team data not available</p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Home: {homeTeam?.name || 'Unknown'} | Away: {awayTeam?.name || 'Unknown'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
   }
 
   // Use props as fallback if API data is not available
@@ -79,7 +106,14 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
 
   useEffect(() => {
     const fetchPredictionData = async () => {
+      console.log('📊 [MatchPrediction] Starting prediction data fetch:', {
+        homeTeamId: homeTeam?.id,
+        awayTeamId: awayTeam?.id,
+        hasProps: { propHomeWin, propDraw, propAwayWin }
+      });
+
       if (!homeTeam?.id || !awayTeam?.id) {
+        console.log('⚠️ [MatchPrediction] Missing team IDs, using fallback prediction');
         // If no team IDs, use default probabilities and generate basic stats
         const defaultStats: TeamStats = {
           form: 'N/A',
@@ -93,14 +127,17 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           losses: 0,
         };
         
-        setPredictionData({
+        const fallbackPrediction = {
           homeWinProbability: propHomeWin ?? 33,
           drawProbability: propDraw ?? 34,
           awayWinProbability: propAwayWin ?? 33,
           confidence: 50,
           homeTeamStats: defaultStats,
           awayTeamStats: defaultStats,
-        });
+        };
+
+        console.log('✅ [MatchPrediction] Set fallback prediction:', fallbackPrediction);
+        setPredictionData(fallbackPrediction);
         setIsLoading(false);
         return;
       }
