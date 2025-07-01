@@ -164,12 +164,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     const currentHomeScore = events.filter(e => 
       e.type === "goal" && 
       e.team?.name?.toLowerCase() === homeTeam?.toLowerCase() && 
-      (e.time.elapsed < event.time.elapsed || (e.time.elapsed === event.time.elapsed && e === event))
+      e.time.elapsed <= event.time.elapsed
     ).length;
     const currentAwayScore = events.filter(e => 
       e.type === "goal" && 
       e.team?.name?.toLowerCase() === awayTeam?.toLowerCase() && 
-      (e.time.elapsed < event.time.elapsed || (e.time.elapsed === event.time.elapsed && e === event))
+      e.time.elapsed <= event.time.elapsed
     ).length;
 
     switch (event.type?.toLowerCase()) {
