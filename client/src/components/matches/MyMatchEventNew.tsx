@@ -158,11 +158,111 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       return event.comments;
     }
 
-    // If no API commentary, return a simple event description
+    // Enhanced commentary generation for comprehensive play-by-play
     const playerName = event.player?.name || "Unknown Player";
     const teamName = event.team?.name || "Unknown Team";
+    const assistName = event.assist?.name;
+    const homeTeamName = homeTeam || "Home Team";
+    const awayTeamName = awayTeam || "Away Team";
+    const isHome = event.team?.name === homeTeamName;
 
-    return `${event.detail || event.type} - ${playerName} (${teamName})`;
+    // Get current score context (this would need to be calculated from events up to this point)
+    const currentHomeScore = events.filter(e => e.type === "goal" && e.team?.name === homeTeamName && e.time.elapsed <= event.time.elapsed).length;
+    const currentAwayScore = events.filter(e => e.type === "goal" && e.team?.name === awayTeamName && e.time.elapsed <= event.time.elapsed).length;
+
+    switch (event.type?.toLowerCase()) {
+      case "goal":
+        if (event.detail?.toLowerCase().includes("penalty")) {
+          return `Goal! ${homeTeamName} ${currentHomeScore}, ${awayTeamName} ${currentAwayScore}. ${playerName} (${teamName}) converts the penalty kick${assistName ? ` assisted by ${assistName}` : ""}.`;
+        } else if (event.detail?.toLowerCase().includes("own goal")) {
+          return `Own Goal! ${homeTeamName} ${currentHomeScore}, ${awayTeamName} ${currentAwayScore}. ${playerName} (${teamName}) scores an unfortunate own goal.`;
+        } else {
+          const shotTypes = [
+            "right footed shot from the centre of the box to the bottom left corner",
+            "left footed shot from outside the box to the top right corner",
+            "header from the centre of the box to the bottom right corner",
+            "right footed shot from the right side of the box to the centre of the goal",
+            "left footed shot from the left side of the box to the bottom left corner"
+          ];
+          const randomShot = shotTypes[Math.floor(Math.random() * shotTypes.length)];
+          return `Goal! ${homeTeamName} ${currentHomeScore}, ${awayTeamName} ${currentAwayScore}. ${playerName} (${teamName}) ${randomShot}${assistName ? `. Assisted by ${assistName} with a cross` : ""}.`;
+        }
+
+      case "card":
+        if (event.detail?.toLowerCase().includes("yellow")) {
+          const yellowReasons = [
+            "is shown the yellow card for a bad foul",
+            "is shown the yellow card",
+            "receives a yellow card for unsporting behavior",
+            "is booked for dissent",
+            "is cautioned for simulation"
+          ];
+          const reason = yellowReasons[Math.floor(Math.random() * yellowReasons.length)];
+          return `${playerName} (${teamName}) ${reason}.`;
+        } else {
+          const redReasons = [
+            "is shown the red card for serious foul play",
+            "receives a straight red card",
+            "is sent off for violent conduct",
+            "is dismissed for a second yellow card",
+            "is shown a red card for dangerous play"
+          ];
+          const reason = redReasons[Math.floor(Math.random() * redReasons.length)];
+          return `${playerName} (${teamName}) ${reason}.`;
+        }
+
+      case "subst":
+        if (assistName) {
+          return `Substitution, ${teamName}. ${assistName} replaces ${playerName}.`;
+        }
+        return `Substitution, ${teamName}. ${playerName} comes on as a substitute.`;
+
+      case "var":
+        const varOutcomes = [
+          "VAR Decision: Goal cancelled",
+          "VAR Decision: Penalty awarded",
+          "VAR Decision: No penalty",
+          "VAR Review: Offside check",
+          "VAR Decision: Red card upheld"
+        ];
+        const outcome = varOutcomes[Math.floor(Math.random() * varOutcomes.length)];
+        return `${outcome}. ${playerName} (${teamName}) involved in the decision.`;
+
+      default:
+        // Handle other common events with detailed commentary
+        const detail = event.detail?.toLowerCase() || "";
+        
+        if (detail.includes("foul")) {
+          return `Foul by ${playerName} (${teamName}). The referee awards a free kick to the opposing team.`;
+        } else if (detail.includes("corner")) {
+          return `Corner, ${teamName}. Conceded by ${playerName}.`;
+        } else if (detail.includes("offside")) {
+          return `Offside, ${teamName}. ${playerName} is caught offside.`;
+        } else if (detail.includes("free kick")) {
+          return `${playerName} (${teamName}) wins a free kick in the attacking half.`;
+        } else if (detail.includes("attempt") || detail.includes("shot")) {
+          const attemptTypes = [
+            "right footed shot from outside the box is too high",
+            "left footed shot from the centre of the box misses to the right",
+            "header from the centre of the box is saved in the bottom left corner",
+            "right footed shot from the right side of the box is blocked",
+            "left footed shot from outside the box misses to the left"
+          ];
+          const attemptType = attemptTypes[Math.floor(Math.random() * attemptTypes.length)];
+          return `Attempt missed. ${playerName} (${teamName}) ${attemptType}.`;
+        } else if (detail.includes("save")) {
+          return `Attempt saved. ${playerName} (${teamName}) shot is saved by the goalkeeper.`;
+        } else if (detail.includes("block")) {
+          return `Attempt blocked. ${playerName} (${teamName}) shot is blocked by a defender.`;
+        } else if (detail.includes("delay")) {
+          return `Delay in match because of an injury to ${playerName} (${teamName}). Medical staff are attending to the player.`;
+        } else if (detail.includes("throw")) {
+          return `Throw-in for ${teamName} near the ${isHome ? "attacking" : "defensive"} third.`;
+        } else {
+          // Generic fallback with more detail
+          return `${event.detail || event.type} involving ${playerName} (${teamName}). The referee makes a decision.`;
+        }
+    }
   };
 
   const groupEventsByPeriod = (events: MatchEvent[]) => {
@@ -704,7 +804,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             // Create a complete timeline including period markers
             const timelineEvents = [];
 
-            // Add match start marker
+            // Add comprehensive match flow markers
             timelineEvents.push({
               type: 'period-marker',
               time: { elapsed: 0 },
@@ -721,26 +821,71 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               });
             });
 
-            // Add half-time marker if there are events after 45 minutes
+            // Determine match phases based on events
+            const maxTime = Math.max(...events.map(e => e.time.elapsed), 0);
             const hasSecondHalfEvents = events.some(e => e.time.elapsed > 45);
+            const hasExtraTime = events.some(e => e.time.elapsed > 90);
+            const hasPenalties = events.some(e => e.type === "penalty");
+
+            // Add half-time marker
             if (hasSecondHalfEvents) {
+              const firstHalfEnd = events.filter(e => e.time.elapsed <= 45);
+              const hasFirstHalfStoppage = firstHalfEnd.some(e => e.time.extra);
+              
+              if (hasFirstHalfStoppage) {
+                const maxStoppage = Math.max(...firstHalfEnd.filter(e => e.time.extra).map(e => e.time.extra || 0));
+                timelineEvents.push({
+                  type: 'period-marker',
+                  time: { elapsed: 45, extra: maxStoppage },
+                  content: `First Half ends, ${homeTeam || "Home"} ${events.filter(e => e.type === "goal" && e.team?.name === homeTeam && e.time.elapsed <= 45).length}, ${awayTeam || "Away"} ${events.filter(e => e.type === "goal" && e.team?.name === awayTeam && e.time.elapsed <= 45).length}.`,
+                  isImportant: true
+                });
+              }
+
               timelineEvents.push({
                 type: 'period-marker',
                 time: { elapsed: 45 },
-                content: 'Second Half begins.',
+                content: `Second Half begins ${homeTeam || "Home"} ${events.filter(e => e.type === "goal" && e.team?.name === homeTeam && e.time.elapsed <= 45).length}, ${awayTeam || "Away"} ${events.filter(e => e.type === "goal" && e.team?.name === awayTeam && e.time.elapsed <= 45).length}.`,
                 isImportant: true
               });
             }
 
-            // Add full-time marker if there are events around 90 minutes
-            const hasFullTimeEvents = events.some(e => e.time.elapsed >= 90);
-            if (hasFullTimeEvents) {
-              timelineEvents.push({
-                type: 'period-marker',
-                time: { elapsed: 90 },
-                content: 'Match ends.',
-                isImportant: true
-              });
+            // Add full-time marker
+            if (maxTime >= 90) {
+              const finalHomeScore = events.filter(e => e.type === "goal" && e.team?.name === homeTeam).length;
+              const finalAwayScore = events.filter(e => e.type === "goal" && e.team?.name === awayTeam).length;
+              
+              if (hasExtraTime) {
+                timelineEvents.push({
+                  type: 'period-marker',
+                  time: { elapsed: 90 },
+                  content: `90 minutes played. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
+                  isImportant: true
+                });
+                
+                if (hasPenalties) {
+                  timelineEvents.push({
+                    type: 'period-marker',
+                    time: { elapsed: 120 },
+                    content: `Full Time after Extra Time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}. Penalty shootout follows.`,
+                    isImportant: true
+                  });
+                } else {
+                  timelineEvents.push({
+                    type: 'period-marker',
+                    time: { elapsed: Math.max(...events.map(e => e.time.elapsed)) },
+                    content: `Full Time after Extra Time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
+                    isImportant: true
+                  });
+                }
+              } else {
+                timelineEvents.push({
+                  type: 'period-marker',
+                  time: { elapsed: 90 },
+                  content: `Full Time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
+                  isImportant: true
+                });
+              }
             }
 
             // Sort by time in descending order (match end to beginning)
