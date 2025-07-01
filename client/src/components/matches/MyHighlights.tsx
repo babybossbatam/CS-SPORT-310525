@@ -162,20 +162,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         }
         throw new Error('No extended YouTube videos found');
       }
-    },
-    // Manual fallback video
-    {
-      name: 'Backup Highlights',
-      type: 'youtube' as const,
-      searchFn: async () => {
-        return {
-          name: 'Backup Highlights',
-          type: 'youtube' as const,
-          url: 'https://youtu.be/6l0aiY1NM2A',
-          embedUrl: 'https://www.youtube.com/embed/6l0aiY1NM2A?autoplay=0&rel=0',
-          title: 'Football Highlights'
-        };
-      }
     }
   ];
 
