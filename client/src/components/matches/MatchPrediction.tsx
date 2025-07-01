@@ -5,7 +5,7 @@ import { HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface TeamInfo {
-  id: number;
+  id?: number;
   name: string;
   logo: string;
 }
@@ -49,14 +49,14 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
 
   // Sample team stats - in a real app these would come from API
   const teamStats = {
-    [homeTeam.id]: {
+    [homeTeam.id || `home_${homeTeam.name}`]: {
       form: 'WWDWL',
       goalsScored: 12,
       goalsConceded: 5,
       cleanSheets: 2,
       avgPossession: 58,
     },
-    [awayTeam.id]: {
+    [awayTeam.id || `away_${awayTeam.name}`]: {
       form: 'LWDLD',
       goalsScored: 7,
       goalsConceded: 9,
@@ -153,19 +153,19 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             <div className="flex flex-col space-y-1 text-xs">
               <div className="flex justify-between">
                 <span>Goals Scored:</span>
-                <span className="font-semibold">{teamStats[homeTeam.id].goalsScored}</span>
+                <span className="font-semibold">{teamStats[homeTeam.id || `home_${homeTeam.name}`].goalsScored}</span>
               </div>
               <div className="flex justify-between">
                 <span>Goals Conceded:</span>
-                <span className="font-semibold">{teamStats[homeTeam.id].goalsConceded}</span>
+                <span className="font-semibold">{teamStats[homeTeam.id || `home_${homeTeam.name}`].goalsConceded}</span>
               </div>
               <div className="flex justify-between">
                 <span>Clean Sheets:</span>
-                <span className="font-semibold">{teamStats[homeTeam.id].cleanSheets}</span>
+                <span className="font-semibold">{teamStats[homeTeam.id || `home_${homeTeam.name}`].cleanSheets}</span>
               </div>
               <div className="flex justify-between">
                 <span>Avg. Possession:</span>
-                <span className="font-semibold">{teamStats[homeTeam.id].avgPossession}%</span>
+                <span className="font-semibold">{teamStats[homeTeam.id || `home_${homeTeam.name}`].avgPossession}%</span>
               </div>
             </div>
           </div>
@@ -182,19 +182,19 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             <div className="flex flex-col space-y-1 text-xs">
               <div className="flex justify-between">
                 <span>Goals Scored:</span>
-                <span className="font-semibold">{teamStats[awayTeam.id].goalsScored}</span>
+                <span className="font-semibold">{teamStats[awayTeam.id || `away_${awayTeam.name}`].goalsScored}</span>
               </div>
               <div className="flex justify-between">
                 <span>Goals Conceded:</span>
-                <span className="font-semibold">{teamStats[awayTeam.id].goalsConceded}</span>
+                <span className="font-semibold">{teamStats[awayTeam.id || `away_${awayTeam.name}`].goalsConceded}</span>
               </div>
               <div className="flex justify-between">
                 <span>Clean Sheets:</span>
-                <span className="font-semibold">{teamStats[awayTeam.id].cleanSheets}</span>
+                <span className="font-semibold">{teamStats[awayTeam.id || `away_${awayTeam.name}`].cleanSheets}</span>
               </div>
               <div className="flex justify-between">
                 <span>Avg. Possession:</span>
-                <span className="font-semibold">{teamStats[awayTeam.id].avgPossession}%</span>
+                <span className="font-semibold">{teamStats[awayTeam.id || `away_${awayTeam.name}`].avgPossession}%</span>
               </div>
             </div>
           </div>
