@@ -39,12 +39,17 @@ export async function apiRequest(
   let timeoutId: NodeJS.Timeout | null = null;
 
   try {
+    // Dynamic timeout based on request type - events need more time
+    const isEventRequest = url.includes('/events');
+    const isFixtureRequest = url.includes('/fixtures/');
+    const timeoutDuration = isEventRequest ? 30000 : (isFixtureRequest ? 20000 : 15000);
+    
     // Set timeout with proper cleanup
     timeoutId = setTimeout(() => {
       if (!controller.signal.aborted) {
-        controller.abort(new Error('Request timeout after 15 seconds'));
+        controller.abort(new Error(`Request timeout after ${timeoutDuration/1000} seconds`));
       }
-    }, 15000);
+    }, timeoutDuration);
 
     // Ensure URL is properly formatted
     const apiUrl = url.startsWith('/') ? `${window.location.origin}${url}` : url;
@@ -78,9 +83,10 @@ export async function apiRequest(
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
     // Handle specific error types
-    if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('aborted'))) {
-      console.warn(`⏱️ API request aborted for ${method} ${url}:`, errorMessage);
-      throw new Error(`Request cancelled: ${url}`);
+    if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('aborted') || errorMessage.includes('timeout'))) {
+      console.warn(`⏱️ API request timed out for ${method} ${url}:`, errorMessage);
+      // Return a more user-friendly error for timeouts
+      throw new Error(`Request timed out. Please try again.`);
     }
     
     if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch')) {
@@ -113,16 +119,22 @@ export const getQueryFn: <T>(options: {
     let timeoutId: NodeJS.Timeout | null = null;
 
     try {
+      const url = queryKey[0] as string;
+      
+      // Dynamic timeout based on query type
+      const isEventQuery = url.includes('/events');
+      const isFixtureQuery = url.includes('/fixtures/');
+      const queryTimeout = isEventQuery ? 25000 : (isFixtureQuery ? 18000 : 10000);
+      
       // Only set timeout if we created our own controller
       if (controller) {
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort(new Error('Query timeout after 10 seconds'));
+            controller.abort(new Error(`Query timeout after ${queryTimeout/1000} seconds`));
           }
-        }, 10000);
+        }, queryTimeout);
       }
 
-      const url = queryKey[0] as string;
       const apiUrl = url.startsWith('/') ? `${window.location.origin}${url}` : url;
       
       const res = await fetch(apiUrl, {
@@ -153,8 +165,8 @@ export const getQueryFn: <T>(options: {
       
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
-      if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('aborted'))) {
-        console.warn(`⏱️ Query aborted for ${queryKey[0]}: ${errorMessage}`);
+      if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('aborted') || errorMessage.includes('timeout'))) {
+        console.warn(`⏱️ Query timed out for ${queryKey[0]}: ${errorMessage}`);
         return null as any; // Return null instead of throwing for queries
       }
       
@@ -179,15 +191,28 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       staleTime: CACHE_DURATIONS.ONE_HOUR, // Data stays fresh for 60 minutes
       gcTime: CACHE_DURATIONS.SIX_HOURS, // 6 hours
-      retry: 0, // Disable retries to prevent cascading requests
-      retryDelay: 2000,
+      retry: (failureCount, error) => {
+        // Don't retry timeout errors
+        if (error?.message?.includes('timeout') || error?.message?.includes('timed out')) {
+          return false;
+        }
+        // Retry other errors up to 2 times
+        return failureCount < 2;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       refetchOnMount: false,
       refetchOnReconnect: false,
       // Prevent memory leaks
       networkMode: 'online',
     },
     mutations: {
-      retry: 1,
+      retry: (failureCount, error) => {
+        // Don't retry timeout errors for mutations either
+        if (error?.message?.includes('timeout') || error?.message?.includes('timed out')) {
+          return false;
+        }
+        return failureCount < 1;
+      },
       retryDelay: 2000,
       networkMode: 'online',
     },
