@@ -1,4 +1,3 @@
-typescript
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
