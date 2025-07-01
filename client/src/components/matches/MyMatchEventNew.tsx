@@ -784,41 +784,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               isImportant: true
             });
 
-            // Add synthetic commentary for different match phases
-            const addSyntheticCommentary = () => {
-              const syntheticEvents = [];
-              
-              // Add commentary at regular intervals if no real events exist
-              for (let minute = 5; minute <= 85; minute += 10) {
-                const hasRealEventNearby = events.some(e => 
-                  Math.abs(e.time.elapsed - minute) <= 2
-                );
-                
-                if (!hasRealEventNearby) {
-                  const commentaries = [
-                    `Both teams are testing each other's defenses.`,
-                    `Play continues in the middle of the park.`,
-                    `The tempo of the game remains steady.`,
-                    `Players are looking for opportunities to break forward.`,
-                    `The match continues with both sides probing for openings.`,
-                    `Good movement off the ball from both teams.`
-                  ];
-                  
-                  syntheticEvents.push({
-                    type: 'commentary',
-                    time: { elapsed: minute },
-                    content: commentaries[Math.floor(Math.random() * commentaries.length)],
-                    isSynthetic: true
-                  });
-                }
-              }
-              
-              return syntheticEvents;
-            };
-
-            // Add synthetic events
-            const syntheticEvents = addSyntheticCommentary();
-            timelineEvents.push(...syntheticEvents);
+            // Only use real events for commentary - no synthetic events
 
             // Add actual events
             events.forEach(event => {
@@ -839,7 +805,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             if (hasSecondHalfEvents) {
               const firstHalfEnd = events.filter(e => e.time.elapsed <= 45);
               const hasFirstHalfStoppage = firstHalfEnd.some(e => e.time.extra);
-              
+
               if (hasFirstHalfStoppage) {
                 const maxStoppage = Math.max(...firstHalfEnd.filter(e => e.time.extra).map(e => e.time.extra || 0));
                 timelineEvents.push({
@@ -862,7 +828,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             if (maxTime >= 90) {
               const finalHomeScore = events.filter(e => e.type === "goal" && e.team?.name === homeTeam).length;
               const finalAwayScore = events.filter(e => e.type === "goal" && e.team?.name === awayTeam).length;
-              
+
               if (hasExtraTime) {
                 timelineEvents.push({
                   type: 'period-marker',
@@ -870,11 +836,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   content: `90 minutes played. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
                   isImportant: true
                 });
-                
+
                 if (hasPenalties) {
                   timelineEvents.push({
                     type: 'period-marker',
-                    time: { elapsed: 120 },
+time: { elapsed: 120 },
                     content: `Full Time after Extra Time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}. Penalty shootout follows.`,
                     isImportant: true
                   });
