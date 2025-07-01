@@ -133,12 +133,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             "GET",
             `/api/leagues/${leagueId}/fixtures`,
           );
-          
+
           if (!fixturesResponse.ok) {
             console.warn(`Failed to fetch fixtures for league ${leagueId}, status: ${fixturesResponse.status}`);
             continue; // Skip this league and try the next one
           }
-          
+
           const fixturesData = await fixturesResponse.json();
           console.log(
             `MyNewLeague - League ${leagueId} fixtures count:`,
@@ -180,7 +180,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             `Failed to fetch data for league ${leagueId}:`,
             errorMessage,
           );
-          
+
           // If it's a network error, don't spam the console
           if (errorMessage.includes('Network error') || errorMessage.includes('Failed to fetch')) {
             console.log(`🌐 Network connectivity issue for league ${leagueId}, will retry later`);
@@ -220,7 +220,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     return () => clearInterval(interval);
   }, [fetchLeagueData]);
 
-  
+
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
@@ -942,10 +942,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                       {safeSubstring(leagueGroup.league.name, 0) ||
                         "Unknown League"}
                     </span>
-                    
+
                     {(() => {
                       const liveMatchesInLeague = leagueGroup.matches.filter((match: any) =>
-                        ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(match.fixture.status.short)
+                        ["LIVE", "1H", "HT", "2H", "ET","BT", "P", "INT"].includes(match.fixture.status.short)
                       ).length;
 
                       if (liveMatchesInLeague > 0) {
@@ -1008,7 +1008,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   ].includes(aStatus);
                   const bLive = [
                     "LIVE",
-                   
+
 "LIV",
                     "1H",
                     "HT",
