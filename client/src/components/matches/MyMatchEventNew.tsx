@@ -1027,52 +1027,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       {/* Content Column */}
                       <div className="flex-1">
-                        
                         {event.type === "goal" ? (
-                          <div className="flex flex-col gap-2">
-                            <div className="goal-header-info bg-green-50 px-2 py-1 rounded-md text-xs text-green-700 font-medium">
-                              Goal scored at {event.time.elapsed}'
-                            </div>
-                            <div className="flex items-start gap-2">
-                              <img
-                                src="/assets/matchdetaillogo/soccer-ball.svg"
-                                alt="Goal"
-                                className="w-4 h-4 opacity-80 mt-0.5 flex-shrink-0"
-                              />
-                              <div className="goal-event-wrapper bg-green-50 p-2 rounded-md border-l-4 border-green-500">
-                                <div className="text-sm font-bold text-gray-900 leading-relaxed">
-                                  {eventDescription}
-                                </div>
-                                <div className="text-xs text-green-600 mt-1 font-medium">
-                                  ⚽ Goal Event
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1 ml-6 text-xs bg-green-100 px-2 py-1 rounded-full w-fit">
-                              <span>⚽</span>
-                              <span className="font-semibold text-green-700">
-                                {(() => {
-                                  // Calculate score up to and including this event
-                                  const currentEventTime = event.time.elapsed + (event.time.extra || 0);
-                                  const homeGoals = events
-                                    .filter(e => {
-                                      const eventTime = e.time.elapsed + (e.time.extra || 0);
-                                      return e.type === "goal" && 
-                                             eventTime <= currentEventTime && 
-                                             e.team?.name === homeTeam;
-                                    })
-                                    .length;
-                                  const awayGoals = events
-                                    .filter(e => {
-                                      const eventTime = e.time.elapsed + (e.time.extra || 0);
-                                      return e.type === "goal" && 
-                                             eventTime <= currentEventTime && 
-                                             e.team?.name === awayTeam;
-                                    })
-                                    .length;
-                                  return `${homeGoals}-${awayGoals}`;
-                                })()}
-                              </span>
+                          <div className="flex items-start gap-2">
+                            <img
+                              src="/assets/matchdetaillogo/soccer-ball.svg"
+                              alt="Goal"
+                              className="w-5 h-5 opacity-80 mt-0.5"
+                            />
+                            <div className="text-sm font-bold text-gray-900 leading-relaxed">
+                              {eventDescription}
                             </div>
                           </div>
                         ) : event.type === "card" ? (
