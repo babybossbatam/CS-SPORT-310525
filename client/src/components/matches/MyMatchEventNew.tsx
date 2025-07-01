@@ -161,7 +161,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     // If no API commentary, return a simple event description
     const playerName = event.player?.name || "Unknown Player";
     const teamName = event.team?.name || "Unknown Team";
-    
+
     return `${event.detail || event.type} - ${playerName} (${teamName})`;
   };
 
@@ -703,7 +703,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           {(() => {
             // Create a complete timeline including period markers
             const timelineEvents = [];
-            
+
             // Add match start marker
             timelineEvents.push({
               type: 'period-marker',
@@ -806,8 +806,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <div className="text-xs text-gray-800 ">
                         {event.time.elapsed}
                       </div>
-                      {index < timelineEvents.length - 1 && (
-                        <div className="w-0.5 h-4 bg-gray-800 mt-1"></div>
+                      {index > 0 && (
+                        <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
                       )}
                     </div>
 
