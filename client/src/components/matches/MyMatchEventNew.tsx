@@ -827,73 +827,132 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       <div className="border-t ">
         <div className="p-4 space-y-3 max-h-200 overflow-y-auto">
           {/* Simplified Timeline - Events Only */}
-          {events
-            .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
-            .map((event, index) => {
-              const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
+          {(() => {
+            // Create array with events and period markers
+            const allCommentaryItems = [...events];
+            
+            // Add period markers based on existing events
+            const hasEventsInFirstHalf = events.some(e => e.time.elapsed >= 1 && e.time.elapsed <= 45);
+            const hasEventsInSecondHalf = events.some(e => e.time.elapsed > 45);
+            
+            if (hasEventsInFirstHalf) {
+              // Add "First Half begins" marker
+              allCommentaryItems.push({
+                time: { elapsed: 1 },
+                type: "period_start",
+                detail: "First Half begins",
+                team: { name: "", logo: "" },
+                player: { name: "" }
+              } as any);
               
-              // Use event description instead of generated commentary to avoid duplication
-              const eventDescription = getEventDescription(event);
+              // Add "Half Time" marker if there are events after minute 45
+              if (hasEventsInSecondHalf) {
+                allCommentaryItems.push({
+                  time: { elapsed: 45 },
+                  type: "period_end",
+                  detail: "Half Time",
+                  team: { name: "", logo: "" },
+                  player: { name: "" }
+                } as any);
+              }
+            }
+            
+            return allCommentaryItems
+              .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
+              .map((event, index) => {
+                const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
+                
+                // Handle period markers
+                if (event.type === "period_start" || event.type === "period_end") {
+                  return (
+                    <div key={`period-${index}`} className="commentary-event-container">
+                      <div className="flex gap-3">
+                        {/* Time Column */}
+                        <div className="flex flex-col items-center min-w-[50px]">
+                          <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">
+                              {event.type === "period_start" ? "🏁" : "⏱️"}
+                            </span>
+                          </div>
+                          {index < allCommentaryItems.length - 1 && (
+                            <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
+                          )}
+                        </div>
 
-              return (
-                <div key={`commentary-${index}`} className="commentary-event-container">
-                  <div className="flex gap-3">
-                    {/* Time Column */}
-                    <div className="flex flex-col items-center min-w-[50px]">
-                      <div className="text-xs font-md text-red-500">
-                        {timeDisplay}
+                        {/* Content Column */}
+                        <div className="flex-1">
+                          <div className="text-sm font-bold text-green-700 leading-relaxed">
+                            {event.detail}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-800">
-                        {event.time.elapsed}{event.time.extra ? `+${event.time.extra}` : ''}
-                      </div>
-                      {index < events.length - 1 && (
-                        <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
-                      )}
                     </div>
+                  );
+                }
+                
+                // Use event description for regular events
+                const eventDescription = getEventDescription(event);
 
-                    {/* Content Column */}
-                    <div className="flex-1">
-                      {event.type === "goal" ? (
-                        <div className="flex items-start gap-2">
-                          <img 
-                            src="/assets/matchdetaillogo/soccer-ball.svg" 
-                            alt="Goal" 
-                            className="w-5 h-5 opacity-80 mt-0.5"
-                          />
-                          <div className="text-sm font-bold text-gray-900 leading-relaxed">
+                return (
+                  <div key={`commentary-${index}`} className="commentary-event-container">
+                    <div className="flex gap-3">
+                      {/* Time Column */}
+                      <div className="flex flex-col items-center min-w-[50px]">
+                        <div className="text-xs font-md text-red-500">
+                          {timeDisplay}
+                        </div>
+                        <div className="text-xs text-gray-800">
+                          {event.time.elapsed}{event.time.extra ? `+${event.time.extra}` : ''}
+                        </div>
+                        {index < allCommentaryItems.length - 1 && (
+                          <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
+                        )}
+                      </div>
+
+                      {/* Content Column */}
+                      <div className="flex-1">
+                        {event.type === "goal" ? (
+                          <div className="flex items-start gap-2">
+                            <img 
+                              src="/assets/matchdetaillogo/soccer-ball.svg" 
+                              alt="Goal" 
+                              className="w-5 h-5 opacity-80 mt-0.5"
+                            />
+                            <div className="text-sm font-bold text-gray-900 leading-relaxed">
+                              {eventDescription}
+                            </div>
+                          </div>
+                        ) : event.type === "card" ? (
+                          <div className="flex items-start gap-2">
+                            <span className="text-sm mt-0.5">
+                              {event.detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥"}
+                            </span>
+                            <div className="text-sm text-gray-700 leading-relaxed">
+                              {eventDescription}
+                            </div>
+                          </div>
+                        ) : event.type === "subst" ? (
+                          <div className="text-sm text-gray-700 leading-relaxed ml-6">
                             {eventDescription}
                           </div>
-                        </div>
-                      ) : event.type === "card" ? (
-                        <div className="flex items-start gap-2">
-                          <span className="text-sm mt-0.5">
-                            {event.detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥"}
-                          </span>
-                          <div className="text-sm text-gray-700 leading-relaxed">
+                        ) : event.type === "var" ? (
+                          <div className="flex items-start gap-2">
+                            <span className="text-xs mt-0.5">📺</span>
+                            <div className="text-xs text-gray-700 leading-relaxed">
+                              {eventDescription}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-sm text-gray-700 leading-relaxed ml-6">
                             {eventDescription}
                           </div>
-                        </div>
-                      ) : event.type === "subst" ? (
-                        <div className="text-sm text-gray-700 leading-relaxed ml-6">
-                          {eventDescription}
-                        </div>
-                      ) : event.type === "var" ? (
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs mt-0.5">📺</span>
-                          <div className="text-xs text-gray-700 leading-relaxed">
-                            {eventDescription}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-sm text-gray-700 leading-relaxed ml-6">
-                          {eventDescription}
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              });
+          })()}
         </div>
       </div>
     </Card>
