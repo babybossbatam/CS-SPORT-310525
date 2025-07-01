@@ -152,8 +152,8 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
         }
 
         console.log('✅ [MyRecentForm] Final form data:', {
-          homeForm: homeForm ? `${homeForm.wins}W ${homeForm.draws}D ${homeForm.losses}L` : 'null',
-          awayForm: awayForm ? `${awayForm.wins}W ${awayForm.draws}D ${awayForm.losses}L` : 'null'
+          homeForm: homeFormData ? `${homeFormData.wins}W ${homeFormData.draws}D ${homeFormData.losses}L` : 'null',
+          awayForm: awayFormData ? `${awayFormData.wins}W ${awayFormData.draws}D ${awayFormData.losses}L` : 'null'
         });
 
         setHomeForm(homeFormData);
