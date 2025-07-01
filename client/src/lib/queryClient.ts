@@ -47,7 +47,7 @@ export async function apiRequest(
     // Set timeout with proper cleanup
     timeoutId = setTimeout(() => {
       if (!controller.signal.aborted) {
-        controller.abort(new Error(`Request timeout after ${timeoutDuration/1000} seconds`));
+        controller.abort(`Request timeout after ${timeoutDuration/1000} seconds`);
       }
     }, timeoutDuration);
 
@@ -130,7 +130,7 @@ export const getQueryFn: <T>(options: {
       if (controller) {
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort(new Error(`Query timeout after ${queryTimeout/1000} seconds`));
+            controller.abort(`Query timeout after ${queryTimeout/1000} seconds`);
           }
         }, queryTimeout);
       }
