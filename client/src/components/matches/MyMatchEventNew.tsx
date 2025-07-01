@@ -1030,6 +1030,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         
                         {event.type === "goal" ? (
                           <div className="flex flex-col gap-2">
+                            <div className="goal-header-info bg-green-50 px-2 py-1 rounded-md text-xs text-green-700 font-medium">
+                              Goal scored at {event.time.elapsed}'
+                            </div>
                             <div className="flex items-start gap-2">
                               <img
                                 src="/assets/matchdetaillogo/soccer-ball.svg"
