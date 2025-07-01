@@ -254,6 +254,147 @@
   100% { transform: rotate(360deg); }
 }
 
+/* 365Scores-inspired expandable commentary section */
+.expandable-commentary-container {
+  background-color: var(--surfaceSecondary);
+  border-radius: 8px;
+  border: 1px solid var(--dividerPrimary);
+  margin-top: 16px;
+}
+
+.expandable-commentary-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--dividerPrimary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: between;
+}
+
+.expandable-commentary-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--textPrimary);
+  flex: 1;
+}
+
+.expandable-commentary-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accentPrimary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.expandable-commentary-arrow {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+.expandable-commentary-arrow.expanded {
+  transform: rotate(180deg);
+}
+
+.expandable-commentary-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.expandable-commentary-content.expanded {
+  max-height: 500px;
+}
+
+.expandable-commentary-timeline {
+  padding: 20px;
+}
+
+.commentary-event-item {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.commentary-event-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 21px;
+  top: 28px;
+  width: 1px;
+  height: calc(100% - 8px);
+  background-color: var(--dividerPrimary);
+}
+
+.commentary-time-badge {
+  min-width: 42px;
+  height: 22px;
+  background-color: var(--accentPrimary);
+  color: var(--whitePrimary);
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.commentary-event-content {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.commentary-event-text {
+  color: var(--textPrimary);
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.commentary-event-meta {
+  color: var(--textSecondary);
+  font-size: 12px;
+}
+
+.commentary-event-important {
+  position: relative;
+}
+
+.commentary-event-important::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background-color: var(--accentPrimary);
+  border-radius: 2px;
+}
+
+.commentary-show-more-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border-top: 1px solid var(--dividerPrimary);
+  background-color: var(--surfacePrimary);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.commentary-show-more-button:hover {
+  background-color: var(--highlightPrimary);
+}
+
+.commentary-show-more-text {
+  color: var(--accentPrimary);
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 8px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .match-event-content {
@@ -269,6 +410,18 @@
   }
   
   .match-event-player-name {
+    font-size: 13px;
+  }
+
+  .expandable-commentary-header {
+    padding: 12px;
+  }
+
+  .expandable-commentary-timeline {
+    padding: 16px;
+  }
+
+  .commentary-event-text {
     font-size: 13px;
   }
 }

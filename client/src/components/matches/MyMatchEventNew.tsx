@@ -56,6 +56,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [commentaryExpanded, setCommentaryExpanded] = useState(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchMatchEvents = async () => {
@@ -819,81 +820,101 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           className="w-4 h-4 opacity-80"
         />
       </div>
-      <div className="p-2 border-t flex justify-center items-center text-xs">
-        <span>Commentary</span>
-      </div>
+      {/* 365Scores-inspired Expandable Commentary Section */}
+      <div className="expandable-commentary-container">
+        <div 
+          className="expandable-commentary-header"
+          onClick={() => setCommentaryExpanded(!commentaryExpanded)}
+        >
+          <div className="expandable-commentary-title">
+            Match Commentary
+          </div>
+          <div className="expandable-commentary-toggle">
+            <span className="commentary-show-more-text">
+              {commentaryExpanded ? 'See Less' : 'See More'}
+            </span>
+            <svg 
+              className={`expandable-commentary-arrow ${commentaryExpanded ? 'expanded' : ''}`}
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2"
+            >
+              <polyline points="6,9 12,15 18,9"></polyline>
+            </svg>
+          </div>
+        </div>
 
-      {/* Commentary Events Section */}
-      <div className="border-t ">
-        <div className="p-4 space-y-3 max-h-200 overflow-y-auto">
-          {/* Simplified Timeline - Events Only */}
-          {events
-            .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
-            .map((event, index) => {
-              const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
-              
-              // Use event description instead of generated commentary to avoid duplication
-              const eventDescription = getEventDescription(event);
+        <div className={`expandable-commentary-content ${commentaryExpanded ? 'expanded' : ''}`}>
+          <div className="expandable-commentary-timeline">
+            {events
+              .sort((a, b) => b.time.elapsed - a.time.elapsed)
+              .slice(0, commentaryExpanded ? events.length : 5)
+              .map((event, index) => {
+                const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
+                const eventDescription = getEventDescription(event);
+                const isImportant = event.type === "goal" || (event.type === "card" && event.detail?.toLowerCase().includes("red"));
 
-              return (
-                <div key={`commentary-${index}`} className="commentary-event-container">
-                  <div className="flex gap-3">
-                    {/* Time Column */}
-                    <div className="flex flex-col items-center min-w-[50px]">
-                      <div className="text-xs font-md text-red-500">
-                        {timeDisplay}
-                      </div>
-                      <div className="text-xs text-gray-800">
-                        {event.time.elapsed}{event.time.extra ? `+${event.time.extra}` : ''}
-                      </div>
-                      {index < events.length - 1 && (
-                        <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
-                      )}
+                return (
+                  <div key={`commentary-${index}`} className={`commentary-event-item ${isImportant ? 'commentary-event-important' : ''}`}>
+                    <div className="commentary-time-badge">
+                      {timeDisplay}
                     </div>
 
-                    {/* Content Column */}
-                    <div className="flex-1">
-                      {event.type === "goal" ? (
-                        <div className="flex items-start gap-2">
-                          <img 
-                            src="/assets/matchdetaillogo/soccer-ball.svg" 
-                            alt="Goal" 
-                            className="w-5 h-5 opacity-80 mt-0.5"
-                          />
-                          <div className="text-sm font-bold text-gray-900 leading-relaxed">
-                            {eventDescription}
-                          </div>
-                        </div>
-                      ) : event.type === "card" ? (
-                        <div className="flex items-start gap-2">
-                          <span className="text-sm mt-0.5">
+                    <div className="commentary-event-content">
+                      <div className="commentary-event-text">
+                        {event.type === "goal" && (
+                          <span className="inline-flex items-center gap-1 mr-2">
+                            <img 
+                              src="/assets/matchdetaillogo/soccer-ball.svg" 
+                              alt="Goal" 
+                              className="w-4 h-4"
+                            />
+                          </span>
+                        )}
+                        {event.type === "card" && (
+                          <span className="inline-flex items-center gap-1 mr-2">
                             {event.detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥"}
                           </span>
-                          <div className="text-sm text-gray-700 leading-relaxed">
-                            {eventDescription}
-                          </div>
-                        </div>
-                      ) : event.type === "subst" ? (
-                        <div className="text-sm text-gray-700 leading-relaxed ml-6">
-                          {eventDescription}
-                        </div>
-                      ) : event.type === "var" ? (
-                        <div className="flex items-start gap-2">
-                          <span className="text-xs mt-0.5">📺</span>
-                          <div className="text-xs text-gray-700 leading-relaxed">
-                            {eventDescription}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-sm text-gray-700 leading-relaxed ml-6">
-                          {eventDescription}
-                        </div>
-                      )}
+                        )}
+                        {event.type === "subst" && (
+                          <span className="inline-flex items-center gap-1 mr-2">
+                            <img 
+                              src="/assets/matchdetaillogo/substitution.svg" 
+                              alt="Substitution" 
+                              className="w-4 h-4"
+                            />
+                          </span>
+                        )}
+                        {eventDescription}
+                      </div>
+                      <div className="commentary-event-meta">
+                        {generateCommentaryText(event)}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+
+            {!commentaryExpanded && events.length > 5 && (
+              <div className="text-center mt-4">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCommentaryExpanded(true);
+                  }}
+                  className="commentary-show-more-button"
+                >
+                  <span className="commentary-show-more-text">
+                    Show {events.length - 5} more events
+                  </span>
+                  <svg className="expandable-commentary-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="6,9 12,15 18,9"></polyline>
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Card>
