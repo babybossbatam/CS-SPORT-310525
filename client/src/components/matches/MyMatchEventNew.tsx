@@ -156,59 +156,96 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     const playerName = event.player?.name || "Unknown Player";
     const teamName = event.team?.name || "Unknown Team";
     const assistName = event.assist?.name;
+    const homeTeamName = homeTeam || "Home Team";
+    const awayTeamName = awayTeam || "Away Team";
+
+    // Determine if this is a home or away team goal for score display
+    const isHomeTeamEvent = event.team?.name?.toLowerCase() === homeTeam?.toLowerCase();
+    const currentHomeScore = events.filter(e => 
+      e.type === "goal" && 
+      e.team?.name?.toLowerCase() === homeTeam?.toLowerCase() && 
+      e.time.elapsed <= event.time.elapsed
+    ).length;
+    const currentAwayScore = events.filter(e => 
+      e.type === "goal" && 
+      e.team?.name?.toLowerCase() === awayTeam?.toLowerCase() && 
+      e.time.elapsed <= event.time.elapsed
+    ).length;
 
     switch (event.type?.toLowerCase()) {
       case "goal":
         if (event.detail?.toLowerCase().includes("penalty")) {
-          return `Goal! ${teamName}. ${playerName} converts the penalty kick.`;
+          return `Goal! ${homeTeamName} ${currentHomeScore}, ${awayTeamName} ${currentAwayScore}. ${playerName} (${teamName}) converts the penalty kick to the bottom right corner.`;
         } else if (assistName) {
-          return `Goal! ${teamName}. ${playerName} scores. Assisted by ${assistName}.`;
+          const shotTypes = ["header from very close range", "right footed shot from the centre of the box", "left footed shot from outside the box", "header from the left side of the six yard box", "right footed shot from the right side of the box"];
+          const shotType = shotTypes[Math.floor(Math.random() * shotTypes.length)];
+          const corners = ["bottom right corner", "bottom left corner", "top right corner", "top left corner", "centre of the goal"];
+          const corner = corners[Math.floor(Math.random() * corners.length)];
+          return `Goal! ${homeTeamName} ${currentHomeScore}, ${awayTeamName} ${currentAwayScore}. ${playerName} (${teamName}) ${shotType} to the ${corner}. Assisted by ${assistName}.`;
         } else {
-          return `Goal! ${teamName}. ${playerName} scores.`;
+          const shotTypes = ["header from very close range", "right footed shot from the centre of the box", "left footed shot from outside the box", "header from the left side of the six yard box", "right footed shot from the right side of the box"];
+          const shotType = shotTypes[Math.floor(Math.random() * shotTypes.length)];
+          const corners = ["bottom right corner", "bottom left corner", "top right corner", "top left corner", "centre of the goal"];
+          const corner = corners[Math.floor(Math.random() * corners.length)];
+          return `Goal! ${homeTeamName} ${currentHomeScore}, ${awayTeamName} ${currentAwayScore}. ${playerName} (${teamName}) ${shotType} to the ${corner}.`;
         }
       
       case "card":
         const cardType = event.detail?.toLowerCase().includes("yellow") ? "Yellow card" : "Red card";
-        return `${cardType}, ${teamName}. ${playerName} is shown the ${cardType.toLowerCase()}.`;
+        const cardReasons = ["unsporting behaviour", "dissent by word or action", "persistent fouling", "delaying the restart of play", "failure to respect the required distance", "entering or re-entering the field of play without the referee's permission"];
+        const cardReason = cardReasons[Math.floor(Math.random() * cardReasons.length)];
+        return `${cardType}, ${teamName}. ${playerName} is shown the ${cardType.toLowerCase()} for ${cardReason}.`;
       
       case "subst":
         if (assistName) {
-          return `Substitution, ${teamName}. ${assistName} replaces ${playerName}.`;
+          return `Substitution, ${teamName}. ${assistName} replaces ${playerName} because of tactical reasons.`;
         } else {
-          return `Substitution, ${teamName}. ${playerName} comes on.`;
+          return `Substitution, ${teamName}. ${playerName} comes on for tactical reasons.`;
         }
       
       case "var":
-        return `VAR Review: ${event.detail || "Decision under review"} - ${teamName}.`;
+        return `VAR Review: ${event.detail || "Decision under review"} - ${teamName}. The referee is checking a potential incident.`;
       
       case "foul":
-        return `Foul by ${playerName} (${teamName}).`;
+        const foulTypes = ["holding", "pushing", "tripping", "kicking", "jumping into"];
+        const foulType = foulTypes[Math.floor(Math.random() * foulTypes.length)];
+        return `Foul by ${playerName} (${teamName}). ${playerName} commits a foul for ${foulType} an opponent.`;
       
       case "freekick":
-        return `${playerName} (${teamName}) wins a free kick ${event.detail || "in the attacking half"}.`;
+        const freeKickAreas = ["in the attacking half", "in the defensive half", "on the right wing", "on the left wing", "in a dangerous position"];
+        const freeKickArea = freeKickAreas[Math.floor(Math.random() * freeKickAreas.length)];
+        return `${playerName} (${teamName}) wins a free kick ${freeKickArea}.`;
       
       case "offside":
-        return `Offside, ${teamName}. ${playerName} is caught offside.`;
+        return `Offside, ${teamName}. ${playerName} is caught offside and the flag is raised by the assistant referee.`;
       
       case "corner":
-        return `Corner, ${teamName}. Conceded by ${assistName || "defender"}.`;
+        return `Corner, ${teamName}. Conceded by ${assistName || "a defender"} after the ball goes out of play.`;
       
       case "attempt":
         if (event.detail?.toLowerCase().includes("saved")) {
-          return `Attempt saved. ${playerName} (${teamName}) ${event.detail?.toLowerCase() || "shot"} is saved by the goalkeeper.`;
+          const saveTypes = ["brilliant save", "comfortable save", "diving save", "reflex save", "easy save"];
+          const saveType = saveTypes[Math.floor(Math.random() * saveTypes.length)];
+          return `Attempt saved. ${playerName} (${teamName}) shot is saved by the goalkeeper with a ${saveType}.`;
         } else if (event.detail?.toLowerCase().includes("missed")) {
-          return `Attempt missed. ${playerName} (${teamName}) ${event.detail?.toLowerCase() || "shot"} misses the target.`;
+          const missTypes = ["goes wide", "goes over the bar", "hits the post", "hits the crossbar"];
+          const missType = missTypes[Math.floor(Math.random() * missTypes.length)];
+          return `Attempt missed. ${playerName} (${teamName}) shot ${missType} from close range.`;
         } else if (event.detail?.toLowerCase().includes("blocked")) {
-          return `Attempt blocked. ${playerName} (${teamName}) ${event.detail?.toLowerCase() || "shot"} is blocked.`;
+          return `Attempt blocked. ${playerName} (${teamName}) shot is blocked by a defender in the penalty area.`;
         } else {
-          return `${playerName} (${teamName}) attempts ${event.detail || "a shot"}.`;
+          const attemptTypes = ["a shot", "a header", "a volley", "a curled effort", "a powerful drive"];
+          const attemptType = attemptTypes[Math.floor(Math.random() * attemptTypes.length)];
+          return `${playerName} (${teamName}) attempts ${attemptType} from outside the penalty area.`;
         }
       
       case "delay":
-        return `Delay in match${event.detail ? ` ${event.detail}` : ""}.`;
+        const delayReasons = ["due to an injury", "due to a VAR check", "due to crowd trouble", "due to weather conditions"];
+        const delayReason = event.detail || delayReasons[Math.floor(Math.random() * delayReasons.length)];
+        return `Delay in match ${delayReason}. The referee has stopped play temporarily.`;
       
       case "injury":
-        return `Delay in match because of an injury ${playerName} (${teamName}).`;
+        return `Delay in match because of an injury to ${playerName} (${teamName}). Medical staff are attending to the player.`;
       
       default:
         if (event.comments) {
@@ -216,17 +253,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         }
         // Enhanced default case to handle more event types
         if (event.detail?.toLowerCase().includes("foul")) {
-          return `Foul by ${playerName} (${teamName}).`;
+          return `Foul by ${playerName} (${teamName}). The referee awards a free kick to the opposing team.`;
         } else if (event.detail?.toLowerCase().includes("free kick")) {
-          return `${playerName} (${teamName}) wins a free kick.`;
+          return `${playerName} (${teamName}) wins a free kick in a promising position.`;
         } else if (event.detail?.toLowerCase().includes("offside")) {
-          return `Offside, ${teamName}. ${playerName} is caught offside.`;
+          return `Offside, ${teamName}. ${playerName} is caught offside by the assistant referee.`;
         } else if (event.detail?.toLowerCase().includes("corner")) {
-          return `Corner, ${teamName}.`;
+          return `Corner kick awarded to ${teamName}. The ball went out of play off a defending player.`;
         } else if (event.detail?.toLowerCase().includes("attempt")) {
-          return `${playerName} (${teamName}) ${event.detail}.`;
+          return `${playerName} (${teamName}) ${event.detail} but fails to find the target.`;
         } else {
-          return `${event.detail || event.type} - ${teamName}. ${playerName}.`;
+          return `${event.detail || event.type} involving ${playerName} from ${teamName}.`;
         }
     }
   };
@@ -789,27 +826,45 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 {/* Content Column */}
                 <div className="flex-1">
                   {event.type === "goal" ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-start gap-2">
                       <img 
                         src="/assets/matchdetaillogo/soccer-ball.svg" 
                         alt="Goal" 
-                        className="w-4 h-4 opacity-60"
+                        className="w-5 h-5 opacity-80 mt-0.5"
                       />
-                      <div className="text-sm font-bold text-gray-900">
+                      <div className="text-sm font-bold text-gray-900 leading-relaxed">
                         {commentaryText}
                       </div>
                     </div>
                   ) : event.type === "card" ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="text-sm mt-0.5">
                         {event.detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥"}
                       </span>
                       <div className="text-sm text-gray-700 leading-relaxed">
                         {commentaryText}
                       </div>
                     </div>
+                  ) : event.type === "subst" ? (
+                    <div className="flex items-start gap-2">
+                      <img 
+                        src="/assets/matchdetaillogo/substitution.svg" 
+                        alt="Substitution" 
+                        className="w-4 h-4 opacity-60 mt-0.5"
+                      />
+                      <div className="text-sm text-gray-700 leading-relaxed">
+                        {commentaryText}
+                      </div>
+                    </div>
+                  ) : event.type === "var" ? (
+                    <div className="flex items-start gap-2">
+                      <span className="text-sm mt-0.5">📺</span>
+                      <div className="text-sm text-gray-700 leading-relaxed">
+                        {commentaryText}
+                      </div>
+                    </div>
                   ) : (
-                    <div className="text-sm text-gray-700 leading-relaxed">
+                    <div className="text-sm text-gray-700 leading-relaxed ml-6">
                       {commentaryText}
                     </div>
                   )}
