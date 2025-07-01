@@ -9,6 +9,7 @@ import HomeTopScorersList from "@/components/leagues/HomeTopScorersList";
 import LeagueStandingsFilter from "@/components/leagues/LeagueStandingsFilter";
 import PopularLeaguesList from "@/components/leagues/PopularLeaguesList";
 import PopularTeamsList from "@/components/teams/PopularTeamsList";
+import MatchPrediction from '@/components/matches/MatchPrediction';
 import ScoreDetailsCard from "@/components/matches/ScoreDetailsCard";
 import MyRightContent from "@/components/layout/MyRightContent";
 import MyMatchdetailsScoreboard from "../matches/MyMatchdetailsScoreboard";
@@ -32,7 +33,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
-  
+
   // Apply smart time filtering to fixtures
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) return [];
@@ -160,6 +161,8 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
               loading={loading}
             />
           </div>
+           {/* Match Prediction Component */}
+           <MatchPrediction />
         </div>
 
         {/* Right column (7 columns) */}
@@ -217,7 +220,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({ fixtures, loading = false }
                     {/* For upcoming matches, neither component is shown */}
                   </>
                   );
-                
+
               })()}
 
               <MatchDetailCard match={selectedFixture} />
