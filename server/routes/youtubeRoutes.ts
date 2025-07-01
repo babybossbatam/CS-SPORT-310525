@@ -45,7 +45,7 @@ router.get('/search', async (req, res) => {
     let apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&key=${YOUTUBE_API_KEY}`;
 
     if (q) apiUrl += `&q=${encodeURIComponent(q as string)}`;
-    if (channelId) apiUrl += `&channelId=${channelId}`;
+    if (req.query.channelId) apiUrl += `&channelId=${req.query.channelId}`;
     if (maxResults) apiUrl += `&maxResults=${maxResults}`;
     if (order) apiUrl += `&order=${order}`;
     if (eventType) apiUrl += `&eventType=${eventType}`;
