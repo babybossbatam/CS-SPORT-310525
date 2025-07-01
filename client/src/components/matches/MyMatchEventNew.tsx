@@ -753,11 +753,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       {/* Center Grid: Time display only */}
                       <div className="match-event-time-center-simple">
-                        {/* Middle: Time display */}
+                        {/* Middle: Time display - show only extra time when available */}
                         <div className="match-event-time-display">
-                          {event.time?.extra
-                            ? `+${event.time.extra}'`
-                            : `${event.time?.elapsed}'`}
+                          {event.time?.extra ? `+${event.time.extra}'` : `${event.time?.elapsed}'`}
                         </div>
                       </div>
 
@@ -878,7 +876,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       .join("")
                                       .slice(0, 2) || "P"}
                                   </AvatarFallback>
-                                </Avatar>
+                                                               </Avatar>
                               </div>
                             </div>
                           </>
