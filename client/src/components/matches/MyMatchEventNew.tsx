@@ -168,7 +168,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         return `VAR Review - ${detail || "Video Review"} involving ${playerName} (${teamName})`;
       default:
         // Handle other event types like fouls, offside, etc.
-        if (event.type.toLowerCase() === "foul" || detail.toLowerCase().includes("foul")) {
+        if (
+          event.type.toLowerCase() === "foul" ||
+          detail.toLowerCase().includes("foul")
+        ) {
           return `${playerName} (${teamName}) - Foul${detail ? `: ${detail}` : ""}`;
         } else if (detail.toLowerCase().includes("offside")) {
           return `${playerName} (${teamName}) - Offside`;
@@ -219,9 +222,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             `Goal! Brilliant finish by ${playerName} (${teamName}) ${timingContext}`,
             `Goal! ${playerName} (${teamName}) finds the back of the net ${timingContext}`,
             `Goal! What a strike from ${playerName} (${teamName}) ${timingContext}`,
-            `Goal! ${playerName} (${teamName}) breaks the deadlock ${timingContext}`
+            `Goal! ${playerName} (${teamName}) breaks the deadlock ${timingContext}`,
           ];
-          const randomGoal = goalTypes[Math.floor(Math.random() * goalTypes.length)];
+          const randomGoal =
+            goalTypes[Math.floor(Math.random() * goalTypes.length)];
           return `${randomGoal}${assistName ? `. Assist by ${assistName}` : ""}.`;
         }
 
@@ -230,20 +234,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           const yellowReasons = [
             "for a reckless challenge",
             "for dissent",
-            "for unsporting behavior", 
+            "for unsporting behavior",
             "for delaying the restart",
-            "for a tactical foul"
+            "for a tactical foul",
           ];
-          const reason = yellowReasons[Math.floor(Math.random() * yellowReasons.length)];
+          const reason =
+            yellowReasons[Math.floor(Math.random() * yellowReasons.length)];
           return `${playerName} (${teamName}) is booked ${reason}.`;
         } else {
           const redReasons = [
             "for serious foul play",
-            "for violent conduct", 
+            "for violent conduct",
             "for a second bookable offense",
-            "for denying an obvious goal-scoring opportunity"
+            "for denying an obvious goal-scoring opportunity",
           ];
-          const reason = redReasons[Math.floor(Math.random() * redReasons.length)];
+          const reason =
+            redReasons[Math.floor(Math.random() * redReasons.length)];
           return `Red card! ${playerName} (${teamName}) is sent off ${reason}.`;
         }
 
@@ -258,21 +264,26 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           "checking for a possible penalty",
           "reviewing the goal decision",
           "checking for offside",
-          "reviewing a potential red card incident"
+          "reviewing a potential red card incident",
         ];
-        const varReason = varReasons[Math.floor(Math.random() * varReasons.length)];
+        const varReason =
+          varReasons[Math.floor(Math.random() * varReasons.length)];
         return `VAR Review: The referee is ${varReason} involving ${playerName} (${teamName}).`;
 
       default:
         // Handle other event types with detailed descriptions
-        if (event.type?.toLowerCase() === "foul" || detail.toLowerCase().includes("foul")) {
+        if (
+          event.type?.toLowerCase() === "foul" ||
+          detail.toLowerCase().includes("foul")
+        ) {
           const foulTypes = [
             "commits a foul",
             "is penalized for a foul",
             "makes an illegal challenge",
-            "commits an infringement"
+            "commits an infringement",
           ];
-          const foulType = foulTypes[Math.floor(Math.random() * foulTypes.length)];
+          const foulType =
+            foulTypes[Math.floor(Math.random() * foulTypes.length)];
           return `${playerName} (${teamName}) ${foulType} ${timingContext}${detail ? `. ${detail}` : ""}.`;
         } else if (detail.toLowerCase().includes("offside")) {
           return `Offside! ${playerName} (${teamName}) is caught in an offside position ${timingContext}.`;
@@ -385,13 +396,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       alt="Substitution"
                       className="w-4 h-4"
                     />
-                  ) : (event.type === "goal" || (event.type === "goal" && event.detail?.toLowerCase().includes("penalty"))) ? (
-                                  <img
-                                    src="/assets/matchdetaillogo/soccer-goal.svg"
-                                    alt={event.detail?.toLowerCase().includes("penalty") ? "Penalty Goal" : "Goal"}
-                                    className="w-4 h-4"
-                                  />
-                                ) : (
+                  ) : event.type === "goal" ||
+                    (event.type === "goal" &&
+                      event.detail?.toLowerCase().includes("penalty")) ? (
+                    <img
+                      src="/assets/matchdetaillogo/soccer-goal.svg"
+                      alt={
+                        event.detail?.toLowerCase().includes("penalty")
+                          ? "Penalty Goal"
+                          : "Goal"
+                      }
+                      className="w-4 h-4"
+                    />
+                  ) : (
                     <span className="text-sm flex">
                       {getEventIcon(event.type, event.detail)}
                     </span>
@@ -421,13 +438,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       alt="Substitution"
                       className="w-4 h-4"
                     />
-                  ) : (event.type === "goal" || (event.type === "goal" && event.detail?.toLowerCase().includes("penalty"))) ? (
-                                  <img
-                                    src="/assets/matchdetaillogo/soccer-goal.svg"
-                                    alt={event.detail?.toLowerCase().includes("penalty") ? "Penalty Goal" : "Goal"}
-                                    className="w-4 h-4"
-                                  />
-                                ) : (
+                  ) : event.type === "goal" ||
+                    (event.type === "goal" &&
+                      event.detail?.toLowerCase().includes("penalty")) ? (
+                    <img
+                      src="/assets/matchdetaillogo/soccer-goal.svg"
+                      alt={
+                        event.detail?.toLowerCase().includes("penalty")
+                          ? "Penalty Goal"
+                          : "Goal"
+                      }
+                      className="w-4 h-4"
+                    />
+                  ) : (
                     <span className="text-sm">
                       {getEventIcon(event.type, event.detail)}
                     </span>
@@ -456,7 +479,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     </div>
   );
 
-  const PenaltyShootoutDisplay = ({ homeScore, awayScore }: { homeScore: number, awayScore: number }) => (
+  const PenaltyShootoutDisplay = ({
+    homeScore,
+    awayScore,
+  }: {
+    homeScore: number;
+    awayScore: number;
+  }) => (
     <div className="penalty-shootout-container">
       {/* Home team penalties */}
       <div className="penalty-home-side">
@@ -472,13 +501,21 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             <div className="penalty-player-info penalty-player-info-home">
               <Avatar className="w-8 h-8 border-2 border-gray-300">
                 <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
-                  {penalty.player.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                  {penalty.player
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
               <span className="penalty-player-name">{penalty.player}</span>
             </div>
             <div className={`penalty-result ${penalty.result}`}>
-              {penalty.result === "scored" ? "⚽" : penalty.result === "missed" ? "❌" : "🥅"}
+              {penalty.result === "scored"
+                ? "⚽"
+                : penalty.result === "missed"
+                  ? "❌"
+                  : "🥅"}
             </div>
           </div>
         ))}
@@ -486,7 +523,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
       {/* Center score */}
       <div className="penalty-score-center">
-        <div className="penalty-score-display">{homeScore} - {awayScore}</div>
+        <div className="penalty-score-display">
+          {homeScore} - {awayScore}
+        </div>
         <div className="penalty-label">Penalties</div>
       </div>
 
@@ -502,12 +541,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         ].map((penalty, index) => (
           <div key={index} className="penalty-row penalty-row-away">
             <div className={`penalty-result ${penalty.result}`}>
-              {penalty.result === "scored" ? "⚽" : penalty.result === "missed" ? "❌" : "🥅"}
+              {penalty.result === "scored"
+                ? "⚽"
+                : penalty.result === "missed"
+                  ? "❌"
+                  : "🥅"}
             </div>
             <div className="penalty-player-info penalty-player-info-away">
               <Avatar className="w-8 h-8 border-2 border-gray-300">
                 <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
-                  {penalty.player.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                  {penalty.player
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)}
                 </AvatarFallback>
               </Avatar>
               <span className="penalty-player-name">{penalty.player}</span>
@@ -566,7 +613,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         ) : (
           <div className="space-y-4">
             {/* Show penalty shootout if match ended with penalties */}
-            {events.some(event => event.type === "penalty") && (
+            {events.some((event) => event.type === "penalty") && (
               <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
             )}
 
@@ -605,29 +652,31 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   </AvatarFallback>
                                 </Avatar>
 
-                                {event.type === "subst" && event.assist?.name && (
-                                  <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 relative-z20">
-                                    <AvatarImage
-                                      src={getPlayerImage(
-                                        event.assist?.id,
-                                        event.assist?.name,
-                                      )}
-                                      alt={event.assist?.name || "Player"}
-                                      className="object-cover"
-                                    />
-                                    <AvatarFallback className="bg-blue-400 text-white text-xs font-bold">
-                                      {event.assist?.name
-                                        ?.split(" ")
-                                        .map((n) => n[0])
-                                        .join("")
-                                        .slice(0, 2) || "P"}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                )}
+                                {event.type === "subst" &&
+                                  event.assist?.name && (
+                                    <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 relative-z20">
+                                      <AvatarImage
+                                        src={getPlayerImage(
+                                          event.assist?.id,
+                                          event.assist?.name,
+                                        )}
+                                        alt={event.assist?.name || "Player"}
+                                        className="object-cover"
+                                      />
+                                      <AvatarFallback className="bg-blue-400 text-white text-xs font-bold">
+                                        {event.assist?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  )}
                               </div>
 
                               <div className="text-right">
-                                {event.type === "subst" && event.assist?.name ? (
+                                {event.type === "subst" &&
+                                event.assist?.name ? (
                                   <>
                                     <div className="text-xs font-medium text-green-600">
                                       {event.assist.name}
@@ -641,16 +690,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     {event.player?.name || "Unknown Player"}
                                   </div>
                                 )}
-                                {event.type === "goal" && event.assist?.name && (
-                                  <div className="text-xs text-gray-600">
-                                    (Assist: {event.assist.name})
-                                  </div>
-                                )}
+                                {event.type === "goal" &&
+                                  event.assist?.name && (
+                                    <div className="text-xs text-gray-600">
+                                      (Assist: {event.assist.name})
+                                    </div>
+                                  )}
                                 {event.type !== "subst" && (
                                   <div className="text-xs text-gray-400">
-                                    {event.type === "foul" || event.detail?.toLowerCase().includes("foul") 
-                                      ? `Foul by ${event.player?.name || "Unknown Player"}` 
-                                      : (event.detail || event.type)}
+                                    {event.type === "foul" ||
+                                    event.detail?.toLowerCase().includes("foul")
+                                      ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                      : event.detail || event.type}
                                   </div>
                                 )}
                               </div>
@@ -660,9 +711,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <div className="match-event-home-icon-column">
                               <div
                                 className={`match-event-icon ${
-                                  event.type === "goal" ? "goal" : 
-                                  event.type === "card" ? "card" : 
-                                  "substitution"
+                                  event.type === "goal"
+                                    ? "goal"
+                                    : event.type === "card"
+                                      ? "card"
+                                      : "substitution"
                                 }`}
                               >
                                 {event.type === "subst" ? (
@@ -671,10 +724,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt="Substitution"
                                     className="w-4 h-4"
                                   />
-                                ) : (event.type === "goal" || (event.type === "goal" && event.detail?.toLowerCase().includes("penalty"))) ? (
+                                ) : event.type === "goal" ||
+                                  (event.type === "goal" &&
+                                    event.detail
+                                      ?.toLowerCase()
+                                      .includes("penalty")) ? (
                                   <img
                                     src="/assets/matchdetaillogo/soccer-goal.svg"
-                                    alt={event.detail?.toLowerCase().includes("penalty") ? "Penalty Goal" : "Goal"}
+                                    alt={
+                                      event.detail
+                                        ?.toLowerCase()
+                                        .includes("penalty")
+                                        ? "Penalty Goal"
+                                        : "Goal"
+                                    }
                                     className="w-4 h-4"
                                   />
                                 ) : (
@@ -692,8 +755,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <div className="match-event-time-center-simple">
                         {/* Middle: Time display */}
                         <div className="match-event-time-display">
-                          {event.time?.elapsed}'
-                          {event.time?.extra && ` +${event.time.extra}`}
+                          {event.time?.extra
+                            ? `+${event.time.extra}'`
+                            : `${event.time?.elapsed}'`}
                         </div>
                       </div>
 
@@ -705,9 +769,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <div className="match-event-away-icon-column">
                               <div
                                 className={`match-event-icon ${
-                                  event.type === "goal" ? "goal" : 
-                                  event.type === "card" ? "card" : 
-                                  "substitution"
+                                  event.type === "goal"
+                                    ? "goal"
+                                    : event.type === "card"
+                                      ? "card"
+                                      : "substitution"
                                 }`}
                               >
                                 {event.type === "subst" ? (
@@ -716,10 +782,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt="Substitution"
                                     className="w-4 h-4"
                                   />
-                                ) : (event.type === "goal" || (event.type === "goal" && event.detail?.toLowerCase().includes("penalty"))) ? (
+                                ) : event.type === "goal" ||
+                                  (event.type === "goal" &&
+                                    event.detail
+                                      ?.toLowerCase()
+                                      .includes("penalty")) ? (
                                   <img
                                     src="/assets/matchdetaillogo/soccer-goal.svg"
-                                    alt={event.detail?.toLowerCase().includes("penalty") ? "Penalty Goal" : "Goal"}
+                                    alt={
+                                      event.detail
+                                        ?.toLowerCase()
+                                        .includes("penalty")
+                                        ? "Penalty Goal"
+                                        : "Goal"
+                                    }
                                     className="w-4 h-4"
                                   />
                                 ) : (
@@ -733,7 +809,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             {/* Column 2: Player Info */}
                             <div className="match-event-away-player-info">
                               <div className="text-left">
-                                {event.type === "subst" && event.assist?.name ? (
+                                {event.type === "subst" &&
+                                event.assist?.name ? (
                                   <>
                                     <div className="text-xs font-medium text-green-600">
                                       {event.assist.name}
@@ -747,40 +824,43 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     {event.player?.name || "Unknown Player"}
                                   </div>
                                 )}
-                                {event.type === "goal" && event.assist?.name && (
-                                  <div className="text-xs text-gray-600">
-                                    (Assist: {event.assist.name})
-                                  </div>
-                                )}
+                                {event.type === "goal" &&
+                                  event.assist?.name && (
+                                    <div className="text-xs text-gray-600">
+                                      (Assist: {event.assist.name})
+                                    </div>
+                                  )}
                                 {event.type !== "subst" && (
                                   <div className="text-xs text-gray-400">
-                                    {event.type === "foul" || event.detail?.toLowerCase().includes("foul") 
-                                      ? `Foul by ${event.player?.name || "Unknown Player"}` 
-                                      : (event.detail || event.type)}
+                                    {event.type === "foul" ||
+                                    event.detail?.toLowerCase().includes("foul")
+                                      ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                      : event.detail || event.type}
                                   </div>
                                 )}
                               </div>
 
                               <div className="flex items-center gap-1">
-                                {event.type === "subst" && event.assist?.name && (
-                                  <Avatar className="w-9 h-9 border-2 border-red-400 shadow-sm -mr-3 z-20">
-                                    <AvatarImage
-                                      src={getPlayerImage(
-                                        event.assist?.id,
-                                        event.assist?.name,
-                                      )}
-                                      alt={event.assist?.name || "Player"}
-                                      className="object-cover"
-                                    />
-                                    <AvatarFallback className="bg-red-400 text-white text-xs font-bold">
-                                      {event.assist?.name
-                                        ?.split(" ")
-                                        .map((n) => n[0])
-                                        .join("")
-                                        .slice(0, 2) || "P"}
-                                    </AvatarFallback>
-                                  </Avatar>
-                                )}
+                                {event.type === "subst" &&
+                                  event.assist?.name && (
+                                    <Avatar className="w-9 h-9 border-2 border-red-400 shadow-sm -mr-3 z-20">
+                                      <AvatarImage
+                                        src={getPlayerImage(
+                                          event.assist?.id,
+                                          event.assist?.name,
+                                        )}
+                                        alt={event.assist?.name || "Player"}
+                                        className="object-cover"
+                                      />
+                                      <AvatarFallback className="bg-red-400 text-white text-xs font-bold">
+                                        {event.assist?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  )}
 
                                 <Avatar className="w-9 h-9 border-2 border-green-400 shadow-sm">
                                   <AvatarImage
@@ -813,9 +893,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       </CardContent>
 
       <div className="p-2 border-t flex justify-center items-center">
-        <img 
-          src="/assets/matchdetaillogo/clock.png" 
-          alt="Match Clock" 
+        <img
+          src="/assets/matchdetaillogo/clock.png"
+          alt="Match Clock"
           className="w-4 h-4 opacity-80"
         />
       </div>
@@ -830,11 +910,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           {(() => {
             // Create array with events and period markers
             const allCommentaryItems = [...events];
-            
+
             // Add period markers based on existing events
-            const hasEventsInFirstHalf = events.some(e => e.time.elapsed >= 1 && e.time.elapsed <= 45);
-            const hasEventsInSecondHalf = events.some(e => e.time.elapsed > 45);
-            
+            const hasEventsInFirstHalf = events.some(
+              (e) => e.time.elapsed >= 1 && e.time.elapsed <= 45,
+            );
+            const hasEventsInSecondHalf = events.some(
+              (e) => e.time.elapsed > 45,
+            );
+
             if (hasEventsInFirstHalf) {
               // Add "First Half begins" marker
               allCommentaryItems.push({
@@ -842,9 +926,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 type: "period_start",
                 detail: "First Half begins",
                 team: { name: "", logo: "" },
-                player: { name: "" }
+                player: { name: "" },
               } as any);
-              
+
               // Add "Half Time" marker if there are events after minute 45
               if (hasEventsInSecondHalf) {
                 allCommentaryItems.push({
@@ -852,20 +936,26 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   type: "period_end",
                   detail: "Half Time",
                   team: { name: "", logo: "" },
-                  player: { name: "" }
+                  player: { name: "" },
                 } as any);
               }
             }
-            
+
             return allCommentaryItems
               .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
               .map((event, index) => {
-                const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
-                
+                const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ""}`;
+
                 // Handle period markers
-                if (event.type === "period_start" || event.type === "period_end") {
+                if (
+                  event.type === "period_start" ||
+                  event.type === "period_end"
+                ) {
                   return (
-                    <div key={`period-${index}`} className="commentary-event-container">
+                    <div
+                      key={`period-${index}`}
+                      className="commentary-event-container"
+                    >
                       <div className="flex gap-3">
                         {/* Time Column */}
                         <div className="flex flex-col items-center min-w-[50px]">
@@ -889,12 +979,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     </div>
                   );
                 }
-                
+
                 // Use event description for regular events
                 const eventDescription = getEventDescription(event);
 
                 return (
-                  <div key={`commentary-${index}`} className="commentary-event-container">
+                  <div
+                    key={`commentary-${index}`}
+                    className="commentary-event-container"
+                  >
                     <div className="flex gap-3">
                       {/* Time Column */}
                       <div className="flex flex-col items-center min-w-[50px]">
@@ -902,7 +995,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           {timeDisplay}
                         </div>
                         <div className="text-xs text-gray-800">
-                          {event.time.elapsed}{event.time.extra ? `+${event.time.extra}` : ''}
+                          {event.time.elapsed}
+                          {event.time.extra ? `+${event.time.extra}` : ""}
                         </div>
                         {index < allCommentaryItems.length - 1 && (
                           <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
@@ -913,9 +1007,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <div className="flex-1">
                         {event.type === "goal" ? (
                           <div className="flex items-start gap-2">
-                            <img 
-                              src="/assets/matchdetaillogo/soccer-ball.svg" 
-                              alt="Goal" 
+                            <img
+                              src="/assets/matchdetaillogo/soccer-ball.svg"
+                              alt="Goal"
                               className="w-5 h-5 opacity-80 mt-0.5"
                             />
                             <div className="text-sm font-bold text-gray-900 leading-relaxed">
@@ -925,7 +1019,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         ) : event.type === "card" ? (
                           <div className="flex items-start gap-2">
                             <span className="text-sm mt-0.5">
-                              {event.detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥"}
+                              {event.detail?.toLowerCase().includes("yellow")
+                                ? "🟨"
+                                : "🟥"}
                             </span>
                             <div className="text-sm text-gray-700 leading-relaxed">
                               {eventDescription}
