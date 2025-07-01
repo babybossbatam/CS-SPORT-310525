@@ -1027,6 +1027,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       {/* Content Column */}
                       <div className="flex-1">
+                        
                         {event.type === "goal" ? (
                           <div className="flex items-start gap-2">
                             <img
