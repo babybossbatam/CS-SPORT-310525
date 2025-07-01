@@ -722,7 +722,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
       {/* Commentary Events Section */}
       <div className="border-t bg-gray-50">
-        <div className="p-4 space-y-3 max-h-44 overflow-y-auto">
+        <div className="p-4 space-y-3 max-h-200 overflow-y-auto">
           {/* Real-time Commentary Events */}
           {events.map((event, index) => {
             const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
@@ -733,14 +733,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               <div className="flex gap-3">
                 {/* Time Column */}
                 <div className="flex flex-col items-center min-w-[50px]">
-                  <div className="text-xs font-bold text-orange-500">
+                  <div className="text-xs font-md text-red-500">
                     {timeDisplay}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-800 ">
                     {event.time.elapsed}
                   </div>
-                  {index < events.length - 1 && (
-                    <div className="w-0.5 h-8 bg-gray-300 mt-1"></div>
+                  {index < events.length - 0 && (
+                    <div className="w-0.5 h-4 bg-gray-800 mt-1"></div>
                   )}
                 </div>
 
