@@ -34,6 +34,7 @@ interface MyRecentFormProps {
   awayTeam?: TeamInfo;
   leagueId?: number;
   season?: number;
+  match?: any; // Accept match data directly like MyMatchdetailsScoreboard
 }
 
 const MyRecentForm: React.FC<MyRecentFormProps> = ({
@@ -41,7 +42,23 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
   awayTeam,
   leagueId,
   season,
+  match,
 }) => {
+  // Extract team data from match prop if available, otherwise use individual props
+  const effectiveHomeTeam = match ? {
+    id: match.teams?.home?.id,
+    name: match.teams?.home?.name || 'Unknown',
+    logo: match.teams?.home?.logo || '/assets/fallback-logo.svg'
+  } : homeTeam;
+  
+  const effectiveAwayTeam = match ? {
+    id: match.teams?.away?.id,
+    name: match.teams?.away?.name || 'Unknown',
+    logo: match.teams?.away?.logo || '/assets/fallback-logo.svg'
+  } : awayTeam;
+  
+  const effectiveLeagueId = match ? match.league?.id : leagueId;
+  const effectiveSeason = match ? match.league?.season : season;
   const [isLoading, setIsLoading] = useState(true);
   const [homeForm, setHomeForm] = useState<TeamForm | null>(null);
   const [awayForm, setAwayForm] = useState<TeamForm | null>(null);
@@ -49,7 +66,7 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
 
   useEffect(() => {
     const fetchTeamForm = async () => {
-      if (!homeTeam?.id || !awayTeam?.id) {
+      if (!effectiveHomeTeam?.id || !effectiveAwayTeam?.id) {
         console.log('⚠️ [MyRecentForm] Missing team IDs, using fallback data');
         setIsLoading(false);
         return;
@@ -61,8 +78,8 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
 
         // Fetch recent fixtures for both teams
         const [homeFixtures, awayFixtures] = await Promise.all([
-          fetch(`/api/teams/${homeTeam.id}/fixtures?last=5&league=${leagueId}&season=${season || new Date().getFullYear()}`),
-          fetch(`/api/teams/${awayTeam.id}/fixtures?last=5&league=${leagueId}&season=${season || new Date().getFullYear()}`)
+          fetch(`/api/teams/${effectiveHomeTeam.id}/fixtures?last=5&league=${effectiveLeagueId}&season=${effectiveSeason || new Date().getFullYear()}`),
+          fetch(`/api/teams/${effectiveAwayTeam.id}/fixtures?last=5&league=${effectiveLeagueId}&season=${effectiveSeason || new Date().getFullYear()}`)
         ]);
 
         let homeFormData: TeamForm | null = null;
@@ -72,7 +89,7 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
         if (homeFixtures.ok) {
           const homeData = await homeFixtures.json();
           if (homeData?.response) {
-            homeFormData = processTeamFixtures(homeData.response, homeTeam.id, homeTeam.name);
+            homeFormData = processTeamFixtures(homeData.response, effectiveHomeTeam.id, effectiveHomeTeam.name);
           }
         }
 
@@ -80,7 +97,7 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
         if (awayFixtures.ok) {
           const awayData = await awayFixtures.json();
           if (awayData?.response) {
-            awayFormData = processTeamFixtures(awayData.response, awayTeam.id, awayTeam.name);
+            awayFormData = processTeamFixtures(awayData.response, effectiveAwayTeam.id, effectiveAwayTeam.name);
           }
         }
 
@@ -96,7 +113,7 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
     };
 
     fetchTeamForm();
-  }, [homeTeam?.id, awayTeam?.id, leagueId, season]);
+  }, [effectiveHomeTeam?.id, effectiveAwayTeam?.id, effectiveLeagueId, effectiveSeason]);
 
   const processTeamFixtures = (fixtures: any[], teamId: number, teamName: string): TeamForm => {
     const recentMatches: FormMatch[] = [];
@@ -169,7 +186,7 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
     return { icon: Minus, color: 'text-yellow-500' };
   };
 
-  if (!homeTeam || !awayTeam) {
+  if (!effectiveHomeTeam || !effectiveAwayTeam) {
     return (
       <Card className="w-full shadow-md">
         <CardHeader className="pb-2">
@@ -236,17 +253,17 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
               <div className="flex items-center space-x-2">
                 <img 
                   src={
-                    homeTeam?.id
-                      ? `/api/team-logo/square/${homeTeam.id}?size=24`
-                      : homeTeam?.logo || "/assets/fallback-logo.svg"
+                    effectiveHomeTeam?.id
+                      ? `/api/team-logo/square/${effectiveHomeTeam.id}?size=24`
+                      : effectiveHomeTeam?.logo || "/assets/fallback-logo.svg"
                   }
-                  alt={homeTeam?.name} 
+                  alt={effectiveHomeTeam?.name} 
                   className="w-6 h-6"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
                   }}  
                 />
-                <span className="font-medium text-sm">{homeTeam?.name}</span>
+                <span className="font-medium text-sm">{effectiveHomeTeam?.name}</span>
                 <homeTrend.icon className={`h-4 w-4 ${homeTrend.color}`} />
               </div>
               <div className="text-xs text-gray-500">
@@ -280,17 +297,17 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
               <div className="flex items-center space-x-2">
                 <img 
                   src={
-                    awayTeam?.id
-                      ? `/api/team-logo/square/${awayTeam.id}?size=24`
-                      : awayTeam?.logo || "/assets/fallback-logo.svg"
+                    effectiveAwayTeam?.id
+                      ? `/api/team-logo/square/${effectiveAwayTeam.id}?size=24`
+                      : effectiveAwayTeam?.logo || "/assets/fallback-logo.svg"
                   }
-                  alt={awayTeam?.name} 
+                  alt={effectiveAwayTeam?.name} 
                   className="w-6 h-6"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
                   }}  
                 />
-                <span className="font-medium text-sm">{awayTeam?.name}</span>
+                <span className="font-medium text-sm">{effectiveAwayTeam?.name}</span>
                 <awayTrend.icon className={`h-4 w-4 ${awayTrend.color}`} />
               </div>
               <div className="text-xs text-gray-500">
@@ -322,10 +339,10 @@ const MyRecentForm: React.FC<MyRecentFormProps> = ({
                 <p className="font-medium mb-1">Last 5 Matches</p>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
-                    <span className="font-medium">{homeTeam?.name}:</span> {homeForm?.wins || 0}W {homeForm?.draws || 0}D {homeForm?.losses || 0}L
+                    <span className="font-medium">{effectiveHomeTeam?.name}:</span> {homeForm?.wins || 0}W {homeForm?.draws || 0}D {homeForm?.losses || 0}L
                   </div>
                   <div>
-                    <span className="font-medium">{awayTeam?.name}:</span> {awayForm?.wins || 0}W {awayForm?.draws || 0}D {awayForm?.losses || 0}L
+                    <span className="font-medium">{effectiveAwayTeam?.name}:</span> {awayForm?.wins || 0}W {awayForm?.draws || 0}D {awayForm?.losses || 0}L
                   </div>
                 </div>
               </div>

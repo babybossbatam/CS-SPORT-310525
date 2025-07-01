@@ -34,6 +34,8 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   fixtures,
   loading = false,
 }) => {
+  const user = useSelector((state: RootState) => state.user);
+  const { currentFixture } = useSelector((state: RootState) => state.fixtures);
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
@@ -231,7 +233,10 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                     {/* Match Prediction for upcoming matches - moved below MyMatchEventNew */}
                     {/* Match Prediction Component */}
                     <MatchPrediction />
-                    <MyRecentForm />
+                    {/* Recent Form Section */}
+          <MyRecentForm 
+            match={currentFixture}
+          />
                     {!isLive && !isEnded && (
                       <MatchPrediction
                         homeTeam={{
