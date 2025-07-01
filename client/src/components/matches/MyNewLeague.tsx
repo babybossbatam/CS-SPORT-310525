@@ -212,6 +212,31 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
+  
+  // Enhanced debugging for Friendlies Clubs
+  const friendliesFixtures = fixtures.filter(f => f.league.id === 667);
+  console.log("🏆 [MyNewLeague FRIENDLIES] Total Friendlies fixtures:", friendliesFixtures.length);
+  
+  if (friendliesFixtures.length > 0) {
+    console.log("🏆 [MyNewLeague FRIENDLIES] Sample fixtures with dates:");
+    friendliesFixtures.slice(0, 5).forEach((f) => {
+      const matchDate = new Date(f.fixture.date);
+      const year = matchDate.getFullYear();
+      const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+      const day = String(matchDate.getDate()).padStart(2, "0");
+      const matchDateString = `${year}-${month}-${day}`;
+      
+      console.log(`🏆 Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        fixtureDate: f.fixture.date,
+        matchDateString,
+        selectedDate,
+        dateMatches: matchDateString === selectedDate,
+        status: f.fixture.status.short,
+        league: f.league.name
+      });
+    });
+  }
+  
   fixtures.forEach((f) => {
     console.log("Fixture:", {
       id: f.fixture.id,
@@ -230,8 +255,24 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     const month = String(matchDate.getMonth() + 1).padStart(2, "0");
     const day = String(matchDate.getDate()).padStart(2, "0");
     const matchDateString = `${year}-${month}-${day}`;
-    return matchDateString === selectedDate;
+    const dateMatches = matchDateString === selectedDate;
+    
+    // Debug for Friendlies Clubs specifically
+    if (f.league.id === 667 && !dateMatches) {
+      console.log(`🏆 [FRIENDLIES DATE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        fixtureDate: f.fixture.date,
+        matchDateString,
+        selectedDate,
+        reason: 'Date mismatch'
+      });
+    }
+    
+    return dateMatches;
   });
+  
+  // Log filtering results for Friendlies
+  const friendliesFiltered = selectedDateFixtures.filter(f => f.league.id === 667);
+  console.log(`🏆 [MyNewLeague FRIENDLIES] After date filtering: ${friendliesFiltered.length} matches for ${selectedDate}`);
 
   // Group matches by league ID
   const matchesByLeague = selectedDateFixtures.reduce(
