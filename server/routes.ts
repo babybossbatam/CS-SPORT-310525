@@ -497,62 +497,6 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
           try {
             const fixtureId = `${cacheKey}:${fixture.fixture.id}`;
             const isWorldFixture =
-
-
-// Team fixtures endpoint for recent form data
-app.get('/api/teams/:teamId/fixtures', async (req, res) => {
-  try {
-    const { teamId } = req.params;
-    const { last = '5', league, season } = req.query;
-
-    if (!teamId) {
-      return res.status(400).json({ error: 'Team ID is required' });
-    }
-
-    console.log(`🏃 [Team Fixtures] Fetching last ${last} fixtures for team ${teamId}`);
-
-    // Build the RapidAPI request
-    const currentSeason = season || new Date().getFullYear();
-    let url = `https://api-football-v1.p.rapidapi.com/v3/fixtures?team=${teamId}&last=${last}&season=${currentSeason}`;
-
-    if (league) {
-      url += `&league=${league}`;
-    }
-
-    const rapidApiResponse = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY || '',
-        'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
-      }
-    });
-
-    if (!rapidApiResponse.ok) {
-      console.error(`❌ [Team Fixtures] RapidAPI request failed: ${rapidApiResponse.status}`);
-      return res.status(rapidApiResponse.status).json({ 
-        error: 'Failed to fetch team fixtures from RapidAPI' 
-      });
-    }
-
-    const data = await rapidApiResponse.json();
-
-    if (!data.response) {
-      console.warn(`⚠️ [Team Fixtures] No fixtures found for team ${teamId}`);
-      return res.json({ response: [] });
-    }
-
-    console.log(`✅ [Team Fixtures] Found ${data.response.length} fixtures for team ${teamId}`);
-    res.json(data);
-
-  } catch (error) {
-    console.error('❌ [Team Fixtures] Error:', error);
-    res.status(500).json({ 
-      error: 'Failed to fetch team fixtures',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
               fixture.league?.country === "World" ||
               fixture.league?.country === "Europe" ||
               fixture.league?.name?.toLowerCase().includes("fifa") ||
@@ -816,7 +760,7 @@ app.get('/api/teams/:teamId/fixtures', async (req, res) => {
               const leagueId = league.league.id.toString();
               const existingLeague = await storage.getCachedLeague(leagueId);
 
-              if (existingLeague) {```text
+              if (existingLeague) {
                 await storage.updateCachedLeague(leagueId, league);
               } else {
                 await storage.createCachedLeague({
@@ -2733,8 +2677,7 @@ app.get('/api/teams/:teamId/fixtures', async (req, res) => {
       } catch (error) {
         console.error("❌ [SoccersAPI] Error fetching match details:", error);
         res.status(500).json({
-          success: false,
-          error: "Failed to fetch SoccersAPI match details",
+          success: false,        error: "Failed to fetch SoccersAPI match details",
         });
       }
     },
