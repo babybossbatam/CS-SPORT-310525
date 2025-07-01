@@ -671,7 +671,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           </div>
         )}
       </CardContent>
-      
+
       <div className="p-2 border-t flex justify-center items-center">
         <img 
           src="/assets/matchdetaillogo/clock.png" 
@@ -680,13 +680,91 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         />
       </div>
       <div className="p-2 border-t flex justify-center items-center text-xs">
-      <span>
-      Commentary
-      </span>
+        <span>Commentary</span>
       </div>
-      <div className="p-2 border-t flex justify-center items-center text-xs">
-       
+
+      {/* Commentary Events Section */}
+      <div className="border-t bg-gray-50">
+        <div className="p-4 space-y-3 max-h-64 overflow-y-auto">
+          {/* Sample Commentary Events */}
+          {[
+            {
+              time: "+4'",
+              period: "120",
+              type: "fulltime",
+              comment: "Full Time: 3-4",
+              isResult: true
+            },
+            {
+              time: "+3'",
+              period: "120",
+              type: "corner",
+              comment: "Corner, Manchester City. Conceded by Ali Lajami."
+            },
+            {
+              time: "+3'",
+              period: "120",
+              type: "attempt",
+              comment: "Attempt blocked. Jérémy Doku (Manchester City) right footed shot from outside the box is blocked. Assisted by Rayan Cherki."
+            },
+            {
+              time: "+2'",
+              period: "120",
+              type: "foul",
+              comment: "Foul by Kevin De Bruyne (Manchester City)."
+            },
+            {
+              time: "+1'",
+              period: "120",
+              type: "substitution",
+              comment: "Substitution, Al Hilal. Salem Al Dawsari replaces Malcom."
+            },
+            {
+              time: "120'",
+              period: "120",
+              type: "whistle",
+              comment: "Second Half Extra Time ends, Manchester City 3, Al Hilal 4."
+            }
+          ].map((commentary, index) => (
+            <div key={index} className="commentary-event-container">
+              <div className="flex gap-3">
+                {/* Time Column */}
+                <div className="flex flex-col items-center min-w-[50px]">
+                  <div className="text-xs font-bold text-orange-500">
+                    {commentary.time}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {commentary.period}
+                  </div>
+                  {index < 5 && (
+                    <div className="w-0.5 h-8 bg-gray-300 mt-1"></div>
+                  )}
+                </div>
+
+                {/* Content Column */}
+                <div className="flex-1">
+                  {commentary.isResult ? (
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src="/assets/matchdetaillogo/clock.png" 
+                        alt="Full Time" 
+                        className="w-4 h-4 opacity-60"
+                      />
+                      <div className="text-sm font-bold text-gray-900">
+                        {commentary.comment}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-700 leading-relaxed">
+                      {commentary.comment}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
+      </div>
     </Card>
   );
 };
