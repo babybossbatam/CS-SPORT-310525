@@ -1071,10 +1071,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       {/* Content Column */}
                       <div className="flex-1">
-                        {event.type === "goal" ? (
+                        {event.type === "Goal" ? (
                           <div className="flex flex-col gap-2">
-                            <div className="goal-header-info bg-green-50 px-2 py-1 rounded-md text-xs text-green-700 font-medium">
-                              Goal scored at {event.time.elapsed}' - Score: {(() => {
+                            <div className="goal-header-info bg-green-50 px-2 py-1 rounded-md text-xs  font-medium">
+                         Score: {(() => {
                                 const scoreAtGoal = calculateScoreAtTime(event.time.elapsed);
                                 return `${scoreAtGoal.homeScore}-${scoreAtGoal.awayScore}`;
                               })()}
