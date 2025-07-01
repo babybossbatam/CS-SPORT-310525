@@ -826,183 +826,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       {/* Commentary Events Section */}
       <div className="border-t ">
         <div className="p-4 space-y-3 max-h-200 overflow-y-auto">
-          {/* Complete Match Timeline with Period Markers */}
-          {(() => {
-            // Create a complete timeline including period markers
-            const timelineEvents = [];
-
-            // Add comprehensive match flow markers
-            timelineEvents.push({
-              type: 'period-marker',
-              time: { elapsed: 0 },
-              content: 'First Half begins.',
-              isImportant: true
-            });
-
-            // Only use real events for commentary - no synthetic events
-
-            // Add actual events
-            events.forEach(event => {
-              timelineEvents.push({
-                ...event,
-                type: event.type,
-                isActualEvent: true
-              });
-            });
-
-            // Determine match phases based on events
-            const maxTime = Math.max(...events.map(e => e.time.elapsed), 0);
-            const hasSecondHalfEvents = events.some(e => e.time.elapsed > 45);
-            const hasExtraTime = events.some(e => e.time.elapsed > 90);
-            const hasPenalties = events.some(e => e.type === "penalty");
-
-            // Add half-time marker
-            if (hasSecondHalfEvents) {
-              const firstHalfEnd = events.filter(e => e.time.elapsed <= 45);
-              const hasFirstHalfStoppage = firstHalfEnd.some(e => e.time.extra);
-
-              if (hasFirstHalfStoppage) {
-                const maxStoppage = Math.max(...firstHalfEnd.filter(e => e.time.extra).map(e => e.time.extra || 0));
-                timelineEvents.push({
-                  type: 'period-marker',
-                  time: { elapsed: 45, extra: maxStoppage },
-                  content: `First Half ends, ${homeTeam || "Home"} ${events.filter(e => e.type === "goal" && e.team?.name === homeTeam && e.time.elapsed <= 45).length}, ${awayTeam || "Away"} ${events.filter(e => e.type === "goal" && e.team?.name === awayTeam && e.time.elapsed <= 45).length}.`,
-                  isImportant: true
-                });
-              }
-
-              timelineEvents.push({
-                type: 'period-marker',
-                time: { elapsed: 45 },
-                content: `Second Half begins ${homeTeam || "Home"} ${events.filter(e => e.type === "goal" && e.team?.name === homeTeam && e.time.elapsed <= 45).length}, ${awayTeam || "Away"} ${events.filter(e => e.type === "goal" && e.team?.name === awayTeam && e.time.elapsed <= 45).length}.`,
-                isImportant: true
-              });
-            }
-
-            // Add full-time marker with proper timing
-            if (maxTime >= 90) {
-              const finalHomeScore = events.filter(e => e.type === "goal" && e.team?.name === homeTeam).length;
-              const finalAwayScore = events.filter(e => e.type === "goal" && e.team?.name === awayTeam).length;
-
-              // Calculate the actual match end time including stoppage time
-              const matchEndTime = Math.max(...events.map(e => e.time.elapsed + (e.time.extra || 0)));
-              const hasStoppageTime = events.some(e => e.time.extra && e.time.elapsed <= 90);
-              const maxStoppageTime = hasStoppageTime ? Math.max(...events.filter(e => e.time.extra && e.time.elapsed <= 90).map(e => e.time.extra || 0)) : 0;
-
-              if (hasExtraTime) {
-                // Regular time end with stoppage
-                if (hasStoppageTime && maxStoppageTime > 0) {
-                  timelineEvents.push({
-                    type: 'period-marker',
-                    time: { elapsed: 90, extra: maxStoppageTime },
-                    content: `90+${maxStoppageTime} minutes. End of regular time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}. Extra time follows.`,
-                    isImportant: true
-                  });
-                } else {
-                  timelineEvents.push({
-                    type: 'period-marker',
-                    time: { elapsed: 90 },
-                    content: `90 minutes played. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}. Extra time follows.`,
-                    isImportant: true
-                  });
-                }
-
-                if (hasPenalties) {
-                  timelineEvents.push({
-                    type: 'period-marker',
-                    time: { elapsed: 120 },
-                    content: `Full Time after Extra Time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}. Penalty shootout follows.`,
-                    isImportant: true
-                  });
-                } else {
-                  const extraTimeEndTime = Math.max(...events.filter(e => e.time.elapsed > 90).map(e => e.time.elapsed + (e.time.extra || 0)));
-                  timelineEvents.push({
-                    type: 'period-marker',
-                    time: { elapsed: Math.floor(extraTimeEndTime), extra: extraTimeEndTime % 1 === 0 ? undefined : Math.floor((extraTimeEndTime % 1) * 60) },
-                    content: `Full Time after Extra Time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
-                    isImportant: true
-                  });
-                }
-              } else {
-                // Regular match end - check for stoppage time
-                if (hasStoppageTime && maxStoppageTime > 0) {
-                  timelineEvents.push({
-                    type: 'period-marker',
-                    time: { elapsed: 90, extra: maxStoppageTime },
-                    content: `Full Time after 90+${maxStoppageTime} minutes. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
-                    isImportant: true
-                  });
-                } else if (matchEndTime > 90) {
-                  // Handle cases where events go beyond 90 minutes without extra time flag
-                  timelineEvents.push({
-                    type: 'period-marker',
-                    time: { elapsed: Math.floor(matchEndTime) },
-                    content: `Full Time after ${Math.floor(matchEndTime)} minutes. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
-                    isImportant: true
-                  });
-                } else {
-                  timelineEvents.push({
-                    type: 'period-marker',
-                    time: { elapsed: 90 },
-                    content: `Full Time. ${homeTeam || "Home"} ${finalHomeScore}, ${awayTeam || "Away"} ${finalAwayScore}.`,
-                    isImportant: true
-                  });
-                }
-              }
-            }
-
-            // Sort by time in descending order (match end to beginning)
-            timelineEvents.sort((a, b) => {
-              if (a.time.elapsed === b.time.elapsed) {
-                // Period markers should come after events at the same time when in descending order
-                if (a.type === 'period-marker' && b.type !== 'period-marker') return 1;
-                if (b.type === 'period-marker' && a.type !== 'period-marker') return -1;
-              }
-              return b.time.elapsed - a.time.elapsed;
-            });
-
-            return timelineEvents.map((event, index) => {
-              if (event.type === 'period-marker') {
-                return (
-                  <div key={`period-${index}`} className="commentary-event-container">
-                    <div className="flex gap-3">
-                      {/* Time Column */}
-                      <div className="flex flex-col items-center min-w-[50px]">
-                        <div className="text-xs font-md text-gray-600">
-                          {event.time.elapsed === 0 ? '0\'' : 
-                           event.time.elapsed === 45 ? (event.time.extra ? `45+${event.time.extra}'` : '45\'') : 
-                           event.time.elapsed === 90 ? (event.time.extra ? `90+${event.time.extra}'` : '90\'') : 
-                           event.time.extra ? `${event.time.elapsed}+${event.time.extra}'` : `${event.time.elapsed}'`}
-                        </div>
-                        <div className="text-xs text-gray-600">
-                          {event.time.elapsed}{event.time.extra ? `+${event.time.extra}` : ''}
-                        </div>
-                        {index < timelineEvents.length - 1 && (
-                          <div className="w-0.5 h-4 bg-gray-800 mt-1"></div>
-                        )}
-                      </div>
-
-                      {/* Content Column */}
-                      <div className="flex-1">
-                        <div className="flex items-start gap-2">
-                          <img 
-                            src="/assets/matchdetaillogo/i mark.svg" 
-                            alt="Period Marker" 
-                            className="w-4 h-4 opacity-80 mt-0.5"
-                          />
-                          <div className="text-sm text-gray-800 leading-relaxed font-medium">
-                            {event.content}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-
-              // Regular events
+          {/* Simplified Timeline - Events Only */}
+          {events
+            .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
+            .map((event, index) => {
               const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
-              const commentaryText = generateCommentaryText(event);
+              
+              // Use event description instead of generated commentary to avoid duplication
+              const eventDescription = getEventDescription(event);
 
               return (
                 <div key={`commentary-${index}`} className="commentary-event-container">
@@ -1015,7 +846,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <div className="text-xs text-gray-800">
                         {event.time.elapsed}{event.time.extra ? `+${event.time.extra}` : ''}
                       </div>
-                      {index > 0 && (
+                      {index < events.length - 1 && (
                         <div className="w-0.5 h-4 bg-gray-800 mb-1"></div>
                       )}
                     </div>
@@ -1030,7 +861,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             className="w-5 h-5 opacity-80 mt-0.5"
                           />
                           <div className="text-sm font-bold text-gray-900 leading-relaxed">
-                            {commentaryText}
+                            {eventDescription}
                           </div>
                         </div>
                       ) : event.type === "card" ? (
@@ -1039,31 +870,30 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             {event.detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥"}
                           </span>
                           <div className="text-sm text-gray-700 leading-relaxed">
-                            {commentaryText}
+                            {eventDescription}
                           </div>
                         </div>
                       ) : event.type === "subst" ? (
                         <div className="text-sm text-gray-700 leading-relaxed ml-6">
-                          {commentaryText}
+                          {eventDescription}
                         </div>
                       ) : event.type === "var" ? (
                         <div className="flex items-start gap-2">
                           <span className="text-xs mt-0.5">📺</span>
                           <div className="text-xs text-gray-700 leading-relaxed">
-                            {commentaryText}
+                            {eventDescription}
                           </div>
                         </div>
                       ) : (
                         <div className="text-sm text-gray-700 leading-relaxed ml-6">
-                          {commentaryText}
+                          {eventDescription}
                         </div>
                       )}
                     </div>
                   </div>
                 </div>
               );
-            });
-          })()}
+            })}
         </div>
       </div>
     </Card>
