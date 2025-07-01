@@ -36,9 +36,16 @@ export async function apiRequest(
   data?: unknown | undefined
 ): Promise<Response> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+  let timeoutId: NodeJS.Timeout | null = null;
 
   try {
+    // Set timeout with proper cleanup
+    timeoutId = setTimeout(() => {
+      if (!controller.signal.aborted) {
+        controller.abort(new Error('Request timeout after 15 seconds'));
+      }
+    }, 15000);
+
     // Ensure URL is properly formatted
     const apiUrl = url.startsWith('/') ? `${window.location.origin}${url}` : url;
     
@@ -54,18 +61,26 @@ export async function apiRequest(
       mode: 'cors'
     });
 
-    clearTimeout(timeoutId);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+
     await throwIfResNotOk(res);
     return res;
   } catch (error) {
-    clearTimeout(timeoutId);
+    // Clean up timeout
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
     // Handle specific error types
-    if (error instanceof Error && error.name === 'AbortError') {
-      console.error(`🚫 API request timeout for ${method} ${url} after 15 seconds`);
-      throw new Error(`Request timeout: ${url}`);
+    if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('aborted'))) {
+      console.warn(`⏱️ API request aborted for ${method} ${url}:`, errorMessage);
+      throw new Error(`Request cancelled: ${url}`);
     }
     
     if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch')) {
@@ -84,7 +99,7 @@ export const getQueryFn: <T>(options: {
   on401: UnauthorizedBehavior;
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
-  async ({ queryKey }) => {
+  async ({ queryKey, signal }) => {
     const keyString = Array.isArray(queryKey) ? queryKey.join('-') : String(queryKey);
 
     if (!checkRateLimit(keyString)) {
@@ -92,23 +107,37 @@ export const getQueryFn: <T>(options: {
       return null as any;
     }
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+    // Use the signal from React Query if available, otherwise create our own
+    const controller = signal ? undefined : new AbortController();
+    const requestSignal = signal || controller?.signal;
+    let timeoutId: NodeJS.Timeout | null = null;
 
     try {
+      // Only set timeout if we created our own controller
+      if (controller) {
+        timeoutId = setTimeout(() => {
+          if (!controller.signal.aborted) {
+            controller.abort(new Error('Query timeout after 10 seconds'));
+          }
+        }, 10000);
+      }
+
       const url = queryKey[0] as string;
       const apiUrl = url.startsWith('/') ? `${window.location.origin}${url}` : url;
       
       const res = await fetch(apiUrl, {
         credentials: "include",
-        signal: controller.signal,
+        signal: requestSignal,
         headers: {
           'Accept': 'application/json',
         },
         mode: 'cors'
       });
 
-      clearTimeout(timeoutId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
 
       if (unauthorizedBehavior === "returnNull" && res.status === 401) {
         return null;
@@ -117,12 +146,15 @@ export const getQueryFn: <T>(options: {
       await throwIfResNotOk(res);
       return await res.json();
     } catch (error) {
-      clearTimeout(timeoutId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
       
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.warn(`⏱️ Query timeout for ${queryKey[0]}`);
+      if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('aborted'))) {
+        console.warn(`⏱️ Query aborted for ${queryKey[0]}: ${errorMessage}`);
         return null as any; // Return null instead of throwing for queries
       }
       
