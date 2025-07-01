@@ -698,7 +698,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
       {/* Commentary Events Section */}
       <div className="border-t ">
-        <div className="p-4 space-y-3 max-h-280 overflow-y-auto">
+        <div className="p-4 space-y-3 max-h-200 overflow-y-auto">
           {/* Real-time Commentary Events */}
           {events.map((event, index) => {
             const timeDisplay = `${event.time.elapsed}'${event.time.extra ? `+${event.time.extra}` : ''}`;
