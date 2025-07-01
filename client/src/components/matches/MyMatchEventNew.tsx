@@ -565,6 +565,25 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     </div>
   );
 
+  // Function to calculate the score at a given time. This is a placeholder.
+  const calculateScoreAtTime = (time: number) => {
+    // Replace this with your actual scoring logic.
+    // This is just an example to show how it could work.
+    let homeScore = 0;
+    let awayScore = 0;
+
+    // For the sake of example, let's say the first 45 minutes were 0-0
+    if (time > 45) {
+      homeScore = 1; // Home team scored in the second half
+    }
+
+    if (time > 75) {
+      awayScore = 1; // Away team scored later
+    }
+
+    return { homeScore, awayScore };
+  };
+
   return (
     <Card
       className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
@@ -946,6 +965,31 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               }
             }
 
+            // Define the calculateScoreAtTime function inside the component scope
+            const calculateScoreAtTime = (time: number) => {
+              let homeScore = 0;
+              let awayScore = 0;
+
+              // Get all goal events that happened before the given time
+              const homeGoals = events.filter(
+                (e) =>
+                  isHomeTeam(e) &&
+                  e.type === "goal" &&
+                  e.time.elapsed <= time,
+              );
+              const awayGoals = events.filter(
+                (e) =>
+                  !isHomeTeam(e) &&
+                  e.type === "goal" &&
+                  e.time.elapsed <= time,
+              );
+
+              homeScore = homeGoals.length;
+              awayScore = awayGoals.length;
+
+              return { homeScore, awayScore };
+            };
+
             return allCommentaryItems
               .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
               .map((event, index) => {
@@ -1026,20 +1070,31 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
 
                       {/* Content Column */}
-                      
-                      <div className="flex-1">
-                        {event.type === "Goal" ? (
-                          <div className="flex items-start gap-1">
-                            <img
-                              src="/assets/matchdetaillogo/soccer-ball.svg"
-                              alt="Goal"
-                              className="w-5 h-5 opacity-80 mt-0.5 "
-                            />
-                            <div>
-                            
+                      {event.type === "goal" ? (
+                          <div className="flex flex-col gap-2">
+                            <div className="goal-header-info bg-green-50 px-2 py-1 rounded-md text-xs text-green-700 font-medium">
+                              Goal scored at {event.time.elapsed}' - Score: {(() => {
+                                const scoreAtGoal = calculateScoreAtTime(event.time.elapsed);
+                                return `${scoreAtGoal.homeScore}-${scoreAtGoal.awayScore}`;
+                              })()}
                             </div>
-                            <div className="text-sm font-bold text-gray-900 leading-relaxed">
-                              {eventDescription}
+                            <div className="flex items-start gap-2">
+                              <img
+                                src="/assets/matchdetaillogo/soccer-ball.svg"
+                                alt="Goal"
+                                className="w-4 h-4 opacity-80 mt-0.5 flex-shrink-0"
+                              />
+                              <div className="goal-event-wrapper bg-green-50 p-2 rounded-md border-l-4 border-green-500">
+                                <div className="text-sm font-bold text-gray-900 leading-relaxed">
+                                  {eventDescription}
+                                </div>
+                                <div className="text-xs text-green-600 mt-1 font-medium">
+                                  ⚽ Goal Event - Running Score: {(() => {
+                                    const scoreAtGoal = calculateScoreAtTime(event.time.elapsed);
+                                    return `${homeTeam || "Home"} ${scoreAtGoal.homeScore} - ${scoreAtGoal.awayScore} ${awayTeam || "Away"}`;
+                                  })()}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         ) : event.type === "card" ? (
