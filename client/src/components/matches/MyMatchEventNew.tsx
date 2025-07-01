@@ -1035,7 +1035,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               alt="Goal"
                               className="w-5 h-5 opacity-80 mt-0.5 "
                             />
-                            {event.time.elapsed}
+                            <div>
+                            
+                            </div>
                             <div className="text-sm font-bold text-gray-900 leading-relaxed">
                               {eventDescription}
                             </div>
