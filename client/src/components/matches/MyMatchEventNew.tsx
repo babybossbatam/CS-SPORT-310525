@@ -1026,20 +1026,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
 
                       {/* Content Column */}
+                      
                       <div className="flex-1">
-                        {event.type === "goal" ? (
-                          <div className="flex items-start gap-2">
+                        {event.type === "Goal" ? (
+                          <div className="flex items-start gap-1">
                             <img
                               src="/assets/matchdetaillogo/soccer-ball.svg"
                               alt="Goal"
-                              className="w-5 h-5 opacity-80 mt-0.5"
+                              className="w-5 h-5 opacity-80 mt-0.5 "
                             />
+                            {event.time.elapsed}
                             <div className="text-sm font-bold text-gray-900 leading-relaxed">
                               {eventDescription}
                             </div>
                           </div>
                         ) : event.type === "card" ? (
-                          <div className="flex items-start gap-2">
+                          <div className="flex items-start gap-1">
                             <span className="text-sm mt-0.5">
                               {event.detail?.toLowerCase().includes("yellow")
                                 ? "🟨"
@@ -1054,7 +1056,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             {eventDescription}
                           </div>
                         ) : event.type === "var" ? (
-                          <div className="flex items-start gap-2">
+                          <div className="flex items-start gap-1">
                             <span className="text-xs mt-0.5">📺</span>
                             <div className="text-xs text-gray-700 leading-relaxed">
                               {eventDescription}
