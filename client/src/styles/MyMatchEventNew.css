@@ -429,7 +429,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: calc(100% + 16px);
+  max-width: calc(50% + 36px);
   line-height: normal;
   font-weight: var(--medium-font-weight);
   color: var(--textPrimary);
