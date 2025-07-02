@@ -590,16 +590,27 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       // Get all goal events that happened before or at the given time
       const goalEvents = events.filter(e => 
         e.type === "goal" && 
-        e.time?.elapsed <= time &&
-        !e.detail?.toLowerCase().includes("own goal") // Exclude own goals for now
+        e.time?.elapsed <= time
       );
 
       // Count goals for each team
       goalEvents.forEach(event => {
-        if (event.team?.name === homeTeam) {
-          homeScore++;
-        } else if (event.team?.name === awayTeam) {
-          awayScore++;
+        const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
+        
+        if (isOwnGoal) {
+          // Own goal counts for the opposing team
+          if (event.team?.name === homeTeam) {
+            awayScore++; // Home team own goal = away team score
+          } else if (event.team?.name === awayTeam) {
+            homeScore++; // Away team own goal = home team score
+          }
+        } else {
+          // Regular goal counts for the scoring team
+          if (event.team?.name === homeTeam) {
+            homeScore++;
+          } else if (event.team?.name === awayTeam) {
+            awayScore++;
+          }
         }
       });
 
