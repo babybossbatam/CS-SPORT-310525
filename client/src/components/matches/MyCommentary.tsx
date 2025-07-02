@@ -188,9 +188,17 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 className="w-4 h-4 ml-1"
                               />
                             ) : (
-                              <span className="text-white text-xs font-semi-bold">
-                                {event.type === "period_start" ? "🏁" : "⏱️"}
-                              </span>
+                              event.type === "period_start" ? (
+                                <img
+                                  src="/assets/matchdetaillogo/i mark.svg"
+                                  alt="Period Start"
+                                  className="w-4 h-4 ml-1"
+                                />
+                              ) : (
+                                <span className="text-white text-xs font-semi-bold">
+                                  ⏱️
+                                </span>
+                              )
                             )}
                           </div>
                           {index < allCommentaryItems.length - 1 && (
