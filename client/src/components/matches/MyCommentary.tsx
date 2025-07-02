@@ -47,22 +47,34 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
     let homeScore = 0;
     let awayScore = 0;
 
-    // Get all goal events that happened before the given time
-    const homeGoals = events.filter(
+    // Get all goal events that happened before or at the given time
+    const goalEvents = events.filter(
       (e) =>
-        isHomeTeam(e) &&
-        e.type === "goal" &&
-        e.time.elapsed <= time,
-    );
-    const awayGoals = events.filter(
-      (e) =>
-        !isHomeTeam(e) &&
-        e.type === "goal" &&
-        e.time.elapsed <= time,
+        e.type?.toLowerCase() === "goal" &&
+        e.time.elapsed <= time
     );
 
-    homeScore = homeGoals.length;
-    awayScore = awayGoals.length;
+    // Process each goal event
+    goalEvents.forEach((event) => {
+      const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
+      const eventIsHomeTeam = isHomeTeam(event);
+
+      if (isOwnGoal) {
+        // Own goal: award to the opposing team
+        if (eventIsHomeTeam) {
+          awayScore++; // Home team own goal gives away team a point
+        } else {
+          homeScore++; // Away team own goal gives home team a point
+        }
+      } else {
+        // Regular goal: award to the scoring team
+        if (eventIsHomeTeam) {
+          homeScore++;
+        } else {
+          awayScore++;
+        }
+      }
+    });
 
     return { homeScore, awayScore };
   };
