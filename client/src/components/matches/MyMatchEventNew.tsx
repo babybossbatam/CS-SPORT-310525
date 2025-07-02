@@ -1065,7 +1065,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         </div>
 
                         {index < allCommentaryItems.length - 1 && (
-                          <div className="w-0.5 h-6 bg-gray-600 mb-1 "></div>
+                          <div className="w-0.5 h-6 bg-gray-600 mb-0 "></div>
                         )}
                       </div>
 
@@ -1101,31 +1101,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 <div className="text-xs font-bold text-gray-900 leading-relaxed">
                                   {eventDescription}
                                 </div>
-                                <div className="text-xs  mt-1 font-medium">
-                                  ⚽ Goal Event - Running Score: {(() => {
-                                    const scoreAtGoal = calculateScoreAtTime(event.time.elapsed);
-                                    return `${homeTeam || "Home"} ${scoreAtGoal.homeScore} - ${scoreAtGoal.awayScore} ${awayTeam || "Away"}`;
-                                  })()}
-                                </div>
+       
                               </div>
                             </div>
                           </div>
-                        ) : event.type === "card" ? (
-                          <div className="flex items-start gap-1">
-                            <span className="text-sm mt-0.5">
-                              {event.detail?.toLowerCase().includes("yellow")
-                                ? "🟨"
-                                : "🟥"}
-                            </span>
+                        ) : event.type === "Card" ? (
+                          <div className="flex items-start gap-1 ml-6">
+                    
                             <div className="text-sm text-gray-700 leading-relaxed">
                               {eventDescription}
                             </div>
                           </div>
-                        ) : event.type === "subst" ? (
+                        ) : event.type === "Subst" ? (
                           <div className="text-sm text-gray-700 leading-relaxed" style={{ marginLeft: '6px' }}>
                             {eventDescription}
                           </div>
-                        ) : event.type === "var" ? (
+                        ) : event.type === "Var" ? (
                           <div className="flex items-start gap-1">
                             <span className="text-xs mt-0.5">📺</span>
                             <div className="text-xs text-gray-700 leading-relaxed">
