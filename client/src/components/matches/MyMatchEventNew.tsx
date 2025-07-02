@@ -426,11 +426,25 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
                       className="w-4 h-4"
                     />
-                  ) : (
-                    <span className="text-sm flex">
-                      {getEventIcon(event.type, event.detail)}
-                    </span>
-                  )}
+                  ) : event.type === "card" ? (
+                                  <img
+                                    src={
+                                      event.detail?.toLowerCase().includes("yellow")
+                                        ? "/assets/matchdetaillogo/card-icon.svg"
+                                        : "/assets/matchdetaillogo/red-card-icon.svg"
+                                    }
+                                    alt={
+                                      event.detail?.toLowerCase().includes("yellow")
+                                        ? "Yellow Card"
+                                        : "Red Card"
+                                    }
+                                    className="w-4 h-4"
+                                  />
+                                ) : (
+                                  <span className="text-xs">
+                                    {getEventIcon(event.type, event.detail)}
+                                  </span>
+                                )}
                 </div>
               </div>
             </div>
@@ -468,11 +482,25 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
                       className="w-4 h-4"
                     />
-                  ) : (
-                    <span className="text-sm">
-                      {getEventIcon(event.type, event.detail)}
-                    </span>
-                  )}
+                  ) : event.type === "card" ? (
+                                  <img
+                                    src={
+                                      event.detail?.toLowerCase().includes("yellow")
+                                        ? "/assets/matchdetaillogo/card-icon.svg"
+                                        : "/assets/matchdetaillogo/red-card-icon.svg"
+                                    }
+                                    alt={
+                                      event.detail?.toLowerCase().includes("yellow")
+                                        ? "Yellow Card"
+                                        : "Red Card"
+                                    }
+                                    className="w-4 h-4"
+                                  />
+                                ) : (
+                                  <span className="text-xs">
+                                    {getEventIcon(event.type, event.detail)}
+                                  </span>
+                                )}
                 </div>
               </div>
 
@@ -655,17 +683,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
               try {
                 const currentScores = getCurrentScores();
-                
+
                 // Calculate halftime score by counting goals scored up to 45 minutes
                 const calculateHalftimeScore = () => {
                   let homeHalftimeScore = 0;
                   let awayHalftimeScore = 0;
-                  
+
                   const firstHalfGoals = events.filter(event => 
                     event.type === "Goal" && 
                     event.time?.elapsed <= 45
                   );
-                  
+
                   firstHalfGoals.forEach(goal => {
                     if (goal.team?.name === homeTeam) {
                       homeHalftimeScore++;
@@ -673,10 +701,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       awayHalftimeScore++;
                     }
                   });
-                  
+
                   return { homeHalftimeScore, awayHalftimeScore };
                 };
-                
+
                 // Add "End of 90 Minutes" marker if there are events after minute 90
                 const fullTimeEvents = events.filter(e => e.time?.elapsed >= 90);
                 if (fullTimeEvents.length > 0) {
@@ -715,11 +743,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 // Special priority for "End of 90 Minutes" - always put it first
                 if (a.type === "period_score" && a.detail === "End of 90 Minutes") return -1;
                 if (b.type === "period_score" && b.detail === "End of 90 Minutes") return 1;
-                
+
                 // Calculate total time including extra time for proper sorting
                 const aTotalTime = a.time.elapsed + (a.time.extra || 0);
                 const bTotalTime = b.time.elapsed + (b.time.extra || 0);
-                
+
                 // Sort by total time in descending order (latest first)
                 return bTotalTime - aTotalTime;
               });
@@ -815,7 +843,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     <div className="text-xs text-gray-600">
                                       (Assist: {event.assist.name})
                                     </div>
-                                  )}
+                                                                 )}
                                 {event.type !== "subst" && (
                                   <div className="text-xs text-gray-400">
                                     {event.type === "foul" ||
@@ -857,6 +885,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         .includes("Penalty")
                                         ? "Penalty Goal"
                                         : "Goal"
+                                    }
+                                    className="w-4 h-4"
+                                  />
+                                ) : event.type === "card" ? (
+                                  <img
+                                    src={
+                                      event.detail?.toLowerCase().includes("yellow")
+                                        ? "/assets/matchdetaillogo/card-icon.svg"
+                                        : "/assets/matchdetaillogo/red-card-icon.svg"
+                                    }
+                                    alt={
+                                      event.detail?.toLowerCase().includes("yellow")
+                                        ? "Yellow Card"
+                                        : "Red Card"
                                     }
                                     className="w-4 h-4"
                                   />
@@ -920,6 +962,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         .includes("Penalty")
                                         ? "Penalty Goal"
                                         : "Goal"
+                                    }
+                                    className="w-4 h-4"
+                                  />
+                                ) : event.type === "card" ? (
+                                  <img
+                                    src={
+                                      event.detail?.toLowerCase().includes("yellow")
+                                        ? "/assets/matchdetaillogo/card-icon.svg"
+                                        : "/assets/matchdetaillogo/red-card-icon.svg"
+                                    }
+                                    alt={
+                                      event.detail?.toLowerCase().includes("yellow")
+                                        ? "Yellow Card"
+                                        : "Red Card"
                                     }
                                     className="w-4 h-4"
                                   />
