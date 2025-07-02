@@ -716,11 +716,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 if (a.type === "period_score" && a.detail === "End of 90 Minutes") return -1;
                 if (b.type === "period_score" && b.detail === "End of 90 Minutes") return 1;
                 
-                // Special priority for "Halftime" - should come after End of 90 Minutes but before regular events
-                if (a.type === "period_score" && a.detail === "Halftime") return -1;
-                if (b.type === "period_score" && b.detail === "Halftime") return 1;
-                
-                // For all other items, sort by elapsed time in descending order (latest first)
+                // For all other items (including halftime), sort by elapsed time in descending order (latest first)
                 return b.time.elapsed - a.time.elapsed;
               });
 
