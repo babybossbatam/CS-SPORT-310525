@@ -691,7 +691,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               }
 
               // Combine events and period markers safely
-              const allItems = [...sortedEvents, ...periodMarkers].sort((a, b) => b.time.elapsed - a.time.elapsed);
+              const allItems = [...sortedEvents, ...periodMarkers].sort((a, b) => {
+                // Period score markers should always appear at the top
+                if (a.type === "period_score" && b.type !== "period_score") return -1;
+                if (b.type === "period_score" && a.type !== "period_score") return 1;
+                
+                // If both are period markers, sort by time (descending)
+                if (a.type === "period_score" && b.type === "period_score") {
+                  return b.time.elapsed - a.time.elapsed;
+                }
+                
+                // For regular events, sort by time (descending)
+                return b.time.elapsed - a.time.elapsed;
+              });
 
               return allItems.map((event, index) => {
                 // Handle period score markers safely
