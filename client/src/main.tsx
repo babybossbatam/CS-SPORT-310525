@@ -1,7 +1,36 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App.tsx";
+import "./index.css";
+
+// Filter out known Replit/browser warnings in development
+if (import.meta.env.DEV) {
+  const originalWarn = console.warn;
+  const originalError = console.error;
+
+  console.warn = (...args) => {
+    const message = args.join(' ');
+    if (
+      message.includes('sandbox') ||
+      message.includes('Unrecognized feature') ||
+      message.includes('Allow attribute will take precedence')
+    ) {
+      return; // Suppress these warnings
+    }
+    originalWarn.apply(console, args);
+  };
+
+  console.error = (...args) => {
+    const message = args.join(' ');
+    if (
+      message.includes('sandbox') ||
+      message.includes('Invalid or unexpected token') && message.includes('background.js')
+    ) {
+      return; // Suppress these errors
+    }
+    originalError.apply(console, args);
+  };
+}
 import { setupGlobalErrorHandlers } from './lib/errorHandler.ts'
 
 // Setup global error handlers
