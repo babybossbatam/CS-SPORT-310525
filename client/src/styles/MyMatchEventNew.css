@@ -392,29 +392,29 @@
   transition: all 0.2s ease;
 }
 
-/* Commentary text styling - consistent 14px font size */
+/* Commentary text styling - consistent text-xs (12px) font size */
 .commentary-text {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: var(--medium-font-weight);
   color: var(--textPrimary);
   line-height: 1.4;
 }
 
 .commentary-player-name {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: var(--medium-font-weight);
   color: var(--textPrimary);
 }
 
 .commentary-event-description {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: var(--medium-font-weight);
   color: var(--textPrimary);
   line-height: 1.5;
 }
 
 .commentary-time-display {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: var(--semiBold-font-weight);
   color: var(--textPrimary);
 }
@@ -428,12 +428,12 @@
   line-height: normal;
   font-weight: var(--medium-font-weight);
   color: var(--textPrimary);
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .match-event-event-subtitle {
   color: var(--textSecondary);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: var(--regular-font-weight);
   white-space: nowrap;
   overflow: hidden;
