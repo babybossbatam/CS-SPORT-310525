@@ -656,6 +656,27 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               try {
                 const currentScores = getCurrentScores();
                 
+                // Calculate halftime score by counting goals scored up to 45 minutes
+                const calculateHalftimeScore = () => {
+                  let homeHalftimeScore = 0;
+                  let awayHalftimeScore = 0;
+                  
+                  const firstHalfGoals = events.filter(event => 
+                    event.type === "Goal" && 
+                    event.time?.elapsed <= 45
+                  );
+                  
+                  firstHalfGoals.forEach(goal => {
+                    if (goal.team?.name === homeTeam) {
+                      homeHalftimeScore++;
+                    } else if (goal.team?.name === awayTeam) {
+                      awayHalftimeScore++;
+                    }
+                  });
+                  
+                  return { homeHalftimeScore, awayHalftimeScore };
+                };
+                
                 // Add "End of 90 Minutes" marker if there are events after minute 90
                 const fullTimeEvents = events.filter(e => e.time?.elapsed >= 90);
                 if (fullTimeEvents.length > 0) {
@@ -674,13 +695,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 const firstHalfEvents = events.filter(e => e.time?.elapsed >= 1 && e.time?.elapsed <= 45);
                 const secondHalfEvents = events.filter(e => e.time?.elapsed > 45);
                 if (firstHalfEvents.length > 0 && secondHalfEvents.length > 0) {
-                  // For halftime, we can either show current score or try to calculate halftime score
-                  // For now, let's show the current score since it's more reliable
+                  const halftimeScore = calculateHalftimeScore();
                   periodMarkers.push({
                     time: { elapsed: 45 },
                     type: "period_score", 
                     detail: "Halftime",
-                    score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
+                    score: `${halftimeScore.homeHalftimeScore} - ${halftimeScore.awayHalftimeScore}`,
                     team: { name: "", logo: "" },
                     player: { name: "" },
                     id: "period-45"
