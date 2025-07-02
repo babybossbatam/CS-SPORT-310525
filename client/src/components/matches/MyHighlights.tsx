@@ -46,7 +46,37 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                                league.toLowerCase().includes('gold cup') ||
                                searchQuery.toLowerCase().includes('concacaf');
 
+  // Check if this is a FIFA Club World Cup competition
+  const isFifaClubWorldCup = league.toLowerCase().includes('fifa') && 
+                            league.toLowerCase().includes('club world cup');
+
   const videoSources = [
+    // FIFA Club World Cup Official Channel (priority)
+    ...(isFifaClubWorldCup ? [{
+      name: 'FIFA Official',
+      type: 'youtube' as const,
+      searchFn: async () => {
+        const fifaChannelId = 'UCK-mxP4hLap1t3dp4bPbSBg';
+        const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(searchQuery)}&maxResults=1&channelId=${fifaChannelId}&order=relevance`);
+        const data = await response.json();
+
+        if (data.error || data.quotaExceeded) {
+          throw new Error(data.error || 'FIFA official channel search failed');
+        }
+
+        if (data.items && data.items.length > 0) {
+          const video = data.items[0];
+          return {
+            name: 'FIFA Official',
+            type: 'youtube' as const,
+            url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+            embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+            title: video.snippet.title
+          };
+        }
+        throw new Error('No FIFA official videos found');
+      }
+    }] : []),
     {
       name: 'YouTube',
       type: 'youtube' as const,
@@ -230,17 +260,22 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-blue-500" />
               <p className="text-sm text-gray-600">
                 Searching for highlights...
-                {sourceIndex === 0 && (
+                {sourceIndex === 0 && isFifaClubWorldCup && (
+                  <span className="block text-xs text-blue-500">
+                    Checking FIFA Official Channel first
+                  </span>
+                )}
+                {sourceIndex === 0 && !isFifaClubWorldCup && (
                   <span className="block text-xs text-blue-500">
                     Trying YouTube first
                   </span>
                 )}
-                {sourceIndex === 1 && isConcacafCompetition && (
+                {sourceIndex === 1 && isConcacafCompetition && !isFifaClubWorldCup && (
                   <span className="block text-xs text-green-500">
                     Checking CONCACAF Official Channel
                   </span>
                 )}
-                {sourceIndex > 0 && !(sourceIndex === 1 && isConcacafCompetition) && (
+                {sourceIndex > 0 && !(sourceIndex === 1 && isConcacafCompetition && !isFifaClubWorldCup) && (
                   <span className="block text-xs text-gray-400">
                     Trying {videoSources[sourceIndex]?.name || 'alternative source'}
                   </span>
