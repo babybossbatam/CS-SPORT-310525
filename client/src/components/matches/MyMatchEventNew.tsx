@@ -1034,7 +1034,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                         {/* Content Column */}
                         <div className="flex-1">
-                          <div className="text-sm font-md ml-4 text-gray-600 leading-relaxed">
+                          <div className="text-xs font-md ml-4 text-gray-600 leading-relaxed">
                             {displayText}
                           </div>
                         </div>
@@ -1076,7 +1076,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             
                             <div className="flex items-center gap-2 px-2 py-1 rounded-md text-xs font-medium">
                               <img
-                                src="/assets/matchdetaillogo/soccer-ball.svg"
+                                src="/assets/matchdetaillogo/blue ball.svg"
                                 alt="Goal"
                                 className="w-4 h-4 opacity-80 flex-shrink-0"
                               />
@@ -1084,14 +1084,24 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 const scoreAtGoal = calculateScoreAtTime(event.time.elapsed);
                                 return `${scoreAtGoal.homeScore}-${scoreAtGoal.awayScore}`;
                               })()}</span>
+                              <span>
+                                
+                              </span>
                             </div>
+                            <div className="flex flex-col gap-2">
+
+                              <div className="flex items-center gap-2 px-2 py-1 rounded-md text-xs font-medium">
+                                aaaaa
+                              </div>
+                            </div>
+                            
                             <div className="flex items-start gap-2">
                              
                               <div className="goal-event-wrapper ">
-                                <div className="text-sm font-bold text-gray-900 leading-relaxed">
+                                <div className="text-xs font-bold text-gray-900 leading-relaxed">
                                   {eventDescription}
                                 </div>
-                                <div className="text-xs text-green-600 mt-1 font-medium">
+                                <div className="text-xs  mt-1 font-medium">
                                   ⚽ Goal Event - Running Score: {(() => {
                                     const scoreAtGoal = calculateScoreAtTime(event.time.elapsed);
                                     return `${homeTeam || "Home"} ${scoreAtGoal.homeScore} - ${scoreAtGoal.awayScore} ${awayTeam || "Away"}`;
