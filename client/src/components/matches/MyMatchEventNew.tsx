@@ -844,17 +844,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt="Substitution"
                                     className="w-4 h-4"
                                   />
-                                ) : event.type === "goal" ||
-                                  (event.type === "goal" &&
+                                ) : event.type === "Goal" ||
+                                  (event.type === "Goal" &&
                                     event.detail
                                       ?.toLowerCase()
                                       .includes("penalty")) ? (
                                   <img
-                                    src="/assets/matchdetaillogo/soccer-goal.svg"
+                                    src="/assets/matchdetaillogo/soccer-ball.svg"
                                     alt={
                                       event.detail
                                         ?.toLowerCase()
-                                        .includes("penalty")
+                                        .includes("Penalty")
                                         ? "Penalty Goal"
                                         : "Goal"
                                     }
@@ -894,11 +894,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <div className="match-event-away-icon-column">
                               <div
                                 className={`match-event-icon ${
-                                  event.type === "goal"
-                                    ? "goal"
-                                    : event.type === "card"
-                                      ? "card"
-                                      : "substitution"
+                                  event.type === "Goal"
+                                    ? "Goal"
+                                    : event.type === "Card"
+                                      ? "Card"
+                                      : "Substitution"
                                 }`}
                               >
                                 {event.type === "subst" ? (
@@ -907,17 +907,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt="Substitution"
                                     className="w-4 h-4"
                                   />
-                                ) : event.type === "goal" ||
-                                  (event.type === "goal" &&
+                                ) : event.type === "Goal" ||
+                                  (event.type === "Goal" &&
                                     event.detail
                                       ?.toLowerCase()
-                                      .includes("penalty")) ? (
+                                      .includes("Penalty")) ? (
                                   <img
-                                    src="/assets/matchdetaillogo/soccer-goal.svg"
+                                    src="/assets/matchdetaillogo/soccer-ball.svg"
                                     alt={
                                       event.detail
                                         ?.toLowerCase()
-                                        .includes("penalty")
+                                        .includes("Penalty")
                                         ? "Penalty Goal"
                                         : "Goal"
                                     }
@@ -933,7 +933,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                             {/* Column 2: Player Info */}
                             <div className="match-event-away-player-info">
-                              <div className="text-left">
+                              <div className="justify-center text-center w-24">
                                 {event.type === "subst" &&
                                 event.assist?.name ? (
                                   <>
