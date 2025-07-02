@@ -339,7 +339,7 @@
   border: 2px solid transparent;
   transition: all 0.3s ease;
   position: relative;
-  vertical-align: middle;
+  vertical-align: baseline;
 }
 
 .match-event-icon:hover {
