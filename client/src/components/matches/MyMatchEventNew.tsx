@@ -716,8 +716,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 if (a.type === "period_score" && a.detail === "End of 90 Minutes") return -1;
                 if (b.type === "period_score" && b.detail === "End of 90 Minutes") return 1;
                 
-                // For all other items (including halftime), sort by elapsed time in descending order (latest first)
-                return b.time.elapsed - a.time.elapsed;
+                // Calculate total time including extra time for proper sorting
+                const aTotalTime = a.time.elapsed + (a.time.extra || 0);
+                const bTotalTime = b.time.elapsed + (b.time.extra || 0);
+                
+                // Sort by total time in descending order (latest first)
+                return bTotalTime - aTotalTime;
               });
 
               return allItems.map((event, index) => {
