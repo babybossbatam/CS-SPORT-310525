@@ -712,7 +712,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
               // Combine events and period markers safely
               const allItems = [...sortedEvents, ...periodMarkers].sort((a, b) => {
-                // Sort everything by elapsed time in descending order (latest first)
+                // Special priority for "End of 90 Minutes" - always put it first
+                if (a.type === "period_score" && a.detail === "End of 90 Minutes") return -1;
+                if (b.type === "period_score" && b.detail === "End of 90 Minutes") return 1;
+                
+                // Special priority for "Halftime" - should come after End of 90 Minutes but before regular events
+                if (a.type === "period_score" && a.detail === "Halftime") return -1;
+                if (b.type === "period_score" && b.detail === "Halftime") return 1;
+                
+                // For all other items, sort by elapsed time in descending order (latest first)
                 return b.time.elapsed - a.time.elapsed;
               });
 
