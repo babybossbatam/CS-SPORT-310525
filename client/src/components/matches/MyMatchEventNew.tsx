@@ -18,6 +18,7 @@ interface MyMatchEventNewProps {
   className?: string;
   homeTeam?: string;
   awayTeam?: string;
+  matchData?: any; // Add match data to get actual scores and status
 }
 
 interface MatchEvent {
@@ -52,6 +53,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   className = "",
   homeTeam,
   awayTeam,
+  matchData,
 }) => {
   const [events, setEvents] = useState<MatchEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -581,44 +583,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     </div>
   );
 
-  // Function to calculate the score at a given time
-  const calculateScoreAtTime = (time: number) => {
-    try {
-      let homeScore = 0;
-      let awayScore = 0;
-
-      // Get all goal events that happened before or at the given time
-      const goalEvents = events.filter(e => 
-        e.type === "goal" && 
-        e.time?.elapsed <= time
-      );
-
-      // Count goals for each team
-      goalEvents.forEach(event => {
-        const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
-        
-        if (isOwnGoal) {
-          // Own goal counts for the opposing team
-          if (event.team?.name === homeTeam) {
-            awayScore++; // Home team own goal = away team score
-          } else if (event.team?.name === awayTeam) {
-            homeScore++; // Away team own goal = home team score
-          }
-        } else {
-          // Regular goal counts for the scoring team
-          if (event.team?.name === homeTeam) {
-            homeScore++;
-          } else if (event.team?.name === awayTeam) {
-            awayScore++;
-          }
-        }
-      });
-
-      return { homeScore, awayScore };
-    } catch (error) {
-      console.error('Error calculating score at time:', error);
-      return { homeScore: 0, awayScore: 0 };
+  // Get current scores from API data
+  const getCurrentScores = () => {
+    if (matchData?.goals) {
+      return { 
+        homeScore: matchData.goals.home || 0, 
+        awayScore: matchData.goals.away || 0 
+      };
     }
+    return { homeScore: 0, awayScore: 0 };
   };
 
   return (
@@ -681,15 +654,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               const periodMarkers = [];
 
               try {
+                const currentScores = getCurrentScores();
+                
                 // Add "End of 90 Minutes" marker if there are events after minute 90
                 const fullTimeEvents = events.filter(e => e.time?.elapsed >= 90);
                 if (fullTimeEvents.length > 0) {
-                  const fullTimeScore = calculateScoreAtTime(90);
                   periodMarkers.push({
                     time: { elapsed: 90 },
                     type: "period_score",
                     detail: "End of 90 Minutes",
-                    score: `${fullTimeScore.homeScore} - ${fullTimeScore.awayScore}`,
+                    score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
                     team: { name: "", logo: "" },
                     player: { name: "" },
                     id: "period-90"
@@ -700,12 +674,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 const firstHalfEvents = events.filter(e => e.time?.elapsed >= 1 && e.time?.elapsed <= 45);
                 const secondHalfEvents = events.filter(e => e.time?.elapsed > 45);
                 if (firstHalfEvents.length > 0 && secondHalfEvents.length > 0) {
-                  const halftimeScore = calculateScoreAtTime(45);
+                  // For halftime, we can either show current score or try to calculate halftime score
+                  // For now, let's show the current score since it's more reliable
                   periodMarkers.push({
                     time: { elapsed: 45 },
                     type: "period_score", 
                     detail: "Halftime",
-                    score: `${halftimeScore.homeScore} - ${halftimeScore.awayScore}`,
+                    score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
                     team: { name: "", logo: "" },
                     player: { name: "" },
                     id: "period-45"

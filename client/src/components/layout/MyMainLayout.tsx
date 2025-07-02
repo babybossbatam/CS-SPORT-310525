@@ -227,6 +227,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                         refreshInterval={15}
                         showLogos={true}
                         className="mt-4"
+                        matchData={selectedFixture}
                       />
                     )}
 
