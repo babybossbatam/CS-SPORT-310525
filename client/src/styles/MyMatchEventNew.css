@@ -384,6 +384,42 @@
 }
 
 /* Event text styling */
+/* Commentary Events Section */
+.commentary-event-container {
+  width: 100%;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+/* Commentary text styling - consistent 14px font size */
+.commentary-text {
+  font-size: 14px;
+  font-weight: var(--medium-font-weight);
+  color: var(--textPrimary);
+  line-height: 1.4;
+}
+
+.commentary-player-name {
+  font-size: 14px;
+  font-weight: var(--medium-font-weight);
+  color: var(--textPrimary);
+}
+
+.commentary-event-description {
+  font-size: 14px;
+  font-weight: var(--medium-font-weight);
+  color: var(--textPrimary);
+  line-height: 1.5;
+}
+
+.commentary-time-display {
+  font-size: 14px;
+  font-weight: var(--semiBold-font-weight);
+  color: var(--textPrimary);
+}
+
+/* Event text styling */
 .match-event-event-title {
   white-space: nowrap;
   overflow: hidden;
@@ -392,12 +428,12 @@
   line-height: normal;
   font-weight: var(--medium-font-weight);
   color: var(--textPrimary);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .match-event-event-subtitle {
   color: var(--textSecondary);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: var(--regular-font-weight);
   white-space: nowrap;
   overflow: hidden;
