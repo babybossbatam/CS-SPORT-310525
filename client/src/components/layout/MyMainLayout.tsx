@@ -232,7 +232,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 
                     {/* Match Prediction for upcoming matches - moved below MyMatchEventNew */}
                     {/* Match Prediction Component */}
-                    <MatchPrediction />
+                   
                     {/* Recent Form Section */}
           <MyRecentForm 
             match={currentFixture}
