@@ -1073,19 +1073,23 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <div className="flex-1">
                         {event.type === "Goal" ? (
                           <div className="flex flex-col gap-2">
-                            <div className="goal-header-info bg-green-50 px-2 py-1 rounded-md text-xs  font-medium">
-                         Score: {(() => {
-                                const scoreAtGoal = calculateScoreAtTime(event.time.elapsed);
-                                return `${scoreAtGoal.homeScore}-${scoreAtGoal.awayScore}`;
-                              })()}
-                            </div>
-                            <div className="flex items-start gap-2">
+                            
+                            <div className=" px-2 py-1 rounded-md text-xs  font-medium">
                               <img
                                 src="/assets/matchdetaillogo/soccer-ball.svg"
                                 alt="Goal"
                                 className="w-4 h-4 opacity-80 mt-0.5 flex-shrink-0"
                               />
-                              <div className="goal-event-wrapper bg-green-50 p-2 rounded-md border-l-4 border-green-500">
+                         Score: {(() => {
+                                const scoreAtGoal = calculateScoreAtTime(event.time.elapsed);
+                                return `${scoreAtGoal.homeScore}-${scoreAtGoal.awayScore}`;
+                            
+                              })()}
+                              
+                            </div>
+                            <div className="flex items-start gap-2">
+                             
+                              <div className="goal-event-wrapper ">
                                 <div className="text-sm font-bold text-gray-900 leading-relaxed">
                                   {eventDescription}
                                 </div>
