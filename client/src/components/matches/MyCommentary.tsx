@@ -121,20 +121,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
             // Add period score markers
             const periodMarkers = [];
             
-            // Add "End of 90 Minutes" marker if there are events after minute 90
-            const fullTimeEvents = events.filter(e => e.time.elapsed >= 90);
-            if (fullTimeEvents.length > 0) {
-              const fullTimeScore = calculateScoreAtTime(90);
-              periodMarkers.push({
-                time: { elapsed: 90 },
-                type: "period_score",
-                detail: "End of 90 Minutes",
-                score: `${fullTimeScore.homeScore} - ${fullTimeScore.awayScore}`,
-                team: { name: "", logo: "" },
-                player: { name: "" },
-              } as any);
-            }
-
             // Add "Halftime" marker if there are events in both halves
             if (hasEventsInFirstHalf && hasEventsInSecondHalf) {
               const halftimeScore = calculateScoreAtTime(45);
