@@ -1090,8 +1090,28 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             </div>
                             <div className="flex flex-col gap-2">
 
-                              <div className="flex items-center gap-2 px-2 py-1 rounded-md text-xs font-medium">
-                                aaaaa
+                              <div className="flex items-center gap-2 px-2 py-1  text-xs font-medium bg-gray-200">
+                                <Avatar className="w-8 h-8 border-2  shadow-sm flex-shrink-0">
+                                  <AvatarImage
+                                    src={getPlayerImage(
+                                      event.player?.id,
+                                      event.player?.name,
+                                    )}
+                                    alt={event.player?.name || "Player"}
+                                    className="object-cover"
+                                  />
+                                  
+                                  
+                                  <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
+                                    {event.player?.name
+                                      ?.split(" ")
+                                      .map((n) => n[0])
+                                      .join("")
+                                      .slice(0, 2) || "P"}
+                                  </AvatarFallback>
+                                  
+                                </Avatar>
+                                
                               </div>
                             </div>
                             
