@@ -41,19 +41,24 @@ export default class ErrorBoundary extends Component<Props, State> {
       'allow-downloads-without-user-activation',
       'plugin:runtime-error-plugin',
       'unknown runtime error',
-      'runtime-error-plugin'
+      'runtime-error-plugin',
+      'sendError',
+      'riker.replit.dev'
     ];
 
     const shouldSuppress = suppressPatterns.some(pattern => 
       error.message?.includes(pattern) || 
       error.toString().includes(pattern) ||
-      error.stack?.includes(pattern)
+      error.stack?.includes(pattern) ||
+      errorInfo.componentStack?.includes(pattern)
     );
 
     if (!shouldSuppress) {
       console.error('Error caught by boundary:', error, errorInfo);
     } else {
-      console.log('🔧 Error suppressed by boundary:', error.message);
+      console.log('🔧 Runtime plugin error suppressed by boundary:', error.message);
+      // Prevent the error from propagating further
+      return;
     }
   }
 

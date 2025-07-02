@@ -95,20 +95,26 @@ function App() {
           "Failed to fetch dynamically imported module",
         ) ||
         event.reason?.message?.includes("plugin:runtime-error-plugin") ||
-        event.reason?.message?.includes("unknown runtime error")
+        event.reason?.message?.includes("unknown runtime error") ||
+        event.reason?.message?.includes("sendError") ||
+        event.reason?.toString()?.includes("riker.replit.dev")
       ) {
-        console.log("Runtime/dynamic import error caught and suppressed:", event.reason?.message);
+        console.log("🔧 Runtime/dynamic import error caught and suppressed:", event.reason?.message);
         event.preventDefault();
+        return;
       }
     };
 
     const handleError = (event: ErrorEvent) => {
       if (
         event.message?.includes("plugin:runtime-error-plugin") ||
-        event.message?.includes("unknown runtime error")
+        event.message?.includes("unknown runtime error") ||
+        event.message?.includes("sendError") ||
+        event.filename?.includes("riker.replit.dev")
       ) {
-        console.log("Runtime error caught and suppressed:", event.message);
+        console.log("🔧 Runtime error caught and suppressed:", event.message);
         event.preventDefault();
+        return;
       }
     };
 
