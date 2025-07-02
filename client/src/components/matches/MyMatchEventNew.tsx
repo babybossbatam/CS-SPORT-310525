@@ -120,6 +120,54 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     return `${elapsed}'`;
   };
 
+  const getEventIcon = (type: string, detail?: string) => {
+    const eventType = type?.toLowerCase() || '';
+    const eventDetail = detail?.toLowerCase() || '';
+
+    switch (eventType) {
+      case 'goal':
+        if (eventDetail.includes('penalty')) {
+          return '⚽'; // Penalty goal
+        } else if (eventDetail.includes('own goal')) {
+          return '🥅'; // Own goal
+        }
+        return '⚽'; // Regular goal
+      
+      case 'card':
+        if (eventDetail.includes('yellow')) {
+          return '🟨'; // Yellow card
+        } else if (eventDetail.includes('red')) {
+          return '🟥'; // Red card
+        }
+        return '🟨'; // Default card
+      
+      case 'subst':
+      case 'substitution':
+        return '🔄'; // Substitution
+      
+      case 'var':
+        return '📺'; // VAR
+      
+      case 'foul':
+        return '🚫'; // Foul
+      
+      case 'offside':
+        return '🚩'; // Offside
+      
+      case 'corner':
+        return '📐'; // Corner kick
+      
+      case 'free kick':
+        return '🦶'; // Free kick
+      
+      case 'throw in':
+        return '👐'; // Throw in
+      
+      default:
+        return '📝'; // Default event
+    }
+  };
+
   const getEventDescription = (event: MatchEvent) => {
     const playerName = event.player?.name || "Unknown Player";
     const teamName = event.team?.name || "Unknown Team";
