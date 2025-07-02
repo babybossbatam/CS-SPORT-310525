@@ -36,6 +36,7 @@ import "../../styles/TodaysMatchByCountryNew.css";
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import MyMatchdetailsScoreboard from "./MyMatchdetailsScoreboard";
+import MyNewLeague from "./MyNewLeague";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -98,6 +99,7 @@ interface CombinedLeagueCardsProps {
   liveFilterActive?: boolean;
   filteredFixtures?: any[];
   onMatchCardClick?: (match: any) => void;
+  useMyNewLeagueData?: boolean;
   lazyLoadingProps?: {
     visibleMatches: Set<number>;
     createLazyRef: (matchId: number) => (node: HTMLDivElement | null) => void;
@@ -112,6 +114,7 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
   liveFilterActive = false,
   filteredFixtures: propFilteredFixtures = [],
   onMatchCardClick,
+  useMyNewLeagueData = false,
   lazyLoadingProps,
 }) => {
   const [expandedCountries, setExpandedCountries] = useState<Set<string>>(
@@ -1322,6 +1325,18 @@ const CombinedLeagueCards: React.FC<CombinedLeagueCardsProps> = ({
         </CardContent>
       </Card>
 
+      {/* MyNewLeague Data Source Integration */}
+      {useMyNewLeagueData && (
+        <div className="mt-4">
+          <MyNewLeague
+            selectedDate={selectedDate}
+            timeFilterActive={timeFilterActive}
+            showTop20={showTop20}
+            liveFilterActive={liveFilterActive}
+            onMatchCardClick={onMatchCardClick}
+          />
+        </div>
+      )}
 
     </>
   );
