@@ -419,6 +419,11 @@
   color: var(--textPrimary);
 }
 
+/* Ensure all commentary section text uses text-xs */
+.commentary-event-container * {
+  font-size: 12px !important;
+}
+
 /* Event text styling */
 .match-event-event-title {
   white-space: nowrap;
