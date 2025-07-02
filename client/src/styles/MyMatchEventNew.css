@@ -229,6 +229,8 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  height: 40px;
+  min-height: 40px;
 }
 
 /* Time display (center) */
@@ -309,10 +311,11 @@
 }
 
 .match-event-away-icon-column {
-  display: relatix;
+  display: flex;
   justify-content: flex-start;
   align-items: center;
- 
+  height: 40px;
+  min-height: 40px;
 }
 
 .match-event-away-player-info {
@@ -336,7 +339,7 @@
   border: 2px solid transparent;
   transition: all 0.3s ease;
   position: relative;
- 
+  vertical-align: middle;
 }
 
 .match-event-icon:hover {
