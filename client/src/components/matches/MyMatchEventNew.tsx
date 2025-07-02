@@ -1005,30 +1005,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               return { homeScore, awayScore };
             };
 
-            // Helper function to check if we should show period score
-            const shouldShowPeriodScore = (currentIndex: number, currentEvent: any, allItems: any[]) => {
-              const currentTime = currentEvent.time.elapsed;
-              
-              // Show halftime score after first half (around 45 minutes)
-              if (currentTime === 45 && !currentEvent.type?.includes('period')) {
-                return { type: 'halftime', time: 45 };
-              }
-              
-              // Show end of 90 minutes score
-              if (currentTime === 90 && !currentEvent.type?.includes('period')) {
-                return { type: 'fulltime', time: 90 };
-              }
-              
-              return null;
-            };
+           
 
             return allCommentaryItems
               .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
               .map((event, index) => {
                 const timeDisplay = `${event.time.extra ? `+${event.time.extra}` : ""}`;
                 
-                // Check if we should show period score
-                const periodScore = shouldShowPeriodScore(index, event, allCommentaryItems);
+              
 
                 // Handle period markers
                 if (
@@ -1082,32 +1066,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 const eventDescription = getEventDescription(event);
 
                 return (
-                  <React.Fragment key={`commentary-${index}`}>
-                    {/* Show period score if applicable */}
-                    {periodScore && (
-                      <div className="period-score-container mb-4">
-                        <div className="flex justify-center">
-                          <div className="bg-gray-100 px-4 py-2 rounded-lg border">
-                            <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1">
-                              {periodScore.type === 'halftime' ? 'Halftime' : 'End of 90 Minutes'}
-                            </div>
-                            <div className="text-lg font-bold text-gray-800 text-center">
-                              {(() => {
-                                const score = calculateScoreAtTime(periodScore.time);
-                                return `${score.homeScore} - ${score.awayScore}`;
-                              })()}
-                            </div>
-                            {periodScore.type === 'halftime' && (
-                              <div className="text-xs text-gray-500 text-center mt-1">
-                                {homeTeam} vs {awayTeam}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    
-                    <div className="commentary-event-container">
+                  <div
+                    key={`commentary-${index}`}
+                    className="commentary-event-container"
+                  >
                     <div className="flex gap-3">
                       {/* Time Column */}
                       <div className="flex flex-col items-center min-w-[50px]">
@@ -1210,7 +1172,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       </div>
                     </div>
                   </div>
-                  </React.Fragment>
+               
                 );
               });
           })()}
