@@ -288,9 +288,24 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         } else if (detail.toLowerCase().includes("offside")) {
           return `Offside! ${playerName} (${teamName}) is caught in an offside position ${timingContext}.`;
         } else if (detail.toLowerCase().includes("corner")) {
-          return `Corner kick awarded to ${teamName} ${timingContext}.`;
+          const cornerVariations = [
+            `Corner kick awarded to ${teamName}. ${playerName} will take the corner ${timingContext}.`,
+            `${teamName} wins a corner kick. ${playerName} steps up to deliver ${timingContext}.`,
+            `Corner for ${teamName}! ${playerName} has a chance to create something from the set piece ${timingContext}.`,
+            `${teamName} earns a corner kick. ${playerName} prepares to swing it in ${timingContext}.`,
+            `Corner to ${teamName}. ${playerName} will look to find a teammate in the box ${timingContext}.`
+          ];
+          return cornerVariations[Math.floor(Math.random() * cornerVariations.length)];
         } else if (detail.toLowerCase().includes("free kick")) {
-          return `Free kick to ${teamName}. ${playerName} prepares to take it ${timingContext}.`;
+          const freeKickVariations = [
+            `Free kick to ${teamName}. ${playerName} stands over the ball ${timingContext}.`,
+            `${teamName} awarded a free kick. ${playerName} will take the set piece ${timingContext}.`,
+            `Free kick for ${teamName}! ${playerName} has a good opportunity here ${timingContext}.`,
+            `${teamName} wins a free kick in a promising position. ${playerName} prepares to deliver ${timingContext}.`,
+            `Free kick awarded to ${teamName}. ${playerName} lines up the shot ${timingContext}.`,
+            `${teamName} gets a free kick. ${playerName} will look to make the most of this opportunity ${timingContext}.`
+          ];
+          return freeKickVariations[Math.floor(Math.random() * freeKickVariations.length)];
         } else if (detail.toLowerCase().includes("throw")) {
           return `Throw-in for ${teamName}. ${playerName} takes the throw ${timingContext}.`;
         } else {
