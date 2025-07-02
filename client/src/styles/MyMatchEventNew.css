@@ -259,6 +259,7 @@
 /* Simplified center grid for time only */
 .match-event-time-center-simple {
   grid-area: time-center;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -274,8 +275,12 @@
   border-color: var(--accentPrimary);
 }
 
-/* Center time display */
+/* Center time display - fixed positioning */
 .match-event-time-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -287,6 +292,8 @@
   white-space: nowrap;
   height: 40px;
   min-height: 40px;
+  width: auto;
+  min-width: 32px;
 }
 
 /* Away team events (right side) */
