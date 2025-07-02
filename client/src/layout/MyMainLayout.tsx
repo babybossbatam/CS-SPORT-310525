@@ -16,27 +16,33 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const isLive = selectedMatch?.fixture?.status?.short === 'LIVE' || 
                 selectedMatch?.fixture?.status?.short === 'HT' ||
                 selectedMatch?.fixture?.status?.short === '1H' ||
-                selectedMatch?.fixture?.status?.short === '2H';
+                selectedMatch?.fixture?.status?.short === '2H' ||
+                selectedMatch?.fixture?.status?.short === 'LIV' ||
+                selectedMatch?.fixture?.status?.short === 'ET' ||
+                selectedMatch?.fixture?.status?.short === 'P' ||
+                selectedMatch?.fixture?.status?.short === 'INT';
 
   return (
     <div className="w-full space-y-6">
-      {/* MyLiveAction component */}
-      <MyLiveAction 
-        matchId={selectedMatchId}
-        homeTeam={selectedMatch?.teams?.home}
-        awayTeam={selectedMatch?.teams?.away}
-        status={selectedMatch?.fixture?.status?.short}
-        className="mb-6"
-      />
+      {/* MyLiveAction component - show for live matches */}
+      {isLive && (
+        <MyLiveAction 
+          matchId={selectedMatchId}
+          homeTeam={selectedMatch?.teams?.home}
+          awayTeam={selectedMatch?.teams?.away}
+          status={selectedMatch?.fixture?.status?.short}
+          className=""
+        />
+      )}
 
-      {/* MyLiveMatchTracker component - only show for live matches or when a match is selected */}
-      {(selectedMatchId || isLive) && (
+      {/* MyLiveMatchTracker component - show below MyLiveAction for live matches */}
+      {isLive && selectedMatchId && (
         <MyLiveMatchTracker
           matchId={selectedMatchId}
           homeTeam={selectedMatch?.teams?.home}
           awayTeam={selectedMatch?.teams?.away}
           isLive={isLive}
-          className="mb-6"
+          className=""
         />
       )}
 
