@@ -581,24 +581,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     </div>
   );
 
-  // Function to calculate the score at a given time. This is a placeholder.
-  const calculateScoreAtTime = (time: number) => {
-    // Replace this with your actual scoring logic.
-    // This is just an example to show how it could work.
-    let homeScore = 0;
-    let awayScore = 0;
-
-    // For the sake of example, let's say the first 45 minutes were 0-0
-    if (time > 45) {
-      homeScore = 1; // Home team scored in the second half
-    }
-
-    if (time > 75) {
-      awayScore = 1; // Away team scored later
-    }
-
-    return { homeScore, awayScore };
-  };
+  
 
   return (
     <Card
@@ -652,61 +635,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
             )}
 
-            {/* All events in chronological order with period score markers */}
+            {/* All events in chronological order */}
             {(() => {
               const sortedEvents = [...events].sort((a, b) => b.time.elapsed - a.time.elapsed);
 
-              // Create period markers
-              const periodMarkers = [];
-
-              // Add "End of 90 Minutes" marker if there are events after minute 90
-              const fullTimeEvents = events.filter(e => e.time.elapsed >= 90);
-              if (fullTimeEvents.length > 0) {
-                const fullTimeScore = calculateScoreAtTime(90);
-                periodMarkers.push({
-                  time: { elapsed: 90 },
-                  type: "period_score",
-                  detail: "End of 90 Minutes",
-                  score: `${fullTimeScore.homeScore} - ${fullTimeScore.awayScore}`,
-                  team: { name: "", logo: "" },
-                  player: { name: "" },
-                } as any);
-              }
-
-              // Add "Halftime" marker if there are events in both halves
-              const firstHalfEvents = events.filter(e => e.time.elapsed >= 1 && e.time.elapsed <= 45);
-              const secondHalfEvents = events.filter(e => e.time.elapsed > 45);
-              if (firstHalfEvents.length > 0 && secondHalfEvents.length > 0) {
-                const halftimeScore = calculateScoreAtTime(45);
-                periodMarkers.push({
-                  time: { elapsed: 45 },
-                  type: "period_score", 
-                  detail: "Halftime",
-                  score: `${halftimeScore.homeScore} - ${halftimeScore.awayScore}`,
-                  team: { name: "", logo: "" },
-                  player: { name: "" },
-                } as any);
-              }
-
-              // Combine events and period markers
-              const allItems = [...sortedEvents, ...periodMarkers].sort((a, b) => b.time.elapsed - a.time.elapsed);
-
-              return allItems.map((event, index) => {
-                // Handle period score markers
-                if (event.type === "period_score") {
-                  return (
-                    <div key={`period-score-${index}`} className="match-event-container">
-                      <div className="flex items-center justify-between bg-gray-100 px-4 py-3 rounded-lg mb-3">
-                        <div className="text-sm font-semibold text-gray-700">
-                          {event.detail}
-                        </div>
-                        <div className="text-lg font-bold text-gray-900">
-                          {event.score}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
+              return sortedEvents.map((event, index) => {
 
                 const isHome = event.team?.name === homeTeam;
 
