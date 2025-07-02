@@ -113,23 +113,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     };
   }, [fixtureId, refreshInterval]);
 
-  const getEventIcon = (eventType: string, detail: string) => {
-    if (!eventType) return "📝";
-
-    switch (eventType.toLowerCase()) {
-      case "goal":
-        return detail?.toLowerCase().includes("penalty") ? "⚽(P)" : "⚽";
-      case "card":
-        return detail?.toLowerCase().includes("yellow") ? "🟨" : "🟥";
-      case "subst":
-        return "🔄";
-      case "var":
-        return "📺";
-      default:
-        return "📝";
-    }
-  };
-
   const formatTime = (elapsed: number, extra?: number) => {
     if (extra) {
       return `${elapsed}+${extra}'`;
@@ -155,7 +138,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           return `${playerName} (${teamName}) - Goal${assistName ? `, assist: ${assistName}` : ""}`;
         }
       case "card":
-        if (detail.toLowerCase().includes("yellow")) {
+        if (detail.toLowerCase().includes("Yellow")) {
           return `${playerName} (${teamName}) - Yellow Card`;
         } else if (detail.toLowerCase().includes("red")) {
           return `${playerName} (${teamName}) - Red Card`;
@@ -233,7 +216,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         }
 
       case "card":
-        if (event.detail?.toLowerCase().includes("yellow")) {
+        if (event.detail?.toLowerCase().includes("Yellow")) {
           const yellowReasons = [
             "for a reckless challenge",
             "for dissent",
@@ -296,9 +279,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             `${teamName} wins a corner kick. ${playerName} steps up to deliver ${timingContext}.`,
             `Corner for ${teamName}! ${playerName} has a chance to create something from the set piece ${timingContext}.`,
             `${teamName} earns a corner kick. ${playerName} prepares to swing it in ${timingContext}.`,
-            `Corner to ${teamName}. ${playerName} will look to find a teammate in the box ${timingContext}.`
+            `Corner to ${teamName}. ${playerName} will look to find a teammate in the box ${timingContext}.`,
           ];
-          return cornerVariations[Math.floor(Math.random() * cornerVariations.length)];
+          return cornerVariations[
+            Math.floor(Math.random() * cornerVariations.length)
+          ];
         } else if (detail.toLowerCase().includes("free kick")) {
           const freeKickVariations = [
             `Free kick to ${teamName}. ${playerName} stands over the ball ${timingContext}.`,
@@ -306,9 +291,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             `Free kick for ${teamName}! ${playerName} has a good opportunity here ${timingContext}.`,
             `${teamName} wins a free kick in a promising position. ${playerName} prepares to deliver ${timingContext}.`,
             `Free kick awarded to ${teamName}. ${playerName} lines up the shot ${timingContext}.`,
-            `${teamName} gets a free kick. ${playerName} will look to make the most of this opportunity ${timingContext}.`
+            `${teamName} gets a free kick. ${playerName} will look to make the most of this opportunity ${timingContext}.`,
           ];
-          return freeKickVariations[Math.floor(Math.random() * freeKickVariations.length)];
+          return freeKickVariations[
+            Math.floor(Math.random() * freeKickVariations.length)
+          ];
         } else if (detail.toLowerCase().includes("throw")) {
           return `Throw-in for ${teamName}. ${playerName} takes the throw ${timingContext}.`;
         } else {
@@ -414,37 +401,37 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       alt="Substitution"
                       className="w-4 h-4"
                     />
-                  ) : event.type === "goal" ||
-                    (event.type === "goal" &&
+                  ) : event.type === "Goal" ||
+                    (event.type === "Goal" &&
                       event.detail?.toLowerCase().includes("penalty")) ? (
                     <img
-                      src="/assets/matchdetaillogo/soccer-goal.svg"
+                      src="/assets/matchdetaillogo/penalty.svg"
                       alt={
-                        event.detail?.toLowerCase().includes("penalty")
+                        event.detail?.toLowerCase().includes("Penalty")
                           ? "Penalty Goal"
                           : "Goal"
                       }
                       className="w-4 h-4"
                     />
-                  ) : event.type === "card" ? (
-                                  <img
-                                    src={
-                                      event.detail?.toLowerCase().includes("yellow")
-                                        ? "/assets/matchdetaillogo/card-icon.svg"
-                                        : "/assets/matchdetaillogo/red-card-icon.svg"
-                                    }
-                                    alt={
-                                      event.detail?.toLowerCase().includes("yellow")
-                                        ? "Yellow Card"
-                                        : "Red Card"
-                                    }
-                                    className="w-4 h-4"
-                                  />
-                                ) : (
-                                  <span className="text-xs">
-                                    {getEventIcon(event.type, event.detail)}
-                                  </span>
-                                )}
+                  ) : event.type === "Card" ? (
+                    <img
+                      src={
+                        event.detail?.toLowerCase().includes("Yellow")
+                          ? "/assets/matchdetaillogo/card-icon.svg"
+                          : "/assets/matchdetaillogo/red-card-icon.svg"
+                      }
+                      alt={
+                        event.detail?.toLowerCase().includes("Yellow")
+                          ? "Yellow Card"
+                          : "Red Card"
+                      }
+                      className="w-4 h-4"
+                    />
+                  ) : (
+                    <span className="text-xs">
+                      {getEventIcon(event.type, event.detail)}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -483,24 +470,24 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       className="w-4 h-4"
                     />
                   ) : event.type === "card" ? (
-                                  <img
-                                    src={
-                                      event.detail?.toLowerCase().includes("yellow")
-                                        ? "/assets/matchdetaillogo/card-icon.svg"
-                                        : "/assets/matchdetaillogo/red-card-icon.svg"
-                                    }
-                                    alt={
-                                      event.detail?.toLowerCase().includes("yellow")
-                                        ? "Yellow Card"
-                                        : "Red Card"
-                                    }
-                                    className="w-4 h-4"
-                                  />
-                                ) : (
-                                  <span className="text-xs">
-                                    {getEventIcon(event.type, event.detail)}
-                                  </span>
-                                )}
+                    <img
+                      src={
+                        event.detail?.toLowerCase().includes("Yellow")
+                          ? "/assets/matchdetaillogo/card-icon.svg"
+                          : "/assets/matchdetaillogo/red-card-icon.svg"
+                      }
+                      alt={
+                        event.detail?.toLowerCase().includes("Yellow")
+                          ? "Yellow Card"
+                          : "Red Card"
+                      }
+                      className="w-4 h-8"
+                    />
+                  ) : (
+                    <span className="text-xs">
+                      {getEventIcon(event.type, event.detail)}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -614,9 +601,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   // Get current scores from API data
   const getCurrentScores = () => {
     if (matchData?.goals) {
-      return { 
-        homeScore: matchData.goals.home || 0, 
-        awayScore: matchData.goals.away || 0 
+      return {
+        homeScore: matchData.goals.home || 0,
+        awayScore: matchData.goals.away || 0,
       };
     }
     return { homeScore: 0, awayScore: 0 };
@@ -676,7 +663,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
             {/* All events in chronological order with period score markers */}
             {(() => {
-              const sortedEvents = [...events].sort((a, b) => b.time.elapsed - a.time.elapsed);
+              const sortedEvents = [...events].sort(
+                (a, b) => b.time.elapsed - a.time.elapsed,
+              );
 
               // Create period markers safely
               const periodMarkers = [];
@@ -689,12 +678,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   let homeHalftimeScore = 0;
                   let awayHalftimeScore = 0;
 
-                  const firstHalfGoals = events.filter(event => 
-                    event.type === "Goal" && 
-                    event.time?.elapsed <= 45
+                  const firstHalfGoals = events.filter(
+                    (event) =>
+                      event.type === "Goal" && event.time?.elapsed <= 45,
                   );
 
-                  firstHalfGoals.forEach(goal => {
+                  firstHalfGoals.forEach((goal) => {
                     if (goal.team?.name === homeTeam) {
                       homeHalftimeScore++;
                     } else if (goal.team?.name === awayTeam) {
@@ -706,7 +695,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 };
 
                 // Add "End of 90 Minutes" marker if there are events after minute 90
-                const fullTimeEvents = events.filter(e => e.time?.elapsed >= 90);
+                const fullTimeEvents = events.filter(
+                  (e) => e.time?.elapsed >= 90,
+                );
                 if (fullTimeEvents.length > 0) {
                   periodMarkers.push({
                     time: { elapsed: 90 },
@@ -715,48 +706,65 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
                     team: { name: "", logo: "" },
                     player: { name: "" },
-                    id: "period-90"
+                    id: "period-90",
                   });
                 }
 
                 // Add "Halftime" marker if there are events in both halves
-                const firstHalfEvents = events.filter(e => e.time?.elapsed >= 1 && e.time?.elapsed <= 45);
-                const secondHalfEvents = events.filter(e => e.time?.elapsed > 45);
+                const firstHalfEvents = events.filter(
+                  (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
+                );
+                const secondHalfEvents = events.filter(
+                  (e) => e.time?.elapsed > 45,
+                );
                 if (firstHalfEvents.length > 0 && secondHalfEvents.length > 0) {
                   const halftimeScore = calculateHalftimeScore();
                   periodMarkers.push({
                     time: { elapsed: 45 },
-                    type: "period_score", 
+                    type: "period_score",
                     detail: "Halftime",
                     score: `${halftimeScore.homeHalftimeScore} - ${halftimeScore.awayHalftimeScore}`,
                     team: { name: "", logo: "" },
                     player: { name: "" },
-                    id: "period-45"
+                    id: "period-45",
                   });
                 }
               } catch (error) {
-                console.error('Error creating period markers:', error);
+                console.error("Error creating period markers:", error);
               }
 
               // Combine events and period markers safely
-              const allItems = [...sortedEvents, ...periodMarkers].sort((a, b) => {
-                // Special priority for "End of 90 Minutes" - always put it first
-                if (a.type === "period_score" && a.detail === "End of 90 Minutes") return -1;
-                if (b.type === "period_score" && b.detail === "End of 90 Minutes") return 1;
+              const allItems = [...sortedEvents, ...periodMarkers].sort(
+                (a, b) => {
+                  // Special priority for "End of 90 Minutes" - always put it first
+                  if (
+                    a.type === "period_score" &&
+                    a.detail === "End of 90 Minutes"
+                  )
+                    return -1;
+                  if (
+                    b.type === "period_score" &&
+                    b.detail === "End of 90 Minutes"
+                  )
+                    return 1;
 
-                // Calculate total time including extra time for proper sorting
-                const aTotalTime = a.time.elapsed + (a.time.extra || 0);
-                const bTotalTime = b.time.elapsed + (b.time.extra || 0);
+                  // Calculate total time including extra time for proper sorting
+                  const aTotalTime = a.time.elapsed + (a.time.extra || 0);
+                  const bTotalTime = b.time.elapsed + (b.time.extra || 0);
 
-                // Sort by total time in descending order (latest first)
-                return bTotalTime - aTotalTime;
-              });
+                  // Sort by total time in descending order (latest first)
+                  return bTotalTime - aTotalTime;
+                },
+              );
 
               return allItems.map((event, index) => {
                 // Handle period score markers safely
                 if (event.type === "period_score") {
                   return (
-                    <div key={event.id || `period-score-${index}`} className="match-event-container">
+                    <div
+                      key={event.id || `period-score-${index}`}
+                      className="match-event-container"
+                    >
                       <div className="flex items-center justify-between bg-gray-100 px-2 py-1  mb-1">
                         <div className="text-xs font-semi-bold text-gray-700">
                           {event.detail || "Period Marker"}
@@ -843,7 +851,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     <div className="text-xs text-gray-600">
                                       (Assist: {event.assist.name})
                                     </div>
-                                                                 )}
+                                  )}
                                 {event.type !== "subst" && (
                                   <div className="text-xs text-gray-400">
                                     {event.type === "foul" ||
@@ -888,19 +896,23 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     }
                                     className="w-4 h-4"
                                   />
-                                ) : event.type === "card" ? (
+                                ) : event.type === "Card" ? (
                                   <img
                                     src={
-                                      event.detail?.toLowerCase().includes("yellow")
+                                      event.detail
+                                        ?.toLowerCase()
+                                        .includes("Yellow")
                                         ? "/assets/matchdetaillogo/card-icon.svg"
                                         : "/assets/matchdetaillogo/red-card-icon.svg"
                                     }
                                     alt={
-                                      event.detail?.toLowerCase().includes("yellow")
+                                      event.detail
+                                        ?.toLowerCase()
+                                        .includes("Yellow")
                                         ? "Yellow Card"
                                         : "Red Card"
                                     }
-                                    className="w-4 h-4"
+                                    className="w-4 h-8"
                                   />
                                 ) : (
                                   <span className="text-xs">
@@ -968,12 +980,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 ) : event.type === "card" ? (
                                   <img
                                     src={
-                                      event.detail?.toLowerCase().includes("yellow")
+                                      event.detail
+                                        ?.toLowerCase()
+                                        .includes("yellow")
                                         ? "/assets/matchdetaillogo/card-icon.svg"
                                         : "/assets/matchdetaillogo/red-card-icon.svg"
                                     }
                                     alt={
-                                      event.detail?.toLowerCase().includes("yellow")
+                                      event.detail
+                                        ?.toLowerCase()
+                                        .includes("yellow")
                                         ? "Yellow Card"
                                         : "Red Card"
                                     }
