@@ -44,6 +44,7 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import { useCentralData } from "../../providers/CentralDataProvider";
 import CombinedLeagueCards from "./CombinedLeagueCards";
+import MyNewLeague from "./MyNewLeague";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
