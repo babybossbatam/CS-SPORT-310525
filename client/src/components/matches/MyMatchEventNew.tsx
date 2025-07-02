@@ -1054,18 +1054,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     <div className="flex gap-3">
                       {/* Time Column */}
                       <div className="flex flex-col items-center min-w-[50px]">
-                        <div className="text-xs font-md text-red-500">
+                        <div className=" text-xs font-md text-red-500">
                           {timeDisplay}
                         </div>
                         <div
-                          className="text-xs text-gray-800"
-                          style={{ marginTop: "-1px", marginBottom: "4px" }}
+                          className=" text-gray-800"
+                          style={{ marginTop: "-1px", marginBottom: "2px" }}
                         >
                           {event.time.elapsed}'
                         </div>
 
                         {index < allCommentaryItems.length - 1 && (
-                          <div className="w-0.5 h-6 bg-gray-600 mb-0 "></div>
+                          <div className="w-0.5 h-12 bg-gray-600 mb-0 "></div>
                         )}
                       </div>
 
@@ -1074,7 +1074,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         {event.type === "Goal" ? (
                           <div className="flex flex-col gap-2">
                             
-                            <div className="flex items-center gap-2 px-2 py-1 rounded-md text-xs font-medium">
+                            <div className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium">
                               <img
                                 src="/assets/matchdetaillogo/blue ball.svg"
                                 alt="Goal"
@@ -1111,7 +1111,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   </AvatarFallback>
                                   
                                 </Avatar>
-                                
+                                <span className="text-gray-700 font-medium">
+                                  {event.player?.name || "Unknown Player"}
+                                </span>
                               </div>
                             </div>
                             
