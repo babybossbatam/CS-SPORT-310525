@@ -473,7 +473,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           ? "Yellow Card"
                           : "Red Card"
                       }
-                      className="w-4 h-4"
+                      className="w-4 h-8"
                     />
                   ) : (
                     <span className="text-xs">
