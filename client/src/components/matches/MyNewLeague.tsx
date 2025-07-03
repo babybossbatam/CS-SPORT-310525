@@ -110,9 +110,29 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       const allFixtures: FixtureData[] = [];
       let primaryLeagueInfo: LeagueData | null = null;
 
+      // First, fetch live fixtures for real-time data
+      try {
+        console.log(`MyNewLeague - Fetching live fixtures for real-time data`);
+        const liveResponse = await apiRequest("GET", "/api/fixtures/live");
+        const liveData = await liveResponse.json();
+        
+        if (Array.isArray(liveData)) {
+          // Filter live fixtures to only include our target leagues
+          const relevantLiveFixtures = liveData.filter(fixture => 
+            leagueIds.includes(fixture.league?.id)
+          );
+          
+          console.log(`MyNewLeague - Found ${relevantLiveFixtures.length} live fixtures from target leagues`);
+          allFixtures.push(...relevantLiveFixtures);
+        }
+      } catch (liveError) {
+        console.warn("Failed to fetch live fixtures:", liveError);
+      }
+
+      // Then fetch cached data from individual leagues for non-live matches
       for (const leagueId of leagueIds) {
         try {
-          console.log(`MyNewLeague - Fetching data for league ${leagueId}`);
+          console.log(`MyNewLeague - Fetching cached data for league ${leagueId}`);
 
           // Fetch league info only on initial load
           if (!isUpdate) {
@@ -146,10 +166,15 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           );
 
           if (Array.isArray(fixturesData)) {
-            // Show all matches without restrictive filtering
-            console.log(`MyNewLeague - Processing ${fixturesData.length} fixtures for league ${leagueId}`);
+            // Filter out fixtures that are already in live data to avoid duplicates
+            const liveFixtureIds = new Set(allFixtures.map(f => f.fixture.id));
+            const nonLiveFixtures = fixturesData.filter(fixture => 
+              !liveFixtureIds.has(fixture.fixture.id)
+            );
             
-            fixturesData.forEach((fixture, index) => {
+            console.log(`MyNewLeague - Processing ${nonLiveFixtures.length} non-live fixtures for league ${leagueId}`);
+            
+            nonLiveFixtures.forEach((fixture, index) => {
               if (index < 5) { // Only log first 5 to avoid spam
                 console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
                   teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
@@ -160,7 +185,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               }
             });
 
-            allFixtures.push(...fixturesData);
+            allFixtures.push(...nonLiveFixtures);
           }
         } catch (leagueError) {
           const errorMessage = leagueError instanceof Error ? leagueError.message : 'Unknown error';
