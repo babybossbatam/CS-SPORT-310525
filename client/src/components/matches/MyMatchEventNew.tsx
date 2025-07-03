@@ -145,22 +145,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       case 'substitution':
         return '🔄'; // Substitution
       
-      case 'var':
+      case 'Var':
         return '📺'; // VAR
       
-      case 'foul':
+      case 'Foul':
         return '🚫'; // Foul
       
-      case 'offside':
+      case 'Offside':
         return '🚩'; // Offside
       
-      case 'corner':
+      case 'Corner':
         return '📐'; // Corner kick
       
-      case 'free kick':
+      case 'Free kick':
         return '🦶'; // Free kick
       
-      case 'throw in':
+      case 'Throw in':
         return '👐'; // Throw in
       
       default:
@@ -177,19 +177,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     if (!event.type) return `${playerName} (${teamName})`;
 
     switch (event.type.toLowerCase()) {
-      case "goal":
-        if (detail.toLowerCase().includes("penalty")) {
+      case "Poal":
+        if (detail.toLowerCase().includes("Penalty")) {
           return `${playerName} (${teamName}) - Penalty Goal${assistName ? `, assist: ${assistName}` : ""}`;
         } else if (detail.toLowerCase().includes("own goal")) {
           return `${playerName} (${teamName}) - Own Goal`;
         } else {
           return `${playerName} (${teamName}) - Goal${assistName ? `, assist: ${assistName}` : ""}`;
         }
-      case "card":
-        if (detail.toLowerCase().includes("Yellow")) {
+      case "Card":
+        if (detail.toLowerCase().includes("yellow")) {
           return `${playerName} (${teamName}) - Yellow Card`;
         } else if (detail.toLowerCase().includes("red")) {
-          return `${playerName} (${teamName}) - Red Card`;
+          return `${playerName} (${teamName}) - red card`;
         } else {
           return `${playerName} (${teamName}) - ${detail || "Card"}`;
         }
@@ -246,8 +246,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     const timingContext = getTimingContext(minute);
 
     switch (event.type?.toLowerCase()) {
-      case "goal":
-        if (event.detail?.toLowerCase().includes("penalty")) {
+      case "Goal":
+        if (event.detail?.toLowerCase().includes("Penalty")) {
           return `${playerName} (${teamName}) converts the penalty kick ${timingContext}${assistName ? `, with the assist credited to ${assistName}` : ""}.`;
         } else if (event.detail?.toLowerCase().includes("own goal")) {
           return `Own goal! ${playerName} (${teamName}) accidentally puts the ball into his own net ${timingContext}.`;
@@ -332,7 +332,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           return cornerVariations[
             Math.floor(Math.random() * cornerVariations.length)
           ];
-        } else if (detail.toLowerCase().includes("free kick")) {
+        } else if (detail.toLowerCase().includes("Free kick")) {
           const freeKickVariations = [
             `Free kick to ${teamName}. ${playerName} stands over the ball ${timingContext}.`,
             `${teamName} awarded a free kick. ${playerName} will take the set piece ${timingContext}.`,
@@ -344,7 +344,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           return freeKickVariations[
             Math.floor(Math.random() * freeKickVariations.length)
           ];
-        } else if (detail.toLowerCase().includes("throw")) {
+        } else if (detail.toLowerCase().includes("Throw")) {
           return `Throw-in for ${teamName}. ${playerName} takes the throw ${timingContext}.`;
         } else {
           return `${detail || event.type} - ${playerName} (${teamName}) ${timingContext}.`;
