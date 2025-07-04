@@ -238,98 +238,22 @@ const TodayPopularFootballLeaguesNew: React.FC<
     548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
   ];
 
-  // Direct API calls without caching for live updates
-
-  // Use direct API calls like MyNewLeague for live data, cached for static data
-  const [fixtures, setFixtures] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isFetching, setIsFetching] = useState(false);
-
-  useEffect(() => {
-    const fetchFixtures = async () => {
-      setIsLoading(true);
-      setIsFetching(true);
-
-      try {
-        console.log(
-          `🔄 [TodayPopularLeagueNew] Fetching fresh data for date: ${selectedDate}`,
-        );
-
-        // For live matches, fetch directly without caching
-        // const response = await apiRequest(
-        //   "GET",
-        //   `/api/fixtures/date/${selectedDate}?all=true`,
-        // );
-        // const data = await response.json();
-
-        // console.log(
-        //   `✅ [TodayPopularLeagueNew] Received ${data?.length || 0} fixtures for ${selectedDate}`,
-        // );
-
-        // setFixtures(data || []);
-      } catch (error) {
-        console.error('Error fetching fixtures:', error);
-        setFixtures([]);
-      } finally {
-        setIsLoading(false);
-        setIsFetching(false);
-      }
-    };
-
-    if (selectedDate && enableFetching) {
-      //fetchFixtures();
-    }
-  }, [selectedDate, enableFetching]);
-
-  // Auto-refresh for live matches every 30 seconds like MyNewLeague
-  useEffect(() => {
-    const hasLiveMatches = fixtures.some(fixture => 
-      ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture?.status?.short)
-    );
-
-    if (!hasLiveMatches || !selectedDate || !enableFetching) return;
-
-    const interval = setInterval(async () => {
-      console.log('🔄 [TodayPopularLeagueNew] Auto-refreshing for live matches');
-      setIsFetching(true);
-
-      try {
-        // const response = await apiRequest(
-        //   "GET",
-        //   `/api/fixtures/date/${selectedDate}?all=true`,
-        // );
-        // const data = await response.json();
-        // setFixtures(data || []);
-      } catch (error) {
-        console.error('Error auto-refreshing fixtures:', error);
-      } finally {
-        setIsFetching(false);
-      }
-    }, 30000); // 30 seconds like MyNewLeague
-
-    return () => clearInterval(interval);
-  }, [fixtures, selectedDate, enableFetching]);
-
-  // Simple fixture processing like MyNewLeague
-  const processedFixtures = useMemo(() => {
-    console.log(`🎯 [TodayPopularLeagueNew] Processing ${fixtures.length} fixtures`);
-    return fixtures;
-  }, [fixtures]);
+  // Use smart fetch logic for intelligent caching and live updates
 
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
   // Smart filtering operations with intelligent data source selection
   const filteredFixtures = useMemo(() => {
-    if (!processedFixtures?.length) return [];
+    if (!allFixtures?.length) return [];
 
     console.log(
-      `🔍 [FILTER DEBUG] Processing ${processedFixtures.length} fixtures for date: ${selectedDate} with timezone-aware filtering`,
+      `🔍 [FILTER DEBUG] Processing ${allFixtures.length} fixtures for date: ${selectedDate} with timezone-aware filtering`,
     );
 
     // Debug a few sample fixtures to show timezone conversion
-    if (processedFixtures.length > 0) {
-      const sampleFixtures = processedFixtures.slice(0, 3);
+    if (allFixtures.length > 0) {
+      const sampleFixtures = allFixtures.slice(0, 3);
       sampleFixtures.forEach(fixture => {
         SimpleDateFilter.debugTimezoneConversion(fixture.fixture.date, selectedDate);
       });
@@ -338,7 +262,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     // Debug: Check for target leagues in raw data
     const targetLeagues = [38, 15, 16, 914];
     targetLeagues.forEach((leagueId) => {
-      const leagueFixtures = processedFixtures.filter(
+      const leagueFixtures = allFixtures.filter(
         (f) => f.league?.id === leagueId,
       );
       console.log(
@@ -359,7 +283,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
 
     // Count COSAFA Cup matches in input
-    const cosafaMatches = processedFixtures.filter(
+    const cosafaMatches = allFixtures.filter(
       (f) =>
         f.league?.name?.toLowerCase().includes("cosafa") ||
         f.teams?.home?.name?.toLowerCase().includes("cosafa") ||
@@ -393,7 +317,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
     // Debug: Check for target leagues in raw data BEFORE any filtering
     targetLeagues.forEach((leagueId) => {
-      const leagueFixtures = processedFixtures.filter(
+      const leagueFixtures = allFixtures.filter(
         (f) => f.league?.id === leagueId,
       );
       if (leagueFixtures.length > 0) {
@@ -420,7 +344,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
       }
     });
 
-    const filtered = processedFixtures.filter((fixture) => {
+    const filtered = allFixtures.filter((fixture) => {
       // Debug target leagues specifically
       const isTargetLeague = [38, 15, 16, 914].includes(fixture.league?.id);
       if (isTargetLeague) {
@@ -818,7 +742,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         );
 
         // Additional debugging: Check if these fixtures exist in the original data but got filtered out
-        const originalLeagueFixtures = processedFixtures.filter(
+        const originalLeagueFixtures = allFixtures.filter(
           (f) => f.league?.id === leagueId,
         );
         if (originalLeagueFixtures.length > 0) {
@@ -849,7 +773,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     });
 
     // Special debugging for Serie D - show what dates their fixtures are actually on
-    const serieDFixtures = processedFixtures.filter((f) => f.league?.id === 75);
+    const serieDFixtures = allFixtures.filter((f) => f.league?.id === 75);
     if (serieDFixtures.length > 0) {
       const serieDDates = serieDFixtures.map(f => ({
         fixtureDate: f.fixture?.date,
@@ -882,7 +806,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     }
 
     return finalFiltered;
-  }, [processedFixtures, selectedDate]);
+  }, [allFixtures, selectedDate]);
 
   // Group fixtures by country and league, with special handling for Friendlies
   const fixturesByCountry = filteredFixtures.reduce(
@@ -1200,7 +1124,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Enhanced effect to detect status and score changes with flash effects - matches MyNewLeague implementation
   useEffect(() => {
-    if (!fixtures?.length) return;
+    if (!allFixtures?.length) return;
 
     const newHalftimeMatches = new Set<number>();
     const newFulltimeMatches = new Set<number>();
@@ -1208,7 +1132,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     const currentStatuses = new Map<number, string>();
     const currentScores = new Map<number, {home: number, away: number}>();
 
-    fixtures.forEach((fixture) => {
+    allFixtures.forEach((fixture) => {
       const matchId = fixture.fixture.id;
       const currentStatus = fixture.fixture.status.short;
       const previousStatus = previousMatchStatuses.get(matchId);
@@ -1327,7 +1251,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         setGoalFlashMatches(new Set());
       }, 2000);
     }
-  }, [fixtures]);
+  }, [allFixtures]);
 
 
 
