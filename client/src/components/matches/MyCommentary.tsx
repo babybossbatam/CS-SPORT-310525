@@ -95,60 +95,34 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
         if (hasEndedEvents) {
           const finalScore = calculateScoreAtTime(Math.max(...events.map(e => e.time.elapsed + (e.time.extra || 0))));
+          const eventsWithTotalTime = events.map(e => ({
+            ...e,
+            totalTime: e.time.elapsed + (e.time.extra || 0)
+          }));
+          
+          const finalEvent = eventsWithTotalTime.reduce((latest, current) => 
+            current.totalTime > latest.totalTime ? current : latest
+          );
+
           return (
-            <div className="p-2 border-t flex justify-center items-center gap-2">
+            <div className="p-4 border-t flex flex-col justify-center items-center gap-3">
               <img
                 src="/assets/matchdetaillogo/clock.png"
                 alt="Match Clock"
-                className="w-4 h-4 opacity-80"
+                className="w-6 h-6 opacity-80"
               />
-              <div className="text-lg font-bold text-gray-800">
+              <div className="text-2xl font-bold text-gray-800">
                 {finalScore.homeScore}-{finalScore.awayScore}
+              </div>
+              <div className="text-sm text-gray-600">
+                {finalEvent.time.elapsed}'
+                {finalEvent.time.extra && finalEvent.time.extra > 0 ? ` +${finalEvent.time.extra}'` : ""}
               </div>
             </div>
           );
         }
         return null;
       })()}
-
-      {/* Final Score Display */}
-      {(() => {
-        const hasEndedEvents = events.some(
-          (event) =>
-            event.time.elapsed >= 90 &&
-            event.time.extra &&
-            event.time.extra > 0,
-        );
-
-        if (hasEndedEvents) {
-          const finalScore = calculateScoreAtTime(Math.max(...events.map(e => e.time.elapsed + (e.time.extra || 0))));
-          return (
-            <div className="p-2 border-t flex justify-center items-center gap-2">
-              <img
-                src="/assets/matchdetaillogo/clock.png"
-                alt="Match Clock"
-                className="w-4 h-4 opacity-80"
-              />
-              <div className="text-lg font-bold text-gray-800">
-                {finalScore.homeScore}-{finalScore.awayScore}
-              </div>
-            </div>
-          );
-        }
-        return null;
-      })()}
-
-      <div className="p-2 border-t flex justify-center items-center">
-        <img
-          src="/assets/matchdetaillogo/clock.png"
-          alt="Match Clock"
-          className="w-4 h-4 opacity-80"
-        />
-      </div>
-
-      <div className="p-2 border-t flex justify-center items-center text-xs">
-        <span>Commentary</span>
-      </div>
       {/* End of Match Indicator */}
       {(() => {
         // Check if match has ended based on events
