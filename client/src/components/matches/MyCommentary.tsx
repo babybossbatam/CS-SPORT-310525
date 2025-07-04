@@ -150,7 +150,18 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
             allCommentaryItems.push(...periodMarkers);
 
             return allCommentaryItems
-              .sort((a, b) => b.time.elapsed - a.time.elapsed) // Sort by time, most recent first
+              .sort((a, b) => {
+                // First sort by elapsed time (descending)
+                if (a.time.elapsed !== b.time.elapsed) {
+                  return b.time.elapsed - a.time.elapsed;
+                }
+                
+                // If elapsed time is the same, sort by extra time (descending)
+                // Events with higher extra time should appear first
+                const aExtra = a.time.extra || 0;
+                const bExtra = b.time.extra || 0;
+                return bExtra - aExtra;
+              }) // Sort by time, most recent first, then by extra time
               .map((event, index) => {
                 const timeDisplay = `${event.time.extra ? `+${event.time.extra}` : ""}`;
 
