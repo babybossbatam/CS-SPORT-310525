@@ -260,10 +260,58 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
 
-  // Enhanced debugging for Friendlies Clubs
+  // Enhanced debugging for specific leagues
   const friendliesFixtures = fixtures.filter(f => f.league.id === 667);
+  const iraqiFixtures = fixtures.filter(f => f.league.id === 233);
+  const copaArgentinaFixtures = fixtures.filter(f => f.league.id === 128);
+  
   console.log("🏆 [MyNewLeague FRIENDLIES] Total Friendlies fixtures:", friendliesFixtures.length);
+  console.log("🇮🇶 [MyNewLeague IRAQI] Total Iraqi League fixtures:", iraqiFixtures.length);
+  console.log("🇦🇷 [MyNewLeague COPA ARG] Total Copa Argentina fixtures:", copaArgentinaFixtures.length);
 
+  // Debug Iraqi League
+  if (iraqiFixtures.length > 0) {
+    console.log("🇮🇶 [MyNewLeague IRAQI] Sample fixtures with dates:");
+    iraqiFixtures.slice(0, 5).forEach((f) => {
+      const matchDate = new Date(f.fixture.date);
+      const year = matchDate.getFullYear();
+      const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+      const day = String(matchDate.getDate()).padStart(2, "0");
+      const matchDateString = `${year}-${month}-${day}`;
+
+      console.log(`🇮🇶 Iraqi Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        fixtureDate: f.fixture.date,
+        matchDateString,
+        selectedDate,
+        dateMatches: matchDateString === selectedDate,
+        status: f.fixture.status.short,
+        league: f.league.name
+      });
+    });
+  }
+
+  // Debug Copa Argentina
+  if (copaArgentinaFixtures.length > 0) {
+    console.log("🇦🇷 [MyNewLeague COPA ARG] Sample fixtures with dates:");
+    copaArgentinaFixtures.slice(0, 5).forEach((f) => {
+      const matchDate = new Date(f.fixture.date);
+      const year = matchDate.getFullYear();
+      const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+      const day = String(matchDate.getDate()).padStart(2, "0");
+      const matchDateString = `${year}-${month}-${day}`;
+
+      console.log(`🇦🇷 Copa Argentina Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        fixtureDate: f.fixture.date,
+        matchDateString,
+        selectedDate,
+        dateMatches: matchDateString === selectedDate,
+        status: f.fixture.status.short,
+        league: f.league.name
+      });
+    });
+  }
+
+  // Debug Friendlies
   if (friendliesFixtures.length > 0) {
     console.log("🏆 [MyNewLeague FRIENDLIES] Sample fixtures with dates:");
     friendliesFixtures.slice(0, 5).forEach((f) => {
@@ -317,9 +365,14 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     return dateMatches;
   });
 
-  // Log filtering results for Friendlies
+  // Log filtering results for all target leagues
   const friendliesFiltered = selectedDateFixtures.filter(f => f.league.id === 667);
+  const iraqiFiltered = selectedDateFixtures.filter(f => f.league.id === 233);
+  const copaArgentinaFiltered = selectedDateFixtures.filter(f => f.league.id === 128);
+  
   console.log(`🏆 [MyNewLeague FRIENDLIES] After date filtering: ${friendliesFiltered.length} matches for ${selectedDate}`);
+  console.log(`🇮🇶 [MyNewLeague IRAQI] After date filtering: ${iraqiFiltered.length} matches for ${selectedDate}`);
+  console.log(`🇦🇷 [MyNewLeague COPA ARG] After date filtering: ${copaArgentinaFiltered.length} matches for ${selectedDate}`);
 
   // Group matches by league ID
   const matchesByLeague = selectedDateFixtures.reduce(
