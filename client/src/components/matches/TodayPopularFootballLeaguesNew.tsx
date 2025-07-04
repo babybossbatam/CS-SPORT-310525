@@ -238,8 +238,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
     548, // Paris Saint Germain, AS Monaco, Real Sociedad, Real Sociedad
   ];
 
-  // Use smart fetch logic for intelligent caching and live updates
-
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
@@ -262,21 +260,18 @@ const TodayPopularFootballLeaguesNew: React.FC<
     console.log("🧹 Cleared all flag cache including fallback flags");
   }, []);
 
-  // Simple date comparison handled by SimpleDateFilter
-
+  // Fetch data directly from API without date filtering
   const { data: allFixtures = [], isLoading: isQueryLoading, isFetching: isQueryFetching, error } = useQuery({
-    queryKey: ['smart-fetch-popular-leagues', selectedDate],
+    queryKey: ['direct-popular-leagues-fixtures', selectedDate],
     queryFn: async () => {
-      console.log(`🔄 [TodayPopularLeagueNew] Smart fetching fixtures for ${selectedDate}`);
+      console.log(`🔄 [TodayPopularLeagueNew] Direct fetching fixtures for ${selectedDate}`);
 
       try {
-        // Use smart fetch for intelligent caching and live match handling
-        const fixtures = await smartFetch(selectedDate, {
-          source: 'TodayPopularLeagueNew',
-          forceRefresh: isDateStringToday(selectedDate) // Force refresh for today's matches
-        });
+        // Fetch directly from API without any smart filtering
+        const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
+        const fixtures = await response.json();
 
-        console.log(`✅ [TodayPopularLeagueNew] Smart fetched ${fixtures.length} fixtures for ${selectedDate}`);
+        console.log(`✅ [TodayPopularLeagueNew] Direct fetched ${fixtures?.length || 0} fixtures for ${selectedDate}`);
         return fixtures || [];
       } catch (error) {
         console.error(`❌ [TodayPopularLeagueNew] Error fetching fixtures for ${selectedDate}:`, error);
@@ -284,205 +279,38 @@ const TodayPopularFootballLeaguesNew: React.FC<
         return [];
       }
     },
-    staleTime: isDateStringToday(selectedDate) ? 1 * 60 * 1000 : 5 * 60 * 1000, // 1 min for today, 5 min for other dates
-    gcTime: 30 * 60 * 1000, // 30 minutes
-    refetchOnWindowFocus: isDateStringToday(selectedDate), // Only refetch on focus for today
-    retry: 1,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    retry: 2,
     // Add timeout and better error handling
     meta: {
       errorMessage: `Failed to fetch fixtures for ${selectedDate}`
     }
   });
 
-  // Smart filtering operations with intelligent data source selection
+  // Simple filtering without complex date conversions
   const filteredFixtures = useMemo(() => {
     if (!allFixtures?.length) return [];
 
     console.log(
-      `🔍 [FILTER DEBUG] Processing ${allFixtures.length} fixtures for date: ${selectedDate} with timezone-aware filtering`,
-    );
-
-    // Debug a few sample fixtures to show timezone conversion
-    if (allFixtures.length > 0) {
-      const sampleFixtures = allFixtures.slice(0, 3);
-      sampleFixtures.forEach(fixture => {
-        SimpleDateFilter.debugTimezoneConversion(fixture.fixture.date, selectedDate);
-      });
-    }
-
-    // Debug: Check for target leagues in raw data
-    const targetLeagues = [38, 15, 16, 914];
-    targetLeagues.forEach((leagueId) => {
-      const leagueFixtures = allFixtures.filter(
-        (f) => f.league?.id === leagueId,
-      );
-      console.log(
-        `🔍 [RAW DATA DEBUG] League ${leagueId} fixtures in raw data:`,
-        {
-          count: leagueFixtures.length,
-          fixtures: leagueFixtures.map((f) => ({
-            id: f.fixture?.id,
-            date: f.fixture?.date,
-            status: f.fixture?.status?.short,
-            league: f.league?.name,
-            country: f.league?.country,
-            home: f.teams?.home?.name,
-            away: f.teams?.away?.name,
-          })),
-        },
-      );
-    });
-
-    // Count COSAFA Cup matches in input
-    const cosafaMatches = allFixtures.filter(
-      (f) =>
-        f.league?.name?.toLowerCase().includes("cosafa") ||
-        f.teams?.home?.name?.toLowerCase().includes("cosafa") ||
-        f.teams?.away?.name?.toLowerCase().includes("cosafa"),
-    );
-    console.log(
-      `🏆 [COSAFA DEBUG] Found ${cosafaMatches.length} COSAFA Cup matches in input fixtures:`,
-      cosafaMatches.map((m) => ({
-        id: m.fixture?.id,
-        date: m.fixture?.date,
-        status: m.fixture?.status?.short,
-        league: m.league?.name,
-        home: m.teams?.home?.name,
-        away: m.teams?.away?.name,
-      })),
+      `🔍 [SIMPLE FILTER] Processing ${allFixtures.length} fixtures for date: ${selectedDate}`,
     );
 
     const startTime = Date.now();
 
-    // Determine what type of date is selected
-    const today = new Date();
-    const todayString = format(today, "yyyy-MM-dd");
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowString = format(tomorrow, "yyyy-MM-dd");
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayString = format(yesterday, "yyyy-MM-dd");
-
-    const isSelectedTomorrow = selectedDate === tomorrowString;
-
-    // Debug: Check for target leagues in raw data BEFORE any filtering
-    targetLeagues.forEach((leagueId) => {
-      const leagueFixtures = allFixtures.filter(
-        (f) => f.league?.id === leagueId,
-      );
-      if (leagueFixtures.length > 0) {
-        console.log(
-          `🔍 [RAW DATA DEBUG] League ${leagueId} fixtures in raw processed data:`,
-          {
-            leagueId,
-            count: leagueFixtures.length,
-            fixtures: leagueFixtures.map((f) => ({
-              id: f.fixture?.id,
-              date: f.fixture?.date,
-              status: f.fixture?.status?.short,
-              league: f.league?.name,
-              country: f.league?.country,
-              home: f.teams?.home?.name,
-              away: f.teams?.away?.name,
-            })),
-          },
-        );
-      } else {
-        console.log(
-          `❌ [RAW DATA DEBUG] League ${leagueId} - NO FIXTURES FOUND in raw processed data`,
-        );
-      }
-    });
-
+    // Simple date matching - check if fixture date matches selected date
     const filtered = allFixtures.filter((fixture) => {
-      // Debug target leagues specifically
-      const isTargetLeague = [38, 15, 16, 914].includes(fixture.league?.id);
-      if (isTargetLeague) {
-        console.log(
-          `🎯 [TARGET LEAGUE DEBUG] Processing league ${fixture.league?.id}:`,
-          {
-            leagueId: fixture.league?.id,
-            leagueName: fixture.league?.name,
-            country: fixture.league?.country,
-            fixtureId: fixture.fixture?.id,
-            date: fixture.fixture?.date,
-            status: fixture.fixture?.status?.short,
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            selectedDate: selectedDate,
-          },
-        );
+      if (!fixture?.fixture?.date || !fixture?.league || !fixture?.teams) {
+        return false;
       }
 
-      // Apply smart time filtering with selected date context
-      if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short,
-          selectedDate + "T12:00:00Z", // Pass selected date as context
-        );
+      // Simple date comparison - extract date part from fixture date
+      const fixtureDate = fixture.fixture.date.split('T')[0]; // Gets YYYY-MM-DD part
+      const dateMatches = fixtureDate === selectedDate;
 
-        // Check if this match should be included based on the selected date (standardized logic)
-        const shouldInclude = (() => {
-          if (
-            selectedDate === tomorrowString &&
-            smartResult.label === "tomorrow"
-          )
-            return true;
-          if (selectedDate === todayString && smartResult.label === "today")
-            return true;
-          if (
-            selectedDate === yesterdayString &&
-            smartResult.label === "yesterday"
-          )
-            return true;
-
-          // Handle custom dates (dates that are not today/tomorrow/yesterday)
-          if (
-            selectedDate !== todayString &&
-            selectedDate !== tomorrowString &&
-            selectedDate !== yesterdayString
-          ) {
-            if (smartResult.label === "custom" && smartResult.isWithinTimeRange)
-              return true;
-          }
-
-          return false;
-        })();
-
-        if (shouldInclude) {
-          if (isTargetLeague) {
-            console.log(
-              `✅ [TARGET LEAGUE] Smart filter PASSED for league ${fixture.league?.id}: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-              {
-                fixtureId: fixture.fixture?.id,
-                fixtureDate: fixture.fixture.date,
-                status: fixture.fixture.status.short,
-                reason: smartResult.reason,
-                label: smartResult.label,
-                selectedDate,
-                isWithinTimeRange: smartResult.isWithinTimeRange,
-              },
-            );
-          }
-        } else {
-          if (isTargetLeague) {
-            console.log(
-              `❌ [TARGET LEAGUE] Smart filter FAILED for league ${fixture.league?.id}: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-              {
-                fixtureId: fixture.fixture?.id,
-                fixtureDate: fixture.fixture.date,
-                status: fixture.fixture.status.short,
-                reason: smartResult.reason,
-                label: smartResult.label,
-                selectedDate,
-                isWithinTimeRange: smartResult.isWithinTimeRange,
-              },
-            );
-          }
-          return false;
-        }
+      if (!dateMatches) {
+        return false;
       }
 
       // Client-side filtering for popular leagues and countries
@@ -497,29 +325,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
         (popularCountry) => country.includes(popularCountry.toLowerCase()),
       );
 
-      // Debug target leagues filtering logic
-      if (isTargetLeague) {
-        console.log(
-          `🎯 [POPULAR LEAGUES DEBUG] League ${leagueId} filtering check:`,
-          {
-            leagueId,
-            leagueName: fixture.league?.name,
-            country: fixture.league?.country,
-            countryLower: country,
-            isPopularLeague,
-            isFromPopularCountry,
-            popularLeaguesIncludes: POPULAR_LEAGUES.includes(leagueId),
-            matchingPopularCountry: POPULAR_COUNTRIES_ORDER.find((pc) =>
-              country.includes(pc.toLowerCase()),
-            ),
-          },
-        );
-      }
-
       // Apply exclusion check FIRST, but skip for key international competitions
       const leagueName = fixture.league?.name?.toLowerCase() || "";
-      const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
-      const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
 
       // Check if this is a key international competition that should never be excluded
       const isKeyInternationalCompetition = [1, 2, 3, 4, 5, 15, 16, 17, 914, 38, 848].includes(leagueId);
@@ -532,32 +339,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         country,
       );
 
-      if (isTargetLeague) {
-        console.log(
-          `✅ [EXCLUSION RESULT] League ${fixture.league?.id} exclusion check:`,
-          {
-            leagueId: fixture.league?.id,
-            leagueName: fixture.league?.name,
-            country: fixture.league?.country,
-            isKeyInternationalCompetition,
-            shouldExclude,
-            homeTeam: fixture.teams?.home?.name,
-            awayTeam: fixture.teams?.away?.name,
-            exclusionReason: shouldExclude
-              ? "Contains exclusion terms"
-              : isKeyInternationalCompetition 
-                ? "Key international competition - bypassed exclusion"
-                : "Passed exclusion check",
-          },
-        );
-      }
-
       if (shouldExclude) {
-        if (isTargetLeague) {
-          console.log(
-            `❌ [EXCLUSION RESULT] League ${fixture.league?.id} EXCLUDED by shouldExcludeFromPopularLeagues`,
-          );
-        }
         return false;
       }
 
@@ -595,268 +377,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
         country.includes("europe") ||
         country.includes("international");
 
-      if (isTargetLeague) {
-        console.log(
-          `🌍 [WORLD DEBUG] League ${leagueId} international competition check:`,
-          {
-            leagueId,
-            leagueName: fixture.league?.name,
-            country: fixture.league?.country,
-            isInternationalCompetition,
-            hasWorldInCountry: country.includes("world"),
-            hasEuropeInCountry: country.includes("europe"),
-            hasInternationalInCountry: country.includes("international"),
-            hasConcacafInName: leagueName.includes("concacaf"),
-            hasGoldCupInName: leagueName.includes("gold cup"),
-            hasFifaInName: leagueName.includes("fifa"),
-            hasWorldCupInName: leagueName.includes("world cup"),
-          },
-        );
-      }
-
-      const finalDecision =
-        isPopularLeague || isFromPopularCountry || isInternationalCompetition;
-
-      if (isTargetLeague) {
-        console.log(
-          `🎯 [FINAL DECISION] League ${fixture.league?.id} final filtering result:`,
-          {
-            leagueId: fixture.league?.id,
-            leagueName: fixture.league?.name,
-            country: fixture.league?.country,
-            isPopularLeague,
-            isFromPopularCountry,
-            isInternationalCompetition,
-            finalDecision,
-            reason: finalDecision
-              ? `${isPopularLeague ? "Popular League" : ""}${isFromPopularCountry ? " Popular Country" : ""}${isInternationalCompetition ? " International Competition" : ""}`
-              : "Not popular league, not from popular country, not international competition",
-          },
-        );
-      }
-
-      return finalDecision;
-    });
-
-    const finalFiltered = filtered.filter((fixture) => {
-      // Debug World country processing
-      const country = fixture.league?.country?.toLowerCase() || "";
-      if (country === "world") {
-        console.log(
-          `🌍 [POPULAR DEBUG] Processing World league: ${fixture.league.name} | ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-        );
-      }
-
-      // Apply popular league exclusion filters
-      if (
-        shouldExcludeFromPopularLeagues(
-          fixture.league.name,
-          fixture.teams.home.name,
-          fixture.teams.away.name,
-          fixture.league.country,
-        )
-      ) {
-        if (country === "world") {
-          console.log(
-            `❌ [POPULAR DEBUG] World league excluded: ${fixture.league.name}`,
-          );
-        }
-        return false;
-      }
-
-      // Additional check for restricted US leagues
-      if (isRestrictedUSLeague(fixture.league.id, fixture.league.country)) {
-        return false;
-      }
-
-      // Skip fixtures with null or undefined country
-      if (!fixture.league.country) {
-        return false;
-      }
-
-      const countryName = fixture.league.country?.toLowerCase() || "";
-      const leagueId = fixture.league.id;
-      const leagueNameLower = fixture.league.name?.toLowerCase() || "";
-
-      // Check for international competitions first - use direct league ID check
-      const isInternationalCompetition =
-        // Direct league ID check for key international competitions
-        [1, 2, 3, 4, 5, 15, 16, 17, 914, 38, 848].includes(leagueId) ||
-        // UEFA competitions
-        leagueNameLower.includes("champions league") ||
-        leagueNameLower.includes("europa league") ||
-        leagueNameLower.includes("conference league") ||
-        leagueNameLower.includes("uefa") ||
-        leagueNameLower.includes("euro") ||
-        leagueNameLower.includes("euro u21") ||
-        leagueNameLower.includes("uefa u21") ||
-        // FIFA competitions
-        leagueNameLower.includes("world cup") ||
-        leagueNameLower.includes("fifa club world cup") ||
-        leagueNameLower.includes("fifa cup") ||
-        leagueNameLower.includes("fifa") ||
-        // CONMEBOL competitions
-        leagueNameLower.includes("conmebol") ||
-        leagueNameLower.includes("copa america") ||
-        leagueNameLower.includes("copa libertadores") ||
-        leagueNameLower.includes("copa sudamericana") ||
-        leagueNameLower.includes("libertadores") ||
-        leagueNameLower.includes("sudamericana") ||
-        // CONCACAF competitions
-        leagueNameLower.includes("concacaf") ||
-        leagueNameLower.includes("gold cup") ||
-        leagueNameLower.includes("concacaf gold cup") ||
-        // Men's International Friendlies (excludes women's)
-        (leagueNameLower.includes("friendlies") &&
-          !leagueNameLower.includes("women")) ||
-        (leagueNameLower.includes("international") &&
-          !leagueNameLower.includes("women")) ||
-        countryName.includes("world") ||
-        countryName.includes("europe") ||
-        countryName.includes("international");
-
-      // Allow all international competitions through
-      if (isInternationalCompetition) {
-        console.log(`🌍 [INTERNATIONAL DEBUG] Allowing international competition: League ${leagueId} - ${fixture.league.name}`);
-        return true;
-      }
-
-      // Always include leagues from our popular leagues list
-      if (POPULAR_LEAGUE_IDS.includes(leagueId)) {
-        console.log(`✅ [POPULAR LEAGUE] Including popular league: ${fixture.league.name} (ID: ${leagueId})`);
-        return true;
-      }
-
-      // Check if it's a popular country
-      const matchingCountry = POPULAR_COUNTRIES.find((country) =>
-        countryName.includes(country.toLowerCase()),
-      );
-
-      if (!matchingCountry) {
-        return false;
-      }
-
-      return true;
+      return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
     });
 
     const endTime = Date.now();
 
-    // Count COSAFA Cup matches in final filtered results
-    const finalCosafaMatches = finalFiltered.filter(
-      (f) =>
-        f.league?.name?.toLowerCase().includes("cosafa") ||
-        f.teams?.home?.name?.toLowerCase().includes("cosafa") ||
-        f.teams?.away?.name?.toLowerCase().includes("cosafa"),
-    );
-
     console.log(
-      `🔍 [TOMORROW DEBUG] Filtered ${allFixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
-    );
-    console.log(
-      `🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`,
-      finalCosafaMatches.map((m) => ({
-        id: m.fixture?.id,
-        date: m.fixture?.date,
-        status: m.fixture?.status?.short,
-        league: m.league?.name,
-        home: m.teams?.home?.name,
-        away: m.teams?.away?.name,
-      })),
+      `🔍 [SIMPLE FILTER] Filtered ${allFixtures.length} fixtures to ${filtered.length} in ${endTime - startTime}ms for ${selectedDate}`,
     );
 
-    // Debug: Check final result for target leagues INCLUDING Serie D (75)
-    const targetLeaguesInFinal = [38, 15, 16, 914, 75];
-    targetLeaguesInFinal.forEach((leagueId) => {
-      const leagueFixtures = finalFiltered.filter(
-        (f) => f.league?.id === leagueId,
-      );
-      if (leagueFixtures.length > 0) {
-        console.log(
-          `🎯 [FINAL RESULT DEBUG] League ${leagueId} in final filtered result:`,
-          {
-            leagueId,
-            count: leagueFixtures.length,
-            fixtures: leagueFixtures.map((f) => ({
-              id: f.fixture?.id,
-              date: f.fixture?.date,
-              status: f.fixture?.status?.short,
-              league: f.league?.name,
-              country: f.league?.country,
-              home: f.teams?.home?.name,
-              away: f.teams?.away?.name,
-            })),
-          },
-        );
-      } else {
-        console.log(
-          `❌ [FINAL RESULT DEBUG] League ${leagueId} - NO FIXTURES in final filtered result for ${selectedDate}`,
-        );
-
-        // Additional debugging: Check if these fixtures exist in the original data but got filtered out
-        const originalLeagueFixtures = allFixtures.filter(
-          (f) => f.league?.id === leagueId,
-        );
-        if (originalLeagueFixtures.length > 0) {
-          console.log(
-            `🔍 [FINAL RESULT DEBUG] League ${leagueId} was in original data but filtered out:`,
-            {
-              originalCount: originalLeagueFixtures.length,
-              sampleFixture: originalLeagueFixtures[0]
-                ? {
-                    id: originalLeagueFixtures[0].fixture?.id,
-                    date: originalLeagueFixtures[0].fixture?.date,
-                    status: originalLeagueFixtures[0].fixture?.status?.short,
-                    league: originalLeagueFixtures[0].league?.name,
-                    country: originalLeagueFixtures[0].league?.country,
-                  }
-                : null,
-              // Show actual dates for Serie D fixtures
-              actualDates: leagueId === 75 ? originalLeagueFixtures.slice(0, 5).map(f => ({
-                date: f.fixture?.date,
-                home: f.teams?.home?.name,
-                away: f.teams?.away?.name,
-                localDate: f.fixture?.date ? f.fixture.date.split('T')[0] : 'Invalid'
-              })) : undefined
-            },
-          );
-        }
-      }
-    });
-
-    // Special debugging for Serie D - show what dates their fixtures are actually on
-    const serieDFixtures = allFixtures.filter((f) => f.league?.id === 75);
-    if (serieDFixtures.length > 0) {
-      const serieDDates = serieDFixtures.map(f => ({
-        fixtureDate: f.fixture?.date,
-        localDate: f.fixture?.date ? f.fixture.date.split('T')[0] : 'Invalid',
-        home: f.teams?.home?.name,
-        away: f.teams?.away?.name,
-        status: f.fixture?.status?.short
-      }));
-
-      // Group by date
-      const dateGroups = serieDDates.reduce((acc: any, fixture) => {
-        const date = fixture.localDate;
-        if (!acc[date]) acc[date] = [];
-        acc[date].push(fixture);
-        return acc;
-      }, {});
-
-      console.log(`🏆 [SERIE D DEBUG] Serie D fixtures grouped by date:`, {
-        selectedDate,
-        totalFixtures: serieDFixtures.length,
-        dateGroups: Object.keys(dateGroups).sort().reduce((acc: any, date) => {
-          acc[date] = dateGroups[date].length;
-          return acc;
-        }, {}),
-        sampleFixturesPerDate: Object.keys(dateGroups).sort().slice(0, 3).reduce((acc: any, date) => {
-          acc[date] = dateGroups[date].slice(0, 2);
-          return acc;
-        }, {})
-      });
-    }
-
-    return finalFiltered;
+    return filtered;
   }, [allFixtures, selectedDate]);
 
   // Show loading only if we're actually loading and don't have any data
