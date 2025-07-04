@@ -1657,7 +1657,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                       } ${
                                         goalFlashMatches.has(match.fixture.id) ? 'goal-flash' : ''
                                       }`}
-                                      onClick={() => onMatchCardClick?.(match)}
+                                      onClick={() => {
+                                        console.log(`🔍 [MATCH DEBUG] Clicked match:`, {
+                                          fixtureId: match.fixture.id,
+                                          fixtureDate: match.fixture.date,
+                                          teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
+                                          selectedDate,
+                                          status: match.fixture.status.short,
+                                          dataSource: 'TodaysMatchesByCountryNew'
+                                        });
+                                        onMatchCardClick?.(match);
+                                      }}
                                       style={{
                                         cursor: onMatchCardClick
                                           ? "pointer"
