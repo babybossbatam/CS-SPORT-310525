@@ -10,21 +10,40 @@ import TodayPopularFootballLeaguesNew from "@/components/matches/TodayPopularFoo
 import TodaysMatchesByCountryNew from "@/components/matches/TodaysMatchesByCountryNew";
 
 const Home = () => {
-  // Test with minimal implementation first
-  try {
-    return (
-      <div className="min-h-screen bg-white p-4">
-        <h1 className="text-2xl font-bold mb-4">Football App</h1>
-        <div className="bg-blue-100 p-4 rounded">
-          <p>Application is loading...</p>
-          <p>Backend is working correctly</p>
-        </div>
+  const [selectedDate, setSelectedDate] = React.useState(new Date());
+  const [timeFilterActive, setTimeFilterActive] = React.useState(false);
+  const [showTop20, setShowTop20] = React.useState(false);
+  const [liveFilterActive, setLiveFilterActive] = React.useState(false);
+
+  const handleMatchCardClick = (match: any) => {
+    console.log("Match card clicked:", match);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <SportsCategoryTabs />
+      <TournamentHeader 
+        title="UEFA Champions League - Semi Finals" 
+        icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
+      />
+
+      <div className="flex-1">
+        <MyMainLayout fixtures={[]} >
+            <TodayPopularFootballLeaguesNew
+              selectedDate={selectedDate.toISOString().split('T')[0]}
+              timeFilterActive={timeFilterActive}
+              showTop20={showTop20}
+              liveFilterActive={liveFilterActive}
+              onMatchCardClick={handleMatchCardClick}
+            />
+        </MyMainLayout>
       </div>
-    );
-  } catch (error) {
-    console.error('Home component error:', error);
-    return <div>Home Error: {error instanceof Error ? error.message : 'Unknown error'}</div>;
-  }
+
+      <Footer />
+      <RegionModal />
+    </div>
+  );
 };
 
 export default Home;
