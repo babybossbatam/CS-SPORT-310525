@@ -80,7 +80,12 @@ const preloadData = () => {
 };
 
 function AppContent() {
-  return <Router />;
+  try {
+    return <Router />;
+  } catch (error) {
+    console.error('Router error:', error);
+    return <div>Router Error: {error instanceof Error ? error.message : 'Unknown error'}</div>;
+  }
 }
 
 function App() {

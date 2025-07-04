@@ -78,10 +78,10 @@ interface FeaturedMatch {
       name: string;
       logo: string;
     };
-    goals: {
-      home: number | null;
-      away: number | null;
-    };
+  };
+  goals: {
+    home: number | null;
+    away: number | null;
   };
 }
 

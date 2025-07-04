@@ -53,13 +53,14 @@ export default class ErrorBoundary extends Component<Props, State> {
       errorInfo.componentStack?.includes(pattern)
     );
 
-    if (!shouldSuppress) {
-      console.error('Error caught by boundary:', error, errorInfo);
-    } else {
-      console.log('🔧 Runtime plugin error suppressed by boundary:', error.message);
-      // Prevent the error from propagating further
-      return;
-    }
+    // Temporarily log all errors to debug the blank screen issue
+    console.error('Error caught by boundary:', error, errorInfo);
+    
+    this.setState({
+      hasError: true,
+      error,
+      errorInfo
+    });
   }
 
   handleNetworkError = async () => {

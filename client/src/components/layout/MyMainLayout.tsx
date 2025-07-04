@@ -28,11 +28,13 @@ import { Card, CardContent } from "@/components/ui/card";
 interface MyMainLayoutProps {
   fixtures: any[];
   loading?: boolean;
+  children?: React.ReactNode;
 }
 
 const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   fixtures,
   loading = false,
+  children,
 }) => {
   const user = useSelector((state: RootState) => state.user);
   const { currentFixture } = useSelector((state: RootState) => state.fixtures);
@@ -158,15 +160,20 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left column (5 columns) */}
         <div className="lg:col-span-5 space-y-4">
-          {/* New TodayMatchPageCard for testing */}
-          <div>
-            <TodayMatchPageCard
-              fixtures={filteredFixtures}
-              onMatchClick={handleMatchClick}
-              onMatchCardClick={handleMatchCardClick}
-              loading={loading}
-            />
-          </div>
+          {/* Render children if provided, otherwise show TodayMatchPageCard */}
+          {children ? (
+            <div>
+              {children}
+            </div>
+          ) : (
+            <div>
+              <TodayMatchPageCard
+                fixtures={filteredFixtures}
+                onMatchClick={handleMatchClick}
+                onMatchCardClick={handleMatchCardClick}
+              />
+            </div>
+          )}
         </div>
 
         {/* Right column (7 columns) */}

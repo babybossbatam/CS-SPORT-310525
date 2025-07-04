@@ -15,7 +15,7 @@ const Home = () => {
   const [showTop20, setShowTop20] = React.useState(false);
   const [liveFilterActive, setLiveFilterActive] = React.useState(false);
 
-  const handleMatchCardClick = (match) => {
+  const handleMatchCardClick = (match: any) => {
     console.log("Match card clicked:", match);
   };
 
@@ -31,7 +31,7 @@ const Home = () => {
       <div className="flex-1">
         <MyMainLayout fixtures={[]} >
             <TodayPopularFootballLeaguesNew
-              selectedDate={selectedDate}
+              selectedDate={selectedDate.toISOString().split('T')[0]}
               timeFilterActive={timeFilterActive}
               showTop20={showTop20}
               liveFilterActive={liveFilterActive}
