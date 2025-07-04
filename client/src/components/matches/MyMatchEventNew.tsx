@@ -878,7 +878,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   )}
                               </div>
 
-                              <div className="text-right">
+                              <div className="text-left">
                                 {event.type === "subst" &&
                                 event.assist?.name ? (
                                   <>
@@ -1053,7 +1053,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                             {/* Column 2: Player Info */}
                             <div className="match-event-away-player-info">
-                              <div className="justify-center text-center w-24">
+                              <div className="text-left w-24">
                                 {event.type === "subst" &&
                                 event.assist?.name ? (
                                   <>
