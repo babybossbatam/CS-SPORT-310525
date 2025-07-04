@@ -136,25 +136,10 @@ export function shouldExcludeFromPopularLeagues(
     return true;
   }
 
-  // SPECIAL HANDLING FOR WORLD COUNTRY - Add debugging
+  // SKIP EXCLUSION FOR WORLD COUNTRY - Allow all World competitions through
   if (countryLower === "world") {
-    console.log(`🌍 [WORLD DEBUG] Checking World league: "${leagueName}" | ${homeTeamName} vs ${awayTeamName} | Country: ${country}`);
-
-    // For World country, only exclude if it contains explicit exclusion terms
-    const hasExclusionTerms = popularLeagueExclusionTerms.some(
-      (term) =>
-        league.includes(term) ||
-        homeTeam.includes(term) ||
-        awayTeam.includes(term),
-    );
-
-    if (hasExclusionTerms) {
-      console.log(`❌ [WORLD DEBUG] Excluding World league due to exclusion terms: "${leagueName}"`);
-      return true;
-    }
-
-    console.log(`✅ [WORLD DEBUG] Allowing World league: "${leagueName}"`);
-    return false; // Allow all other World leagues
+    console.log(`🌍 [WORLD DEBUG] Allowing all World competitions: "${leagueName}" | ${homeTeamName} vs ${awayTeamName}`);
+    return false; // Never exclude World country competitions
   }
 
   // Exclude fixtures with null, undefined, or invalid country values (but not World)
