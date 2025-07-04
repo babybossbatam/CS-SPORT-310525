@@ -25,6 +25,8 @@ import {
   DEFAULT_POPULAR_LEAGUES,
   POPULAR_COUNTRIES,
   isLiveMatch,
+  isEndedMatch,
+  isUpcomingMatch,
 } from "@/lib/matchFilters";
 import { CURRENT_POPULAR_LEAGUES } from "../leagues/PopularLeaguesList";
 import {
@@ -45,6 +47,7 @@ import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";
 import MyNormalFlag from "../common/MyNormalFlag";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
+import { smartFetch, fetchLeagueFixtures } from '@/lib/MyFetchingLogic';
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -252,17 +255,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
         );
 
         // For live matches, fetch directly without caching
-        const response = await apiRequest(
-          "GET",
-          `/api/fixtures/date/${selectedDate}?all=true`,
-        );
-        const data = await response.json();
+        // const response = await apiRequest(
+        //   "GET",
+        //   `/api/fixtures/date/${selectedDate}?all=true`,
+        // );
+        // const data = await response.json();
 
-        console.log(
-          `✅ [TodayPopularLeagueNew] Received ${data?.length || 0} fixtures for ${selectedDate}`,
-        );
+        // console.log(
+        //   `✅ [TodayPopularLeagueNew] Received ${data?.length || 0} fixtures for ${selectedDate}`,
+        // );
 
-        setFixtures(data || []);
+        // setFixtures(data || []);
       } catch (error) {
         console.error('Error fetching fixtures:', error);
         setFixtures([]);
@@ -273,7 +276,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     };
 
     if (selectedDate && enableFetching) {
-      fetchFixtures();
+      //fetchFixtures();
     }
   }, [selectedDate, enableFetching]);
 
@@ -290,12 +293,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
       setIsFetching(true);
 
       try {
-        const response = await apiRequest(
-          "GET",
-          `/api/fixtures/date/${selectedDate}?all=true`,
-        );
-        const data = await response.json();
-        setFixtures(data || []);
+        // const response = await apiRequest(
+        //   "GET",
+        //   `/api/fixtures/date/${selectedDate}?all=true`,
+        // );
+        // const data = await response.json();
+        // setFixtures(data || []);
       } catch (error) {
         console.error('Error auto-refreshing fixtures:', error);
       } finally {
@@ -830,7 +833,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     league: originalLeagueFixtures[0].league?.name,
                     country: originalLeagueFixtures[0].league?.country,
                   }
-                : null,
+                : null,<previous_generation>
               // Show actual dates for Serie D fixtures
               actualDates: leagueId === 75 ? originalLeagueFixtures.slice(0, 5).map(f => ({
                 date: f.fixture?.date,
@@ -854,7 +857,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         away: f.teams?.away?.name,
         status: f.fixture?.status?.short
       }));
-      
+
       // Group by date
       const dateGroups = serieDDates.reduce((acc: any, fixture) => {
         const date = fixture.localDate;
@@ -862,7 +865,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         acc[date].push(fixture);
         return acc;
       }, {});
-      
+
       console.log(`🏆 [SERIE D DEBUG] Serie D fixtures grouped by date:`, {
         selectedDate,
         totalFixtures: serieDFixtures.length,
@@ -1350,6 +1353,26 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Show loading only if we're actually loading and don't have any data
   const showLoading = isLoading && !fixtures.length;
+
+  const { data: allFixtures = [], isLoading, isFetching, error } = useQuery({
+    queryKey: ['smart-fetch-popular-leagues', selectedDate],
+    queryFn: async () => {
+      console.log(`🔄 [TodayPopularLeagueNew] Smart fetching fixtures for ${selectedDate}`);
+
+      // Use smart fetch for intelligent caching and live match handling
+      const fixtures = await smartFetch(selectedDate, {
+        source: 'TodayPopularLeagueNew',
+        forceRefresh: isToday(new Date(selectedDate)) // Force refresh for today's matches
+      });
+
+      console.log(`✅ [TodayPopularLeagueNew] Smart fetched ${fixtures.length} fixtures for ${selectedDate}`);
+      return fixtures;
+    },
+    staleTime: isToday(new Date(selectedDate)) ? 1 * 60 * 1000 : 5 * 60 * 1000, // 1 min for today, 5 min for other dates
+    gcTime: 30 * 60 * 1000, // 30 minutes
+    refetchOnWindowFocus: isToday(new Date(selectedDate)), // Only refetch on focus for today
+    retry: 1,
+  });
 
   if (showLoading) {
     console.log(

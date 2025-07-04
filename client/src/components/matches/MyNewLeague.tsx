@@ -8,6 +8,12 @@ import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
+import { useQuery } from '@tanstack/react-query';
+import { FixtureResponse } from '@/types/fixtures';
+import { isLiveMatch, isEndedMatch, isUpcomingMatch } from '@/lib/matchFilters';
+import { sortMatchesByKickoffTime } from '@/lib/dateUtilsUpdated';
+import { isToday } from 'date-fns';
+import { smartFetch, fetchLeagueFixtures } from '@/lib/MyFetchingLogic';
 
 interface MyNewLeagueProps {
   selectedDate: string;
@@ -115,13 +121,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         console.log(`MyNewLeague - Fetching live fixtures for real-time data`);
         const liveResponse = await apiRequest("GET", "/api/fixtures/live");
         const liveData = await liveResponse.json();
-        
+
         if (Array.isArray(liveData)) {
           // Filter live fixtures to only include our target leagues
           const relevantLiveFixtures = liveData.filter(fixture => 
             leagueIds.includes(fixture.league?.id)
           );
-          
+
           console.log(`MyNewLeague - Found ${relevantLiveFixtures.length} live fixtures from target leagues`);
           allFixtures.push(...relevantLiveFixtures);
         }
@@ -171,9 +177,9 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             const nonLiveFixtures = fixturesData.filter(fixture => 
               !liveFixtureIds.has(fixture.fixture.id)
             );
-            
+
             console.log(`MyNewLeague - Processing ${nonLiveFixtures.length} non-live fixtures for league ${leagueId}`);
-            
+
             nonLiveFixtures.forEach((fixture, index) => {
               if (index < 5) { // Only log first 5 to avoid spam
                 console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
@@ -237,11 +243,11 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
-  
+
   // Enhanced debugging for Friendlies Clubs
   const friendliesFixtures = fixtures.filter(f => f.league.id === 667);
   console.log("🏆 [MyNewLeague FRIENDLIES] Total Friendlies fixtures:", friendliesFixtures.length);
-  
+
   if (friendliesFixtures.length > 0) {
     console.log("🏆 [MyNewLeague FRIENDLIES] Sample fixtures with dates:");
     friendliesFixtures.slice(0, 5).forEach((f) => {
@@ -250,7 +256,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       const month = String(matchDate.getMonth() + 1).padStart(2, "0");
       const day = String(matchDate.getDate()).padStart(2, "0");
       const matchDateString = `${year}-${month}-${day}`;
-      
+
       console.log(`🏆 Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
         fixtureDate: f.fixture.date,
         matchDateString,
@@ -261,7 +267,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       });
     });
   }
-  
+
   fixtures.forEach((f) => {
     console.log("Fixture:", {
       id: f.fixture.id,
@@ -281,7 +287,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     const day = String(matchDate.getDate()).padStart(2, "0");
     const matchDateString = `${year}-${month}-${day}`;
     const dateMatches = matchDateString === selectedDate;
-    
+
     // Debug for Friendlies Clubs specifically
     if (f.league.id === 667 && !dateMatches) {
       console.log(`🏆 [FRIENDLIES DATE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
@@ -291,10 +297,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         reason: 'Date mismatch'
       });
     }
-    
+
     return dateMatches;
   });
-  
+
   // Log filtering results for Friendlies
   const friendliesFiltered = selectedDateFixtures.filter(f => f.league.id === 667);
   console.log(`🏆 [MyNewLeague FRIENDLIES] After date filtering: ${friendliesFiltered.length} matches for ${selectedDate}`);
@@ -913,6 +919,21 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     );
   }
 
+  const { data: allFixtures = [], isLoading, error } = useQuery({
+    queryKey: ['smart-fetch-fixtures', selectedDate],
+    queryFn: async () => {
+      // Use smart fetch for intelligent caching and live match handling
+      return await smartFetch(selectedDate, {
+        source: 'MyNewLeague',
+        forceRefresh: isToday(new Date(selectedDate)) // Force refresh for today's matches
+      });
+    },
+    staleTime: isToday(new Date(selectedDate)) ? 1 * 60 * 1000 : 5 * 60 * 1000, // 1 min for today, 5 min for other dates
+    gcTime: 30 * 60 * 1000, // 30 minutes
+    refetchOnWindowFocus: isToday(new Date(selectedDate)), // Only refetch on focus for today
+    retry: 1,
+  });
+
   return (
     <>
       {/* Header Section */}
@@ -1419,7 +1440,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             </div>
           </div>
         </div>
-                        </div>
+        </div>
                   );
                 })}
               </div>
