@@ -121,7 +121,20 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     retry: 1,
   });
 
-  // Memoize the data fetching function to prevent unnecessary re-renders
+  // Helper function to determine if match needs fresh data based on timing
+  const needsFreshData = useCallback((fixtureDate: string) => {
+    const now = new Date();
+    const matchDate = new Date(fixtureDate);
+    const hoursUntilMatch = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+    
+    // Need fresh data if:
+    // 1. Match is within next 24 hours (upcoming soon)
+    // 2. Match is live or recently finished
+    // 3. Match date is today
+    return hoursUntilMatch <= 24 && hoursUntilMatch >= -2;
+  }, []);
+
+  // Memoize the data fetching function with smart caching logic
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
     if (!isUpdate) {
       setLoading(true);
@@ -131,8 +144,19 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     try {
       const allFixtures: FixtureData[] = [];
       let primaryLeagueInfo: LeagueData | null = null;
+      const now = new Date();
+      const selectedDateTime = new Date(selectedDate);
+      const isSelectedDateToday = selectedDateTime.toDateString() === now.toDateString();
+      const isSelectedDateTomorrow = Math.abs(selectedDateTime.getTime() - now.getTime()) <= 48 * 60 * 60 * 1000;
 
-      // First, fetch live fixtures for real-time data
+      console.log(`🕐 [MyNewLeague SMART CACHE] Date analysis:`, {
+        selectedDate,
+        isToday: isSelectedDateToday,
+        isNearFuture: isSelectedDateTomorrow,
+        strategy: isSelectedDateToday ? 'fresh_data' : isSelectedDateTomorrow ? 'mixed_cache' : 'cached_data'
+      });
+
+      // Always fetch live fixtures for real-time data
       try {
         console.log(`MyNewLeague - Fetching live fixtures for real-time data`);
         const liveResponse = await apiRequest("GET", "/api/fixtures/live");
@@ -151,10 +175,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         console.warn("Failed to fetch live fixtures:", liveError);
       }
 
-      // Then fetch cached data from individual leagues for non-live matches
+      // Smart caching strategy for each league
       for (const leagueId of leagueIds) {
         try {
-          console.log(`MyNewLeague - Fetching cached data for league ${leagueId}`);
+          console.log(`🔍 [MyNewLeague SMART CACHE] Processing league ${leagueId}`);
 
           // Fetch league info only on initial load
           if (!isUpdate) {
@@ -170,11 +194,43 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             }
           }
 
+          // Determine caching strategy based on selected date
+          let useCache = true;
+          let forceRefresh = false;
+
+          if (isSelectedDateToday) {
+            // For today's matches, use minimal cache and force refresh
+            forceRefresh = true;
+            useCache = false;
+            console.log(`🔄 [MyNewLeague SMART CACHE] League ${leagueId}: Using fresh data for today`);
+          } else if (isSelectedDateTomorrow) {
+            // For near future dates, use smart caching with shorter TTL
+            useCache = true;
+            console.log(`📅 [MyNewLeague SMART CACHE] League ${leagueId}: Using smart cache for near future`);
+          } else {
+            // For far future dates, use long-term caching
+            useCache = true;
+            console.log(`📦 [MyNewLeague SMART CACHE] League ${leagueId}: Using long-term cache for far future`);
+          }
+
+          // Build API URL with cache control parameters
+          let fixturesUrl = `/api/leagues/${leagueId}/fixtures`;
+          const urlParams = new URLSearchParams();
+          
+          if (forceRefresh) {
+            urlParams.append('refresh', 'true');
+          }
+          
+          if (!useCache) {
+            urlParams.append('cache', 'false');
+          }
+          
+          if (urlParams.toString()) {
+            fixturesUrl += `?${urlParams.toString()}`;
+          }
+
           // Fetch fixtures for the league
-          const fixturesResponse = await apiRequest(
-            "GET",
-            `/api/leagues/${leagueId}/fixtures`,
-          );
+          const fixturesResponse = await apiRequest("GET", fixturesUrl);
 
           if (!fixturesResponse.ok) {
             console.warn(`Failed to fetch fixtures for league ${leagueId}, status: ${fixturesResponse.status}`);
@@ -194,20 +250,46 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               !liveFixtureIds.has(fixture.fixture.id)
             );
 
-            console.log(`MyNewLeague - Processing ${nonLiveFixtures.length} non-live fixtures for league ${leagueId}`);
+            // Smart filtering based on match timing for upcoming matches
+            const smartFilteredFixtures = nonLiveFixtures.filter(fixture => {
+              const fixtureDate = fixture.fixture?.date;
+              if (!fixtureDate) return true;
 
-            nonLiveFixtures.forEach((fixture, index) => {
-              if (index < 5) { // Only log first 5 to avoid spam
+              const matchDate = new Date(fixtureDate);
+              const fixtureDay = matchDate.toISOString().split('T')[0];
+              const selectedDay = selectedDate;
+
+              // Always include matches for the selected date
+              if (fixtureDay === selectedDay) {
+                // For upcoming matches on selected date, check if we need fresh data
+                if (fixture.fixture?.status?.short === 'NS' && needsFreshData(fixtureDate)) {
+                  console.log(`🔄 [MyNewLeague FRESH] Match needs fresh data:`, {
+                    teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+                    date: fixtureDate,
+                    reason: 'upcoming_soon'
+                  });
+                }
+                return true;
+              }
+
+              return false;
+            });
+
+            console.log(`🎯 [MyNewLeague SMART FILTER] League ${leagueId}: ${nonLiveFixtures.length} → ${smartFilteredFixtures.length} fixtures after smart filtering`);
+
+            smartFilteredFixtures.forEach((fixture, index) => {
+              if (index < 3) { // Only log first 3 to avoid spam
                 console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
                   teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
                   league: fixture.league?.name,
                   status: fixture.fixture?.status?.short,
                   date: fixture.fixture?.date,
+                  cacheStrategy: needsFreshData(fixture.fixture?.date) ? 'fresh' : 'cached'
                 });
               }
             });
 
-            allFixtures.push(...nonLiveFixtures);
+            allFixtures.push(...smartFilteredFixtures);
           }
         } catch (leagueError) {
           const errorMessage = leagueError instanceof Error ? leagueError.message : 'Unknown error';
@@ -227,6 +309,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         setLeagueInfo(primaryLeagueInfo);
       }
 
+      console.log(`📊 [MyNewLeague SMART CACHE] Final result: ${allFixtures.length} fixtures with smart caching strategy`);
+
       // Only update fixtures if there are actual changes
       setFixtures(prevFixtures => {
         const hasChanges = JSON.stringify(prevFixtures) !== JSON.stringify(allFixtures);
@@ -242,18 +326,34 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         setLoading(false);
       }
     }
-  }, []);
+  }, [selectedDate, needsFreshData]);
 
   useEffect(() => {
     fetchLeagueData(false);
 
-    // Set up periodic refresh for live match updates with reduced re-renders
+    // Smart refresh intervals based on selected date
+    const now = new Date();
+    const selectedDateTime = new Date(selectedDate);
+    const isSelectedDateToday = selectedDateTime.toDateString() === now.toDateString();
+    const isSelectedDateNearFuture = Math.abs(selectedDateTime.getTime() - now.getTime()) <= 48 * 60 * 60 * 1000;
+
+    let refreshInterval = 300000; // Default: 5 minutes for far future dates
+
+    if (isSelectedDateToday) {
+      refreshInterval = 30000; // 30 seconds for today's matches
+    } else if (isSelectedDateNearFuture) {
+      refreshInterval = 120000; // 2 minutes for near future matches
+    }
+
+    console.log(`⏰ [MyNewLeague REFRESH] Setting refresh interval: ${refreshInterval / 1000}s for ${selectedDate}`);
+
+    // Set up periodic refresh with smart intervals
     const interval = setInterval(() => {
       fetchLeagueData(true); // Pass true to indicate this is an update
-    }, 30000); // Refresh every 30 seconds
+    }, refreshInterval);
 
     return () => clearInterval(interval);
-  }, [fetchLeagueData]);
+  }, [fetchLeagueData, selectedDate]);
 
 
 
