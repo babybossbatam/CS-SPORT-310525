@@ -87,6 +87,35 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
           className="w-4 h-4 opacity-80"
         />
       </div>
+      
+      {/* End of Match Indicator */}
+      {(() => {
+        // Check if match has ended based on events
+        const hasEndedEvents = events.some(event => 
+          event.time.elapsed >= 90 && event.time.extra && event.time.extra > 0
+        );
+        
+        if (hasEndedEvents) {
+          const maxTime = Math.max(...events.map(e => e.time.elapsed + (e.time.extra || 0)));
+          const finalMinute = Math.max(...events.map(e => e.time.elapsed));
+          const finalExtra = Math.max(...events.filter(e => e.time.elapsed === finalMinute).map(e => e.time.extra || 0));
+          
+          return (
+            <div className="p-3 border-t bg-gray-50 flex justify-center items-center">
+              <div className="text-center">
+                <div className="text-sm font-semibold text-gray-800 mb-1">
+                  End of Match
+                </div>
+                <div className="text-xs text-gray-600">
+                  Full Time: {finalMinute}'{finalExtra > 0 ? ` +${finalExtra}'` : ''}
+                </div>
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })()}
+      
       <div className="p-2 border-t flex justify-center items-center text-xs">
         <span>Commentary</span>
       </div>
