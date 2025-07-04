@@ -29,15 +29,7 @@ const Home = () => {
       />
 
       <div className="flex-1">
-        <MyMainLayout fixtures={[]} >
-            <TodayPopularFootballLeaguesNew
-              selectedDate={selectedDate.toISOString().split('T')[0]}
-              timeFilterActive={timeFilterActive}
-              showTop20={showTop20}
-              liveFilterActive={liveFilterActive}
-              onMatchCardClick={handleMatchCardClick}
-            />
-        </MyMainLayout>
+        <MyMainLayout fixtures={[]} />
       </div>
 
       <Footer />
