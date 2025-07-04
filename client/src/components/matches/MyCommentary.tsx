@@ -245,15 +245,15 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       <div className="flex flex-col items-center min-w-[50px]">
                         {/* Extra time display at top if present */}
                         {event.time.extra && (
-                          <div className="text-xs font-md text-red-500">
+                          <div className="text-xs font-medium text-red-500 leading-tight">
                             +{event.time.extra}'
                           </div>
                         )}
                         
                         {/* Elapsed time */}
                         <div
-                          className="text-gray-800"
-                          style={{ marginTop: "-1px", marginBottom: "2px" }}
+                          className="text-gray-800 text-sm font-medium leading-tight"
+                          style={{ marginTop: event.time.extra ? "1px" : "0", marginBottom: "2px" }}
                         >
                           {event.time.elapsed}'
                         </div>
