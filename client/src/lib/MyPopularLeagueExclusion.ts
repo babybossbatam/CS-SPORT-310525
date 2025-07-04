@@ -272,3 +272,32 @@ export function isRestrictedUSLeague(
   // No restrictions - allow all USA leagues through
   return false;
 }
+
+// Countries to exclude from popular leagues display
+  const EXCLUDED_COUNTRIES = [
+    "Australia",
+    "Belarus"
+  ];
+
+  // Popular countries prioritization with new requirements
+  const POPULAR_COUNTRIES_ORDER = [
+    "England",
+    "Spain", 
+    "Italy",
+    "Germany",
+    "France",
+    "World",
+    "Europe",
+    "South America",
+    "Brazil",
+    "Saudi Arabia",
+    "Egypt",
+    "Iraq",
+    "Chile",
+    "Colombia",
+    "United States",
+    "USA",
+    "US",
+    "United Arab Emirates",
+    "United-Arab-Emirates",
+  ];
