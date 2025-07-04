@@ -328,6 +328,7 @@
   align-items: center;
   justify-content: flex-end;
   text-align: right;
+   gap: 13px;
 }
 
 /* Match event icons with enhanced styling */
