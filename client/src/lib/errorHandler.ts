@@ -63,6 +63,108 @@ export const handleNetworkRecovery = () => {
   }
 };
 
+// Enhanced error categorization system
+interface ErrorCategory {
+  name: string;
+  shouldSuppress: boolean;
+  shouldReport: boolean;
+  action: 'suppress' | 'fix' | 'monitor';
+}
+
+const categorizeError = (error: any): ErrorCategory => {
+  const errorStr = error?.message || error?.toString?.() || String(error);
+  
+  // Replit development environment errors - suppress but log
+  if (errorStr.includes('plugin:runtime-error-plugin') || 
+      errorStr.includes('unknown runtime error') ||
+      errorStr.includes('sendError') ||
+      errorStr.includes('riker.replit.dev')) {
+    return {
+      name: 'replit-dev-environment',
+      shouldSuppress: true,
+      shouldReport: false,
+      action: 'suppress'
+    };
+  }
+  
+  // Network/connectivity issues - attempt recovery
+  if (errorStr.includes('Failed to fetch') || 
+      errorStr.includes('NetworkError') ||
+      errorStr.includes('timeout')) {
+    return {
+      name: 'network-connectivity',
+      shouldSuppress: false,
+      shouldReport: true,
+      action: 'fix'
+    };
+  }
+  
+  // Application logic errors - need investigation
+  if (errorStr.includes('Cannot read properties') ||
+      errorStr.includes('is not a function') ||
+      errorStr.includes('undefined')) {
+    return {
+      name: 'application-logic',
+      shouldSuppress: false,
+      shouldReport: true,
+      action: 'fix'
+    };
+  }
+  
+  // Memory/performance issues - monitor and optimize
+  if (errorStr.includes('Maximum call stack') ||
+      errorStr.includes('out of memory') ||
+      errorStr.includes('MaxListenersExceeded')) {
+    return {
+      name: 'performance-memory',
+      shouldSuppress: false,
+      shouldReport: true,
+      action: 'monitor'
+    };
+  }
+  
+  // Unknown errors - investigate
+  return {
+    name: 'unknown',
+    shouldSuppress: false,
+    shouldReport: true,
+    action: 'monitor'
+  };
+};
+
+// Enhanced error reporting system
+const reportError = (error: any, category: ErrorCategory, context: string) => {
+  if (!category.shouldReport) return;
+  
+  const errorReport = {
+    category: category.name,
+    action: category.action,
+    context,
+    timestamp: new Date().toISOString(),
+    error: {
+      message: error?.message,
+      stack: error?.stack,
+      name: error?.name
+    },
+    userAgent: navigator.userAgent,
+    url: window.location.href
+  };
+  
+  console.group(`🚨 Error Report: ${category.name}`);
+  console.log('Action Required:', category.action);
+  console.log('Error Details:', errorReport);
+  console.groupEnd();
+  
+  // Store for debugging (in development)
+  if (import.meta.env.DEV) {
+    const errors = JSON.parse(localStorage.getItem('app-errors') || '[]');
+    errors.push(errorReport);
+    // Keep only last 50 errors
+    if (errors.length > 50) errors.splice(0, errors.length - 50);
+    localStorage.setItem('app-errors', JSON.stringify(errors));
+  }
+};
+
 // Global unhandled rejection handler
 export const setupGlobalErrorHandlers = () => {
   // Increase EventEmitter max listeners to prevent warnings
@@ -73,17 +175,26 @@ export const setupGlobalErrorHandlers = () => {
   // Handle unhandled promise rejections
   window.addEventListener('unhandledrejection', (event) => {
     const error = event.reason;
-
-    // Suppress runtime plugin errors - enhanced pattern matching
-    if (error?.message?.includes('plugin:runtime-error-plugin') ||
-        error?.message?.includes('unknown runtime error') ||
-        error?.stack?.includes('runtime-error-plugin') ||
-        error?.toString?.().includes('plugin:runtime-error-plugin') ||
-        event.reason?.toString?.().includes('plugin:runtime-error-plugin') ||
-        (typeof error === 'string' && error.includes('plugin:runtime-error-plugin'))) {
-      console.log('🔧 Runtime plugin error suppressed:', error?.message || error);
+    const category = categorizeError(error);
+    
+    // Report the error for analysis
+    reportError(error, category, 'unhandledrejection');
+    
+    // Take appropriate action based on category
+    if (category.shouldSuppress) {
+      console.log(`🔧 ${category.name} error suppressed:`, error?.message || error);
       event.preventDefault();
       return;
+    }
+    
+    // For fixable errors, attempt recovery
+    if (category.action === 'fix') {
+      if (category.name === 'network-connectivity') {
+        console.log('🌐 Network error detected, attempting recovery...');
+        handleNetworkRecovery();
+        event.preventDefault();
+        return;
+      }
     }
 
     console.error('🚨 Unhandled Promise Rejection:', error);
@@ -127,14 +238,15 @@ export const setupGlobalErrorHandlers = () => {
 
   // Handle global JavaScript errors
   window.addEventListener('error', (event) => {
-    const error = event.error;
-
-    // Suppress runtime plugin errors - enhanced pattern matching
-    if (event.message?.includes('plugin:runtime-error-plugin') ||
-        event.message?.includes('unknown runtime error') ||
-        event.filename?.includes('runtime-error-plugin') ||
-        (typeof event.error === 'string' && event.error.includes('plugin:runtime-error-plugin'))) {
-      console.log('🔧 Runtime plugin error suppressed:', event.error?.message || event.error);
+    const error = event.error || event.message;
+    const category = categorizeError(error);
+    
+    // Report the error for analysis
+    reportError(error, category, 'global-error');
+    
+    // Take appropriate action based on category
+    if (category.shouldSuppress) {
+      console.log(`🔧 ${category.name} error suppressed:`, event.message);
       event.preventDefault();
       return;
     }
@@ -174,4 +286,35 @@ export const setupGlobalErrorHandlers = () => {
     window.removeEventListener('unhandledrejection', () => {});
     window.removeEventListener('error', () => {});
   });
+};
+
+// Utility to analyze stored errors
+export const analyzeStoredErrors = () => {
+  if (!import.meta.env.DEV) return;
+  
+  const errors = JSON.parse(localStorage.getItem('app-errors') || '[]');
+  
+  if (errors.length === 0) {
+    console.log('✅ No stored errors found');
+    return;
+  }
+  
+  const categorized = errors.reduce((acc: any, error: any) => {
+    acc[error.category] = (acc[error.category] || 0) + 1;
+    return acc;
+  }, {});
+  
+  console.group('📊 Error Analysis Report');
+  console.log('Total Errors:', errors.length);
+  console.log('By Category:', categorized);
+  console.log('Recent Errors:', errors.slice(-5));
+  console.groupEnd();
+  
+  return { total: errors.length, categorized, recent: errors.slice(-5) };
+};
+
+// Clear stored errors
+export const clearStoredErrors = () => {
+  localStorage.removeItem('app-errors');
+  console.log('🧹 Stored errors cleared');
 };
