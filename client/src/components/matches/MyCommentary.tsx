@@ -84,6 +84,33 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
   return (
     <>
+      {/* Final Score Display */}
+      {(() => {
+        const hasEndedEvents = events.some(
+          (event) =>
+            event.time.elapsed >= 90 &&
+            event.time.extra &&
+            event.time.extra > 0,
+        );
+
+        if (hasEndedEvents) {
+          const finalScore = calculateScoreAtTime(Math.max(...events.map(e => e.time.elapsed + (e.time.extra || 0))));
+          return (
+            <div className="p-2 border-t flex justify-center items-center gap-2">
+              <img
+                src="/assets/matchdetaillogo/clock.png"
+                alt="Match Clock"
+                className="w-4 h-4 opacity-80"
+              />
+              <div className="text-lg font-bold text-gray-800">
+                {finalScore.homeScore}-{finalScore.awayScore}
+              </div>
+            </div>
+          );
+        }
+        return null;
+      })()}
+
       <div className="p-2 border-t flex justify-center items-center">
         <img
           src="/assets/matchdetaillogo/clock.png"
