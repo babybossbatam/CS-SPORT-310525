@@ -103,7 +103,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
 
   // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
-  const leagueIds = [38, 15, 71, 22, 72, 73, 75, 128, 667]; // Added Brazilian Serie A (71), CONCACAF Gold Cup (22), Serie B (72), Serie C (73), Serie D (75), Copa Argentina (128) before Friendlies Clubs
+  const leagueIds = [38, 15, 71, 22, 72, 73, 75, 128, 233, 667]; // Added Brazilian Serie A (71), CONCACAF Gold Cup (22), Serie B (72), Serie C (73), Serie D (75), Copa Argentina (128), Iraqi League (233) before Friendlies Clubs
 
   // Smart fetch query - moved to top to follow Rules of Hooks
   const { data: allFixtures = [], isLoading: isQueryLoading, isFetching: isQueryFetching, error: queryError } = useQuery({
@@ -948,7 +948,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       {Object.values(matchesByLeague)
         .sort((a, b) => {
           // Define priority order
-          const priorityOrder = [38, 15, 71, 22, 72, 73, 75, 128, 667]; // UEFA U21, FIFA Club World Cup, Serie A, CONCACAF Gold Cup, Serie B, Serie C, Serie D, Copa Argentina, Friendlies Clubs
+          const priorityOrder = [38, 15, 71, 22, 72, 73, 75, 128, 233, 667]; // UEFA U21, FIFA Club World Cup, Serie A, CONCACAF Gold Cup, Serie B, Serie C, Serie D, Copa Argentina, Iraqi League, Friendlies Clubs
 
           const aIndex = priorityOrder.indexOf(a.league.id);
           const bIndex = priorityOrder.indexOf(b.league.id);
