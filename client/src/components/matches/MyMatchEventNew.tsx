@@ -132,7 +132,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           return '🥅'; // Own goal
         }
         return '⚽'; // Regular goal
-      
+
       case 'card':
         if (eventDetail.includes('yellow')) {
           return '🟨'; // Yellow card
@@ -140,29 +140,29 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           return '🟥'; // Red card
         }
         return '🟨'; // Default card
-      
+
       case 'subst':
       case 'substitution':
         return '🔄'; // Substitution
-      
+
       case 'Var':
         return '📺'; // VAR
-      
+
       case 'Foul':
         return '🚫'; // Foul
-      
+
       case 'Offside':
         return '🚩'; // Offside
-      
+
       case 'Corner':
         return '📐'; // Corner kick
-      
+
       case 'Free kick':
         return '🦶'; // Free kick
-      
+
       case 'Throw in':
         return '👐'; // Throw in
-      
+
       default:
         return '📝'; // Default event
     }
@@ -1053,30 +1053,30 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                             {/* Column 2: Player Info */}
                             <div className="match-event-away-player-info">
-                              <div className="text-left w-24">
+                              <div className="text-right w-24">
                                 {event.type === "subst" &&
                                 event.assist?.name ? (
                                   <>
-                                    <div className="text-xs font-medium text-green-600">
+                                    <div className="text-xs font-medium text-green-600 text-right">
                                       {event.assist.name}
                                     </div>
-                                    <div className="text-xs font-medium text-red-600">
+                                    <div className="text-xs font-medium text-red-600 text-right">
                                       {event.player?.name || "Unknown Player"}
                                     </div>
                                   </>
                                 ) : (
-                                  <div className="text-xs font-medium text-gray-700">
+                                  <div className="text-xs font-medium text-gray-700 text-right">
                                     {event.player?.name || "Unknown Player"}
                                   </div>
                                 )}
                                 {event.type === "goal" &&
                                   event.assist?.name && (
-                                    <div className="text-xs text-gray-600">
+                                    <div className="text-xs text-gray-600 text-right">
                                       (Assist: {event.assist.name})
                                     </div>
                                   )}
                                 {event.type !== "subst" && (
-                                  <div className="text-xs text-gray-400">
+                                  <div className="text-xs text-gray-400 text-right">
                                     {event.type === "foul" ||
                                     event.detail?.toLowerCase().includes("foul")
                                       ? `Foul by ${event.player?.name || "Unknown Player"}`
