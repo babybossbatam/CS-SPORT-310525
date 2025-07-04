@@ -919,7 +919,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     );
   }
 
-  const { data: allFixtures = [], isLoading, error } = useQuery({
+  const { data: allFixtures = [], isLoading, error: queryError } = useQuery({
     queryKey: ['smart-fetch-fixtures', selectedDate],
     queryFn: async () => {
       // Use smart fetch for intelligent caching and live match handling
