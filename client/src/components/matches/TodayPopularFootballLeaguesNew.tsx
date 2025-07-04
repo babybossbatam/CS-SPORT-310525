@@ -389,6 +389,106 @@ const TodayPopularFootballLeaguesNew: React.FC<
     return filtered;
   }, [allFixtures, selectedDate]);
 
+  // Group fixtures by country and league
+  const groupedFixtures = useMemo(() => {
+    if (!filteredFixtures?.length) return {};
+
+    const fixturesByCountry: { [key: string]: any } = {};
+
+    filteredFixtures.forEach((fixture) => {
+      const country = fixture.league?.country || "Unknown";
+      const leagueId = fixture.league?.id;
+      const leagueName = fixture.league?.name || "Unknown League";
+
+      if (!fixturesByCountry[country]) {
+        fixturesByCountry[country] = {
+          country,
+          flag: getCountryFlagWithFallbackSync(country),
+          leagues: {},
+        };
+      }
+
+      if (!fixturesByCountry[country].leagues[leagueId]) {
+        const isPopular = POPULAR_LEAGUE_IDS.includes(leagueId);
+        const isPopularForCountry = POPULAR_LEAGUES_BY_COUNTRY[country]?.includes(leagueId) || false;
+        const isFriendlies = leagueName.toLowerCase().includes("friendlies");
+
+        fixturesByCountry[country].leagues[leagueId] = {
+          league: fixture.league,
+          matches: [],
+          isPopular,
+          isPopularForCountry,
+          isFriendlies,
+        };
+      }
+
+      fixturesByCountry[country].leagues[leagueId].matches.push(fixture);
+    });
+
+    return fixturesByCountry;
+  }, [filteredFixtures]);
+
+  // Sort countries by priority
+  const sortedCountries = useMemo(() => {
+    const countries = Object.values(groupedFixtures);
+
+    return countries.sort((a: any, b: any) => {
+      const aIndex = POPULAR_COUNTRIES_ORDER.indexOf(a.country);
+      const bIndex = POPULAR_COUNTRIES_ORDER.indexOf(b.country);
+
+      // If both countries are in the popular list, sort by their order
+      if (aIndex !== -1 && bIndex !== -1) {
+        return aIndex - bIndex;
+      }
+
+      // If only one is in the popular list, prioritize it
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+
+      // If neither is in the popular list, sort alphabetically
+      return a.country.localeCompare(b.country);
+    });
+  }, [groupedFixtures]);
+
+  // Apply live filter if active
+  const liveFilteredCountries = useMemo(() => {
+    if (!liveFilterActive) return sortedCountries;
+
+    return sortedCountries
+      .map((countryData: any) => {
+        const filteredLeagues = Object.keys(countryData.leagues).reduce(
+          (acc: any, leagueId: string) => {
+            const leagueData = countryData.leagues[leagueId];
+            const liveMatches = leagueData.matches.filter((match: any) => {
+              const status = match.fixture?.status?.short;
+              return ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
+            });
+
+            if (liveMatches.length > 0) {
+              acc[leagueId] = {
+                ...leagueData,
+                matches: liveMatches,
+              };
+            }
+            return acc;
+          },
+          {},
+        );
+
+        return {
+          ...countryData,
+          leagues: filteredLeagues,
+        };
+      })
+      .filter((countryData) => Object.keys(countryData.leagues).length > 0);
+  }, [sortedCountries, liveFilterActive]);
+
+  // Apply top 20 filter
+  const top20FilteredCountries = useMemo(() => {
+    if (!showTop20) return liveFilteredCountries;
+    return liveFilteredCountries.slice(0, 20);
+  }, [liveFilteredCountries, showTop20]);
+
   // Show loading only if we're actually loading and don't have any data
   const showLoading = isQueryLoading && !filteredFixtures.length && !error;
 
@@ -470,6 +570,18 @@ const TodayPopularFootballLeaguesNew: React.FC<
     toast({
       title: "Removed from favorites",
       description: `Team has been removed from your favorites.`,
+    });
+  };
+
+  const toggleStarMatch = (matchId: number) => {
+    setStarredMatches((prev) => {
+      const newStarred = new Set(prev);
+      if (newStarred.has(matchId)) {
+        newStarred.delete(matchId);
+      } else {
+        newStarred.add(matchId);
+      }
+      return newStarred;
     });
   };
 
