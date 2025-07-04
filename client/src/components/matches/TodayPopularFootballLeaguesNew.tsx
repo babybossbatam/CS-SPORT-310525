@@ -15,6 +15,7 @@ import {
   shouldExcludeFromPopularLeagues,
   isPopularLeagueSuitable,
   isRestrictedUSLeague,
+  EXCLUDED_COUNTRIES,
 } from "@/lib/MyPopularLeagueExclusion";
 import { QUERY_CONFIGS, CACHE_FRESHNESS } from "@/lib/cacheConfig";
 // Removed cached query system for live match updates
@@ -319,6 +320,16 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
       // Check if it's a popular league from our curated list
       const isPopularLeague = POPULAR_LEAGUE_IDS.includes(leagueId);
+
+      // Check if country is excluded
+      const isExcludedCountry = EXCLUDED_COUNTRIES.some(excludedCountry => 
+        country.includes(excludedCountry.toLowerCase())
+      );
+
+      if (isExcludedCountry) {
+        console.log(`❌ [COUNTRY EXCLUSION] Excluding fixture from excluded country: "${fixture.league.country}"`);
+        return false;
+      }
 
       // Check if it's from a popular country
       const isFromPopularCountry = POPULAR_COUNTRIES_ORDER.some(

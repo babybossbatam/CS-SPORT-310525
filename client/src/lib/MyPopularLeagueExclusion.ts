@@ -126,6 +126,16 @@ export function shouldExcludeFromPopularLeagues(
   const awayTeam = safeSubstring(awayTeamName, 0).toLowerCase();
   const countryLower = safeSubstring(country || "", 0).toLowerCase();
 
+  // Check if country is in the excluded countries list
+  const isExcludedCountry = EXCLUDED_COUNTRIES.some(excludedCountry => 
+    countryLower.includes(excludedCountry.toLowerCase())
+  );
+
+  if (isExcludedCountry) {
+    console.log(`❌ [COUNTRY EXCLUSION] Excluding fixture from excluded country: "${country}"`);
+    return true;
+  }
+
   // SPECIAL HANDLING FOR WORLD COUNTRY - Add debugging
   if (countryLower === "world") {
     console.log(`🌍 [WORLD DEBUG] Checking World league: "${leagueName}" | ${homeTeamName} vs ${awayTeamName} | Country: ${country}`);
@@ -274,30 +284,30 @@ export function isRestrictedUSLeague(
 }
 
 // Countries to exclude from popular leagues display
-  const EXCLUDED_COUNTRIES = [
-    "Australia",
-    "Belarus"
-  ];
+export const EXCLUDED_COUNTRIES = [
+  "Australia",
+  "Belarus"
+];
 
-  // Popular countries prioritization with new requirements
-  const POPULAR_COUNTRIES_ORDER = [
-    "England",
-    "Spain", 
-    "Italy",
-    "Germany",
-    "France",
-    "World",
-    "Europe",
-    "South America",
-    "Brazil",
-    "Saudi Arabia",
-    "Egypt",
-    "Iraq",
-    "Chile",
-    "Colombia",
-    "United States",
-    "USA",
-    "US",
-    "United Arab Emirates",
-    "United-Arab-Emirates",
-  ];
+// Popular countries prioritization with new requirements
+export const POPULAR_COUNTRIES_ORDER = [
+  "England",
+  "Spain", 
+  "Italy",
+  "Germany",
+  "France",
+  "World",
+  "Europe",
+  "South America",
+  "Brazil",
+  "Saudi Arabia",
+  "Egypt",
+  "Iraq",
+  "Chile",
+  "Colombia",
+  "United States",
+  "USA",
+  "US",
+  "United Arab Emirates",
+  "United-Arab-Emirates",
+];
