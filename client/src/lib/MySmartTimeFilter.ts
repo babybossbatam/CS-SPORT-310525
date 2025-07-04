@@ -59,29 +59,46 @@ export class MySmartTimeFilter {
       const finishedStatuses = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'];
       const liveStatuses = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'];
 
+      // TIMEZONE CONVERSION: Convert UTC fixture time to local timezone first
+      const fixtureLocalDate = new Date(fixtureDate.getTime());
+      const fixtureLocalDateOnly = format(fixtureLocalDate, 'yyyy-MM-dd');
+
+      console.log(`🌍 [TIMEZONE CONVERSION] UTC: ${fixtureDateTime} -> Local: ${format(fixtureLocalDate, 'yyyy-MM-dd HH:mm:ss')}`, {
+        utcDate: fixtureDateString,
+        localDate: fixtureLocalDateOnly,
+        selectedDate: selectedDateString,
+        timezoneOffset: fixtureLocalDate.getTimezoneOffset()
+      });
+
       // Smart status converter implementation start
       let convertedStatus = matchStatus;
-      if (notStartedStatuses.includes(matchStatus)) {
-          const now = new Date();
 
-          // Only convert to FT if the fixture is actually in the past AND on a past date
-          // Don't convert future dates even if the time has passed today
-          const fixtureDateOnly = format(fixtureDate, 'yyyy-MM-dd');
-          const todayDateOnly = format(now, 'yyyy-MM-dd');
+      // STRICT FUTURE DATE PROTECTION: Use local timezone for date comparison
+      const now = new Date();
+      const todayLocalDateOnly = format(now, 'yyyy-MM-dd');
 
-          // Only convert if the fixture date is actually before today's date
-          if (fixtureDateOnly < todayDateOnly) {
+      // If fixture is in the future (local timezone), force NS status regardless of API data
+      if (fixtureLocalDateOnly > todayLocalDateOnly) {
+          if (finishedStatuses.includes(matchStatus)) {
+              console.warn(`🚨 [DATA INCONSISTENCY] API returned finished match for future date: ${fixtureLocalDateOnly} > ${todayLocalDateOnly}, status: ${matchStatus}, forcing NS`);
+              convertedStatus = 'NS';
+          }
+      }
+      // Only apply status conversion for past/today dates (local timezone)
+      else if (notStartedStatuses.includes(matchStatus)) {
+          // Only convert to FT if the fixture is actually in the past AND on a past date (local timezone)
+          if (fixtureLocalDateOnly < todayLocalDateOnly) {
               convertedStatus = 'FT';
-              console.log(`🔄 [SMART STATUS] Converted NS to FT: ${fixtureDateOnly} < ${todayDateOnly}`);
+              console.log(`🔄 [SMART STATUS] Converted NS to FT: ${fixtureLocalDateOnly} < ${todayLocalDateOnly}`);
           }
           // For same day fixtures, only convert if time has passed AND we're viewing today
-          else if (fixtureDateOnly === todayDateOnly && fixtureDate < now && isSelectedToday) {
+          else if (fixtureLocalDateOnly === todayLocalDateOnly && fixtureLocalDate < now && isSelectedToday) {
               convertedStatus = 'FT';
-              console.log(`🔄 [SMART STATUS] Converted NS to FT (same day): ${format(fixtureDate, 'HH:mm')} < ${format(now, 'HH:mm')}`);
+              console.log(`🔄 [SMART STATUS] Converted NS to FT (same day): ${format(fixtureLocalDate, 'HH:mm')} < ${format(now, 'HH:mm')}`);
           }
           // Keep NS status for future dates regardless of time
           else {
-              console.log(`✅ [SMART STATUS] Keeping NS status: fixture=${fixtureDateOnly}, today=${todayDateOnly}, selected=${selectedDateString}`);
+              console.log(`✅ [SMART STATUS] Keeping NS status: fixture=${fixtureLocalDateOnly}, today=${todayLocalDateOnly}, selected=${selectedDateString}`);
           }
       }
       // Smart status converter implementation end

@@ -1,4 +1,3 @@
-
 import { parseISO, isValid, format } from 'date-fns';
 
 export interface SimpleDateFilterResult {
@@ -15,25 +14,25 @@ export interface SimpleDateFilterResult {
  * Converts fixture UTC time to user's local timezone first, then compares dates
  */
 export class SimpleDateFilter {
-  
+
   /**
    * Extract UTC date part only (no timezone conversion)
    */
   static extractUTCDateOnly(dateTimeString: string): string {
     try {
       if (!dateTimeString) return '';
-      
+
       // Simply extract the date part before 'T' for UTC comparison
       if (dateTimeString.includes('T')) {
         return dateTimeString.split('T')[0];
       }
-      
+
       // Handle date-only strings
       const date = parseISO(dateTimeString);
       if (isValid(date)) {
         return format(date, 'yyyy-MM-dd');
       }
-      
+
       return dateTimeString;
     } catch (error) {
       console.error('Error extracting UTC date:', error);
@@ -42,32 +41,31 @@ export class SimpleDateFilter {
   }
 
   /**
-   * Extract date part from datetime string, but convert to local timezone first
+   * Extract local date from UTC datetime string (with timezone conversion)
    */
   static extractLocalDate(dateTimeString: string): string {
     try {
       if (!dateTimeString) return '';
-      
-      // Parse the UTC datetime
+
       const utcDate = parseISO(dateTimeString);
-      if (!isValid(utcDate)) {
-        // Fallback to original string parsing if invalid
-        return dateTimeString.includes('T') ? dateTimeString.split('T')[0] : dateTimeString;
-      }
-      
-      // Convert to user's local timezone by creating a new Date object
-      // This automatically converts UTC to local timezone
+      if (!isValid(utcDate)) return dateTimeString.split('T')[0];
+
+      // Convert UTC to local timezone by creating a new Date with the UTC time
+      // This accounts for the user's local timezone offset
       const localDate = new Date(utcDate.getTime());
-      
-      // Extract the local date part (YYYY-MM-DD)
-      return format(localDate, 'yyyy-MM-dd');
+      const localDateString = format(localDate, 'yyyy-MM-dd');
+
+      console.log(`🌍 [TIMEZONE DEBUG] ${dateTimeString} (UTC) -> ${format(localDate, 'yyyy-MM-dd HH:mm:ss')} (Local) -> ${localDateString}`, {
+        utcTime: dateTimeString,
+        localTime: format(localDate, 'yyyy-MM-dd HH:mm:ss'),
+        timezoneOffset: localDate.getTimezoneOffset(),
+        dateChanged: dateTimeString.split('T')[0] !== localDateString
+      });
+
+      return localDateString;
     } catch (error) {
-      console.error('Error extracting local date:', error);
-      // Fallback to original method
-      if (dateTimeString.includes('T')) {
-        return dateTimeString.split('T')[0];
-      }
-      return dateTimeString;
+      console.error('Error converting to local date:', error);
+      return dateTimeString.split('T')[0];
     }
   }
 
@@ -77,18 +75,18 @@ export class SimpleDateFilter {
   static extractUTCDate(dateTimeString: string): string {
     try {
       if (!dateTimeString) return '';
-      
+
       // Handle ISO date strings - just get the date part
       if (dateTimeString.includes('T')) {
         return dateTimeString.split('T')[0];
       }
-      
+
       // Handle date-only strings
       const date = parseISO(dateTimeString);
       if (isValid(date)) {
         return format(date, 'yyyy-MM-dd');
       }
-      
+
       return dateTimeString;
     } catch (error) {
       console.error('Error extracting UTC date:', error);
@@ -104,11 +102,11 @@ export class SimpleDateFilter {
     const fixtureLocalDate = this.extractLocalDate(fixtureDateTime);
     const fixtureUTCDate = this.extractUTCDate(fixtureDateTime);
     const isMatch = fixtureLocalDate === targetDate;
-    
+
     const reason = isMatch 
       ? `Date match after timezone conversion: ${fixtureUTCDate} (UTC) → ${fixtureLocalDate} (local) = ${targetDate}` 
       : `Date mismatch after timezone conversion: ${fixtureUTCDate} (UTC) → ${fixtureLocalDate} (local) ≠ ${targetDate}`;
-    
+
     return {
       isMatch,
       reason,
@@ -126,11 +124,11 @@ export class SimpleDateFilter {
   static isFixtureOnDateUTCOnly(fixtureDateTime: string, targetDate: string): SimpleDateFilterResult {
     const fixtureUTCDate = this.extractUTCDateOnly(fixtureDateTime);
     const isMatch = fixtureUTCDate === targetDate;
-    
+
     const reason = isMatch 
       ? `UTC date match: ${fixtureUTCDate} = ${targetDate}` 
       : `UTC date mismatch: ${fixtureUTCDate} ≠ ${targetDate}`;
-    
+
     return {
       isMatch,
       reason,
@@ -164,7 +162,7 @@ export class SimpleDateFilter {
       }
 
       const result = this.isFixtureOnDateUTCOnly(fixture.fixture.date, selectedDate);
-      
+
       if (result.isMatch) {
         validFixtures.push(fixture);
       } else {
@@ -208,7 +206,7 @@ export class SimpleDateFilter {
       }
 
       const result = this.isFixtureOnDate(fixture.fixture.date, selectedDate);
-      
+
       // Count timezone conversions where UTC date differs from local date
       if (result.fixtureUTCDate !== result.fixtureLocalDate) {
         timezoneConversions++;
@@ -220,7 +218,7 @@ export class SimpleDateFilter {
           included: result.isMatch
         });
       }
-      
+
       if (result.isMatch) {
         validFixtures.push(fixture);
       } else {
@@ -252,29 +250,29 @@ export class SimpleDateFilter {
    */
   static getDateDisplayName(dateString: string): string {
     const today = this.getCurrentDate();
-    
+
     if (dateString === today) {
       return "Today's Matches";
     }
-    
+
     // Calculate yesterday
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayString = format(yesterday, 'yyyy-MM-dd');
-    
+
     if (dateString === yesterdayString) {
       return "Yesterday's Matches";
     }
-    
+
     // Calculate tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowString = format(tomorrow, 'yyyy-MM-dd');
-    
+
     if (dateString === tomorrowString) {
       return "Tomorrow's Matches";
     }
-    
+
     // Format other dates
     try {
       const date = parseISO(dateString);
@@ -289,7 +287,7 @@ export class SimpleDateFilter {
    */
   static debugTimezoneConversion(fixtureDateTime: string, selectedDate: string): void {
     const result = this.isFixtureOnDate(fixtureDateTime, selectedDate);
-    
+
     console.log(`🔍 [TIMEZONE DEBUG] Fixture: ${fixtureDateTime}`, {
       originalUTC: fixtureDateTime,
       utcDatePart: result.fixtureUTCDate,
