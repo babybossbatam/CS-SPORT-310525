@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 
@@ -132,7 +131,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
             // Add period score markers
             const periodMarkers = [];
-            
+
             // Add "Halftime" marker if there are events in both halves
             if (hasEventsInFirstHalf && hasEventsInSecondHalf) {
               const halftimeScore = calculateScoreAtTime(45);
@@ -155,7 +154,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 if (a.time.elapsed !== b.time.elapsed) {
                   return b.time.elapsed - a.time.elapsed;
                 }
-                
+
                 // If elapsed time is the same, sort by extra time (descending)
                 // Events with higher extra time should appear first
                 const aExtra = a.time.extra || 0;
@@ -260,7 +259,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             +{event.time.extra}'
                           </div>
                         )}
-                        
+
                         {/* Elapsed time */}
                         <div
                           className="text-gray-800 text-sm font-medium leading-tight"
@@ -278,7 +277,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       <div className="flex-1">
                         {event.type === "Goal" ? (
                           <div className="flex flex-col gap-2">
-                            
+
                             <div className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium">
                               <img
                                 src="/assets/matchdetaillogo/blue ball.svg"
@@ -290,7 +289,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 return `${scoreAtGoal.homeScore}-${scoreAtGoal.awayScore}`;
                               })()}</span>
                               <span>
-                                
+
                               </span>
                             </div>
                             <div className="flex flex-col gap-2">
@@ -305,8 +304,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     alt={event.player?.name || "Player"}
                                     className="object-cover"
                                   />
-                                  
-                                  
+
+
                                   <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
                                     {event.player?.name
                                       ?.split(" ")
@@ -314,27 +313,27 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       .join("")
                                       .slice(0, 2) || "P"}
                                   </AvatarFallback>
-                                  
+
                                 </Avatar>
                                 <span className="text-gray-700 font-medium">
                                   {event.player?.name || "Unknown Player"}
                                 </span>
                               </div>
                             </div>
-                            
+
                             <div className="flex items-start gap-2">
-                             
+
                               <div className="goal-event-wrapper ">
                                 <div className="text-xs font-bold text-gray-900 leading-relaxed">
                                   {eventDescription}
                                 </div>
-       
+
                               </div>
                             </div>
                           </div>
                         ) : event.type === "Card" ? (
                           <div className="flex items-start gap-1 ml-6">
-                    
+
                             <div className="text-sm text-gray-700 leading-relaxed">
                               {eventDescription}
                             </div>
@@ -358,47 +357,10 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       </div>
                     </div>
                   </div>
-               
+
                 );
               });
           })()}
-          
-          </div>
-
-        {/* Final Match Summary - At the end of commentary timeline */}
-        {events.length > 0 && (() => {
-          // Get the maximum elapsed time from all events
-          const maxElapsed = Math.max(...events.map(e => e.time.elapsed));
-          // Calculate final score
-          const finalScore = calculateScoreAtTime(maxElapsed);
-          
-          return (
-            <div className="commentary-event-container">
-              <div className="flex gap-3">
-                {/* Time Column - matching timeline structure */}
-                <div className="flex flex-col items-center min-w-[50px]">
-                  <div className="text-gray-800" style={{ marginTop: "-1px", marginBottom: "2px" }}>
-                    {maxElapsed}'
-                  </div>
-                </div>
-
-                {/* Content Column - Final Score */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 px-2 py-1 rounded-md text-sm font-bold bg-gray-100">
-                    <img
-                      src="/assets/matchdetaillogo/clock.png"
-                      alt="Match End"
-                      className="w-4 h-4 opacity-80"
-                    />
-                    <span className="text-gray-900">
-                      {finalScore.homeScore}-{finalScore.awayScore}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })()}
       </div>
     </>
   );
