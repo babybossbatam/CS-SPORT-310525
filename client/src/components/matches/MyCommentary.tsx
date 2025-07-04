@@ -254,19 +254,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                     <div className="flex gap-3">
                       {/* Time Column */}
                       <div className="flex flex-col items-center min-w-[50px]">
-                        {/* Clock icon and end time at the top */}
-                        <div className="flex items-center gap-1 mb-1">
-                          <img
-                            src="/assets/matchdetaillogo/clock.png"
-                            alt="Clock"
-                            className="w-3 h-3 opacity-70"
-                          />
-                          <span className="text-xs font-medium text-gray-600">
-                            {event.time.extra ? `${event.time.elapsed + event.time.extra}'` : `${event.time.elapsed}'`}
-                          </span>
-                        </div>
-                        
-                        {/* Extra time display if present */}
+                        {/* Extra time display at top if present */}
                         {event.time.extra && (
                           <div className="text-xs font-medium text-red-500 leading-tight">
                             +{event.time.extra}'
