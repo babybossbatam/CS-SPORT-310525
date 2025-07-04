@@ -1354,7 +1354,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Show loading only if we're actually loading and don't have any data
   const showLoading = isLoading && !fixtures.length;
 
-  const { data: allFixtures = [], isLoading, isFetching, error } = useQuery({
+  const { data: allFixtures = [], isLoading: isQueryLoading, isFetching, error } = useQuery({
     queryKey: ['smart-fetch-popular-leagues', selectedDate],
     queryFn: async () => {
       console.log(`🔄 [TodayPopularLeagueNew] Smart fetching fixtures for ${selectedDate}`);
