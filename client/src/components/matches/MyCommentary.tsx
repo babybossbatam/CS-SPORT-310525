@@ -106,14 +106,14 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
         );
 
         if (hasEndedEvents) {
-          const maxTime = Math.max(
-            ...events.map((e) => e.time.elapsed + (e.time.extra || 0)),
-          );
-          const finalMinute = Math.max(...events.map((e) => e.time.elapsed));
-          const finalExtra = Math.max(
-            ...events
-              .filter((e) => e.time.elapsed === finalMinute)
-              .map((e) => e.time.extra || 0),
+          // Find the event with the highest total time (elapsed + extra)
+          const eventsWithTotalTime = events.map(e => ({
+            ...e,
+            totalTime: e.time.elapsed + (e.time.extra || 0)
+          }));
+          
+          const finalEvent = eventsWithTotalTime.reduce((latest, current) => 
+            current.totalTime > latest.totalTime ? current : latest
           );
 
           return (
@@ -124,8 +124,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   End of Match
                 </div>
                 <div className="text-xs text-gray-600">
-                  Full Time: {finalMinute}'
-                  {finalExtra > 0 ? ` +${finalExtra}'` : ""}
+                  Full Time: {finalEvent.time.elapsed}'
+                  {finalEvent.time.extra && finalEvent.time.extra > 0 ? ` +${finalEvent.time.extra}'` : ""}
                 </div>
               </div>
             </div>
