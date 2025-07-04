@@ -1352,9 +1352,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   // Simple date comparison handled by SimpleDateFilter
 
-  // Show loading only if we're actually loading and don't have any data
-  const showLoading = (isQueryLoading || isLoading) && !filteredFixtures.length && !error;
-
   const { data: allFixtures = [], isLoading: isQueryLoading, isFetching: isQueryFetching, error } = useQuery({
     queryKey: ['smart-fetch-popular-leagues', selectedDate],
     queryFn: async () => {
@@ -1384,6 +1381,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
       errorMessage: `Failed to fetch fixtures for ${selectedDate}`
     }
   });
+
+  // Show loading only if we're actually loading and don't have any data
+  const showLoading = (isQueryLoading || isLoading) && !filteredFixtures.length && !error;
 
   if (showLoading) {
     console.log(
