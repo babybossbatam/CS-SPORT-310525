@@ -949,14 +949,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     src={
                                       event.detail
                                         ?.toLowerCase()
-                                        .includes("Yellow")
+                                        .includes("yellow")
                                         ? "/assets/matchdetaillogo/card-icon.svg"
                                         : "/assets/matchdetaillogo/red-card-icon.svg"
                                     }
                                     alt={
                                       event.detail
                                         ?.toLowerCase()
-                                        .includes("Yellow")
+                                        .includes("yellow")
                                         ? "Yellow Card"
                                         : "Red Card"
                                     }
@@ -1025,7 +1025,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     }
                                     className="w-4 h-4"
                                   />
-                                ) : event.type === "card" ? (
+                                ) : event.type === "Card" ? (
                                   <img
                                     src={
                                       event.detail
