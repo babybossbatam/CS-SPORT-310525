@@ -105,6 +105,22 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
   const leagueIds = [38, 15, 71, 22, 72, 73, 75, 128, 667]; // Added Brazilian Serie A (71), CONCACAF Gold Cup (22), Serie B (72), Serie C (73), Serie D (75), Copa Argentina (128) before Friendlies Clubs
 
+  // Smart fetch query - moved to top to follow Rules of Hooks
+  const { data: allFixtures = [], isLoading: isQueryLoading, isFetching: isQueryFetching, error: queryError } = useQuery({
+    queryKey: ['smart-fetch-fixtures', selectedDate],
+    queryFn: async () => {
+      // Use smart fetch for intelligent caching and live match handling
+      return await smartFetch(selectedDate, {
+        source: 'MyNewLeague',
+        forceRefresh: isToday(new Date(selectedDate)) // Force refresh for today's matches
+      });
+    },
+    staleTime: isToday(new Date(selectedDate)) ? 1 * 60 * 1000 : 5 * 60 * 1000, // 1 min for today, 5 min for other dates
+    gcTime: 30 * 60 * 1000, // 30 minutes
+    refetchOnWindowFocus: isToday(new Date(selectedDate)), // Only refetch on focus for today
+    retry: 1,
+  });
+
   // Memoize the data fetching function to prevent unnecessary re-renders
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
     if (!isUpdate) {
@@ -918,21 +934,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       </Card>
     );
   }
-
-  const { data: allFixtures = [], isLoading, error: queryError } = useQuery({
-    queryKey: ['smart-fetch-fixtures', selectedDate],
-    queryFn: async () => {
-      // Use smart fetch for intelligent caching and live match handling
-      return await smartFetch(selectedDate, {
-        source: 'MyNewLeague',
-        forceRefresh: isToday(new Date(selectedDate)) // Force refresh for today's matches
-      });
-    },
-    staleTime: isToday(new Date(selectedDate)) ? 1 * 60 * 1000 : 5 * 60 * 1000, // 1 min for today, 5 min for other dates
-    gcTime: 30 * 60 * 1000, // 30 minutes
-    refetchOnWindowFocus: isToday(new Date(selectedDate)), // Only refetch on focus for today
-    retry: 1,
-  });
 
   return (
     <>
