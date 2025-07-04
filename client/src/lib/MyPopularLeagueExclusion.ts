@@ -69,6 +69,8 @@ export const popularLeagueExclusionTerms = [
   "paraibano u20",
   "estadual junior u20",
   "cearense u20",
+  "brasileiro u20 a",
+  "brasileiro u17",
 
   // Brazilian regional cups
   "copa espírito santo",
