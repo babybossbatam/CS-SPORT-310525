@@ -816,8 +816,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                 home: f.teams?.home?.name,
                 away: f.teams?.away?.name,
                 localDate: f.fixture?.date ? f.fixture.date.split('T')[0] : 'Invalid'
-              })) : undefined```text
- undefined
+              })) : undefined
             },
           );
         }
