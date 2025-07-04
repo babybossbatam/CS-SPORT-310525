@@ -50,7 +50,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
     // Get all goal events that happened before or at the given time
     const goalEvents = events.filter(
       (e) =>
-        e.type?.toLowerCase() === "goal" &&
+        (e.type?.toLowerCase() === "goal" || e.type?.toLowerCase() === "Goal") &&
         e.time.elapsed <= time
     );
 
@@ -178,10 +178,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   event.type === "period_start" ||
                   event.type === "period_end"
                 ) {
-                  // For Half Time, show Second Half begins with team names and scores
+                  // For Half Time, show Second Half begins with team names and halftime scores
                   const displayText =
                     event.detail === "Half Time"
-                      ? `Second Half begins ${homeTeam || "Home"} ${events.filter((e) => isHomeTeam(e) && e.type === "goal").length}, ${awayTeam || "Away"} ${events.filter((e) => !isHomeTeam(e) && e.type === "goal").length}`
+                      ? (() => {
+                          const halftimeScore = calculateScoreAtTime(45);
+                          return `Second Half begins ${homeTeam || "Home"} ${halftimeScore.homeScore}, ${awayTeam || "Away"} ${halftimeScore.awayScore}`;
+                        })()
                       : event.detail;
 
                   return (
