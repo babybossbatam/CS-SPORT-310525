@@ -102,9 +102,11 @@ function App() {
         event.reason?.message?.includes("plugin:runtime-error-plugin") ||
         event.reason?.message?.includes("unknown runtime error") ||
         event.reason?.message?.includes("sendError") ||
-        event.reason?.toString()?.includes("riker.replit.dev")
+        event.reason?.toString()?.includes("riker.replit.dev") ||
+        event.reason?.toString()?.includes("plugin:runtime-error-plugin") ||
+        (typeof event.reason === 'string' && event.reason.includes("plugin:runtime-error-plugin"))
       ) {
-        console.log("🔧 Runtime/dynamic import error caught and suppressed:", event.reason?.message);
+        console.log("🔧 Runtime/dynamic import error caught and suppressed:", event.reason?.message || event.reason);
         event.preventDefault();
         return;
       }
@@ -115,7 +117,8 @@ function App() {
         event.message?.includes("plugin:runtime-error-plugin") ||
         event.message?.includes("unknown runtime error") ||
         event.message?.includes("sendError") ||
-        event.filename?.includes("riker.replit.dev")
+        event.filename?.includes("riker.replit.dev") ||
+        event.error?.toString()?.includes("plugin:runtime-error-plugin")
       ) {
         console.log("🔧 Runtime error caught and suppressed:", event.message);
         event.preventDefault();

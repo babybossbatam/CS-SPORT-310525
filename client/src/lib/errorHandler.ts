@@ -74,11 +74,14 @@ export const setupGlobalErrorHandlers = () => {
   window.addEventListener('unhandledrejection', (event) => {
     const error = event.reason;
 
-    // Suppress runtime plugin errors and other development-specific errors
+    // Suppress runtime plugin errors - enhanced pattern matching
     if (error?.message?.includes('plugin:runtime-error-plugin') ||
         error?.message?.includes('unknown runtime error') ||
-        error?.stack?.includes('runtime-error-plugin')) {
-      console.log('🔧 Runtime plugin error suppressed');
+        error?.stack?.includes('runtime-error-plugin') ||
+        error?.toString?.().includes('plugin:runtime-error-plugin') ||
+        event.reason?.toString?.().includes('plugin:runtime-error-plugin') ||
+        (typeof error === 'string' && error.includes('plugin:runtime-error-plugin'))) {
+      console.log('🔧 Runtime plugin error suppressed:', error?.message || error);
       event.preventDefault();
       return;
     }
@@ -126,11 +129,12 @@ export const setupGlobalErrorHandlers = () => {
   window.addEventListener('error', (event) => {
     const error = event.error;
 
-    // Suppress runtime plugin errors
+    // Suppress runtime plugin errors - enhanced pattern matching
     if (event.message?.includes('plugin:runtime-error-plugin') ||
         event.message?.includes('unknown runtime error') ||
-        event.filename?.includes('runtime-error-plugin')) {
-      console.log('🔧 Runtime plugin error suppressed');
+        event.filename?.includes('runtime-error-plugin') ||
+        (typeof event.error === 'string' && event.error.includes('plugin:runtime-error-plugin'))) {
+      console.log('🔧 Runtime plugin error suppressed:', event.error?.message || event.error);
       event.preventDefault();
       return;
     }
