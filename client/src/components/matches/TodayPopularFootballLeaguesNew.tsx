@@ -833,7 +833,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
                     league: originalLeagueFixtures[0].league?.name,
                     country: originalLeagueFixtures[0].league?.country,
                   }
-                : null,<previous_generation>
+                : null,
               // Show actual dates for Serie D fixtures
               actualDates: leagueId === 75 ? originalLeagueFixtures.slice(0, 5).map(f => ({
                 date: f.fixture?.date,
