@@ -860,11 +860,11 @@ const TodayPopularFootballLeaguesNew: React.FC<
   }, [allFixtures, selectedDate]);
 
   // Show loading only if we're actually loading and don't have any data
-  const showLoading = (isQueryLoading || isLoading) && !filteredFixtures.length && !error;
+  const showLoading = isQueryLoading && !filteredFixtures.length && !error;
 
   if (showLoading) {
     console.log(
-      `⏳ [TodayPopularLeagueNew] Showing loading for ${selectedDate} - isLoading: ${isLoading}, isFetching: ${isFetching}, fixturesLength: ${fixtures?.length || 0}`,
+      `⏳ [TodayPopularLeagueNew] Showing loading for ${selectedDate} - isLoading: ${isQueryLoading}, isFetching: ${isQueryFetching}, fixturesLength: ${filteredFixtures?.length || 0}`,
     );
 
     return (
