@@ -243,6 +243,57 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Use the prioritized popular countries list
   const POPULAR_COUNTRIES = POPULAR_COUNTRIES_ORDER;
 
+  // Clear Venezuela flag cache on component mount to ensure fresh fetch
+  useEffect(() => {
+    console.log("🔄 Clearing Venezuela flag cache for fresh fetch...");
+    clearVenezuelaFlagCache();
+
+    // Also force refresh Venezuela flag asynchronously
+    forceRefreshVenezuelaFlag()
+      .then((newFlag) => {
+        console.log(`✅ Venezuela flag refreshed to: ${newFlag}`);
+      })
+      .catch((error) => {
+        console.error(`❌ Failed to refresh Venezuela flag:`, error);
+      });
+
+    // Clear all fallback flags as well to ensure clean state
+    clearAllFlagCache();
+    console.log("🧹 Cleared all flag cache including fallback flags");
+  }, []);
+
+  // Simple date comparison handled by SimpleDateFilter
+
+  const { data: allFixtures = [], isLoading: isQueryLoading, isFetching: isQueryFetching, error } = useQuery({
+    queryKey: ['smart-fetch-popular-leagues', selectedDate],
+    queryFn: async () => {
+      console.log(`🔄 [TodayPopularLeagueNew] Smart fetching fixtures for ${selectedDate}`);
+
+      try {
+        // Use smart fetch for intelligent caching and live match handling
+        const fixtures = await smartFetch(selectedDate, {
+          source: 'TodayPopularLeagueNew',
+          forceRefresh: isDateStringToday(selectedDate) // Force refresh for today's matches
+        });
+
+        console.log(`✅ [TodayPopularLeagueNew] Smart fetched ${fixtures.length} fixtures for ${selectedDate}`);
+        return fixtures || [];
+      } catch (error) {
+        console.error(`❌ [TodayPopularLeagueNew] Error fetching fixtures for ${selectedDate}:`, error);
+        // Return empty array on error instead of throwing
+        return [];
+      }
+    },
+    staleTime: isDateStringToday(selectedDate) ? 1 * 60 * 1000 : 5 * 60 * 1000, // 1 min for today, 5 min for other dates
+    gcTime: 30 * 60 * 1000, // 30 minutes
+    refetchOnWindowFocus: isDateStringToday(selectedDate), // Only refetch on focus for today
+    retry: 1,
+    // Add timeout and better error handling
+    meta: {
+      errorMessage: `Failed to fetch fixtures for ${selectedDate}`
+    }
+  });
+
   // Smart filtering operations with intelligent data source selection
   const filteredFixtures = useMemo(() => {
     if (!allFixtures?.length) return [];
@@ -699,7 +750,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     );
 
     console.log(
-      `🔍 [TOMORROW DEBUG] Filtered ${processedFixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
+      `🔍 [TOMORROW DEBUG] Filtered ${allFixtures.length} fixtures to ${finalFiltered.length} in ${endTime - startTime}ms`,
     );
     console.log(
       `🏆 [COSAFA DEBUG] Final result: ${finalCosafaMatches.length} COSAFA Cup matches for ${selectedDate}:`,
@@ -765,7 +816,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
                 home: f.teams?.home?.name,
                 away: f.teams?.away?.name,
                 localDate: f.fixture?.date ? f.fixture.date.split('T')[0] : 'Invalid'
-              })) : undefined
+              })) :```text
+ undefined
             },
           );
         }
@@ -807,504 +859,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
     return finalFiltered;
   }, [allFixtures, selectedDate]);
-
-  // Group fixtures by country and league, with special handling for Friendlies
-  const fixturesByCountry = filteredFixtures.reduce(
-    (acc: any, fixture: any) => {
-      // Add comprehensive null checks
-      if (!fixture || !fixture.league || !fixture.fixture|| !fixture.teams) {
-        return acc;
-      }
-
-      // Ensure league has required properties
-      const league = fixture.league;
-      if (!league.id || !league.name) {
-        console.warn("Invalid league data:", league);
-        return acc;
-      }
-
-      const country = league.country;
-
-      // Use centralized exclusion filter
-      const leagueName = league.name?.toLowerCase() || "";
-      const homeTeamName = fixture.teams?.home?.name || "";
-      const awayTeamName = fixture.teams?.away?.name || "";
-
-      // Debug: Log UEFA/FIFA competitions
-      if (
-        leagueName.includes("uefa") ||
-        leagueName.includes("fifa") ||
-        leagueName.includes("champions") ||
-        leagueName.includes("europa") ||
-        leagueName.includes("conference")
-      ) {
-        console.log("[UEFA/FIFA DEBUG] Found:", {
-          leagueId: fixture.league.id,
-          leagueName: fixture.league.name,
-          country: fixture.league.country,
-          homeTeam: fixture.teams.home.name,
-          awayTeam: fixture.teams.away.name,
-          date: fixture.fixture.date,
-          status: fixture.fixture.status.short,
-        });
-      }
-
-      // Check if fixture should be excluded using popular league specialized filter
-      if (
-        shouldExcludeFromPopularLeagues(
-          leagueName,
-          homeTeamName,
-          awayTeamName,
-          country,
-        )
-      ) {
-        return acc;
-      }
-
-      // Additional check for restricted US leagues
-      if (isRestrictedUSLeague(league.id, country)) {
-        return acc;
-      }
-
-      // Handle fixtures with null/undefined country
-      if (!country || typeof country !== "string" || country.trim() === "") {
-        console.warn(`[COUNTRY DEBUG] Skipping fixture with missing country data:`, {
-          leagueName: league.name,
-          leagueId: league.id,
-          originalCountry: country,
-          homeTeam: fixture.teams?.home?.name,
-          awayTeam: fixture.teams?.away?.name,
-          selectedDate: selectedDate,
-        });
-        return acc;
-      }
-
-      const validCountry = country.trim();
-
-      const leagueId = league.id;
-      if (!acc[country]) {
-        acc[country] = {
-          country,
-          flag: getCountryFlagWithFallbackSync(country, league.flag),
-          leagues: {},
-          hasPopularLeague: false,
-        };
-      }
-
-      // Check if this is a popular league for this country
-      const countryPopularLeagues = POPULAR_LEAGUES_BY_COUNTRY[country] || [];
-      const isPopularForCountry = countryPopularLeagues.includes(leagueId);
-      const isGloballyPopular = POPULAR_LEAGUE_IDS.includes(leagueId);
-
-      // Mark country as having popular leagues if any league qualifies
-      if (isPopularForCountry || isGloballyPopular) {
-        acc[country].hasPopularLeague = true;
-      }
-
-      if (!acc[country].leagues[leagueId]) {
-        acc[country].leagues[leagueId] = {
-          league: {
-            ...league,
-            logo:
-              league.logo ||
-              "https://media.api-sports.io/football/leagues/1.png",
-          },
-          matches: [],
-          isPopular: isPopularForCountry || isGloballyPopular,
-          isPopularForCountry: isPopularForCountry,
-          isFriendlies: league.name.toLowerCase().includes("friendlies"),
-        };
-      }
-
-      // Validate team data before adding
-      if (
-        fixture.teams.home &&
-        fixture.teams.away &&
-        fixture.teams.home.name &&
-        fixture.teams.away.name
-      ) {
-        acc[country].leagues[leagueId].matches.push({
-          ...fixture,
-          teams: {
-            home: {
-              ...fixture.teams.home,
-              logo: fixture.teams.home.logo || "/assets/fallback-logo.svg",
-            },
-            away: {
-              ...fixture.teams.away,
-              logo: fixture.teams.away.logo || "/assets/fallback-logo.svg",
-            },
-          },
-        });
-      }
-
-      return acc;
-    },
-    {},
-  );
-
-  // Filter to show only popular countries with badge system
-  const filteredCountries = Object.values(fixturesByCountry).filter(
-    (countryData: any) => {
-      return countryData.hasPopularLeague;
-    },
-  );
-
-  // Sort countries by the POPULAR_COUNTRIES_ORDER
-  const sortedCountries = useMemo(() => {
-    return filteredCountries.sort((a: any, b: any) => {
-      const getPopularCountryIndex = (country: string) => {
-        if (!country) return 999;
-        const index = POPULAR_COUNTRIES_ORDER.findIndex(
-          (pc) =>
-            safeSubstring(country, 0).toLowerCase() ===
-            safeSubstring(pc, 0).toLowerCase(),
-        );
-        return index === -1 ? 999 : index;
-      };
-
-      const aPopularIndex = getPopularCountryIndex(a.country);
-      const bPopularIndex = getPopularCountryIndex(b.country);
-
-      const aIsPopularCountry = aPopularIndex !== 999;
-      const bIsPopularCountry = bPopularIndex !== 999;
-
-      // Check if countries are World or Europe (International competitions)
-      const aIsWorldOrEurope = a.country === "World" || a.country === "Europe";
-      const bIsWorldOrEurope = b.country === "World" || b.country === "Europe";
-
-      // Priority order: Popular countries with badge leagues first
-      if (
-        aIsPopularCountry &&
-        a.hasPopularLeague &&
-        (!bIsPopularCountry || !b.hasPopularLeague)
-      )
-        return -1;
-      if (
-        bIsPopularCountry &&
-        b.hasPopularLeague &&
-        (!aIsPopularCountry || !a.hasPopularLeague)
-      )
-        return 1;
-
-      // Both are popular countries with badge leagues - sort by priority order
-      if (
-        aIsPopularCountry &&
-        a.hasPopularLeague &&
-        bIsPopularCountry &&
-        b.hasPopularLeague
-      ) {
-        return aPopularIndex - bPopularIndex;
-      }
-
-      // Default to alphabetical sorting for other cases
-      const countryA = a.country || "";
-      const countryB = b.country || "";
-      return countryA.localeCompare(countryB);
-    });
-  }, [filteredCountries]);
-
-  // Time filtering is now just for additional time-based sorting when active
-  const timeFilteredCountries = useMemo(() => {
-    // Smart filtering is already applied in filteredFixtures, so just return sorted countries
-    // timeFilterActive now only affects sorting/prioritization, not inclusion/exclusion
-    return sortedCountries;
-  }, [sortedCountries]);
-
-  // Apply live filters
-  const liveFilteredCountries = useMemo(() => {
-    if (!liveFilterActive) return timeFilteredCountries;
-
-    return timeFilteredCountries
-      .map((countryData) => {
-        const updatedLeagues = Object.entries(countryData.leagues).reduce(
-          (acc: any, [leagueId, leagueData]: any) => {
-            const updatedMatches = leagueData.matches.filter((match: any) => {
-              return (
-                match.fixture.status.short === "LIV" ||
-                match.fixture.status.short === "HT"
-              );
-            });
-
-            if (updatedMatches.length > 0) {
-              acc[leagueId] = {
-                ...leagueData,
-                matches: updatedMatches,
-              };
-            }
-            return acc;
-          },
-          {},
-        );
-
-        return {
-          ...countryData,
-          leagues: updatedLeagues,
-        };
-      })
-      .filter((countryData) => Object.keys(countryData.leagues).length > 0);
-  }, [timeFilteredCountries, liveFilterActive]);
-
-  // Apply top 20 filters (by default)
-  const top20FilteredCountries = useMemo(() => {
-    if (!showTop20) return liveFilteredCountries;
-    return liveFilteredCountries.slice(0, 20);
-  }, [liveFilteredCountries, showTop20]);
-  const toggleCountry = useCallback((country: string) => {
-    setExpandedCountries((prev) => {
-      const newExpanded = new Set(prev);
-      if (newExpanded.has(country)) {
-        newExpanded.delete(country);
-      } else {
-        newExpanded.add(country);
-      }
-      return newExpanded;
-    });
-  }, []);
-
-  // Favorite team functionality
-  const toggleFavoriteTeam = async (teamId: number, teamName: string) => {
-    try {
-      const isFavorite =
-        favoriteTeams?.some((team) => team.id === teamId) || false;
-
-      if (isFavorite) {
-        dispatch(userActions.removeFavoriteTeam(teamId));
-        toast({
-          title: "Removed from favorites",
-          description: `${teamName} has been removed from your favorites.`,
-        });
-      } else {
-        dispatch(userActions.addFavoriteTeam({ id: teamId, name: teamName }));
-        toast({
-          title: "Added to favorites",
-          description: `${teamName} has been added to your favorites.`,
-        });
-      }
-    } catch (error) {
-      console.error("Error toggling favorite team:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update favorites. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const isTeamFavorite = (teamId: number) => {
-    return favoriteTeams?.some((team) => team.id === teamId) || false;
-  };
-
-  const toggleStarMatch = (matchId: number) => {
-    setStarredMatches((prev) => {
-      const newStarred = new Set(prev);
-      if (newStarred.has(matchId)) {
-        newStarred.delete(matchId);
-      } else {
-        newStarred.add(matchId);
-      }
-      return newStarred;
-    });
-  };
-
-  // Start with all countries collapsed by default
-  useEffect(() => {
-    // Reset to collapsed state when selected date changes
-    setExpandedCountries(new Set());
-  }, [selectedDate]);
-
-  // Real-time timer for live match updates
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000); // Update every minute
-
-    return () => clearInterval(timer);
-  }, []);
-
-  // Enhanced effect to detect status and score changes with flash effects - matches MyNewLeague implementation
-  useEffect(() => {
-    if (!allFixtures?.length) return;
-
-    const newHalftimeMatches = new Set<number>();
-    const newFulltimeMatches = new Set<number>();
-    const newGoalMatches = new Set<number>();
-    const currentStatuses = new Map<number, string>();
-    const currentScores = new Map<number, {home: number, away: number}>();
-
-    allFixtures.forEach((fixture) => {
-      const matchId = fixture.fixture.id;
-      const currentStatus = fixture.fixture.status.short;
-      const previousStatus = previousMatchStatuses.get(matchId);
-      const currentScore = {
-        home: fixture.goals.home ?? 0,
-        away: fixture.goals.away ?? 0
-      };
-      const previousScore = previousMatchScores.get(matchId);
-
-      currentStatuses.set(matchId, currentStatus);
-      currentScores.set(matchId, currentScore);
-
-      // Only check for changes if we have a previous status (not on first load)
-      if (previousStatus && previousStatus !== currentStatus) {
-        console.log(`🔄 [TodayPopularLeagueNew STATUS TRANSITION] Match ${matchId}:`, {
-          teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-          transition: `${previousStatus} → ${currentStatus}`,
-          time: new Date().toLocaleTimeString()
-        });
-
-        // Check if status just changed to halftime
-        if (currentStatus === 'HT') {
-          console.log(`🟠 [TodayPopularLeagueNew HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            previousStatus,
-            currentStatus
-          });
-          newHalftimeMatches.add(matchId);
-        }
-
-        // Check if status just changed to fulltime
-        if (currentStatus === 'FT') {
-          console.log(`🔵 [TodayPopularLeagueNew FULLTIME FLASH] Match ${matchId} just finished!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            previousStatus,
-            currentStatus
-          });
-          newFulltimeMatches.add(matchId);
-        }
-
-        // Detect transition from upcoming to live
-        const wasUpcoming = ['NS', 'TBD'].includes(previousStatus);
-        const isNowLive = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(currentStatus);
-
-        if (wasUpcoming && isNowLive) {
-          console.log(`🟢 [TodayPopularLeagueNew MATCH STARTED] Match ${matchId} started!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            previousStatus,
-            currentStatus
-          });
-        }
-
-        // Detect transition from live to ended
-        const wasLive = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(previousStatus);
-        const isNowEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(currentStatus);
-
-        if (wasLive && isNowEnded) {
-          console.log(`🏁 [TodayPopularLeagueNew MATCH ENDED] Match ${matchId} ended!`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            finalScore: `${currentScore.home}-${currentScore.away}`,
-            previousStatus,
-            currentStatus
-          });
-        }
-      }
-
-      // Check for goal changes during live matches
-      if (previousScore && 
-          (currentScore.home !== previousScore.home || currentScore.away !== previousScore.away) &&
-          ['1H', '2H', 'LIVE', 'LIV'].includes(currentStatus)) {
-        console.log(`⚽ [TodayPopularLeagueNew GOAL FLASH] Match ${matchId} score changed!`, {
-          home: fixture.teams?.home?.name,
-          away: fixture.teams?.away?.name,
-          previousScore,
-          currentScore,
-          status: currentStatus
-        });
-        newGoalMatches.add(matchId);
-      }
-    });
-
-    // Update previous statuses and scores AFTER checking for changes
-    setPreviousMatchStatuses(currentStatuses);
-    setPreviousMatchScores(currentScores);
-
-    // Trigger flash for new halftime matches
-    if (newHalftimeMatches.size > 0) {
-      setHalftimeFlashMatches(newHalftimeMatches);
-
-      // Remove flash after 3 seconds (increased duration)
-      setTimeout(() => {
-        setHalftimeFlashMatches(new Set());
-      }, 3000);
-    }
-
-    // Trigger flash for new fulltime matches
-    if (newFulltimeMatches.size > 0) {
-      setFulltimeFlashMatches(newFulltimeMatches);
-
-      // Remove flash after 3 seconds (increased duration)
-      setTimeout(() => {
-        setFulltimeFlashMatches(new Set());
-      }, 3000);
-    }
-
-    // Trigger flash for new goal matches
-    if (newGoalMatches.size > 0) {
-      setGoalFlashMatches(newGoalMatches);
-
-      // Remove flash after 2 seconds for goals
-      setTimeout(() => {
-        setGoalFlashMatches(new Set());
-      }, 2000);
-    }
-  }, [allFixtures]);
-
-
-
-  // Clear Venezuela flag cache on component mount to ensure fresh fetch
-  useEffect(() => {
-    console.log("🔄 Clearing Venezuela flag cache for fresh fetch...");
-    clearVenezuelaFlagCache();
-
-    // Also force refresh Venezuela flag asynchronously
-    forceRefreshVenezuelaFlag()
-      .then((newFlag) => {
-        console.log(`✅ Venezuela flag refreshed to: ${newFlag}`);
-      })
-      .catch((error) => {
-        console.error(`❌ Failed to refresh Venezuela flag:`, error);
-      });
-
-    // Clear all fallback flags as well to ensure clean state
-    clearAllFlagCache();
-    console.log("🧹 Cleared all flag cache including fallback flags");
-  }, []);
-
-  // Simple date comparison handled by SimpleDateFilter
-
-  const { data: allFixtures = [], isLoading: isQueryLoading, isFetching: isQueryFetching, error } = useQuery({
-    queryKey: ['smart-fetch-popular-leagues', selectedDate],
-    queryFn: async () => {
-      console.log(`🔄 [TodayPopularLeagueNew] Smart fetching fixtures for ${selectedDate}`);
-
-      try {
-        // Use smart fetch for intelligent caching and live match handling
-        const fixtures = await smartFetch(selectedDate, {
-          source: 'TodayPopularLeagueNew',
-          forceRefresh: isDateStringToday(selectedDate) // Force refresh for today's matches
-        });
-
-        console.log(`✅ [TodayPopularLeagueNew] Smart fetched ${fixtures.length} fixtures for ${selectedDate}`);
-        return fixtures || [];
-      } catch (error) {
-        console.error(`❌ [TodayPopularLeagueNew] Error fetching fixtures for ${selectedDate}:`, error);
-        // Return empty array on error instead of throwing
-        return [];
-      }
-    },
-    staleTime: isDateStringToday(selectedDate) ? 1 * 60 * 1000 : 5 * 60 * 1000, // 1 min for today, 5 min for other dates
-    gcTime: 30 * 60 * 1000, // 30 minutes
-    refetchOnWindowFocus: isDateStringToday(selectedDate), // Only refetch on focus for today
-    retry: 1,
-    // Add timeout and better error handling
-    meta: {
-      errorMessage: `Failed to fetch fixtures for ${selectedDate}`
-    }
-  });
 
   // Show loading only if we're actually loading and don't have any data
   const showLoading = (isQueryLoading || isLoading) && !filteredFixtures.length && !error;
