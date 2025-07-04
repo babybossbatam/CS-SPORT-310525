@@ -1353,26 +1353,36 @@ const TodayPopularFootballLeaguesNew: React.FC<
   // Simple date comparison handled by SimpleDateFilter
 
   // Show loading only if we're actually loading and don't have any data
-  const showLoading = isLoading && !fixtures.length;
+  const showLoading = (isQueryLoading || isLoading) && !filteredFixtures.length && !error;
 
   const { data: allFixtures = [], isLoading: isQueryLoading, isFetching: isQueryFetching, error } = useQuery({
     queryKey: ['smart-fetch-popular-leagues', selectedDate],
     queryFn: async () => {
       console.log(`🔄 [TodayPopularLeagueNew] Smart fetching fixtures for ${selectedDate}`);
 
-      // Use smart fetch for intelligent caching and live match handling
-      const fixtures = await smartFetch(selectedDate, {
-        source: 'TodayPopularLeagueNew',
-        forceRefresh: isDateStringToday(selectedDate) // Force refresh for today's matches
-      });
+      try {
+        // Use smart fetch for intelligent caching and live match handling
+        const fixtures = await smartFetch(selectedDate, {
+          source: 'TodayPopularLeagueNew',
+          forceRefresh: isDateStringToday(selectedDate) // Force refresh for today's matches
+        });
 
-      console.log(`✅ [TodayPopularLeagueNew] Smart fetched ${fixtures.length} fixtures for ${selectedDate}`);
-      return fixtures;
+        console.log(`✅ [TodayPopularLeagueNew] Smart fetched ${fixtures.length} fixtures for ${selectedDate}`);
+        return fixtures || [];
+      } catch (error) {
+        console.error(`❌ [TodayPopularLeagueNew] Error fetching fixtures for ${selectedDate}:`, error);
+        // Return empty array on error instead of throwing
+        return [];
+      }
     },
     staleTime: isDateStringToday(selectedDate) ? 1 * 60 * 1000 : 5 * 60 * 1000, // 1 min for today, 5 min for other dates
     gcTime: 30 * 60 * 1000, // 30 minutes
     refetchOnWindowFocus: isDateStringToday(selectedDate), // Only refetch on focus for today
     retry: 1,
+    // Add timeout and better error handling
+    meta: {
+      errorMessage: `Failed to fetch fixtures for ${selectedDate}`
+    }
   });
 
   if (showLoading) {
@@ -1408,6 +1418,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
         </CardContent>
       </Card>
     );
+  }
+
+  // Handle error state
+  if (error) {
+    console.error(`❌ [TodayPopularLeagueNew] Query error for ${selectedDate}:`, error);
+    return null; // Let parent component handle error state
   }
 
   if (!filteredFixtures.length) {
