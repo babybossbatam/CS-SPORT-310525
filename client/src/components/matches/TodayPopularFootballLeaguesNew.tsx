@@ -48,6 +48,7 @@ import MyCircularFlag from "../common/MyCircularFlag";
 import MyNormalFlag from "../common/MyNormalFlag";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import { smartFetch, fetchLeagueFixtures } from '@/lib/MyFetchingLogic';
+import { isDateStringToday } from "@/lib/dateUtilsUpdated";
 
 // Helper function to shorten team names
 export const shortenTeamName = (teamName: string): string => {
@@ -1362,15 +1363,15 @@ const TodayPopularFootballLeaguesNew: React.FC<
       // Use smart fetch for intelligent caching and live match handling
       const fixtures = await smartFetch(selectedDate, {
         source: 'TodayPopularLeagueNew',
-        forceRefresh: isToday(new Date(selectedDate)) // Force refresh for today's matches
+        forceRefresh: isDateStringToday(selectedDate) // Force refresh for today's matches
       });
 
       console.log(`✅ [TodayPopularLeagueNew] Smart fetched ${fixtures.length} fixtures for ${selectedDate}`);
       return fixtures;
     },
-    staleTime: isToday(new Date(selectedDate)) ? 1 * 60 * 1000 : 5 * 60 * 1000, // 1 min for today, 5 min for other dates
+    staleTime: isDateStringToday(selectedDate) ? 1 * 60 * 1000 : 5 * 60 * 1000, // 1 min for today, 5 min for other dates
     gcTime: 30 * 60 * 1000, // 30 minutes
-    refetchOnWindowFocus: isToday(new Date(selectedDate)), // Only refetch on focus for today
+    refetchOnWindowFocus: isDateStringToday(selectedDate), // Only refetch on focus for today
     retry: 1,
   });
 
@@ -1746,8 +1747,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
                             // Force correct Venezuela flag if wrong
                             if (
-                              !countryData.flag.includes("/ve.png") &&
-                              !countryData.flag.includes("/ve.")
+                              !countryData.flag.includes("/ve.png" &&
+                              !countryData.flag.includes("/ve."))
                             ) {
                               console.log(
                                 `🔧 Forcing correct Venezuela flag...`,
