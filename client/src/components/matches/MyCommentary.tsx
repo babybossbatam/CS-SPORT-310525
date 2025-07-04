@@ -347,37 +347,38 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               });
           })()}
           
-          {/* Final Match Summary - Clock Icon with Elapsed Time and Score */}
-          {events.length > 0 && (() => {
-            // Get the maximum elapsed time from all events
-            const maxElapsed = Math.max(...events.map(e => e.time.elapsed));
-            // Calculate final score
-            const finalScore = calculateScoreAtTime(maxElapsed);
-            
-            return (
-              <div className="commentary-event-container">
-                <div className="flex gap-3 items-center justify-center py-4 border-t border-gray-200 mt-4">
-                  {/* Clock Icon */}
-                  <img
-                    src="/assets/matchdetaillogo/clock.png"
-                    alt="Match End"
-                    className="w-5 h-5 opacity-80"
-                  />
-                  
-                  {/* Elapsed Time */}
-                  <div className="text-sm font-semibold text-gray-700">
-                    {maxElapsed}'
-                  </div>
-                  
-                  {/* Final Score */}
-                  <div className="text-lg font-bold text-gray-900">
-                    {finalScore.homeScore}-{finalScore.awayScore}
-                  </div>
+          </div>
+        
+        {/* Final Match Summary - Outside timeline for better visibility */}
+        {events.length > 0 && (() => {
+          // Get the maximum elapsed time from all events
+          const maxElapsed = Math.max(...events.map(e => e.time.elapsed));
+          // Calculate final score
+          const finalScore = calculateScoreAtTime(maxElapsed);
+          
+          return (
+            <div className="border-t-2 border-gray-300 bg-gray-50 mx-4 mb-4 rounded-lg">
+              <div className="flex gap-3 items-center justify-center py-6">
+                {/* Clock Icon */}
+                <img
+                  src="/assets/matchdetaillogo/clock.png"
+                  alt="Match End"
+                  className="w-6 h-6 opacity-90"
+                />
+                
+                {/* Elapsed Time */}
+                <div className="text-base font-bold text-gray-800">
+                  {maxElapsed}'
+                </div>
+                
+                {/* Final Score */}
+                <div className="text-xl font-bold text-gray-900 bg-white px-3 py-1 rounded border">
+                  {finalScore.homeScore}-{finalScore.awayScore}
                 </div>
               </div>
-            );
-          })()}
-        </div>
+            </div>
+          );
+        })()}
       </div>
     </>
   );
