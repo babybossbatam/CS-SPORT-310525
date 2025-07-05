@@ -341,13 +341,23 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               {(() => {
                                 const detail = event.detail?.toLowerCase() || "";
                                 if (detail.includes("penalty")) {
-                                  return (
-                                    <img
-                                      src="/assets/matchdetaillogo/penalty.svg"
-                                      alt="Penalty Goal"
-                                      className="w-4 h-4 opacity-80 flex-shrink-0"
-                                    />
-                                  );
+                                  if (detail.includes("missed")) {
+                                    return (
+                                      <img
+                                        src="/assets/matchdetaillogo/missed-penalty.svg"
+                                        alt="Missed Penalty"
+                                        className="w-4 h-4 opacity-80 flex-shrink-0"
+                                      />
+                                    );
+                                  } else {
+                                    return (
+                                      <img
+                                        src="/assets/matchdetaillogo/penalty.svg"
+                                        alt="Penalty Goal"
+                                        className="w-4 h-4 opacity-80 flex-shrink-0"
+                                      />
+                                    );
+                                  }
                                 } else if (detail.includes("own goal")) {
                                   return (
                                     <img
@@ -365,7 +375,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     />
                                   );
                                 }
-                              })()
+                              })()}
                               <span>
                                 Score:{" "}
                                 {(() => {

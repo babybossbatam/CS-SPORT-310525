@@ -1,3 +1,7 @@
+Added missed penalty support to both home and away team event displays in MyMatchEventNew.tsx.
+```
+
+```replit_final_file
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
@@ -133,7 +137,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         }
         return '⚽'; // Regular goal
 
-   
+
 
       case 'subst':
       case 'substitution':
@@ -446,15 +450,44 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   ) : event.type === "Goal" ||
                     (event.type === "Goal" && 
                       event.detail?.toLowerCase().includes("penalty")) ? (
-                    <img
-                      src="/assets/matchdetaillogo/penalty.svg"
-                      alt={
-                        event.detail?.toLowerCase().includes("Penalty")
-                          ? "Penalty Goal"
-                          : "Goal"
-                      }
-                      className="w-4 h-4"
-                    />
+                    (() => {
+                                    const detail = event.detail?.toLowerCase() || "";
+                                    if (detail.includes("penalty")) {
+                                      if (detail.includes("missed")) {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/missed-penalty.svg"
+                                            alt="Missed Penalty"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      } else {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/penalty.svg"
+                                            alt="Penalty Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      }
+                                    } else if (detail.includes("own goal")) {
+                                      return (
+                                        <img
+                                          src="/assets/matchdetaillogo/soccer-logo.svg"
+                                          alt="Own Goal"
+                                          className="w-4 h-4"
+                                        />
+                                      );
+                                    } else {
+                                      return (
+                                        <img
+                                          src="/assets/matchdetaillogo/soccer-ball.svg"
+                                          alt="Goal"
+                                          className="w-4 h-4"
+                                        />
+                                      );
+                                    }
+                                  })()
                   ) : event.type === "Card" ? (
                     <img
                       src={
@@ -502,15 +535,44 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   ) : event.type === "goal" ||
                     (event.type === "goal" &&
                       event.detail?.toLowerCase().includes("penalty")) ? (
-                    <img
-                      src="/assets/matchdetaillogo/soccer-goal.svg"
-                      alt={
-                        event.detail?.toLowerCase().includes("penalty")
-                          ? "Penalty Goal"
-                          : "Goal"
-                      }
-                      className="w-4 h-4"
-                    />
+                    (() => {
+                                    const detail = event.detail?.toLowerCase() || "";
+                                    if (detail.includes("penalty")) {
+                                      if (detail.includes("missed")) {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/missed-penalty.svg"
+                                            alt="Missed Penalty"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      } else {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/penalty.svg"
+                                            alt="Penalty Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      }
+                                    } else if (detail.includes("own goal")) {
+                                      return (
+                                        <img
+                                          src="/assets/matchdetaillogo/soccer-logo.svg"
+                                          alt="Own Goal"
+                                          className="w-4 h-4"
+                                        />
+                                      );
+                                    } else {
+                                      return (
+                                        <img
+                                          src="/assets/matchdetaillogo/soccer-ball.svg"
+                                          alt="Goal"
+                                          className="w-4 h-4"
+                                        />
+                                      );
+                                    }
+                                  })()
                   ) : event.type === "card" ? (
                     <img
                       src={
@@ -926,13 +988,23 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   (() => {
                                     const detail = event.detail?.toLowerCase() || "";
                                     if (detail.includes("penalty")) {
-                                      return (
-                                        <img
-                                          src="/assets/matchdetaillogo/penalty.svg"
-                                          alt="Penalty Goal"
-                                          className="w-4 h-4"
-                                        />
-                                      );
+                                      if (detail.includes("missed")) {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/missed-penalty.svg"
+                                            alt="Missed Penalty"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      } else {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/penalty.svg"
+                                            alt="Penalty Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      }
                                     } else if (detail.includes("own goal")) {
                                       return (
                                         <img
@@ -1020,13 +1092,23 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   (() => {
                                     const detail = event.detail?.toLowerCase() || "";
                                     if (detail.includes("penalty")) {
-                                      return (
-                                        <img
-                                          src="/assets/matchdetaillogo/penalty.svg"
-                                          alt="Penalty Goal"
-                                          className="w-4 h-4"
-                                        />
-                                      );
+                                      if (detail.includes("missed")) {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/missed-penalty.svg"
+                                            alt="Missed Penalty"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      } else {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/penalty.svg"
+                                            alt="Penalty Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      }
                                     } else if (detail.includes("own goal")) {
                                       return (
                                         <img
