@@ -26,6 +26,8 @@ interface PlayByPlayEvent {
   isRecent?: boolean;
   x?: number;
   y?: number;
+  playerOut?: string;
+  playerIn?: string;
 }
 
 interface AttackZone {
@@ -243,6 +245,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       setCornerKickEvents(current => 
         current.filter(event => Date.now() - event.timestamp < 8000) // Keep corner kicks for 8 seconds
       );
+      
+      setSubstitutionEvents(current => 
+        current.filter(event => Date.now() - event.timestamp < 12000) // Keep substitutions for 12 seconds
+      );
     }, 1000);
 
     return () => clearInterval(cleanup);
@@ -253,6 +259,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   
   // State for corner kick effects
   const [cornerKickEvents, setCornerKickEvents] = useState<Array<{id: string, x: number, y: number, team: 'home' | 'away', timestamp: number, corner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'}>>([]);
+  
+  // State for substitution effects
+  const [substitutionEvents, setSubstitutionEvents] = useState<Array<{id: string, team: 'home' | 'away', playerOut: string, playerIn: string, timestamp: number}>>([]);
 
   // Generate dynamic events including shots, goal kicks, and corner kicks
   const generateDynamicEvent = () => {
@@ -261,7 +270,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     
     // Determine event type based on ball position and actual penalty area boundaries
     let randomType: 'attacking' | 'ball_safe' | 'dangerous_attack';
-    let eventType: 'attack' | 'shot' | 'goal' | 'goalkick' | 'corner' = 'attack';
+    let eventType: 'attack' | 'shot' | 'goal' | 'goalkick' | 'corner' | 'substitution' = 'attack';
     
     // Check if ball is actually INSIDE penalty areas for dangerous attack
     const isInHomePenalty = ballPosition.x < 21 && ballPosition.y > 30 && ballPosition.y < 70;
@@ -369,6 +378,32 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       }
     } else {
       randomType = 'ball_safe';
+      
+      // Random chance for substitution (about 10% chance)
+      if (Math.random() > 0.9) {
+        eventType = 'substitution';
+        
+        // Generate player names for substitution
+        const playerNames = [
+          'Rodriguez', 'Silva', 'Martinez', 'Garcia', 'Lopez', 'Gonzalez', 
+          'Fernandez', 'Sanchez', 'Perez', 'Morales', 'Johnson', 'Smith',
+          'Williams', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore'
+        ];
+        
+        const playerOut = playerNames[Math.floor(Math.random() * playerNames.length)];
+        const playerIn = playerNames[Math.floor(Math.random() * playerNames.length)];
+        
+        // Create substitution event
+        const substitutionEvent = {
+          id: `substitution_${Date.now()}`,
+          team: randomTeam,
+          playerOut,
+          playerIn,
+          timestamp: Date.now()
+        };
+        
+        setSubstitutionEvents(prev => [...prev.slice(-4), substitutionEvent]);
+      }
     }
 
     // Create attack zone
@@ -384,8 +419,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
     // Create corresponding event
     const eventDescriptions = {
-      attacking: eventType === 'shot' ? 'Shot Attempt' : eventType === 'corner' ? 'Corner kick' : 'Attacking',
-      ball_safe: eventType === 'goalkick' ? 'Goal kick' : 'Ball Safe',
+      attacking: eventType === 'shot' ? 'Shot Attempt' : eventType === 'corner' ? 'Corner kick' : eventType === 'substitution' ? 'Substitution' : 'Attacking',
+      ball_safe: eventType === 'goalkick' ? 'Goal kick' : eventType === 'substitution' ? 'Substitution' : 'Ball Safe',
       dangerous_attack: eventType === 'goal' ? 'GOAL!' : eventType === 'shot' ? 'Shot on Target' : 'Dangerous Attack'
     };
 
@@ -956,6 +991,53 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
           
 
+          {/* Substitution effects */}
+          {substitutionEvents.map((substitution) => (
+            <div key={substitution.id} className="absolute inset-0 pointer-events-none z-45">
+              {/* Substitution banner overlay */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+                <div className="bg-white rounded-lg shadow-lg px-6 py-4 text-center min-w-80">
+                  <div className="text-gray-600 text-sm font-medium mb-2 uppercase tracking-wide">
+                    SUBSTITUTION
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-left">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+                        <span className="text-sm font-semibold text-red-600">OUT</span>
+                      </div>
+                      <div className="text-sm font-bold">{substitution.playerOut}</div>
+                    </div>
+                    <div className="mx-4">
+                      <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                      </svg>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-semibold text-green-600">IN</span>
+                        <div className="w-4 h-4 bg-green-500 rounded-sm"></div>
+                      </div>
+                      <div className="text-sm font-bold">{substitution.playerIn}</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {substitution.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Substitution area highlight on field */}
+              <div className={`absolute ${substitution.team === 'home' ? 'left-0' : 'right-0'} top-1/4 bottom-1/4 w-16 bg-gradient-to-r ${
+                substitution.team === 'home' 
+                  ? 'from-blue-500/30 to-transparent' 
+                  : 'from-transparent to-red-500/30'
+              } animate-pulse`}
+                   style={{ animationDuration: '2s' }}
+              ></div>
+            </div>
+          ))}
+
           {/* Penalty Shootout Display */}
           {currentStatus === 'P' && (
             <div className="absolute inset-0 z-50">
@@ -1055,18 +1137,20 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           )}
 
           {/* Event notification card - top right */}
-          {currentEvent && (currentEvent.type === 'goal' || currentEvent.type === 'goalkick' || currentEvent.type === 'corner') && (
+          {currentEvent && (currentEvent.type === 'goal' || currentEvent.type === 'goalkick' || currentEvent.type === 'corner' || currentEvent.type === 'substitution') && (
             <div className="absolute top-4 right-4 z-50">
               <div className="bg-white rounded-lg shadow-lg px-4 py-2 flex items-center gap-2">
                 <div className={`text-white px-2 py-1 rounded text-xs font-bold ${
                   currentEvent.type === 'goalkick' ? 'bg-blue-500' : 
-                  currentEvent.type === 'corner' ? 'bg-yellow-500' : 'bg-red-500'
+                  currentEvent.type === 'corner' ? 'bg-yellow-500' : 
+                  currentEvent.type === 'substitution' ? 'bg-purple-500' : 'bg-red-500'
                 }`}>
                   {currentEvent.minute}'
                 </div>
                 <span className="text-sm font-semibold">
                   {currentEvent.type === 'goalkick' ? 'Goal kick' : 
-                   currentEvent.type === 'corner' ? 'Corner kick' : 'Goal'}
+                   currentEvent.type === 'corner' ? 'Corner kick' : 
+                   currentEvent.type === 'substitution' ? 'Substitution' : 'Goal'}
                 </span>
                 <div className="text-gray-500 text-xs">
                   {currentEvent.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
