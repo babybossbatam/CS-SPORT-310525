@@ -453,9 +453,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     (event.type === "Goal" &&
                       event.detail?.toLowerCase().includes("penalty")) ? (
                     <img
-                      src="/assets/matchdetaillogo/penalty.svg"
+                      src={
+                        event.detail?.toLowerCase().includes("own goal")
+                          ? "/assets/matchdetaillogo/soccer-logo.svg"
+                          : "/assets/matchdetaillogo/penalty.svg"
+                      }
                       alt={
-                        event.detail?.toLowerCase().includes("Penalty")
+                        event.detail?.toLowerCase().includes("own goal")
+                          ? "Own Goal"
+                          : event.detail?.toLowerCase().includes("Penalty")
                           ? "Penalty Goal"
                           : "Goal"
                       }
