@@ -697,31 +697,40 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <path d="M 93 85 A 2 2 0 0 1 95 83" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" fill="none" filter="url(#whiteGlow)"/>
           </svg>
 
-          {/* Enhanced ball trail line - historical movement */}
+          {/* Straight ball trail lines between positions */}
           {ballTrail.length > 1 && (
             <svg className="absolute inset-0 w-full h-full z-35 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-              {/* Enhanced visible trail line */}
-              <path
-                d={`M ${ballTrail.map(pos => `${pos.x},${pos.y}`).join(' L ')}`}
-                stroke="rgba(255,255,255,0.9)"
-                strokeWidth="0.8"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="opacity-95"
-                strokeDasharray="none"
-              />
-              {/* Glowing effect for better visibility */}
-              <path
-                d={`M ${ballTrail.map(pos => `${pos.x},${pos.y}`).join(' L ')}`}
-                stroke="rgba(255,255,255,0.4)"
-                strokeWidth="1.2"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="opacity-60"
-                filter="blur(0.5px)"
-              />
+              {/* Draw straight lines between consecutive positions */}
+              {ballTrail.slice(0, -1).map((pos, index) => {
+                const nextPos = ballTrail[index + 1];
+                return (
+                  <g key={`trail-${index}`}>
+                    {/* Main straight line */}
+                    <line
+                      x1={pos.x}
+                      y1={pos.y}
+                      x2={nextPos.x}
+                      y2={nextPos.y}
+                      stroke="rgba(255,255,255,0.9)"
+                      strokeWidth="0.8"
+                      strokeLinecap="round"
+                      className="opacity-95"
+                    />
+                    {/* Glowing effect for better visibility */}
+                    <line
+                      x1={pos.x}
+                      y1={pos.y}
+                      x2={nextPos.x}
+                      y2={nextPos.y}
+                      stroke="rgba(255,255,255,0.4)"
+                      strokeWidth="1.2"
+                      strokeLinecap="round"
+                      className="opacity-60"
+                      filter="blur(0.5px)"
+                    />
+                  </g>
+                );
+              })}
             </svg>
           )}
 
