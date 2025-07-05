@@ -261,22 +261,162 @@ const TodayPopularFootballLeaguesNew: React.FC<
     console.log("🧹 Cleared all flag cache including fallback flags");
   }, []);
 
-  // Fetch data directly from API without date filtering
+  // Clean up old cache entries on component mount
+  useEffect(() => {
+    const cleanupOldCache = () => {
+      try {
+        const keys = Object.keys(localStorage);
+        const cacheKeys = keys.filter(key => key.startsWith('popular_ended_matches_'));
+        
+        let cleanedCount = 0;
+        cacheKeys.forEach(key => {
+          try {
+            const cached = localStorage.getItem(key);
+            if (cached) {
+              const { timestamp } = JSON.parse(cached);
+              const cacheAge = Date.now() - timestamp;
+              
+              // Remove cache older than 7 days
+              if (cacheAge > 7 * 24 * 60 * 60 * 1000) {
+                localStorage.removeItem(key);
+                cleanedCount++;
+              }
+            }
+          } catch (error) {
+            // Remove corrupted cache entries
+            localStorage.removeItem(key);
+            cleanedCount++;
+          }
+        });
+        
+        if (cleanedCount > 0) {
+          console.log(`🧹 [TodayPopularLeagueNew] Cleaned up ${cleanedCount} old cache entries`);
+        }
+      } catch (error) {
+        console.error('Error cleaning up cache:', error);
+      }
+    };
+
+    cleanupOldCache();
+  }, []);
+
+  // Check if a match ended more than 24 hours ago
+  const isMatchOldEnded = useCallback((fixture: any): boolean => {
+    const status = fixture.fixture.status.short;
+    const isEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
+    
+    if (!isEnded) return false;
+    
+    const matchDate = new Date(fixture.fixture.date);
+    const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
+    
+    return hoursAgo > 24;
+  }, []);
+
+  // Cache key for ended matches
+  const getCacheKey = useCallback((date: string) => {
+    return `popular_ended_matches_${date}`;
+  }, []);
+
+  // Get cached ended matches
+  const getCachedEndedMatches = useCallback((date: string): any[] => {
+    try {
+      const cacheKey = getCacheKey(date);
+      const cached = localStorage.getItem(cacheKey);
+      
+      if (!cached) return [];
+      
+      const { fixtures, timestamp } = JSON.parse(cached);
+      const cacheAge = Date.now() - timestamp;
+      
+      // Cache valid for 7 days for old ended matches
+      if (cacheAge < 7 * 24 * 60 * 60 * 1000) {
+        console.log(`✅ [TodayPopularLeagueNew] Using cached ended matches for ${date}: ${fixtures.length} matches`);
+        return fixtures;
+      } else {
+        // Remove expired cache
+        localStorage.removeItem(cacheKey);
+        console.log(`⏰ [TodayPopularLeagueNew] Removed expired cache for ${date}`);
+      }
+    } catch (error) {
+      console.error('Error reading cached ended matches:', error);
+    }
+    
+    return [];
+  }, [getCacheKey]);
+
+  // Cache ended matches
+  const cacheEndedMatches = useCallback((date: string, fixtures: any[]) => {
+    try {
+      const endedFixtures = fixtures.filter(isMatchOldEnded);
+      
+      if (endedFixtures.length === 0) return;
+      
+      const cacheKey = getCacheKey(date);
+      const cacheData = {
+        fixtures: endedFixtures,
+        timestamp: Date.now(),
+        date
+      };
+      
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+      console.log(`💾 [TodayPopularLeagueNew] Cached ${endedFixtures.length} ended matches for ${date}`);
+    } catch (error) {
+      console.error('Error caching ended matches:', error);
+    }
+  }, [getCacheKey, isMatchOldEnded]);
+
+  // Fetch data with smart caching for ended matches
   const { data: allFixtures = [], isLoading: isQueryLoading, isFetching: isQueryFetching, error } = useQuery({
-    queryKey: ['direct-popular-leagues-fixtures', selectedDate],
+    queryKey: ['smart-popular-leagues-fixtures', selectedDate],
     queryFn: async () => {
-      console.log(`🔄 [TodayPopularLeagueNew] Direct fetching fixtures for ${selectedDate}`);
+      console.log(`🔄 [TodayPopularLeagueNew] Smart fetching fixtures for ${selectedDate}`);
 
       try {
-        // Fetch directly from API without any smart filtering
+        // Check for cached ended matches first (only for past dates)
+        const selectedDateObj = new Date(selectedDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        selectedDateObj.setHours(0, 0, 0, 0);
+        
+        let cachedEndedMatches: any[] = [];
+        if (selectedDateObj < today) {
+          cachedEndedMatches = getCachedEndedMatches(selectedDate);
+        }
+
+        // Fetch fresh data from API
         const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
         const fixtures = await response.json();
 
-        console.log(`✅ [TodayPopularLeagueNew] Direct fetched ${fixtures?.length || 0} fixtures for ${selectedDate}`);
-        return fixtures || [];
+        if (!fixtures?.length) {
+          console.log(`✅ [TodayPopularLeagueNew] No fixtures found for ${selectedDate}`);
+          return cachedEndedMatches; // Return cached data if no fresh data
+        }
+
+        // Separate fresh fixtures from cached ones
+        const cachedFixtureIds = new Set(cachedEndedMatches.map(f => f.fixture.id));
+        const freshFixtures = fixtures.filter((fixture: any) => 
+          !cachedFixtureIds.has(fixture.fixture.id)
+        );
+
+        // Combine fresh fixtures with cached ended matches
+        const combinedFixtures = [...freshFixtures, ...cachedEndedMatches];
+
+        // Cache any new ended matches for future use (only for past dates)
+        if (selectedDateObj < today) {
+          cacheEndedMatches(selectedDate, fixtures);
+        }
+
+        console.log(`✅ [TodayPopularLeagueNew] Smart fetched: ${freshFixtures.length} fresh + ${cachedEndedMatches.length} cached = ${combinedFixtures.length} total fixtures for ${selectedDate}`);
+        return combinedFixtures;
       } catch (error) {
         console.error(`❌ [TodayPopularLeagueNew] Error fetching fixtures for ${selectedDate}:`, error);
-        // Return empty array on error instead of throwing
+        // Return cached data if API fails
+        const cachedEndedMatches = getCachedEndedMatches(selectedDate);
+        if (cachedEndedMatches.length > 0) {
+          console.log(`🔄 [TodayPopularLeagueNew] Returning ${cachedEndedMatches.length} cached fixtures due to API error`);
+          return cachedEndedMatches;
+        }
         return [];
       }
     },
@@ -284,7 +424,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
     gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
     retry: 2,
-    // Add timeout and better error handling
     meta: {
       errorMessage: `Failed to fetch fixtures for ${selectedDate}`
     }
