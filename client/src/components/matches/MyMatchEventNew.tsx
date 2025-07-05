@@ -1,7 +1,3 @@
-Added missed penalty support to both home and away team event displays in MyMatchEventNew.tsx.
-```
-
-```replit_final_file
 import React, { useState, useEffect, useRef } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
