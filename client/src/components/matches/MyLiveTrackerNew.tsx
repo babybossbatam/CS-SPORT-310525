@@ -85,7 +85,7 @@ const MyLiveTrackerNew: React.FC<MyLiveTrackerNewProps> = ({
           setError('Failed to load Sportradar script');
           setIsLoading(false);
         };
-        script.src = "https://widgets.sir.sportradar.com/GyxLqseloLhoo4ietUKotcYT89QjqHuYS6xDNAyY/widgetloader";
+        script.src = "https://widgets.sir.sportradar.com/684f7b877efd1cd0e619d23b/widgetloader";
         
         document.head.appendChild(script);
 
