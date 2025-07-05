@@ -922,22 +922,35 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt="Substitution"
                                     className="w-4 h-4"
                                   />
-                                ) : event.type === "Goal" ||
-                                  (event.type === "Goal" &&
-                                    event.detail
-                                      ?.toLowerCase()
-                                      .includes("penalty")) ? (
-                                  <img
-                                    src="/assets/matchdetaillogo/soccer-ball.svg"
-                                    alt={
-                                      event.detail
-                                        ?.toLowerCase()
-                                        .includes("Penalty")
-                                        ? "Penalty Goal"
-                                        : "Goal"
+                                ) : event.type === "Goal" ? (
+                                  (() => {
+                                    const detail = event.detail?.toLowerCase() || "";
+                                    if (detail.includes("penalty")) {
+                                      return (
+                                        <img
+                                          src="/assets/matchdetaillogo/penalty.svg"
+                                          alt="Penalty Goal"
+                                          className="w-4 h-4"
+                                        />
+                                      );
+                                    } else if (detail.includes("own goal")) {
+                                      return (
+                                        <img
+                                          src="/assets/matchdetaillogo/soccer-logo.svg"
+                                          alt="Own Goal"
+                                          className="w-4 h-4"
+                                        />
+                                      );
+                                    } else {
+                                      return (
+                                        <img
+                                          src="/assets/matchdetaillogo/soccer-ball.svg"
+                                          alt="Goal"
+                                          className="w-4 h-4"
+                                        />
+                                      );
                                     }
-                                    className="w-4 h-4"
-                                  />
+                                  })()
                                 ) : event.type === "Card" ? (
                                   <img
                                     src={
@@ -1003,22 +1016,35 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt="Substitution"
                                     className="w-4 h-4"
                                   />
-                                ) : event.type === "Goal" ||
-                                  (event.type === "Goal" &&
-                                    event.detail
-                                      ?.toLowerCase()
-                                      .includes("Penalty")) ? (
-                                  <img
-                                    src="/assets/matchdetaillogo/soccer-ball.svg"
-                                    alt={
-                                      event.detail
-                                        ?.toLowerCase()
-                                        .includes("Penalty")
-                                        ? "Penalty Goal"
-                                        : "Goal"
+                                ) : event.type === "Goal" ? (
+                                  (() => {
+                                    const detail = event.detail?.toLowerCase() || "";
+                                    if (detail.includes("penalty")) {
+                                      return (
+                                        <img
+                                          src="/assets/matchdetaillogo/penalty.svg"
+                                          alt="Penalty Goal"
+                                          className="w-4 h-4"
+                                        />
+                                      );
+                                    } else if (detail.includes("own goal")) {
+                                      return (
+                                        <img
+                                          src="/assets/matchdetaillogo/soccer-logo.svg"
+                                          alt="Own Goal"
+                                          className="w-4 h-4"
+                                        />
+                                      );
+                                    } else {
+                                      return (
+                                        <img
+                                          src="/assets/matchdetaillogo/soccer-ball.svg"
+                                          alt="Goal"
+                                          className="w-4 h-4"
+                                        />
+                                      );
                                     }
-                                    className="w-4 h-4"
-                                  />
+                                  })()
                                 ) : event.type === "Card" ? (
                                   <img
                                     src={

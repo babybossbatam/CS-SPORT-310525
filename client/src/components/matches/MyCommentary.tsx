@@ -338,11 +338,34 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         {event.type === "Goal" ? (
                           <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium">
-                              <img
-                                src="/assets/matchdetaillogo/blue ball.svg"
-                                alt="Goal"
-                                className="w-4 h-4 opacity-80 flex-shrink-0"
-                              />
+                              {(() => {
+                                const detail = event.detail?.toLowerCase() || "";
+                                if (detail.includes("penalty")) {
+                                  return (
+                                    <img
+                                      src="/assets/matchdetaillogo/penalty.svg"
+                                      alt="Penalty Goal"
+                                      className="w-4 h-4 opacity-80 flex-shrink-0"
+                                    />
+                                  );
+                                } else if (detail.includes("own goal")) {
+                                  return (
+                                    <img
+                                      src="/assets/matchdetaillogo/soccer-logo.svg"
+                                      alt="Own Goal"
+                                      className="w-4 h-4 opacity-80 flex-shrink-0"
+                                    />
+                                  );
+                                } else {
+                                  return (
+                                    <img
+                                      src="/assets/matchdetaillogo/blue ball.svg"
+                                      alt="Goal"
+                                      className="w-4 h-4 opacity-80 flex-shrink-0"
+                                    />
+                                  );
+                                }
+                              })()
                               <span>
                                 Score:{" "}
                                 {(() => {
