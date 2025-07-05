@@ -188,7 +188,7 @@ class FixtureCache {
     const fixtureDate = new Date(fixture.fixture.date).getTime();
     const hoursAfterMatch = (now - fixtureDate) / (1000 * 60 * 60);
 
-    return ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAfterMatch <= 2;
+    return ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAfterMatch <= 3;
   }
 
   /**
