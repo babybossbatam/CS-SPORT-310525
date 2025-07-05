@@ -171,8 +171,8 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   // Extract league IDs from the popular leagues list
   const leagueIds = CURRENT_POPULAR_LEAGUES.map(league => league.id);
 
-  // Check if a match ended more than 24 hours ago
-  const isMatchOldEnded = useCallback((fixture: FixtureData): boolean => {
+  // Helper functions with stable references
+  const isMatchOldEnded = (fixture: FixtureData): boolean => {
     const status = fixture.fixture.status.short;
     const isEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
 
@@ -182,15 +182,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
 
     return hoursAgo > 24;
-  }, []);
+  };
 
-  // Cache key for ended matches
-  const getCacheKey = useCallback((date: string, leagueId: number) => {
+  const getCacheKey = (date: string, leagueId: number) => {
     return `ended_matches_${date}_${leagueId}`;
-  }, []);
+  };
 
-  // Get cached ended matches
-  const getCachedEndedMatches = useCallback((date: string, leagueId: number): FixtureData[] => {
+  const getCachedEndedMatches = (date: string, leagueId: number): FixtureData[] => {
     try {
       const cacheKey = getCacheKey(date, leagueId);
       const cached = localStorage.getItem(cacheKey);
@@ -214,10 +212,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     }
 
     return [];
-  }, [getCacheKey]);
+  };
 
-  // Cache ended matches
-  const cacheEndedMatches = useCallback((date: string, leagueId: number, fixtures: FixtureData[]) => {
+  const cacheEndedMatches = (date: string, leagueId: number, fixtures: FixtureData[]) => {
     try {
       const endedFixtures = fixtures.filter(isMatchOldEnded);
 
@@ -236,9 +233,9 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
     } catch (error) {
       console.error('Error caching ended matches:', error);
     }
-  }, [getCacheKey, isMatchOldEnded]);
+  };
 
-  // Direct data fetching function with 24-hour cache for ended matches
+  // Direct data fetching function with 24-hour cache for ended matches - using stable dependencies
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
     if (!isUpdate) {
       setLoading(true);
@@ -381,7 +378,7 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
         setLoading(false);
       }
     }
-  }, [selectedDate, leagueIds, getCachedEndedMatches, cacheEndedMatches]);
+  }, [selectedDate]); // Remove unstable dependencies
 
   // Clean up old cache entries on component mount
   useEffect(() => {
@@ -425,13 +422,13 @@ const TodayPopularFootballLeaguesNew: React.FC<TodayPopularFootballLeaguesNewPro
   useEffect(() => {
     fetchLeagueData(false);
 
-    // Set up periodic refresh - every 30 seconds for live updates
+    // Set up periodic refresh - every 60 seconds to reduce load
     const interval = setInterval(() => {
       fetchLeagueData(true); // Pass true to indicate this is an update
-    }, 30000);
+    }, 60000);
 
     return () => clearInterval(interval);
-  }, [fetchLeagueData, selectedDate]);
+  }, [selectedDate]); // Only depend on selectedDate, not fetchLeagueData
 
   // Filter matches to show matches for the selected date
   const selectedDateFixtures = fixtures.filter((f) => {
