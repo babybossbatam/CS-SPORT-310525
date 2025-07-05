@@ -517,7 +517,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         </div>
 
         {/* Right side - Away team events */}
-        <div className="flex-1 pl-4">
+        <div className="flex-1 ">
           {!isHome && (
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
@@ -910,7 +910,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                                 {event.type === "subst" &&
                                   event.assist?.name && (
-                                    <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 relative-z20">
+                                    <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20">
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.assist?.id,
