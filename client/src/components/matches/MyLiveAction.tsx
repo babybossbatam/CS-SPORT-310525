@@ -662,23 +662,18 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <path d="M 93 85 A 2 2 0 0 1 95 83" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" fill="none" filter="url(#whiteGlow)"/>
           </svg>
 
-          {/* Single ball trail line - no duplicates */}
+          {/* Solid ball trail line - historical movement */}
           {ballTrail.length > 1 && (
             <svg className="absolute inset-0 w-full h-full z-35 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="ballTrailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="rgba(255,255,255,0.2)" />
-                  <stop offset="100%" stopColor="rgba(255,255,255,0.8)" />
-                </linearGradient>
-              </defs>
-              
-              {/* Single clean trail line */}
+              {/* Simple solid trail line */}
               <path
                 d={`M ${ballTrail.map(pos => `${pos.x},${pos.y}`).join(' L ')}`}
-                stroke="url(#ballTrailGradient)"
-                strokeWidth="0.4"
+                stroke="rgba(255,255,255,0.6)"
+                strokeWidth="0.3"
                 fill="none"
-                className="opacity-70"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="opacity-80"
               />
             </svg>
           )}
