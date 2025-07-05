@@ -1,0 +1,374 @@
+@use "../../../scss/varialbles/colors" as *;
+@use "../../../scss/varialbles/breakpoints" as *;
+@use "../../../scss/varialbles/font-weights" as *;
+@use "../../../scss/mixins/_scrollbar" as *;
+@use "../../../scss/varialbles/z-indexes" as *;
+
+$main-header: 108px;
+
+.is_bolao {
+  margin: unset;
+}
+
+.is_betting_zone {
+  margin: unset;
+}
+
+.module {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  min-height: 100%;
+
+  .ad {
+    display: grid;
+    justify-items: center;
+    margin: 16px 0;
+    align-items: center;
+    justify-self: center;
+  }
+
+  .ad_strip .ad {
+    margin: 0 auto 8px;
+  }
+}
+
+.small_view.module {
+  //overflow-x: hidden;
+  .ad {
+    margin: 16px auto 0;
+  }
+}
+
+[dir=ltr] .module {
+  direction: ltr;
+}
+
+[dir=rtl] .module {
+  direction: rtl;
+}
+
+.main {
+  display: flex;
+  justify-content: center;
+  margin: 48px;
+  min-height: 100vh;
+}
+
+.main_placeholder {
+  min-height: 70vh;
+}
+
+.small_view .main_placeholder {
+  min-height: 70vh;
+}
+
+.small_view .main {
+  min-height: 70vh;
+}
+
+.is_bolao.main {
+  margin: unset;
+}
+
+.is_betting_zone.main {
+  margin: unset;
+}
+
+.description_container {
+  height: 80px;
+  background-color: $surfaceSecondary;
+  margin-bottom: 8px;
+}
+
+.main .sticky_main_content {
+  position: sticky;
+  top: $main-header;
+  min-height: 50vh;
+  max-height: calc(100vh - #{$main-header});
+  overflow: hidden;
+}
+
+.main .sticky_main_content.is_homepage {
+  top: $main-header + 56px;
+  max-height: calc(100vh - (#{$main-header} + 56px));
+}
+
+.is_betting_zone .side_bar {
+  display: none;
+  width: 0;
+}
+
+@media (max-width: $md_max) {
+  .main {
+    margin: 0;
+  }
+
+  .main_content {
+    margin: 0;
+    min-width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+  }
+
+  .header_container {
+    height: 56px
+  }
+
+  .all_scores_header {
+    height: 104px
+  }
+
+  .side_bar {
+    display: none;
+    width: 0;
+  }
+
+  .content {
+    margin: 0
+  }
+
+  .game_suggestions_container {
+    display: flex;
+    width: 100%;
+    height: 72px;
+    justify-content: center;
+    align-items: center;
+    background-color: $surfaceSecondary;
+    margin: 8px 0;
+  }
+
+  .game_suggestions_hidden {
+    display: none;
+  }
+}
+
+@media (min-width: $lg_min) and (max-width: $lg_max) {
+  .main {
+    margin: 0 8px;
+  }
+
+  .main_content {
+    min-width: 592px;
+    max-width: 791px;
+  }
+
+  [dir=ltr] .main_content {
+    margin: 0 0 0 16px;
+  }
+
+  [dir=rtl] .main_content {
+    margin: 0 16px 0 0;
+  }
+
+  .is_bolao .main_content {
+    margin: unset;
+  }
+
+  .is_betting_zone .main_content {
+    margin: unset;
+    min-width: unset;
+    max-width: unset;
+  }
+
+  .side_bar {
+    width: 400px;
+    min-width: 400px;
+  }
+}
+
+@media (min-width: $xl_min) {
+  .main {
+    margin: 0 56px;
+  }
+
+  .is_bolao.main {
+    margin: unset;
+  }
+
+  .is_betting_zone.main {
+    margin: unset;
+  }
+
+  .main_content {
+    min-width: 592px;
+    max-width: 728px;
+    min-height: 100vh;
+  }
+
+  [dir=ltr] .main_content {
+    margin: 0 0 0 16px;
+  }
+
+  [dir=rtl] .main_content {
+    margin: 0 16px 0 0;
+  }
+
+  .is_bolao .main_content {
+    margin: unset;
+  }
+
+  .is_betting_zone .main_content {
+    margin: unset;
+    max-width: 100%;
+  }
+
+  .side_bar {
+    width: 480px;
+    min-width: 480px;
+  }
+}
+
+.main_content {
+  width: 100%;
+  height: 100%;
+}
+
+.no_bars_main_content {
+  min-width: 100%;
+  max-width: 100%;
+}
+
+.sponsorship_logo {
+  position: fixed;
+  left: 0;
+  bottom: 64px;
+  width: 66px;
+  height: 38px;
+}
+
+.dba_banner {
+  display: grid;
+  justify-items: center;
+  margin: 8px 0 16px;
+}
+
+.dba_banner.only_dba {
+  display: grid;
+  justify-items: center;
+  margin: 16px 0;
+}
+
+.small_view .dba_banner {
+  margin: 16px 0 0;
+}
+
+.dba_banner:empty {
+  margin: 0;
+}
+
+.dba_banner:empty.empty_strip_container {
+  margin-bottom: 48px;
+}
+
+.small_view .dba_banner:empty.empty_strip_container {
+  margin-bottom: 0;
+}
+
+.small_view .empty_strip_container {
+  margin: 8px 0 0;
+}
+
+.search_content {
+  display: flex;
+  justify-content: center;
+  position: fixed;
+  top: 88px;
+  width: 100%;
+  height: 606px;
+  background-color: $surfaceSecondary;
+  z-index: 70;
+}
+
+.small_view .search_content {
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.hidden_search_content {
+  display: none;
+}
+
+.main_top_container {
+  min-height: 56px;
+}
+
+.main_top_container.only_ad {
+  padding: 16px 0;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
+.main_top_container.ad_strip {
+  padding: 0 0 8px;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
+.small_view .main_top_container.ad_strip {
+  min-height: 40px;
+  padding: 0;
+}
+
+.main_top_container:empty {
+  min-height: 48px;
+}
+
+.small_view .main_top_container {
+  min-height: 40px;
+}
+
+.small_view .main_top_container:empty {
+  min-height: 0;
+}
+
+.small_view .main_top_container.only_ad {
+  min-height: 0;
+  padding: 0;
+}
+
+.module {
+  .sticky_ad_container {
+    position: fixed;
+    display: flex;
+    box-sizing: border-box;
+    z-index: $five;
+    bottom: 0;
+    transition: bottom 250ms ease-in-out;
+    //background-color: $surfacePrimary;
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+
+  .sticky_ad {
+    position: relative;
+    margin: 0 auto;
+    min-width: 728px;
+    width: fit-content;
+    max-width: 970px;
+  }
+
+  .bottom_navigation_visible.sticky_ad_container {
+    bottom: calc(54px + var(--sab));
+  }
+
+  .main_top_other {
+    height: 48px;
+    background-color: transparent;
+  }
+}
+
+.small_view.module {
+  .sticky_ad {
+    max-width: 100%;
+    min-width: 320px;
+    max-height: 100px;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .main_top_other {
+    height: 0;
+  }
+}

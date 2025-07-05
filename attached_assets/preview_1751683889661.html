@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>
+            Live Match Tracker Demo
+        </title>
+        <link rel="stylesheet" type="text/css" href="theme.css">
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+            }
+            .widgets {
+                max-width: 620px;
+                width: 100%;
+            }
+            .sr-widget {
+                border: rgba(0,0,0,0.12) solid 1px;
+                margin-bottom: 24px;
+            }
+            .sr-widget-title {
+                font-weight: bold;
+                padding-bottom: 4px;
+            }
+        </style>
+    </head>
+    <body>
+        <script>
+            (function(a,b,c,d,e,f,g,h,i){a[e]||(i=a[e]=function(){(a[e].q=a[e].q||[]).push(arguments)},i.l=1*new Date,i.o=f,
+g=b.createElement(c),h=b.getElementsByTagName(c)[0],g.async=1,g.src=d,g.setAttribute("n",e),h.parentNode.insertBefore(g,h)
+)})(window,document,"script", "https://widgets.sir.sportradar.com/684f7b877efd1cd0e619d23b/widgetloader", "SIR", {
+    theme: false, // using custom theme
+    language: "en"
+});
+SIR("addWidget", ".sr-widget-1", "match.lmtPlus", {streamToggle: "streamSwitchTabs", activeStreamToggle: "stream", showOdds:true,layout: "topdown", detailedScoreboard: "disable", tabsPosition: "disable", logoLink: "www.cssport.vip", matchId:61239863});
+        </script>
+        <div class="widgets">
+            <div><div class="sr-widget sr-widget-1"></div></div>
+
+        </div>
+    </body>
+</html>
