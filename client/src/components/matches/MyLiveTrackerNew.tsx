@@ -61,6 +61,41 @@ const MyLiveTrackerNew: React.FC<MyLiveTrackerNewProps> = ({
 
   // Load and initialize Sportradar widget
   useEffect(() => {
+    const loadSportradarWidget = () => {
+      try {
+        // Check if script already exists
+        if (document.querySelector('script[src*="widgets.sir.sportradar.com"]')) {
+          scriptLoadedRef.current = true;
+          initializeWidget();
+          return;
+        }
+
+        // Create and load the Sportradar script
+        const script = document.createElement('script');
+        script.async = true;
+        script.onload = () => {
+          console.log('🎯 [MyLiveTrackerNew] Sportradar script loaded successfully');
+          scriptLoadedRef.current = true;
+          setTimeout(() => {
+            initializeWidget();
+          }, 1000);
+        };
+        script.onerror = () => {
+          console.error('🚫 [MyLiveTrackerNew] Failed to load Sportradar script');
+          setError('Failed to load Sportradar script');
+          setIsLoading(false);
+        };
+        script.src = "https://widgets.sir.sportradar.com/684f7b877efd1cd0e619d23b/widgetloader";
+        
+        document.head.appendChild(script);
+
+      } catch (error) {
+        console.error('🚫 [MyLiveTrackerNew] Error loading Sportradar script:', error);
+        setError('Failed to load Sportradar widget');
+        setIsLoading(false);
+      }
+    };
+
     const initializeWidget = () => {
       console.log('🔄 [MyLiveTrackerNew] Attempting widget initialization...', {
         hasSIR: !!window.SIR,
@@ -100,58 +135,9 @@ const MyLiveTrackerNew: React.FC<MyLiveTrackerNewProps> = ({
           setError('Failed to initialize widget: ' + (error as Error).message);
           setIsLoading(false);
         }
-      } else {
-        // Wait for SIR to become available
-        const checkSIR = () => {
-          if (window.SIR) {
-            initializeWidget();
-          } else {
-            console.log('🔄 [MyLiveTrackerNew] Waiting for SIR to load...');
-            setTimeout(checkSIR, 500);
-          }
-        };
-        setTimeout(checkSIR, 100);
-      }
-    };
-
-    const loadSportradarWidget = () => {
-      try {
-        // Check if script already exists
-        const existingScript = document.querySelector('script[src*="widgets.sir.sportradar.com"]');
-        if (existingScript) {
-          scriptLoadedRef.current = true;
-          if (window.SIR) {
-            initializeWidget();
-          } else {
-            // Wait for existing script to fully load
-            setTimeout(() => initializeWidget(), 2000);
-          }
-          return;
-        }
-
-        // Create and load the Sportradar script
-        const script = document.createElement('script');
-        script.async = true;
-        script.onload = () => {
-          console.log('🎯 [MyLiveTrackerNew] Sportradar script loaded successfully');
-          scriptLoadedRef.current = true;
-          // Wait longer for SIR to be available
-          setTimeout(() => {
-            initializeWidget();
-          }, 2000);
-        };
-        script.onerror = () => {
-          console.error('🚫 [MyLiveTrackerNew] Failed to load Sportradar script');
-          setError('Failed to load Sportradar script');
-          setIsLoading(false);
-        };
-        script.src = "https://widgets.sir.sportradar.com/684f7b877efd1cd0e619d23b/widgetloader";
-        
-        document.head.appendChild(script);
-
-      } catch (error) {
-        console.error('🚫 [MyLiveTrackerNew] Error loading Sportradar script:', error);
-        setError('Failed to load Sportradar widget');
+      } else if (!window.SIR && scriptLoadedRef.current) {
+        console.error('🚫 [MyLiveTrackerNew] SIR not available after script loaded');
+        setError('Sportradar widget not available');
         setIsLoading(false);
       }
     };
