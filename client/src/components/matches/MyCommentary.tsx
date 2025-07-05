@@ -62,19 +62,34 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
       const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
       const eventIsHomeTeam = isHomeTeam(event);
 
+      console.log("Goal event debug:", {
+        player: event.player?.name,
+        team: event.team?.name,
+        detail: event.detail,
+        isOwnGoal,
+        eventIsHomeTeam,
+        homeTeam,
+        awayTeam,
+        time: event.time.elapsed + (event.time.extra || 0)
+      });
+
       if (isOwnGoal) {
         // Own goal: award to the opposing team
         if (eventIsHomeTeam) {
           awayScore++; // Home team own goal gives away team a point
+          console.log("Own goal by home team player, awayScore++", { awayScore, player: event.player?.name });
         } else {
           homeScore++; // Away team own goal gives home team a point
+          console.log("Own goal by away team player, homeScore++", { homeScore, player: event.player?.name });
         }
       } else {
         // Regular goal: award to the scoring team
         if (eventIsHomeTeam) {
           homeScore++;
+          console.log("Regular goal by home team, homeScore++", { homeScore, player: event.player?.name });
         } else {
           awayScore++;
+          console.log("Regular goal by away team, awayScore++", { awayScore, player: event.player?.name });
         }
       }
     });
