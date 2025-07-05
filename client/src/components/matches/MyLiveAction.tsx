@@ -162,14 +162,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     };
   }, [matchId]);
 
-  // Dynamic ball movement and possession zones - optimized for better performance
+  // Dynamic ball movement and possession zones with trail effect
+  const [ballTrail, setBallTrail] = useState<Array<{x: number, y: number, timestamp: number}>>([]);
+
   useEffect(() => {
     if (!isLive) return;
 
     const ballInterval = setInterval(() => {
       setBallPosition(prev => {
-        const newX = Math.max(15, Math.min(85, prev.x + (Math.random() - 0.5) * 8)); // Reduced movement range
-        const newY = Math.max(25, Math.min(75, prev.y + (Math.random() - 0.5) * 6)); // Reduced movement range
+        const newX = Math.max(15, Math.min(85, prev.x + (Math.random() - 0.5) * 12)); // Increased movement range
+        const newY = Math.max(25, Math.min(75, prev.y + (Math.random() - 0.5) * 8)); // Increased movement range
 
         // Update possession based on ball position
         if (newX < 40) {
@@ -180,12 +182,30 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           setBallPossession(null);
         }
 
+        // Add to trail
+        setBallTrail(currentTrail => {
+          const newTrail = [...currentTrail, { x: prev.x, y: prev.y, timestamp: Date.now() }];
+          // Keep only last 8 positions for trail effect
+          return newTrail.slice(-8);
+        });
+
         return { x: newX, y: newY };
       });
-    }, 3000); // Increased from 1.2s to 3s to reduce frequency
+    }, 800); // Faster movement - changed from 3000ms to 800ms
 
     return () => clearInterval(ballInterval);
   }, [isLive]);
+
+  // Clean up old trail positions
+  useEffect(() => {
+    const trailCleanup = setInterval(() => {
+      setBallTrail(currentTrail => 
+        currentTrail.filter(pos => Date.now() - pos.timestamp < 6000) // Keep trail for 6 seconds
+      );
+    }, 1000);
+
+    return () => clearInterval(trailCleanup);
+  }, []);
 
   // Generate dynamic events
   const generateDynamicEvent = () => {
@@ -500,9 +520,30 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <path d="M 93 85 A 2 2 0 0 1 95 83" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" fill="none" filter="url(#whiteGlow)"/>
           </svg>
 
+          {/* Ball trail effect */}
+          {ballTrail.map((trailPos, index) => (
+            <div
+              key={`trail-${trailPos.timestamp}`}
+              className="absolute transform -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none"
+              style={{
+                left: `${trailPos.x}%`,
+                top: `${trailPos.y}%`,
+                opacity: (index + 1) / ballTrail.length * 0.6, // Fade effect
+              }}
+            >
+              <div 
+                className="rounded-full bg-white/40 blur-sm"
+                style={{
+                  width: `${2 + (index / ballTrail.length) * 6}px`,
+                  height: `${2 + (index / ballTrail.length) * 6}px`,
+                }}
+              ></div>
+            </div>
+          ))}
+
           {/* Professional ball with possession indicator */}
           <div 
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-1000 ease-out z-50"
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-800 ease-out z-50"
             style={{
               left: `${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
@@ -530,6 +571,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                     }`}></div>
                   </div>
                 )}
+              </div>
+
+              {/* Speed lines effect when ball is moving fast */}
+              <div className="absolute -inset-1 pointer-events-none">
+                <div className="w-6 h-0.5 bg-white/20 rounded-full blur-sm animate-pulse" 
+                     style={{ transform: 'rotate(-15deg)', left: '-4px', top: '7px' }}></div>
+                <div className="w-4 h-0.5 bg-white/15 rounded-full blur-sm animate-pulse" 
+                     style={{ transform: 'rotate(-25deg)', left: '-2px', top: '9px' }}></div>
               </div>
             </div>
           </div>
