@@ -154,7 +154,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               <img
                 src="/assets/matchdetaillogo/clock.png"
                 alt="Goal"
-                className="ml-8 w-4 h-4 opacity-80 flex-shrink-0"
+                className="ml-4 w-4 h-4 opacity-80 flex-shrink-0"
               />
               <div className="ml-2 text-sm font-bold text-black-800 ">
                 {finalScore.homeScore}-{finalScore.awayScore}
@@ -279,7 +279,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       <div className="flex gap-1">
                         {/* Time Column */}
                         <div className="flex flex-col items-center min-w-[45px]">
-                          <div className="w-3 h-6  flex items-center justify-center">
+                          <div className="w-3 h-6  flex items-center justify-center ">
                             {event.detail === "Half Time" ? (
                               <img
                                 src="/assets/matchdetaillogo/i mark.svg"
@@ -293,7 +293,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 className="w-4 h-4 ml-1"
                               />
                             ) : (
-                              <span className="text-white text-xs font-semi-bold">
+                              <span className="text-white text-xs font-semi-bold ">
                                 ⏱️
                               </span>
                             )}
@@ -305,7 +305,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                         {/* Content Column */}
                         <div className="flex-1">
-                          <div className="text-xs font-md ml-4 text-gray-600 leading-relaxed">
+                          <div className="text-xs font-md  text-gray-600 leading-relaxed">
                             {displayText}
                           </div>
                         </div>
@@ -320,7 +320,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 return (
                   <div
                     key={`commentary-${index}`}
-                    className="commentary-event-container"
+                    className="commentary-event-container "
                   >
                     <div className="flex gap-3">
                       {/* Time Column */}
@@ -352,7 +352,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       <div className="flex-1">
                         {event.type === "Goal" ? (
                           <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium">
+                            <div className="flex items-center gap-1 -ml-3 py-1 rounded-md text-xs font-medium">
                               {(() => {
                                 const detail = event.detail?.toLowerCase() || "";
                                 if (detail.includes("penalty")) {
@@ -403,8 +403,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               </span>
                             </div>
                             <div className="flex flex-col gap-2">
-                              <div className="flex items-center gap-2 px-2 py-1  text-xs font-medium bg-gray-200">
-                                <Avatar className="w-8 h-8 border-2  shadow-sm flex-shrink-0">
+                              <div className="flex items-center gap-2 -ml-3 py-1  text-xs font-medium bg-gray-200">
+                                <Avatar className="w-8 h-8 border-2  shadow-sm flex-shrink-0 ">
                                   <AvatarImage
                                     src={getPlayerImage(
                                       event.player?.id,
@@ -422,13 +422,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       .slice(0, 2) || "P"}
                                   </AvatarFallback>
                                 </Avatar>
-                                <span className="text-gray-700 font-medium">
+                                <span className="text-gray-700 font-medium -ml-1">
                                   {event.player?.name || "Unknown Player"}
                                 </span>
                               </div>
                             </div>
 
-                            <div className="flex items-start gap-2">
+                            <div className="flex items-start gap-2 -ml-3">
                               <div className="goal-event-wrapper ">
                                 <div className="text-xs font-bold text-gray-900 leading-relaxed">
                                   {eventDescription}
@@ -437,15 +437,15 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             </div>
                           </div>
                         ) : event.type === "Card" ? (
-                          <div className="flex items-start gap-1 ml-2">
+                          <div className="flex items-start gap-1 -ml-3">
                             <div className="text-sm text-gray-700 leading-relaxed">
                               {eventDescription}
                             </div>
                           </div>
                         ) : event.type === "Subst" ? (
                           <div
-                            className="text-sm text-gray-700 leading-relaxed"
-                            style={{ marginLeft: "6px" }}
+                            className="text-sm text-gray-700 leading-relaxed -ml-2"
+                            
                           >
                             {eventDescription}
                           </div>
