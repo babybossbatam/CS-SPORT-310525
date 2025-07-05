@@ -491,8 +491,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
     return isPastDate || isFutureDate;
   };
 
-  // Conditional data fetching based on match timing
-  const shouldUseCache = shouldUseCachedDataFlow(selectedDate);
+  // Use the cached data flow function for conditional data fetching
+  const useCachedFlow = shouldUseCachedDataFlow(selectedDate);
 
   // Cached data flow: RapidAPI → Server Cache → React Query Cache → Component Render
   const { data: cachedFixtures = [], isLoading: isCachedLoading, error: cachedError } = useQuery({
@@ -515,7 +515,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         return [];
       }
     },
-    enabled: shouldUseCache,
+    enabled: useCachedFlow,
     staleTime: 30 * 60 * 1000, // 30 minutes for cached data
     gcTime: 60 * 60 * 1000, // 1 hour
     refetchOnWindowFocus: false,
@@ -547,7 +547,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
         return [];
       }
     },
-    enabled: !shouldUseCache,
+    enabled: !useCachedFlow,
     staleTime: 30 * 1000, // 30 seconds for live/today data
     gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
@@ -560,12 +560,12 @@ const TodayPopularFootballLeaguesNew: React.FC<
   });
 
   // Combine data from both flows
-  const allFixtures = shouldUseCache ? cachedFixtures : directFixtures;
-  const isQueryLoading = shouldUseCache ? isCachedLoading : isDirectLoading;
-  const error = shouldUseCache ? cachedError : directError;
+  const allFixtures = useCachedFlow ? cachedFixtures : directFixtures;
+  const isQueryLoading = useCachedFlow ? isCachedLoading : isDirectLoading;
+  const error = useCachedFlow ? cachedError : directError;
 
   // Log which data flow is being used
-  console.log(`📊 [TodayPopularLeagueNew] Using ${shouldUseCache ? 'CACHED' : 'DIRECT'} data flow for ${selectedDate}`, {
+  console.log(`📊 [TodayPopularLeagueNew] Using ${useCachedFlow ? 'CACHED' : 'DIRECT'} data flow for ${selectedDate}`, {
     isToday: isDateStringToday(selectedDate),
     isPast: selectedDate < getCurrentUTCDateString(),
     isFuture: selectedDate > getCurrentUTCDateString(),
