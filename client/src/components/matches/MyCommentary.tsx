@@ -402,14 +402,14 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             {eventDescription}
                           </div>
                         ) : event.type === "Var" ? (
-                          <div className="flex items-start gap-1">
+                          <div className="flex items-start gap-1 ml-2">
                             <span className="text-xs mt-0.5">📺</span>
                             <div className="text-xs text-gray-700 leading-relaxed">
                               {eventDescription}
                             </div>
                           </div>
                         ) : (
-                          <div className="text-sm text-gray-700 leading-relaxed ml-6">
+                          <div className="text-sm text-gray-700 leading-relaxed ml-2">
                             {eventDescription}
                           </div>
                         )}
