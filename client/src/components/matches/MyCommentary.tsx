@@ -84,60 +84,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
   return (
     <>
-      {/* Final Score Display */}
-      {(() => {
-        const hasEndedEvents = events.some(
-          (event) =>
-            event.time.elapsed >= 90 &&
-            event.time.extra &&
-            event.time.extra > 0,
-        );
-
-        if (hasEndedEvents) {
-          const finalScore = calculateScoreAtTime(Math.max(...events.map(e => e.time.elapsed + (e.time.extra || 0))));
-          return (
-            <div className="p-2 border-t flex justify-center items-center gap-2">
-              <img
-                src="/assets/matchdetaillogo/clock.png"
-                alt="Match Clock"
-                className="w-4 h-4 opacity-80"
-              />
-              <div className="text-lg font-bold text-gray-800">
-                {finalScore.homeScore}-{finalScore.awayScore}
-              </div>
-            </div>
-          );
-        }
-        return null;
-      })()}
-
-      {/* Final Score Display */}
-      {(() => {
-        const hasEndedEvents = events.some(
-          (event) =>
-            event.time.elapsed >= 90 &&
-            event.time.extra &&
-            event.time.extra > 0,
-        );
-
-        if (hasEndedEvents) {
-          const finalScore = calculateScoreAtTime(Math.max(...events.map(e => e.time.elapsed + (e.time.extra || 0))));
-          return (
-            <div className="p-2 border-t flex justify-center items-center gap-2">
-              <img
-                src="/assets/matchdetaillogo/clock.png"
-                alt="Match Clock"
-                className="w-4 h-4 opacity-80"
-              />
-              <div className="text-lg font-bold text-gray-800">
-                {finalScore.homeScore}-{finalScore.awayScore}
-              </div>
-            </div>
-          );
-        }
-        return null;
-      })()}
-
       <div className="p-2 border-t flex justify-center items-center">
         <img
           src="/assets/matchdetaillogo/clock.png"
@@ -170,9 +116,11 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
             current.totalTime > latest.totalTime ? current : latest
           );
 
+          const finalScore = calculateScoreAtTime(finalEvent.totalTime);
+          
           return (
             
-            <div className="p-3 border-t flex items-left">
+            <div className="p-3 border-t flex items-center justify-between">
               <div className="text-center">
                 <div className="text-sm font-semibold text-gray-800 mb-1">
                   End of Match
@@ -181,6 +129,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   Full Time: {finalEvent.time.elapsed}'
                   {finalEvent.time.extra && finalEvent.time.extra > 0 ? ` +${finalEvent.time.extra}'` : ""}
                 </div>
+              </div>
+              <div className="text-lg font-bold text-gray-800">
+                {finalScore.homeScore}-{finalScore.awayScore}
               </div>
             </div>
           );
