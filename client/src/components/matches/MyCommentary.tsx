@@ -111,30 +111,30 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
             ...e,
             totalTime: e.time.elapsed + (e.time.extra || 0)
           }));
-          
+
           const finalEvent = eventsWithTotalTime.reduce((latest, current) => 
             current.totalTime > latest.totalTime ? current : latest
           );
 
           const finalScore = calculateScoreAtTime(finalEvent.totalTime);
           console.log("Final score calculation:", finalScore);
-          
+
           return (
-            
+
             <div className="border-t flex items-center ">
               <div className="text-center">
                 <div className="text-sm font-semibold text-gray-800 mb-1">
-               
+
                 </div>
                 <div className="ml-8 text-xs text-red-500 text-center">
-                 
+
                     {finalEvent.time.extra && finalEvent.time.extra > 0 ? ` +${finalEvent.time.extra}'` : ""}
                   </div>
                 <div className="ml-8 text-xs text-gray-600">
                 {finalEvent.time.elapsed}'
-                  
+
                 </div>
-                
+
               </div>
               <img
                 src="/assets/matchdetaillogo/clock.png"
@@ -385,7 +385,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                   return `${scoreAtGoal.homeScore}-${scoreAtGoal.awayScore}`;
                                 })()}
                               </span>
-                              <span></span>
                             </div>
                             <div className="flex flex-col gap-2">
                               <div className="flex items-center gap-2 px-2 py-1  text-xs font-medium bg-gray-200">
