@@ -366,63 +366,100 @@ const TodayPopularFootballLeaguesNew: React.FC<
     }
   }, [getCacheKey, isMatchOldEnded]);
 
-  // Fetch data with smart caching for ended matches
+  // Fetch data with smart caching for ended matches only
   const { data: allFixtures = [], isLoading: isQueryLoading, isFetching: isQueryFetching, error } = useQuery({
     queryKey: ['smart-popular-leagues-fixtures', selectedDate],
     queryFn: async () => {
       console.log(`🔄 [TodayPopularLeagueNew] Smart fetching fixtures for ${selectedDate}`);
 
       try {
-        // Check for cached ended matches first (only for past dates)
-        const selectedDateObj = new Date(selectedDate);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        selectedDateObj.setHours(0, 0, 0, 0);
-        
-        let cachedEndedMatches: any[] = [];
-        if (selectedDateObj < today) {
-          cachedEndedMatches = getCachedEndedMatches(selectedDate);
-        }
-
-        // Fetch fresh data from API
+        // Always fetch fresh data from API first
         const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
         const fixtures = await response.json();
 
         if (!fixtures?.length) {
           console.log(`✅ [TodayPopularLeagueNew] No fixtures found for ${selectedDate}`);
-          return cachedEndedMatches; // Return cached data if no fresh data
+          // Only return cached data if no fresh data available and it's a past date
+          const selectedDateObj = new Date(selectedDate);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          selectedDateObj.setHours(0, 0, 0, 0);
+          
+          if (selectedDateObj < today) {
+            const cachedEndedMatches = getCachedEndedMatches(selectedDate);
+            return cachedEndedMatches;
+          }
+          return [];
         }
 
-        // Separate fresh fixtures from cached ones
-        const cachedFixtureIds = new Set(cachedEndedMatches.map(f => f.fixture.id));
-        const freshFixtures = fixtures.filter((fixture: any) => 
+        // Separate matches into categories
+        const liveAndRecentMatches: any[] = [];
+        const oldEndedMatches: any[] = [];
+
+        fixtures.forEach((fixture: any) => {
+          const isOldEnded = isMatchOldEnded(fixture);
+          if (isOldEnded) {
+            oldEndedMatches.push(fixture);
+          } else {
+            // Live, upcoming, or recently ended matches - always use fresh data
+            liveAndRecentMatches.push(fixture);
+          }
+        });
+
+        // Get cached old ended matches for this date
+        const selectedDateObj = new Date(selectedDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        selectedDateObj.setHours(0, 0, 0, 0);
+        
+        let cachedOldEndedMatches: any[] = [];
+        if (selectedDateObj < today) {
+          cachedOldEndedMatches = getCachedEndedMatches(selectedDate);
+        }
+
+        // For old ended matches, prefer cached versions if available
+        const cachedFixtureIds = new Set(cachedOldEndedMatches.map((f: any) => f.fixture.id));
+        const newOldEndedMatches = oldEndedMatches.filter((fixture: any) => 
           !cachedFixtureIds.has(fixture.fixture.id)
         );
 
-        // Combine fresh fixtures with cached ended matches
-        const combinedFixtures = [...freshFixtures, ...cachedEndedMatches];
+        // Combine all matches: fresh live/recent + cached old ended + new old ended
+        const combinedFixtures = [
+          ...liveAndRecentMatches, // Always fresh
+          ...cachedOldEndedMatches, // Use cached when available
+          ...newOldEndedMatches // Fresh old ended matches not yet cached
+        ];
 
-        // Cache any new ended matches for future use (only for past dates)
-        if (selectedDateObj < today) {
-          cacheEndedMatches(selectedDate, fixtures);
+        // Cache any new old ended matches for future use (only for past dates)
+        if (selectedDateObj < today && newOldEndedMatches.length > 0) {
+          const allOldEndedMatches = [...cachedOldEndedMatches, ...newOldEndedMatches];
+          cacheEndedMatches(selectedDate, allOldEndedMatches);
         }
 
-        console.log(`✅ [TodayPopularLeagueNew] Smart fetched: ${freshFixtures.length} fresh + ${cachedEndedMatches.length} cached = ${combinedFixtures.length} total fixtures for ${selectedDate}`);
+        console.log(`✅ [TodayPopularLeagueNew] Smart fetched: ${liveAndRecentMatches.length} live/recent + ${cachedOldEndedMatches.length} cached old + ${newOldEndedMatches.length} new old = ${combinedFixtures.length} total fixtures for ${selectedDate}`);
         return combinedFixtures;
       } catch (error) {
         console.error(`❌ [TodayPopularLeagueNew] Error fetching fixtures for ${selectedDate}:`, error);
-        // Return cached data if API fails
-        const cachedEndedMatches = getCachedEndedMatches(selectedDate);
-        if (cachedEndedMatches.length > 0) {
-          console.log(`🔄 [TodayPopularLeagueNew] Returning ${cachedEndedMatches.length} cached fixtures due to API error`);
-          return cachedEndedMatches;
+        // Return cached data only if API fails and it's a past date
+        const selectedDateObj = new Date(selectedDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        selectedDateObj.setHours(0, 0, 0, 0);
+        
+        if (selectedDateObj < today) {
+          const cachedEndedMatches = getCachedEndedMatches(selectedDate);
+          if (cachedEndedMatches.length > 0) {
+            console.log(`🔄 [TodayPopularLeagueNew] Returning ${cachedEndedMatches.length} cached fixtures due to API error`);
+            return cachedEndedMatches;
+          }
         }
         return [];
       }
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
-    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000, // 30 seconds for live matches
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: true, // Refetch when window gains focus for live updates
+    refetchInterval: 60 * 1000, // Refetch every minute for live matches
     retry: 2,
     meta: {
       errorMessage: `Failed to fetch fixtures for ${selectedDate}`
