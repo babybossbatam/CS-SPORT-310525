@@ -1,7 +1,4 @@
-` tags. I will replace the smart caching logic with direct API calls and ensure the code is fully functional and retains the original structure and formatting.
 
-```
-<replit_final_file>
 import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Star, Calendar, ChevronDown, ChevronUp } from "lucide-react";
