@@ -697,18 +697,30 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <path d="M 93 85 A 2 2 0 0 1 95 83" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" fill="none" filter="url(#whiteGlow)"/>
           </svg>
 
-          {/* Solid ball trail line - historical movement */}
+          {/* Enhanced ball trail line - historical movement */}
           {ballTrail.length > 1 && (
             <svg className="absolute inset-0 w-full h-full z-35 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-              {/* Simple solid trail line */}
+              {/* Enhanced visible trail line */}
               <path
                 d={`M ${ballTrail.map(pos => `${pos.x},${pos.y}`).join(' L ')}`}
-                stroke="rgba(255,255,255,0.6)"
-                strokeWidth="0.3"
+                stroke="rgba(255,255,255,0.9)"
+                strokeWidth="0.8"
                 fill="none"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                className="opacity-80"
+                className="opacity-95"
+                strokeDasharray="none"
+              />
+              {/* Glowing effect for better visibility */}
+              <path
+                d={`M ${ballTrail.map(pos => `${pos.x},${pos.y}`).join(' L ')}`}
+                stroke="rgba(255,255,255,0.4)"
+                strokeWidth="1.2"
+                fill="none"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="opacity-60"
+                filter="blur(0.5px)"
               />
             </svg>
           )}
