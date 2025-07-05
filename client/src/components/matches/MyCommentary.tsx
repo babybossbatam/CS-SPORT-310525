@@ -421,7 +421,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             </div>
                           </div>
                         ) : event.type === "Card" ? (
-                          <div className="flex items-start gap-1 ml-6">
+                          <div className="flex items-start gap-1 ml-2">
                             <div className="text-sm text-gray-700 leading-relaxed">
                               {eventDescription}
                             </div>
