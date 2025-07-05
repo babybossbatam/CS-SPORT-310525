@@ -191,6 +191,15 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 player: { name: "" },
               } as any);
 
+              // Add "45 minutes" period marker
+              allCommentaryItems.push({
+                time: { elapsed: 45 },
+                type: "period_marker",
+                detail: "45 minutes",
+                team: { name: "", logo: "" },
+                player: { name: "" },
+              } as any);
+
               // Add "Half Time" marker if there are events after minute 45
               if (hasEventsInSecondHalf) {
                 allCommentaryItems.push({
@@ -269,7 +278,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 // Handle period markers
                 if (
                   event.type === "period_start" ||
-                  event.type === "period_end"
+                  event.type === "period_end" ||
+                  event.type === "period_marker"
                 ) {
                   // For Half Time, show Second Half begins with team names and halftime scores
                   const displayText =
