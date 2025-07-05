@@ -444,7 +444,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           </div>
                         ) : event.type === "Subst" ? (
                           <div
-                            className="text-sm text-gray-700 leading-relaxed -ml-2"
+                            className="text-sm text-gray-700 leading-relaxed -ml-18"
                             
                           >
                             {eventDescription}
