@@ -128,8 +128,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     const hoursUntilMatch = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
     const hoursAfterMatch = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
     
-    // Live matches always need fresh data
-    if (status && ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+    // Live matches ALWAYS need fresh data - NO EXCEPTIONS
+    if (status && ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+      console.log(`🔴 [MyNewLeague FRESH] Live match must use fresh data:`, {
+        teams: `Match with status ${status}`,
+        reason: 'live_match'
+      });
       return true;
     }
     
@@ -172,9 +176,9 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         strategy: isSelectedDateToday ? 'fresh_data' : isSelectedDateTomorrow ? 'mixed_cache' : 'cached_data'
       });
 
-      // Always fetch live fixtures for real-time data
+      // Always fetch live fixtures for real-time data - HIGHEST PRIORITY
       try {
-        console.log(`MyNewLeague - Fetching live fixtures for real-time data`);
+        console.log(`🔴 [MyNewLeague LIVE] Fetching live fixtures for real-time data`);
         const liveResponse = await apiRequest("GET", "/api/fixtures/live");
         const liveData = await liveResponse.json();
 
@@ -184,11 +188,17 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             leagueIds.includes(fixture.league?.id)
           );
 
-          console.log(`MyNewLeague - Found ${relevantLiveFixtures.length} live fixtures from target leagues`);
+          if (relevantLiveFixtures.length > 0) {
+            console.log(`🔴 [MyNewLeague LIVE] Found ${relevantLiveFixtures.length} live fixtures from target leagues:`, 
+              relevantLiveFixtures.map(f => `${f.teams?.home?.name} vs ${f.teams?.away?.name} (${f.fixture?.status?.short})`)
+            );
+          }
+          
+          // Add live fixtures first to ensure they override any cached data
           allFixtures.push(...relevantLiveFixtures);
         }
       } catch (liveError) {
-        console.warn("Failed to fetch live fixtures:", liveError);
+        console.warn("🔴 [MyNewLeague LIVE] Failed to fetch live fixtures:", liveError);
       }
 
       // Smart caching strategy for each league
@@ -215,10 +225,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           let forceRefresh = false;
 
           if (isSelectedDateToday) {
-            // For today's matches, use minimal cache and force refresh
+            // For today's matches, use minimal cache and force refresh to get live data
             forceRefresh = true;
             useCache = false;
-            console.log(`🔄 [MyNewLeague SMART CACHE] League ${leagueId}: Using fresh data for today`);
+            console.log(`🔄 [MyNewLeague SMART CACHE] League ${leagueId}: Using fresh data for today (live matches possible)`);
           } else if (isSelectedDateTomorrow) {
             // For near future dates, use smart caching with shorter TTL
             useCache = true;
@@ -300,6 +310,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
                       date: fixtureDate,
                       reason: 'upcoming_soon'
+                    });
+                  } else if (['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+                    console.log(`🔴 [MyNewLeague FRESH] Live match detected:`, {
+                      teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+                      date: fixtureDate,
+                      status,
+                      reason: 'live_match'
                     });
                   } else if (['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAfterMatch <= 2) {
                     console.log(`🔄 [MyNewLeague FRESH] Recently ended match needs fresh data:`, {
