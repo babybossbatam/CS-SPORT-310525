@@ -120,17 +120,28 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
           
           return (
             
-            <div className="p-3 border-t flex items-center justify-between">
+            <div className="border-t flex items-center ">
               <div className="text-center">
                 <div className="text-sm font-semibold text-gray-800 mb-1">
-                  End of Match
+               
                 </div>
-                <div className="text-xs text-gray-600">
-                  Full Time: {finalEvent.time.elapsed}'
-                  {finalEvent.time.extra && finalEvent.time.extra > 0 ? ` +${finalEvent.time.extra}'` : ""}
+                <div className="ml-8 text-xs text-red-500 text-center">
+                 
+                    {finalEvent.time.extra && finalEvent.time.extra > 0 ? ` +${finalEvent.time.extra}'` : ""}
+                  </div>
+                <div className="ml-8 text-xs text-gray-600">
+                {finalEvent.time.elapsed}'
+                  
                 </div>
+                
               </div>
-              <div className="text-lg font-bold text-gray-800">
+              <img
+                src="/assets/matchdetaillogo/clock.png"
+                alt="Goal"
+                className="ml-8 w-4 h-4 opacity-80 flex-shrink-0"
+              />
+              <div className="ml-2 text-sm font-bold text-black-800 ">
+                
                 {finalScore.homeScore}-{finalScore.awayScore}
               </div>
             </div>
@@ -140,7 +151,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
       })()}
 
       {/* Commentary Events Section */}
-      <div className="border-t ">
+      <div className=" ">
         <div className="p-4 space-y-2 max-h-200 overflow-y-auto">
           {/* Simplified Timeline - Events Only */}
           {(() => {
