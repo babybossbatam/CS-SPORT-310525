@@ -1181,10 +1181,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           )}
         </div>
 
-        {/* Bottom statistics panel - inside field as overlay */}
-        {currentView === 'stats' && (
-          <div className="absolute bottom-4 left-4 right-4 z-50">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-4">
+        {/* Bottom statistics panel - 365scores style */}
+        <div className="bg-white border-t border-gray-100">
+          {currentView === 'stats' && (
+            <div className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Free Kicks</span>
                 <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
@@ -1216,12 +1216,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
           {currentView === 'history' && (
-          <div className="absolute bottom-4 left-4 right-4 z-50">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-4">
+            <div className="p-4">
               <div className="text-center mb-3">
                 <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Last 5 Matches</span>
               </div>
@@ -1248,12 +1246,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {currentView === 'corners' && (
-          <div className="absolute bottom-4 left-4 right-4 z-50">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-4">
+          {currentView === 'corners' && (
+            <div className="p-4">
               <div className="text-center mb-3">
                 <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Corners</span>
               </div>
@@ -1277,12 +1273,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {currentView === 'shotmap' && (
-          <div className="absolute bottom-4 left-4 right-4 z-50">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg border border-gray-200 p-4">
+          {currentView === 'shotmap' && (
+            <div className="p-4">
               <div className="text-center mb-3">
                 <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Shot Map</span>
               </div>
@@ -1343,8 +1337,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
