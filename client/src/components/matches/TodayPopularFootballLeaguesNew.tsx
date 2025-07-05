@@ -787,7 +787,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
   if (showLoading) {
     console.log(
-      `⏳ [TodayPopularLeagueNew] Showing loading for ${selectedDate} - isLoading: ${isQueryLoading}, isFetching: ${isQueryFetching}, fixturesLength: ${filteredFixtures?.length || 0}`,
+      `⏳ [TodayPopularLeagueNew] Showing loading for ${selectedDate} - isLoading: ${isQueryLoading}, fixturesLength: ${filteredFixtures?.length || 0}`,
     );
 
     return (
