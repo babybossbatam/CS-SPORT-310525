@@ -366,101 +366,71 @@ const TodayPopularFootballLeaguesNew: React.FC<
     }
   }, [getCacheKey, isMatchOldEnded]);
 
-  // Fetch data with smart caching for ended matches only
+  // Clear any existing cache before fetching to ensure fresh data
+  useEffect(() => {
+    // Clear localStorage cache for the current date to prevent stale data
+    try {
+      const cacheKeys = Object.keys(localStorage).filter(key => 
+        key.startsWith('popular_ended_matches_') && key.includes(selectedDate)
+      );
+      cacheKeys.forEach(key => {
+        localStorage.removeItem(key);
+        console.log(`🗑️ [TodayPopularLeagueNew] Cleared cache key: ${key}`);
+      });
+    } catch (error) {
+      console.error('Error clearing cache:', error);
+    }
+  }, [selectedDate]);
+
+  // Fetch data with simplified caching (only for old ended matches)
   const { data: allFixtures = [], isLoading: isQueryLoading, isFetching: isQueryFetching, error } = useQuery({
-    queryKey: ['smart-popular-leagues-fixtures', selectedDate],
+    queryKey: ['popular-leagues-fixtures', selectedDate, Date.now()], // Add timestamp to force fresh data
     queryFn: async () => {
-      console.log(`🔄 [TodayPopularLeagueNew] Smart fetching fixtures for ${selectedDate}`);
+      console.log(`🔄 [TodayPopularLeagueNew] Fetching fresh fixtures for ${selectedDate}`);
 
       try {
-        // Always fetch fresh data from API first
-        const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
+        // Always fetch fresh data from API
+        const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true&timestamp=${Date.now()}`);
         const fixtures = await response.json();
 
         if (!fixtures?.length) {
           console.log(`✅ [TodayPopularLeagueNew] No fixtures found for ${selectedDate}`);
-          // Only return cached data if no fresh data available and it's a past date
-          const selectedDateObj = new Date(selectedDate);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          selectedDateObj.setHours(0, 0, 0, 0);
-          
-          if (selectedDateObj < today) {
-            const cachedEndedMatches = getCachedEndedMatches(selectedDate);
-            return cachedEndedMatches;
-          }
           return [];
         }
 
-        // Separate matches into categories
-        const liveAndRecentMatches: any[] = [];
-        const oldEndedMatches: any[] = [];
-
-        fixtures.forEach((fixture: any) => {
-          const isOldEnded = isMatchOldEnded(fixture);
-          if (isOldEnded) {
-            oldEndedMatches.push(fixture);
-          } else {
-            // Live, upcoming, or recently ended matches - always use fresh data
-            liveAndRecentMatches.push(fixture);
-          }
-        });
-
-        // Get cached old ended matches for this date
+        console.log(`✅ [TodayPopularLeagueNew] Fetched ${fixtures.length} fresh fixtures for ${selectedDate}`);
+        
+        // Only cache old ended matches (older than 24 hours) for past dates
         const selectedDateObj = new Date(selectedDate);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         selectedDateObj.setHours(0, 0, 0, 0);
         
-        let cachedOldEndedMatches: any[] = [];
         if (selectedDateObj < today) {
-          cachedOldEndedMatches = getCachedEndedMatches(selectedDate);
+          const oldEndedMatches = fixtures.filter((fixture: any) => isMatchOldEnded(fixture));
+          if (oldEndedMatches.length > 0) {
+            cacheEndedMatches(selectedDate, oldEndedMatches);
+            console.log(`💾 [TodayPopularLeagueNew] Cached ${oldEndedMatches.length} old ended matches for ${selectedDate}`);
+          }
         }
 
-        // For old ended matches, prefer cached versions if available
-        const cachedFixtureIds = new Set(cachedOldEndedMatches.map((f: any) => f.fixture.id));
-        const newOldEndedMatches = oldEndedMatches.filter((fixture: any) => 
-          !cachedFixtureIds.has(fixture.fixture.id)
-        );
-
-        // Combine all matches: fresh live/recent + cached old ended + new old ended
-        const combinedFixtures = [
-          ...liveAndRecentMatches, // Always fresh
-          ...cachedOldEndedMatches, // Use cached when available
-          ...newOldEndedMatches // Fresh old ended matches not yet cached
-        ];
-
-        // Cache any new old ended matches for future use (only for past dates)
-        if (selectedDateObj < today && newOldEndedMatches.length > 0) {
-          const allOldEndedMatches = [...cachedOldEndedMatches, ...newOldEndedMatches];
-          cacheEndedMatches(selectedDate, allOldEndedMatches);
-        }
-
-        console.log(`✅ [TodayPopularLeagueNew] Smart fetched: ${liveAndRecentMatches.length} live/recent + ${cachedOldEndedMatches.length} cached old + ${newOldEndedMatches.length} new old = ${combinedFixtures.length} total fixtures for ${selectedDate}`);
-        return combinedFixtures;
+        return fixtures;
       } catch (error) {
         console.error(`❌ [TodayPopularLeagueNew] Error fetching fixtures for ${selectedDate}:`, error);
-        // Return cached data only if API fails and it's a past date
-        const selectedDateObj = new Date(selectedDate);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        selectedDateObj.setHours(0, 0, 0, 0);
-        
-        if (selectedDateObj < today) {
-          const cachedEndedMatches = getCachedEndedMatches(selectedDate);
-          if (cachedEndedMatches.length > 0) {
-            console.log(`🔄 [TodayPopularLeagueNew] Returning ${cachedEndedMatches.length} cached fixtures due to API error`);
-            return cachedEndedMatches;
-          }
-        }
         return [];
       }
     },
-    staleTime: 30 * 1000, // 30 seconds for live matches
-    gcTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: true, // Refetch when window gains focus for live updates
-    refetchInterval: 60 * 1000, // Refetch every minute for live matches
-    retry: 2,
+    staleTime: 0, // Always fetch fresh data
+    gcTime: 30 * 1000, // Keep in cache for 30 seconds only
+    refetchOnWindowFocus: true,
+    refetchInterval: (data) => {
+      // Only auto-refresh if there are live matches
+      const hasLiveMatches = data?.some((fixture: any) => 
+        ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
+      );
+      return hasLiveMatches ? 30 * 1000 : false; // 30 seconds for live matches, no auto-refresh otherwise
+    },
+    retry: 1,
     meta: {
       errorMessage: `Failed to fetch fixtures for ${selectedDate}`
     }
