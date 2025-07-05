@@ -416,7 +416,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             <div className="flex items-start gap-2">
                               <div className="goal-event-wrapper ">
                                 <div className="text-xs font-bold text-gray-900 leading-relaxed">
-                                  {eventDescription}
+                                  {(() => {
+                                    const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
+                                    if (isOwnGoal) {
+                                      return `${event.player?.name || "Unknown Player"} (${event.team?.name || "Unknown Team"}) - Own Goal`;
+                                    }
+                                    return eventDescription;
+                                  })()}
                                 </div>
                               </div>
                             </div>
