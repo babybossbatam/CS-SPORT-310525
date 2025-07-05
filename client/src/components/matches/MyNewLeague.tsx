@@ -388,42 +388,60 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     setExpandedLeagues(new Set(leagueKeys));
   }, [Object.keys(matchesByLeague).length]);
 
-  // Sort matches within each league by status priority: live > ended > upcoming
+  // Sort matches within each league by status priority: Live > Ended > Upcoming
   Object.values(matchesByLeague).forEach((leagueGroup) => {
-    // Check if there are any live matches in this league
-    const hasLiveMatches = leagueGroup.matches.some(match => 
-      ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(match.fixture.status.short)
-    );
-
     leagueGroup.matches.sort((a, b) => {
-      // First sort by status priority
-      const statusPriority = (status: string) => {
-        const isLive = ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
-        const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
-        const isUpcoming = ["NS", "TBD"].includes(status);
+      const aStatus = a.fixture.status.short;
+      const bStatus = b.fixture.status.short;
+      const aDate = new Date(a.fixture.date).getTime();
+      const bDate = new Date(b.fixture.date).getTime();
 
-        if (isLive) return 1; // Live matches always first
-
-        // If no live matches exist, ended matches get priority 1, otherwise priority 2
-        if (isEnded) return hasLiveMatches ? 2 : 1;
-
-        // Upcoming matches get lowest priority
-        if (isUpcoming) return hasLiveMatches ? 3 : 2;
-
-        return 4; // Other statuses last
+      // Define clear status priorities
+      const getStatusPriority = (status: string) => {
+        // Priority 1: Live matches
+        if (["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
+          return 1;
+        }
+        // Priority 2: Ended matches  
+        if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
+          return 2;
+        }
+        // Priority 3: Upcoming matches
+        if (["NS", "TBD"].includes(status)) {
+          return 3;
+        }
+        // Priority 4: Other statuses
+        return 4;
       };
 
-      const aPriority = statusPriority(a.fixture.status.short);
-      const bPriority = statusPriority(b.fixture.status.short);
+      const aPriority = getStatusPriority(aStatus);
+      const bPriority = getStatusPriority(bStatus);
 
+      // First sort by status priority
       if (aPriority !== bPriority) {
         return aPriority - bPriority;
       }
 
-      // Within same status category, sort by date in ascending order (earliest first)
-      return (
-        new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime()
-      );
+      // Within same status category, apply specific sorting rules
+      if (aPriority === 1) {
+        // Live matches: sort by elapsed time (shortest elapsed time first)
+        const aElapsed = Number(a.fixture.status.elapsed) || 0;
+        const bElapsed = Number(b.fixture.status.elapsed) || 0;
+        return aElapsed - bElapsed;
+      }
+
+      if (aPriority === 2) {
+        // Ended matches: sort by most recent first
+        return bDate - aDate;
+      }
+
+      if (aPriority === 3) {
+        // Upcoming matches: sort by earliest start time first
+        return aDate - bDate;
+      }
+
+      // For other statuses, sort by date
+      return aDate - bDate;
     });
   });
 
