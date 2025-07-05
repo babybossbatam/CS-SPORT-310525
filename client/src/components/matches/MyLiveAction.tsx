@@ -170,8 +170,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
     const ballInterval = setInterval(() => {
       setBallPosition(prev => {
-        const newX = Math.max(15, Math.min(85, prev.x + (Math.random() - 0.5) * 12)); // Increased movement range
-        const newY = Math.max(25, Math.min(75, prev.y + (Math.random() - 0.5) * 8)); // Increased movement range
+        const newX = Math.max(15, Math.min(85, prev.x + (Math.random() - 0.5) * 15)); // Even more movement range
+        const newY = Math.max(25, Math.min(75, prev.y + (Math.random() - 0.5) * 10)); // Even more movement range
 
         // Update possession based on ball position
         if (newX < 40) {
@@ -182,16 +182,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           setBallPossession(null);
         }
 
-        // Add to trail
+        // Add to trail with more positions for smoother history line
         setBallTrail(currentTrail => {
           const newTrail = [...currentTrail, { x: prev.x, y: prev.y, timestamp: Date.now() }];
-          // Keep only last 8 positions for trail effect
-          return newTrail.slice(-8);
+          // Keep last 15 positions for longer trail effect
+          return newTrail.slice(-15);
         });
 
         return { x: newX, y: newY };
       });
-    }, 800); // Faster movement - changed from 3000ms to 800ms
+    }, 400); // Much faster movement - changed from 800ms to 400ms
 
     return () => clearInterval(ballInterval);
   }, [isLive]);
@@ -200,7 +200,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   useEffect(() => {
     const trailCleanup = setInterval(() => {
       setBallTrail(currentTrail => 
-        currentTrail.filter(pos => Date.now() - pos.timestamp < 6000) // Keep trail for 6 seconds
+        currentTrail.filter(pos => Date.now() - pos.timestamp < 10000) // Keep trail for 10 seconds
       );
     }, 1000);
 
@@ -520,7 +520,46 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <path d="M 93 85 A 2 2 0 0 1 95 83" stroke="rgba(255,255,255,0.9)" strokeWidth="0.4" fill="none" filter="url(#whiteGlow)"/>
           </svg>
 
-          {/* Ball trail effect */}
+          {/* Ball history line - connected path */}
+          {ballTrail.length > 1 && (
+            <svg className="absolute inset-0 w-full h-full z-35 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="ballTrailGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.1)" />
+                  <stop offset="50%" stopColor="rgba(255,255,255,0.4)" />
+                  <stop offset="100%" stopColor="rgba(255,255,255,0.8)" />
+                </linearGradient>
+                <filter id="ballTrailGlow">
+                  <feGaussianBlur stdDeviation="0.5" result="coloredBlur"/>
+                  <feMerge> 
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              
+              {/* Connected trail line */}
+              <path
+                d={`M ${ballTrail.map((pos, i) => `${pos.x},${pos.y}`).join(' L ')}`}
+                stroke="url(#ballTrailGradient)"
+                strokeWidth="0.3"
+                fill="none"
+                filter="url(#ballTrailGlow)"
+                className="animate-pulse"
+              />
+              
+              {/* Additional glow line for more visibility */}
+              <path
+                d={`M ${ballTrail.map((pos, i) => `${pos.x},${pos.y}`).join(' L ')}`}
+                stroke="rgba(255,255,255,0.6)"
+                strokeWidth="0.15"
+                fill="none"
+                filter="url(#ballTrailGlow)"
+              />
+            </svg>
+          )}
+
+          {/* Ball trail effect dots */}
           {ballTrail.map((trailPos, index) => (
             <div
               key={`trail-${trailPos.timestamp}`}
@@ -528,14 +567,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               style={{
                 left: `${trailPos.x}%`,
                 top: `${trailPos.y}%`,
-                opacity: (index + 1) / ballTrail.length * 0.6, // Fade effect
+                opacity: (index + 1) / ballTrail.length * 0.7, // Enhanced opacity
               }}
             >
               <div 
-                className="rounded-full bg-white/40 blur-sm"
+                className="rounded-full bg-white/50 blur-sm animate-pulse"
                 style={{
-                  width: `${2 + (index / ballTrail.length) * 6}px`,
-                  height: `${2 + (index / ballTrail.length) * 6}px`,
+                  width: `${1 + (index / ballTrail.length) * 4}px`,
+                  height: `${1 + (index / ballTrail.length) * 4}px`,
                 }}
               ></div>
             </div>
@@ -543,42 +582,54 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
           {/* Professional ball with possession indicator */}
           <div 
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-800 ease-out z-50"
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-400 ease-out z-50"
             style={{
               left: `${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
             }}
           >
             <div className="relative">
-              {/* Ball shadow */}
-              <div className="absolute w-4 h-2 bg-black/30 rounded-full blur-sm" 
-                   style={{ left: '-8px', top: '12px' }}></div>
+              {/* Enhanced ball shadow with movement */}
+              <div className="absolute w-5 h-2 bg-black/40 rounded-full blur-md animate-pulse" 
+                   style={{ left: '-10px', top: '14px' }}></div>
 
-              {/* Professional ball - made larger and more visible */}
-              <div className="w-4 h-4 bg-white rounded-full shadow-xl relative overflow-hidden border border-gray-300">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/40 to-transparent"></div>
-                {/* Soccer ball pattern */}
+              {/* Professional ball - larger and more dynamic */}
+              <div className="w-5 h-5 bg-white rounded-full shadow-2xl relative overflow-hidden border border-gray-200 animate-spin-slow">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/50 to-transparent"></div>
+                {/* Enhanced soccer ball pattern */}
                 <div className="absolute inset-0 rounded-full">
-                  <div className="absolute top-1 left-1 w-1 h-1 bg-black rounded-full opacity-60"></div>
+                  <div className="absolute top-1 left-1 w-1.5 h-1.5 bg-black rounded-full opacity-70"></div>
                   <div className="absolute bottom-1 right-1 w-1 h-1 bg-black rounded-full opacity-60"></div>
+                  <div className="absolute top-2 right-1.5 w-0.5 h-0.5 bg-black rounded-full opacity-50"></div>
                 </div>
 
-                {/* Possession glow effect */}
+                {/* Enhanced possession glow effect */}
                 {ballPossession && (
-                  <div className="absolute -inset-2">
-                    <div className={`w-8 h-8 rounded-full animate-ping opacity-30 ${
+                  <div className="absolute -inset-3">
+                    <div className={`w-11 h-11 rounded-full animate-ping opacity-40 ${
                       ballPossession === 'home' ? 'bg-blue-400' : 'bg-red-400'
+                    }`}></div>
+                    <div className={`absolute inset-1 w-9 h-9 rounded-full animate-pulse opacity-20 ${
+                      ballPossession === 'home' ? 'bg-blue-300' : 'bg-red-300'
                     }`}></div>
                   </div>
                 )}
               </div>
 
-              {/* Speed lines effect when ball is moving fast */}
-              <div className="absolute -inset-1 pointer-events-none">
-                <div className="w-6 h-0.5 bg-white/20 rounded-full blur-sm animate-pulse" 
-                     style={{ transform: 'rotate(-15deg)', left: '-4px', top: '7px' }}></div>
-                <div className="w-4 h-0.5 bg-white/15 rounded-full blur-sm animate-pulse" 
-                     style={{ transform: 'rotate(-25deg)', left: '-2px', top: '9px' }}></div>
+              {/* Enhanced speed lines effect */}
+              <div className="absolute -inset-2 pointer-events-none">
+                <div className="w-8 h-0.5 bg-white/30 rounded-full blur-sm animate-pulse" 
+                     style={{ transform: 'rotate(-15deg)', left: '-6px', top: '9px' }}></div>
+                <div className="w-6 h-0.5 bg-white/25 rounded-full blur-sm animate-pulse" 
+                     style={{ transform: 'rotate(-25deg)', left: '-3px', top: '11px' }}></div>
+                <div className="w-4 h-0.5 bg-white/20 rounded-full blur-sm animate-pulse" 
+                     style={{ transform: 'rotate(-35deg)', left: '-1px', top: '13px' }}></div>
+              </div>
+
+              {/* Movement direction indicator */}
+              <div className="absolute -top-1 -right-1 w-2 h-2 pointer-events-none">
+                <div className="w-full h-full bg-white/60 rounded-full animate-bounce" 
+                     style={{ animationDuration: '0.8s' }}></div>
               </div>
             </div>
           </div>
