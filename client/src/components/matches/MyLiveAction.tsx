@@ -229,31 +229,57 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     return () => clearInterval(targetInterval);
   }, [isLive]);
 
-  // Clean up old trail positions
+  // Clean up old trail positions and goal kick events
   useEffect(() => {
-    const trailCleanup = setInterval(() => {
+    const cleanup = setInterval(() => {
       setBallTrail(currentTrail => 
         currentTrail.filter(pos => Date.now() - pos.timestamp < 10000) // Keep trail for 10 seconds
       );
+      
+      setGoalKickEvents(current => 
+        current.filter(event => Date.now() - event.timestamp < 8000) // Keep goal kicks for 8 seconds
+      );
     }, 1000);
 
-    return () => clearInterval(trailCleanup);
+    return () => clearInterval(cleanup);
   }, []);
 
-  // Generate dynamic events including shots
+  // State for goal kick effects
+  const [goalKickEvents, setGoalKickEvents] = useState<Array<{id: string, x: number, y: number, team: 'home' | 'away', timestamp: number}>>([]);
+
+  // Generate dynamic events including shots and goal kicks
   const generateDynamicEvent = () => {
     const teams = ['home', 'away'];
     const randomTeam = teams[Math.floor(Math.random() * teams.length)] as 'home' | 'away';
     
     // Determine event type based on ball position and actual penalty area boundaries
     let randomType: 'attacking' | 'ball_safe' | 'dangerous_attack';
-    let eventType: 'attack' | 'shot' | 'goal' = 'attack';
+    let eventType: 'attack' | 'shot' | 'goal' | 'goalkick' = 'attack';
     
     // Check if ball is actually INSIDE penalty areas for dangerous attack
     const isInHomePenalty = ballPosition.x < 21 && ballPosition.y > 30 && ballPosition.y < 70;
     const isInAwayPenalty = ballPosition.x > 79 && ballPosition.y > 30 && ballPosition.y < 70;
     
-    if ((randomTeam === 'away' && isInHomePenalty) || (randomTeam === 'home' && isInAwayPenalty)) {
+    // Check if ball is in goal area for goal kick
+    const isInHomeGoalArea = ballPosition.x < 11 && ballPosition.y > 40 && ballPosition.y < 60;
+    const isInAwayGoalArea = ballPosition.x > 89 && ballPosition.y > 40 && ballPosition.y < 60;
+    
+    if (isInHomeGoalArea || isInAwayGoalArea) {
+      eventType = 'goalkick';
+      randomType = 'ball_safe';
+      
+      // Create goal kick event
+      const goalKickEvent = {
+        id: `goalkick_${Date.now()}`,
+        x: ballPosition.x,
+        y: ballPosition.y,
+        team: randomTeam,
+        timestamp: Date.now()
+      };
+      
+      setGoalKickEvents(prev => [...prev.slice(-4), goalKickEvent]); // Keep last 5 goal kicks
+      
+    } else if ((randomTeam === 'away' && isInHomePenalty) || (randomTeam === 'home' && isInAwayPenalty)) {
       randomType = 'dangerous_attack';
       // High chance of shot in penalty area
       if (Math.random() > 0.4) {
@@ -323,7 +349,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     // Create corresponding event
     const eventDescriptions = {
       attacking: eventType === 'shot' ? 'Shot Attempt' : 'Attacking',
-      ball_safe: 'Ball Safe',
+      ball_safe: eventType === 'goalkick' ? 'Goal kick' : 'Ball Safe',
       dangerous_attack: eventType === 'goal' ? 'GOAL!' : eventType === 'shot' ? 'Shot on Target' : 'Dangerous Attack'
     };
 
@@ -331,7 +357,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       id: `event_${Date.now()}`,
       minute: elapsed,
       team: randomTeam,
-      type: eventType,
+      type: eventType as any,
       player: randomTeam === 'home' ? homeTeamData?.name || 'Home Team' : awayTeamData?.name || 'Away Team',
       description: eventDescriptions[randomType],
       timestamp: Date.now(),
@@ -643,6 +669,65 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           ))}
 
+          {/* Goal kick effects */}
+          {goalKickEvents.map((goalKick) => (
+            <div key={goalKick.id} className="absolute inset-0 pointer-events-none z-40">
+              {/* Goal kick trajectory fan */}
+              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id={`goalKickGradient-${goalKick.team}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor={goalKick.team === 'home' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(239, 68, 68, 0.3)'} />
+                    <stop offset="100%" stopColor={goalKick.team === 'home' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)'} />
+                  </linearGradient>
+                  <radialGradient id={`goalKickRadial-${goalKick.team}`} cx="0%" cy="50%" r="60%">
+                    <stop offset="0%" stopColor={goalKick.team === 'home' ? 'rgba(59, 130, 246, 0.4)' : 'rgba(239, 68, 68, 0.4)'} />
+                    <stop offset="100%" stopColor="rgba(255, 255, 255, 0.1)" />
+                  </radialGradient>
+                </defs>
+                
+                {/* Triangular trajectory area */}
+                <path
+                  d={goalKick.team === 'home' 
+                    ? `M ${goalKick.x},${goalKick.y} L 50,25 L 50,75 Z`
+                    : `M ${goalKick.x},${goalKick.y} L 50,25 L 50,75 Z`
+                  }
+                  fill={`url(#goalKickGradient-${goalKick.team})`}
+                  opacity="0.6"
+                  className="animate-pulse"
+                  style={{ animationDuration: '2s' }}
+                />
+                
+                {/* Goal kick area highlight */}
+                <circle
+                  cx={goalKick.x}
+                  cy={goalKick.y}
+                  r="8"
+                  fill={`url(#goalKickRadial-${goalKick.team})`}
+                  opacity="0.8"
+                  className="animate-ping"
+                  style={{ animationDuration: '1.5s' }}
+                />
+                
+                {/* Multiple trajectory lines */}
+                {[15, 30, 45, 60, 75].map((angle, index) => (
+                  <line
+                    key={index}
+                    x1={goalKick.x}
+                    y1={goalKick.y}
+                    x2={goalKick.team === 'home' ? goalKick.x + 40 : goalKick.x - 40}
+                    y2={goalKick.y + (angle - 45) * 0.8}
+                    stroke={goalKick.team === 'home' ? '#3b82f6' : '#ef4444'}
+                    strokeWidth="0.3"
+                    opacity="0.4"
+                    strokeDasharray="1,0.5"
+                    className="animate-pulse"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  />
+                ))}
+              </svg>
+            </div>
+          ))}
+
           {/* Shot direction indicators */}
           {shotEvents.slice(-3).map((shot) => (
             <svg
@@ -827,13 +912,17 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           )}
 
           {/* Event notification card - top right */}
-          {currentEvent && currentEvent.type === 'goal' && (
+          {currentEvent && (currentEvent.type === 'goal' || currentEvent.type === 'goalkick') && (
             <div className="absolute top-4 right-4 z-50">
               <div className="bg-white rounded-lg shadow-lg px-4 py-2 flex items-center gap-2">
-                <div className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                <div className={`text-white px-2 py-1 rounded text-xs font-bold ${
+                  currentEvent.type === 'goalkick' ? 'bg-blue-500' : 'bg-red-500'
+                }`}>
                   {currentEvent.minute}'
                 </div>
-                <span className="text-sm font-semibold">Goal kick</span>
+                <span className="text-sm font-semibold">
+                  {currentEvent.type === 'goalkick' ? 'Goal kick' : 'Goal'}
+                </span>
                 <div className="text-gray-500 text-xs">
                   {currentEvent.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
                 </div>
