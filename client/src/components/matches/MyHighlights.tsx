@@ -26,7 +26,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   homeTeam, 
   awayTeam, 
   leagueName, 
-  match 
+  match,
+  homeTeamName,
+  awayTeamName
 }) => {
   const uniqueId = useId();
   const [currentSource, setCurrentSource] = useState<VideoSource | null>(null);
