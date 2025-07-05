@@ -35,11 +35,42 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const [sourceIndex, setSourceIndex] = useState(0);
 
   // Extract team names from match prop or use provided props
-  const home = homeTeam || match?.teams?.home?.name || 'Home Team';
-  const away = awayTeam || match?.teams?.away?.name || 'Away Team';
-  const league = leagueName || match?.league?.name || '';
+  // Handle multiple possible data structures
+  const home = homeTeam || 
+               homeTeamName || 
+               match?.teams?.home?.name || 
+               match?.homeTeam?.name ||
+               match?.homeTeam ||
+               match?.home?.name ||
+               match?.home ||
+               'Home Team';
+               
+  const away = awayTeam || 
+               awayTeamName || 
+               match?.teams?.away?.name || 
+               match?.awayTeam?.name ||
+               match?.awayTeam ||
+               match?.away?.name ||
+               match?.away ||
+               'Away Team';
+               
+  const league = leagueName || 
+                 match?.league?.name || 
+                 match?.leagueName ||
+                 match?.competition?.name ||
+                 '';
 
   const searchQuery = `${home} vs ${away} highlights ${league}`.trim();
+  
+  // Debug logging to verify correct team names
+  console.log(`🎬 [Highlights] Match data extraction:`, {
+    homeTeam: home,
+    awayTeam: away,
+    league: league,
+    searchQuery: searchQuery,
+    rawMatch: match,
+    props: { homeTeam, awayTeam, homeTeamName, awayTeamName, leagueName }
+  });
 
   // Check if this is a CONCACAF competition
   const isConcacafCompetition = league.toLowerCase().includes('concacaf') || 
@@ -198,6 +229,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const tryNextSource = async () => {
     if (sourceIndex >= videoSources.length) {
       // All sources failed, show error with retry option
+      console.error(`🎬 [Highlights] All sources failed for: ${searchQuery}`);
       setError('No video sources available');
       setLoading(false);
       return;
@@ -212,7 +244,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       setLoading(false);
       console.log(`✅ [Highlights] Success with ${source.name}:`, result.title);
     } catch (sourceError) {
-      console.warn(`❌ [Highlights] ${source.name} failed:`, sourceError);
+      console.warn(`❌ [Highlights] ${source.name} failed for "${searchQuery}":`, sourceError);
       setSourceIndex(prev => prev + 1);
       // Continue to next source
     }
