@@ -402,7 +402,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         if (["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
           return 1;
         }
-        // Priority 2: Ended matches (second priority)
+        // Priority 2: Ended matches (second priority)  
         if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
           return 2;
         }
@@ -1111,53 +1111,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               <div className="match-cards-wrapper">
               {leagueGroup.matches
                 .slice(0, timeFilterActive && showTop10 ? 10 : undefined)
-                .sort((a: any, b: any) => {
-                  const now = new Date();
-                  const aDate = parseISO(a.fixture.date);
-                  const bDate = parseISO(b.fixture.date);
-                  const aStatus = a.fixture.status.short;
-                  const bStatus = b.fixture.status.short;
-
-                  if (!isValid(aDate) || !isValid(bDate)) {
-                    return 0;
-                  }
-
-                  const aTime = aDate.getTime();
-                  const bTime = bDate.getTime();
-                  const nowTime = now.getTime();
-
-                  // Live matches first
-                  const aLive = [
-                    "LIVE",
-                    "LIV",
-                    "1H",
-                    "HT",
-                    "2H",
-                    "ET",
-                    "BT",
-                    "P",
-                    "INT",
-                  ].includes(aStatus);
-                  const bLive = [
-                    "LIVE",
-                    "LIV",
-                    "1H",
-                    "HT",
-                    "2H",
-                    "ET",
-                    "BT",
-                    "P",
-                    "INT",
-                  ].includes(bStatus);
-
-                  if (aLive && !bLive) return -1;
-                  if (!aLive && bLive) return 1;
-
-                  // Then by time proximity
-                  const aDistance = Math.abs(aTime - nowTime);
-                  const bDistance = Math.abs(bTime - nowTime);
-                  return aDistance - bDistance;
-                })
                 .map((match: any) => {
                   const matchId = match.fixture.id;
                   const isHalftimeFlash = halftimeFlashMatches.has(matchId);
