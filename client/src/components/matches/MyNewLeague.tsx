@@ -953,7 +953,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         });
 
         // Check if status just changed to halftime
-        if (currentStatus === 'HT') {
+        if (currentStatus === 'HT' && previousStatus !== 'HT') {
           console.log(`🟠 [MyNewLeague HALFTIME FLASH] Match ${matchId} just went to halftime!`, {
             home: fixture.teams?.home?.name,
             away: fixture.teams?.away?.name,
@@ -964,7 +964,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         }
 
         // Check if status just changed to fulltime
-        if (currentStatus === 'FT') {
+        if (currentStatus === 'FT' && previousStatus !== 'FT') {
           console.log(`🔵 [MyNewLeague FULLTIME FLASH] Match ${matchId} just finished!`, {
             home: fixture.teams?.home?.name,
             away: fixture.teams?.away?.name,
@@ -973,21 +973,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           });
           newFulltimeMatches.add(matchId);
         }
-
-        // Check for goal changes (when score changes but status stays the same)
-        if (['1H', '2H', 'LIVE'].includes(currentStatus) && ['1H', '2H', 'LIVE'].includes(previousStatus)) {
-          // You could add goal flash detection here if needed
-          console.log(`⚽ [MyNewLeague POTENTIAL GOAL] Match ${matchId} score might have changed`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            score: `${fixture.goals?.home || 0}-${fixture.goals?.away || 0}`,
-            status: currentStatus
-          });
-        }
       }
 
       // Check for goal changes during live matches
-      if (previousScore && 
+      if (previousStatus && previousScore && 
           (currentScore.home !== previousScore.home || currentScore.away !== previousScore.away) &&
           ['1H', '2H', 'LIVE', 'LIV'].includes(currentStatus)) {
         console.log(`⚽ [MyNewLeague GOAL FLASH] Match ${matchId} score changed!`, {
@@ -1001,37 +990,49 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       }
     });
 
-    // Update previous statuses and scores AFTER checking for changes
+    // Update previous statuses and scores BEFORE triggering effects to prevent data reversion
     setPreviousMatchStatuses(currentStatuses);
     setPreviousMatchScores(currentScores);
 
     // Trigger flash for new halftime matches
     if (newHalftimeMatches.size > 0) {
-      setHalftimeFlashMatches(newHalftimeMatches);
+      setHalftimeFlashMatches(prev => new Set([...prev, ...newHalftimeMatches]));
 
       // Remove flash after 3 seconds (increased duration)
       setTimeout(() => {
-        setHalftimeFlashMatches(new Set());
+        setHalftimeFlashMatches(prev => {
+          const updated = new Set(prev);
+          newHalftimeMatches.forEach(id => updated.delete(id));
+          return updated;
+        });
       }, 3000);
     }
 
     // Trigger flash for new fulltime matches
     if (newFulltimeMatches.size > 0) {
-      setFulltimeFlashMatches(newFulltimeMatches);
+      setFulltimeFlashMatches(prev => new Set([...prev, ...newFulltimeMatches]));
 
       // Remove flash after 3 seconds (increased duration)
       setTimeout(() => {
-        setFulltimeFlashMatches(new Set());
+        setFulltimeFlashMatches(prev => {
+          const updated = new Set(prev);
+          newFulltimeMatches.forEach(id => updated.delete(id));
+          return updated;
+        });
       }, 3000);
     }
 
     // Trigger flash for new goal matches
     if (newGoalMatches.size > 0) {
-      setGoalFlashMatches(newGoalMatches);
+      setGoalFlashMatches(prev => new Set([...prev, ...newGoalMatches]));
 
       // Remove flash after 2 seconds for goals
       setTimeout(() => {
-        setGoalFlashMatches(new Set());
+        setGoalFlashMatches(prev => {
+          const updated = new Set(prev);
+          newGoalMatches.forEach(id => updated.delete(id));
+          return updated;
+        });
       }, 2000);
     }
   }, [fixtures]);
