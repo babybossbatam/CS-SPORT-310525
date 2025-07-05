@@ -1,3 +1,7 @@
+` tags. I will replace the smart caching logic with direct API calls and ensure the code is fully functional and retains the original structure and formatting.
+
+```
+<replit_final_file>
 import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Star, Calendar, ChevronDown, ChevronUp } from "lucide-react";
@@ -8,12 +12,6 @@ import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
-import { useQuery } from '@tanstack/react-query';
-import { FixtureResponse } from '@/types/fixtures';
-import { isLiveMatch, isEndedMatch, isUpcomingMatch } from '@/lib/matchFilters';
-import { sortMatchesByKickoffTime } from '@/lib/dateUtilsUpdated';
-import { isToday } from 'date-fns';
-import { smartFetch, fetchLeagueFixtures } from '@/lib/MyFetchingLogic';
 
 interface MyNewLeagueProps {
   selectedDate: string;
@@ -105,56 +103,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
   const leagueIds = [38, 15, 71, 22, 72, 73, 75, 128, 233, 667]; // Added Brazilian Serie A (71), CONCACAF Gold Cup (22), Serie B (72), Serie C (73), Serie D (75), Copa Argentina (128), Iraqi League (233) before Friendlies Clubs
 
-  // Smart fetch query - moved to top to follow Rules of Hooks
-  const { data: allFixtures = [], isLoading: isQueryLoading, isFetching: isQueryFetching, error: queryError } = useQuery({
-    queryKey: ['smart-fetch-fixtures', selectedDate],
-    queryFn: async () => {
-      // Use smart fetch for intelligent caching and live match handling
-      return await smartFetch(selectedDate, {
-        source: 'MyNewLeague',
-        forceRefresh: isToday(new Date(selectedDate)) // Force refresh for today's matches
-      });
-    },
-    staleTime: isToday(new Date(selectedDate)) ? 1 * 60 * 1000 : 5 * 60 * 1000, // 1 min for today, 5 min for other dates
-    gcTime: 30 * 60 * 1000, // 30 minutes
-    refetchOnWindowFocus: isToday(new Date(selectedDate)), // Only refetch on focus for today
-    retry: 1,
-  });
-
-  // Helper function to determine if match needs fresh data based on timing
-  const needsFreshData = useCallback((fixtureDate: string, status?: string) => {
-    const now = new Date();
-    const matchDate = new Date(fixtureDate);
-    const hoursUntilMatch = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
-    const hoursAfterMatch = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-    
-    // Live matches ALWAYS need fresh data - NO EXCEPTIONS
-    if (status && ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
-      console.log(`🔴 [MyNewLeague FRESH] Live match must use fresh data:`, {
-        teams: `Match with status ${status}`,
-        reason: 'live_match'
-      });
-      return true;
-    }
-    
-    // Recently ended matches (within 3 hours) ALWAYS need fresh data - NO CACHE
-    if (status && ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAfterMatch <= 3) {
-      console.log(`🔄 [MyNewLeague FRESH] Recently ended match needs fresh data:`, {
-        teams: `Match with status ${status}`,
-        hoursAfterMatch: Math.round(hoursAfterMatch * 100) / 100,
-        reason: 'recently_ended'
-      });
-      return true;
-    }
-    
-    // Need fresh data if:
-    // 1. Match is within next 24 hours (upcoming soon)
-    // 2. Match is live or recently finished
-    // 3. Match date is today
-    return hoursUntilMatch <= 24 && hoursUntilMatch >= -3;
-  }, []);
-
-  // Memoize the data fetching function with smart caching logic
+  // Simple data fetching function without caching
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
     if (!isUpdate) {
       setLoading(true);
@@ -164,21 +113,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     try {
       const allFixtures: FixtureData[] = [];
       let primaryLeagueInfo: LeagueData | null = null;
-      const now = new Date();
-      const selectedDateTime = new Date(selectedDate);
-      const isSelectedDateToday = selectedDateTime.toDateString() === now.toDateString();
-      const isSelectedDateTomorrow = Math.abs(selectedDateTime.getTime() - now.getTime()) <= 48 * 60 * 60 * 1000;
 
-      console.log(`🕐 [MyNewLeague SMART CACHE] Date analysis:`, {
-        selectedDate,
-        isToday: isSelectedDateToday,
-        isNearFuture: isSelectedDateTomorrow,
-        strategy: isSelectedDateToday ? 'fresh_data' : isSelectedDateTomorrow ? 'mixed_cache' : 'cached_data'
-      });
+      console.log(`🔍 [MyNewLeague] Fetching data for ${selectedDate}`);
 
-      // Always fetch live fixtures for real-time data - HIGHEST PRIORITY
+      // Always fetch live fixtures for real-time data
       try {
-        console.log(`🔴 [MyNewLeague LIVE] Fetching live fixtures for real-time data`);
+        console.log(`🔴 [MyNewLeague] Fetching live fixtures`);
         const liveResponse = await apiRequest("GET", "/api/fixtures/live");
         const liveData = await liveResponse.json();
 
@@ -189,22 +129,20 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           );
 
           if (relevantLiveFixtures.length > 0) {
-            console.log(`🔴 [MyNewLeague LIVE] Found ${relevantLiveFixtures.length} live fixtures from target leagues:`, 
-              relevantLiveFixtures.map(f => `${f.teams?.home?.name} vs ${f.teams?.away?.name} (${f.fixture?.status?.short})`)
-            );
+            console.log(`🔴 [MyNewLeague] Found ${relevantLiveFixtures.length} live fixtures from target leagues`);
           }
-          
-          // Add live fixtures first to ensure they override any cached data
+
+          // Add live fixtures first
           allFixtures.push(...relevantLiveFixtures);
         }
       } catch (liveError) {
-        console.warn("🔴 [MyNewLeague LIVE] Failed to fetch live fixtures:", liveError);
+        console.warn("🔴 [MyNewLeague] Failed to fetch live fixtures:", liveError);
       }
 
-      // Smart caching strategy for each league
+      // Fetch data for each league
       for (const leagueId of leagueIds) {
         try {
-          console.log(`🔍 [MyNewLeague SMART CACHE] Processing league ${leagueId}`);
+          console.log(`🔍 [MyNewLeague] Processing league ${leagueId}`);
 
           // Fetch league info only on initial load
           if (!isUpdate) {
@@ -220,62 +158,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             }
           }
 
-          // Determine caching strategy based on selected date
-          let useCache = true;
-          let forceRefresh = false;
-
-          if (isSelectedDateToday) {
-            // For today's matches, use minimal cache and force refresh to get live data
-            forceRefresh = true;
-            useCache = false;
-            console.log(`🔄 [MyNewLeague SMART CACHE] League ${leagueId}: Using fresh data for today (live matches possible)`);
-          } else if (isSelectedDateTomorrow) {
-            // For near future dates, use smart caching with shorter TTL
-            useCache = true;
-            console.log(`📅 [MyNewLeague SMART CACHE] League ${leagueId}: Using smart cache for near future`);
-          } else {
-            // For far future dates, use long-term caching
-            useCache = true;
-            console.log(`📦 [MyNewLeague SMART CACHE] League ${leagueId}: Using long-term cache for far future`);
-          }
-
-          // Check if we have recently ended matches that need fresh data
-          const now = new Date();
-          const selectedDateTime = new Date(selectedDate);
-          const daysDifference = Math.abs((now.getTime() - selectedDateTime.getTime()) / (1000 * 60 * 60 * 24));
-          
-          // If selected date is within last 3 days, check for recently ended matches
-          if (daysDifference <= 3) {
-            console.log(`🔍 [MyNewLeague SMART CACHE] League ${leagueId}: Checking for recently ended matches on ${selectedDate}`);
-            forceRefresh = true; // Force refresh to get latest data for potentially recently ended matches
-            useCache = false;
-          }
-
-          // Additional check: if we're dealing with today's date, always force refresh to catch recently ended matches
-          if (isSelectedDateToday) {
-            console.log(`🔄 [MyNewLeague SMART CACHE] League ${leagueId}: Today's date - forcing refresh for recently ended matches`);
-            forceRefresh = true;
-            useCache = false;
-          }
-
-          // Build API URL with cache control parameters
-          let fixturesUrl = `/api/leagues/${leagueId}/fixtures`;
-          const urlParams = new URLSearchParams();
-          
-          if (forceRefresh) {
-            urlParams.append('refresh', 'true');
-          }
-          
-          if (!useCache) {
-            urlParams.append('cache', 'false');
-          }
-          
-          if (urlParams.toString()) {
-            fixturesUrl += `?${urlParams.toString()}`;
-          }
-
           // Fetch fixtures for the league
-          const fixturesResponse = await apiRequest("GET", fixturesUrl);
+          const fixturesResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures`);
 
           if (!fixturesResponse.ok) {
             console.warn(`Failed to fetch fixtures for league ${leagueId}, status: ${fixturesResponse.status}`);
@@ -295,67 +179,35 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               !liveFixtureIds.has(fixture.fixture.id)
             );
 
-            // Smart filtering based on match timing for all matches
-            const smartFilteredFixtures = nonLiveFixtures.filter(fixture => {
+            // Filter to only include matches for the selected date
+            const filteredFixtures = nonLiveFixtures.filter(fixture => {
               const fixtureDate = fixture.fixture?.date;
-              const status = fixture.fixture?.status?.short;
               if (!fixtureDate) return true;
 
               const matchDate = new Date(fixtureDate);
-              const fixtureDay = matchDate.toISOString().split('T')[0];
+              const year = matchDate.getFullYear();
+              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+              const day = String(matchDate.getDate()).padStart(2, "0");
+              const matchDateString = `${year}-${month}-${day}`;
               const selectedDay = selectedDate;
 
-              // Always include matches for the selected date
-              if (fixtureDay === selectedDay) {
-                // Check if we need fresh data for any reason
-                if (needsFreshData(fixtureDate, status)) {
-                  const now = new Date();
-                  const hoursAfterMatch = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
-                  
-                  if (status === 'NS') {
-                    console.log(`🔄 [MyNewLeague FRESH] Match needs fresh data:`, {
-                      teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-                      date: fixtureDate,
-                      reason: 'upcoming_soon'
-                    });
-                  } else if (['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
-                    console.log(`🔴 [MyNewLeague FRESH] Live match detected:`, {
-                      teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-                      date: fixtureDate,
-                      status,
-                      reason: 'live_match'
-                    });
-                  } else if (['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAfterMatch <= 2) {
-                    console.log(`🔄 [MyNewLeague FRESH] Recently ended match needs fresh data:`, {
-                      teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-                      date: fixtureDate,
-                      status,
-                      hoursAfterMatch: Math.round(hoursAfterMatch * 100) / 100,
-                      reason: 'recently_ended'
-                    });
-                  }
-                }
-                return true;
-              }
-
-              return false;
+              return matchDateString === selectedDay;
             });
 
-            console.log(`🎯 [MyNewLeague SMART FILTER] League ${leagueId}: ${nonLiveFixtures.length} → ${smartFilteredFixtures.length} fixtures after smart filtering`);
+            console.log(`🎯 [MyNewLeague] League ${leagueId}: ${nonLiveFixtures.length} → ${filteredFixtures.length} fixtures after date filtering`);
 
-            smartFilteredFixtures.forEach((fixture, index) => {
+            filteredFixtures.forEach((fixture, index) => {
               if (index < 3) { // Only log first 3 to avoid spam
                 console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
                   teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
                   league: fixture.league?.name,
                   status: fixture.fixture?.status?.short,
-                  date: fixture.fixture?.date,
-                  cacheStrategy: needsFreshData(fixture.fixture?.date) ? 'fresh' : 'cached'
+                  date: fixture.fixture?.date
                 });
               }
             });
 
-            allFixtures.push(...smartFilteredFixtures);
+            allFixtures.push(...filteredFixtures);
           }
         } catch (leagueError) {
           const errorMessage = leagueError instanceof Error ? leagueError.message : 'Unknown error';
@@ -363,11 +215,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             `Failed to fetch data for league ${leagueId}:`,
             errorMessage,
           );
-
-          // If it's a network error, don't spam the console
-          if (errorMessage.includes('Network error') || errorMessage.includes('Failed to fetch')) {
-            console.log(`🌐 Network connectivity issue for league ${leagueId}, will retry later`);
-          }
         }
       }
 
@@ -375,7 +222,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         setLeagueInfo(primaryLeagueInfo);
       }
 
-      console.log(`📊 [MyNewLeague SMART CACHE] Final result: ${allFixtures.length} fixtures with smart caching strategy`);
+      console.log(`📊 [MyNewLeague] Final result: ${allFixtures.length} fixtures`);
 
       // Only update fixtures if there are actual changes
       setFixtures(prevFixtures => {
@@ -392,36 +239,18 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         setLoading(false);
       }
     }
-  }, [selectedDate, needsFreshData]);
+  }, [selectedDate]);
 
   useEffect(() => {
     fetchLeagueData(false);
 
-    // Smart refresh intervals based on selected date
-    const now = new Date();
-    const selectedDateTime = new Date(selectedDate);
-    const isSelectedDateToday = selectedDateTime.toDateString() === now.toDateString();
-    const isSelectedDateNearFuture = Math.abs(selectedDateTime.getTime() - now.getTime()) <= 48 * 60 * 60 * 1000;
-
-    let refreshInterval = 300000; // Default: 5 minutes for far future dates
-
-    if (isSelectedDateToday) {
-      refreshInterval = 30000; // 30 seconds for today's matches
-    } else if (isSelectedDateNearFuture) {
-      refreshInterval = 120000; // 2 minutes for near future matches
-    }
-
-    console.log(`⏰ [MyNewLeague REFRESH] Setting refresh interval: ${refreshInterval / 1000}s for ${selectedDate}`);
-
-    // Set up periodic refresh with smart intervals
+    // Set up periodic refresh - every 30 seconds for live updates
     const interval = setInterval(() => {
       fetchLeagueData(true); // Pass true to indicate this is an update
-    }, refreshInterval);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [fetchLeagueData, selectedDate]);
-
-
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
@@ -430,7 +259,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const friendliesFixtures = fixtures.filter(f => f.league.id === 667);
   const iraqiFixtures = fixtures.filter(f => f.league.id === 233);
   const copaArgentinaFixtures = fixtures.filter(f => f.league.id === 128);
-  
+
   console.log("🏆 [MyNewLeague FRIENDLIES] Total Friendlies fixtures:", friendliesFixtures.length);
   console.log("🇮🇶 [MyNewLeague IRAQI] Total Iraqi League fixtures:", iraqiFixtures.length);
   console.log("🇦🇷 [MyNewLeague COPA ARG] Total Copa Argentina fixtures:", copaArgentinaFixtures.length);
@@ -535,7 +364,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const friendliesFiltered = selectedDateFixtures.filter(f => f.league.id === 667);
   const iraqiFiltered = selectedDateFixtures.filter(f => f.league.id === 233);
   const copaArgentinaFiltered = selectedDateFixtures.filter(f => f.league.id === 128);
-  
+
   console.log(`🏆 [MyNewLeague FRIENDLIES] After date filtering: ${friendliesFiltered.length} matches for ${selectedDate}`);
   console.log(`🇮🇶 [MyNewLeague IRAQI] After date filtering: ${iraqiFiltered.length} matches for ${selectedDate}`);
   console.log(`🇦🇷 [MyNewLeague COPA ARG] After date filtering: ${copaArgentinaFiltered.length} matches for ${selectedDate}`);
@@ -1039,17 +868,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           });
           newFulltimeMatches.add(matchId);
         }
-
-        // Check for goal changes (when score changes but status stays the same)
-        if (['1H', '2H', 'LIVE'].includes(currentStatus) && ['1H', '2H', 'LIVE'].includes(previousStatus)) {
-          // You could add goal flash detection here if needed
-          console.log(`⚽ [MyNewLeague POTENTIAL GOAL] Match ${matchId} score might have changed`, {
-            home: fixture.teams?.home?.name,
-            away: fixture.teams?.away?.name,
-            score: `${fixture.goals?.home || 0}-${fixture.goals?.away || 0}`,
-            status: currentStatus
-          });
-        }
       }
 
       // Check for goal changes during live matches
@@ -1303,8 +1121,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   ].includes(aStatus);
                   const bLive = [
                     "LIVE",
-
-"LIV",
+                    "LIV",
                     "1H",
                     "HT",
                     "2H",
@@ -1329,338 +1146,17 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   const isGoalFlash = goalFlashMatches.has(matchId);
                   const isStarred = starredMatches.has(matchId)
                   return (
-                    <div
-                          key={match.fixture.id}
-                          className="country-matches-container"
-                        >
-                          <div 
-                            className={`match-card-container group ${
-                              isHalftimeFlash ? 'halftime-flash' : ''
-                            } ${
-                              isFulltimeFlash ? 'fulltime-flash' : ''
-                            } ${
-                              isGoalFlash ? 'goal-flash' : ''
-                            }`}
-                            data-fixture-id={match.fixture.id}
-                            onClick={() => onMatchCardClick?.(match)}
-                            style={{
-                              cursor: onMatchCardClick ? "pointer" : "default",
-                            }}
-                          >
-          {/* Star Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleStarMatch(match.fixture.id);
-            }}
-            className="match-star-button"
-            title="Add to favorites"
-            onMouseEnter={(e) => {
-              e.currentTarget
-                .closest(".match-card-container")
-                ?.classList.add("disable-hover");
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget
-                .closest(".match-card-container")
-                ?.classList.remove("disable-hover");
-            }}
-          >
-            <Star
-              className={`match-star-icon ${starredMatches.has(match.fixture.id) ? "starred" : ""}`}
-            />
-          </button>
-
-          {/* Match content container */}
-          <div className="match-three-grid-container">
-            {/* Top Grid: Match Status */}
-            <div className="match-status-top">
-              {(() => {
-                const status = match.fixture.status.short;
-                const elapsed = match.fixture.status.elapsed;
-
-                if (
-                  [
-                    "LIVE",
-                    "LIV",
-                    "1H",
-                    "HT",
-                    "2H",
-                    "ET",
-                    "BT",
-                    "P",
-                    "INT",
-                  ].includes(status)
-                ) {
-                  let displayText = "";
-                  if (status === "HT") {
-                    displayText = "Halftime";
-                  } else if (status === "P") {
-                    displayText = "Penalties";
-                  } else if (status === "ET") {
-                    displayText = elapsed
-                      ? `${elapsed}' ET`
-                      : "Extra Time";
-                  } else if (status === "BT") {
-                    displayText = "Break Time";
-                  } else if (status === "INT") {
-                    displayText = "Interrupted";
-                  } else {
-                    displayText = elapsed ? `${elapsed}'` : "LIVE";
-                  }
-
-                  return (
-                    <div className="match-status-label status-live">
-                      {displayText}
-                    </div>
-                  );
-                }
-
-                if (
-                  [
-                    "FT",
-                    "AET",
-                    "PEN",
-                    "AWD",
-                    "WO",
-                    "ABD",
-                    "CANC",
-                    "SUSP",
-                  ].includes(status)
-                ) {
-                  return (
-                    <div className="match-status-label status-ended">
-                      {status === "FT"
-                        ? "Ended"
-                        : status === "AET"
-                          ? "After Extra Time"
-                          : status}
-                    </div>
-                  );
-                }
-
-                if (status === "TBD") {
-                  return (
-                    <div className="match-status-label status-upcoming">
-                      Time TBD
-                    </div>
-                  );
-                }
-
-                return null;
-              })()}
-            </div>
-
-            {/* Middle Grid: Main match content */}
-            <div className="match-content-container">
-              {/* Home Team Name */}
-              <div
-                className={`home-team-name ${
-                  match.goals.home !== null &&
-                  match.goals.away !== null &&
-                  match.goals.home > match.goals.away
-                    ? "winner"
-                    : ""
-                }`}
-                style={{
-                  textAlign: "right",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {shortenTeamName(match.teams.home.name) || "Unknown Team"}
-              </div>
-
-              {/* Home team logo */}
-              <div
-                className="home-team-logo-container"
-                style={{ padding: "0 0.6rem" }}
-              >
-                <MyWorldTeamLogo
-                  teamName={match.teams.home.name}
-                  teamLogo={
-                    match.teams.home.id
-                      ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                      : "/assets/fallback-logo.svg"
-                  }
-                  alt={match.teams.home.name}
-                  size="34px"
-                  className="popular-leagues-size"
-                  leagueContext={{
-                    name: leagueGroup.league.name,
-                    country: leagueGroup.league.country,
-                  }}
-                />
-              </div>
-
-              {/* Score/Time Center */}
-              <div className="match-score-container">
-                {(() => {
-                  const status = match.fixture.status.short;
-                  const fixtureDate = parseISO(match.fixture.date);
-
-                  if (
-                    [
-                      "LIVE",
-                      "LIV",
-                      "1H",
-                      "HT",
-                      "2H",
-                      "ET",
-                      "BT",
-                      "P",
-                      "INT",
-                    ].includes(status)
-                  ) {
-                    return (
-                      <div className="match-score-display">
-                        <span className="score-number">
-                          {match.goals.home ?? 0}
-                        </span>
-                        <span className="score-separator">-</span>
-                        <span className="score-number">
-                          {match.goals.away ?? 0}
-                        </span>
-                      </div>
-                    );
-                  }
-
-                  if (
-                    [
-                      "FT",
-                      "AET",
-                      "PEN",
-                      "AWD",
-                      "WO",
-                      "ABD",
-                      "CANC",
-                      "SUSP",
-                    ].includes(status)
-                  ) {
-                    const homeScore = match.goals.home;
-                    const awayScore = match.goals.away;
-                    const hasValidScores =
-                      homeScore !== null &&
-                      homeScore !== undefined &&
-                      awayScore !== null &&
-                      awayScore !== undefined &&
-                      !isNaN(Number(homeScore)) &&
-                      !isNaN(Number(awayScore));
-
-                    if (hasValidScores) {
-                      return (
-                        <div className="match-score-display">
-                          <span className="score-number">
-                            {homeScore}
-                          </span>
-                          <span className="score-separator">-</span>
-                          <span className="score-number">
-                            {awayScore}
-                          </span>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div
-                          className="match-time-display"
-                          style={{ fontSize: "0.882em" }}
-                        >
-                          {format(fixtureDate, "HH:mm")}
-                        </div>
-                      );
-                    }
-                  }
-
-                  return (
-                    <div
-                      className="match-time-display"
-                      style={{ fontSize: "0.882em" }}
-                    >
-                      {status === "TBD"
-                        ? "TBD"
-                        : format(fixtureDate, "HH:mm")}
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* Away team logo */}
-              <div
-                className="away-team-logo-container"
-                style={{ padding: "0 0.5rem" }}
-              >
-                <MyWorldTeamLogo
-                  teamName={match.teams.away.name}
-                  teamLogo={
-                    match.teams.away.id
-                      ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                      : "/assets/fallback-logo.svg"
-                  }
-                  alt={match.teams.away.name}
-                  size="34px"
-                  className="popular-leagues-size"
-                  leagueContext={{
-                    name: leagueGroup.league.name,
-                    country: leagueGroup.league.country,
-                  }}
-                />
-              </div>
-
-              {/* Away Team Name */}
-              <div
-                className={`away-team-name ${
-                  match.goals.home !== null &&
-                  match.goals.away !== null &&
-                  match.goals.away > match.goals.home
-                    ? "winner"
-                    : ""
-                }`}
-                style={{
-                  paddingLeft: "0.75rem",
-                  textAlign: "left",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {shortenTeamName(match.teams.away.name) || "Unknown Team"}
-              </div>
-            </div>
-
-            {/* Bottom Grid: Penalty Result Status */}
-            <div className="match-penalty-bottom">
-              {(() => {
-                const status = match.fixture.status.short;
-                const isPenaltyMatch = status === "PEN";
-                const penaltyHome = match.score?.penalty?.home;
-                const penaltyAway = match.score?.penalty?.away;
-                const hasPenaltyScores =
-                  penaltyHome !== null &&
-                  penaltyHome !== undefined &&
-                  penaltyAway !== null &&
-                  penaltyAway !== undefined;
-
-                if (isPenaltyMatch && hasPenaltyScores) {
-                  const winnerText =
-                    penaltyHome > penaltyAway
-                      ? `${shortenTeamName(match.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
-                      : `${shortenTeamName(match.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
-
-                  return (
-                    <div className="penalty-result-display">
-                      <span className="penalty-winner">
-                        {winnerText}
-                      </span>
-                    </div>
-                  );
-                }
-                return null;
-              })()}
-            </div>
-          </div>
-        </div>
-        </div>
+                    <MatchCard
+                      key={match.fixture.id}
+                      match={match}
+                      isHalftimeFlash={isHalftimeFlash}
+                      isFulltimeFlash={isFulltimeFlash}
+                      isGoalFlash={isGoalFlash}
+                      isStarred={isStarred}
+                      onStarToggle={toggleStarMatch}
+                      onMatchClick={onMatchCardClick}
+                      leagueGroup={leagueGroup}
+                    />
                   );
                 })}
               </div>
