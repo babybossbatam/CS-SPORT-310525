@@ -122,10 +122,26 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   });
 
   // Helper function to determine if match needs fresh data based on timing
-  const needsFreshData = useCallback((fixtureDate: string) => {
+  const needsFreshData = useCallback((fixtureDate: string, status?: string) => {
     const now = new Date();
     const matchDate = new Date(fixtureDate);
     const hoursUntilMatch = (matchDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+    const hoursAfterMatch = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+    
+    // Live matches always need fresh data
+    if (status && ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+      return true;
+    }
+    
+    // Recently ended matches (within 2 hours) need fresh data
+    if (status && ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAfterMatch <= 2) {
+      console.log(`🔄 [MyNewLeague FRESH] Recently ended match needs fresh data:`, {
+        teams: `Match with status ${status}`,
+        hoursAfterMatch,
+        reason: 'recently_ended'
+      });
+      return true;
+    }
     
     // Need fresh data if:
     // 1. Match is within next 24 hours (upcoming soon)
@@ -213,6 +229,18 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             console.log(`📦 [MyNewLeague SMART CACHE] League ${leagueId}: Using long-term cache for far future`);
           }
 
+          // Check if we have recently ended matches that need fresh data
+          const now = new Date();
+          const selectedDateTime = new Date(selectedDate);
+          const daysDifference = Math.abs((now.getTime() - selectedDateTime.getTime()) / (1000 * 60 * 60 * 24));
+          
+          // If selected date is within last 2 days, check for recently ended matches
+          if (daysDifference <= 2) {
+            console.log(`🔍 [MyNewLeague SMART CACHE] League ${leagueId}: Checking for recently ended matches on ${selectedDate}`);
+            forceRefresh = true; // Force refresh to get latest data for potentially recently ended matches
+            useCache = false;
+          }
+
           // Build API URL with cache control parameters
           let fixturesUrl = `/api/leagues/${leagueId}/fixtures`;
           const urlParams = new URLSearchParams();
@@ -250,9 +278,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               !liveFixtureIds.has(fixture.fixture.id)
             );
 
-            // Smart filtering based on match timing for upcoming matches
+            // Smart filtering based on match timing for all matches
             const smartFilteredFixtures = nonLiveFixtures.filter(fixture => {
               const fixtureDate = fixture.fixture?.date;
+              const status = fixture.fixture?.status?.short;
               if (!fixtureDate) return true;
 
               const matchDate = new Date(fixtureDate);
@@ -261,13 +290,26 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
               // Always include matches for the selected date
               if (fixtureDay === selectedDay) {
-                // For upcoming matches on selected date, check if we need fresh data
-                if (fixture.fixture?.status?.short === 'NS' && needsFreshData(fixtureDate)) {
-                  console.log(`🔄 [MyNewLeague FRESH] Match needs fresh data:`, {
-                    teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-                    date: fixtureDate,
-                    reason: 'upcoming_soon'
-                  });
+                // Check if we need fresh data for any reason
+                if (needsFreshData(fixtureDate, status)) {
+                  const now = new Date();
+                  const hoursAfterMatch = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
+                  
+                  if (status === 'NS') {
+                    console.log(`🔄 [MyNewLeague FRESH] Match needs fresh data:`, {
+                      teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+                      date: fixtureDate,
+                      reason: 'upcoming_soon'
+                    });
+                  } else if (['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAfterMatch <= 2) {
+                    console.log(`🔄 [MyNewLeague FRESH] Recently ended match needs fresh data:`, {
+                      teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+                      date: fixtureDate,
+                      status,
+                      hoursAfterMatch: Math.round(hoursAfterMatch * 100) / 100,
+                      reason: 'recently_ended'
+                    });
+                  }
                 }
                 return true;
               }
