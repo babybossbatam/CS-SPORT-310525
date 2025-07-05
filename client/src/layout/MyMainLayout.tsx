@@ -1,6 +1,7 @@
 import React from 'react';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import MyLiveMatchTracker from '@/components/matches/MyLiveMatchTracker';
+import MyLiveTrackerNew from '@/components/matches/MyLiveTrackerNew';
 
 interface MyMainLayoutProps {
   selectedMatchId?: number;
@@ -31,6 +32,17 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           homeTeam={selectedMatch?.teams?.home}
           awayTeam={selectedMatch?.teams?.away}
           status={selectedMatch?.fixture?.status?.short}
+          className=""
+        />
+      )}
+
+      {/* MyLiveTrackerNew component - enhanced live tracker for live matches */}
+      {isLive && selectedMatchId && (
+        <MyLiveTrackerNew
+          matchId={selectedMatchId}
+          homeTeam={selectedMatch?.teams?.home}
+          awayTeam={selectedMatch?.teams?.away}
+          isLive={isLive}
           className=""
         />
       )}

@@ -1,0 +1,98 @@
+
+/* MyLiveTrackerNew Component Styles */
+.my-live-tracker-new-container {
+  max-width: 100%;
+  max-height: 100%;
+  width: 735px;
+  margin: 0 auto;
+}
+
+.my-live-tracker-new-cover {
+  width: 100%;
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  border-radius: 8px;
+}
+
+.my-live-tracker-new-loading {
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+/* Sportradar Widget Custom Styles for New Tracker */
+.sr-widget-live-tracker-new {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Override Sportradar default styles to match our theme */
+.sr-widget-live-tracker-new .sr-bb {
+  font-family: "Inter", "Roboto", "Noto", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  background: #ffffff;
+  border-radius: 8px;
+}
+
+/* Live indicator animation */
+@keyframes pulse-live-new {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.6; 
+    transform: scale(1.05);
+  }
+}
+
+.live-indicator-new {
+  animation: pulse-live-new 2s ease-in-out infinite;
+}
+
+/* Enhanced header styling */
+.my-live-tracker-new-container .bg-gradient-to-r {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .my-live-tracker-new-container {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .sr-widget-live-tracker-new {
+    min-height: 350px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .my-live-tracker-new-container {
+    width: 100%;
+    padding: 0 8px;
+  }
+  
+  .sr-widget-live-tracker-new {
+    min-height: 300px !important;
+  }
+}
+
+/* Enhanced loading states */
+.my-live-tracker-new-loading .animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Footer styling */
+.my-live-tracker-new-container .bg-gray-50 {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Success indicator */
+.my-live-tracker-new-container .bg-green-600 {
+  background-color: #16a34a;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+}
