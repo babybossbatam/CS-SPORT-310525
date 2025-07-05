@@ -117,22 +117,29 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
           );
 
           const finalScore = calculateScoreAtTime(finalEvent.totalTime);
-          
+          console.log(finalScore)
           return (
             
-            <div className="p-3 border-t flex items-center justify-between">
-              <div className="text-center">
-                <div className="text-sm font-semibold text-gray-800 mb-1">
-                  End of Match
+            <div className="p-3  flex items-center justify-between">
+              <div className="p-3 text-center">
+                <div className="text-lg font-bold text-gray-800">
+                  {finalScore.homeScore}-{finalScore.awayScore}
                 </div>
+                <div className="text-xs text-red-500">
+                
+                        {finalEvent.time.extra && finalEvent.time.extra > 0 ? ` +${finalEvent.time.extra}'` : ""}
+                  <span>
+                    {finalScore.homeScore}-{finalScore.awayScore}
+                  </span>
+
+                      </div>
                 <div className="text-xs text-gray-600">
-                  Full Time: {finalEvent.time.elapsed}'
-                  {finalEvent.time.extra && finalEvent.time.extra > 0 ? ` +${finalEvent.time.extra}'` : ""}
+             {finalEvent.time.elapsed}'
+                  
+                  
                 </div>
               </div>
-              <div className="text-lg font-bold text-gray-800">
-                {finalScore.homeScore}-{finalScore.awayScore}
-              </div>
+            
             </div>
           );
         }
