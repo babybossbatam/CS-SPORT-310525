@@ -180,12 +180,30 @@ class FixtureCache {
   }
 
   /**
+   * Check if a fixture recently ended and should bypass cache
+   */
+  private isRecentlyEndedFixture(fixture: FixtureResponse): boolean {
+    const status = fixture.fixture.status.short;
+    const now = Date.now();
+    const fixtureDate = new Date(fixture.fixture.date).getTime();
+    const hoursAfterMatch = (now - fixtureDate) / (1000 * 60 * 60);
+
+    return ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAfterMatch <= 2;
+  }
+
+  /**
    * Check if cached data is still valid
    */
   private isValidCache(cachedItem: CachedFixture): boolean {
     // Live fixtures should never use cache
     if (this.isLiveFixture(cachedItem.fixture)) {
       console.log(`🔴 [fixtureCache] Live fixture ${cachedItem.fixture.fixture.id} bypassing cache`);
+      return false;
+    }
+
+    // Recently ended fixtures should never use cache
+    if (this.isRecentlyEndedFixture(cachedItem.fixture)) {
+      console.log(`🔄 [fixtureCache] Recently ended fixture ${cachedItem.fixture.fixture.id} bypassing cache`);
       return false;
     }
 
@@ -260,12 +278,18 @@ class FixtureCache {
   }
 
   /**
-   * Cache a single fixture (but skip live fixtures)
+   * Cache a single fixture (but skip live and recently ended fixtures)
    */
   cacheFixture(fixture: FixtureResponse, source: string = 'api'): void {
     // Don't cache live fixtures - they need real-time updates
     if (this.isLiveFixture(fixture)) {
       console.log(`🔴 [fixtureCache] Skipping cache for live fixture ${fixture.fixture.id} (${fixture.fixture.status.short})`);
+      return;
+    }
+
+    // Don't cache recently ended fixtures - they might still have updates
+    if (this.isRecentlyEndedFixture(fixture)) {
+      console.log(`🔄 [fixtureCache] Skipping cache for recently ended fixture ${fixture.fixture.id} (${fixture.fixture.status.short})`);
       return;
     }
 
@@ -279,30 +303,35 @@ class FixtureCache {
     this.cache.set(key, cachedItem);
     this.stats.size = this.cache.size;
 
-    console.log(`💾 [fixtureCache] Cached non-live fixture ${fixture.fixture.id} (${source})`);
+    console.log(`💾 [fixtureCache] Cached stable fixture ${fixture.fixture.id} (${source})`);
     this.cleanup();
   }
 
   /**
-   * Cache fixtures for a specific date (excluding live fixtures)
+   * Cache fixtures for a specific date (excluding live and recently ended fixtures)
    */
   cacheFixturesForDate(date: string, fixtures: FixtureResponse[], source: string = 'api'): void {
-    // Separate live and non-live fixtures
+    // Separate live, recently ended, and cacheable fixtures
     const liveFixtures = fixtures.filter(f => this.isLiveFixture(f));
-    const nonLiveFixtures = fixtures.filter(f => !this.isLiveFixture(f));
+    const recentlyEndedFixtures = fixtures.filter(f => this.isRecentlyEndedFixture(f));
+    const cacheableFixtures = fixtures.filter(f => !this.isLiveFixture(f) && !this.isRecentlyEndedFixture(f));
 
     if (liveFixtures.length > 0) {
       console.log(`🔴 [fixtureCache] Skipping cache for ${liveFixtures.length} live fixtures in date ${date}`);
     }
 
-    if (nonLiveFixtures.length === 0) {
-      console.log(`⚠️ [fixtureCache] No non-live fixtures to cache for date ${date}`);
+    if (recentlyEndedFixtures.length > 0) {
+      console.log(`🔄 [fixtureCache] Skipping cache for ${recentlyEndedFixtures.length} recently ended fixtures in date ${date}`);
+    }
+
+    if (cacheableFixtures.length === 0) {
+      console.log(`⚠️ [fixtureCache] No cacheable fixtures for date ${date}`);
       return;
     }
 
     const key = this.generateKey(date, 'date', date);
     const cachedItem: CachedFixture = {
-      fixture: nonLiveFixtures as any,
+      fixture: cacheableFixtures as any,
       timestamp: Date.now(),
       source
     };
@@ -310,13 +339,13 @@ class FixtureCache {
     this.cache.set(key, cachedItem);
     this.stats.size = this.cache.size;
 
-    console.log(`💾 [fixtureCache] Cached ${nonLiveFixtures.length} non-live fixtures for date ${date} (${source}, skipped ${liveFixtures.length} live)`);
+    console.log(`💾 [fixtureCache] Cached ${cacheableFixtures.length} stable fixtures for date ${date} (${source}, skipped ${liveFixtures.length} live + ${recentlyEndedFixtures.length} recently ended)`);
 
     // Store in persistent cache if it's a past date with finished matches
-    this.storeInPersistentCache(date, nonLiveFixtures);
+    this.storeInPersistentCache(date, cacheableFixtures);
 
-    // Also cache individual non-live fixtures
-    nonLiveFixtures.forEach(fixture => {
+    // Also cache individual cacheable fixtures
+    cacheableFixtures.forEach(fixture => {
       this.cacheFixture(fixture, `date_batch_${source}`);
     });
 

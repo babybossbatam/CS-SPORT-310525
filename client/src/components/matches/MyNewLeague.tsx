@@ -137,11 +137,11 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       return true;
     }
     
-    // Recently ended matches (within 2 hours) need fresh data
+    // Recently ended matches (within 2 hours) ALWAYS need fresh data - NO CACHE
     if (status && ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(status) && hoursAfterMatch <= 2) {
       console.log(`🔄 [MyNewLeague FRESH] Recently ended match needs fresh data:`, {
         teams: `Match with status ${status}`,
-        hoursAfterMatch,
+        hoursAfterMatch: Math.round(hoursAfterMatch * 100) / 100,
         reason: 'recently_ended'
       });
       return true;
@@ -248,6 +248,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           if (daysDifference <= 2) {
             console.log(`🔍 [MyNewLeague SMART CACHE] League ${leagueId}: Checking for recently ended matches on ${selectedDate}`);
             forceRefresh = true; // Force refresh to get latest data for potentially recently ended matches
+            useCache = false;
+          }
+
+          // Additional check: if we're dealing with today's date, always force refresh to catch recently ended matches
+          if (isSelectedDateToday) {
+            console.log(`🔄 [MyNewLeague SMART CACHE] League ${leagueId}: Today's date - forcing refresh for recently ended matches`);
+            forceRefresh = true;
             useCache = false;
           }
 
