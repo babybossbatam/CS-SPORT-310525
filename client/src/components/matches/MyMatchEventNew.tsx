@@ -456,12 +456,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       src={
                         event.detail?.toLowerCase().includes("own goal")
                           ? "/assets/matchdetaillogo/soccer-logo.svg"
-                          : "/assets/matchdetaillogo/penalty.svg"
+                          : event.detail?.toLowerCase().includes("penalty")
+                          ? "/assets/matchdetaillogo/penalty.svg"
+                          : "/assets/matchdetaillogo/soccer-ball.svg"
                       }
                       alt={
                         event.detail?.toLowerCase().includes("own goal")
                           ? "Own Goal"
-                          : event.detail?.toLowerCase().includes("Penalty")
+                          : event.detail?.toLowerCase().includes("penalty")
                           ? "Penalty Goal"
                           : "Goal"
                       }
