@@ -9,7 +9,6 @@ import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
-import MyRecentForm from './MyRecentForm';
 interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
@@ -642,24 +641,7 @@ const MyMatchdetailsScoreboard = ({
         </div>
       </Card>
 
-      {/* Recent Form Section */}
-      <div className="mt-4">
-        <MyRecentForm 
-          match={match}
-          homeTeam={{
-            id: match.teams?.home?.id,
-            name: match.teams?.home?.name || 'Unknown',
-            logo: match.teams?.home?.logo || '/assets/fallback-logo.svg'
-          }}
-          awayTeam={{
-            id: match.teams?.away?.id,
-            name: match.teams?.away?.name || 'Unknown',
-            logo: match.teams?.away?.logo || '/assets/fallback-logo.svg'
-          }}
-          leagueId={match.league?.id}
-          season={match.league?.season}
-        />
-      </div>
+      
     </Card>
   );
 };
