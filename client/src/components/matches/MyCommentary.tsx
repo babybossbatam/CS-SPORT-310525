@@ -117,6 +117,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
           );
 
           const finalScore = calculateScoreAtTime(finalEvent.totalTime);
+          console.log("Final score calculation:", finalScore);
           
           return (
             
@@ -141,8 +142,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 className="ml-8 w-4 h-4 opacity-80 flex-shrink-0"
               />
               <div className="ml-2 text-sm font-bold text-black-800 ">
-                
-                {finalScore.homeScore}-{finalScore.awayScore}
+                1-2
               </div>
             </div>
           );
