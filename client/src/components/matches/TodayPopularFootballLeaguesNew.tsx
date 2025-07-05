@@ -485,8 +485,13 @@ const TodayPopularFootballLeaguesNew: React.FC<
       console.log(`🔄 [TodayPopularLeagueNew] Direct fetching fixtures for ${selectedDate}`);
 
       try {
-        // Fetch directly from API without any smart filtering
+        // Fetch directly from API without manual timeout handling
         const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
         const fixtures = await response.json();
 
         console.log(`✅ [TodayPopularLeagueNew] Direct fetched ${fixtures?.length || 0} fixtures for ${selectedDate}`);
@@ -500,8 +505,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
-    retry: 2,
-    // Add timeout and better error handling
+    retry: 1, // Simple retry once on failure
+    retryDelay: 2000, // 2 second delay between retries
     meta: {
       errorMessage: `Failed to fetch fixtures for ${selectedDate}`
     }

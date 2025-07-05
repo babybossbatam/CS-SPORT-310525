@@ -35,34 +35,13 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  const controller = new AbortController();
-  let timeoutId: NodeJS.Timeout | null = null;
-
   try {
-    // Dynamic timeout based on request type - events need more time
-    const isEventRequest = url.includes("/events");
-    const isFixtureRequest = url.includes("/fixtures/");
-    const timeoutDuration = isEventRequest
-      ? 30000
-      : isFixtureRequest
-        ? 20000
-        : 15000;
-
-    // Set timeout with proper cleanup
-    timeoutId = setTimeout(() => {
-      if (!controller.signal.aborted) {
-        controller.abort(
-          `Request timeout after ${timeoutDuration / 1000} seconds`,
-        );
-      }
-    }, timeoutDuration);
-
     // Ensure URL is properly formatted
     const apiUrl = url.startsWith("/")
       ? `${window.location.origin}${url}`
       : url;
 
-    const res = await fetch(apiUrl, {
+    const response = await fetch(apiUrl, {
       method,
       headers: {
         ...(data ? { "Content-Type": "application/json" } : {}),
@@ -70,42 +49,16 @@ export async function apiRequest(
       },
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
-      signal: controller.signal,
       mode: "cors",
     });
 
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      timeoutId = null;
-    }
-
-    await throwIfResNotOk(res);
-    return res;
+    await throwIfResNotOk(response);
+    return response;
   } catch (error) {
-    // Clean up timeout
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-      timeoutId = null;
-    }
-
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
 
     // Handle specific error types
-    if (
-      error instanceof Error &&
-      (error.name === "AbortError" ||
-        errorMessage.includes("aborted") ||
-        errorMessage.includes("timeout"))
-    ) {
-      console.warn(
-        `⏱️ API request timed out for ${method} ${url}:`,
-        errorMessage,
-      );
-      // Return a more user-friendly error for timeouts
-      throw new Error(`Request timed out. Please try again.`);
-    }
-
     if (
       errorMessage.includes("Failed to fetch") ||
       errorMessage.includes("NetworkError") ||
@@ -140,51 +93,20 @@ export const getQueryFn: <T>(options: {
       return null as any;
     }
 
-    // Use the signal from React Query if available, otherwise create our own
-    const controller = signal ? undefined : new AbortController();
-    const requestSignal = signal || controller?.signal;
-    let timeoutId: NodeJS.Timeout | null = null;
-
     try {
       const url = queryKey[0] as string;
-
-      // Dynamic timeout based on query type
-      const isEventQuery = url.includes("/events");
-      const isFixtureQuery = url.includes("/fixtures/");
-      const queryTimeout = isEventQuery
-        ? 25000
-        : isFixtureQuery
-          ? 18000
-          : 10000;
-
-      // Only set timeout if we created our own controller
-      if (controller) {
-        timeoutId = setTimeout(() => {
-          if (!controller.signal.aborted) {
-            controller.abort(
-              `Query timeout after ${queryTimeout / 1000} seconds`,
-            );
-          }
-        }, queryTimeout);
-      }
-
       const apiUrl = url.startsWith("/")
         ? `${window.location.origin}${url}`
         : url;
 
       const res = await fetch(apiUrl, {
         credentials: "include",
-        signal: requestSignal,
+        signal: signal,
         headers: {
           Accept: "application/json",
         },
         mode: "cors",
       });
-
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        timeoutId = null;
-      }
 
       if (unauthorizedBehavior === "returnNull" && res.status === 401) {
         return null;
@@ -193,23 +115,8 @@ export const getQueryFn: <T>(options: {
       await throwIfResNotOk(res);
       return await res.json();
     } catch (error) {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-        timeoutId = null;
-      }
-
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
-
-      if (
-        error instanceof Error &&
-        (error.name === "AbortError" ||
-          errorMessage.includes("aborted") ||
-          errorMessage.includes("timeout"))
-      ) {
-        console.warn(`⏱️ Query timed out for ${queryKey[0]}: ${errorMessage}`);
-        return null as any; // Return null instead of throwing for queries
-      }
 
       if (
         errorMessage.includes("Failed to fetch") ||
