@@ -396,51 +396,55 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       const aDate = new Date(a.fixture.date).getTime();
       const bDate = new Date(b.fixture.date).getTime();
 
-      // Define clear status priorities
+      // Define clear status priorities with explicit numbering
       const getStatusPriority = (status: string) => {
-        // Priority 1: Live matches
-        if (["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
+        // Priority 1: Live matches (highest priority)
+        if (["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
           return 1;
         }
-        // Priority 2: Ended matches  
+        // Priority 2: Ended matches (second priority)
         if (["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status)) {
           return 2;
         }
-        // Priority 3: Upcoming matches
+        // Priority 3: Upcoming matches (third priority)
         if (["NS", "TBD"].includes(status)) {
           return 3;
         }
-        // Priority 4: Other statuses
+        // Priority 4: Other/unknown statuses (lowest priority)
         return 4;
       };
 
       const aPriority = getStatusPriority(aStatus);
       const bPriority = getStatusPriority(bStatus);
 
-      // First sort by status priority
+      // Primary sort: by status priority (Live -> Ended -> Upcoming -> Other)
       if (aPriority !== bPriority) {
         return aPriority - bPriority;
       }
 
-      // Within same status category, apply specific sorting rules
+      // Secondary sort: within same status category
       if (aPriority === 1) {
         // Live matches: sort by elapsed time (shortest elapsed time first)
         const aElapsed = Number(a.fixture.status.elapsed) || 0;
         const bElapsed = Number(b.fixture.status.elapsed) || 0;
-        return aElapsed - bElapsed;
+        if (aElapsed !== bElapsed) {
+          return aElapsed - bElapsed;
+        }
+        // If same elapsed time, sort by date
+        return aDate - bDate;
       }
 
       if (aPriority === 2) {
-        // Ended matches: sort by most recent first
+        // Ended matches: sort by most recent end time first (latest finished first)
         return bDate - aDate;
       }
 
       if (aPriority === 3) {
-        // Upcoming matches: sort by earliest start time first
+        // Upcoming matches: sort by earliest start time first (soonest first)
         return aDate - bDate;
       }
 
-      // For other statuses, sort by date
+      // For other statuses, sort by date (earliest first)
       return aDate - bDate;
     });
   });
