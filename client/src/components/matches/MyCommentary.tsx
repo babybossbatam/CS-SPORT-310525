@@ -95,56 +95,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
       <div className="p-2 border-t flex justify-center items-center text-xs">
         <span>Commentary</span>
       </div>
-      {/* End of Match Indicator */}
-      {(() => {
-        // Check if match has ended based on events
-        const hasEndedEvents = events.some(
-          (event) =>
-            event.time.elapsed >= 90 &&
-            event.time.extra &&
-            event.time.extra > 0,
-        );
-
-        if (hasEndedEvents) {
-          // Find the event with the highest total time (elapsed + extra)
-          const eventsWithTotalTime = events.map(e => ({
-            ...e,
-            totalTime: e.time.elapsed + (e.time.extra || 0)
-          }));
-          
-          const finalEvent = eventsWithTotalTime.reduce((latest, current) => 
-            current.totalTime > latest.totalTime ? current : latest
-          );
-
-          const finalScore = calculateScoreAtTime(finalEvent.totalTime);
-          console.log(finalScore)
-          return (
-            
-            <div className="p-3  flex items-center justify-between">
-              <div className="p-3 text-center">
-                <div className="text-lg font-bold text-gray-800">
-                  {finalScore.homeScore}-{finalScore.awayScore}
-                </div>
-                <div className="text-xs text-red-500">
-                
-                        {finalEvent.time.extra && finalEvent.time.extra > 0 ? ` +${finalEvent.time.extra}'` : ""}
-                  <span>
-                    {finalScore.homeScore}-{finalScore.awayScore}
-                  </span>
-
-                      </div>
-                <div className="text-xs text-gray-600">
-             {finalEvent.time.elapsed}'
-                  
-                  
-                </div>
-              </div>
-            
-            </div>
-          );
-        }
-        return null;
-      })()}
+      
 
       {/* Commentary Events Section */}
       <div className="border-t ">
@@ -153,6 +104,38 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
           {(() => {
             // Create array with events and period markers
             const allCommentaryItems = [...events];
+
+            // Check if match has ended and add final score marker
+            const hasEndedEvents = events.some(
+              (event) =>
+                event.time.elapsed >= 90 &&
+                event.time.extra &&
+                event.time.extra > 0,
+            );
+
+            if (hasEndedEvents) {
+              // Find the event with the highest total time (elapsed + extra)
+              const eventsWithTotalTime = events.map(e => ({
+                ...e,
+                totalTime: e.time.elapsed + (e.time.extra || 0)
+              }));
+              
+              const finalEvent = eventsWithTotalTime.reduce((latest, current) => 
+                current.totalTime > latest.totalTime ? current : latest
+              );
+
+              const finalScore = calculateScoreAtTime(finalEvent.totalTime);
+              
+              // Add final score as a special marker
+              allCommentaryItems.push({
+                time: { elapsed: finalEvent.time.elapsed, extra: finalEvent.time.extra },
+                type: "final_score",
+                detail: "End of Match",
+                score: `${finalScore.homeScore}-${finalScore.awayScore}`,
+                team: { name: "", logo: "" },
+                player: { name: "" },
+              } as any);
+            }
 
             // Add period markers based on existing events
             const hasEventsInFirstHalf = events.some(
@@ -218,6 +201,45 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               }) // Sort by time, most recent first, then by extra time
               .map((event, index) => {
                 const timeDisplay = `${event.time.extra ? `+${event.time.extra}` : ""}`;
+
+                // Handle final score marker
+                if (event.type === "final_score") {
+                  return (
+                    <div
+                      key={`final-score-${index}`}
+                      className="commentary-event-container"
+                    >
+                      <div className="flex gap-3">
+                        {/* Time Column */}
+                        <div className="flex flex-col items-center min-w-[50px]">
+                          {event.time.extra && (
+                            <div className="text-xs font-medium text-red-500 leading-tight">
+                              +{event.time.extra}'
+                            </div>
+                          )}
+                          <div className="text-gray-800 text-sm font-medium leading-tight">
+                            {event.time.elapsed}'
+                          </div>
+                          {index < allCommentaryItems.length - 1 && (
+                            <div className="w-0.5 h-12 bg-gray-600 mb-0"></div>
+                          )}
+                        </div>
+
+                        {/* Content Column */}
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between bg-red-50 px-4 py-3 rounded-lg mb-3 border-l-4 border-red-500">
+                            <div className="text-sm font-semibold text-gray-700">
+                              {event.detail}
+                            </div>
+                            <div className="text-lg font-bold text-gray-900">
+                              {event.score}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
 
                 // Handle period score markers
                 if (event.type === "period_score") {
