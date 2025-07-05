@@ -478,14 +478,29 @@ const TodayPopularFootballLeaguesNew: React.FC<
     }
   }, [selectedDate, leagueIds]);
 
-  // Fetch data directly from API without date filtering
-  const { data: allFixtures = [], isLoading: isQueryLoading, isFetching: isQueryFetching, error } = useQuery({
-    queryKey: ['direct-popular-leagues-fixtures', selectedDate],
+  // Helper function to determine if we should use cached data flow
+  const shouldUseCachedDataFlow = (selectedDate: string): boolean => {
+    const today = getCurrentUTCDateString();
+    const isToday = selectedDate === today;
+    const isPastDate = selectedDate < today;
+    const isFutureDate = selectedDate > today;
+    
+    // Use cached data flow for:
+    // 1. Past dates (ended matches more than 5-6 hours ago)
+    // 2. Far future dates (tomorrow and beyond)
+    return isPastDate || isFutureDate;
+  };
+
+  // Conditional data fetching based on match timing
+  const shouldUseCache = shouldUseCachedDataFlow(selectedDate);
+
+  // Cached data flow: RapidAPI → Server Cache → React Query Cache → Component Render
+  const { data: cachedFixtures = [], isLoading: isCachedLoading, error: cachedError } = useQuery({
+    queryKey: ['cached-popular-leagues-fixtures', selectedDate],
     queryFn: async () => {
-      console.log(`🔄 [TodayPopularLeagueNew] Direct fetching fixtures for ${selectedDate}`);
+      console.log(`🔄 [TodayPopularLeagueNew] Cached data flow for ${selectedDate}`);
 
       try {
-        // Fetch directly from API without manual timeout handling
         const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
 
         if (!response.ok) {
@@ -493,23 +508,68 @@ const TodayPopularFootballLeaguesNew: React.FC<
         }
 
         const fixtures = await response.json();
-
-        console.log(`✅ [TodayPopularLeagueNew] Direct fetched ${fixtures?.length || 0} fixtures for ${selectedDate}`);
+        console.log(`✅ [TodayPopularLeagueNew] Cached fetched ${fixtures?.length || 0} fixtures for ${selectedDate}`);
         return fixtures || [];
       } catch (error) {
-        console.error(`❌ [TodayPopularLeagueNew] Error fetching fixtures for ${selectedDate}:`, error);
-        // Return empty array on error instead of throwing
+        console.error(`❌ [TodayPopularLeagueNew] Cached flow error for ${selectedDate}:`, error);
         return [];
       }
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    enabled: shouldUseCache,
+    staleTime: 30 * 60 * 1000, // 30 minutes for cached data
+    gcTime: 60 * 60 * 1000, // 1 hour
     refetchOnWindowFocus: false,
-    retry: 1, // Simple retry once on failure
-    retryDelay: 2000, // 2 second delay between retries
+    retry: 1,
+    retryDelay: 2000,
     meta: {
-      errorMessage: `Failed to fetch fixtures for ${selectedDate}`
+      errorMessage: `Failed to fetch cached fixtures for ${selectedDate}`
     }
+  });
+
+  // Direct data flow: RapidAPI → Client API Call → Component Render
+  const { data: directFixtures = [], isLoading: isDirectLoading, error: directError } = useQuery({
+    queryKey: ['direct-popular-leagues-fixtures', selectedDate],
+    queryFn: async () => {
+      console.log(`🔄 [TodayPopularLeagueNew] Direct data flow for ${selectedDate} (live/today/recent)`);
+
+      try {
+        const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const fixtures = await response.json();
+        console.log(`✅ [TodayPopularLeagueNew] Direct fetched ${fixtures?.length || 0} fixtures for ${selectedDate}`);
+        return fixtures || [];
+      } catch (error) {
+        console.error(`❌ [TodayPopularLeagueNew] Direct flow error for ${selectedDate}:`, error);
+        return [];
+      }
+    },
+    enabled: !shouldUseCache,
+    staleTime: 30 * 1000, // 30 seconds for live/today data
+    gcTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+    refetchInterval: isDateStringToday(selectedDate) ? 30000 : false, // Auto-refresh for today's matches
+    retry: 1,
+    retryDelay: 1000, // Faster retry for live data
+    meta: {
+      errorMessage: `Failed to fetch direct fixtures for ${selectedDate}`
+    }
+  });
+
+  // Combine data from both flows
+  const allFixtures = shouldUseCache ? cachedFixtures : directFixtures;
+  const isQueryLoading = shouldUseCache ? isCachedLoading : isDirectLoading;
+  const error = shouldUseCache ? cachedError : directError;
+
+  // Log which data flow is being used
+  console.log(`📊 [TodayPopularLeagueNew] Using ${shouldUseCache ? 'CACHED' : 'DIRECT'} data flow for ${selectedDate}`, {
+    isToday: isDateStringToday(selectedDate),
+    isPast: selectedDate < getCurrentUTCDateString(),
+    isFuture: selectedDate > getCurrentUTCDateString(),
+    fixtureCount: allFixtures.length
   });
 
   // Simple filtering without complex date conversions
