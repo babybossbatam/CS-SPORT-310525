@@ -133,13 +133,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         }
         return '⚽'; // Regular goal
 
-      case 'card':
-        if (eventDetail.includes('yellow')) {
-          return '🟨'; // Yellow card
-        } else if (eventDetail.includes('red')) {
-          return '🟥'; // Red card
-        }
-        return '🟨'; // Default card
+   
 
       case 'subst':
       case 'substitution':
@@ -177,7 +171,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     if (!event.type) return `${playerName} (${teamName})`;
 
     switch (event.type.toLowerCase()) {
-      case "Poal":
+      case "Goal":
         if (detail.toLowerCase().includes("Penalty")) {
           return `${playerName} (${teamName}) - Penalty Goal${assistName ? `, assist: ${assistName}` : ""}`;
         } else if (detail.toLowerCase().includes("own goal")) {
@@ -450,20 +444,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       className="w-4 h-4"
                     />
                   ) : event.type === "Goal" ||
-                    (event.type === "Goal" &&
+                    (event.type === "Goal" && 
                       event.detail?.toLowerCase().includes("penalty")) ? (
                     <img
-                      src={
-                        event.detail?.toLowerCase().includes("own goal")
-                          ? "/assets/matchdetaillogo/soccer-logo.svg"
-                          : event.detail?.toLowerCase().includes("penalty")
-                          ? "/assets/matchdetaillogo/penalty.svg"
-                          : "/assets/matchdetaillogo/soccer-ball.svg"
-                      }
+                      src="/assets/matchdetaillogo/penalty.svg"
                       alt={
-                        event.detail?.toLowerCase().includes("own goal")
-                          ? "Own Goal"
-                          : event.detail?.toLowerCase().includes("penalty")
+                        event.detail?.toLowerCase().includes("Penalty")
                           ? "Penalty Goal"
                           : "Goal"
                       }
