@@ -49,12 +49,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
     let homeScore = 0;
     let awayScore = 0;
 
-    // Get all goal events that happened before or at the given time
+    // Get all goal events that happened before or at the given time (including extra time)
     const goalEvents = events.filter(
       (e) =>
         (e.type?.toLowerCase() === "goal" ||
           e.type?.toLowerCase() === "Goal") &&
-        e.time.elapsed <= time,
+        (e.time.elapsed + (e.time.extra || 0)) <= time,
     );
 
     // Process each goal event
@@ -379,10 +379,11 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               <span>
                                 Score:{" "}
                                 {(() => {
-                                  const scoreAtGoal = calculateScoreAtTime(
-                                    event.time.elapsed,
+                                  // Calculate score including this goal event
+                                  const scoreAfterGoal = calculateScoreAtTime(
+                                    event.time.elapsed + (event.time.extra || 0)
                                   );
-                                  return `${scoreAtGoal.homeScore}-${scoreAtGoal.awayScore}`;
+                                  return `${scoreAfterGoal.homeScore}-${scoreAfterGoal.awayScore}`;
                                 })()}
                               </span>
                             </div>
