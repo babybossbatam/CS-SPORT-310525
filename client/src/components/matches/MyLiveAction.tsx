@@ -229,7 +229,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     return () => clearInterval(targetInterval);
   }, [isLive]);
 
-  // Clean up old trail positions and goal kick events
+  // Clean up old trail positions, goal kick events, and corner kick events
   useEffect(() => {
     const cleanup = setInterval(() => {
       setBallTrail(currentTrail => 
@@ -239,6 +239,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       setGoalKickEvents(current => 
         current.filter(event => Date.now() - event.timestamp < 8000) // Keep goal kicks for 8 seconds
       );
+      
+      setCornerKickEvents(current => 
+        current.filter(event => Date.now() - event.timestamp < 8000) // Keep corner kicks for 8 seconds
+      );
     }, 1000);
 
     return () => clearInterval(cleanup);
@@ -246,15 +250,18 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
   // State for goal kick effects
   const [goalKickEvents, setGoalKickEvents] = useState<Array<{id: string, x: number, y: number, team: 'home' | 'away', timestamp: number}>>([]);
+  
+  // State for corner kick effects
+  const [cornerKickEvents, setCornerKickEvents] = useState<Array<{id: string, x: number, y: number, team: 'home' | 'away', timestamp: number, corner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'}>>([]);
 
-  // Generate dynamic events including shots and goal kicks
+  // Generate dynamic events including shots, goal kicks, and corner kicks
   const generateDynamicEvent = () => {
     const teams = ['home', 'away'];
     const randomTeam = teams[Math.floor(Math.random() * teams.length)] as 'home' | 'away';
     
     // Determine event type based on ball position and actual penalty area boundaries
     let randomType: 'attacking' | 'ball_safe' | 'dangerous_attack';
-    let eventType: 'attack' | 'shot' | 'goal' | 'goalkick' = 'attack';
+    let eventType: 'attack' | 'shot' | 'goal' | 'goalkick' | 'corner' = 'attack';
     
     // Check if ball is actually INSIDE penalty areas for dangerous attack
     const isInHomePenalty = ballPosition.x < 21 && ballPosition.y > 30 && ballPosition.y < 70;
@@ -264,7 +271,36 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     const isInHomeGoalArea = ballPosition.x < 11 && ballPosition.y > 40 && ballPosition.y < 60;
     const isInAwayGoalArea = ballPosition.x > 89 && ballPosition.y > 40 && ballPosition.y < 60;
     
-    if (isInHomeGoalArea || isInAwayGoalArea) {
+    // Check if ball is in corner areas for corner kick
+    const isInTopLeftCorner = ballPosition.x < 10 && ballPosition.y < 20;
+    const isInTopRightCorner = ballPosition.x > 90 && ballPosition.y < 20;
+    const isInBottomLeftCorner = ballPosition.x < 10 && ballPosition.y > 80;
+    const isInBottomRightCorner = ballPosition.x > 90 && ballPosition.y > 80;
+    
+    if (isInTopLeftCorner || isInTopRightCorner || isInBottomLeftCorner || isInBottomRightCorner) {
+      eventType = 'corner';
+      randomType = 'attacking';
+      
+      // Determine corner position
+      let corner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+      if (isInTopLeftCorner) corner = 'top-left';
+      else if (isInTopRightCorner) corner = 'top-right';
+      else if (isInBottomLeftCorner) corner = 'bottom-left';
+      else corner = 'bottom-right';
+      
+      // Create corner kick event
+      const cornerKickEvent = {
+        id: `corner_${Date.now()}`,
+        x: ballPosition.x,
+        y: ballPosition.y,
+        team: randomTeam,
+        corner,
+        timestamp: Date.now()
+      };
+      
+      setCornerKickEvents(prev => [...prev.slice(-4), cornerKickEvent]); // Keep last 5 corner kicks
+      
+    } else if (isInHomeGoalArea || isInAwayGoalArea) {
       eventType = 'goalkick';
       randomType = 'ball_safe';
       
@@ -348,7 +384,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
     // Create corresponding event
     const eventDescriptions = {
-      attacking: eventType === 'shot' ? 'Shot Attempt' : 'Attacking',
+      attacking: eventType === 'shot' ? 'Shot Attempt' : eventType === 'corner' ? 'Corner kick' : 'Attacking',
       ball_safe: eventType === 'goalkick' ? 'Goal kick' : 'Ball Safe',
       dangerous_attack: eventType === 'goal' ? 'GOAL!' : eventType === 'shot' ? 'Shot on Target' : 'Dangerous Attack'
     };
@@ -728,6 +764,118 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           ))}
 
+          {/* Corner kick effects */}
+          {cornerKickEvents.map((corner) => {
+            // Determine corner flag position and goal target
+            let cornerX, cornerY, goalX, goalY;
+            
+            switch (corner.corner) {
+              case 'top-left':
+                cornerX = 5; cornerY = 15;
+                goalX = corner.team === 'home' ? 95 : 5;
+                goalY = 50;
+                break;
+              case 'top-right':
+                cornerX = 95; cornerY = 15;
+                goalX = corner.team === 'home' ? 95 : 5;
+                goalY = 50;
+                break;
+              case 'bottom-left':
+                cornerX = 5; cornerY = 85;
+                goalX = corner.team === 'home' ? 95 : 5;
+                goalY = 50;
+                break;
+              case 'bottom-right':
+                cornerX = 95; cornerY = 85;
+                goalX = corner.team === 'home' ? 95 : 5;
+                goalY = 50;
+                break;
+            }
+
+            return (
+              <div key={corner.id} className="absolute inset-0 pointer-events-none z-42">
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id={`cornerGradient-${corner.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor={corner.team === 'home' ? 'rgba(59, 130, 246, 0.4)' : 'rgba(239, 68, 68, 0.4)'} />
+                      <stop offset="100%" stopColor={corner.team === 'home' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(239, 68, 68, 0.1)'} />
+                    </linearGradient>
+                  </defs>
+                  
+                  {/* Corner flag marker */}
+                  <circle
+                    cx={cornerX}
+                    cy={cornerY}
+                    r="2"
+                    fill={corner.team === 'home' ? '#3b82f6' : '#ef4444'}
+                    className="animate-ping"
+                    style={{ animationDuration: '1.5s' }}
+                  />
+                  
+                  {/* Corner flag pole */}
+                  <line
+                    x1={cornerX}
+                    y1={cornerY}
+                    x2={cornerX}
+                    y2={cornerY - 3}
+                    stroke="white"
+                    strokeWidth="0.3"
+                    opacity="0.8"
+                  />
+                  
+                  {/* Curved trajectory path - similar to 365scores style */}
+                  <path
+                    d={`M ${cornerX} ${cornerY} Q ${(cornerX + goalX) / 2} ${Math.min(cornerY, goalY) - 15} ${goalX} ${goalY}`}
+                    stroke={corner.team === 'home' ? '#3b82f6' : '#ef4444'}
+                    strokeWidth="0.6"
+                    fill="none"
+                    strokeDasharray="2,1"
+                    opacity="0.7"
+                    className="animate-pulse"
+                    style={{ animationDuration: '2s' }}
+                  />
+                  
+                  {/* Dotted trajectory lines */}
+                  <path
+                    d={`M ${cornerX} ${cornerY} Q ${(cornerX + goalX) / 2} ${Math.min(cornerY, goalY) - 12} ${goalX - 5} ${goalY - 8}`}
+                    stroke={corner.team === 'home' ? '#3b82f6' : '#ef4444'}
+                    strokeWidth="0.4"
+                    fill="none"
+                    strokeDasharray="1,0.8"
+                    opacity="0.5"
+                    className="animate-pulse"
+                    style={{ animationDelay: '0.3s', animationDuration: '2s' }}
+                  />
+                  
+                  <path
+                    d={`M ${cornerX} ${cornerY} Q ${(cornerX + goalX) / 2} ${Math.min(cornerY, goalY) - 18} ${goalX - 8} ${goalY + 8}`}
+                    stroke={corner.team === 'home' ? '#3b82f6' : '#ef4444'}
+                    strokeWidth="0.4"
+                    fill="none"
+                    strokeDasharray="1,0.8"
+                    opacity="0.5"
+                    className="animate-pulse"
+                    style={{ animationDelay: '0.6s', animationDuration: '2s' }}
+                  />
+                  
+                  {/* Target area highlight */}
+                  <circle
+                    cx={goalX}
+                    cy={goalY}
+                    r="6"
+                    fill="none"
+                    stroke={corner.team === 'home' ? '#3b82f6' : '#ef4444'}
+                    strokeWidth="0.5"
+                    strokeDasharray="2,1"
+                    opacity="0.6"
+                    className="animate-ping"
+                    style={{ animationDuration: '2s' }}
+                  />
+                </svg>
+              </div>
+            );
+          })}
+
           {/* Shot direction indicators */}
           {shotEvents.slice(-3).map((shot) => (
             <svg
@@ -912,16 +1060,18 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           )}
 
           {/* Event notification card - top right */}
-          {currentEvent && (currentEvent.type === 'goal' || currentEvent.type === 'goalkick') && (
+          {currentEvent && (currentEvent.type === 'goal' || currentEvent.type === 'goalkick' || currentEvent.type === 'corner') && (
             <div className="absolute top-4 right-4 z-50">
               <div className="bg-white rounded-lg shadow-lg px-4 py-2 flex items-center gap-2">
                 <div className={`text-white px-2 py-1 rounded text-xs font-bold ${
-                  currentEvent.type === 'goalkick' ? 'bg-blue-500' : 'bg-red-500'
+                  currentEvent.type === 'goalkick' ? 'bg-blue-500' : 
+                  currentEvent.type === 'corner' ? 'bg-yellow-500' : 'bg-red-500'
                 }`}>
                   {currentEvent.minute}'
                 </div>
                 <span className="text-sm font-semibold">
-                  {currentEvent.type === 'goalkick' ? 'Goal kick' : 'Goal'}
+                  {currentEvent.type === 'goalkick' ? 'Goal kick' : 
+                   currentEvent.type === 'corner' ? 'Corner kick' : 'Goal'}
                 </span>
                 <div className="text-gray-500 text-xs">
                   {currentEvent.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
