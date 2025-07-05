@@ -425,7 +425,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     refetchOnWindowFocus: true,
     refetchInterval: (data) => {
       // Only auto-refresh if there are live matches
-      const hasLiveMatches = data?.some((fixture: any) => 
+      const hasLiveMatches = Array.isArray(data) && data.some((fixture: any) => 
         ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
       );
       return hasLiveMatches ? 30 * 1000 : false; // 30 seconds for live matches, no auto-refresh otherwise
