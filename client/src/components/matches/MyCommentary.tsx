@@ -258,7 +258,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           />
                           
                         </div>
-                        <span className="text-lg font-bold text-gray-900 ml-4">
+                        <span className="text-lg font-bold text-gray-900 ml-2">
                           {event.score}
                         </span>
                       </div>
