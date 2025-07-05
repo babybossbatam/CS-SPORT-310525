@@ -142,7 +142,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 className="ml-8 w-4 h-4 opacity-80 flex-shrink-0"
               />
               <div className="ml-2 text-sm font-bold text-black-800 ">
-                1-2
+                {finalScore.homeScore}-{finalScore.awayScore}
               </div>
             </div>
           );
