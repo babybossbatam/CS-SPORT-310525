@@ -823,8 +823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
 
       if (isNaN(id) || !req.params.id || req.params.id.trim() === "") {
-        return res.status(400).json({ message: "Invalid league ID" });
-      }
+        return res.status(400).json({ message: "Invalid league ID" });      }
 
       // Check cache first
       const cachedLeague = await storage.getCachedLeague(id.toString());
@@ -870,10 +869,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json(league);
-
-      // Applying the changes to add highlights routes to the main router and register them.
-      // Adding highlights routes to main router
-      // Register highlights routes
     } catch (error) {
       console.error(`Error fetching league with ID ${req.params.id}:`, error);
       res.status(500).json({ message: "Failed to fetch league" });
@@ -1596,7 +1591,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               error,
             );
             continue;
-                    }
+          }
         }
 
         console.warn(
@@ -1709,11 +1704,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`,
         ];
 
-        ```text
+        let imageBuffer = null;
+        let sourceUrl = "";
 
-          for (const logoUrl of logoUrls) {
-            try {
-              const response = await fetch(logoUrl, {
+        // Try each logo source
+        for (const logoUrl of logoUrls) {
+          try {
+                        const response = await fetch(logoUrl, {
                 headers: {
                   accept: "image/png,image/jpeg,image/svg+xml,image/*",
                   "user-agent":
@@ -2681,9 +2678,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
 
         // Set a flag on each fixture to indicate it's from live endpoint
-```text
         fixtures.forEach(fixture => {
           fixture.isLiveData = true;
+          ```text
           fixture.lastUpdated = Date.now();
         });
 
