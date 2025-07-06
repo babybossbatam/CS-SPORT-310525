@@ -453,6 +453,24 @@ class FixtureCache {
   }
 
   /**
+   * Clear cache for a specific date
+   */
+  clearCacheForDate(date: string) {
+    const dateKey = this.generateKey(date, 'date', date);
+    this.cache.delete(dateKey);
+    
+    // Also clear persistent storage for this date
+    try {
+      localStorage.removeItem(`finished_fixtures_${date}`);
+      console.log(`🗑️ [FixtureCache] Cleared cache for date ${date}`);
+    } catch (error) {
+      console.error('Error clearing persistent cache for date:', error);
+    }
+    
+    this.stats.size = this.cache.size;
+  }
+
+  /**
    * Track status transitions and invalidate related cache entries
    */
   trackStatusTransition(fixtureId: number, fromStatus: string, toStatus: string) {
@@ -646,6 +664,19 @@ class FixtureCache {
       return true;
     }
 
+    // CRITICAL: Validate all cached fixtures actually belong to the requested date
+    const dateMatchedFixtures = cached.filter(fixture => {
+      const fixtureDate = new Date(fixture.fixture.date);
+      const fixtureDateString = fixtureDate.toISOString().slice(0, 10);
+      return fixtureDateString === date;
+    });
+
+    if (dateMatchedFixtures.length !== cached.length) {
+      console.log(`🚨 [fixtureCache] Date contamination detected - ${cached.length - dateMatchedFixtures.length} fixtures don't match date ${date}, clearing cache`);
+      this.clearCacheForDate(date);
+      return true;
+    }
+
     // CRITICAL: Check for invalid NS status on past dates
     if (date < today) {
       const hasInvalidNSMatches = cached.some(fixture => {
@@ -669,6 +700,7 @@ class FixtureCache {
 
       if (hasInvalidNSMatches) {
         console.log(`🔄 [fixtureCache] Found invalid NS matches for past date ${date}, forcing fresh fetch`);
+        this.clearCacheForDate(date);
         return true;
       }
     }

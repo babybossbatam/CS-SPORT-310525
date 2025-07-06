@@ -119,7 +119,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     return `ended_matches_${date}_${leagueId}`;
   }, []);
 
-  // Get cached ended matches
+  // Get cached ended matches with strict date validation
   const getCachedEndedMatches = useCallback((date: string, leagueId: number): FixtureData[] => {
     try {
       const cacheKey = getCacheKey(date, leagueId);
@@ -127,20 +127,52 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       
       if (!cached) return [];
       
-      const { fixtures, timestamp } = JSON.parse(cached);
+      const { fixtures, timestamp, date: cachedDate } = JSON.parse(cached);
+      
+      // CRITICAL: Ensure cached date exactly matches requested date
+      if (cachedDate !== date) {
+        console.log(`🚨 [MyNewLeague] Date mismatch in cache - cached: ${cachedDate}, requested: ${date}, clearing cache`);
+        localStorage.removeItem(cacheKey);
+        return [];
+      }
+      
       const cacheAge = Date.now() - timestamp;
       
-      // Cache valid for 7 days for old ended matches
-      if (cacheAge < 7 * 24 * 60 * 60 * 1000) {
-        console.log(`✅ [MyNewLeague] Using cached ended matches for league ${leagueId} on ${date}: ${fixtures.length} matches`);
-        return fixtures;
+      // More aggressive cache validation for recent dates
+      const today = new Date().toISOString().slice(0, 10);
+      const isToday = date === today;
+      const isPastDate = date < today;
+      
+      // For today: 1 hour cache max
+      // For past dates: 24 hours cache max (reduced from 7 days)
+      const maxCacheAge = isToday ? 1 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+      
+      if (cacheAge < maxCacheAge) {
+        // Additional validation: check if fixtures actually match the date
+        const validFixtures = fixtures.filter((fixture: any) => {
+          const fixtureDate = new Date(fixture.fixture.date);
+          const fixtureDateString = fixtureDate.toISOString().slice(0, 10);
+          return fixtureDateString === date;
+        });
+        
+        if (validFixtures.length !== fixtures.length) {
+          console.log(`🚨 [MyNewLeague] Found ${fixtures.length - validFixtures.length} fixtures with wrong dates in cache, clearing`);
+          localStorage.removeItem(cacheKey);
+          return [];
+        }
+        
+        console.log(`✅ [MyNewLeague] Using cached ended matches for league ${leagueId} on ${date}: ${validFixtures.length} matches`);
+        return validFixtures;
       } else {
         // Remove expired cache
         localStorage.removeItem(cacheKey);
-        console.log(`⏰ [MyNewLeague] Removed expired cache for league ${leagueId} on ${date}`);
+        console.log(`⏰ [MyNewLeague] Removed expired cache for league ${leagueId} on ${date} (age: ${Math.round(cacheAge / 60000)}min)`);
       }
     } catch (error) {
       console.error('Error reading cached ended matches:', error);
+      // Clear corrupted cache
+      const cacheKey = getCacheKey(date, leagueId);
+      localStorage.removeItem(cacheKey);
     }
     
     return [];
@@ -300,67 +332,96 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               return matchDateString === selectedDay;
             });
 
-            // Validate status consistency for past dates and trigger refresh if needed
-            if (selectedDateObj <= today) { // Changed to <= to include today
-              const staleNSMatches = filteredFixtures.filter(fixture => {
-                const status = fixture.fixture.status.short;
-                const fixtureTime = new Date(fixture.fixture.date).getTime();
-                const now = Date.now();
-                const minutesAfterFixture = (now - fixtureTime) / (1000 * 60);
-                
-                // More aggressive detection: 30 minutes after scheduled time for NS matches
-                if (status === 'NS' && minutesAfterFixture > 30) {
-                  console.log(`🚨 [MyNewLeague] Data integrity warning - NS match past scheduled time:`, {
+            // More aggressive validation for data integrity across all dates
+            const staleDataMatches = filteredFixtures.filter(fixture => {
+              const status = fixture.fixture.status.short;
+              const fixtureTime = new Date(fixture.fixture.date).getTime();
+              const now = Date.now();
+              const minutesAfterFixture = (now - fixtureTime) / (1000 * 60);
+              const hoursAfterFixture = minutesAfterFixture / 60;
+              
+              // Check for fixture date mismatch (critical issue)
+              const matchDate = new Date(fixture.fixture.date);
+              const year = matchDate.getFullYear();
+              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+              const day = String(matchDate.getDate()).padStart(2, "0");
+              const matchDateString = `${year}-${month}-${day}`;
+              
+              if (matchDateString !== selectedDate) {
+                console.log(`🚨 [MyNewLeague] CRITICAL - Fixture date mismatch:`, {
+                  teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                  fixtureDate: matchDateString,
+                  selectedDate,
+                  league: fixture.league.name
+                });
+                return true;
+              }
+              
+              // Check for stale NS status
+              if (status === 'NS') {
+                // For past dates: NS status should not exist if more than 2 hours after kickoff
+                if (selectedDateObj < today && hoursAfterFixture > 2) {
+                  console.log(`🚨 [MyNewLeague] Stale NS status for past date:`, {
                     teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                    league: fixture.league.name,
                     status,
-                    minutesAfterFixture: Math.round(minutesAfterFixture),
-                    scheduledTime: new Date(fixture.fixture.date).toISOString(),
-                    currentTime: new Date(now).toISOString()
+                    hoursAfterFixture: Math.round(hoursAfterFixture * 100) / 100,
+                    selectedDate
                   });
                   return true;
                 }
-                return false;
-              });
-
-              // If we found stale NS matches, fetch fresh data for this league
-              if (staleNSMatches.length > 0) {
-                console.log(`🔄 [MyNewLeague] Found ${staleNSMatches.length} stale NS matches for league ${leagueId}, fetching fresh data`);
                 
-                try {
-                  const freshResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures?force=true`);
-                  const freshData = await freshResponse.json();
-                  
-                  if (Array.isArray(freshData)) {
-                    const freshFilteredFixtures = freshData.filter(fixture => {
-                      const fixtureDate = fixture.fixture?.date;
-                      if (!fixtureDate) return true;
-
-                      const matchDate = new Date(fixtureDate);
-                      const year = matchDate.getFullYear();
-                      const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-                      const day = String(matchDate.getDate()).padStart(2, "0");
-                      const matchDateString = `${year}-${month}-${day}`;
-                      return matchDateString === selectedDate;
-                    });
-
-                    console.log(`✅ [MyNewLeague] Refreshed ${freshFilteredFixtures.length} fixtures for league ${leagueId}`);
-                    
-                    // Replace the stale fixtures with fresh ones
-                    const updatedFixtures = filteredFixtures.filter(fixture => 
-                      !staleNSMatches.some(stale => stale.fixture.id === fixture.fixture.id)
-                    );
-                    
-                    allFixtures = allFixtures.filter(fixture => 
-                      !staleNSMatches.some(stale => stale.fixture.id === fixture.fixture.id)
-                    );
-                    
-                    allFixtures.push(...freshFilteredFixtures);
-                    continue; // Skip caching stale data
-                  }
-                } catch (refreshError) {
-                  console.error(`❌ [MyNewLeague] Failed to refresh stale data for league ${leagueId}:`, refreshError);
+                // For today: NS status should not exist if more than 30 minutes after kickoff
+                if (selectedDateObj.getTime() === today.getTime() && minutesAfterFixture > 30) {
+                  console.log(`🚨 [MyNewLeague] Stale NS status for today:`, {
+                    teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                    status,
+                    minutesAfterFixture: Math.round(minutesAfterFixture),
+                    selectedDate
+                  });
+                  return true;
                 }
+              }
+              
+              return false;
+            });
+
+            // If we found any stale data, force refresh for this league
+            if (staleDataMatches.length > 0) {
+              console.log(`🔄 [MyNewLeague] Found ${staleDataMatches.length} stale/mismatched fixtures for league ${leagueId}, forcing fresh fetch`);
+              
+              // Clear all cache for this league and date
+              const cacheKey = getCacheKey(selectedDate, leagueId);
+              localStorage.removeItem(cacheKey);
+              fixtureCache.clearCache();
+              
+              try {
+                const freshResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures?force=true&t=${Date.now()}`);
+                const freshData = await freshResponse.json();
+                
+                if (Array.isArray(freshData)) {
+                  const freshFilteredFixtures = freshData.filter(fixture => {
+                    const fixtureDate = fixture.fixture?.date;
+                    if (!fixtureDate) return false;
+
+                    const matchDate = new Date(fixtureDate);
+                    const year = matchDate.getFullYear();
+                    const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+                    const day = String(matchDate.getDate()).padStart(2, "0");
+                    const matchDateString = `${year}-${month}-${day}`;
+                    return matchDateString === selectedDate;
+                  });
+
+                  console.log(`✅ [MyNewLeague] Refreshed ${freshFilteredFixtures.length} fixtures for league ${leagueId} (was ${filteredFixtures.length})`);
+                  
+                  // Replace all fixtures for this league with fresh ones
+                  allFixtures = allFixtures.filter(fixture => fixture.league.id !== leagueId);
+                  allFixtures.push(...freshFilteredFixtures);
+                  
+                  // Use fresh data instead of potentially stale cached data
+                  continue;
+                }
+              } catch (refreshError) {
+                console.error(`❌ [MyNewLeague] Failed to refresh stale data for league ${leagueId}:`, refreshError);
               }
             }
 
@@ -426,25 +487,30 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     }
   }, [selectedDate, getCachedEndedMatches, cacheEndedMatches]);
 
-  // Clean up old cache entries on component mount
+  // Comprehensive cache cleanup on date change and component mount
   useEffect(() => {
     const cleanupOldCache = () => {
       try {
         const keys = Object.keys(localStorage);
-        const cacheKeys = keys.filter(key => key.startsWith('ended_matches_'));
+        const cacheKeys = keys.filter(key => key.startsWith('ended_matches_') || key.startsWith('finished_fixtures_'));
         
         let cleanedCount = 0;
+        const today = new Date().toISOString().slice(0, 10);
+        
         cacheKeys.forEach(key => {
           try {
             const cached = localStorage.getItem(key);
             if (cached) {
-              const { timestamp } = JSON.parse(cached);
+              const { timestamp, date: cachedDate } = JSON.parse(cached);
               const cacheAge = Date.now() - timestamp;
               
-              // Remove cache older than 7 days
-              if (cacheAge > 7 * 24 * 60 * 60 * 1000) {
+              // More aggressive cleanup - remove cache older than 24 hours for recent dates
+              const maxAge = cachedDate >= today ? 1 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+              
+              if (cacheAge > maxAge) {
                 localStorage.removeItem(key);
                 cleanedCount++;
+                console.log(`🗑️ [MyNewLeague] Removed stale cache: ${key} (age: ${Math.round(cacheAge / 60000)}min)`);
               }
             }
           } catch (error) {
@@ -463,7 +529,48 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     };
 
     cleanupOldCache();
-  }, []);
+  }, [selectedDate]); // Re-run when selected date changes
+
+  // Clear cache when date changes to prevent cross-date contamination
+  useEffect(() => {
+    const clearDateSpecificCache = () => {
+      try {
+        // Clear fixtureCache for the new date
+        fixtureCache.clearCache();
+        
+        // Clear any stale localStorage entries that might contain wrong date data
+        const keys = Object.keys(localStorage);
+        const staleCacheKeys = keys.filter(key => 
+          (key.startsWith('ended_matches_') || key.startsWith('finished_fixtures_')) &&
+          !key.includes(selectedDate)
+        );
+        
+        staleCacheKeys.forEach(key => {
+          try {
+            const cached = localStorage.getItem(key);
+            if (cached) {
+              const { date: cachedDate, timestamp } = JSON.parse(cached);
+              const cacheAge = Date.now() - timestamp;
+              
+              // If cache is recent but for wrong date, clear it
+              if (cacheAge < 2 * 60 * 60 * 1000 && cachedDate !== selectedDate) {
+                localStorage.removeItem(key);
+                console.log(`🗑️ [MyNewLeague] Cleared cross-date cache: ${key} (cached: ${cachedDate}, selected: ${selectedDate})`);
+              }
+            }
+          } catch (error) {
+            localStorage.removeItem(key);
+          }
+        });
+        
+        console.log(`🔄 [MyNewLeague] Cache cleared for date change to ${selectedDate}`);
+      } catch (error) {
+        console.error('Error clearing date-specific cache:', error);
+      }
+    };
+
+    clearDateSpecificCache();
+  }, [selectedDate]);
 
   useEffect(() => {
     fetchLeagueData(false);
