@@ -197,45 +197,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Partial validation of preferences
         const preferencesData = req.body;
-
-
-// Team statistics endpoint
-app.get('/api/teams/:teamId/statistics', async (req, res) => {
-  try {
-    const { teamId } = req.params;
-    const { league, season } = req.query;
-
-    console.log(`📊 [Team Stats] Fetching statistics for team ${teamId}, league: ${league}, season: ${season}`);
-
-    if (!teamId) {
-      return res.status(400).json({ error: 'Team ID is required' });
-    }
-
-    const currentSeason = season || new Date().getFullYear();
-    const leagueId = league || null;
-
-    // Try to get team statistics from RapidAPI
-    const response = await rapidApiService.getTeamStatistics(
-      parseInt(teamId),
-      parseInt(leagueId),
-      parseInt(currentSeason)
-    );
-
-    if (response) {
-      console.log(`✅ [Team Stats] Successfully retrieved statistics for team ${teamId}`);
-      res.json({ success: true, response: [response] });
-    } else {
-      console.log(`❌ [Team Stats] No statistics found for team ${teamId}`);
-      res.status(404).json({ error: 'Team statistics not found' });
-    }
-
-  } catch (error) {
-    console.error(`❌ [Team Stats] Error fetching statistics for team ${req.params.teamId}:`, error);
-    res.status(500).json({ error: 'Failed to fetch team statistics' });
-  }
-});
-
-
         // Check if preferences exist
         let preferences = await storage.getUserPreferences(userId);
 
@@ -1752,62 +1713,63 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
         let sourceUrl = "";
 
         // Try each logo source
-        for (const logoUrl of logoUrls) {
-          try {
-            const response = await fetch(logoUrl, {
-              headers: {
-                accept: "image/png,image/jpeg,image/svg+xml,image/*",
-                "user-agent":
-                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-              },
-            });
+        ```text
+          for (const logoUrl of logoUrls) {
+            try {
+              const response = await fetch(logoUrl, {
+                headers: {
+                  accept: "image/png,image/jpeg,image/svg+xml,image/*",
+                  "user-agent":
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                },
+              });
 
-            if (response.ok) {
-              const arrayBuffer = await response.arrayBuffer();
-              imageBuffer = Buffer.from(arrayBuffer);
-              sourceUrl = logoUrl;
-              console.log(`Successfully fetched logo from: ${logoUrl}`);
-              break;
+              if (response.ok) {
+                const arrayBuffer = await response.arrayBuffer();
+                imageBuffer = Buffer.from(arrayBuffer);
+                sourceUrl = logoUrl;
+                console.log(`Successfully fetched logo from: ${logoUrl}`);
+                break;
+              }
+            } catch (error) {
+              console.warn(
+                `Failed to fetch from ${logoUrl}:`,
+                error instanceof Error ? error.message : "Unknown error",
+              );
+              continue;
             }
-          } catch (error) {
-            console.warn(
-              `Failed to fetch from ${logoUrl}:`,
-              error instanceof Error ? error.message : "Unknown error",
-            );
-            continue;
           }
+
+          // If no image found, return fallback
+          if (!imageBuffer) {
+            return res
+              .status(404)
+              .json({ error: "Logo not found from any source" });
+          }
+
+          // Resize image to square dimensions using Sharp
+          const resizedBuffer = await sharp(imageBuffer)
+            .resize(size, size, {
+              fit: "cover", // This will crop the image to fill the square
+              position: "center",
+            })
+            .png()
+            .toBuffer();
+
+          // Set appropriate headers
+          res.set({
+            "Content-Type": "image/png",
+            "Cache-Control": "public, max-age=86400", // Cache for 24 hours
+            "X-Source-URL": sourceUrl,
+          });
+
+          res.send(resizedBuffer);
+        } catch (error) {
+          console.error("Error processing square team logo:", error);
+          res.status(500).json({ error: "Internal server error" });
         }
-
-        // If no image found, return fallback
-        if (!imageBuffer) {
-          return res
-            .status(404)
-            .json({ error: "Logo not found from any source" });
-        }
-
-        // Resize image to square dimensions using Sharp
-        const resizedBuffer = await sharp(imageBuffer)
-          .resize(size, size, {
-            fit: "cover", // This will crop the image to fill the square
-            position: "center",
-          })
-          .png()
-          .toBuffer();
-
-        // Set appropriate headers
-        res.set({
-          "Content-Type": "image/png",
-          "Cache-Control": "public, max-age=86400", // Cache for 24 hours
-          "X-Source-URL": sourceUrl,
-        });
-
-        res.send(resizedBuffer);
-      } catch (error) {
-        console.error("Error processing square team logo:", error);
-        res.status(500).json({ error: "Internal server error" });
-      }
-    },
-  );
+      },
+    );
 
   // SportsRadar team logo endpoint (server-side to avoid CORS)
   apiRouter.get(
@@ -2681,16 +2643,6 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
           error: "Failed to fetch SoccersAPI match statistics",
           statistics: null,
         });
-      ```text
-
-        });
-      } catch (error) {
-        console.error("❌ [SoccersAPI] Error fetching match statistics:", error);
-        res.status(500).json({
-          success: false,
-          error: "Failed to fetch SoccersAPI match statistics",
-          statistics: null,
-        });
       }
     },
   );
@@ -2732,6 +2684,7 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
         );
 
         // Set a flag on each fixture to indicate it's from live endpoint
+```text
         fixtures.forEach(fixture => {
           fixture.isLiveData = true;
           fixture.lastUpdated = Date.now();
@@ -3093,3 +3046,107 @@ async function getCountryFlag(country: string): Promise<string | null> {
     return null;
   }
 }
+
+  // Get match predictions endpoint
+  apiRouter.get("/fixtures/:fixtureId/predictions", async (req: Request, res: Response) => {
+    try {
+      const { fixtureId } = req.params;
+
+      if (!fixtureId || isNaN(Number(fixtureId))) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid fixture ID"
+        });
+      }
+
+      const predictions = await rapidApiService.getMatchPredictions(Number(fixtureId));
+
+      if (!predictions) {
+        return res.status(404).json({
+          success: false,
+          error: "No predictions found for this fixture"
+        });
+      }
+
+      res.json({
+        success: true,
+        data: predictions
+      });
+    } catch (error) {
+      console.error("Error fetching match predictions:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch match predictions"
+      });
+    }
+  });
+
+  // Get match odds endpoint
+  apiRouter.get("/fixtures/:fixtureId/odds", async (req: Request, res: Response) => {
+    try {
+      const { fixtureId } = req.params;
+
+      if (!fixtureId || isNaN(Number(fixtureId))) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid fixture ID"
+        });
+      }
+
+      const odds = await rapidApiService.getFixtureOdds(Number(fixtureId));
+
+      if (!odds) {
+        return res.status(404).json({
+          success: false,
+          error: "No odds found for this fixture"
+        });
+      }
+
+      res.json({
+        success: true,
+        data: odds
+      });
+    } catch (error) {
+      console.error("Error fetching match odds:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch match odds"
+      });
+    }
+  });
+
+  // Get team statistics endpoint
+  apiRouter.get("/teams/:teamId/statistics", async (req: Request, res: Response) => {
+    try {
+      const { teamId } = req.params;
+      const { league, season } = req.query;
+
+      console.log(`📊 [Team Stats] Fetching statistics for team ${teamId}, league: ${league}, season: ${season}`);
+
+      if (!teamId) {
+        return res.status(400).json({ error: 'Team ID is required' });
+      }
+
+      const currentSeason = season || new Date().getFullYear();
+      const leagueId = league || null;
+
+      // Try to get team statistics from RapidAPI
+      const response = await rapidApiService.getTeamStatistics(
+        parseInt(teamId),
+        parseInt(leagueId),
+        parseInt(currentSeason)
+      );
+
+      if (response) {
+        console.log(`✅ [Team Stats] Successfully retrieved statistics for team ${teamId}`);
+        res.json({ success: true, response: [response] });
+      } else {
+        console.log(`❌ [Team Stats] No statistics found for team ${teamId}`);
+        res.status(404).json({ error: 'Team statistics not found' });
+      }
+
+    } catch (error) {
+      console.error(`❌ [Team Stats] Error fetching statistics for team ${req.params.teamId}:`, error);
+      res.status(500).json({ error: 'Failed to fetch team statistics' });
+    }
+  });

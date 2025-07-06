@@ -66,6 +66,102 @@ const popularLeagues: { [leagueId: number]: string[] } = {
 
 export const rapidApiService = {
   /**
+   * Get match predictions from RapidAPI
+   */
+  async getMatchPredictions(fixtureId: number): Promise<any> {
+    const cacheKey = `predictions-${fixtureId}`;
+    const cached = playersCache.get(cacheKey);
+
+    const now = Date.now();
+    // Cache predictions for 2 hours
+    if (cached && now - cached.timestamp < 2 * 60 * 60 * 1000) {
+      console.log(`📊 [RapidAPI] Using cached predictions for fixture ${fixtureId}`);
+      return cached.data;
+    }
+
+    try {
+      console.log(`📊 [RapidAPI] Fetching predictions for fixture ${fixtureId}`);
+
+      const response = await apiClient.get("/predictions", {
+        params: { 
+          fixture: fixtureId
+        },
+      });
+
+      console.log(`📊 [RapidAPI] Predictions API response status: ${response.status}, results count: ${response.data?.results || 0}`);
+
+      if (response.data && response.data.response && response.data.response.length > 0) {
+        const predictionsData = response.data.response[0];
+        playersCache.set(cacheKey, {
+          data: predictionsData,
+          timestamp: now,
+        });
+        console.log(`✅ [RapidAPI] Successfully cached predictions for fixture ${fixtureId}`);
+        return predictionsData;
+      }
+
+      console.log(`❌ [RapidAPI] No predictions data for fixture ${fixtureId}`);
+      return null;
+    } catch (error) {
+      console.error(`❌ [RapidAPI] Error fetching predictions for fixture ${fixtureId}:`, error);
+      if (cached?.data) {
+        console.log("Using cached data due to API error");
+        return cached.data;
+      }
+      console.error("API request failed and no cache available");
+      return null;
+    }
+  },
+
+  /**
+   * Get odds for a specific fixture
+   */
+  async getFixtureOdds(fixtureId: number): Promise<any> {
+    const cacheKey = `odds-${fixtureId}`;
+    const cached = playersCache.get(cacheKey);
+
+    const now = Date.now();
+    // Cache odds for 1 hour (they change more frequently)
+    if (cached && now - cached.timestamp < 60 * 60 * 1000) {
+      console.log(`📊 [RapidAPI] Using cached odds for fixture ${fixtureId}`);
+      return cached.data;
+    }
+
+    try {
+      console.log(`📊 [RapidAPI] Fetching odds for fixture ${fixtureId}`);
+
+      const response = await apiClient.get("/odds", {
+        params: { 
+          fixture: fixtureId
+        },
+      });
+
+      console.log(`📊 [RapidAPI] Odds API response status: ${response.status}, results count: ${response.data?.results || 0}`);
+
+      if (response.data && response.data.response && response.data.response.length > 0) {
+        const oddsData = response.data.response;
+        playersCache.set(cacheKey, {
+          data: oddsData,
+          timestamp: now,
+        });
+        console.log(`✅ [RapidAPI] Successfully cached odds for fixture ${fixtureId}`);
+        return oddsData;
+      }
+
+      console.log(`❌ [RapidAPI] No odds data for fixture ${fixtureId}`);
+      return null;
+    } catch (error) {
+      console.error(`❌ [RapidAPI] Error fetching odds for fixture ${fixtureId}:`, error);
+      if (cached?.data) {
+        console.log("Using cached data due to API error");
+        return cached.data;
+      }
+      console.error("API request failed and no cache available");
+      return null;
+    }
+  },
+
+  /**
    * Get team statistics for a specific league and season
    */
   async getTeamStatistics(teamId: number, leagueId: number, season: number): Promise<any> {
