@@ -619,18 +619,24 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     homeScore: number;
     awayScore: number;
   }) => {
-    // Get penalty events from the match events
-    const penaltyEvents = events.filter((event) => 
-      event.detail?.toLowerCase().includes("penalty") || 
-      event.type?.toLowerCase() === "penalty"
-    );
+    // Get penalty events from the match events, sorted by time (latest first for display)
+    const penaltyEvents = events
+      .filter((event) => 
+        event.detail?.toLowerCase().includes("penalty") || 
+        event.type?.toLowerCase() === "penalty"
+      )
+      .sort((a, b) => b.time.elapsed - a.time.elapsed);
 
-    // Create penalty sequence display
-    const maxPenalties = Math.max(6, penaltyEvents.length); // Show at least 6 penalty spots
+    // Create penalty sequence display with actual events
+    const maxPenalties = Math.max(6, penaltyEvents.length);
     const penaltySequence = [];
 
     for (let i = maxPenalties; i >= 1; i--) {
-      penaltySequence.push(i);
+      const penaltyEvent = penaltyEvents[maxPenalties - i];
+      penaltySequence.push({
+        number: i,
+        event: penaltyEvent
+      });
     }
 
     return (
@@ -640,21 +646,96 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         </div>
         
         <div className="penalty-timeline-container">
-          {penaltySequence.map((penaltyNumber, index) => (
-            <div key={penaltyNumber} className="penalty-timeline-item">
-              {/* Penalty number indicator */}
-              <div className="penalty-number-indicator">
-                <div className="w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                  {penaltyNumber}P
+          {penaltySequence.map((penalty, index) => {
+            const isHome = penalty.event ? isHomeTeam(penalty.event) : false;
+            const isMissed = penalty.event?.detail?.toLowerCase().includes("missed");
+            const isScored = penalty.event && !isMissed;
+            
+            return (
+              <div key={penalty.number} className="penalty-timeline-item">
+                {/* Penalty event with player info */}
+                <div className="flex items-center justify-between w-full max-w-md">
+                  {/* Home team penalty info (left side) */}
+                  <div className="flex items-center gap-2 flex-1">
+                    {penalty.event && isHome && (
+                      <>
+                        <div className="penalty-player-info penalty-player-info-home">
+                          <Avatar className="w-6 h-6 border border-gray-300">
+                            <AvatarImage
+                              src={getPlayerImage(
+                                penalty.event.player?.id,
+                                penalty.event.player?.name,
+                              )}
+                              alt={penalty.event.player?.name || "Player"}
+                              className="object-cover"
+                            />
+                            <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
+                              {penalty.event.player?.name
+                                ?.split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .slice(0, 2) || "P"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="penalty-player-name text-xs">
+                            {penalty.event.player?.name}
+                          </span>
+                        </div>
+                        <div className={`penalty-result ${isScored ? 'scored' : 'missed'}`}>
+                          {isScored ? '⚽' : '❌'}
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Center - Penalty number indicator */}
+                  <div className="penalty-number-indicator mx-4">
+                    <div className="w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      {penalty.number}P
+                    </div>
+                  </div>
+
+                  {/* Away team penalty info (right side) */}
+                  <div className="flex items-center gap-2 flex-1 justify-end">
+                    {penalty.event && !isHome && (
+                      <>
+                        <div className={`penalty-result ${isScored ? 'scored' : 'missed'}`}>
+                          {isScored ? '⚽' : '❌'}
+                        </div>
+                        <div className="penalty-player-info penalty-player-info-away">
+                          <span className="penalty-player-name text-xs">
+                            {penalty.event.player?.name}
+                          </span>
+                          <Avatar className="w-6 h-6 border border-gray-300">
+                            <AvatarImage
+                              src={getPlayerImage(
+                                penalty.event.player?.id,
+                                penalty.event.player?.name,
+                              )}
+                              alt={penalty.event.player?.name || "Player"}
+                              className="object-cover"
+                            />
+                            <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
+                              {penalty.event.player?.name
+                                ?.split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .slice(0, 2) || "P"}
+                            </AvatarFallback>
+                          </Avatar>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
+                
+                {/* Connecting line */}
+                {index < penaltySequence.length - 1 && (
+                  <div className="penalty-connecting-line"></div>
+                )}
               </div>
-              
-              {/* Connecting line */}
-              {index < penaltySequence.length - 1 && (
-                <div className="penalty-connecting-line"></div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
         
         {/* Final score indicator at bottom */}
