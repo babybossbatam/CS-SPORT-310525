@@ -225,6 +225,26 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           let cachedEndedMatches: FixtureData[] = [];
           if (selectedDateObj < today) {
             cachedEndedMatches = getCachedEndedMatches(selectedDate, leagueId);
+            
+            // Validate cached data for past dates - should not have NS status
+            if (cachedEndedMatches.length > 0) {
+              const invalidNSMatches = cachedEndedMatches.filter(match => {
+                const status = match.fixture.status.short;
+                const fixtureTime = new Date(match.fixture.date).getTime();
+                const now = Date.now();
+                const hoursAfterFixture = (now - fixtureTime) / (1000 * 60 * 60);
+                
+                return status === 'NS' && hoursAfterFixture > 2;
+              });
+              
+              if (invalidNSMatches.length > 0) {
+                console.log(`🚨 [MyNewLeague] Found ${invalidNSMatches.length} invalid NS matches for past date ${selectedDate} in league ${leagueId}, clearing cache`);
+                invalidNSMatches.forEach(match => {
+                  console.log(`🚨 Invalid NS match: ${match.teams.home.name} vs ${match.teams.away.name} (${match.fixture.status.short})`);
+                });
+                cachedEndedMatches = []; // Clear invalid cache
+              }
+            }
           }
 
           // Fetch league info only on initial load
@@ -276,6 +296,26 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
               return matchDateString === selectedDay;
             });
+
+            // Validate status consistency for past dates
+            if (selectedDateObj < today) {
+              filteredFixtures.forEach(fixture => {
+                const status = fixture.fixture.status.short;
+                const fixtureTime = new Date(fixture.fixture.date).getTime();
+                const now = Date.now();
+                const hoursAfterFixture = (now - fixtureTime) / (1000 * 60 * 60);
+                
+                if (status === 'NS' && hoursAfterFixture > 2) {
+                  console.log(`🚨 [MyNewLeague] Data integrity warning - NS match on past date ${selectedDate}:`, {
+                    teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                    league: fixture.league.name,
+                    status,
+                    hoursAfterFixture: Math.round(hoursAfterFixture),
+                    fixtureTime: new Date(fixture.fixture.date).toISOString()
+                  });
+                }
+              });
+            }
 
             console.log(`🎯 [MyNewLeague] League ${leagueId}: ${nonLiveFixtures.length} → ${filteredFixtures.length} fixtures after date filtering`);
 

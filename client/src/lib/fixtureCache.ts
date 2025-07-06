@@ -472,6 +472,33 @@ class FixtureCache {
       return true;
     }
 
+    // CRITICAL: Check for invalid NS status on past dates
+    if (date < today) {
+      const hasInvalidNSMatches = cached.some(fixture => {
+        const status = fixture.fixture.status.short;
+        const fixtureTime = new Date(fixture.fixture.date).getTime();
+        const now = Date.now();
+        const hoursAfterFixture = (now - fixtureTime) / (1000 * 60 * 60);
+        
+        // If match is NS but should have finished (past date + time passed), force refresh
+        if (status === 'NS' && hoursAfterFixture > 2) {
+          console.log(`🚨 [fixtureCache] Invalid NS status for past match on ${date}:`, {
+            teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            status,
+            hoursAfterFixture: Math.round(hoursAfterFixture),
+            fixtureTime: new Date(fixture.fixture.date).toISOString()
+          });
+          return true;
+        }
+        return false;
+      });
+
+      if (hasInvalidNSMatches) {
+        console.log(`🔄 [fixtureCache] Found invalid NS matches for past date ${date}, forcing fresh fetch`);
+        return true;
+      }
+    }
+
     // Check if any cached fixtures might have transitioned to live status
     const hasUpcomingMatches = cached.some(fixture => {
       const status = fixture.fixture.status.short;
@@ -488,7 +515,7 @@ class FixtureCache {
       return true;
     }
 
-    // Past dates: be more lenient with cache (24 hour check)
+    // Past dates: be more lenient with cache but not for data integrity issues
     if (date < today) {
       const cacheKey = this.generateKey(date, 'date', date);
       const cachedItem = this.cache.get(cacheKey);
@@ -503,7 +530,7 @@ class FixtureCache {
         }
       }
 
-      console.log(`✅ [fixtureCache] Using existing cache for past date ${date}`);
+      console.log(`✅ [fixtureCache] Using existing cache for past date ${date} (data integrity verified)`);
       return false; // We have cache and it's a past date, don't fetch
     }
 
