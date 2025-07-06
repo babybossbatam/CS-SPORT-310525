@@ -923,7 +923,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             {/* Column 1: Player Info */}
                             <div className="match-event-home-player-info">
                               <div className="flex items-center gap-1">
-                                <Avatar className="w-9 h-9 border-2 border-green-300 shadow-sm">
+                                <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
                                   <AvatarImage
                                     src={getPlayerImage(
                                       event.player?.id,
@@ -1238,7 +1238,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     </Avatar>
                                   )}
 
-                                <Avatar className="w-9 h-9 border-2 border-green-400 shadow-sm">
+                                <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-400" : "border-gray-400"}`}>
                                   <AvatarImage
                                     src={getPlayerImage(
                                       event.player?.id,
