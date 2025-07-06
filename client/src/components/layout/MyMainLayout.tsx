@@ -23,6 +23,7 @@ import MyMatchEventNew from "@/components/matches/MyMatchEventNew";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 import MyRecentForm from '@/components/matches/MyRecentForm';
+import MatchPredictionsCard from '@/components/matches/MatchPredictionsCard';
 
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -184,6 +185,19 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
               <ScoreDetailsCard
                 currentFixture={selectedFixture}
                 onClose={handleBackToMain}
+              />
+
+              {/* Match Predictions Card */}
+              <MatchPredictionsCard
+                homeTeam={selectedFixture?.teams?.home?.name || "Home Team"}
+                awayTeam={selectedFixture?.teams?.away?.name || "Away Team"}
+                homeTeamLogo={selectedFixture?.teams?.home?.logo}
+                awayTeamLogo={selectedFixture?.teams?.away?.logo}
+                matchStatus={selectedFixture?.fixture?.status?.short}
+                homeWinProbability={23}
+                drawProbability={19}
+                awayWinProbability={58}
+                totalVotes={4383}
               />
 
               {/* Conditional rendering based on match status */}
