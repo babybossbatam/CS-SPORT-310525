@@ -756,11 +756,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           </div>
         ) : (
           <div className="space-y-2">
-            {/* Show penalty shootout if match ended with penalties */}
-            {events.some((event) => event.type === "penalty") && (
-              <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
-            )}
-
             {/* All events in chronological order with period score markers */}
             {(() => {
               const sortedEvents = [...events].sort(
@@ -793,6 +788,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                   return { homeHalftimeScore, awayHalftimeScore };
                 };
+
+                // Add penalty shootout marker if match ended with penalties
+                if (events.some((event) => event.type === "penalty")) {
+                  periodMarkers.push({
+                    time: { elapsed: 121 }, // Put penalties after extra time
+                    type: "penalty_shootout",
+                    detail: "Penalty Shootout",
+                    team: { name: "", logo: "" },
+                    player: { name: "" },
+                    id: "penalty-shootout",
+                  });
+                }
 
                 // Add "End of 90 Minutes" marker if there are events after minute 90
                 const fullTimeEvents = events.filter(
@@ -836,7 +843,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               // Combine events and period markers safely
               const allItems = [...sortedEvents, ...periodMarkers].sort(
                 (a, b) => {
-                  // Special priority for "End of 90 Minutes" - always put it first
+                  // Special priority for penalty shootout - put it first (after End of 90 Minutes)
+                  if (a.type === "penalty_shootout") return -1;
+                  if (b.type === "penalty_shootout") return 1;
+
+                  // Special priority for "End of 90 Minutes" - put it second
                   if (
                     a.type === "period_score" &&
                     a.detail === "End of 90 Minutes"
@@ -858,6 +869,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               );
 
               return allItems.map((event, index) => {
+                // Handle penalty shootout marker
+                if (event.type === "penalty_shootout") {
+                  return (
+                    <div key={event.id || `penalty-shootout-${index}`}>
+                      <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
+                    </div>
+                  );
+                }
+
                 // Handle period score markers safely
                 if (event.type === "period_score") {
                   return (
