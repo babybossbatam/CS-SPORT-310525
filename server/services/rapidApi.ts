@@ -844,7 +844,7 @@ export const rapidApiService = {
 
       if (response.data && response.data.response) {
         // Include all fixtures from the requested league
-        const filteredFixtures = response.data.response;
+        let filteredFixtures = response.data.response;
 
         // Log the fixtures count
         console.log(
