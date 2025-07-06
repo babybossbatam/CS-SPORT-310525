@@ -191,14 +191,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 player: { name: "" },
               } as any);
 
-              // Add "45 minutes" period marker
-              allCommentaryItems.push({
-                time: { elapsed: 45 },
-                type: "period_marker",
-                detail: "45 minutes",
-                team: { name: "", logo: "" },
-                player: { name: "" },
-              } as any);
+              
 
               // Add "Half Time" marker if there are events after minute 45
               if (hasEventsInSecondHalf) {
