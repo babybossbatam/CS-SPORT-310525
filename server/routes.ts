@@ -913,81 +913,28 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
     }
   });
 
-  apiRouter.get(
-    "/leagues/:id/fixtures",
-    async (req: Request, res: Response) => {
-      try {
-        const id = parseInt(req.params.id);
-        const { skipFilter } = req.query;
+  // Get fixtures by league ID
+  apiRouter.get("/leagues/:id/fixtures", async (req: Request, res: Response) => {
+    try {
+      const leagueId = parseInt(req.params.id);
+      const season = parseInt(req.query.season as string) || 2024;
+      const forceRefresh = req.query.force === 'true';
 
-        // Calculate current season based on date
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11
-        // If we're in the second half of the year, use next year as season
-        const currentSeason =
-          currentMonth >= 7
-            ? currentDate.getFullYear() + 1
-            : currentDate.getFullYear();
-        const season = parseInt(req.query.season as string) || currentSeason;
+      console.log(`API: Fetching fixtures for league ${leagueId}, season ${season}${forceRefresh ? ' (force refresh)' : ''}`);
 
-        if (isNaN(id) || !req.params.id || req.params.id.trim() === "") {
-          return res.status(400).json({ message: "Invalid league ID" });
-        }
+      const fixtures = await rapidApiService.getFixturesByLeague(leagueId, season, forceRefresh);
 
-        // Check cache first with 2 hour duration for league fixtures
-        const cacheKey = `league-fixtures-${id}-${season}`;
-        const cachedFixtures = await storage.getCachedFixture(cacheKey);
+      console.log(`API: Retrieved ${fixtures.length} fixtures for league ${leagueId}`);
 
-        if (cachedFixtures) {
-          const now = new Date();
-          const cacheTime = new Date(cachedFixtures.timestamp);
-          const cacheAge = now.getTime() - cacheTime.getTime();
-
-          // Use 2 hour cache for league fixtures
-          if (cacheAge < 2 * 60 * 60 * 100) {
-            console.log(
-              `Using cached fixtures for league ${id} (age: ${Math.round(cacheAge / 60000)}min)`,
-            );
-            return res.json(cachedFixtures.data);
-          }
-        }
-
-        console.log(
-          `Fetching fresh fixtures for league ${id} with fixed season ${season}`,
-        );
-
-        // Use API-Football (RapidAPI) only
-        const fixtures = await rapidApiService.getFixturesByLeague(id, season);
-        console.log(
-          `Received ${fixtures ? fixtures.length : 0} fixtures for league ${id} from RapidAPI`,
-        );
-
-        // Cache the fixtures data
-        try {
-          if (cachedFixtures) {
-            await storage.updateCachedFixture(cacheKey, fixtures);
-          } else {
-            await storage.createCachedFixture({
-              fixtureId: cacheKey,
-              data: fixtures,
-              league: id.toString(),
-              date: new Date().toISOString().split("T")[0],
-            });
-          }
-        } catch (cacheError) {
-          console.error(`Error caching fixtures for league ${id}:`, cacheError);
-        }
-
-        res.json(fixtures);
-      } catch (error) {
-        console.error(
-          `Error fetching fixtures for league ID ${req.params.id}:`,
-          error,
-        );
-        res.status(500).json({ message: "Failed to fetch league fixtures" });
-      }
-    },
-  );
+      res.json(fixtures);
+    } catch (error) {
+      console.error(`Error in /leagues/${req.params.id}/fixtures:`, error);
+      res.status(500).json({ 
+        error: "Failed to fetch fixtures",
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
 
   apiRouter.get(
     "/leagues/:id/topscorers",
@@ -1323,7 +1270,7 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
 
         if (!fixtures || !Array.isArray(fixtures) || fixtures.length === 0) {
           console.warn("No Champions League fixtures found in API response");
-          // Return empty array instead of error to avoid breaking frontend
+          // Return empty array instead of 404 error to avoid breaking frontend
           return res.json([]);
         }
 
@@ -2738,7 +2685,8 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
     async (req: Request, res: Response) => {
       try {
         const { id } = req.params;
-        console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);
+        ```text
+console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);
 
         const lineups = await soccersApi.getMatchLineups(id);
         res.json({

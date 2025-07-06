@@ -776,13 +776,18 @@ export const rapidApiService = {
   async getFixturesByLeague(
     leagueId: number,
     season: number,
+    forceRefresh: boolean = false,
   ): Promise<FixtureResponse[]> {
     const cacheKey = `fixtures-league-${leagueId}-${season}`;
     const cached = fixturesCache.get(cacheKey);
 
     const now = Date.now();
-    if (cached && now - cached.timestamp < STATIC_DATA_CACHE_DURATION) {
+    if (!forceRefresh && cached && now - cached.timestamp < STATIC_DATA_CACHE_DURATION) {
       return cached.data;
+    }
+
+    if (forceRefresh) {
+      console.log(`🔄 [RapidAPI] Force refreshing fixtures for league ${leagueId} (bypassing cache)`);
     }
 
     try {

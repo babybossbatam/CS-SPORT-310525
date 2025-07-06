@@ -297,9 +297,9 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               return matchDateString === selectedDay;
             });
 
-            // Validate status consistency for past dates
+            // Validate status consistency for past dates and trigger refresh if needed
             if (selectedDateObj < today) {
-              filteredFixtures.forEach(fixture => {
+              const staleNSMatches = filteredFixtures.filter(fixture => {
                 const status = fixture.fixture.status.short;
                 const fixtureTime = new Date(fixture.fixture.date).getTime();
                 const now = Date.now();
@@ -313,8 +313,50 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                     hoursAfterFixture: Math.round(hoursAfterFixture),
                     fixtureTime: new Date(fixture.fixture.date).toISOString()
                   });
+                  return true;
                 }
+                return false;
               });
+
+              // If we found stale NS matches, fetch fresh data for this league
+              if (staleNSMatches.length > 0) {
+                console.log(`🔄 [MyNewLeague] Found ${staleNSMatches.length} stale NS matches for league ${leagueId}, fetching fresh data`);
+                
+                try {
+                  const freshResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures?force=true`);
+                  const freshData = await freshResponse.json();
+                  
+                  if (Array.isArray(freshData)) {
+                    const freshFilteredFixtures = freshData.filter(fixture => {
+                      const fixtureDate = fixture.fixture?.date;
+                      if (!fixtureDate) return true;
+
+                      const matchDate = new Date(fixtureDate);
+                      const year = matchDate.getFullYear();
+                      const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+                      const day = String(matchDate.getDate()).padStart(2, "0");
+                      const matchDateString = `${year}-${month}-${day}`;
+                      return matchDateString === selectedDate;
+                    });
+
+                    console.log(`✅ [MyNewLeague] Refreshed ${freshFilteredFixtures.length} fixtures for league ${leagueId}`);
+                    
+                    // Replace the stale fixtures with fresh ones
+                    const updatedFixtures = filteredFixtures.filter(fixture => 
+                      !staleNSMatches.some(stale => stale.fixture.id === fixture.fixture.id)
+                    );
+                    
+                    allFixtures = allFixtures.filter(fixture => 
+                      !staleNSMatches.some(stale => stale.fixture.id === fixture.fixture.id)
+                    );
+                    
+                    allFixtures.push(...freshFilteredFixtures);
+                    continue; // Skip caching stale data
+                  }
+                } catch (refreshError) {
+                  console.error(`❌ [MyNewLeague] Failed to refresh stale data for league ${leagueId}:`, refreshError);
+                }
+              }
             }
 
             console.log(`🎯 [MyNewLeague] League ${leagueId}: ${nonLiveFixtures.length} → ${filteredFixtures.length} fixtures after date filtering`);
