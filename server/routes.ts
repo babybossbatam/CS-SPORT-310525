@@ -1713,62 +1713,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let sourceUrl = "";
 
         // Try each logo source
-        for (const logoUrl of logoUrls) {
-          try {
-            const response = await fetch(logoUrl, {
-              headers: {
-                accept: "image/png,image/jpeg,image/svg+xml,image/*",
-                "user-agent":
-                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-              },
-            });
+        ```text
+          for (const logoUrl of logoUrls) {
+            try {
+              const response = await fetch(logoUrl, {
+                headers: {
+                  accept: "image/png,image/jpeg,image/svg+xml,image/*",
+                  "user-agent":
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                },
+              });
 
-            if (response.ok) {
-              const arrayBuffer = await response.arrayBuffer();
-              imageBuffer = Buffer.from(arrayBuffer);
-              sourceUrl = logoUrl;
-              console.log(`Successfully fetched logo from: ${logoUrl}`);
-              break;
+              if (response.ok) {
+                const arrayBuffer = await response.arrayBuffer();
+                imageBuffer = Buffer.from(arrayBuffer);
+                sourceUrl = logoUrl;
+                console.log(`Successfully fetched logo from: ${logoUrl}`);
+                break;
+              }
+            } catch (error) {
+              console.warn(
+                `Failed to fetch from ${logoUrl}:`,
+                error instanceof Error ? error.message : "Unknown error",
+              );
+              continue;
             }
-          } catch (error) {
-            console.warn(
-              `Failed to fetch from ${logoUrl}:`,
-              error instanceof Error ? error.message : "Unknown error",
-            );
-            continue;
           }
+
+          // If no image found, return fallback
+          if (!imageBuffer) {
+            return res
+              .status(404)
+              .json({ error: "Logo not found from any source" });
+          }
+
+          // Resize image to square dimensions using Sharp
+          const resizedBuffer = await sharp(imageBuffer)
+            .resize(size, size, {
+              fit: "cover", // This will crop the image to fill the square
+              position: "center",
+            })
+            .png()
+            .toBuffer();
+
+          // Set appropriate headers
+          res.set({
+            "Content-Type": "image/png",
+            "Cache-Control": "public, max-age=86400", // Cache for 24 hours
+            "X-Source-URL": sourceUrl,
+          });
+
+          res.send(resizedBuffer);
+        } catch (error) {
+          console.error("Error processing square team logo:", error);
+          res.status(500).json({ error: "Internal server error" });
         }
-
-        // If no image found, return fallback
-        if (!imageBuffer) {
-          return res
-            .status(404)
-            .json({ error: "Logo not found from any source" });
-        }
-
-        // Resize image to square dimensions using Sharp
-        const resizedBuffer = await sharp(imageBuffer)
-          .resize(size, size, {
-            fit: "cover", // This will crop the image to fill the square
-            position: "center",
-          })
-          .png()
-          .toBuffer();
-
-        // Set appropriate headers
-        res.set({
-          "Content-Type": "image/png",
-          "Cache-Control": "public, max-age=86400", // Cache for 24 hours
-          "X-Source-URL": sourceUrl,
-        });
-
-        res.send(resizedBuffer);
-      } catch (error) {
-        console.error("Error processing square team logo:", error);
-        res.status(500).json({ error: "Internal server error" });
-      }
-    }
-  );
+      },
+    );
 
   // SportsRadar team logo endpoint (server-side to avoid CORS)
   apiRouter.get(
@@ -2683,6 +2684,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
 
         // Set a flag on each fixture to indicate it's from live endpoint
+```text
         fixtures.forEach(fixture => {
           fixture.isLiveData = true;
           fixture.lastUpdated = Date.now();
