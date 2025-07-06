@@ -469,8 +469,15 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             {eventDescription}
                           </div>
                         ) : event.type === "Var" ? (
-                          <div className="flex items-start gap-1 ml-2">
-                            <span className="text-xs mt-0.5">📺</span>
+                          <div className="flex items-start gap-1 -ml-3">
+                            <span className="text-xs mt-0.5">
+                              <img
+                                src="/assets/matchdetaillogo/missed-penalty.svg"
+                                alt="Missed Penalty"
+                                className="w-4 h-4 opacity-80 flex-shrink-0"
+                              />
+                              
+                              </span>
                             <div className="text-xs text-gray-700 leading-relaxed">
                               {eventDescription}
                             </div>
