@@ -1323,7 +1323,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 )}
                               </div>
 
-                              
+                              <div className="flex items-center gap-1">
                                 {event.type === "subst" &&
                                   event.assist?.name && (
                                     <Avatar className="w-9 h-9 border-2 border-red-400 shadow-sm -mr-3 z-20">
