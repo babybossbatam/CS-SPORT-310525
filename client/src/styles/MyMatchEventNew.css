@@ -68,22 +68,24 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding: 12px 8px;
+  padding: 16px 12px;
   background: #f8f9fa;
-  border-radius: 8px;
-  margin: 8px 0;
+  border-radius: 12px;
+  margin: 12px 0;
+  border: 1px solid #e5e7eb;
 }
 
 .penalty-timeline-header {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .penalty-timeline-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
+  max-width: 600px;
 }
 
 .penalty-timeline-item {
@@ -99,46 +101,49 @@
 }
 
 .penalty-connecting-line {
-  width: 2px;
-  height: 12px;
+  width: 3px;
+  height: 16px;
   background-color: #d1d5db;
-  margin: 4px 0;
+  margin: 6px 0;
+  border-radius: 2px;
 }
 
 .penalty-final-score {
-  margin-top: 12px;
-  padding-top: 8px;
-  border-top: 1px solid #e5e7eb;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 2px solid #e5e7eb;
 }
 
 /* Player info in penalty */
 .penalty-player-info {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  min-width: 0;
 }
 
 /* Player info for home team (avatar on left, text on right) */
 .penalty-player-info-home {
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 /* Player info for away team (text on left, avatar on right) */
 .penalty-player-info-away {
   flex-direction: row-reverse;
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 
 /* Player name in penalty */
 .penalty-player-name {
-  font-size: 10px;
-  font-weight: var(--medium-font-weight);
-  color: var(--textPrimary);
+  font-size: 11px;
+  font-weight: 500;
+  color: #374151;
   white-space: nowrap;
-  max-width: 80px;
+  max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 /* Penalty result indicator */
