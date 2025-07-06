@@ -169,6 +169,26 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         return '👐'; // Throw in
 
       default:
+        // Handle penalty events specifically
+        if (eventType.includes('penalty') || eventDetail.includes('penalty')) {
+          if (eventDetail.includes('missed') || eventDetail.includes('cancelled') || eventDetail.includes('saved')) {
+            return (
+              <img
+                src="/assets/matchdetaillogo/missed-penalty.svg"
+                alt="Missed/Cancelled Penalty"
+                className="w-4 h-4"
+              />
+            );
+          } else {
+            return (
+              <img
+                src="/assets/matchdetaillogo/penalty.svg"
+                alt="Penalty"
+                className="w-4 h-4"
+              />
+            );
+          }
+        }
         return '📝'; // Default event
     }
   };
