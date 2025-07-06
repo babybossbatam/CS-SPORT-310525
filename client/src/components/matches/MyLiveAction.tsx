@@ -88,6 +88,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const currentStatus = status || displayMatch?.fixture?.status?.short;
   const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
   const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
+  
+  // Debug logging for status detection
+  console.log(`🔍 [Live Action] Match ${matchId} status check:`, {
+    currentStatus,
+    isLive,
+    elapsed,
+    fixtureStatus: displayMatch?.fixture?.status
+  });
 
   // Fetch initial match data and set up real-time updates
   useEffect(() => {
@@ -545,6 +553,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   if (!displayMatch) {
+    console.log(`❌ [Live Action] No match data for match ${matchId}`);
     return (
       <div className={`w-full ${className}`}>
         <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
@@ -553,9 +562,17 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
           <div className="h-80 flex items-center justify-center text-gray-500 text-sm">
             <div className="text-center">
-              <p className="mb-1">Match data not available</p>
-              <p className="text-xs opacity-60">
-                {homeTeam?.name || homeTeam} vs {awayTeam?.name || awayTeam}
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3 mx-auto">
+                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <p className="mb-1 font-medium">Match data not available</p>
+              <p className="text-xs opacity-60 mb-2">
+                {homeTeamData?.name || homeTeam?.name || homeTeam} vs {awayTeamData?.name || awayTeam?.name || awayTeam}
+              </p>
+              <p className="text-xs text-gray-400">
+                Live tracking is only available during active matches
               </p>
             </div>
           </div>
@@ -565,6 +582,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   if (!isLive) {
+    console.log(`⏸️ [Live Action] Match ${matchId} is not live (status: ${currentStatus})`);
     return (
       <div className={`w-full ${className}`}>
         <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
@@ -573,9 +591,17 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
           <div className="h-80 flex items-center justify-center text-gray-500 text-sm">
             <div className="text-center">
-              <p className="mb-1">Match not live</p>
-              <p className="text-xs opacity-60">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3 mx-auto">
+                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="mb-1 font-medium">Match not live</p>
+              <p className="text-xs opacity-60 mb-2">
                 {homeTeamData?.name} vs {awayTeamData?.name}
+              </p>
+              <p className="text-xs text-gray-400">
+                Status: {currentStatus || 'Unknown'} • Live action will appear when match is in progress
               </p>
             </div>
           </div>
