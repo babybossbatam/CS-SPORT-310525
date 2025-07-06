@@ -625,108 +625,43 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       event.type?.toLowerCase() === "penalty"
     );
 
-    // Separate penalties by team
-    const homePenalties = penaltyEvents.filter(event => isHomeTeam(event));
-    const awayPenalties = penaltyEvents.filter(event => !isHomeTeam(event));
+    // Create penalty sequence display
+    const maxPenalties = Math.max(6, penaltyEvents.length); // Show at least 6 penalty spots
+    const penaltySequence = [];
+
+    for (let i = maxPenalties; i >= 1; i--) {
+      penaltySequence.push(i);
+    }
 
     return (
-      <div className="penalty-shootout-container">
-        {/* Home team penalties */}
-        <div className="penalty-home-side">
-          {homePenalties.map((penalty, index) => (
-            <div key={index} className="penalty-row penalty-row-home">
-              <div className="penalty-player-info penalty-player-info-home">
-                <div className="flex items-center gap-2 bg-white border rounded-lg p-2 shadow-sm">
-                  <Avatar className="w-8 h-8 border-2 border-blue-300">
-                    <AvatarImage
-                      src={getPlayerImage(penalty.player?.id, penalty.player?.name)}
-                      alt={penalty.player?.name || "Player"}
-                      className="object-cover"
-                    />
-                    <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
-                      {penalty.player?.name
-                        ?.split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .slice(0, 2) || "P"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium text-gray-800">
-                      {penalty.player?.name || "Unknown Player"}
-                    </span>
-                    <span className="text-xs text-gray-600">
-                      {penalty.detail?.toLowerCase().includes("missed") ? "Penalty missed" : 
-                       penalty.detail?.toLowerCase().includes("confirmed") ? "Penalty confirmed" : 
-                       "Penalty"}
-                    </span>
-                  </div>
-                  <div className="text-xs font-bold text-gray-700 ml-auto">
-                    {penalty.time.elapsed}'
-                    {penalty.time.extra && <span className="text-red-500">+{penalty.time.extra}</span>}
-                  </div>
-                  {penalty.detail?.toLowerCase().includes("confirmed") && (
-                    <div className="w-4 h-4 bg-yellow-400 rounded-sm flex items-center justify-center">
-                      <span className="text-xs font-bold text-white">P</span>
-                    </div>
-                  )}
+      <div className="penalty-shootout-timeline">
+        <div className="penalty-timeline-header">
+          <span className="text-sm font-bold text-gray-700">Penalty Shootout</span>
+        </div>
+        
+        <div className="penalty-timeline-container">
+          {penaltySequence.map((penaltyNumber, index) => (
+            <div key={penaltyNumber} className="penalty-timeline-item">
+              {/* Penalty number indicator */}
+              <div className="penalty-number-indicator">
+                <div className="w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  {penaltyNumber}P
                 </div>
               </div>
+              
+              {/* Connecting line */}
+              {index < penaltySequence.length - 1 && (
+                <div className="penalty-connecting-line"></div>
+              )}
             </div>
           ))}
         </div>
-
-        {/* Center score */}
-        <div className="penalty-score-center">
-          <div className="penalty-score-display">
-            {homeScore} - {awayScore}
+        
+        {/* Final score indicator at bottom */}
+        <div className="penalty-final-score">
+          <div className="text-xs text-gray-500 text-center">
+            Final: {homeScore} - {awayScore}
           </div>
-          <div className="penalty-label">Penalties</div>
-        </div>
-
-        {/* Away team penalties */}
-        <div className="penalty-away-side">
-          {awayPenalties.map((penalty, index) => (
-            <div key={index} className="penalty-row penalty-row-away">
-              <div className="penalty-player-info penalty-player-info-away">
-                <div className="flex items-center gap-2 bg-white border rounded-lg p-2 shadow-sm">
-                  {penalty.detail?.toLowerCase().includes("confirmed") && (
-                    <div className="w-4 h-4 bg-yellow-400 rounded-sm flex items-center justify-center">
-                      <span className="text-xs font-bold text-white">P</span>
-                    </div>
-                  )}
-                  <div className="text-xs font-bold text-gray-700">
-                    {penalty.time.elapsed}'
-                    {penalty.time.extra && <span className="text-red-500">+{penalty.time.extra}</span>}
-                  </div>
-                  <div className="flex flex-col text-right">
-                    <span className="text-sm font-medium text-gray-800">
-                      {penalty.player?.name || "Unknown Player"}
-                    </span>
-                    <span className="text-xs text-gray-600">
-                      {penalty.detail?.toLowerCase().includes("missed") ? "Penalty missed" : 
-                       penalty.detail?.toLowerCase().includes("confirmed") ? "Penalty confirmed" : 
-                       "Penalty"}
-                    </span>
-                  </div>
-                  <Avatar className="w-8 h-8 border-2 border-red-300">
-                    <AvatarImage
-                      src={getPlayerImage(penalty.player?.id, penalty.player?.name)}
-                      alt={penalty.player?.name || "Player"}
-                      className="object-cover"
-                    />
-                    <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
-                      {penalty.player?.name
-                        ?.split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .slice(0, 2) || "P"}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     );
