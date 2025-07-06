@@ -823,7 +823,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
 
       if (isNaN(id) || !req.params.id || req.params.id.trim() === "") {
-        return res.status(400).json({ message: "Invalid league ID" });      }
+        return res.status(400).json({ message: "Invalid league ID" });
+      }
 
       // Check cache first
       const cachedLeague = await storage.getCachedLeague(id.toString());
@@ -1710,10 +1711,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Try each logo source
         for (const logoUrl of logoUrls) {
           try {
-                        const response = await fetch(logoUrl, {
-                headers: {
-                  accept: "image/png,image/jpeg,image/svg+xml,image/*",
-                  "user-agent":
+            const response = await fetch(logoUrl, {
+              headers: {
+                accept: "image/png,image/jpeg,image/svg+xml,image/*",
+                "user-agent":
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
                 },
               });
@@ -2680,7 +2681,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Set a flag on each fixture to indicate it's from live endpoint
         fixtures.forEach(fixture => {
           fixture.isLiveData = true;
-          ```text
           fixture.lastUpdated = Date.now();
         });
 
