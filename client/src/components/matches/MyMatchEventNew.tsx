@@ -757,7 +757,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         ) : (
           <div className="space-y-2">
             {/* Show penalty shootout if match ended with penalties */}
-            {events.some((event) => event.type === "penalty") && (
+            {(events.some((event) => 
+              event.type?.toLowerCase() === "penalty" || 
+              event.detail?.toLowerCase().includes("penalty")
+            ) || matchData?.fixture?.status?.short === "PEN") && (
               <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
             )}
 
@@ -831,7 +834,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 }
 
                 // Add penalty shootout marker if match ended with penalties
-                if (events.some((event) => event.type === "penalty")) {
+                if (events.some((event) => 
+                  event.type?.toLowerCase() === "penalty" || 
+                  event.detail?.toLowerCase().includes("penalty")
+                ) || matchData?.fixture?.status?.short === "PEN") {
                   periodMarkers.push({
                     time: { elapsed: 121 }, // Put penalties after extra time
                     type: "penalty_shootout",
