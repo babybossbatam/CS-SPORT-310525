@@ -43,11 +43,12 @@ const POPULAR_LEAGUES = [
   { id: 38, name: "UEFA U21 Championship", country: "World" },
   { id: 9, name: "Copa America", country: "World" },
   { id: 6, name: "Africa Cup of Nations", country: "World" },
+  { id: 16, name: "CONCACAF Gold Cup", country: "World" },
 ];
 
 // Define featured leagues
 const FEATURED_MATCH_LEAGUE_IDS = [
-  39, 140, 135, 78, 61, 2, 3, 848, 5, 1, 4, 15, 38, 9, 6,
+  39, 140, 135, 78, 61, 2, 3, 848, 5, 1, 4, 15, 38, 9, 6, 16,
 ];
 const PRIORITY_LEAGUE_IDS = [15, 38]; // FIFA Club World Cup, UEFA U21 Championship
 
