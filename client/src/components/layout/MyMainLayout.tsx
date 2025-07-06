@@ -214,7 +214,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                       />
                     )}
 
-                    {/* Show MyHighlights for ended matches with proper spacing */}
+                    {/* Show MyHighlights only for ended matches with proper spacing */}
                     {isEnded && (
                       <div className="mt-6 relative z-10">
                         <MyHighlights

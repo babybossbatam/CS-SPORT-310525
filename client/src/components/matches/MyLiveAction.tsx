@@ -545,16 +545,23 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   if (!displayMatch) {
-    if (matchId && homeTeam && awayTeam) {
-      return (
-        <MyHighlights 
-          matchId={matchId}
-          homeTeam={homeTeam?.name || homeTeam}
-          awayTeam={awayTeam?.name || awayTeam}
-          className={className}
-        />
-      );
-    }
+    return (
+      <div className={`w-full ${className}`}>
+        <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
+          <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
+            <span className="text-gray-800 text-sm font-semibold">Live Action</span>
+          </div>
+          <div className="h-80 flex items-center justify-center text-gray-500 text-sm">
+            <div className="text-center">
+              <p className="mb-1">Match data not available</p>
+              <p className="text-xs opacity-60">
+                {homeTeam?.name || homeTeam} vs {awayTeam?.name || awayTeam}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!isLive) {
