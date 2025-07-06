@@ -1162,8 +1162,12 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                     // Check if this is FIFA Club World Cup (club competition, not national teams)
                                     const isFifaClubWorldCup = leagueData.league.name?.toLowerCase().includes("fifa club world cup");
 
-                                    // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup
-                                    if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup) {
+                                    // Check if this is UEFA Europa Conference League (club competition, not national teams)
+                                    const isUefaConferenceLeague = leagueData.league.name?.toLowerCase().includes("uefa europa conference league") || 
+                                                                  leagueData.league.name?.toLowerCase().includes("europa conference league");
+
+                                    // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup or UEFA Europa Conference League
+                                    if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isUefaConferenceLeague) {
                                       return (
                                         <MyCircularFlag
                                           teamName={match.teams.home.name || ""}
@@ -1305,8 +1309,12 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                     // Check if this is FIFA Club World Cup (club competition, not national teams)
                                     const isFifaClubWorldCup = leagueData.league.name?.toLowerCase().includes("fifa club world cup");
 
-                                    // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup
-                                    if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup) {
+                                    // Check if this is UEFA Europa Conference League (club competition, not national teams)
+                                    const isUefaConferenceLeague = leagueData.league.name?.toLowerCase().includes("uefa europa conference league") || 
+                                                                  leagueData.league.name?.toLowerCase().includes("europa conference league");
+
+                                    // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup or UEFA Europa Conference League
+                                    if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isUefaConferenceLeague) {
                                       return (
                                         <MyCircularFlag
                                           teamName={match.teams.away.name || ""}

@@ -1647,7 +1647,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                     return !hiddenMatches.has(match.fixture.id);
                                   })
                                   .map((match: any, matchIndex) => (
-                                    
+
                                     <div
                                       key={`${match.fixture.id}-${countryData.country}-${leagueData.league.id}-${matchIndex}`}
                                       className={`match-card-container group ${
@@ -1710,7 +1710,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                             const status =
                                               match.fixture.status.short;
 
-                                            // Live matches status
+                                                                           // Live matches status
                                             if (
                                               [
                                                 "LIVE",
@@ -1879,24 +1879,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 );
 
                                               // Check if this is FIFA Club World Cup (club competition, not national teams)
-                                              const isFifaClubWorldCup =
-                                                leagueData.league.name
-                                                  ?.toLowerCase()
-                                                  .includes(
-                                                    "fifa club world cup",
-                                                  );
+                                            const isFifaClubWorldCup = leagueData.league.name?.toLowerCase().includes("fifa club world cup");
 
-                                              // Check if this is a Brazilian team
-                                              const isBrazilianTeam = leagueData?.country?.toLowerCase() === "brazil" || 
-                                                                     match.teams.home.name?.toLowerCase().includes("brazil");
+                                            // Check if this is Friendlies Club (club competition, not national teams)
+                                            const isFriendliesClub = leagueData.league.name?.toLowerCase().includes("friendlies clubs");
 
-                                              // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions, FIFA Club World Cup or Brazilian teams
-                                              if (
-                                                (isActualNationalTeam ||
-                                                  isYouthTeam) &&
-                                                !isFifaClubWorldCup &&
-                                                !isBrazilianTeam
-                                              ) {
+                                            // Check if this is UEFA Europa Conference League (club competition, not national teams)
+                                            const isUefaConferenceLeague = leagueData.league.name?.toLowerCase().includes("uefa europa conference league") || 
+                                                                          leagueData.league.name?.toLowerCase().includes("europa conference league");
+
+                                            // Use MyCircularFlag for ONLY actual national teams and youth teams, but NOT for club competitions
+                                            if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isFriendliesClub && !isUefaConferenceLeague) {
                                                 return (
                                                   <MyCircularFlag
                                                     teamName={
@@ -2120,24 +2113,17 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
                                                 );
 
                                               // Check if this is FIFA Club World Cup (club competition, not national teams)
-                                              const isFifaClubWorldCup =
-                                                leagueData.league.name
-                                                  ?.toLowerCase()
-                                                  .includes(
-                                                    "fifa club world cup",
-                                                  );
+                                            const isFifaClubWorldCup = leagueData.league.name?.toLowerCase().includes("fifa club world cup");
 
-                                              // Check if this is a Brazilian team
-                                              const isBrazilianTeam = leagueData?.country?.toLowerCase() === "brazil" || 
-                                                                     match.teams.away.name?.toLowerCase().includes("brazil");
+                                            // Check if this is Friendlies Club (club competition, not national teams)
+                                            const isFriendliesClub = leagueData.league.name?.toLowerCase().includes("friendlies clubs");
 
-                                              // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions, FIFA Club World Cup or Brazilian teams
-                                              if (
-                                                (isActualNationalTeam ||
-                                                  isYouthTeam) &&
-                                                !isFifaClubWorldCup &&
-                                                !isBrazilianTeam
-                                              ) {
+                                            // Check if this is UEFA Europa Conference League (club competition, not national teams)
+                                            const isUefaConferenceLeague = leagueData.league.name?.toLowerCase().includes("uefa europa conference league") || 
+                                                                          leagueData.league.name?.toLowerCase().includes("europa conference league");
+
+                                            // Use MyCircularFlag for ONLY actual national teams and youth teams, but NOT for club competitions
+                                            if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isFriendliesClub && !isUefaConferenceLeague) {
                                                 return (
                                                   <MyCircularFlag
                                                     teamName={
