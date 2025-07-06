@@ -2682,7 +2682,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`,
         );
 
-        // Set a flag on each fixture to indicate it's from live endpoint        fixtures.forEach(fixture => {
+        // Set a flag on each fixture to indicate it's from live endpoint
+        fixtures.forEach(fixture => {
           fixture.isLiveData = true;
           fixture.lastUpdated = Date.now();
         });
