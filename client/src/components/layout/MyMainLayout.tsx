@@ -194,10 +194,10 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                 homeTeamLogo={selectedFixture?.teams?.home?.logo}
                 awayTeamLogo={selectedFixture?.teams?.away?.logo}
                 matchStatus={selectedFixture?.fixture?.status?.short}
-                homeWinProbability={23}
-                drawProbability={19}
-                awayWinProbability={58}
-                totalVotes={4383}
+                fixtureId={selectedFixture?.fixture?.id}
+                homeTeamId={selectedFixture?.teams?.home?.id}
+                awayTeamId={selectedFixture?.teams?.away?.id}
+                leagueId={selectedFixture?.league?.id}
               />
 
               {/* Conditional rendering based on match status */}
