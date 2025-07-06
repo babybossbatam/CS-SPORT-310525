@@ -49,14 +49,18 @@ const MatchPredictionsCard: React.FC<MatchPredictionsCardProps> = ({
       }
 
       try {
+        console.log(`🎯 [Predictions] Fetching predictions for fixture ${fixtureId}`);
+        
         // First try to get real predictions from RapidAPI
         const predictionsResponse = await fetch(`/api/fixtures/${fixtureId}/predictions`);
         
         if (predictionsResponse.ok) {
           const predictionsData = await predictionsResponse.json();
+          console.log('🎯 [Predictions] Raw predictions response:', predictionsData);
           
           if (predictionsData.success && predictionsData.data) {
             const predictions = predictionsData.data.predictions;
+            console.log('🎯 [Predictions] Extracted predictions object:', predictions);
             
             // Extract prediction percentages from RapidAPI response
             const homeWinPercentage = predictions?.percent?.home ? 
@@ -66,7 +70,13 @@ const MatchPredictionsCard: React.FC<MatchPredictionsCardProps> = ({
             const awayWinPercentage = predictions?.percent?.away ? 
               parseInt(predictions.percent.away.replace('%', '')) : null;
 
-            if (homeWinPercentage && drawPercentage && awayWinPercentage) {
+            console.log('🎯 [Predictions] Parsed percentages:', {
+              home: homeWinPercentage,
+              draw: drawPercentage,
+              away: awayWinPercentage
+            });
+
+            if (homeWinPercentage !== null && drawPercentage !== null && awayWinPercentage !== null) {
               console.log('🎯 [Predictions] Using real RapidAPI prediction data:', {
                 home: homeWinPercentage,
                 draw: drawPercentage,
@@ -77,34 +87,45 @@ const MatchPredictionsCard: React.FC<MatchPredictionsCardProps> = ({
                 homeWinProbability: homeWinPercentage,
                 drawProbability: drawPercentage,
                 awayWinProbability: awayWinPercentage,
-                totalVotes: Math.floor(Math.random() * 100000) + 50000, // Higher vote count for real data
+                totalVotes: Math.floor(Math.random() * 100000) + 50000,
               });
               return;
             }
           }
+        } else {
+          console.log('🎯 [Predictions] Predictions API failed with status:', predictionsResponse.status);
         }
 
+        console.log('🎯 [Predictions] No direct predictions found, trying odds-based calculation');
+        
         // Fallback to odds-based predictions if direct predictions aren't available
         const oddsResponse = await fetch(`/api/fixtures/${fixtureId}/odds`);
         
         if (oddsResponse.ok) {
           const oddsData = await oddsResponse.json();
+          console.log('📊 [Predictions] Odds response:', oddsData);
           
           if (oddsData.success && oddsData.data && oddsData.data.length > 0) {
             // Find 1X2 (Match Winner) odds from a major bookmaker
             const bookmaker = oddsData.data.find((bm: any) => 
-              bm.bookmaker?.name && ['Bet365', '1xBet', 'Unibet', 'William Hill'].includes(bm.bookmaker.name)
+              bm.bookmaker?.name && ['Bet365', '1xBet', 'Unibet', 'William Hill', 'Pinnacle'].includes(bm.bookmaker.name)
             ) || oddsData.data[0];
+
+            console.log('📊 [Predictions] Using bookmaker:', bookmaker?.bookmaker?.name);
 
             if (bookmaker?.bets) {
               const matchWinnerBet = bookmaker.bets.find((bet: any) => 
                 bet.name === 'Match Winner' || bet.name === '1X2'
               );
 
+              console.log('📊 [Predictions] Match winner bet:', matchWinnerBet);
+
               if (matchWinnerBet?.values && matchWinnerBet.values.length >= 3) {
                 const homeOdd = parseFloat(matchWinnerBet.values[0]?.odd || '2.0');
                 const drawOdd = parseFloat(matchWinnerBet.values[1]?.odd || '3.0');
                 const awayOdd = parseFloat(matchWinnerBet.values[2]?.odd || '2.0');
+
+                console.log('📊 [Predictions] Raw odds:', { homeOdd, drawOdd, awayOdd });
 
                 // Convert odds to implied probabilities
                 const homeProb = (1 / homeOdd) * 100;
@@ -120,7 +141,8 @@ const MatchPredictionsCard: React.FC<MatchPredictionsCardProps> = ({
                 console.log('📊 [Predictions] Using odds-based predictions from', bookmaker.bookmaker?.name, {
                   home: normalizedHome,
                   draw: normalizedDraw,
-                  away: normalizedAway
+                  away: normalizedAway,
+                  odds: { homeOdd, drawOdd, awayOdd }
                 });
 
                 setPredictions({
@@ -133,6 +155,8 @@ const MatchPredictionsCard: React.FC<MatchPredictionsCardProps> = ({
               }
             }
           }
+        } else {
+          console.log('📊 [Predictions] Odds API failed with status:', oddsResponse.status);
         }
 
         // Final fallback: use team statistics if both predictions and odds fail
