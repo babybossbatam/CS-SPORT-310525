@@ -332,8 +332,35 @@ const MyMatchData: React.FC<MyMatchDataProps> = ({
           />
         )}
 
-        {/* See All Button */}
+        {/* Additional Stats */}
+        {stats.offsides && (
+          <StatRow
+            label="Offsides"
+            homeValue={stats.offsides.home}
+            awayValue={stats.offsides.away}
+            icon={Target}
+          />
+        )}
+
+        {stats.saves && (
+          <StatRow
+            label="Goalkeeper Saves"
+            homeValue={stats.saves.home}
+            awayValue={stats.saves.away}
+            icon={Target}
+          />
+        )}
+
+        {/* Team Names Row */}
         <div className="pt-4 border-t border-gray-100">
+          <div className="flex items-center justify-between text-sm font-medium text-gray-600">
+            <span className="text-purple-600">{homeTeam}</span>
+            <span className="text-blue-600">{awayTeam}</span>
+          </div>
+        </div>
+
+        {/* See All Button */}
+        <div className="pt-2">
           <button className="w-full text-center text-sm text-gray-600 hover:text-gray-800 flex items-center justify-center gap-1">
             See All
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
