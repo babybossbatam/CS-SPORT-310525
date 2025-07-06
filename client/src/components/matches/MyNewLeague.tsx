@@ -194,6 +194,14 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
           if (relevantLiveFixtures.length > 0) {
             console.log(`🔴 [MyNewLeague] Found ${relevantLiveFixtures.length} live fixtures from target leagues`);
+            
+            // Check if any live fixtures were previously cached as upcoming
+            relevantLiveFixtures.forEach(liveFixture => {
+              const previousFixture = fixtures.find(f => f.fixture.id === liveFixture.fixture.id);
+              if (previousFixture && previousFixture.fixture.status.short === 'NS') {
+                console.log(`🔄 [MyNewLeague] Status transition detected: ${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name} (NS → ${liveFixture.fixture.status.short})`);
+              }
+            });
           }
 
           // Add live fixtures first

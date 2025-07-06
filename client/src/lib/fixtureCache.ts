@@ -472,6 +472,22 @@ class FixtureCache {
       return true;
     }
 
+    // Check if any cached fixtures might have transitioned to live status
+    const hasUpcomingMatches = cached.some(fixture => {
+      const status = fixture.fixture.status.short;
+      const fixtureTime = new Date(fixture.fixture.date).getTime();
+      const now = Date.now();
+      const minutesUntilKickoff = (fixtureTime - now) / (1000 * 60);
+      
+      // If match was upcoming and kickoff time is near or passed, force refresh
+      return status === 'NS' && minutesUntilKickoff <= 15; // 15 minutes before kickoff
+    });
+
+    if (hasUpcomingMatches) {
+      console.log(`🔄 [fixtureCache] Found upcoming matches near kickoff time for ${date}, forcing fresh fetch`);
+      return true;
+    }
+
     // Past dates: be more lenient with cache (24 hour check)
     if (date < today) {
       const cacheKey = this.generateKey(date, 'date', date);
