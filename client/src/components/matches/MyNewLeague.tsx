@@ -171,8 +171,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const todayDateString = format(todayDate, 'yyyy-MM-dd');
 
   const fetchLeagueData = useCallback(
-    async (forceRefresh = false) => {
-      if (loading && !forceRefresh) return;
+    async () => {
+      if (loading) return;
 
       setLoading(true);
       setError(null);
@@ -183,29 +183,21 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         // Import the simplified fetching logic
         const { MySimplifiedFetchingLogic } = await import('@/lib/MySimplifiedFetchingLogic');
 
+        // Use simplified fetching logic (no force refresh)
+        const matchesData = await MySimplifiedFetchingLogic.getAllMatchesForDate(selectedDate);
+
+        // Combine all match types
         let allFixtures: FixtureData[] = [];
+        allFixtures.push(...matchesData.upcoming);
+        allFixtures.push(...matchesData.live);
+        allFixtures.push(...matchesData.recentlyEnded);
 
-        if (forceRefresh) {
-          // Force refresh - clear cache and get fresh data
-          const freshFixtures = await MySimplifiedFetchingLogic.forceRefresh(selectedDate);
-          allFixtures.push(...freshFixtures);
-          console.log(`🔄 [MyNewLeague] Force refresh completed: ${freshFixtures.length} fixtures`);
-        } else {
-          // Use simplified fetching logic
-          const matchesData = await MySimplifiedFetchingLogic.getAllMatchesForDate(selectedDate);
-
-          // Combine all match types
-          allFixtures.push(...matchesData.upcoming);
-          allFixtures.push(...matchesData.live);
-          allFixtures.push(...matchesData.recentlyEnded);
-
-          console.log(`📊 [MyNewLeague] Simplified fetch completed:`, {
-            upcoming: matchesData.upcoming.length,
-            live: matchesData.live.length,
-            recentlyEnded: matchesData.recentlyEnded.length,
-            total: matchesData.total
-          });
-        }
+        console.log(`📊 [MyNewLeague] Simplified fetch completed:`, {
+          upcoming: matchesData.upcoming.length,
+          live: matchesData.live.length,
+          recentlyEnded: matchesData.recentlyEnded.length,
+          total: matchesData.total
+        });
 
         // Filter by our specific leagues
         const leagueFilteredFixtures = allFixtures.filter((fixture: FixtureData) => 
@@ -275,31 +267,35 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   useEffect(() => {
     fetchLeagueData(false);
 
-    // Set up periodic refresh - every 2 minutes for live updates (reduced from 30 seconds)
+    // Set up periodic refresh - every 5 minutes for live updates
     const interval = setInterval(async () => {
-      // Only refresh if we have live matches or if it's been more than 5 minutes
+      // Only refresh if we have live matches, otherwise refresh every 10 minutes
       const hasLiveMatches = fixtures.some(fixture => 
         ["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short)
       );
 
       if (hasLiveMatches) {
-        // For live matches, do a gentler refresh without force clearing
+        // For live matches, refresh every 5 minutes
+        console.log("🟢 [MyNewLeague] Refreshing due to live matches");
         fetchLeagueData(false);
       } else {
-        // For non-live matches, only refresh every 5 minutes
+        // For non-live matches, only refresh every 10 minutes
         const now = Date.now();
-        const lastRefresh = localStorage.getItem('mynewleague_last_refresh');
-        const shouldRefresh = !lastRefresh || (now - parseInt(lastRefresh)) > 300000; // 5 minutes
+        const lastRefresh = localStorage.getItem(`mynewleague_last_refresh_${selectedDate}`);
+        const shouldRefresh = !lastRefresh || (now - parseInt(lastRefresh)) > 600000; // 10 minutes
 
         if (shouldRefresh) {
-          localStorage.setItem('mynewleague_last_refresh', now.toString());
+          localStorage.setItem(`mynewleague_last_refresh_${selectedDate}`, now.toString());
+          console.log("🔄 [MyNewLeague] Periodic refresh for non-live matches");
           fetchLeagueData(false);
+        } else {
+          console.log("⏸️ [MyNewLeague] Skipping refresh - too soon");
         }
       }
-    }, 120000); // 2 minutes instead of 30 seconds
+    }, 300000); // 5 minutes
 
     return () => clearInterval(interval);
-  }, [fetchLeagueData, fixtures]);
+  }, [fetchLeagueData, selectedDate]); // Removed fixtures dependency to prevent constant interval resets
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
