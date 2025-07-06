@@ -33,8 +33,30 @@ const FIXTURE_CACHE_CONFIG = {
   CLEANUP_INTERVAL: 10 * 60 * 1000, // 10 minutes
 };
 
+export interface CacheEntry {
+  data: any;
+  timestamp: number;
+  expiresAt?: number;
+  status?: string; // Track match status for transition detection
+}
+
+interface CacheStats {
+  hits: number;
+  misses: number;
+  size: number;
+  lastCleanup: number;
+}
+
+interface StatusTransition {
+  fixtureId: number;
+  fromStatus: string;
+  toStatus: string;
+  timestamp: number;
+}
+
 class FixtureCache {
   private cache = new Map<string, CachedFixture>();
+  private statusTransitions = new Map<number, StatusTransition>();
   private stats: FixtureCacheStats = {
     size: 0,
     hits: 0,
@@ -403,156 +425,130 @@ class FixtureCache {
     };
   }
 
-  /**
-   * Clear cache
-   */
-  clear(): void {
+  clearCache() {
     this.cache.clear();
-    this.stats = {
-      size: 0,
-      hits: 0,
-      misses: 0,
-      lastCleanup: Date.now()
+    this.statusTransitions.clear();
+    this.stats.size = 0;
+    console.log('🗑️ [FixtureCache] Cache cleared');
+  }
+
+  /**
+   * Track status transitions and invalidate related cache entries
+   */
+  trackStatusTransition(fixtureId: number, fromStatus: string, toStatus: string) {
+    const transition: StatusTransition = {
+      fixtureId,
+      fromStatus,
+      toStatus,
+      timestamp: Date.now()
     };
-    console.log(`🗑️ [fixtureCache] Cache cleared`);
+
+    this.statusTransitions.set(fixtureId, transition);
+
+    console.log(`🔄 [StatusTransition] Match ${fixtureId}: ${fromStatus} → ${toStatus}`);
+
+    // Invalidate related cache entries when status changes
+    this.invalidateCacheForStatusTransition(fixtureId, fromStatus, toStatus);
   }
 
   /**
-   * Background process to ensure past dates are cached
+   * Invalidate cache entries when match status transitions
    */
-  async backgroundCachePastDates(days: number = 7): Promise<void> {
-    const today = new Date();
-    const promises: Promise<void>[] = [];
+  private invalidateCacheForStatusTransition(fixtureId: number, fromStatus: string, toStatus: string) {
+    const keysToInvalidate: string[] = [];
 
-    for (let i = 1; i <= days; i++) {
-      const pastDate = new Date(today);
-      pastDate.setDate(pastDate.getDate() - i);
-      const dateStr = pastDate.toISOString().slice(0, 10);
-
-      // Check if we already have this date cached
-      if (!this.getCachedFixturesForDate(dateStr)) {
-        promises.push(this.fetchAndCachePastDate(dateStr));
+    // Find all cache keys that might contain this fixture
+    for (const [key] of this.cache) {
+      // Invalidate fixture-specific cache
+      if (key.includes(`fixture-${fixtureId}`) || key.includes(`match-${fixtureId}`)) {
+        keysToInvalidate.push(key);
       }
-    }
 
-    if (promises.length > 0) {
-      console.log(`🔄 [fixtureCache] Background caching ${promises.length} past dates`);
-      await Promise.all(promises);
-    }
-  }
-
-  /**
-   * Fetch and cache a specific past date in background
-   */
-  private async fetchAndCachePastDate(date: string): Promise<void> {
-    try {
-      console.log(`🔄 [fixtureCache] Background fetching fixtures for ${date}`);
-      const response = await fetch(`/api/fixtures/date/${date}?all=true`);
-      const fixtures = await response.json();
-
-      if (fixtures && fixtures.length > 0) {
-        this.cacheFixturesForDate(date, fixtures, 'background');
-        console.log(`✅ [fixtureCache] Background cached ${fixtures.length} fixtures for ${date}`);
-      }
-    } catch (error) {
-      console.error(`❌ [fixtureCache] Error background caching ${date}:`, error);
-    }
-  }
-
-  /**
-   * Check if we need fresh data for a date (improved logic)
-   */
-  shouldFetchFresh(date: string): boolean {
-    const today = new Date().toISOString().slice(0, 10);
-    const cached = this.getCachedFixturesForDate(date);
-
-    // If no cache exists, we need fresh data
-    if (!cached) {
-      console.log(`🔍 [fixtureCache] No cache found for ${date}, fetching fresh data`);
-      return true;
-    }
-
-    // CRITICAL: Check for invalid NS status on past dates
-    if (date < today) {
-      const hasInvalidNSMatches = cached.some(fixture => {
-        const status = fixture.fixture.status.short;
-        const fixtureTime = new Date(fixture.fixture.date).getTime();
-        const now = Date.now();
-        const hoursAfterFixture = (now - fixtureTime) / (1000 * 60 * 60);
-        
-        // If match is NS but should have finished (past date + time passed), force refresh
-        if (status === 'NS' && hoursAfterFixture > 2) {
-          console.log(`🚨 [fixtureCache] Invalid NS status for past match on ${date}:`, {
-            teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-            status,
-            hoursAfterFixture: Math.round(hoursAfterFixture),
-            fixtureTime: new Date(fixture.fixture.date).toISOString()
-          });
-          return true;
+      // Invalidate date-based cache when transitioning from NS to LIVE
+      if (fromStatus === 'NS' && ['LIVE', '1H', '2H', 'HT'].includes(toStatus)) {
+        if (key.includes('fixtures-date') || key.includes('live-fixtures')) {
+          keysToInvalidate.push(key);
         }
-        return false;
-      });
+      }
 
-      if (hasInvalidNSMatches) {
-        console.log(`🔄 [fixtureCache] Found invalid NS matches for past date ${date}, forcing fresh fetch`);
-        return true;
+      // Invalidate date-based cache when transitioning from LIVE to ended
+      if (['LIVE', '1H', '2H', 'HT', 'ET'].includes(fromStatus) && ['FT', 'AET', 'PEN'].includes(toStatus)) {
+        if (key.includes('fixtures-date') || key.includes('live-fixtures')) {
+          keysToInvalidate.push(key);
+        }
+      }
+
+      // Invalidate league-specific cache
+      if (key.includes('league-') && (fromStatus === 'NS' || toStatus === 'FT')) {
+        keysToInvalidate.push(key);
       }
     }
 
-    // Check if any cached fixtures might have transitioned to live status
-    const hasUpcomingMatches = cached.some(fixture => {
-      const status = fixture.fixture.status.short;
-      const fixtureTime = new Date(fixture.fixture.date).getTime();
-      const now = Date.now();
-      const minutesUntilKickoff = (fixtureTime - now) / (1000 * 60);
-      
-      // If match was upcoming and kickoff time is near or passed, force refresh
-      return status === 'NS' && minutesUntilKickoff <= 15; // 15 minutes before kickoff
+    // Remove invalidated cache entries
+    keysToInvalidate.forEach(key => {
+      this.cache.delete(key);
+      console.log(`❌ [CacheInvalidation] Removed stale cache: ${key} (status: ${fromStatus} → ${toStatus})`);
     });
 
-    if (hasUpcomingMatches) {
-      console.log(`🔄 [fixtureCache] Found upcoming matches near kickoff time for ${date}, forcing fresh fetch`);
-      return true;
+    if (keysToInvalidate.length > 0) {
+      this.stats.size = this.cache.size;
+      console.log(`🔄 [CacheInvalidation] Invalidated ${keysToInvalidate.length} cache entries for match ${fixtureId}`);
     }
-
-    // Past dates: be more lenient with cache but not for data integrity issues
-    if (date < today) {
-      const cacheKey = this.generateKey(date, 'date', date);
-      const cachedItem = this.cache.get(cacheKey);
-
-      if (cachedItem) {
-        const cacheAge = Date.now() - cachedItem.timestamp;
-        const isVeryOld = cacheAge > FIXTURE_CACHE_CONFIG.PAST_DATE_CACHE_DURATION;
-
-        if (isVeryOld) {
-          console.log(`⏰ [fixtureCache] Past date ${date} cache very old (${Math.round(cacheAge / 60000)}min), fetching fresh`);
-          return true;
-        }
-      }
-
-      console.log(`✅ [fixtureCache] Using existing cache for past date ${date} (data integrity verified)`);
-      return false; // We have cache and it's a past date, don't fetch
-    }
-
-    // For today and future dates, check cache age more strictly
-    const cacheKey = this.generateKey(date, 'date', date);
-    const cachedItem = this.cache.get(cacheKey);
-
-    if (cachedItem) {
-      const cacheAge = Date.now() - cachedItem.timestamp;
-      const maxAge = date === today ? 
-        FIXTURE_CACHE_CONFIG.TODAY_CACHE_DURATION : 
-        FIXTURE_CACHE_CONFIG.FUTURE_CACHE_DURATION;
-
-      const needsFresh = cacheAge >= maxAge;
-      console.log(`🕒 [fixtureCache] Cache age check for ${date}: ${Math.round(cacheAge / 60000)}min (max: ${Math.round(maxAge / 60000)}min) - ${needsFresh ? 'FETCH FRESH' : 'USE CACHE'}`);
-      return needsFresh;
-    }
-
-    return true;
   }
 
   /**
+   * Get status transition for a fixture
+   */
+  getStatusTransition(fixtureId: number): StatusTransition | undefined {
+    return this.statusTransitions.get(fixtureId);
+  }
+
+  /**
+   * Check if a fixture has transitioned from upcoming to live
+   */
+  hasTransitionedToLive(fixtureId: number): boolean {
+    const transition = this.statusTransitions.get(fixtureId);
+    return transition ? 
+      transition.fromStatus === 'NS' && 
+      ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(transition.toStatus) : 
+      false;
+  }
+
+  /**
+   * Check if a fixture has transitioned from live to ended
+   */
+  hasTransitionedToEnded(fixtureId: number): boolean {
+    const transition = this.statusTransitions.get(fixtureId);
+    return transition ? 
+      ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(transition.fromStatus) && 
+      ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(transition.toStatus) : 
+      false;
+  }
+
+  /**
+   * Force refresh cache for fixtures that have changed status
+   */
+  invalidateTransitionedFixtures() {
+    const now = Date.now();
+    const staleTransitions: number[] = [];
+
+    for (const [fixtureId, transition] of this.statusTransitions) {
+      // Remove transitions older than 1 hour
+      if (now - transition.timestamp > 60 * 60 * 1000) {
+        staleTransitions.push(fixtureId);
+      }
+    }
+
+    staleTransitions.forEach(fixtureId => {
+      this.statusTransitions.delete(fixtureId);
+    });
+
+    if (staleTransitions.length > 0) {
+      console.log(`🧹 [StatusTransition] Cleaned up ${staleTransitions.length} old transitions`);
+    }
+  }
+
+    /**
    * Pre-cache data immediately when received from API
    */
   preCacheFixtures(date: string, fixtures: FixtureResponse[], source: string = 'api'): void {
@@ -615,6 +611,166 @@ class FixtureCache {
       hitRate: total > 0 ? (this.stats.hits / total) * 100 : 0,
       persistentCacheSize
     };
+  }
+
+  /**
+   * Check if we need fresh data for a date (improved logic)
+   */
+  shouldFetchFresh(date: string): boolean {
+    const today = new Date().toISOString().slice(0, 10);
+    const cached = this.getCachedFixturesForDate(date);
+
+    // If no cache exists, we need fresh data
+    if (!cached) {
+      console.log(`🔍 [fixtureCache] No cache found for ${date}, fetching fresh data`);
+      return true;
+    }
+
+    // CRITICAL: Check for invalid NS status on past dates
+    if (date < today) {
+      const hasInvalidNSMatches = cached.some(fixture => {
+        const status = fixture.fixture.status.short;
+        const fixtureTime = new Date(fixture.fixture.date).getTime();
+        const now = Date.now();
+        const hoursAfterFixture = (now - fixtureTime) / (1000 * 60 * 60);
+
+        // If match is NS but should have finished (past date + time passed), force refresh
+        if (status === 'NS' && hoursAfterFixture > 2) {
+          console.log(`🚨 [fixtureCache] Invalid NS status for past match on ${date}:`, {
+            teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            status,
+            hoursAfterFixture: Math.round(hoursAfterFixture),
+            fixtureTime: new Date(fixture.fixture.date).toISOString()
+          });
+          return true;
+        }
+        return false;
+      });
+
+      if (hasInvalidNSMatches) {
+        console.log(`🔄 [fixtureCache] Found invalid NS matches for past date ${date}, forcing fresh fetch`);
+        return true;
+      }
+    }
+
+    // Check if any cached fixtures might have transitioned to live status
+    const hasUpcomingMatches = cached.some(fixture => {
+      const status = fixture.fixture.status.short;
+      const fixtureTime = new Date(fixture.fixture.date).getTime();
+      const now = Date.now();
+      const minutesUntilKickoff = (fixtureTime - now) / (1000 * 60);
+
+      // If match was upcoming and kickoff time is near or passed, force refresh
+      return status === 'NS' && minutesUntilKickoff <= 15; // 15 minutes before kickoff
+    });
+
+    if (hasUpcomingMatches) {
+      console.log(`🔄 [fixtureCache] Found upcoming matches near kickoff time for ${date}, forcing fresh fetch`);
+      return true;
+    }
+
+    // Past dates: be more lenient with cache but not for data integrity issues
+    if (date < today) {
+      const cacheKey = this.generateKey(date, 'date', date);
+      const cachedItem = this.cache.get(cacheKey);
+
+      if (cachedItem) {
+        const cacheAge = Date.now() - cachedItem.timestamp;
+        const isVeryOld = cacheAge > FIXTURE_CACHE_CONFIG.PAST_DATE_CACHE_DURATION;
+
+        if (isVeryOld) {
+          console.log(`⏰ [fixtureCache] Past date ${date} cache very old (${Math.round(cacheAge / 60000)}min), fetching fresh`);
+          return true;
+        }
+      }
+
+      console.log(`✅ [fixtureCache] Using existing cache for past date ${date} (data integrity verified)`);
+      return false; // We have cache and it's a past date, don't fetch
+    }
+
+    // For today and future dates, check cache age more strictly
+    const cacheKey = this.generateKey(date, 'date', date);
+    const cachedItem = this.cache.get(cacheKey);
+
+    if (cachedItem) {
+      const cacheAge = Date.now() - cachedItem.timestamp;
+      const maxAge = date === today ? 
+        FIXTURE_CACHE_CONFIG.TODAY_CACHE_DURATION : 
+        FIXTURE_CACHE_CONFIG.FUTURE_CACHE_DURATION;
+
+      const needsFresh = cacheAge >= maxAge;
+      console.log(`🕒 [fixtureCache] Cache age check for ${date}: ${Math.round(cacheAge / 60000)}min (max: ${Math.round(maxAge / 60000)}min) - ${needsFresh ? 'FETCH FRESH' : 'USE CACHE'}`);
+      return needsFresh;
+    }
+
+    return true;
+  }
+
+  /**
+   * Set a cache entry
+   */
+  set(key: string, data: any, ttl?: number) {
+    const expiresAt = ttl ? Date.now() + ttl : undefined;
+
+    // Extract status if data contains fixture information
+    let status: string | undefined;
+    if (data && typeof data === 'object') {
+      if (Array.isArray(data)) {
+        // For arrays of fixtures, we don't track individual statuses here
+        status = undefined;
+      } else if (data.fixture?.status?.short) {
+        status = data.fixture.status.short;
+      }
+    }
+
+    this.cache.set(key, { 
+      fixture: data, 
+      timestamp: Date.now(), 
+      source: 'api'
+    });
+    this.stats.size = this.cache.size;
+  }
+
+  /**
+   * Background process to ensure past dates are cached
+   */
+  async backgroundCachePastDates(days: number = 7): Promise<void> {
+    const today = new Date();
+    const promises: Promise<void>[] = [];
+
+    for (let i = 1; i <= days; i++) {
+      const pastDate = new Date(today);
+      pastDate.setDate(pastDate.getDate() - i);
+      const dateStr = pastDate.toISOString().slice(0, 10);
+
+      // Check if we already have this date cached
+      if (!this.getCachedFixturesForDate(dateStr)) {
+        promises.push(this.fetchAndCachePastDate(dateStr));
+      }
+    }
+
+    if (promises.length > 0) {
+      console.log(`🔄 [fixtureCache] Background caching ${promises.length} past dates`);
+      await Promise.all(promises);
+    }
+  }
+
+  /**
+   * Fetch and cache a specific past date in background
+   */
+  private async fetchAndCachePastDate(date: string): Promise<void> {
+    try {
+      console.log(`🔄 [fixtureCache] Background fetching fixtures for ${date}`);
+      const response = await fetch(`/api/fixtures/date/${date}?all=true`);
+      const fixtures = await response.json();
+
+      if (fixtures && fixtures.length > 0) {
+        this.cacheFixturesForDate(date, fixtures, 'background');
+        console.log(`✅ [fixtureCache] Background cached ${fixtures.length} fixtures for ${date}`);
+      }
+    } catch (error) {
+      console.error(`❌ [fixtureCache] Error background caching ${date}:`, error);
+    }
   }
 }
 

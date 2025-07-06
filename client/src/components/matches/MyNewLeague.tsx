@@ -7,6 +7,7 @@ import { format, parseISO, isValid } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
+import { fixtureCache } from "@/lib/fixtureCache";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 
@@ -468,7 +469,15 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       fetchLeagueData(true); // Pass true to indicate this is an update
     }, 30000);
 
-    return () => clearInterval(interval);
+    // Set up periodic cleanup of status transitions - every 5 minutes
+    const cleanupInterval = setInterval(() => {
+      fixtureCache.invalidateTransitionedFixtures();
+    }, 5 * 60 * 1000);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(cleanupInterval);
+    };
   }, [fetchLeagueData, selectedDate]);
 
   // Debug logging
@@ -1087,6 +1096,31 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           transition: `${previousStatus} → ${currentStatus}`,
           time: new Date().toLocaleTimeString()
         });
+
+        // Track status transition in cache system for invalidation
+        fixtureCache.trackStatusTransition(matchId, previousStatus, currentStatus);
+
+        // Handle NS → LIVE transition
+        if (previousStatus === 'NS' && ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(currentStatus)) {
+          console.log(`🟢 [MyNewLeague NS→LIVE] Match ${matchId} started! Invalidating upcoming cache`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus
+          });
+        }
+
+        // Handle LIVE → ENDED transition
+        if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(previousStatus) && 
+            ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(currentStatus)) {
+          console.log(`🏁 [MyNewLeague LIVE→ENDED] Match ${matchId} ended! Invalidating live cache`, {
+            home: fixture.teams?.home?.name,
+            away: fixture.teams?.away?.name,
+            previousStatus,
+            currentStatus,
+            finalScore: `${currentScore.home}-${currentScore.away}`
+          });
+        }
 
         // Check if status just changed to halftime
         if (currentStatus === 'HT') {

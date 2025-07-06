@@ -783,7 +783,23 @@ export const rapidApiService = {
 
     const now = Date.now();
     if (!forceRefresh && cached && now - cached.timestamp < STATIC_DATA_CACHE_DURATION) {
-      return cached.data;
+      // Check for status transitions that might require fresh data
+      const cachedData = cached.data;
+      if (Array.isArray(cachedData)) {
+        const hasLiveMatches = cachedData.some((fixture: any) => 
+          ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
+        );
+        
+        // Force refresh if cached data contains live matches (they need frequent updates)
+        if (hasLiveMatches && now - cached.timestamp > LIVE_DATA_CACHE_DURATION) {
+          console.log(`🔄 [RapidAPI] Cache contains live matches, forcing refresh for league ${leagueId}`);
+          forceRefresh = true;
+        } else {
+          return cached.data;
+        }
+      } else {
+        return cached.data;
+      }
     }
 
     if (forceRefresh) {
