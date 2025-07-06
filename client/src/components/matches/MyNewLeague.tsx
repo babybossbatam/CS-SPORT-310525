@@ -1066,7 +1066,65 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     );
   });
 
-  // Enhanced effect to detect status and score changes with flash effects - matches LiveMatchForAllCountry implementation
+  // Clear cache for specific match when status transitions occur
+  const clearMatchCache = useCallback((matchId: number, transition: string, fixtureDate: string) => {
+    try {
+      const matchDate = new Date(fixtureDate);
+      const year = matchDate.getFullYear();
+      const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+      const day = String(matchDate.getDate()).padStart(2, "0");
+      const dateString = `${year}-${month}-${day}`;
+
+      // Clear cache for all leagues for this specific date
+      leagueIds.forEach(leagueId => {
+        const cacheKey = getCacheKey(dateString, leagueId);
+        
+        try {
+          const cached = localStorage.getItem(cacheKey);
+          if (cached) {
+            const { fixtures } = JSON.parse(cached);
+            // Check if this match exists in the cache
+            const hasMatch = fixtures.some((f: any) => f.fixture.id === matchId);
+            
+            if (hasMatch) {
+              localStorage.removeItem(cacheKey);
+              console.log(`🗑️ [Cache Clear] Cleared cache for league ${leagueId} on ${dateString} due to match ${matchId} ${transition}`);
+            }
+          }
+        } catch (error) {
+          console.warn(`Failed to clear cache for league ${leagueId}:`, error);
+        }
+      });
+
+      // Also clear any related fixture cache entries
+      const allKeys = Object.keys(localStorage);
+      const relatedKeys = allKeys.filter(key => 
+        key.startsWith('ended_matches_') && key.includes(dateString)
+      );
+      
+      relatedKeys.forEach(key => {
+        try {
+          const cached = localStorage.getItem(key);
+          if (cached) {
+            const { fixtures } = JSON.parse(cached);
+            const hasMatch = fixtures.some((f: any) => f.fixture.id === matchId);
+            
+            if (hasMatch) {
+              localStorage.removeItem(key);
+              console.log(`🗑️ [Cache Clear] Cleared related cache ${key} due to match ${matchId} ${transition}`);
+            }
+          }
+        } catch (error) {
+          console.warn(`Failed to clear related cache ${key}:`, error);
+        }
+      });
+
+    } catch (error) {
+      console.error(`Failed to clear cache for match ${matchId}:`, error);
+    }
+  }, [getCacheKey]);
+
+  // Enhanced effect to detect status and score changes with flash effects and cache clearing
   useEffect(() => {
     if (!fixtures?.length) return;
 
@@ -1100,26 +1158,32 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         // Track status transition in cache system for invalidation
         fixtureCache.trackStatusTransition(matchId, previousStatus, currentStatus);
 
-        // Handle NS → LIVE transition
+        // Handle NS → LIVE transition - clear upcoming match cache
         if (previousStatus === 'NS' && ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(currentStatus)) {
-          console.log(`🟢 [MyNewLeague NS→LIVE] Match ${matchId} started! Invalidating upcoming cache`, {
+          console.log(`🟢 [MyNewLeague NS→LIVE] Match ${matchId} started! Clearing upcoming cache`, {
             home: fixture.teams?.home?.name,
             away: fixture.teams?.away?.name,
             previousStatus,
             currentStatus
           });
+          
+          // Clear cache for this specific match
+          clearMatchCache(matchId, 'NS→LIVE', fixture.fixture.date);
         }
 
-        // Handle LIVE → ENDED transition
+        // Handle LIVE → ENDED transition - clear live match cache
         if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(previousStatus) && 
             ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(currentStatus)) {
-          console.log(`🏁 [MyNewLeague LIVE→ENDED] Match ${matchId} ended! Invalidating live cache`, {
+          console.log(`🏁 [MyNewLeague LIVE→ENDED] Match ${matchId} ended! Clearing live cache`, {
             home: fixture.teams?.home?.name,
             away: fixture.teams?.away?.name,
             previousStatus,
             currentStatus,
             finalScore: `${currentScore.home}-${currentScore.away}`
           });
+          
+          // Clear cache for this specific match
+          clearMatchCache(matchId, 'LIVE→ENDED', fixture.fixture.date);
         }
 
         // Check if status just changed to halftime
@@ -1193,7 +1257,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         setGoalFlashMatches(new Set());
       }, 2000);
     }
-  }, [fixtures]);
+  }, [fixtures, clearMatchCache]);
 
   if (loading) {
     return (
