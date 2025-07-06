@@ -233,9 +233,11 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                 const status = match.fixture.status.short;
                 const fixtureTime = new Date(match.fixture.date).getTime();
                 const now = Date.now();
-                const hoursAfterFixture = (now - fixtureTime) / (1000 * 60 * 60);
+                const minutesAfterFixture = (now - fixtureTime) / (1000 * 60);
                 
-                return status === 'NS' && hoursAfterFixture > 2;
+                // More aggressive: 30 minutes for past dates, immediate for today
+                const thresholdMinutes = selectedDateObj < today ? 30 : 30;
+                return status === 'NS' && minutesAfterFixture > thresholdMinutes;
               });
               
               if (invalidNSMatches.length > 0) {
@@ -299,20 +301,22 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             });
 
             // Validate status consistency for past dates and trigger refresh if needed
-            if (selectedDateObj < today) {
+            if (selectedDateObj <= today) { // Changed to <= to include today
               const staleNSMatches = filteredFixtures.filter(fixture => {
                 const status = fixture.fixture.status.short;
                 const fixtureTime = new Date(fixture.fixture.date).getTime();
                 const now = Date.now();
-                const hoursAfterFixture = (now - fixtureTime) / (1000 * 60 * 60);
+                const minutesAfterFixture = (now - fixtureTime) / (1000 * 60);
                 
-                if (status === 'NS' && hoursAfterFixture > 2) {
-                  console.log(`🚨 [MyNewLeague] Data integrity warning - NS match on past date ${selectedDate}:`, {
+                // More aggressive detection: 30 minutes after scheduled time for NS matches
+                if (status === 'NS' && minutesAfterFixture > 30) {
+                  console.log(`🚨 [MyNewLeague] Data integrity warning - NS match past scheduled time:`, {
                     teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                     league: fixture.league.name,
                     status,
-                    hoursAfterFixture: Math.round(hoursAfterFixture),
-                    fixtureTime: new Date(fixture.fixture.date).toISOString()
+                    minutesAfterFixture: Math.round(minutesAfterFixture),
+                    scheduledTime: new Date(fixture.fixture.date).toISOString(),
+                    currentTime: new Date(now).toISOString()
                   });
                   return true;
                 }
