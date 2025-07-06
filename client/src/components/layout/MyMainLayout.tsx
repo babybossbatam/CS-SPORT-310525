@@ -24,6 +24,7 @@ import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 import MyRecentForm from '@/components/matches/MyRecentForm';
 import MatchPredictionsCard from '@/components/matches/MatchPredictionsCard';
+import MyMatchData from '@/components/matches/MyMatchData';
 
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -250,6 +251,14 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                   </>
                 );
               })()}
+
+              {/* Match Statistics */}
+              <MyMatchData
+                fixtureId={selectedFixture?.fixture?.id}
+                homeTeam={selectedFixture?.teams?.home?.name}
+                awayTeam={selectedFixture?.teams?.away?.name}
+                matchStatus={selectedFixture?.fixture?.status?.short}
+              />
 
               <MatchDetailCard match={selectedFixture} />
             </>
