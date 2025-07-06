@@ -712,14 +712,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       }
     }
 
-    for (let i = 1; i <= totalPenalties; i++) {
-      const penaltyEvent = penaltyEvents[i - 1]; // Get event by order taken
-      penaltySequence.push({
-        number: i,
-        event: penaltyEvent
-      });
-    }
-
     return (
       <div className="penalty-shootout-timeline">
         <div className="penalty-timeline-header">
