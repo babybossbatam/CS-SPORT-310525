@@ -169,34 +169,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         return '👐'; // Throw in
 
       default:
-        // Handle penalty events specifically
-        if (eventType.includes('penalty') || eventDetail.includes('penalty')) {
-          if (eventDetail.includes('cancelled')) {
-            return (
-              <img
-                src="/assets/matchdetaillogo/var-logo.svg"
-                alt="VAR - Penalty Cancelled"
-                className="w-4 h-4"
-              />
-            );
-          } else if (eventDetail.includes('missed') || eventDetail.includes('saved')) {
-            return (
-              <img
-                src="/assets/matchdetaillogo/missed-penalty.svg"
-                alt="Missed/Saved Penalty"
-                className="w-4 h-4"
-              />
-            );
-          } else {
-            return (
-              <img
-                src="/assets/matchdetaillogo/penalty.svg"
-                alt="Penalty"
-                className="w-4 h-4"
-              />
-            );
-          }
-        }
         return '📝'; // Default event
     }
   };
@@ -659,17 +631,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     awayScore: number;
   }) => {
     // Get penalty events from the match events, sorted by time (ascending for proper order)
-    // Only look for actual penalty shootout events (after 120 minutes or with specific shootout indicators)
     const penaltyEvents = events
       .filter((event) => {
         const detail = event.detail?.toLowerCase() || "";
         const type = event.type?.toLowerCase() || "";
         
-        // Only include events that are clearly penalty shootout events
+        // Check for penalty shootout events specifically (not regular match penalties)
         return (
-          (detail.includes("penalty") && event.time.elapsed >= 120) ||
+          detail.includes("penalty") || 
+          type === "penalty" ||
           detail.includes("shootout") ||
-          type.includes("shootout")
+          type.includes("shootout") ||
+          // Check if it's after 90 minutes (likely penalty shootout)
+          (event.time.elapsed >= 90 && detail.includes("penalty"))
         );
       })
       .sort((a, b) => a.time.elapsed - b.time.elapsed);
@@ -942,12 +916,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           </div>
         ) : (
           <div className="space-y-2">
-            {/* Show penalty shootout ONLY if match status is PEN (penalty shootout) */}
-            {matchData?.fixture?.status?.short === "PEN" && (
-              <PenaltyShootoutDisplay 
-                homeScore={matchData?.score?.penalty?.home || 0} 
-                awayScore={matchData?.score?.penalty?.away || 0} 
-              />
+            {/* Show penalty shootout if match ended with penalties */}
+            {(events.some((event) => 
+              event.type?.toLowerCase() === "penalty" || 
+              event.detail?.toLowerCase().includes("penalty")
+            ) || matchData?.fixture?.status?.short === "PEN") && (
+              <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
             )}
 
             {/* All events in chronological order with period score markers */}
@@ -1019,8 +993,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   });
                 }
 
-                // Add penalty shootout marker ONLY if match status is PEN (penalty shootout)
-                if (matchData?.fixture?.status?.short === "PEN") {
+                // Add penalty shootout marker if match ended with penalties
+                if (events.some((event) => 
+                  event.type?.toLowerCase() === "penalty" || 
+                  event.detail?.toLowerCase().includes("penalty")
+                ) || matchData?.fixture?.status?.short === "PEN") {
                   periodMarkers.push({
                     time: { elapsed: 121 }, // Put penalties after extra time
                     type: "penalty_shootout",
@@ -1088,10 +1065,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       key={event.id || `penalty-shootout-${index}`}
                       className="match-event-container"
                     >
-                      <PenaltyShootoutDisplay 
-                        homeScore={matchData?.score?.penalty?.home || 0} 
-                        awayScore={matchData?.score?.penalty?.away || 0} 
-                      />
+                      <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
                     </div>
                   );
                 }

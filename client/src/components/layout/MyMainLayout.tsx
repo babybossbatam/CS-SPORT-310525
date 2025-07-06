@@ -199,8 +199,16 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                   "P",
                   "INT",
                 ].includes(matchStatus);
-                const isEnded = ["FT", "AET", "PEN"].includes(matchStatus);
-                const isUpcoming = matchStatus === "NS";
+                const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(matchStatus);
+                const isUpcoming = ["NS", "TBD"].includes(matchStatus);
+                
+                console.log(`🔍 [MyMainLayout] Match ${selectedFixture?.fixture?.id} status detection:`, {
+                  matchStatus,
+                  isLive,
+                  isEnded,
+                  isUpcoming,
+                  fixtureStatus: selectedFixture?.fixture?.status
+                });
 
                 return (
                   <>
