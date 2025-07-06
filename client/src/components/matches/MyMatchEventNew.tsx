@@ -660,7 +660,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     {penalty.event && isHome && (
                       <>
                         <div className="penalty-player-info penalty-player-info-home">
-                          <Avatar className="w-6 h-6 border border-gray-300">
+                          <Avatar className="w-8 h-8 border-2 border-gray-400 shadow-sm">
                             <AvatarImage
                               src={getPlayerImage(
                                 penalty.event.player?.id,
@@ -677,12 +677,31 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 .slice(0, 2) || "P"}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="penalty-player-name text-xs">
+                          <span className="penalty-player-name text-xs font-medium">
                             {penalty.event.player?.name}
                           </span>
                         </div>
-                        <div className={`penalty-result ${isScored ? 'scored' : 'missed'}`}>
-                          {isScored ? '⚽' : '❌'}
+                        <div className="flex items-center gap-1">
+                          {(() => {
+                            const detail = penalty.event.detail?.toLowerCase() || "";
+                            if (detail.includes("missed")) {
+                              return (
+                                <img
+                                  src="/assets/matchdetaillogo/missed-penalty.svg"
+                                  alt="Missed Penalty"
+                                  className="w-4 h-4"
+                                />
+                              );
+                            } else {
+                              return (
+                                <img
+                                  src="/assets/matchdetaillogo/penalty.svg"
+                                  alt="Penalty Goal"
+                                  className="w-4 h-4"
+                                />
+                              );
+                            }
+                          })()}
                         </div>
                       </>
                     )}
@@ -699,14 +718,33 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   <div className="flex items-center gap-2 flex-1 justify-end">
                     {penalty.event && !isHome && (
                       <>
-                        <div className={`penalty-result ${isScored ? 'scored' : 'missed'}`}>
-                          {isScored ? '⚽' : '❌'}
+                        <div className="flex items-center gap-1">
+                          {(() => {
+                            const detail = penalty.event.detail?.toLowerCase() || "";
+                            if (detail.includes("missed")) {
+                              return (
+                                <img
+                                  src="/assets/matchdetaillogo/missed-penalty.svg"
+                                  alt="Missed Penalty"
+                                  className="w-4 h-4"
+                                />
+                              );
+                            } else {
+                              return (
+                                <img
+                                  src="/assets/matchdetaillogo/penalty.svg"
+                                  alt="Penalty Goal"
+                                  className="w-4 h-4"
+                                />
+                              );
+                            }
+                          })()}
                         </div>
                         <div className="penalty-player-info penalty-player-info-away">
-                          <span className="penalty-player-name text-xs">
+                          <span className="penalty-player-name text-xs font-medium">
                             {penalty.event.player?.name}
                           </span>
-                          <Avatar className="w-6 h-6 border border-gray-300">
+                          <Avatar className="w-8 h-8 border-2 border-gray-400 shadow-sm">
                             <AvatarImage
                               src={getPlayerImage(
                                 penalty.event.player?.id,
