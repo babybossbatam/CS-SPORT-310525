@@ -150,7 +150,7 @@ export const rapidApiService = {
     }
 
     try {
-      let allFixtures: FixtureResponse[] = [];
+      let allFixtures: any[] = [];
 
       // For today's matches, prioritize live data first
       if (isToday) {
@@ -789,7 +789,7 @@ export const rapidApiService = {
         const hasLiveMatches = cachedData.some((fixture: any) => 
           ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
         );
-        
+
         // Force refresh if cached data contains live matches (they need frequent updates)
         if (hasLiveMatches && now - cached.timestamp > LIVE_DATA_CACHE_DURATION) {
           console.log(`🔄 [RapidAPI] Cache contains live matches, forcing refresh for league ${leagueId}`);
