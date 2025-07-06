@@ -552,6 +552,12 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     );
   }
 
+  // Don't render anything for finished matches - let MyHighlights handle it
+  if (currentStatus === "FT" || currentStatus === "AET" || currentStatus === "PEN") {
+    console.log(`🏁 [Live Action] Match ${matchId} is finished (status: ${currentStatus}), not rendering Live Action`);
+    return null;
+  }
+
   if (!displayMatch) {
     console.log(`❌ [Live Action] No match data for match ${matchId}`);
     return (
