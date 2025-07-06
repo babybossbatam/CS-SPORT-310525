@@ -771,6 +771,44 @@ export const rapidApiService = {
   },
 
   /**
+   * Simple cache invalidation for status transitions
+   */
+  invalidateCacheForMatch(matchId: number, fromStatus: string, toStatus: string): void {
+    // Clear cache entries that might contain this match
+    const keysToRemove: string[] = [];
+    
+    for (const [key] of fixturesCache) {
+      // Remove fixture-specific cache
+      if (key.includes(`fixture-${matchId}`)) {
+        keysToRemove.push(key);
+      }
+      
+      // Remove date-based cache when match transitions from NS to LIVE
+      if (fromStatus === 'NS' && ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(toStatus)) {
+        if (key.includes('fixtures-date')) {
+          keysToRemove.push(key);
+        }
+      }
+      
+      // Remove live/date cache when match transitions from LIVE to ENDED
+      if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fromStatus) && 
+          ['FT', 'AET', 'PEN', 'AWD', 'WO'].includes(toStatus)) {
+        if (key.includes('fixtures-date') || key.includes('fixtures-league')) {
+          keysToRemove.push(key);
+        }
+      }
+    }
+    
+    // Remove the identified cache entries
+    keysToRemove.forEach(key => {
+      fixturesCache.delete(key);
+      console.log(`🗑️ [RapidAPI] Cleared cache for key: ${key} (match ${matchId}: ${fromStatus} → ${toStatus})`);
+    });
+    
+    console.log(`🔄 [RapidAPI] Invalidated ${keysToRemove.length} cache entries for match ${matchId} transition`);
+  },
+
+  /**
    * Get fixtures by league ID and season
    */
   async getFixturesByLeague(
@@ -783,23 +821,7 @@ export const rapidApiService = {
 
     const now = Date.now();
     if (!forceRefresh && cached && now - cached.timestamp < STATIC_DATA_CACHE_DURATION) {
-      // Check for status transitions that might require fresh data
-      const cachedData = cached.data;
-      if (Array.isArray(cachedData)) {
-        const hasLiveMatches = cachedData.some((fixture: any) => 
-          ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
-        );
-
-        // Force refresh if cached data contains live matches (they need frequent updates)
-        if (hasLiveMatches && now - cached.timestamp > LIVE_DATA_CACHE_DURATION) {
-          console.log(`🔄 [RapidAPI] Cache contains live matches, forcing refresh for league ${leagueId}`);
-          forceRefresh = true;
-        } else {
-          return cached.data;
-        }
-      } else {
-        return cached.data;
-      }
+      return cached.data;
     }
 
     if (forceRefresh) {
