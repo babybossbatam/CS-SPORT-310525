@@ -21,7 +21,9 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                 selectedMatch?.fixture?.status?.short === 'LIV' ||
                 selectedMatch?.fixture?.status?.short === 'ET' ||
                 selectedMatch?.fixture?.status?.short === 'P' ||
-                selectedMatch?.fixture?.status?.short === 'INT';
+                selectedMatch?.fixture?.status?.short === 'INT' ||
+                selectedMatch?.fixture?.status?.short === 'SUSP' ||
+                selectedMatch?.fixture?.status?.short === 'BT';
 
   return (
     <div className="w-full space-y-6">

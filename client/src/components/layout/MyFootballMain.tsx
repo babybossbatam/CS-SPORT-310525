@@ -179,13 +179,15 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
                   "ET",
                   "P",
                   "INT",
+                  "SUSP",
+                  "BT"
                 ].includes(matchStatus);
                 const isEnded = ["FT", "AET", "PEN"].includes(matchStatus);
                 const isUpcoming = matchStatus === "NS";
 
                 return (
                   <>
-                    {/* Show MyLiveAction only for live matches */}
+                    {/* Show MyLiveAction for live matches */}
                     {isLive && (
                       <MyLiveAction
                         matchId={selectedFixture?.fixture?.id}
@@ -195,7 +197,7 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
                       />
                     )}
 
-                    {/* Show MyHighlights only for ended matches */}
+                    {/* Show MyHighlights only for truly ended matches */}
                     {isEnded && (
                       <MyHighlights
                         homeTeam={selectedFixture?.teams?.home?.name}
