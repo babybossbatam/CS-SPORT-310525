@@ -201,7 +201,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                 ].includes(matchStatus);
                 const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(matchStatus);
                 const isUpcoming = ["NS", "TBD"].includes(matchStatus);
-                
+
                 console.log(`🔍 [MyMainLayout] Match ${selectedFixture?.fixture?.id} status detection:`, {
                   matchStatus,
                   isLive,
@@ -212,8 +212,8 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 
                 return (
                   <>
-                    {/* Show MyLiveAction only for live matches */}
-                    {isLive && (
+                    {/* Show MyLiveAction only for live matches, not for finished matches */}
+                    {isLive && !isEnded && (
                       <MyLiveAction
                         matchId={selectedFixture?.fixture?.id}
                         homeTeam={selectedFixture?.teams?.home}
@@ -222,68 +222,17 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                       />
                     )}
 
-                    {/* Show MyHighlights only for ended matches with proper spacing */}
+                    {/* Show MyHighlights for finished matches */}
                     {isEnded && (
-                      <div className="mt-6 relative z-10">
-                        <MyHighlights
-                          homeTeam={selectedFixture?.teams?.home?.name}
-                          awayTeam={selectedFixture?.teams?.away?.name}
-                          leagueName={selectedFixture?.league?.name}
-                          match={selectedFixture}
-                        />
-                      </div>
-                    )}
-
-                    {/* Show MyLiveTrackerNew for live matches */}
-                    {isLive && (
-                      <MyLiveTrackerNew
-                        matchId={selectedFixture?.fixture?.id}
-                        homeTeam={selectedFixture?.teams?.home}
-                        awayTeam={selectedFixture?.teams?.away}
-                        isLive={isLive}
-                        className="mt-4"
-                      />
-                    )}
-
-                    {/* Show MyMatchEventNew for live and ended matches */}
-                    {(isLive || isEnded) && (
-                      <MyMatchEventNew
-                        fixtureId={selectedFixture?.fixture?.id}
+                      <MyHighlights
                         homeTeam={selectedFixture?.teams?.home?.name}
                         awayTeam={selectedFixture?.teams?.away?.name}
-                        refreshInterval={15}
-                        showLogos={true}
-                        className="mt-4"
-                        matchData={selectedFixture}
+                        leagueName={selectedFixture?.league?.name}
+                        matchStatus={selectedFixture?.fixture?.status?.short}
                       />
                     )}
 
-                    {/* Match Prediction for upcoming matches - moved below MyMatchEventNew */}
-                    {/* Match Prediction Component */}
-                   
-                    {/* Recent Form Section */}
-          <MyRecentForm 
-            match={currentFixture}
-          />
-                    {!isLive && !isEnded && (
-                      <MatchPrediction
-                        homeTeam={{
-                          id: selectedFixture?.teams?.home?.id,
-                          name:
-                            selectedFixture?.teams?.home?.name || "Home Team",
-                          logo: selectedFixture?.teams?.home?.logo || "",
-                        }}
-                        awayTeam={{
-                          id: selectedFixture?.teams?.away?.id,
-                          name:
-                            selectedFixture?.teams?.away?.name || "Away Team",
-                          logo: selectedFixture?.teams?.away?.logo || "",
-                        }}
-                        fixtureId={selectedFixture?.fixture?.id}
-                        leagueId={selectedFixture?.league?.id}
-                        season={selectedFixture?.league?.season}
-                      />
-                    )}
+                    {/* For upcoming matches, neither component is shown */}
                   </>
                 );
               })()}

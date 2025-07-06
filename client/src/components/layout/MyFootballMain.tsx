@@ -184,8 +184,8 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
 
                 return (
                   <>
-                    {/* Show MyLiveAction for live matches */}
-                    {isLive && (
+                    {/* Show MyLiveAction only for live matches, not for finished matches */}
+                    {isLive && !isEnded && (
                       <MyLiveAction
                         matchId={selectedFixture?.fixture?.id}
                         homeTeam={selectedFixture?.teams?.home}
@@ -194,7 +194,7 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
                       />
                     )}
 
-                    {/* Show MyHighlights only for truly ended matches */}
+                    {/* Show MyHighlights for finished matches */}
                     {isEnded && (
                       <MyHighlights
                         homeTeam={selectedFixture?.teams?.home?.name}
