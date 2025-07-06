@@ -102,6 +102,32 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         };
       }
     }] : []),
+    // CONCACAF Official Channel (priority for CONCACAF competitions)
+    ...(isConcacafCompetition ? [{
+      name: 'CONCACAF Official',
+      type: 'youtube' as const,
+      searchFn: async () => {
+        const concacafChannelId = 'UCqn7r-so0mBLaJTtTms9dAQ';
+        const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(searchQuery)}&maxResults=1&channelId=${concacafChannelId}&order=relevance`);
+        const data = await response.json();
+
+        if (data.error || data.quotaExceeded) {
+          throw new Error(data.error || 'CONCACAF channel search failed');
+        }
+
+        if (data.items && data.items.length > 0) {
+          const video = data.items[0];
+          return {
+            name: 'CONCACAF Official',
+            type: 'youtube' as const,
+            url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+            embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+            title: video.snippet.title
+          };
+        }
+        throw new Error('No CONCACAF official videos found');
+      }
+    }] : []),
     // FIFA Club World Cup Official Channel (priority)
     ...(isFifaClubWorldCup && !isPalmeirasChelsea ? [{
       name: 'FIFA Official',
@@ -154,32 +180,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         throw new Error('No YouTube videos found');
       }
     },
-    // CONCACAF Official Channel fallback
-    ...(isConcacafCompetition ? [{
-      name: 'CONCACAF Official',
-      type: 'youtube' as const,
-      searchFn: async () => {
-        const concacafChannelId = 'UCqn7r-so0mBLaJTtTms9dAQ';
-        const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(searchQuery)}&maxResults=1&channelId=${concacafChannelId}&order=relevance`);
-        const data = await response.json();
-
-        if (data.error || data.quotaExceeded) {
-          throw new Error(data.error || 'CONCACAF channel search failed');
-        }
-
-        if (data.items && data.items.length > 0) {
-          const video = data.items[0];
-          return {
-            name: 'CONCACAF Official',
-            type: 'youtube' as const,
-            url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
-            embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
-            title: video.snippet.title
-          };
-        }
-        throw new Error('No CONCACAF official videos found');
-      }
-    }] : []),
     {
       name: 'Vimeo',
       type: 'vimeo' as const,
@@ -314,22 +314,22 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 text-blue-500" />
               <p className="text-sm text-gray-600">
                 Searching for highlights...
-                {sourceIndex === 0 && isFifaClubWorldCup && (
+                {sourceIndex === 0 && isConcacafCompetition && (
+                  <span className="block text-xs text-green-500">
+                    Checking CONCACAF Official Channel first
+                  </span>
+                )}
+                {sourceIndex === 0 && isFifaClubWorldCup && !isConcacafCompetition && (
                   <span className="block text-xs text-blue-500">
                     Checking FIFA Official Channel first
                   </span>
                 )}
-                {sourceIndex === 0 && !isFifaClubWorldCup && (
+                {sourceIndex === 0 && !isFifaClubWorldCup && !isConcacafCompetition && (
                   <span className="block text-xs text-blue-500">
                     Trying YouTube first
                   </span>
                 )}
-                {sourceIndex === 1 && isConcacafCompetition && !isFifaClubWorldCup && (
-                  <span className="block text-xs text-green-500">
-                    Checking CONCACAF Official Channel
-                  </span>
-                )}
-                {sourceIndex > 0 && !(sourceIndex === 1 && isConcacafCompetition && !isFifaClubWorldCup) && (
+                {sourceIndex > 0 && (
                   <span className="block text-xs text-gray-400">
                     Trying {videoSources[sourceIndex]?.name || 'alternative source'}
                   </span>
