@@ -69,32 +69,12 @@ const MatchPredictionsCard: React.FC<MatchPredictionsCardProps> = ({
             console.log('🎯 [Predictions] Extracted predictions object:', predictions);
             
             // Extract prediction percentages from RapidAPI response
-            // Handle different possible response structures
-            let homeWinPercentage = null;
-            let drawPercentage = null;
-            let awayWinPercentage = null;
-
-            // Try different possible structures
-            if (predictions?.percent) {
-              homeWinPercentage = predictions.percent.home ? 
-                parseInt(predictions.percent.home.replace('%', '')) : null;
-              drawPercentage = predictions.percent.draw ? 
-                parseInt(predictions.percent.draw.replace('%', '')) : null;
-              awayWinPercentage = predictions.percent.away ? 
-                parseInt(predictions.percent.away.replace('%', '')) : null;
-            } else if (predictions?.winner) {
-              // Alternative structure - try to extract from winner data
-              console.log('🎯 [Predictions] Alternative structure found:', predictions.winner);
-              // You might need to calculate percentages from winner data
-              // This would depend on the actual RapidAPI response structure
-            }
-
-            console.log('🎯 [Predictions] Final parsed percentages:', {
-              home: homeWinPercentage,
-              draw: drawPercentage,
-              away: awayWinPercentage,
-              rawPredictions: predictions
-            });
+            const homeWinPercentage = predictions?.percent?.home ? 
+              parseInt(predictions.percent.home.replace('%', '')) : null;
+            const drawPercentage = predictions?.percent?.draw ? 
+              parseInt(predictions.percent.draw.replace('%', '')) : null;
+            const awayWinPercentage = predictions?.percent?.away ? 
+              parseInt(predictions.percent.away.replace('%', '')) : null;
 
             console.log('🎯 [Predictions] Parsed percentages:', {
               home: homeWinPercentage,
