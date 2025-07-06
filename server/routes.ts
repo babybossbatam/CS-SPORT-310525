@@ -42,7 +42,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/dailymotion", dailymotionRoutes);
   app.use("/api/twitch", twitchRoutes);
   app.use("/api/highlights", highlightsRoutes);
-  app.use('/api', playerRoutes);
+  apiRouter.use('/api', playerRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
@@ -1709,11 +1709,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `https://api.sportradar.com/soccer-images/production/competitors/${teamId}/logo.png`,
         ];
 
-        let imageBuffer = null;
-        let sourceUrl = "";
-
-        // Try each logo source
         ```text
+
           for (const logoUrl of logoUrls) {
             try {
               const response = await fetch(logoUrl, {
@@ -1745,31 +1742,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
             return res
               .status(404)
               .json({ error: "Logo not found from any source" });
-          }
-
-          // Resize image to square dimensions using Sharp
-          const resizedBuffer = await sharp(imageBuffer)
-            .resize(size, size, {
-              fit: "cover", // This will crop the image to fill the square
-              position: "center",
-            })
-            .png()
-            .toBuffer();
-
-          // Set appropriate headers
-          res.set({
-            "Content-Type": "image/png",
-            "Cache-Control": "public, max-age=86400", // Cache for 24 hours
-            "X-Source-URL": sourceUrl,
-          });
-
-          res.send(resizedBuffer);
-        } catch (error) {
-          console.error("Error processing square team logo:", error);
-          res.status(500).json({ error: "Internal server error" });
         }
-      },
-    );
+
+        // Resize image to square dimensions using Sharp
+        const resizedBuffer = await sharp(imageBuffer)
+          .resize(size, size, {
+            fit: "cover", // This will crop the image to fill the square
+            position: "center",
+          })
+          .png()
+          .toBuffer();
+
+        // Set appropriate headers
+        res.set({
+          "Content-Type": "image/png",
+          "Cache-Control": "public, max-age=86400", // Cache for 24 hours
+          "X-Source-URL": sourceUrl,
+        });
+
+        res.send(resizedBuffer);
+      } catch (error) {
+        console.error("Error processing square team logo:", error);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  );
 
   // SportsRadar team logo endpoint (server-side to avoid CORS)
   apiRouter.get(
