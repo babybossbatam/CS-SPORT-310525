@@ -198,27 +198,7 @@ class FixtureCache {
    */
   private isLiveFixture(fixture: FixtureResponse): boolean {
     const status = fixture.fixture.status.short;
-    const isLiveStatus = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status);
-    
-    // Also check if match started recently (within last 3 hours) even if status seems stale
-    if (!isLiveStatus) {
-      const fixtureTime = new Date(fixture.fixture.date).getTime();
-      const now = Date.now();
-      const hoursSinceKickoff = (now - fixtureTime) / (1000 * 60 * 60);
-      
-      // If match started within last 3 hours and status is NS, it might be stale cache
-      if (status === 'NS' && hoursSinceKickoff > 0 && hoursSinceKickoff <= 3) {
-        console.log(`🚨 [fixtureCache] Potential stale NS status for recent match:`, {
-          teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-          status,
-          hoursSinceKickoff: Math.round(hoursSinceKickoff * 100) / 100,
-          fixtureTime: new Date(fixture.fixture.date).toISOString()
-        });
-        return true; // Treat as live to bypass cache
-      }
-    }
-    
-    return isLiveStatus;
+    return ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status);
   }
 
   /**

@@ -22,14 +22,7 @@ const MyDetailsLayout: React.FC<MyDetailsLayoutProps> = ({ currentFixture }) => 
     "SUSP",
     "BT"
   ].includes(matchStatus);
-  const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(matchStatus);
-  
-  console.log(`🔍 [MyDetailsLayout] Match ${currentFixture?.fixture?.id} status detection:`, {
-    matchStatus,
-    isLive,
-    isEnded,
-    fixtureStatus: currentFixture?.fixture?.status
-  });
+  const isEnded = ["FT", "AET", "PEN"].includes(matchStatus);
 
   return (
     <>

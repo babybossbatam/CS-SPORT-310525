@@ -296,12 +296,6 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
           `🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`,
         );
 
-        // Set a flag on each fixture to indicate it's from live endpoint
-        fixtures.forEach(fixture => {
-          fixture.isLiveData = true;
-          fixture.lastUpdated = Date.now();
-        });
-
         // Only cache ended matches from the live response
         const endedMatches = fixtures.filter((fixture) =>
           ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC"].includes(
@@ -823,7 +817,7 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
             country: {
               name: "Germany",
               code: "DE",
-              flag: "https://media.api-sports.ioflags/de.svg",
+              flag: "https://media.api-sports.io/flags/de.svg",
             },
           },
           {
@@ -1718,7 +1712,8 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
       } catch (error) {
         console.error(
           `Error fetching 365scores league logo for ${req.params.leagueId}:`,
-          error,        );
+          error,
+        );
         res.status(500).json({ error: "Failed to fetch league logo" });
       }
     },
@@ -2681,16 +2676,6 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
           error: "Failed to fetch SoccersAPI match statistics",
           statistics: null,
         });
-      ```text
-
-        });
-      } catch (error) {
-        console.error("❌ [SoccersAPI] Error fetching match statistics:", error);
-        res.status(500).json({
-          success: false,
-          error: "Failed to fetch SoccersAPI match statistics",
-          statistics: null,
-        });
       }
     },
   );
@@ -2700,7 +2685,8 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
     async (req: Request, res: Response) => {
       try {
         const { id } = req.params;
-        console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);
+        ```text
+console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);
 
         const lineups = await soccersApi.getMatchLineups(id);
         res.json({
@@ -2730,12 +2716,6 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
         console.log(
           `🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`,
         );
-
-        // Set a flag on each fixture to indicate it's from live endpoint
-        fixtures.forEach(fixture => {
-          fixture.isLiveData = true;
-          fixture.lastUpdated = Date.now();
-        });
 
         // Only cache ended matches from the live response
         const endedMatches = fixtures.filter((fixture) =>

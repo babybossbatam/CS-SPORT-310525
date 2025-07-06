@@ -468,20 +468,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   useEffect(() => {
     fetchLeagueData(false);
 
-    // Check if we have any live matches to determine refresh frequency
-    const hasLiveMatches = fixtures.some(fixture => 
-      ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture.status.short)
-    );
-
-    // More aggressive refresh for live matches, less aggressive for non-live
-    const refreshInterval = hasLiveMatches ? 15000 : 60000; // 15s for live, 60s for non-live
-
-    console.log(`⏰ [MyNewLeague] Setting refresh interval to ${refreshInterval/1000}s (hasLiveMatches: ${hasLiveMatches})`);
-
-    // Set up periodic refresh with dynamic interval
+    // Set up periodic refresh - every 30 seconds for live updates
     const interval = setInterval(() => {
       fetchLeagueData(true); // Pass true to indicate this is an update
-    }, refreshInterval);
+    }, 30000);
 
     // Set up periodic cleanup of status transitions - every 5 minutes
     const cleanupInterval = setInterval(() => {
@@ -492,7 +482,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       clearInterval(interval);
       clearInterval(cleanupInterval);
     };
-  }, [fetchLeagueData, selectedDate, fixtures.length]); // Add fixtures.length to recalculate when matches change
+  }, [fetchLeagueData, selectedDate]);
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
@@ -1148,47 +1138,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     const currentStatuses = new Map<number, string>();
     const currentScores = new Map<number, {home: number, away: number}>();
 
-    // Check for stale live matches that should be updated
-    const staleLiveMatches = fixtures.filter((fixture) => {
-      const status = fixture.fixture.status.short;
-      const isLive = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status);
-      
-      if (!isLive) return false;
-      
-      // Check if elapsed time seems stale (same for too long)
-      const elapsed = fixture.fixture.status.elapsed;
-      const previousElapsed = previousMatchStatuses.get(fixture.fixture.id);
-      
-      // If elapsed time hasn't changed for a live match in 2+ minutes, it might be stale
-      if (elapsed && previousElapsed === status) {
-        const timeSinceLastUpdate = Date.now() - (fixture.lastUpdated || 0);
-        if (timeSinceLastUpdate > 2 * 60 * 1000) { // 2 minutes
-          console.log(`🚨 [MyNewLeague STALE LIVE] Match ${fixture.fixture.id} might have stale data:`, {
-            teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-            status,
-            elapsed,
-            timeSinceLastUpdate: Math.round(timeSinceLastUpdate / 1000) + 's'
-          });
-          return true;
-        }
-      }
-      
-      return false;
-    });
-
-    // Force refresh for stale live matches
-    if (staleLiveMatches.length > 0) {
-      console.log(`🔄 [MyNewLeague] Found ${staleLiveMatches.length} potentially stale live matches, forcing refresh`);
-      staleLiveMatches.forEach(match => {
-        clearMatchCache(match.fixture.id, 'STALE_LIVE', match.fixture.date);
-      });
-      
-      // Trigger a fresh fetch in 5 seconds to get updated data
-      setTimeout(() => {
-        fetchLeagueData(true);
-      }, 5000);
-    }
-
     fixtures.forEach((fixture) => {
       const matchId = fixture.fixture.id;
       const currentStatus = fixture.fixture.status.short;
@@ -1207,8 +1156,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         console.log(`🔄 [MyNewLeague STATUS TRANSITION] Match ${matchId}:`, {
           teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
           transition: `${previousStatus} → ${currentStatus}`,
-          time: new Date().toLocaleTimeString(),
-          elapsed: fixture.fixture.status.elapsed
+          time: new Date().toLocaleTimeString()
         });
 
         // Track status transition in cache system for invalidation
@@ -1220,17 +1168,11 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             home: fixture.teams?.home?.name,
             away: fixture.teams?.away?.name,
             previousStatus,
-            currentStatus,
-            elapsed: fixture.fixture.status.elapsed
+            currentStatus
           });
           
           // Clear cache for this specific match
           clearMatchCache(matchId, 'NS→LIVE', fixture.fixture.date);
-          
-          // Force immediate refresh for this live match
-          setTimeout(() => {
-            fetchLeagueData(true);
-          }, 10000); // Refresh in 10 seconds to ensure live updates
         }
 
         // Handle LIVE → ENDED transition - clear live match cache
@@ -1280,31 +1222,9 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           away: fixture.teams?.away?.name,
           previousScore,
           currentScore,
-          status: currentStatus,
-          elapsed: fixture.fixture.status.elapsed
+          status: currentStatus
         });
         newGoalMatches.add(matchId);
-        
-        // Clear cache immediately when goals are scored
-        clearMatchCache(matchId, 'GOAL_SCORED', fixture.fixture.date);
-      }
-
-      // Check for elapsed time changes in live matches
-      if (previousStatus === currentStatus && 
-          ['1H', '2H', 'LIVE', 'LIV'].includes(currentStatus)) {
-        const previousElapsed = previousMatchStatuses.get(`${matchId}_elapsed`);
-        const currentElapsed = fixture.fixture.status.elapsed;
-        
-        if (previousElapsed && currentElapsed && previousElapsed !== currentElapsed) {
-          console.log(`⏱️ [MyNewLeague TIME UPDATE] Match ${matchId} time updated:`, {
-            teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-            elapsed: `${previousElapsed}' → ${currentElapsed}'`,
-            status: currentStatus
-          });
-        }
-        
-        // Store elapsed time for tracking
-        currentStatuses.set(`${matchId}_elapsed`, currentElapsed?.toString() || '');
       }
     });
 
