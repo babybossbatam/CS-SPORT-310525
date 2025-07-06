@@ -275,18 +275,31 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   useEffect(() => {
     fetchLeagueData(false);
 
-    // Set up periodic refresh - every 30 seconds for live updates
+    // Set up periodic refresh - every 2 minutes for live updates (reduced from 30 seconds)
     const interval = setInterval(async () => {
-      // Clear outdated data first
-      const { MySimplifiedFetchingLogic } = await import('@/lib/MySimplifiedFetchingLogic');
-      MySimplifiedFetchingLogic.clearOutdatedData();
+      // Only refresh if we have live matches or if it's been more than 5 minutes
+      const hasLiveMatches = fixtures.some(fixture => 
+        ["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short)
+      );
 
-      // Then fetch fresh data
-      fetchLeagueData(true);
-    }, 30000);
+      if (hasLiveMatches) {
+        // For live matches, do a gentler refresh without force clearing
+        fetchLeagueData(false);
+      } else {
+        // For non-live matches, only refresh every 5 minutes
+        const now = Date.now();
+        const lastRefresh = localStorage.getItem('mynewleague_last_refresh');
+        const shouldRefresh = !lastRefresh || (now - parseInt(lastRefresh)) > 300000; // 5 minutes
+
+        if (shouldRefresh) {
+          localStorage.setItem('mynewleague_last_refresh', now.toString());
+          fetchLeagueData(false);
+        }
+      }
+    }, 120000); // 2 minutes instead of 30 seconds
 
     return () => clearInterval(interval);
-  }, [fetchLeagueData]);
+  }, [fetchLeagueData, fixtures]);
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
