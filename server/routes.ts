@@ -3008,39 +3008,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  return httpServer;
-}
-
-// Utility function to get country flag with fallback chain
-async function getCountryFlag(country: string): Promise<string | null> {
-  try {
-    // Try SportsRadar flag first
-    let flagUrl = await sportsradarApi.getCountryFlag(country);
-
-    if (flagUrl) {
-      return flagUrl;
-    }
-
-    // If SportsRadar fails, try 365scores CDN
-    console.log(
-      `SportsRadar flag not found for ${country}, trying 365scores CDN fallback`,
-    );
-    flagUrl = `https://sports.365scores.com/CDN/images/flags/${country}.svg`;
-
-    // Check if the 365scores flag exists (naive check)
-    const response = await fetch(flagUrl, { method: "HEAD" });
-    if (response.ok) {
-      return flagUrl;
-    } else {
-      console.log(`365scores CDN flag not found for ${country}`);
-      return null;
-    }
-  } catch (error) {
-    console.error("Error fetching country flag:", error);
-    return null;
-  }
-}
-
   // Get match predictions endpoint
   apiRouter.get("/fixtures/:fixtureId/predictions", async (req: Request, res: Response) => {
     try {
@@ -3144,3 +3111,36 @@ async function getCountryFlag(country: string): Promise<string | null> {
       res.status(500).json({ error: 'Failed to fetch team statistics' });
     }
   });
+
+  return httpServer;
+}
+
+// Utility function to get country flag with fallback chain
+async function getCountryFlag(country: string): Promise<string | null> {
+  try {
+    // Try SportsRadar flag first
+    let flagUrl = await sportsradarApi.getCountryFlag(country);
+
+    if (flagUrl) {
+      return flagUrl;
+    }
+
+    // If SportsRadar fails, try 365scores CDN
+    console.log(
+      `SportsRadar flag not found for ${country}, trying 365scores CDN fallback`,
+    );
+    flagUrl = `https://sports.365scores.com/CDN/images/flags/${country}.svg`;
+
+    // Check if the 365scores flag exists (naive check)
+    const response = await fetch(flagUrl, { method: "HEAD" });
+    if (response.ok) {
+      return flagUrl;
+    } else {
+      console.log(`365scores CDN flag not found for ${country}`);
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching country flag:", error);
+    return null;
+  }
+}
