@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -76,44 +75,44 @@ const MyMatchData: React.FC<MyMatchDataProps> = ({
       try {
         setLoading(true);
         setError(null);
-        
+
         const response = await fetch(`/api/fixtures/${fixtureId}/statistics`);
-        
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        
+
         if (data && data.length >= 2) {
           // Extract stats from API response
           const homeStats = data[0]?.statistics || [];
           const awayStats = data[1]?.statistics || [];
-          
+
           const extractStat = (statName: string) => {
             const homeStat = homeStats.find((s: any) => s.type === statName);
             const awayStat = awayStats.find((s: any) => s.type === statName);
-            
+
             return {
               home: homeStat ? (parseInt(homeStat.value) || 0) : 0,
               away: awayStat ? (parseInt(awayStat.value) || 0) : 0
             };
           };
-          
+
           const extractPercentage = (statName: string) => {
             const homeStat = homeStats.find((s: any) => s.type === statName);
             const awayStat = awayStats.find((s: any) => s.type === statName);
-            
+
             return {
               home: homeStat ? (parseInt(homeStat.value?.replace('%', '')) || 0) : 0,
               away: awayStat ? (parseInt(awayStat.value?.replace('%', '')) || 0) : 0
             };
           };
-          
+
           const extractExpectedGoals = (statName: string) => {
             const homeStat = homeStats.find((s: any) => s.type === statName);
             const awayStat = awayStats.find((s: any) => s.type === statName);
-            
+
             return {
               home: homeStat ? (parseFloat(homeStat.value) || 0) : 0,
               away: awayStat ? (parseFloat(awayStat.value) || 0) : 0
@@ -134,7 +133,18 @@ const MyMatchData: React.FC<MyMatchDataProps> = ({
           };
 
           setStats(matchStats);
+        } else {
+          console.warn('📊 [MyMatchData] No meaningful statistics found in API response');
+          setStats(null);
         }
+      } else if (data && !Array.isArray(data)) {
+        // Handle case where API returns different format
+        console.log('📊 [MyMatchData] Unexpected API response format:', data);
+        setStats(null);
+      } else {
+        console.log('📊 [MyMatchData] Empty or invalid API response');
+        setStats(null);
+      }
       } catch (err) {
         console.error('Error fetching match statistics:', err);
         setError('Failed to load match statistics');
@@ -215,17 +225,17 @@ const MyMatchData: React.FC<MyMatchDataProps> = ({
           <Badge variant="outline" className="bg-purple-100 text-purple-800 border-purple-200">
             {formatValue(homeValue)}
           </Badge>
-          
+
           <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
             <Icon className="h-4 w-4" />
             {label}
           </div>
-          
+
           <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
             {formatValue(awayValue)}
           </Badge>
         </div>
-        
+
         {showBar && (
           <div className="flex h-2 bg-gray-100 rounded-full overflow-hidden">
             <div 
