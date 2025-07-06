@@ -170,20 +170,17 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
               {/* Conditional rendering based on match status */}
               {(() => {
                 const matchStatus = selectedFixture?.fixture?.status?.short;
-                const isLive = [
-                  "1H",
-                  "2H",
-                  "LIVE",
-                  "LIV",
-                  "HT",
-                  "ET",
-                  "P",
-                  "INT",
-                  "SUSP",
-                  "BT"
-                ].includes(matchStatus);
-                const isEnded = ["FT", "AET", "PEN"].includes(matchStatus);
-                const isUpcoming = matchStatus === "NS";
+                const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT", "SUSP", "BT"].includes(matchStatus);
+                const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(matchStatus);
+                const isUpcoming = ["NS", "TBD"].includes(matchStatus);
+
+                console.log(`🔍 [MyFootballMain] Match ${selectedFixture?.fixture?.id} status detection:`, {
+                  matchStatus,
+                  isLive,
+                  isEnded,
+                  isUpcoming,
+                  fixtureStatus: selectedFixture?.fixture?.status
+                });
 
                 return (
                   <>
