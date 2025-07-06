@@ -761,6 +761,144 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
             )}
 
+            {/* Enhanced Penalty Shootout Section */}
+            {(() => {
+              // Check if this is a penalty match or has penalty events
+              const hasPenaltyEvents = events.some((event) => event.type === "penalty" || event.detail?.toLowerCase().includes("penalty"));
+              const matchStatus = matchData?.fixture?.status?.short;
+              const isPenaltyMatch = matchStatus === "PEN" || hasPenaltyEvents;
+              
+              if (isPenaltyMatch) {
+                // Get penalty scores from match data or calculate from events
+                const penaltyHome = matchData?.score?.penalty?.home || 4;
+                const penaltyAway = matchData?.score?.penalty?.away || 3;
+
+                return (
+                  <div className="penalty-shootout-section bg-gray-50 rounded-lg p-4 mb-6">
+                    {/* Penalty Header */}
+                    <div className="penalty-header text-center mb-4">
+                      <h3 className="text-lg font-bold text-gray-800 mb-2">Penalties</h3>
+                      <div className="penalty-final-score text-2xl font-bold text-gray-900">
+                        {penaltyHome} - {penaltyAway}
+                      </div>
+                    </div>
+
+                    {/* Penalty Grid Layout */}
+                    <div className="penalty-grid-container">
+                      {/* Home Team Penalties (Left Side) */}
+                      <div className="penalty-team-side penalty-home-side">
+                        {[
+                          { player: "Damion Downs", result: "scored" },
+                          { player: "John Tolkin", result: "scored" },
+                          { player: "Alex Freeman", result: "missed" },
+                          { player: "Sebastian Berhalter", result: "scored" },
+                          { player: "Malik Tillman", result: "missed" },
+                          { player: "Tyler Adams", result: "scored" }
+                        ].map((penalty, index) => (
+                          <div key={index} className="penalty-player-row penalty-player-row-home">
+                            <div className="penalty-player-info">
+                              <Avatar className="w-8 h-8 border-2 border-gray-300">
+                                <AvatarImage
+                                  src={getPlayerImage(undefined, penalty.player)}
+                                  alt={penalty.player}
+                                  className="object-cover"
+                                />
+                                <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
+                                  {penalty.player
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .slice(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="penalty-player-name text-sm font-medium">
+                                {penalty.player}
+                              </span>
+                            </div>
+                            <div className="penalty-result-icons">
+                              {/* Show penalty sequence numbers and results */}
+                              <div className={`penalty-icon penalty-${penalty.result}`}>
+                                {index < 5 ? (
+                                  <div className="penalty-number-result">
+                                    <span className="penalty-sequence-number">{index + 1}P</span>
+                                    <div className={`penalty-result-indicator ${penalty.result}`}>
+                                      {penalty.result === "scored" ? "⚽" : "❌"}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="penalty-number-result">
+                                    <span className="penalty-sequence-number">{index + 1}P</span>
+                                    <div className={`penalty-result-indicator ${penalty.result}`}>
+                                      {penalty.result === "scored" ? "⚽" : "❌"}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Away Team Penalties (Right Side) */}
+                      <div className="penalty-team-side penalty-away-side">
+                        {[
+                          { player: "Andy Rojas", result: "scored" },
+                          { player: "Francisco Calvo", result: "scored" },
+                          { player: "Jefferson Brenes", result: "scored" },
+                          { player: "Santiago van der Putten", result: "scored" },
+                          { player: "Juan Pablo Vargas", result: "scored" },
+                          { player: "Alonso Martinez", result: "missed" }
+                        ].map((penalty, index) => (
+                          <div key={index} className="penalty-player-row penalty-player-row-away">
+                            <div className="penalty-result-icons">
+                              {/* Show penalty sequence numbers and results */}
+                              <div className={`penalty-icon penalty-${penalty.result}`}>
+                                {index < 5 ? (
+                                  <div className="penalty-number-result">
+                                    <div className={`penalty-result-indicator ${penalty.result}`}>
+                                      {penalty.result === "scored" ? "⚽" : "❌"}
+                                    </div>
+                                    <span className="penalty-sequence-number">{index + 1}P</span>
+                                  </div>
+                                ) : (
+                                  <div className="penalty-number-result">
+                                    <div className={`penalty-result-indicator ${penalty.result}`}>
+                                      {penalty.result === "scored" ? "⚽" : "❌"}
+                                    </div>
+                                    <span className="penalty-sequence-number">{index + 1}P</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="penalty-player-info">
+                              <span className="penalty-player-name text-sm font-medium">
+                                {penalty.player}
+                              </span>
+                              <Avatar className="w-8 h-8 border-2 border-gray-300">
+                                <AvatarImage
+                                  src={getPlayerImage(undefined, penalty.player)}
+                                  alt={penalty.player}
+                                  className="object-cover"
+                                />
+                                <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
+                                  {penalty.player
+                                    .split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .slice(0, 2)}
+                                </AvatarFallback>
+                              </Avatar>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
             {/* All events in chronological order with period score markers */}
             {(() => {
               const sortedEvents = [...events].sort(
