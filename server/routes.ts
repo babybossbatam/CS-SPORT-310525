@@ -2686,7 +2686,7 @@ app.get('/api/teams/:teamId/statistics', async (req, res) => {
       try {
         const { id } = req.params;
         ```text
-console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);
+console.log(`[SoccersAPI] Fetching lineups for match: ${id}`);
 
         const lineups = await soccersApi.getMatchLineups(id);
         res.json({
