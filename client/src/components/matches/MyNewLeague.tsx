@@ -925,7 +925,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         } catch (error) {
           console.warn(`Failed to clear related cache ${key}:`, error);
         }
-      });```typescript
+      });
     } catch (error) {
       console.error(`Failed to clear cache for match ${matchId}:`, error);
     }
