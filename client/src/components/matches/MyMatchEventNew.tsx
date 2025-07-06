@@ -767,7 +767,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               const hasPenaltyEvents = events.some((event) => event.type === "penalty" || event.detail?.toLowerCase().includes("penalty"));
               const matchStatus = matchData?.fixture?.status?.short;
               const isPenaltyMatch = matchStatus === "PEN" || hasPenaltyEvents;
-              
+
               if (isPenaltyMatch) {
                 // Get penalty scores from match data or calculate from events
                 const penaltyHome = matchData?.score?.penalty?.home || 4;
@@ -1025,10 +1025,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <div className="match-event-home-side">
                         {isHome && (
                           <>
-                            {/* Column 1: Player Info */}
+                            
                             <div className="match-event-home-player-info">
                               <div className="flex items-center gap-1">
-                                <Avatar className="w-9 h-9 border-2 border-green-300 shadow-sm">
+                                <Avatar className={`w-9 h-9 border-2 shadow-sm ${
+                                  event.type === "subst" ? "border-green-400" : "border-gray-300"
+                                }`}>
                                   <AvatarImage
                                     src={getPlayerImage(
                                       event.player?.id,
@@ -1048,7 +1050,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                                 {event.type === "subst" &&
                                   event.assist?.name && (
-                                    <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20">
+                                    <Avatar className="w-9 h-9 border-2 border-red-400 shadow-sm -ml-4 -mr-2 relative-z20">
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.assist?.id,
@@ -1321,7 +1323,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 )}
                               </div>
 
-                              <div className="flex items-center gap-1">
+                              
                                 {event.type === "subst" &&
                                   event.assist?.name && (
                                     <Avatar className="w-9 h-9 border-2 border-red-400 shadow-sm -mr-3 z-20">
@@ -1343,7 +1345,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     </Avatar>
                                   )}
 
-                                <Avatar className="w-9 h-9 border-2 border-green-400 shadow-sm">
+                                <Avatar className={`w-9 h-9 border-2 shadow-sm ${
+                                  event.type === "subst" ? "border-green-400" : "border-gray-300"
+                                }`}>
                                   <AvatarImage
                                     src={getPlayerImage(
                                       event.player?.id,
