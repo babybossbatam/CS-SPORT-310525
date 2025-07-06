@@ -92,6 +92,16 @@ export const rapidApiService = {
 
       if (response.data && response.data.response && response.data.response.length > 0) {
         const predictionsData = response.data.response[0];
+        
+        // Log the structure to help debug
+        console.log(`📊 [RapidAPI] Predictions structure for fixture ${fixtureId}:`, {
+          predictions: predictionsData.predictions ? 'exists' : 'missing',
+          winner: predictionsData.winner ? 'exists' : 'missing',
+          percent: predictionsData.predictions?.percent ? 'exists' : 'missing',
+          goals: predictionsData.predictions?.goals ? 'exists' : 'missing',
+          fullStructure: JSON.stringify(predictionsData, null, 2).substring(0, 500) + '...'
+        });
+
         playersCache.set(cacheKey, {
           data: predictionsData,
           timestamp: now,
