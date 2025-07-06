@@ -1304,16 +1304,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     );
   }
 
-  if (totalMatches === 0) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <Calendar className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-gray-500">No matches available for this date</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Removed the "No matches available" fallback - let the component render normally
+  // even if totalMatches is 0, as this might be a temporary loading state
 
   return (
     <>
