@@ -631,19 +631,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     awayScore: number;
   }) => {
     // Get penalty events from the match events, sorted by time (ascending for proper order)
+    // Only look for actual penalty shootout events (after 120 minutes or with specific shootout indicators)
     const penaltyEvents = events
       .filter((event) => {
         const detail = event.detail?.toLowerCase() || "";
         const type = event.type?.toLowerCase() || "";
         
-        // Check for penalty shootout events specifically (not regular match penalties)
+        // Only include events that are clearly penalty shootout events
         return (
-          detail.includes("penalty") || 
-          type === "penalty" ||
+          (detail.includes("penalty") && event.time.elapsed >= 120) ||
           detail.includes("shootout") ||
-          type.includes("shootout") ||
-          // Check if it's after 90 minutes (likely penalty shootout)
-          (event.time.elapsed >= 90 && detail.includes("penalty"))
+          type.includes("shootout")
         );
       })
       .sort((a, b) => a.time.elapsed - b.time.elapsed);
@@ -916,12 +914,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           </div>
         ) : (
           <div className="space-y-2">
-            {/* Show penalty shootout if match ended with penalties */}
-            {(events.some((event) => 
-              event.type?.toLowerCase() === "penalty" || 
-              event.detail?.toLowerCase().includes("penalty")
-            ) || matchData?.fixture?.status?.short === "PEN") && (
-              <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
+            {/* Show penalty shootout ONLY if match status is PEN (penalty shootout) */}
+            {matchData?.fixture?.status?.short === "PEN" && (
+              <PenaltyShootoutDisplay 
+                homeScore={matchData?.score?.penalty?.home || 0} 
+                awayScore={matchData?.score?.penalty?.away || 0} 
+              />
             )}
 
             {/* All events in chronological order with period score markers */}
@@ -993,11 +991,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   });
                 }
 
-                // Add penalty shootout marker if match ended with penalties
-                if (events.some((event) => 
-                  event.type?.toLowerCase() === "penalty" || 
-                  event.detail?.toLowerCase().includes("penalty")
-                ) || matchData?.fixture?.status?.short === "PEN") {
+                // Add penalty shootout marker ONLY if match status is PEN (penalty shootout)
+                if (matchData?.fixture?.status?.short === "PEN") {
                   periodMarkers.push({
                     time: { elapsed: 121 }, // Put penalties after extra time
                     type: "penalty_shootout",
@@ -1065,7 +1060,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       key={event.id || `penalty-shootout-${index}`}
                       className="match-event-container"
                     >
-                      <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
+                      <PenaltyShootoutDisplay 
+                        homeScore={matchData?.score?.penalty?.home || 0} 
+                        awayScore={matchData?.score?.penalty?.away || 0} 
+                      />
                     </div>
                   );
                 }
