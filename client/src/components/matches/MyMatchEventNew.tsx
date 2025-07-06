@@ -829,6 +829,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     id: "period-45",
                   });
                 }
+
+                // Add penalty shootout marker if match ended with penalties
+                if (events.some((event) => event.type === "penalty")) {
+                  periodMarkers.push({
+                    time: { elapsed: 121 }, // Put penalties after extra time
+                    type: "penalty_shootout",
+                    detail: "Penalties",
+                    team: { name: "", logo: "" },
+                    player: { name: "" },
+                    id: "penalty-shootout",
+                  });
+                }
               } catch (error) {
                 console.error("Error creating period markers:", error);
               }
@@ -836,7 +848,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               // Combine events and period markers safely
               const allItems = [...sortedEvents, ...periodMarkers].sort(
                 (a, b) => {
-                  // Special priority for "End of 90 Minutes" - always put it first
+                  // Special priority for penalty shootout - put it at the very top
+                  if (a.type === "penalty_shootout") return -1;
+                  if (b.type === "penalty_shootout") return 1;
+
+                  // Special priority for "End of 90 Minutes" - put it second
                   if (
                     a.type === "period_score" &&
                     a.detail === "End of 90 Minutes"
@@ -869,10 +885,21 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         <div className="text-xs font-semi-bold text-gray-700">
                           {event.detail || "Period Marker"}
                         </div>
-                        <div className="text-sm font-bold text-gray-900">
+                        <div classNamediv className="text-sm font-bold text-gray-900">
                           {event.score || "0 - 0"}
                         </div>
                       </div>
+                    </div>
+                  );
+                }
+                // Render PenaltyShootoutDisplay if the event is a penalty shootout
+                if (event.type === "penalty_shootout") {
+                  return (
+                    <div
+                      key={event.id || `penalty-shootout-${index}`}
+                      className="match-event-container"
+                    >
+                      <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
                     </div>
                   );
                 }
