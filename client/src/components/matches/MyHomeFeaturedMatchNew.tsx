@@ -1060,6 +1060,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     <span className="text-sm font-md text-gray-700">
                       {currentMatch.league.name}
                     </span>
+                    {currentMatch.league.round && (
+                      <span className="text-xs text-gray-600 font-medium">
+                        • {currentMatch.league.round}
+                      </span>
+                    )}
                     {getStatusDisplay(currentMatch).isLive && (
                       <Star className="h-4 w-4 text-red-500 fill-current" />
                     )}
