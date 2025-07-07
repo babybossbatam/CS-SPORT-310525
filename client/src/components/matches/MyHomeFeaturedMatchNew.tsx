@@ -1416,12 +1416,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           
                           // Enhanced venue logic
                           const getVenueDisplay = () => {
-                            if (venue && city) {
-                              return `${venue}, ${city}`;
-                            } else if (venue) {
-                              return venue;
-                            } else if (city) {
-                              return `Stadium in ${city}`;
+                            // First, try to get venue info from the fixture object
+                            const venueInfo = currentMatch.fixture?.venue;
+                            
+                            if (venueInfo?.name && venueInfo?.city) {
+                              return `${venueInfo.name} (${venueInfo.city})`;
+                            } else if (venueInfo?.name) {
+                              return venueInfo.name;
+                            } else if (venueInfo?.city) {
+                              return `Stadium in ${venueInfo.city}`;
                             } else {
                               // Check if it's a neutral venue match or international competition
                               const isInternational = ['World', 'Europe'].includes(currentMatch.league.country);
