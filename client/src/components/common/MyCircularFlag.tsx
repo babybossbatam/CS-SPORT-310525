@@ -184,20 +184,21 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
     >
       <img
-        src={getCircleFlagUrl(teamName, fallbackUrl)}
-        alt={alt || teamName}
-        className="team-logo"
-        style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
-          borderRadius: "50%",
-          position: "relative",
-          zIndex: 1,
+          src={getCircleFlagUrl(teamName, fallbackUrl)}
+          alt={alt || teamName}
+          className="team-logo"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            borderRadius: "50%",
+            position: "relative",
+            top: "-5px",
+            zIndex: 1,
 
-          filter:
-            "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
-        }}
+            filter:
+              "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
+          }}
         onError={(e) => {
           const target = e.target as HTMLImageElement;
           if (!target.src.includes("/assets/fallback-logo.svg")) {
