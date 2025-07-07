@@ -1115,16 +1115,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                      currentMatch.fixture?.status?.round ||
                                      currentMatch.round;
 
-                      // Debug: Log available match data to see what's actually in the API response
-                      if (!roundInfo && (currentMatch.league.name.toLowerCase().includes('europa') || currentMatch.league.name.toLowerCase().includes('champions'))) {
-                        console.log(`🔍 [Bracket Status Debug] No round info found for ${currentMatch.league.name}:`, {
-                          league: currentMatch.league,
-                          fixture: currentMatch.fixture,
-                          matchId: currentMatch.fixture.id,
-                          availableProperties: Object.keys(currentMatch)
-                        });
-                      }
-
                       // Enhanced bracket status mapping for different tournament formats
                       const getBracketStatus = (leagueName: string, round: string) => {
                         const lowerLeague = leagueName.toLowerCase();
@@ -1140,7 +1130,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         }
 
                         // Europa League bracket stages
-                        if (lowerLeague.includes('europa league')) {
+                        if (lowerLeague.includes('europa league') && !lowerLeague.includes('conference')) {
+                          if (lowerRound.includes('group')) return 'Group Stage';
+                          if (lowerRound.includes('round of 32')) return 'Round of 32';
+                          if (lowerRound.includes('round of 16')) return 'Round of 16';
+                          if (lowerRound.includes('quarter')) return 'Quarter-finals';
+                          if (lowerRound.includes('semi')) return 'Semi-finals';
+                          if (lowerRound.includes('final') && !lowerRound.includes('semi')) return 'Final';
+                        }
+
+                        // Europa Conference League bracket stages
+                        if (lowerLeague.includes('conference league')) {
                           if (lowerRound.includes('group')) return 'Group Stage';
                           if (lowerRound.includes('round of 32')) return 'Round of 32';
                           if (lowerRound.includes('round of 16')) return 'Round of 16';
@@ -1201,31 +1201,80 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         return round;
                       };
 
-                      // Try to get bracket status from API data, or provide fallback for major tournaments
+                      // Dynamic bracket status inference when API doesn't provide round info
+                      const inferBracketStatus = (leagueName: string, matchDate: Date, teamNames: string[]) => {
+                        const lowerLeague = leagueName.toLowerCase();
+                        const currentDate = new Date();
+                        const monthsFromNow = (matchDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24 * 30);
+
+                        // Europa Conference League inference
+                        if (lowerLeague.includes('conference league')) {
+                          // Check if teams suggest a specific stage based on their profile
+                          const hasSmallClubProfile = teamNames.some(name => 
+                            name.toLowerCase().includes('žalgiris') || 
+                            name.toLowerCase().includes('penybont') ||
+                            name.toLowerCase().includes('celje') ||
+                            name.toLowerCase().includes('sabah')
+                          );
+
+                          if (hasSmallClubProfile) {
+                            // For smaller clubs, likely early qualifying rounds
+                            if (monthsFromNow > 0) {
+                              return 'Qualifying Round';
+                            } else {
+                              return 'Qualifying Round';
+                            }
+                          }
+
+                          // Default Conference League stages
+                          if (monthsFromNow > 4) return 'Qualifying Round';
+                          if (monthsFromNow > 2) return 'Play-off Round';
+                          if (monthsFromNow > 0) return 'Group Stage';
+                          if (monthsFromNow > -2) return 'Knockout Round';
+                          return 'Final Stages';
+                        }
+
+                        // Europa League inference
+                        if (lowerLeague.includes('europa league') && !lowerLeague.includes('conference')) {
+                          if (monthsFromNow > 3) return 'Qualifying Round';
+                          if (monthsFromNow > 1) return 'Group Stage';
+                          if (monthsFromNow > -1) return 'Knockout Stage';
+                          return 'Final Stages';
+                        }
+
+                        // Champions League inference
+                        if (lowerLeague.includes('champions league')) {
+                          if (monthsFromNow > 2) return 'Qualifying Round';
+                          if (monthsFromNow > 0) return 'Group Stage';
+                          if (monthsFromNow > -2) return 'Knockout Stage';
+                          return 'Final Stages';
+                        }
+
+                        // FIFA Club World Cup
+                        if (lowerLeague.includes('fifa club world cup')) {
+                          return 'Tournament Stage';
+                        }
+
+                        // Default tournament stages
+                        if (lowerLeague.includes('cup') || lowerLeague.includes('championship')) {
+                          if (monthsFromNow > 1) return 'Early Rounds';
+                          if (monthsFromNow > -1) return 'Knockout Stage';
+                          return 'Final Stage';
+                        }
+
+                        return null;
+                      };
+
+                      // Try to get bracket status from API data, or infer dynamically
                       let processedRound = null;
                       
                       if (roundInfo) {
                         processedRound = getBracketStatus(currentMatch.league.name, roundInfo);
                       } else {
-                        // Provide fallback bracket status for major tournaments when API doesn't provide round info
-                        const leagueName = currentMatch.league.name.toLowerCase();
+                        // Dynamic inference when API doesn't provide round info
                         const matchDate = new Date(currentMatch.fixture.date);
-                        const currentDate = new Date();
-                        
-                        // For European competitions, try to infer stage based on date and competition format
-                        if (leagueName.includes('europa league')) {
-                          if (matchDate > currentDate) {
-                            processedRound = 'Knockout Stage'; // Default for upcoming Europa League matches
-                          } else {
-                            processedRound = 'League Stage'; // Default for past/current Europa League matches
-                          }
-                        } else if (leagueName.includes('champions league')) {
-                          if (matchDate > currentDate) {
-                            processedRound = 'Knockout Stage'; // Default for upcoming Champions League matches
-                          } else {
-                            processedRound = 'League Stage'; // Default for past/current Champions League matches
-                          }
-                        }
+                        const teamNames = [currentMatch.teams.home.name, currentMatch.teams.away.name];
+                        processedRound = inferBracketStatus(currentMatch.league.name, matchDate, teamNames);
                       }
 
                       return processedRound ? (
