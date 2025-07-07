@@ -347,6 +347,38 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                     );
                   }
 
+                  // Handle regular period markers (like "90 minutes")
+                  if (event.detail === "90 minutes") {
+                    return (
+                      <div
+                        key={`period-${index}`}
+                        className="commentary-event-container"
+                      >
+                        <div className="flex gap-1">
+                          {/* Time Column */}
+                          <div className="flex flex-col items-center min-w-[45px]">
+                            <div className="w-3 h-6 flex items-center justify-center">
+                              <span className="text-white text-xs font-semi-bold">
+                                ⏱️
+                              </span>
+                            </div>
+                            
+                            {index < allCommentaryItems.length - 1 && (
+                              <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
+                            )}
+                          </div>
+
+                          {/* Content Column */}
+                          <div className="flex-1">
+                            <div className="text-xs font-md text-gray-600 leading-relaxed">
+                              {event.detail}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   // For Half Time, show Second Half begins with team names and halftime scores
                   const displayText =
                     event.detail === "Half Time"
