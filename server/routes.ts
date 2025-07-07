@@ -827,7 +827,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check cache first
-      constcachedLeague = await storage.getCachedLeague(id.toString());
+      const cachedLeague = await storage.getCachedLeague(id.toString());
 
       if (cachedLeague) {
         // Check if cache is fresh (less than 4 hours old)
@@ -2184,7 +2184,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Debug endpoint to check specific fixture freshness
   apiRouter.get(
     "/debug/fixture/:fixtureId",
-    async (req: Request, res: Response) {
+    async (req: Request, res: Response) => {
       try {
         const { fixtureId } = req.params;
 
@@ -3109,57 +3109,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error(`❌ [Team Stats] Error fetching statistics for team ${req.params.teamId}:`, error);
       res.status(500).json({ error: 'Failed to fetch team statistics' });
-    }
-  });
-
-  // Get fixture by ID
-  app.get("/api/fixtures/:id", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const fixture = await rapidApiService.getFixtureById(id);
-
-      if (fixture) {
-        res.json(fixture);
-      } else {
-        res.status(404).json({ error: "Fixture not found" });
-      }
-    } catch (error) {
-      console.error("Error fetching fixture:", error);
-      res.status(500).json({ error: "Failed to fetch fixture" });
-    }
-  });
-
-  // Get fixture events
-  app.get("/api/fixtures/:id/events", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const events = await rapidApiService.getFixtureEvents(id);
-
-      if (events) {
-        res.json(events);
-      } else {
-        res.status(404).json({ error: "Events not found" });
-      }
-    } catch (error) {
-      console.error("Error fetching fixture events:", error);
-      res.status(500).json({ error: "Failed to fetch fixture events" });
-    }
-  });
-
-  // Get fixture statistics
-  app.get("/api/fixtures/:id/statistics", async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const statistics = await rapidApiService.getFixtureStatistics(id);
-
-      if (statistics) {
-        res.json(statistics);
-      } else {
-        res.status(404).json({ error: "Statistics not found" });
-      }
-    } catch (error) {
-      console.error("Error fetching fixture statistics:", error);
-      res.status(500).json({ error: "Failed to fetch fixture statistics" });
     }
   });
 

@@ -1411,60 +1411,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           const dayName = format(matchDate, "EEEE");
                           const dateFormatted = format(matchDate, "do MMMM");
                           const timeFormatted = format(matchDate, "HH:mm");
-                          const venue = currentMatch.fixture?.venue?.name;
-                          const city = currentMatch.fixture?.venue?.city;
-                          
-                          // Enhanced venue logic
-                          const getVenueDisplay = () => {
-                            // First, try to get venue info from the fixture object
-                            const venueInfo = currentMatch.fixture?.venue;
-                            
-                            if (venueInfo?.name && venueInfo?.city) {
-                              return `${venueInfo.name} (${venueInfo.city})`;
-                            } else if (venueInfo?.name) {
-                              return venueInfo.name;
-                            } else if (venueInfo?.city) {
-                              return `Stadium in ${venueInfo.city}`;
-                            } else {
-                              // Enhanced logic for different competition types
-                              const leagueName = currentMatch.league.name.toLowerCase();
-                              const isInternational = ['World', 'Europe'].includes(currentMatch.league.country);
-                              
-                              // FIFA Club World Cup
-                              if (leagueName.includes('fifa') && leagueName.includes('world cup')) {
-                                return "FIFA CWC Venue";
-                              }
-                              
-                              // UEFA competitions
-                              if (leagueName.includes('uefa') || leagueName.includes('champions') || 
-                                  leagueName.includes('europa') || leagueName.includes('conference')) {
-                                return "UEFA Venue";
-                              }
-                              
-                              // Youth competitions
-                              if (leagueName.includes('u21') || leagueName.includes('youth')) {
-                                return "Youth Tournament Venue";
-                              }
-                              
-                              // CONCACAF competitions
-                              if (leagueName.includes('concacaf') || leagueName.includes('gold cup')) {
-                                return "CONCACAF Venue";
-                              }
-                              
-                              // Other international competitions
-                              if (isInternational || leagueName.includes('world') || 
-                                  leagueName.includes('international') || leagueName.includes('nations league')) {
-                                return "International Venue";
-                              }
-                              
-                              // Default fallback
-                              return "Venue TBA";
-                            }
-                          };
+                          const venue = currentMatch.fixture?.venue?.name || "Venue TBA";
+                          const city = currentMatch.fixture?.venue?.city || "";
                           
                           return (
                             <>
-                              {dayName}, {dateFormatted} | {timeFormatted} | {getVenueDisplay()}
+                              {dayName}, {dateFormatted} | {timeFormatted} | {venue}
+                              {city && ` (${city})`}
                             </>
                           );
                         } catch (e) {
