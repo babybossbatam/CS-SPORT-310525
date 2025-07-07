@@ -347,12 +347,32 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   const displayText =
                     event.detail;
                    
-                  // Show score for Half Time period
-                  const shouldShowScore = event.detail === "Half Time";
-                  const scoreToShow = shouldShowScore ? (() => {
+                  // Handle Half Time specially with score display
+                  if (event.detail === "Half Time") {
                     const halftimeScore = calculateScoreAtTime(45);
-                    return `${halftimeScore.homeScore} - ${halftimeScore.awayScore}`;
-                  })() : null;
+                    return (
+                      <div
+                        key={`period-${index}`}
+                        className="commentary-event-container"
+                      >
+                        <div className="flex items-center py-1 mb-1">
+                          <div className="text-sm font-semibold text-gray-700 ml-4">
+                            45'
+                          </div>
+                          <div className="text-lg font-bold text-gray-900 ml-4">
+                            <img
+                              src="/assets/matchdetaillogo/clock.png"
+                              alt="Half Time"
+                              className="w-4 h-4 opacity-80 flex-shrink-0"
+                            />
+                          </div>
+                          <span className="text-lg font-bold text-gray-900 ml-2">
+                            {halftimeScore.homeScore} - {halftimeScore.awayScore}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  }
 
                   return (
                     <div
@@ -373,10 +393,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           {event.detail === "Full Time" ? (
                             <div className="text-gray-800 text-sm font-medium leading-tight">
                               {event.time.elapsed}'
-                            </div>
-                          ) : event.detail === "Half Time" ? (
-                            <div className="text-gray-800 text-sm font-medium leading-tight">
-                              45'
                             </div>
                           ) : (
                             <div className="w-3 h-6  flex items-center justify-center ">
@@ -408,12 +424,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           <div className="text-xs font-md  text-gray-600 leading-relaxed">
                             {displayText}
                           </div>
-                          {/* Show score for Half Time */}
-                          {scoreToShow && (
-                            <div className="text-sm font-bold text-gray-900 mt-1">
-                              {scoreToShow}
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
