@@ -3012,42 +3012,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: "Failed to fetch venue information"
       });
     }
-  }); any) => {
+  });
+
+  // Get venue information from SportsRadar for a specific match
+  apiRouter.get("/sportsradar/match-venue/:matchId", async (req: Request, res: Response) => {
+    try {
+      const { matchId } = req.params;
+      
+      // Get match details from RapidAPI first
+      const rapidApiMatch = await rapidApiService.getFixtureById(parseInt(matchId));
+      if (!rapidApiMatch) {
+        return res.status(404).json({
+          success: false,
+          error: "Match not found"
+        });
+      }
+
+      // Try to find corresponding SportsRadar match with venue info
+      const homeTeam = rapidApiMatch.teams?.home?.name || "";
+      const awayTeam = rapidApiMatch.teams?.away?.name || "";
+      const matchDate = rapidApiMatch.fixture?.date;
+
+      if (matchDate) {
+        // Get SportsRadar fixtures for the same date
+        const dateStr = new Date(matchDate).toISOString().split('T')[0];
+        const sportradarFixtures = await sportsradarApi.getFixturesByDate(dateStr);
+
+        if (sportradarFixtures && Array.isArray(sportradarFixtures)) {
+          // Find matching fixture by team names (flexible matching)
+          const matchingFixture = sportradarFixtures.find((fixture: any) => {
             const srHomeTeam = fixture.home_team?.name || "";
             const srAwayTeam = fixture.away_team?.name || "";
-
-            // Simple name matching
-            return (
-              (srHomeTeam.toLowerCase().includes(homeTeam.toLowerCase().split(" ")[0]) &&
-               srAwayTeam.toLowerCase().includes(awayTeam.toLowerCase().split(" ")[0])) ||
-              (srHomeTeam.toLowerCase().includes(awayTeam.toLowerCase().split(" ")[0]) &&
-               srAwayTeam.toLowerCase().includes(homeTeam.toLowerCase().split(" ")[0]))
-            );
+            
+            // Try exact match first
+            if (srHomeTeam === homeTeam && srAwayTeam === awayTeam) {
+              return true;
+            }
+            
+            // Try partial match (in case team names differ slightly)
+            const homeMatch = homeTeam.toLowerCase().includes(srHomeTeam.toLowerCase()) ||
+                             srHomeTeam.toLowerCase().includes(homeTeam.toLowerCase());
+            const awayMatch = awayTeam.toLowerCase().includes(srAwayTeam.toLowerCase()) ||
+                             srAwayTeam.toLowerCase().includes(awayTeam.toLowerCase());
+                             
+            return homeMatch && awayMatch;
           });
 
-          if (matchingFixture?.venue) {
+          if (matchingFixture && matchingFixture.venue) {
+            console.log(`✅ [SportsRadar] Found venue for match ${matchId}: ${matchingFixture.venue.name}`);
             return res.json({
               success: true,
               venue: {
-                id: matchingFixture.venue.id,
                 name: matchingFixture.venue.name,
                 city: matchingFixture.venue.city,
-                country: matchingFixture.venue.country
-              },
-              source: "sportsradar"
+                country: matchingFixture.venue.country,
+                capacity: matchingFixture.venue.capacity
+              }
             });
           }
         }
       }
 
+      console.log(`❌ [SportsRadar] No venue found for match ${matchId}`);
       return res.json({
         success: false,
-        error: "Venue information not available",
-        venue: null
+        message: "Venue information not available"
       });
-
     } catch (error) {
-      console.error("Error fetching SportsRadar venue:", error);
+      console.error(`❌ [SportsRadar] Error fetching venue for match ${matchId}:`, error);
       res.status(500).json({
         success: false,
         error: "Failed to fetch venue information"
