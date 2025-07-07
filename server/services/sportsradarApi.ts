@@ -131,9 +131,10 @@ export function mapSportsradarFixtureToInternal(fixture: SportsradarFixture): an
         second: null
       },
       venue: {
-        id: null,
+        id: fixture.venue?.id || null,
         name: fixture.venue?.name || null,
-        city: fixture.venue?.city || null
+        city: fixture.venue?.city || null,
+        country: fixture.venue?.country || null
       },
       status: {
         long: fixture.status || 'Not Started',

@@ -944,7 +944,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
     }
 
-    // Calculate initial time
+// Calculate initial time
     updateTimer();
 
     // Set interval to update every second
@@ -1324,12 +1324,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 "EEEE, do MMMM",
                               );
                               const timeOnly = format(matchDate, "HH:mm");
-                              const venue = currentMatch.fixture?.venue?.name;
+                              let venue = currentMatch.fixture?.venue?.name;
+                              // Check for SportsRadar venue data if primary venue is missing
+                              let displayVenue = venue;
+                              if (!displayVenue || displayVenue === "TBD" || displayVenue === "Venue TBA") {
+                                const sportradarVenue = currentMatch.venue?.name || currentMatch.fixture?.venue?.name;
+                                if (sportradarVenue && sportradarVenue !== "TBD") {
+                                  displayVenue = sportradarVenue;
+                                }
+                              }
 
                               return (
                                 <>
                                   {formattedDate} | {timeOnly}
-                                  {venue ? ` | ${venue}` : ""}
+                                  {displayVenue && displayVenue !== "TBD" && displayVenue !== "Venue TBA" ? ` | ${displayVenue}` : ""}
                                 </>
                               );
                             } catch (e) {
@@ -1411,13 +1419,30 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           const dayName = format(matchDate, "EEEE");
                           const dateFormatted = format(matchDate, "do MMMM");
                           const timeFormatted = format(matchDate, "HH:mm");
-                          const venue = currentMatch.fixture?.venue?.name || "Venue TBA";
-                          const city = currentMatch.fixture?.venue?.city || "";
-                          
+                          let venue = currentMatch.fixture?.venue?.name;
+                          let city = currentMatch.fixture?.venue?.city;
+
+                          // Try to get venue from SportsRadar if not available
+                          if (!venue || venue === "TBD" || venue === "Venue TBA") {
+                            // Check if we have SportsRadar venue data in the match object
+                            const sportradarVenue = currentMatch.venue || currentMatch.fixture?.venue;
+                            if (sportradarVenue?.name && sportradarVenue.name !== "TBD") {
+                              venue = sportradarVenue.name;
+                              city = sportradarVenue.city;
+                            }
+                          }
+
+                          let venueInfo = "";
+                          if (venue && venue !== "TBD" && venue !== "Venue TBA") {
+                            venueInfo = ` | ${venue}`;
+                            if (city && city !== "TBD") {
+                              venueInfo += ` (${city})`;
+                            }
+                          }
+
                           return (
                             <>
-                              {dayName}, {dateFormatted} | {timeFormatted} | {venue}
-                              {city && ` (${city})`}
+                              {dayName}, {dateFormatted} | {timeFormatted}{venueInfo}
                             </>
                           );
                         } catch (e) {
