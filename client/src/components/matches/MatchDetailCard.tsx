@@ -1,5 +1,4 @@
 import React from "react";
-import MatchEndedDetailsCard from "./MatchEndedDetailsCard";
 import MatchLiveDetailsCard from "./MatchLiveDetailsCard";
 import MatchUpcomingDetailsCard from "./MatchUpcomingDetailsCard";
 
@@ -52,7 +51,7 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
     switch (matchStatus) {
       case "Ended":
         return (
-          <MatchEndedDetailsCard
+          <MatchUpcomingDetailsCard
             homeTeam={homeTeam}
             awayTeam={awayTeam}
             homeTeamLogo={homeTeamLogo}

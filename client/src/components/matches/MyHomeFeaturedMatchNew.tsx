@@ -1363,11 +1363,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       }
 
                       // Only return bracket status, never fixture/match status
-                      return processedRound ? (
-                        <span className="text-xs text-gray-600 font-medium">
-                          • {processedRound}
-                        </span>
-                      ) : null;
+                      // Don't show status for Not Started matches
+                      if (processedRound && processedRound !== "Not Started") {
+                        return (
+                          <span className="text-xs text-gray-600 font-medium">
+                            • {processedRound}
+                          </span>
+                        );
+                      }
+                      return null;
                     })()}
                     {getStatusDisplay(currentMatch).isLive && (
                       <Star className="h-4 w-4 text-red-500 fill-current" />
