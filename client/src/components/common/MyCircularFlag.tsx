@@ -193,6 +193,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
           objectFit: "cover",
           borderRadius: "50%",
           position: "relative",
+          top: "-5px",
           zIndex: 1,
 
           filter:
