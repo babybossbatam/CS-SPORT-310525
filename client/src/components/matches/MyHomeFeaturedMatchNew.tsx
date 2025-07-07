@@ -1707,55 +1707,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     </div>
                   </div>
 
-                  {/* Match Venue, Date and Time Information */}
-                  <div className="text-center mt-4 mb-4 px-4">
-                    <div className="text-sm text-gray-700 font-medium">
-                      {(() => {
-                        try {
-                          const matchDate = new Date(currentMatch.fixture.date);
-                          const dayName = format(matchDate, "EEEE");
-                          const dateFormatted = format(matchDate, "do MMMM");
-                          const timeFormatted = format(matchDate, "HH:mm");
-                          let venue = currentMatch.fixture?.venue?.name;
-                          let city = currentMatch.fixture?.venue?.city;
-                          const matchId = currentMatch.fixture.id;
-                          const sportradarVenueData = sportradarVenues[matchId];
-
-                          // Try to get venue from SportsRadar if not available
-                          if (!venue || venue === "TBD" || venue === "Venue TBA") {
-                            if (sportradarVenueData?.venue?.name && sportradarVenueData.venue.name !== "TBD") {
-                              venue = sportradarVenueData.venue.name;
-                              city = sportradarVenueData.venue.city;
-                            } else {
-                              // Fallback to any existing venue data in the match object
-                              const fallbackVenue = currentMatch.venue || currentMatch.fixture?.venue;
-                              if (fallbackVenue?.name && fallbackVenue.name !== "TBD") {
-                                venue = fallbackVenue.name;
-                                city = fallbackVenue.city;
-                              }
-                            }
-                          }
-
-                          let venueInfo = "";
-                          if (venue && venue !== "TBD" && venue !== "Venue TBA") {
-                            venueInfo = ` | ${venue}`;
-                            if (city && city !== "TBD") {
-                              venueInfo += ` (${city})`;
-                            }
-                          }
-
-                          return (
-                            <>
-                              {dayName}, {dateFormatted} | {timeFormatted}{venueInfo}
-                            </>
-                          );
-                        } catch (e) {
-                          return "Match information unavailable";
-                        }
-                      })()}
-                    </div>
-                  </div>
-
                   {/* Action Buttons */}
                   <div className="flex justify-around border-t border-gray-200 pt-4">
                     <button
