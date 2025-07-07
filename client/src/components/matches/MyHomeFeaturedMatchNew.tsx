@@ -1050,6 +1050,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
                 >
                   {/* League header */}
+                  {console.log('Debug match data:', {
+                    leagueRound: currentMatch.league.round,
+                    fixtureRound: currentMatch.fixture?.round,
+                    leagueName: currentMatch.league.name
+                  })}
                   <div className="flex items-center justify-center gap-2 mb-4 p-2 bg-gray-50 rounded-lg">
                     <LazyImage
                       src={currentMatch.league.logo}
@@ -1060,9 +1065,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     <span className="text-sm font-md text-gray-700">
                       {currentMatch.league.name}
                     </span>
-                    {currentMatch.league.round && (
+                    {(currentMatch.league.round || currentMatch.fixture?.round) && (
                       <span className="text-xs text-gray-600 font-medium">
-                        • {currentMatch.league.round}
+                        • {currentMatch.league.round || currentMatch.fixture?.round}
                       </span>
                     )}
                     {getStatusDisplay(currentMatch).isLive && (
