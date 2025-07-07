@@ -1,6 +1,7 @@
 import React from "react";
 import MatchLiveDetailsCard from "./MatchLiveDetailsCard";
 import MatchUpcomingDetailsCard from "./MatchUpcomingDetailsCard";
+import MatchEndedDetailsCard from "./MatchEndedDetailsCard";
 
 interface MatchDetailCardProps {
   match: any;
@@ -51,7 +52,7 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
     switch (matchStatus) {
       case "Ended":
         return (
-          <MatchUpcomingDetailsCard
+          <MatchEndedDetailsCard
             homeTeam={homeTeam}
             awayTeam={awayTeam}
             homeTeamLogo={homeTeamLogo}
