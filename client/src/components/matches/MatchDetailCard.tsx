@@ -1,6 +1,5 @@
 
 import React from "react";
-import MatchEndedDetailsCard from "./MatchEndedDetailsCard";
 import MatchLiveDetailsCard from "./MatchLiveDetailsCard";
 import MatchUpcomingDetailsCard from "./MatchUpcomingDetailsCard";
 
