@@ -345,13 +345,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 ) {
                   // For Half Time, show Second Half begins with team names and halftime scores
                   const displayText =
-                    event.detail === "Half Time"
-                      ? (() => {
-                          const halftimeScore = calculateScoreAtTime(45);
-                          return `Second Half begins ${homeTeam || "Home"} ${halftimeScore.homeScore}, ${awayTeam || "Away"} ${halftimeScore.awayScore}`;
-                        })()
-                      : event.detail;
-
+                    event.detail;
+                   
                   // Show score for Half Time period
                   const shouldShowScore = event.detail === "Half Time";
                   const scoreToShow = shouldShowScore ? (() => {
@@ -470,7 +465,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       >
                         <div className="flex items-center py-1 mb-1">
                           <div className="text-sm font-semibold text-gray-700 ml-4">
-                            Full Time
+                            
                           </div>
                           <div className="text-lg font-bold text-gray-900 ml-4">
                             <img
@@ -517,7 +512,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         </div>
 
                         {index < allCommentaryItems.length - 1 && (
-                          <div className="w-0.5 h-12 bg-gray-600 mb-0 "></div>
+                          <div className="w-0.5 h-12 bg-gray-600  "></div>
                         )}
                       </div>
 
@@ -610,14 +605,14 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             </div>
                           </div>
                         ) : event.type === "Card" ? (
-                          <div className="flex items-start gap-1 -ml-3">
+                          <div className="flex items-start gap-1 -ml-3 ">
                             <div className="text-sm text-gray-700 leading-relaxed">
                               {eventDescription}
                             </div>
                           </div>
                         ) : event.type === "Subst" ? (
                           <div
-                            className="text-sm text-gray-700 leading-relaxed -ml-18"
+                            className="text-sm text-gray-700 leading-relaxed -ml-18 "
 
                           >
                             {eventDescription}
