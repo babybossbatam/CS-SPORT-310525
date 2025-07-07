@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Star, Calendar, ChevronDown, ChevronUp } from "lucide-react";
@@ -105,12 +104,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const isMatchOldEnded = useCallback((fixture: FixtureData): boolean => {
     const status = fixture.fixture.status.short;
     const isEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
-    
+
     if (!isEnded) return false;
-    
+
     const matchDate = new Date(fixture.fixture.date);
     const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
-    
+
     return hoursAgo > 24;
   }, []);
 
@@ -124,29 +123,29 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     try {
       const cacheKey = getCacheKey(date, leagueId);
       const cached = localStorage.getItem(cacheKey);
-      
+
       if (!cached) return [];
-      
+
       const { fixtures, timestamp, date: cachedDate } = JSON.parse(cached);
-      
+
       // CRITICAL: Ensure cached date exactly matches requested date
       if (cachedDate !== date) {
         console.log(`🚨 [MyNewLeague] Date mismatch in cache - cached: ${cachedDate}, requested: ${date}, clearing cache`);
         localStorage.removeItem(cacheKey);
         return [];
       }
-      
+
       const cacheAge = Date.now() - timestamp;
-      
+
       // More aggressive cache validation for recent dates
       const today = new Date().toISOString().slice(0, 10);
       const isToday = date === today;
       const isPastDate = date < today;
-      
+
       // For today: 1 hour cache max
       // For past dates: 24 hours cache max (reduced from 7 days)
       const maxCacheAge = isToday ? 1 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
-      
+
       if (cacheAge < maxCacheAge) {
         // Additional validation: check if fixtures actually match the date
         const validFixtures = fixtures.filter((fixture: any) => {
@@ -154,13 +153,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           const fixtureDateString = fixtureDate.toISOString().slice(0, 10);
           return fixtureDateString === date;
         });
-        
+
         if (validFixtures.length !== fixtures.length) {
           console.log(`🚨 [MyNewLeague] Found ${fixtures.length - validFixtures.length} fixtures with wrong dates in cache, clearing`);
           localStorage.removeItem(cacheKey);
           return [];
         }
-        
+
         console.log(`✅ [MyNewLeague] Using cached ended matches for league ${leagueId} on ${date}: ${validFixtures.length} matches`);
         return validFixtures;
       } else {
@@ -174,7 +173,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       const cacheKey = getCacheKey(date, leagueId);
       localStorage.removeItem(cacheKey);
     }
-    
+
     return [];
   }, [getCacheKey]);
 
@@ -182,9 +181,9 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const cacheEndedMatches = useCallback((date: string, leagueId: number, fixtures: FixtureData[]) => {
     try {
       const endedFixtures = fixtures.filter(isMatchOldEnded);
-      
+
       if (endedFixtures.length === 0) return;
-      
+
       const cacheKey = getCacheKey(date, leagueId);
       const cacheData = {
         fixtures: endedFixtures,
@@ -192,7 +191,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         date,
         leagueId
       };
-      
+
       localStorage.setItem(cacheKey, JSON.stringify(cacheData));
       console.log(`💾 [MyNewLeague] Cached ${endedFixtures.length} ended matches for league ${leagueId} on ${date}`);
     } catch (error) {
@@ -227,7 +226,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
           if (relevantLiveFixtures.length > 0) {
             console.log(`🔴 [MyNewLeague] Found ${relevantLiveFixtures.length} live fixtures from target leagues`);
-            
+
             // Check if any live fixtures were previously cached as upcoming
             relevantLiveFixtures.forEach(liveFixture => {
               const previousFixture = fixtures.find(f => f.fixture.id === liveFixture.fixture.id);
@@ -254,11 +253,11 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           selectedDateObj.setHours(0, 0, 0, 0);
-          
+
           let cachedEndedMatches: FixtureData[] = [];
           if (selectedDateObj < today) {
             cachedEndedMatches = getCachedEndedMatches(selectedDate, leagueId);
-            
+
             // Validate cached data for past dates - should not have NS status
             if (cachedEndedMatches.length > 0) {
               const invalidNSMatches = cachedEndedMatches.filter(match => {
@@ -266,12 +265,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                 const fixtureTime = new Date(match.fixture.date).getTime();
                 const now = Date.now();
                 const minutesAfterFixture = (now - fixtureTime) / (1000 * 60);
-                
+
                 // More aggressive: 30 minutes for past dates, immediate for today
                 const thresholdMinutes = selectedDateObj < today ? 30 : 30;
                 return status === 'NS' && minutesAfterFixture > thresholdMinutes;
               });
-              
+
               if (invalidNSMatches.length > 0) {
                 console.log(`🚨 [MyNewLeague] Found ${invalidNSMatches.length} invalid NS matches for past date ${selectedDate} in league ${leagueId}, clearing cache`);
                 invalidNSMatches.forEach(match => {
@@ -339,14 +338,14 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               const now = Date.now();
               const minutesAfterFixture = (now - fixtureTime) / (1000 * 60);
               const hoursAfterFixture = minutesAfterFixture / 60;
-              
+
               // Check for fixture date mismatch (critical issue)
               const matchDate = new Date(fixture.fixture.date);
               const year = matchDate.getFullYear();
               const month = String(matchDate.getMonth() + 1).padStart(2, "0");
               const day = String(matchDate.getDate()).padStart(2, "0");
               const matchDateString = `${year}-${month}-${day}`;
-              
+
               if (matchDateString !== selectedDate) {
                 console.log(`🚨 [MyNewLeague] CRITICAL - Fixture date mismatch:`, {
                   teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
@@ -356,7 +355,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                 });
                 return true;
               }
-              
+
               // Check for stale NS status
               if (status === 'NS') {
                 // For past dates: NS status should not exist if more than 2 hours after kickoff
@@ -369,7 +368,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   });
                   return true;
                 }
-                
+
                 // For today: NS status should not exist if more than 30 minutes after kickoff
                 if (selectedDateObj.getTime() === today.getTime() && minutesAfterFixture > 30) {
                   console.log(`🚨 [MyNewLeague] Stale NS status for today:`, {
@@ -381,23 +380,23 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   return true;
                 }
               }
-              
+
               return false;
             });
 
             // If we found any stale data, force refresh for this league
             if (staleDataMatches.length > 0) {
               console.log(`🔄 [MyNewLeague] Found ${staleDataMatches.length} stale/mismatched fixtures for league ${leagueId}, forcing fresh fetch`);
-              
+
               // Clear all cache for this league and date
               const cacheKey = getCacheKey(selectedDate, leagueId);
               localStorage.removeItem(cacheKey);
               fixtureCache.clearCache();
-              
+
               try {
                 const freshResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures?force=true&t=${Date.now()}`);
                 const freshData = await freshResponse.json();
-                
+
                 if (Array.isArray(freshData)) {
                   const freshFilteredFixtures = freshData.filter(fixture => {
                     const fixtureDate = fixture.fixture?.date;
@@ -412,11 +411,11 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   });
 
                   console.log(`✅ [MyNewLeague] Refreshed ${freshFilteredFixtures.length} fixtures for league ${leagueId} (was ${filteredFixtures.length})`);
-                  
-                  // Replace all fixtures for this league with fresh ones
-                  allFixtures = allFixtures.filter(fixture => fixture.league.id !== leagueId);
+
+                  // Simple: clear all and use only fresh data
+                  allFixtures.length = 0;
                   allFixtures.push(...freshFilteredFixtures);
-                  
+
                   // Use fresh data instead of potentially stale cached data
                   continue;
                 }
@@ -493,20 +492,20 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       try {
         const keys = Object.keys(localStorage);
         const cacheKeys = keys.filter(key => key.startsWith('ended_matches_') || key.startsWith('finished_fixtures_'));
-        
+
         let cleanedCount = 0;
         const today = new Date().toISOString().slice(0, 10);
-        
+
         cacheKeys.forEach(key => {
           try {
             const cached = localStorage.getItem(key);
             if (cached) {
               const { timestamp, date: cachedDate } = JSON.parse(cached);
               const cacheAge = Date.now() - timestamp;
-              
+
               // More aggressive cleanup - remove cache older than 24 hours for recent dates
               const maxAge = cachedDate >= today ? 1 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
-              
+
               if (cacheAge > maxAge) {
                 localStorage.removeItem(key);
                 cleanedCount++;
@@ -519,7 +518,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             cleanedCount++;
           }
         });
-        
+
         if (cleanedCount > 0) {
           console.log(`🧹 [MyNewLeague] Cleaned up ${cleanedCount} old cache entries`);
         }
@@ -537,21 +536,21 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       try {
         // Clear fixtureCache for the new date
         fixtureCache.clearCache();
-        
+
         // Clear any stale localStorage entries that might contain wrong date data
         const keys = Object.keys(localStorage);
         const staleCacheKeys = keys.filter(key => 
           (key.startsWith('ended_matches_') || key.startsWith('finished_fixtures_')) &&
           !key.includes(selectedDate)
         );
-        
+
         staleCacheKeys.forEach(key => {
           try {
             const cached = localStorage.getItem(key);
             if (cached) {
               const { date: cachedDate, timestamp } = JSON.parse(cached);
               const cacheAge = Date.now() - timestamp;
-              
+
               // If cache is recent but for wrong date, clear it
               if (cacheAge < 2 * 60 * 60 * 1000 && cachedDate !== selectedDate) {
                 localStorage.removeItem(key);
@@ -562,7 +561,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             localStorage.removeItem(key);
           }
         });
-        
+
         console.log(`🔄 [MyNewLeague] Cache cleared for date change to ${selectedDate}`);
       } catch (error) {
         console.error('Error clearing date-specific cache:', error);
@@ -778,7 +777,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       if (aPriority === 1) {
         // Live matches: sort by elapsed time (shortest elapsed time first)
         const aElapsed = Number(a.fixture.status.elapsed) || 0;
-        const bElapsed = Number(b.fixture.status.elapsed) || 0;
+        const bElapsed = Number(```text
+b.fixture.status.elapsed) || 0;
         if (aElapsed !== bElapsed) {
           return aElapsed - bElapsed;
         }
@@ -1199,14 +1199,14 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       // Clear cache for all leagues for this specific date
       leagueIds.forEach(leagueId => {
         const cacheKey = getCacheKey(dateString, leagueId);
-        
+
         try {
           const cached = localStorage.getItem(cacheKey);
           if (cached) {
             const { fixtures } = JSON.parse(cached);
             // Check if this match exists in the cache
             const hasMatch = fixtures.some((f: any) => f.fixture.id === matchId);
-            
+
             if (hasMatch) {
               localStorage.removeItem(cacheKey);
               console.log(`🗑️ [Cache Clear] Cleared cache for league ${leagueId} on ${dateString} due to match ${matchId} ${transition}`);
@@ -1222,14 +1222,14 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       const relatedKeys = allKeys.filter(key => 
         key.startsWith('ended_matches_') && key.includes(dateString)
       );
-      
+
       relatedKeys.forEach(key => {
         try {
           const cached = localStorage.getItem(key);
           if (cached) {
             const { fixtures } = JSON.parse(cached);
             const hasMatch = fixtures.some((f: any) => f.fixture.id === matchId);
-            
+
             if (hasMatch) {
               localStorage.removeItem(key);
               console.log(`🗑️ [Cache Clear] Cleared related cache ${key} due to match ${matchId} ${transition}`);
@@ -1259,13 +1259,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     const staleLiveMatches = fixtures.filter((fixture) => {
       const status = fixture.fixture.status.short;
       const isLive = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status);
-      
+
       if (!isLive) return false;
-      
+
       // Check if elapsed time seems stale (same for too long)
       const elapsed = fixture.fixture.status.elapsed;
       const previousElapsed = previousMatchStatuses.get(fixture.fixture.id);
-      
+
       // If elapsed time hasn't changed for a live match in 2+ minutes, it might be stale
       if (elapsed && previousElapsed === status) {
         const timeSinceLastUpdate = Date.now() - (fixture.lastUpdated || 0);
@@ -1279,7 +1279,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           return true;
         }
       }
-      
+
       return false;
     });
 
@@ -1289,7 +1289,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       staleLiveMatches.forEach(match => {
         clearMatchCache(match.fixture.id, 'STALE_LIVE', match.fixture.date);
       });
-      
+
       // Trigger a fresh fetch in 5 seconds to get updated data
       setTimeout(() => {
         fetchLeagueData(true);
@@ -1330,10 +1330,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             currentStatus,
             elapsed: fixture.fixture.status.elapsed
           });
-          
+
           // Clear cache for this specific match
           clearMatchCache(matchId, 'NS→LIVE', fixture.fixture.date);
-          
+
           // Force immediate refresh for this live match
           setTimeout(() => {
             fetchLeagueData(true);
@@ -1350,7 +1350,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             currentStatus,
             finalScore: `${currentScore.home}-${currentScore.away}`
           });
-          
+
           // Clear cache for this specific match
           clearMatchCache(matchId, 'LIVE→ENDED', fixture.fixture.date);
         }
@@ -1391,7 +1391,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           elapsed: fixture.fixture.status.elapsed
         });
         newGoalMatches.add(matchId);
-        
+
         // Clear cache immediately when goals are scored
         clearMatchCache(matchId, 'GOAL_SCORED', fixture.fixture.date);
       }
@@ -1401,7 +1401,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           ['1H', '2H', 'LIVE', 'LIV'].includes(currentStatus)) {
         const previousElapsed = previousMatchStatuses.get(`${matchId}_elapsed`);
         const currentElapsed = fixture.fixture.status.elapsed;
-        
+
         if (previousElapsed && currentElapsed && previousElapsed !== currentElapsed) {
           console.log(`⏱️ [MyNewLeague TIME UPDATE] Match ${matchId} time updated:`, {
             teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
@@ -1409,7 +1409,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             status: currentStatus
           });
         }
-        
+
         // Store elapsed time for tracking
         currentStatuses.set(`${matchId}_elapsed`, currentElapsed?.toString() || '');
       }
