@@ -312,6 +312,41 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   event.type === "period_end" ||
                   event.type === "period_marker"
                 ) {
+                  // Special handling for Full Time - show score with clock icon
+                  if (event.detail === "Full Time") {
+                    const finalScore = calculateScoreAtTime(event.time.elapsed + (event.time.extra || 0));
+                    return (
+                      <div
+                        key={`period-${index}`}
+                        className="commentary-event-container"
+                      >
+                        <div className="flex items-center py-1 mb-1">
+                          <div className="text-sm font-semibold text-gray-700 ml-4">
+                            {/* Show extra time above elapsed time if present */}
+                            {event.time.extra && (
+                              <div className="text-xs font-medium text-red-500 leading-tight">
+                                +{event.time.extra}'
+                              </div>
+                            )}
+                            <div className="text-gray-800 text-sm font-medium leading-tight">
+                              {event.time.elapsed}'
+                            </div>
+                          </div>
+                          <div className="text-lg font-bold text-gray-900 ml-4">
+                            <img
+                              src="/assets/matchdetaillogo/clock.png"
+                              alt="Full Time"
+                              className="w-4 h-4 opacity-80 flex-shrink-0"
+                            />
+                          </div>
+                          <span className="text-lg font-bold text-gray-900 ml-2">
+                            {finalScore.homeScore}-{finalScore.awayScore}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   // For Half Time, show Second Half begins with team names and halftime scores
                   const displayText =
                     event.detail === "Half Time"
@@ -329,39 +364,25 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       <div className="flex gap-1">
                         {/* Time Column */}
                         <div className="flex flex-col items-center min-w-[45px]">
-                          {/* Show extra time above elapsed time for Full Time marker */}
-                          {event.detail === "Full Time" && event.time.extra && (
-                            <div className="text-xs font-medium text-red-500 leading-tight">
-                              +{event.time.extra}'
-                            </div>
-                          )}
-                          
-                          {/* Elapsed time */}
-                          {event.detail === "Full Time" ? (
-                            <div className="text-gray-800 text-sm font-medium leading-tight">
-                              {event.time.elapsed}'
-                            </div>
-                          ) : (
-                            <div className="w-3 h-6  flex items-center justify-center ">
-                              {event.detail === "Half Time" ? (
-                                <img
-                                  src="/assets/matchdetaillogo/i mark.svg"
-                                  alt="Half Time"
-                                  className="w-4 h-4 ml-1"
-                                />
-                              ) : event.type === "period_start" ? (
-                                <img
-                                  src="/assets/matchdetaillogo/i mark.svg"
-                                  alt="Period Start"
-                                  className="w-4 h-4 ml-1"
-                                />
-                              ) : (
-                                <span className="text-white text-xs font-semi-bold ">
-                                  ⏱️
-                                </span>
-                              )}
-                            </div>
-                          )}
+                          <div className="w-3 h-6  flex items-center justify-center ">
+                            {event.detail === "Half Time" ? (
+                              <img
+                                src="/assets/matchdetaillogo/i mark.svg"
+                                alt="Half Time"
+                                className="w-4 h-4 ml-1"
+                              />
+                            ) : event.type === "period_start" ? (
+                              <img
+                                src="/assets/matchdetaillogo/i mark.svg"
+                                alt="Period Start"
+                                className="w-4 h-4 ml-1"
+                              />
+                            ) : (
+                              <span className="text-white text-xs font-semi-bold ">
+                                ⏱️
+                              </span>
+                            )}
+                          </div>
                           
                           {index < allCommentaryItems.length - 1 && (
                             <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
