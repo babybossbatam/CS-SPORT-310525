@@ -277,18 +277,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               } as any);
             }
 
-            // Add "Halftime" marker if there are events in both halves
-            if (hasEventsInFirstHalf && hasEventsInSecondHalf) {
-              const halftimeScore = calculateScoreAtTime(45);
-              periodMarkers.push({
-                time: { elapsed: 45 },
-                type: "period_score",
-                detail: "Halftime",
-                score: `${halftimeScore.homeScore} - ${halftimeScore.awayScore}`,
-                team: { name: "", logo: "" },
-                player: { name: "" },
-              } as any);
-            }
+            // Removed halftime score marker to clean up display
 
             // Add period markers to the commentary items
             allCommentaryItems.push(...periodMarkers);
