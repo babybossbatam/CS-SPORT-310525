@@ -69,7 +69,6 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
         );
 
       case "Upcoming":
-      case "Ended":
       default:
         return (
           <MatchUpcomingDetailsCard
