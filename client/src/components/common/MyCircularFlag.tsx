@@ -180,8 +180,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
         position: "relative",
         left: moveLeft ? "-16px" : "4px",
       }}
-      onMouseEnter={() => showNextMatchOverlay && setIsHovered(true)}
-      onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
     >
       <img
         src={getCircleFlagUrl(teamName, fallbackUrl)}
