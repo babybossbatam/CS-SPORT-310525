@@ -212,6 +212,33 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               }
             }
 
+            // Add "90 minutes" period marker if there are events at or after 90 minutes
+            const hasEventsAt90Plus = events.some(
+              (e) => e.time.elapsed >= 90,
+            );
+            
+            if (hasEventsAt90Plus) {
+              // Find the highest extra time played
+              const maxExtraTime = Math.max(
+                ...events
+                  .filter((e) => e.time.elapsed >= 90 && e.time.extra)
+                  .map((e) => e.time.extra || 0),
+                0
+              );
+
+              const ninetyMinDetail = maxExtraTime > 0 
+                ? `90 minutes +${maxExtraTime}' extra time` 
+                : "90 minutes";
+
+              allCommentaryItems.push({
+                time: { elapsed: 90, extra: maxExtraTime > 0 ? maxExtraTime : undefined },
+                type: "period_end",
+                detail: ninetyMinDetail,
+                team: { name: "", logo: "" },
+                player: { name: "" },
+              } as any);
+            }
+
             // Add period score markers
             const periodMarkers = [];
 
