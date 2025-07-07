@@ -217,9 +217,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
             const latestEvent = events.length > 0 ? events.reduce((latest, current) => 
               (current.time.elapsed + (current.time.extra || 0)) > (latest.time.elapsed + (latest.time.extra || 0)) ? current : latest
             ) : null;
-            
+
             const shouldShow90Marker = secondHalfEvents.length > 0 && latestEvent && latestEvent.time.elapsed >= 80;
-            
+
             if (shouldShow90Marker) {
               // Find the highest extra time played in events at or after 90 minutes
               const eventsAt90Plus = events.filter((e) => e.time.elapsed >= 90);
@@ -288,7 +288,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       <div className="flex items-center    py-1  mb-1">
                         <div className="text-sm font-semibold text-gray-700 ml-4">
                           {event.time.elapsed}'
-                          
+
                         </div>
                         <div className="text-lg font-bold text-gray-900 ml-4">
                           <img
@@ -296,7 +296,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             alt="Goal"
                             className=" w-4 h-4 opacity-80 flex-shrink-0 "
                           />
-                          
+
                         </div>
                         <span className="text-lg font-bold text-gray-900 ml-2">
                           {event.score}
@@ -335,15 +335,27 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               +{event.time.extra}'
                             </div>
                           )}
-                          
+
                           {/* Elapsed time */}
                           {event.detail === "Full Time" ? (
-                            <div className="text-gray-800 text-sm font-medium leading-tight">
-                              {event.time.elapsed}'
+                            
+                            <div className="flex items-center    py-1  mb-1">
+                              <div className="text-lg font-bold text-gray-900 ml-4">
+                                <img
+                                  src="/assets/matchdetaillogo/clock.png"
+                                  alt="Full Time"
+                                  className="w-4 h-4 opacity-80 flex-shrink-0"
+                                />
+                              </div>
+                              <span className="text-lg font-bold text-gray-900 ml-2">
+                                {(() => {
+                                  const finalScore = calculateScoreAtTime(
+                                    event.time.elapsed + (event.time.extra || 0)
+                                  );
+                                  return `${finalScore.homeScore}-${finalScore.awayScore}`;
+                                })()}
+                              </span>
                             </div>
-                      
-                     
-                      
                           ) : (
                             <div className="w-3 h-6  flex items-center justify-center ">
                               {event.detail === "Half Time" ? (
@@ -365,7 +377,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               )}
                             </div>
                           )}
-                          
+
                           {index < allCommentaryItems.length - 1 && (
                             <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
                           )}
@@ -513,7 +525,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         ) : event.type === "Subst" ? (
                           <div
                             className="text-sm text-gray-700 leading-relaxed -ml-18"
-                            
+
                           >
                             {eventDescription}
                           </div>
@@ -525,7 +537,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 alt="Missed Penalty"
                                 className="w-4 h-4 opacity-80 flex-shrink-0"
                               />
-                              
+
                               </span>
                             <div className="text-xs text-gray-700 leading-relaxed">
                               {eventDescription}
