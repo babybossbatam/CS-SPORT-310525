@@ -777,7 +777,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       if (aPriority === 1) {
         // Live matches: sort by elapsed time (shortest elapsed time first)
         const aElapsed = Number(a.fixture.status.elapsed) || 0;
-        const bElapsed = Number(```text
+        const bElapsed = Number(
 b.fixture.status.elapsed) || 0;
         if (aElapsed !== bElapsed) {
           return aElapsed - bElapsed;
