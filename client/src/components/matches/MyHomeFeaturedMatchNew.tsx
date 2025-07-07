@@ -846,7 +846,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   );
 
   // State for storing SportsRadar venue information
-  const [sportradarVenues, setSportradarVenues] = useState<Record<number, any>>({});
+  const [sportradarVenues, setSportradarVenues] = useState<Record<number, any>>(
+    {},
+  );
 
   // Extract colors from team logos when match changes
   useEffect(() => {
@@ -891,36 +893,51 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     if (currentMatch && currentMatch.fixture?.id) {
       const venue = currentMatch.fixture?.venue?.name;
       const matchId = currentMatch.fixture.id;
-      
+
       // Only fetch if venue is missing or placeholder and we haven't already fetched for this match
-      if ((!venue || venue === "TBD" || venue === "Venue TBA") && !sportradarVenues[matchId]) {
+      if (
+        (!venue || venue === "TBD" || venue === "Venue TBA") &&
+        !sportradarVenues[matchId]
+      ) {
         const fetchSportradarVenue = async () => {
           try {
-            console.log(`🏟️ [SportsRadar] Fetching venue for match ${matchId} (${currentMatch.teams.home.name} vs ${currentMatch.teams.away.name})`);
-            
-            const response = await fetch(`/api/sportsradar/match-venue/${matchId}`);
+            console.log(
+              `🏟️ [SportsRadar] Fetching venue for match ${matchId} (${currentMatch.teams.home.name} vs ${currentMatch.teams.away.name})`,
+            );
+
+            const response = await fetch(
+              `/api/sportsradar/match-venue/${matchId}`,
+            );
             if (response.ok) {
               const venueData = await response.json();
-              console.log(`✅ [SportsRadar] Found venue data for match ${matchId}:`, venueData);
-              
-              setSportradarVenues(prev => ({
+              console.log(
+                `✅ [SportsRadar] Found venue data for match ${matchId}:`,
+                venueData,
+              );
+
+              setSportradarVenues((prev) => ({
                 ...prev,
-                [matchId]: venueData
+                [matchId]: venueData,
               }));
             } else {
-              console.log(`❌ [SportsRadar] No venue data found for match ${matchId}`);
+              console.log(
+                `❌ [SportsRadar] No venue data found for match ${matchId}`,
+              );
               // Cache the "no data" result to avoid repeated requests
-              setSportradarVenues(prev => ({
+              setSportradarVenues((prev) => ({
                 ...prev,
-                [matchId]: null
+                [matchId]: null,
               }));
             }
           } catch (error) {
-            console.error(`❌ [SportsRadar] Error fetching venue for match ${matchId}:`, error);
+            console.error(
+              `❌ [SportsRadar] Error fetching venue for match ${matchId}:`,
+              error,
+            );
             // Cache the error result to avoid repeated requests
-            setSportradarVenues(prev => ({
+            setSportradarVenues((prev) => ({
               ...prev,
-              [matchId]: null
+              [matchId]: null,
             }));
           }
         };
@@ -991,7 +1008,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
     }
 
-// Calculate initial time
+    // Calculate initial time
     updateTimer();
 
     // Set interval to update every second
@@ -1109,129 +1126,229 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     </span>
                     {(() => {
                       // Comprehensive round data extraction from multiple API sources
-                      let roundInfo = currentMatch.league.round || 
-                                     currentMatch.fixture?.round || 
-                                     currentMatch.league.season?.round ||
-                                     currentMatch.fixture?.status?.round ||
-                                     currentMatch.round ||
-                                     currentMatch.fixture?.status?.long ||
-                                     currentMatch.league?.season?.current;
+                      let roundInfo =
+                        currentMatch.league.round ||
+                        currentMatch.fixture?.round ||
+                        currentMatch.league.season?.round ||
+                        currentMatch.fixture?.status?.round ||
+                        currentMatch.round ||
+                        currentMatch.fixture?.status?.long ||
+                        currentMatch.league?.season?.current;
 
                       // Enhanced bracket status mapping with comprehensive patterns
-                      const getBracketStatus = (leagueName: string, round: string) => {
+                      const getBracketStatus = (
+                        leagueName: string,
+                        round: string,
+                      ) => {
                         const lowerLeague = leagueName.toLowerCase();
-                        const lowerRound = round?.toLowerCase() || '';
+                        const lowerRound = round?.toLowerCase() || "";
 
                         // Normalize common variations
                         const normalizedRound = lowerRound
-                          .replace(/\d+st|\d+nd|\d+rd|\d+th/g, '') // Remove ordinal suffixes
-                          .replace(/[-_]/g, ' ') // Replace dashes/underscores with spaces
-                          .replace(/\s+/g, ' ') // Normalize multiple spaces
+                          .replace(/\d+st|\d+nd|\d+rd|\d+th/g, "") // Remove ordinal suffixes
+                          .replace(/[-_]/g, " ") // Replace dashes/underscores with spaces
+                          .replace(/\s+/g, " ") // Normalize multiple spaces
                           .trim();
 
                         // Universal tournament stage patterns (highest priority)
-                        if (normalizedRound.includes('final') && !normalizedRound.includes('semi') && !normalizedRound.includes('quarter') && !normalizedRound.includes('3rd')) {
-                          return 'Final';
+                        if (
+                          normalizedRound.includes("final") &&
+                          !normalizedRound.includes("semi") &&
+                          !normalizedRound.includes("quarter") &&
+                          !normalizedRound.includes("3rd")
+                        ) {
+                          return "Final";
                         }
-                        if (normalizedRound.includes('semi final') || normalizedRound.includes('semi-final') || normalizedRound.includes('semifinal')) {
-                          return 'Semi Finals';
+                        if (
+                          normalizedRound.includes("semi final") ||
+                          normalizedRound.includes("semi-final") ||
+                          normalizedRound.includes("semifinal")
+                        ) {
+                          return "Semi Finals";
                         }
-                        if (normalizedRound.includes('quarter final') || normalizedRound.includes('quarter-final') || normalizedRound.includes('quarterfinal')) {
-                          return 'Quarter Finals';
+                        if (
+                          normalizedRound.includes("quarter final") ||
+                          normalizedRound.includes("quarter-final") ||
+                          normalizedRound.includes("quarterfinal")
+                        ) {
+                          return "Quarter Finals";
                         }
-                        if (normalizedRound.includes('3rd place') || normalizedRound.includes('third place') || normalizedRound.includes('bronze')) {
-                          return '3rd Place Playoff';
+                        if (
+                          normalizedRound.includes("3rd place") ||
+                          normalizedRound.includes("third place") ||
+                          normalizedRound.includes("bronze")
+                        ) {
+                          return "3rd Place Playoff";
                         }
 
                         // Round-based patterns
-                        if (normalizedRound.includes('round of 32') || normalizedRound.includes('r32')) return 'Round of 32';
-                        if (normalizedRound.includes('round of 16') || normalizedRound.includes('r16') || normalizedRound.includes('last 16')) return 'Round of 16';
-                        if (normalizedRound.includes('round of 8') || normalizedRound.includes('r8') || normalizedRound.includes('last 8')) return 'Quarter Finals';
-                        if (normalizedRound.includes('round of 4') || normalizedRound.includes('r4') || normalizedRound.includes('last 4')) return 'Semi Finals';
+                        if (
+                          normalizedRound.includes("round of 32") ||
+                          normalizedRound.includes("r32")
+                        )
+                          return "Round of 32";
+                        if (
+                          normalizedRound.includes("round of 16") ||
+                          normalizedRound.includes("r16") ||
+                          normalizedRound.includes("last 16")
+                        )
+                          return "Round of 16";
+                        if (
+                          normalizedRound.includes("round of 8") ||
+                          normalizedRound.includes("r8") ||
+                          normalizedRound.includes("last 8")
+                        )
+                          return "Quarter Finals";
+                        if (
+                          normalizedRound.includes("round of 4") ||
+                          normalizedRound.includes("r4") ||
+                          normalizedRound.includes("last 4")
+                        )
+                          return "Semi Finals";
 
                         // Group stage patterns
-                        if (normalizedRound.includes('group') || normalizedRound.includes('league phase')) return 'Group Stage';
+                        if (
+                          normalizedRound.includes("group") ||
+                          normalizedRound.includes("league phase")
+                        )
+                          return "Group Stage";
 
                         // Qualifying patterns
-                        if (normalizedRound.includes('qualifying') || normalizedRound.includes('qualifier') || normalizedRound.includes('preliminary')) {
-                          if (normalizedRound.includes('final')) return 'Qualifying Final';
-                          return 'Qualifying Round';
+                        if (
+                          normalizedRound.includes("qualifying") ||
+                          normalizedRound.includes("qualifier") ||
+                          normalizedRound.includes("preliminary")
+                        ) {
+                          if (normalizedRound.includes("final"))
+                            return "Qualifying Final";
+                          return "Qualifying Round";
                         }
-                        if (normalizedRound.includes('play off') || normalizedRound.includes('playoff') || normalizedRound.includes('play-off')) {
-                          return 'Play-off Round';
+                        if (
+                          normalizedRound.includes("play off") ||
+                          normalizedRound.includes("playoff") ||
+                          normalizedRound.includes("play-off")
+                        ) {
+                          return "Play-off Round";
                         }
 
                         // Knockout stage patterns
-                        if (normalizedRound.includes('knockout')) return 'Knockout Stage';
+                        if (normalizedRound.includes("knockout"))
+                          return "Knockout Stage";
 
                         // Competition-specific patterns
-                        if (lowerLeague.includes('champions league')) {
-                          if (normalizedRound.includes('1st knockout')) return 'Round of 16';
+                        if (lowerLeague.includes("champions league")) {
+                          if (normalizedRound.includes("1st knockout"))
+                            return "Round of 16";
                         }
 
-                        if (lowerLeague.includes('nations league')) {
-                          if (normalizedRound.includes('league')) return 'League Phase';
+                        if (lowerLeague.includes("nations league")) {
+                          if (normalizedRound.includes("league"))
+                            return "League Phase";
                         }
 
                         // Youth tournament patterns
-                        if (lowerLeague.includes('u21') || lowerLeague.includes('under 21') || lowerLeague.includes('youth')) {
-                          if (normalizedRound.includes('group')) return 'Group Stage';
+                        if (
+                          lowerLeague.includes("u21") ||
+                          lowerLeague.includes("under 21") ||
+                          lowerLeague.includes("youth")
+                        ) {
+                          if (normalizedRound.includes("group"))
+                            return "Group Stage";
                         }
 
                         // FIFA Club World Cup patterns
-                        if (lowerLeague.includes('fifa club world cup') || lowerLeague.includes('club world cup')) {
-                          if (normalizedRound.includes('group')) return 'Group Stage';
+                        if (
+                          lowerLeague.includes("fifa club world cup") ||
+                          lowerLeague.includes("club world cup")
+                        ) {
+                          if (normalizedRound.includes("group"))
+                            return "Group Stage";
                         }
 
                         // Regular season patterns
-                        if (normalizedRound.includes('regular season') || normalizedRound.includes('matchday') || normalizedRound.includes('gameweek')) {
-                          return 'Matchday';
+                        if (
+                          normalizedRound.includes("regular season") ||
+                          normalizedRound.includes("matchday") ||
+                          normalizedRound.includes("gameweek")
+                        ) {
+                          return "Matchday";
                         }
 
                         // Default: return cleaned up round info if it doesn't match patterns
-                        if (round && round.length > 0 && round !== 'TBD' && round !== 'N/A') {
+                        if (
+                          round &&
+                          round.length > 0 &&
+                          round !== "TBD" &&
+                          round !== "N/A"
+                        ) {
                           // Capitalize first letter of each word
-                          return round.split(' ').map(word => 
-                            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                          ).join(' ');
+                          return round
+                            .split(" ")
+                            .map(
+                              (word) =>
+                                word.charAt(0).toUpperCase() +
+                                word.slice(1).toLowerCase(),
+                            )
+                            .join(" ");
                         }
 
                         return null;
                       };
 
                       // Enhanced dynamic inference based on league, timing, team profiles, and match count
-                      const inferBracketStatus = (leagueName: string, matchDate: Date, teamNames: string[], fixtureId: number) => {
+                      const inferBracketStatus = (
+                        leagueName: string,
+                        matchDate: Date,
+                        teamNames: string[],
+                        fixtureId: number,
+                      ) => {
                         const lowerLeague = leagueName.toLowerCase();
                         const currentDate = new Date();
-                        const daysFromNow = (matchDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
+                        const daysFromNow =
+                          (matchDate.getTime() - currentDate.getTime()) /
+                          (1000 * 60 * 60 * 24);
 
                         // Advanced tournament structure analysis
                         const analyzeTeamProfile = (teams: string[]) => {
                           const profiles = {
                             smallClubProfile: 0,
                             bigClubProfile: 0,
-                            qualifyingProfile: 0
+                            qualifyingProfile: 0,
                           };
 
-                          teams.forEach(teamName => {
+                          teams.forEach((teamName) => {
                             const lowerName = teamName.toLowerCase();
-                            
+
                             // Small/qualifying club indicators
-                            if (lowerName.includes('žalgiris') || lowerName.includes('penybont') || 
-                                lowerName.includes('celje') || lowerName.includes('sabah') ||
-                                lowerName.includes('panevežys') || lowerName.includes('vikingur') ||
-                                lowerName.includes('paks') || lowerName.includes('ballkani') ||
-                                lowerName.includes('hajduk') || lowerName.includes('zrinjski')) {
+                            if (
+                              lowerName.includes("žalgiris") ||
+                              lowerName.includes("penybont") ||
+                              lowerName.includes("celje") ||
+                              lowerName.includes("sabah") ||
+                              lowerName.includes("panevežys") ||
+                              lowerName.includes("vikingur") ||
+                              lowerName.includes("paks") ||
+                              lowerName.includes("ballkani") ||
+                              lowerName.includes("hajduk") ||
+                              lowerName.includes("zrinjski")
+                            ) {
                               profiles.qualifyingProfile += 2;
                               profiles.smallClubProfile += 1;
                             }
-                            
+
                             // Big club indicators
-                            if (lowerName.includes('real madrid') || lowerName.includes('barcelona') ||
-                                lowerName.includes('manchester') || lowerName.includes('bayern') ||
-                                lowerName.includes('juventus') || lowerName.includes('psg') ||
-                                lowerName.includes('liverpool') || lowerName.includes('arsenal') ||
-                                lowerName.includes('chelsea') || lowerName.includes('atletico')) {
+                            if (
+                              lowerName.includes("real madrid") ||
+                              lowerName.includes("barcelona") ||
+                              lowerName.includes("manchester") ||
+                              lowerName.includes("bayern") ||
+                              lowerName.includes("juventus") ||
+                              lowerName.includes("psg") ||
+                              lowerName.includes("liverpool") ||
+                              lowerName.includes("arsenal") ||
+                              lowerName.includes("chelsea") ||
+                              lowerName.includes("atletico")
+                            ) {
                               profiles.bigClubProfile += 2;
                             }
                           });
@@ -1242,106 +1359,129 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         const teamProfiles = analyzeTeamProfile(teamNames);
 
                         // Conference League intelligent inference
-                        if (lowerLeague.includes('conference league')) {
+                        if (lowerLeague.includes("conference league")) {
                           // Strong qualifying profile indicator
                           if (teamProfiles.qualifyingProfile >= 2) {
-                            if (daysFromNow > 30) return 'Qualifying Round';
-                            if (daysFromNow > -15) return 'Qualifying Round';
-                            return 'Play-off Round';
+                            if (daysFromNow > 30) return "Qualifying Round";
+                            if (daysFromNow > -15) return "Qualifying Round";
+                            return "Play-off Round";
                           }
 
                           // Mixed profile (one big, one small club)
-                          if (teamProfiles.bigClubProfile >= 1 && teamProfiles.smallClubProfile >= 1) {
-                            if (daysFromNow > 60) return 'Play-off Round';
-                            if (daysFromNow > 0) return 'Group Stage';
-                            return 'Knockout Stage';
+                          if (
+                            teamProfiles.bigClubProfile >= 1 &&
+                            teamProfiles.smallClubProfile >= 1
+                          ) {
+                            if (daysFromNow > 60) return "Play-off Round";
+                            if (daysFromNow > 0) return "Group Stage";
+                            return "Knockout Stage";
                           }
 
                           // Time-based inference for established teams
-                          if (daysFromNow > 120) return 'Qualifying Round';
-                          if (daysFromNow > 60) return 'Play-off Round';
-                          if (daysFromNow > 0) return 'Group Stage';
-                          if (daysFromNow > -60) return 'Knockout Stage';
-                          return 'Final Stages';
+                          if (daysFromNow > 120) return "Qualifying Round";
+                          if (daysFromNow > 60) return "Play-off Round";
+                          if (daysFromNow > 0) return "Group Stage";
+                          if (daysFromNow > -60) return "Knockout Stage";
+                          return "Final Stages";
                         }
 
                         // Champions League
-                        if (lowerLeague.includes('champions league')) {
+                        if (lowerLeague.includes("champions league")) {
                           if (teamProfiles.bigClubProfile >= 2) {
                             // Two big clubs likely in knockout stages
-                            if (daysFromNow > 30) return 'Group Stage';
-                            if (daysFromNow > -30) return 'Knockout Stage';
-                            if (daysFromNow > -60) return 'Semi Finals';
-                            return 'Final';
+                            if (daysFromNow > 30) return "Group Stage";
+                            if (daysFromNow > -30) return "Knockout Stage";
+                            if (daysFromNow > -60) return "Semi Finals";
+                            return "Final";
                           }
-                          
-                          if (daysFromNow > 90) return 'Qualifying Round';
-                          if (daysFromNow > 30) return 'Group Stage';
-                          if (daysFromNow > -30) return 'Knockout Stage';
-                          return 'Final Stages';
+
+                          if (daysFromNow > 90) return "Qualifying Round";
+                          if (daysFromNow > 30) return "Group Stage";
+                          if (daysFromNow > -30) return "Knockout Stage";
+                          return "Final Stages";
                         }
 
                         // Europa League
-                        if (lowerLeague.includes('europa league') && !lowerLeague.includes('conference')) {
-                          if (daysFromNow > 90) return 'Qualifying Round';
-                          if (daysFromNow > 30) return 'Group Stage';
-                          if (daysFromNow > -30) return 'Knockout Stage';
-                          return 'Final Stages';
+                        if (
+                          lowerLeague.includes("europa league") &&
+                          !lowerLeague.includes("conference")
+                        ) {
+                          if (daysFromNow > 90) return "Qualifying Round";
+                          if (daysFromNow > 30) return "Group Stage";
+                          if (daysFromNow > -30) return "Knockout Stage";
+                          return "Final Stages";
                         }
 
                         // International tournaments (World Cup, Euro, Copa America)
-                        if (lowerLeague.includes('world cup') || lowerLeague.includes('euro') || lowerLeague.includes('copa america')) {
-                          if (daysFromNow > 14) return 'Group Stage';
-                          if (daysFromNow > 7) return 'Round of 16';
-                          if (daysFromNow > 3) return 'Quarter Finals';
-                          if (daysFromNow > 0) return 'Semi Finals';
-                          return 'Final';
+                        if (
+                          lowerLeague.includes("world cup") ||
+                          lowerLeague.includes("euro") ||
+                          lowerLeague.includes("copa america")
+                        ) {
+                          if (daysFromNow > 14) return "Group Stage";
+                          if (daysFromNow > 7) return "Round of 16";
+                          if (daysFromNow > 3) return "Quarter Finals";
+                          if (daysFromNow > 0) return "Semi Finals";
+                          return "Final";
                         }
 
                         // FIFA Club World Cup
-                        if (lowerLeague.includes('fifa club world cup') || lowerLeague.includes('club world cup')) {
+                        if (
+                          lowerLeague.includes("fifa club world cup") ||
+                          lowerLeague.includes("club world cup")
+                        ) {
                           if (teamProfiles.bigClubProfile >= 2) {
                             // Two big clubs likely in semi/final
-                            if (daysFromNow > 0) return 'Semi Finals';
-                            return 'Final';
+                            if (daysFromNow > 0) return "Semi Finals";
+                            return "Final";
                           }
-                          
-                          if (daysFromNow > 7) return 'Group Stage';
-                          if (daysFromNow > 3) return 'Quarter Finals';
-                          if (daysFromNow > 0) return 'Semi Finals';
-                          return 'Final';
+
+                          if (daysFromNow > 7) return "Group Stage";
+                          if (daysFromNow > 3) return "Quarter Finals";
+                          if (daysFromNow > 0) return "Semi Finals";
+                          return "Final";
                         }
 
                         // CONCACAF Gold Cup
-                        if (lowerLeague.includes('concacaf') && lowerLeague.includes('gold cup')) {
-                          if (daysFromNow > 14) return 'Group Stage';
-                          if (daysFromNow > 7) return 'Quarter Finals';
-                          if (daysFromNow > 3) return 'Semi Finals';
-                          return 'Final';
+                        if (
+                          lowerLeague.includes("concacaf") &&
+                          lowerLeague.includes("gold cup")
+                        ) {
+                          if (daysFromNow > 14) return "Group Stage";
+                          if (daysFromNow > 7) return "Quarter Finals";
+                          if (daysFromNow > 3) return "Semi Finals";
+                          return "Final";
                         }
 
                         // Nations League
-                        if (lowerLeague.includes('nations league')) {
-                          if (daysFromNow > 30) return 'League Phase';
-                          if (daysFromNow > 3) return 'Semi Finals';
-                          return 'Final';
+                        if (lowerLeague.includes("nations league")) {
+                          if (daysFromNow > 30) return "League Phase";
+                          if (daysFromNow > 3) return "Semi Finals";
+                          return "Final";
                         }
 
                         // Youth tournaments (U21, etc.)
-                        if (lowerLeague.includes('u21') || lowerLeague.includes('under 21') || lowerLeague.includes('youth')) {
-                          if (daysFromNow > 14) return 'Group Stage';
-                          if (daysFromNow > 7) return 'Quarter Finals';
-                          if (daysFromNow > 3) return 'Semi Finals';
-                          return 'Final';
+                        if (
+                          lowerLeague.includes("u21") ||
+                          lowerLeague.includes("under 21") ||
+                          lowerLeague.includes("youth")
+                        ) {
+                          if (daysFromNow > 14) return "Group Stage";
+                          if (daysFromNow > 7) return "Quarter Finals";
+                          if (daysFromNow > 3) return "Semi Finals";
+                          return "Final";
                         }
 
                         // Generic cup competitions
-                        if (lowerLeague.includes('cup') || lowerLeague.includes('trophy')) {
-                          if (daysFromNow > 30) return 'Early Rounds';
-                          if (daysFromNow > 14) return 'Round of 16';
-                          if (daysFromNow > 7) return 'Quarter Finals';
-                          if (daysFromNow > 3) return 'Semi Finals';
-                          return 'Final';
+                        if (
+                          lowerLeague.includes("cup") ||
+                          lowerLeague.includes("trophy")
+                        ) {
+                          if (daysFromNow > 30) return "Early Rounds";
+                          if (daysFromNow > 14) return "Round of 16";
+                          if (daysFromNow > 7) return "Quarter Finals";
+                          if (daysFromNow > 3) return "Semi Finals";
+                          return "Final";
                         }
 
                         return null;
@@ -1349,17 +1489,33 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                       // Main processing logic - only show bracket status, never fixture status
                       let processedRound = null;
-                      
+
                       // First try to extract from round data
-                      if (roundInfo && roundInfo.trim() !== '' && roundInfo !== 'TBD' && roundInfo !== 'N/A') {
-                        processedRound = getBracketStatus(currentMatch.league.name, roundInfo);
+                      if (
+                        roundInfo &&
+                        roundInfo.trim() !== "" &&
+                        roundInfo !== "TBD" &&
+                        roundInfo !== "N/A"
+                      ) {
+                        processedRound = getBracketStatus(
+                          currentMatch.league.name,
+                          roundInfo,
+                        );
                       }
-                      
+
                       // If no round info or processing failed, use intelligent inference
                       if (!processedRound) {
                         const matchDate = new Date(currentMatch.fixture.date);
-                        const teamNames = [currentMatch.teams.home.name, currentMatch.teams.away.name];
-                        processedRound = inferBracketStatus(currentMatch.league.name, matchDate, teamNames, currentMatch.fixture.id);
+                        const teamNames = [
+                          currentMatch.teams.home.name,
+                          currentMatch.teams.away.name,
+                        ];
+                        processedRound = inferBracketStatus(
+                          currentMatch.league.name,
+                          matchDate,
+                          teamNames,
+                          currentMatch.fixture.id,
+                        );
                       }
 
                       // Only return bracket status, never fixture/match status
@@ -1451,7 +1607,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 <div className="text-sm text-gray-600">
                                   Starts in
                                 </div>
-                                <div className="font-mono tabular-nums text-2xl font-bold text-gray-800">
+                                <div className=" text-2xl font-bold text-gray-800">
                                   {countdownTimer}
                                 </div>
                               </div>
@@ -1617,15 +1773,28 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               // Check for SportsRadar venue data if primary venue is missing
                               let displayVenue = venue;
                               const matchId = currentMatch.fixture.id;
-                              const sportradarVenueData = sportradarVenues[matchId];
-                              
-                              if (!displayVenue || displayVenue === "TBD" || displayVenue === "Venue TBA") {
-                                if (sportradarVenueData?.venue?.name && sportradarVenueData.venue.name !== "TBD") {
+                              const sportradarVenueData =
+                                sportradarVenues[matchId];
+
+                              if (
+                                !displayVenue ||
+                                displayVenue === "TBD" ||
+                                displayVenue === "Venue TBA"
+                              ) {
+                                if (
+                                  sportradarVenueData?.venue?.name &&
+                                  sportradarVenueData.venue.name !== "TBD"
+                                ) {
                                   displayVenue = sportradarVenueData.venue.name;
                                 } else {
                                   // Fallback to any existing venue data in the match object
-                                  const fallbackVenue = currentMatch.venue?.name || currentMatch.fixture?.venue?.name;
-                                  if (fallbackVenue && fallbackVenue !== "TBD") {
+                                  const fallbackVenue =
+                                    currentMatch.venue?.name ||
+                                    currentMatch.fixture?.venue?.name;
+                                  if (
+                                    fallbackVenue &&
+                                    fallbackVenue !== "TBD"
+                                  ) {
                                     displayVenue = fallbackVenue;
                                   }
                                 }
@@ -1634,7 +1803,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               return (
                                 <>
                                   {formattedDate} | {timeOnly}
-                                  {displayVenue && displayVenue !== "TBD" && displayVenue !== "Venue TBA" ? ` | ${displayVenue}` : ""}
+                                  {displayVenue &&
+                                  displayVenue !== "TBD" &&
+                                  displayVenue !== "Venue TBA"
+                                    ? ` | ${displayVenue}`
+                                    : ""}
                                 </>
                               );
                             } catch (e) {
