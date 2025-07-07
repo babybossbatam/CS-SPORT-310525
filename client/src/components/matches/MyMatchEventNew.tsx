@@ -973,6 +973,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   });
                 }
 
+                // Add "Full Time" marker for ended matches
+                const matchStatus = matchData?.fixture?.status?.short;
+                const isMatchEnded = ["FT", "AET", "PEN"].includes(matchStatus);
+                
+                if (isMatchEnded) {
+                  periodMarkers.push({
+                    time: { elapsed: 120 }, // Put at the very end
+                    type: "period_score",
+                    detail: "Full Time",
+                    score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
+                    team: { name: "", logo: "" },
+                    player: { name: "" },
+                    id: "period-ft",
+                  });
+                }
+
                 // Add "Halftime" marker if there are events in both halves
                 const firstHalfEvents = events.filter(
                   (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
@@ -1018,7 +1034,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   if (a.type === "penalty_shootout") return -1;
                   if (b.type === "penalty_shootout") return 1;
 
-                  // Special priority for "End of 90 Minutes" - put it second
+                  // Special priority for "Full Time" - put it second
+                  if (
+                    a.type === "period_score" &&
+                    a.detail === "Full Time"
+                  )
+                    return -1;
+                  if (
+                    b.type === "period_score" &&
+                    b.detail === "Full Time"
+                  )
+                    return 1;
+
+                  // Special priority for "End of 90 Minutes" - put it third
                   if (
                     a.type === "period_score" &&
                     a.detail === "End of 90 Minutes"
