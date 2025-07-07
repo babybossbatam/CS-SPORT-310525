@@ -246,6 +246,36 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
             // Add period score markers
             const periodMarkers = [];
 
+            // Add "Full Time" marker for ended matches
+            const hasEndedEvents = events.some(
+              (event) =>
+                event.time.elapsed >= 90 &&
+                event.time.extra &&
+                event.time.extra > 0,
+            );
+
+            if (hasEndedEvents) {
+              // Find the event with the highest total time (elapsed + extra)
+              const eventsWithTotalTime = events.map(e => ({
+                ...e,
+                totalTime: e.time.elapsed + (e.time.extra || 0)
+              }));
+
+              const finalEvent = eventsWithTotalTime.reduce((latest, current) => 
+                current.totalTime > latest.totalTime ? current : latest
+              );
+
+              const finalScore = calculateScoreAtTime(finalEvent.totalTime);
+              periodMarkers.push({
+                time: { elapsed: finalEvent.time.elapsed, extra: finalEvent.time.extra },
+                type: "period_score",
+                detail: "Full Time",
+                score: `${finalScore.homeScore} - ${finalScore.awayScore}`,
+                team: { name: "", logo: "" },
+                player: { name: "" },
+              } as any);
+            }
+
             // Add "Halftime" marker if there are events in both halves
             if (hasEventsInFirstHalf && hasEventsInSecondHalf) {
               const halftimeScore = calculateScoreAtTime(45);
