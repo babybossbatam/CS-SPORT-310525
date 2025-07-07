@@ -1,0 +1,56 @@
+{/* Match date and venue - centered below VS */}
+                        <div
+                          className=" absolute text-center text-xs text-black font-medium"
+                          style={{
+                            fontSize: "0.875rem",
+                            whiteSpace: "nowrap",
+                            overflow: "visible",
+                            textAlign: "center",
+                            position: "absolute",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            top: "60px",
+                            bottom: "-15px",
+                            width: "max-content",
+                            fontFamily: "'Inter', system-ui, sans-serif",
+                          }}
+                        >
+                          {(() => {
+                            try {
+                              const matchDate = new Date(
+                                currentMatch.fixture.date,
+                              );
+                              const formattedDate = format(
+                                matchDate,
+                                "EEEE, do MMMM",
+                              );
+                              const timeOnly = format(matchDate, "HH:mm");
+                              let venue = currentMatch.fixture?.venue?.name;
+                              // Check for SportsRadar venue data if primary venue is missing
+                              let displayVenue = venue;
+                              const matchId = currentMatch.fixture.id;
+                              const sportradarVenueData = sportradarVenues[matchId];
+                              
+                              if (!displayVenue || displayVenue === "TBD" || displayVenue === "Venue TBA") {
+                                if (sportradarVenueData?.venue?.name && sportradarVenueData.venue.name !== "TBD") {
+                                  displayVenue = sportradarVenueData.venue.name;
+                                } else {
+                                  // Fallback to any existing venue data in the match object
+                                  const fallbackVenue = currentMatch.venue?.name || currentMatch.fixture?.venue?.name;
+                                  if (fallbackVenue && fallbackVenue !== "TBD") {
+                                    displayVenue = fallbackVenue;
+                                  }
+                                }
+                              }
+
+                              return (
+                                <>
+                                  {formattedDate} | {timeOnly}
+                                  {displayVenue && displayVenue !== "TBD" && displayVenue !== "Venue TBA" ? ` | ${displayVenue}` : ""}
+                                </>
+                              );
+                            } catch (e) {
+                              return "";
+                            }
+                          })()}
+                        </div>
