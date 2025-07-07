@@ -338,23 +338,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                           {/* Elapsed time */}
                           {event.detail === "Full Time" ? (
-                            
-                            <div className="flex items-center    py-1  mb-1">
-                              <div className="text-lg font-bold text-gray-900 ml-4">
-                                <img
-                                  src="/assets/matchdetaillogo/clock.png"
-                                  alt="Full Time"
-                                  className="w-4 h-4 opacity-80 flex-shrink-0"
-                                />
-                              </div>
-                              <span className="text-lg font-bold text-gray-900 ml-2">
-                                {(() => {
-                                  const finalScore = calculateScoreAtTime(
-                                    event.time.elapsed + (event.time.extra || 0)
-                                  );
-                                  return `${finalScore.homeScore}-${finalScore.awayScore}`;
-                                })()}
-                              </span>
+                            <div className="text-gray-800 text-sm font-medium leading-tight">
+                              {(() => {
+                                const finalScore = calculateScoreAtTime(
+                                  event.time.elapsed + (event.time.extra || 0)
+                                );
+                                return `${finalScore.homeScore}-${finalScore.awayScore}`;
+                              })()}
                             </div>
                           ) : (
                             <div className="w-3 h-6  flex items-center justify-center ">
