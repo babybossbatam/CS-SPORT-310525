@@ -276,6 +276,16 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   return b.time.elapsed - a.time.elapsed;
                 }
 
+                // Special handling for 45-minute events: prioritize period_marker over period_end
+                if (a.time.elapsed === 45 && b.time.elapsed === 45) {
+                  if (a.type === "period_marker" && b.type === "period_end") {
+                    return -1; // period_marker (45 minutes) comes first
+                  }
+                  if (a.type === "period_end" && b.type === "period_marker") {
+                    return 1; // period_end (Half Time/Second Half begins) comes second
+                  }
+                }
+
                 // If elapsed time is the same, sort by extra time (descending)
                 // Events with higher extra time should appear first
                 const aExtra = a.time.extra || 0;
