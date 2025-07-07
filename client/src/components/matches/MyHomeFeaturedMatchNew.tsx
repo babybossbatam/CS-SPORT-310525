@@ -50,7 +50,7 @@ const POPULAR_LEAGUES = [
 const FEATURED_MATCH_LEAGUE_IDS = [
   39, 140, 135, 78, 61, 2, 3, 848, 5, 1, 4, 15, 38, 9, 6, 16,
 ];
-const PRIORITY_LEAGUE_IDS = [15, 38]; // FIFA Club World Cup, UEFA U21 Championship
+const PRIORITY_LEAGUE_IDS = [15, 38, 22]; // FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup
 
 interface FeaturedMatch {
   fixture: {
