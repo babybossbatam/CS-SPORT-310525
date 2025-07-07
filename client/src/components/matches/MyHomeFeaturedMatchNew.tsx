@@ -1402,8 +1402,33 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     </div>
                   </div>
 
+                  {/* Match Venue, Date and Time Information */}
+                  <div className="text-center mt-4 mb-4 px-4">
+                    <div className="text-sm text-gray-700 font-medium">
+                      {(() => {
+                        try {
+                          const matchDate = new Date(currentMatch.fixture.date);
+                          const dayName = format(matchDate, "EEEE");
+                          const dateFormatted = format(matchDate, "do MMMM");
+                          const timeFormatted = format(matchDate, "HH:mm");
+                          const venue = currentMatch.fixture?.venue?.name || "Venue TBA";
+                          const city = currentMatch.fixture?.venue?.city || "";
+                          
+                          return (
+                            <>
+                              {dayName}, {dateFormatted} | {timeFormatted} | {venue}
+                              {city && ` (${city})`}
+                            </>
+                          );
+                        } catch (e) {
+                          return "Match information unavailable";
+                        }
+                      })()}
+                    </div>
+                  </div>
+
                   {/* Action Buttons */}
-                  <div className="flex justify-around border-t border-gray-200 pt-4">
+                  <div className="flex justify-around border-t border-gray-200 pt-4"></div>
                     <button
                       className="flex flex-col items-center cursor-pointer"
                       onClick={(e) => {
