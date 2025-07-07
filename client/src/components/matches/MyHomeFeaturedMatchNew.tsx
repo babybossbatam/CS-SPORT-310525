@@ -1426,17 +1426,39 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             } else if (venueInfo?.city) {
                               return `Stadium in ${venueInfo.city}`;
                             } else {
-                              // Check if it's a neutral venue match or international competition
+                              // Enhanced logic for different competition types
+                              const leagueName = currentMatch.league.name.toLowerCase();
                               const isInternational = ['World', 'Europe'].includes(currentMatch.league.country);
-                              const isNeutralVenue = currentMatch.league.name.toLowerCase().includes('world cup') || 
-                                                   currentMatch.league.name.toLowerCase().includes('euro') ||
-                                                   currentMatch.league.name.toLowerCase().includes('nations league');
                               
-                              if (isInternational || isNeutralVenue) {
-                                return "Neutral Venue";
-                              } else {
-                                return "Venue TBA";
+                              // FIFA Club World Cup
+                              if (leagueName.includes('fifa') && leagueName.includes('world cup')) {
+                                return "FIFA CWC Venue";
                               }
+                              
+                              // UEFA competitions
+                              if (leagueName.includes('uefa') || leagueName.includes('champions') || 
+                                  leagueName.includes('europa') || leagueName.includes('conference')) {
+                                return "UEFA Venue";
+                              }
+                              
+                              // Youth competitions
+                              if (leagueName.includes('u21') || leagueName.includes('youth')) {
+                                return "Youth Tournament Venue";
+                              }
+                              
+                              // CONCACAF competitions
+                              if (leagueName.includes('concacaf') || leagueName.includes('gold cup')) {
+                                return "CONCACAF Venue";
+                              }
+                              
+                              // Other international competitions
+                              if (isInternational || leagueName.includes('world') || 
+                                  leagueName.includes('international') || leagueName.includes('nations league')) {
+                                return "International Venue";
+                              }
+                              
+                              // Default fallback
+                              return "Venue TBA";
                             }
                           };
                           
