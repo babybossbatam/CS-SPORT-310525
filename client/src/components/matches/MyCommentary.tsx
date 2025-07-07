@@ -454,6 +454,62 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       </div>
                     </div>
                   );
+                  
+                  {/* Duplicate component */}
+                  return (
+                    <div
+                      key={`period-duplicate-${index}`}
+                      className="commentary-event-container"
+                    >
+                      <div className="flex gap-1">
+                        {/* Time Column */}
+                        <div className="flex flex-col items-center min-w-[45px]">
+                          {/* Show extra time above elapsed time for Full Time marker */}
+                          {event.detail === "Full Time" && event.time.extra && (
+                            <div className="text-xs font-medium text-red-500 leading-tight">
+                              +{event.time.extra}'
+                            </div>
+                          )}
+
+                          {/* Elapsed time */}
+                          {event.detail === "Full Time" ? (
+                            <div className="text-gray-800 text-sm font-medium leading-tight">
+                              {event.time.elapsed}'
+                            </div>
+                          ) : (
+                            <div className="w-3 h-6  flex items-center justify-center ">
+                              {event.type === "period_start" ? (
+                                <img
+                                  src="/assets/matchdetaillogo/i mark.svg"
+                                  alt="Period Start"
+                                  className="w-4 h-4 ml-1 mb-2"
+                                />
+                              ) : (
+                                <span className="text-white text-xs font-semi-bold ">    <img
+                                    src="/assets/matchdetaillogo/i mark.svg"
+                                    alt="Period Start"
+                                    className="w-4 h-4 ml-1 mb-1"
+                                  />
+                                 
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {index < allCommentaryItems.length - 1 && (
+                            <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
+                          )}
+                        </div>
+
+                        {/* Content Column */}
+                        <div className="flex-1">
+                          <div className="text-xs font-md  text-gray-600 leading-relaxed">
+                            {displayText}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
                 }
 
                 // Handle regular period markers (like "90 minutes")
