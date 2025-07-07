@@ -221,6 +221,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   player: { name: "" },
                 } as any);
               }
+              
             }
 
             // Add "90 minutes" period marker if there are events in the second half and the latest event is close to or after 90 minutes
@@ -555,7 +556,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       <div className="flex-1">
                         {event.type === "Goal" ? (
                           <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-1 -ml-3 py-1 rounded-md text-xs font-medium">
+                            <div className="flex items-center gap-1 -ml-3 -mt-1 py-1 rounded-md text-xs font-medium">
                               {(() => {
                                 const detail = event.detail?.toLowerCase() || "";
                                 if (detail.includes("penalty")) {
