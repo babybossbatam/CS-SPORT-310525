@@ -845,6 +845,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [],
   );
 
+  // State for storing SportsRadar venue information
+  const [sportradarVenues, setSportradarVenues] = useState<Record<number, any>>({});
+
   // Extract colors from team logos when match changes
   useEffect(() => {
     if (currentMatch?.teams) {
@@ -882,6 +885,50 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       extractColors();
     }
   }, [currentMatch, extractDominantColorFromLogo, teamLogoColors]);
+
+  // Fetch SportsRadar venue information for matches missing venue data
+  useEffect(() => {
+    if (currentMatch && currentMatch.fixture?.id) {
+      const venue = currentMatch.fixture?.venue?.name;
+      const matchId = currentMatch.fixture.id;
+      
+      // Only fetch if venue is missing or placeholder and we haven't already fetched for this match
+      if ((!venue || venue === "TBD" || venue === "Venue TBA") && !sportradarVenues[matchId]) {
+        const fetchSportradarVenue = async () => {
+          try {
+            console.log(`🏟️ [SportsRadar] Fetching venue for match ${matchId} (${currentMatch.teams.home.name} vs ${currentMatch.teams.away.name})`);
+            
+            const response = await fetch(`/api/sportsradar/match-venue/${matchId}`);
+            if (response.ok) {
+              const venueData = await response.json();
+              console.log(`✅ [SportsRadar] Found venue data for match ${matchId}:`, venueData);
+              
+              setSportradarVenues(prev => ({
+                ...prev,
+                [matchId]: venueData
+              }));
+            } else {
+              console.log(`❌ [SportsRadar] No venue data found for match ${matchId}`);
+              // Cache the "no data" result to avoid repeated requests
+              setSportradarVenues(prev => ({
+                ...prev,
+                [matchId]: null
+              }));
+            }
+          } catch (error) {
+            console.error(`❌ [SportsRadar] Error fetching venue for match ${matchId}:`, error);
+            // Cache the error result to avoid repeated requests
+            setSportradarVenues(prev => ({
+              ...prev,
+              [matchId]: null
+            }));
+          }
+        };
+
+        fetchSportradarVenue();
+      }
+    }
+  }, [currentMatch, sportradarVenues]);
 
   // Countdown timer effect for upcoming matches
   useEffect(() => {
@@ -1327,10 +1374,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               let venue = currentMatch.fixture?.venue?.name;
                               // Check for SportsRadar venue data if primary venue is missing
                               let displayVenue = venue;
+                              const matchId = currentMatch.fixture.id;
+                              const sportradarVenueData = sportradarVenues[matchId];
+                              
                               if (!displayVenue || displayVenue === "TBD" || displayVenue === "Venue TBA") {
-                                const sportradarVenue = currentMatch.venue?.name || currentMatch.fixture?.venue?.name;
-                                if (sportradarVenue && sportradarVenue !== "TBD") {
-                                  displayVenue = sportradarVenue;
+                                if (sportradarVenueData?.venue?.name && sportradarVenueData.venue.name !== "TBD") {
+                                  displayVenue = sportradarVenueData.venue.name;
+                                } else {
+                                  // Fallback to any existing venue data in the match object
+                                  const fallbackVenue = currentMatch.venue?.name || currentMatch.fixture?.venue?.name;
+                                  if (fallbackVenue && fallbackVenue !== "TBD") {
+                                    displayVenue = fallbackVenue;
+                                  }
                                 }
                               }
 
@@ -1421,14 +1476,21 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           const timeFormatted = format(matchDate, "HH:mm");
                           let venue = currentMatch.fixture?.venue?.name;
                           let city = currentMatch.fixture?.venue?.city;
+                          const matchId = currentMatch.fixture.id;
+                          const sportradarVenueData = sportradarVenues[matchId];
 
                           // Try to get venue from SportsRadar if not available
                           if (!venue || venue === "TBD" || venue === "Venue TBA") {
-                            // Check if we have SportsRadar venue data in the match object
-                            const sportradarVenue = currentMatch.venue || currentMatch.fixture?.venue;
-                            if (sportradarVenue?.name && sportradarVenue.name !== "TBD") {
-                              venue = sportradarVenue.name;
-                              city = sportradarVenue.city;
+                            if (sportradarVenueData?.venue?.name && sportradarVenueData.venue.name !== "TBD") {
+                              venue = sportradarVenueData.venue.name;
+                              city = sportradarVenueData.venue.city;
+                            } else {
+                              // Fallback to any existing venue data in the match object
+                              const fallbackVenue = currentMatch.venue || currentMatch.fixture?.venue;
+                              if (fallbackVenue?.name && fallbackVenue.name !== "TBD") {
+                                venue = fallbackVenue.name;
+                                city = fallbackVenue.city;
+                              }
                             }
                           }
 

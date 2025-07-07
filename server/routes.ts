@@ -2966,8 +2966,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const sportradarFixtures = await sportsradarApi.getFixturesByDate(dateStr);
 
         if (sportradarFixtures && Array.isArray(sportradarFixtures)) {
-          // Find matching fixture by team names
+          // Find matching fixture by team names (flexible matching)
           const matchingFixture = sportradarFixtures.find((fixture: any) => {
+            const srHomeTeam = fixture.home_team?.name || "";
+            const srAwayTeam = fixture.away_team?.name || "";
+            
+            // Try exact match first
+            if (srHomeTeam === homeTeam && srAwayTeam === awayTeam) {
+              return true;
+            }
+            
+            // Try partial match (in case team names differ slightly)
+            const homeMatch = homeTeam.toLowerCase().includes(srHomeTeam.toLowerCase()) ||
+                             srHomeTeam.toLowerCase().includes(homeTeam.toLowerCase());
+            const awayMatch = awayTeam.toLowerCase().includes(srAwayTeam.toLowerCase()) ||
+                             srAwayTeam.toLowerCase().includes(awayTeam.toLowerCase());
+                             
+            return homeMatch && awayMatch;
+          });
+
+          if (matchingFixture && matchingFixture.venue) {
+            console.log(`✅ [SportsRadar] Found venue for match ${matchId}: ${matchingFixture.venue.name}`);
+            return res.json({
+              success: true,
+              venue: {
+                name: matchingFixture.venue.name,
+                city: matchingFixture.venue.city,
+                country: matchingFixture.venue.country,
+                capacity: matchingFixture.venue.capacity
+              }
+            });
+          }
+        }
+      }
+
+      console.log(`❌ [SportsRadar] No venue found for match ${matchId}`);
+      return res.json({
+        success: false,
+        message: "Venue information not available"
+      });
+    } catch (error) {
+      console.error(`❌ [SportsRadar] Error fetching venue for match ${matchId}:`, error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch venue information"
+      });
+    }
+  }); any) => {
             const srHomeTeam = fixture.home_team?.name || "";
             const srAwayTeam = fixture.away_team?.name || "";
 
