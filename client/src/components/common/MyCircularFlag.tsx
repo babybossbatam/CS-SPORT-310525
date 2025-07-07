@@ -127,7 +127,6 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Australia: "au",
       "Chinese Taipei": "tw",
       Vietnam: "vn",
-      Zambia: "zm",
     };
 
     // Try to find a pattern match in the team name

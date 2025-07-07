@@ -138,16 +138,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
             <div className="border-t flex items-center ">
               <div className="text-center">
-                <div className="text-lg font-bold text-gray-900 ml-4">
-                  <img
-                    src="/assets/matchdetaillogo/clock.png"
-                    alt="Full Time"
-                    className="w-4 h-4 opacity-80 flex-shrink-0"
-                  />
+                <div className="text-sm font-semibold text-gray-800 mb-1">
+
                 </div>
-                <span className="text-lg font-bold text-gray-900 ml-2">
-                  {finalScore.homeScore}-{finalScore.awayScore}
-                </span>
                 <div className="ml-8 text-xs text-red-500 text-center">
 
                     {finalEvent.time.extra && finalEvent.time.extra > 0 ? ` +${finalEvent.time.extra}'` : ""}
@@ -224,9 +217,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
             const latestEvent = events.length > 0 ? events.reduce((latest, current) => 
               (current.time.elapsed + (current.time.extra || 0)) > (latest.time.elapsed + (latest.time.extra || 0)) ? current : latest
             ) : null;
-
+            
             const shouldShow90Marker = secondHalfEvents.length > 0 && latestEvent && latestEvent.time.elapsed >= 80;
-
+            
             if (shouldShow90Marker) {
               // Find the highest extra time played in events at or after 90 minutes
               const eventsAt90Plus = events.filter((e) => e.time.elapsed >= 90);
@@ -238,8 +231,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               ) : 0;
 
               const ninetyMinDetail = maxExtraTime > 0 
-                ? `Full Time` 
-                : "Full Time";
+                ? `90 minutes +${maxExtraTime}' extra time` 
+                : "90 minutes";
 
               allCommentaryItems.push({
                 time: { elapsed: 90, extra: maxExtraTime > 0 ? maxExtraTime : undefined },
@@ -276,16 +269,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   return b.time.elapsed - a.time.elapsed;
                 }
 
-                // Special handling for 45-minute events: prioritize period_marker over period_end
-                if (a.time.elapsed === 45 && b.time.elapsed === 45) {
-                  if (a.type === "period_marker" && b.type === "period_end") {
-                    return -1; // period_marker (45 minutes) comes first
-                  }
-                  if (a.type === "period_end" && b.type === "period_marker") {
-                    return 1; // period_end (Half Time/Second Half begins) comes second
-                  }
-                }
-
                 // If elapsed time is the same, sort by extra time (descending)
                 // Events with higher extra time should appear first
                 const aExtra = a.time.extra || 0;
@@ -305,7 +288,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       <div className="flex items-center    py-1  mb-1">
                         <div className="text-sm font-semibold text-gray-700 ml-4">
                           {event.time.elapsed}'
-
+                          
                         </div>
                         <div className="text-lg font-bold text-gray-900 ml-4">
                           <img
@@ -313,7 +296,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             alt="Goal"
                             className=" w-4 h-4 opacity-80 flex-shrink-0 "
                           />
-
+                          
                         </div>
                         <span className="text-lg font-bold text-gray-900 ml-2">
                           {event.score}
@@ -346,45 +329,25 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       <div className="flex gap-1">
                         {/* Time Column */}
                         <div className="flex flex-col items-center min-w-[45px]">
-                          {/* Show extra time above elapsed time for Full Time marker */}
-                          {event.detail === "Full Time" && event.time.extra && (
-                            <div className="text-xs font-medium text-red-500 leading-tight">
-                              +{event.time.extra}'
-                            </div>
-                          )}
-
-                          {/* Elapsed time */}
-                          {event.detail === "Full Time" ? (
-                            <div className="text-gray-800 text-sm font-medium leading-tight">
-                              {(() => {
-                                const finalScore = calculateScoreAtTime(
-                                  event.time.elapsed + (event.time.extra || 0)
-                                );
-                                return `${finalScore.homeScore}-${finalScore.awayScore}`;
-                              })()}
-                            </div>
-                          ) : (
-                            <div className="w-3 h-6  flex items-center justify-center ">
-                              {event.detail === "Half Time" ? (
-                                <img
-                                  src="/assets/matchdetaillogo/i mark.svg"
-                                  alt="Half Time"
-                                  className="w-4 h-4 ml-1"
-                                />
-                              ) : event.type === "period_start" ? (
-                                <img
-                                  src="/assets/matchdetaillogo/i mark.svg"
-                                  alt="Period Start"
-                                  className="w-4 h-4 ml-1"
-                                />
-                              ) : (
-                                <span className="text-white text-xs font-semi-bold ">
-                                  ⏱️
-                                </span>
-                              )}
-                            </div>
-                          )}
-
+                          <div className="w-3 h-6  flex items-center justify-center ">
+                            {event.detail === "Half Time" ? (
+                              <img
+                                src="/assets/matchdetaillogo/i mark.svg"
+                                alt="Half Time"
+                                className="w-4 h-4 ml-1"
+                              />
+                            ) : event.type === "period_start" ? (
+                              <img
+                                src="/assets/matchdetaillogo/i mark.svg"
+                                alt="Period Start"
+                                className="w-4 h-4 ml-1"
+                              />
+                            ) : (
+                              <span className="text-white text-xs font-semi-bold ">
+                                ⏱️
+                              </span>
+                            )}
+                          </div>
                           {index < allCommentaryItems.length - 1 && (
                             <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
                           )}
@@ -532,7 +495,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         ) : event.type === "Subst" ? (
                           <div
                             className="text-sm text-gray-700 leading-relaxed -ml-18"
-
+                            
                           >
                             {eventDescription}
                           </div>
@@ -544,7 +507,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 alt="Missed Penalty"
                                 className="w-4 h-4 opacity-80 flex-shrink-0"
                               />
-
+                              
                               </span>
                             <div className="text-xs text-gray-700 leading-relaxed">
                               {eventDescription}
