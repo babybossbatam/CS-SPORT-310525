@@ -1112,7 +1112,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       let roundInfo = currentMatch.league.round || 
                                      currentMatch.fixture?.round || 
                                      currentMatch.league.season?.round ||
-                                     currentMatch.fixture?.status?.round;
+                                     currentMatch.fixture?.status?.round ||
+                                     currentMatch.round;
 
                       // Enhanced bracket status mapping for different tournament formats
                       const getBracketStatus = (leagueName: string, round: string) => {
@@ -1125,7 +1126,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           if (lowerRound.includes('round of 16') || lowerRound.includes('1st knockout round')) return 'Round of 16';
                           if (lowerRound.includes('quarter') || lowerRound.includes('qf')) return 'Quarter-finals';
                           if (lowerRound.includes('semi') || lowerRound.includes('sf')) return 'Semi-finals';
-                          if (lowerRound.includes('final')) return 'Final';
+                          if (lowerRound.includes('final') && !lowerRound.includes('semi')) return 'Final';
                         }
 
                         // Europa League bracket stages
@@ -1135,7 +1136,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           if (lowerRound.includes('round of 16')) return 'Round of 16';
                           if (lowerRound.includes('quarter')) return 'Quarter-finals';
                           if (lowerRound.includes('semi')) return 'Semi-finals';
-                          if (lowerRound.includes('final')) return 'Final';
+                          if (lowerRound.includes('final') && !lowerRound.includes('semi')) return 'Final';
                         }
 
                         // World Cup and international tournaments
@@ -1145,7 +1146,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           if (lowerRound.includes('quarter')) return 'Quarter-finals';
                           if (lowerRound.includes('semi')) return 'Semi-finals';
                           if (lowerRound.includes('3rd place') || lowerRound.includes('third place')) return '3rd Place Playoff';
-                          if (lowerRound.includes('final')) return 'Final';
+                          if (lowerRound.includes('final') && !lowerRound.includes('semi') && !lowerRound.includes('3rd')) return 'Final';
                         }
 
                         // FIFA Club World Cup
@@ -1155,7 +1156,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           if (lowerRound.includes('round of 16')) return 'Round of 16';
                           if (lowerRound.includes('quarter')) return 'Quarter-finals';
                           if (lowerRound.includes('semi')) return 'Semi-finals';
-                          if (lowerRound.includes('final')) return 'Final';
+                          if (lowerRound.includes('final') && !lowerRound.includes('semi')) return 'Final';
                         }
 
                         // CONCACAF Gold Cup and other continental tournaments
@@ -1164,14 +1165,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           if (lowerRound.includes('round of 16')) return 'Round of 16';
                           if (lowerRound.includes('quarter')) return 'Quarter-finals';
                           if (lowerRound.includes('semi')) return 'Semi-finals';
-                          if (lowerRound.includes('final')) return 'Final';
+                          if (lowerRound.includes('final') && !lowerRound.includes('semi')) return 'Final';
                         }
 
                         // UEFA Nations League
                         if (lowerLeague.includes('nations league')) {
                           if (lowerRound.includes('league')) return 'League Phase';
                           if (lowerRound.includes('semi')) return 'Semi-finals';
-                          if (lowerRound.includes('final')) return 'Final';
+                          if (lowerRound.includes('final') && !lowerRound.includes('semi')) return 'Final';
                           if (lowerRound.includes('3rd place')) return '3rd Place Playoff';
                         }
 
@@ -1179,31 +1180,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         if (lowerLeague.includes('u21') || lowerLeague.includes('under 21')) {
                           if (lowerRound.includes('group')) return 'Group Stage';
                           if (lowerRound.includes('semi')) return 'Semi-finals';
-                          if (lowerRound.includes('final')) return 'Final';
+                          if (lowerRound.includes('final') && !lowerRound.includes('semi')) return 'Final';
                         }
+
+                        // Regular season competitions
+                        if (lowerRound.includes('regular season') || lowerRound.includes('matchday')) return 'Matchday';
+                        if (lowerRound.includes('playoff') && !lowerRound.includes('3rd')) return 'Playoffs';
 
                         // Return original round info if no specific mapping found
                         return round;
                       };
 
-                      // Fallback round information for specific leagues if no round data is available
-                      if (!roundInfo) {
-                        if (currentMatch.league.name === "FIFA Club World Cup") {
-                          roundInfo = "Group Stage";
-                        } else if (currentMatch.league.name === "CONCACAF Gold Cup") {
-                          roundInfo = "Group Stage";
-                        } else if (currentMatch.league.name === "UEFA Europa Conference League") {
-                          roundInfo = "Group Stage";
-                        } else if (currentMatch.league.name === "UEFA Champions League") {
-                          roundInfo = "Group Stage";
-                        } else if (currentMatch.league.name === "UEFA Europa League") {
-                          roundInfo = "Group Stage";
-                        } else if (currentMatch.league.name === "UEFA U21 Championship") {
-                          roundInfo = "Group Stage";
-                        }
-                      }
-
-                      // Process the round information through bracket status mapping
+                      // Only process if we have actual round information from the API
                       const processedRound = roundInfo ? getBracketStatus(currentMatch.league.name, roundInfo) : null;
 
                       return processedRound ? (
