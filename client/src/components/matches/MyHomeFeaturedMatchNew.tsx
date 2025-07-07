@@ -1204,7 +1204,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         >
                           {currentMatch?.teams?.home && (
                             <div
-                              className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out hover:scale-110 hover:contrast-125 hover:brightness-120 hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                              className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
                               style={{
                                 cursor: "pointer",
                                 top: "calc(50% - 32px)",
@@ -1332,7 +1332,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         </div>
 
                         <div
-                          className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out "
+                          className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
                           style={{
                             cursor: "pointer",
                             top: "calc(50% - 32px)",
