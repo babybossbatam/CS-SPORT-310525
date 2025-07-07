@@ -212,19 +212,23 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               }
             }
 
-            // Add "90 minutes" period marker if there are events at or after 90 minutes
-            const hasEventsAt90Plus = events.some(
-              (e) => e.time.elapsed >= 90,
-            );
+            // Add "90 minutes" period marker if there are events in the second half and the latest event is close to or after 90 minutes
+            const secondHalfEvents = events.filter((e) => e.time.elapsed > 45);
+            const latestEvent = events.length > 0 ? events.reduce((latest, current) => 
+              (current.time.elapsed + (current.time.extra || 0)) > (latest.time.elapsed + (latest.time.extra || 0)) ? current : latest
+            ) : null;
             
-            if (hasEventsAt90Plus) {
-              // Find the highest extra time played
-              const maxExtraTime = Math.max(
-                ...events
-                  .filter((e) => e.time.elapsed >= 90 && e.time.extra)
+            const shouldShow90Marker = secondHalfEvents.length > 0 && latestEvent && latestEvent.time.elapsed >= 80;
+            
+            if (shouldShow90Marker) {
+              // Find the highest extra time played in events at or after 90 minutes
+              const eventsAt90Plus = events.filter((e) => e.time.elapsed >= 90);
+              const maxExtraTime = eventsAt90Plus.length > 0 ? Math.max(
+                ...eventsAt90Plus
+                  .filter((e) => e.time.extra)
                   .map((e) => e.time.extra || 0),
                 0
-              );
+              ) : 0;
 
               const ninetyMinDetail = maxExtraTime > 0 
                 ? `90 minutes +${maxExtraTime}' extra time` 
