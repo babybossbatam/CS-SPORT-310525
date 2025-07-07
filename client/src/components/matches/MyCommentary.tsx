@@ -341,6 +341,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             <div className="text-gray-800 text-sm font-medium leading-tight">
                               {event.time.elapsed}'
                             </div>
+                      
+                     
+                      
                           ) : (
                             <div className="w-3 h-6  flex items-center justify-center ">
                               {event.detail === "Half Time" ? (
