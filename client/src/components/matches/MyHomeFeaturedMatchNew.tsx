@@ -1324,16 +1324,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 "EEEE, do MMMM",
                               );
                               const timeOnly = format(matchDate, "HH:mm");
-                              // Check multiple possible venue locations
-                              const venue = currentMatch.fixture?.venue?.name || 
-                                          currentMatch.venue?.name || 
-                                          currentMatch.fixture?.venue ||
-                                          null;
+                              const venue = currentMatch.fixture?.venue?.name;
 
                               return (
                                 <>
                                   {formattedDate} | {timeOnly}
-                                  {venue && ` | ${venue}`}
+                                  {venue ? ` | ${venue}` : ""}
                                 </>
                               );
                             } catch (e) {
