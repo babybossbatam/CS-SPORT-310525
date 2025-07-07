@@ -138,9 +138,16 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
             <div className="border-t flex items-center ">
               <div className="text-center">
-                <div className="text-sm font-semibold text-gray-800 mb-1">
-
+                <div className="text-lg font-bold text-gray-900 ml-4">
+                  <img
+                    src="/assets/matchdetaillogo/clock.png"
+                    alt="Full Time"
+                    className="w-4 h-4 opacity-80 flex-shrink-0"
+                  />
                 </div>
+                <span className="text-lg font-bold text-gray-900 ml-2">
+                  {finalScore.homeScore}-{finalScore.awayScore}
+                </span>
                 <div className="ml-8 text-xs text-red-500 text-center">
 
                     {finalEvent.time.extra && finalEvent.time.extra > 0 ? ` +${finalEvent.time.extra}'` : ""}
