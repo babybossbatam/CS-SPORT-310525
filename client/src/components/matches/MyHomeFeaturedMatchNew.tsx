@@ -1347,7 +1347,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         return null;
                       };
 
-                      // Main processing logic
+                      // Main processing logic - only show bracket status, never fixture status
                       let processedRound = null;
                       
                       // First try to extract from round data
@@ -1362,6 +1362,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         processedRound = inferBracketStatus(currentMatch.league.name, matchDate, teamNames, currentMatch.fixture.id);
                       }
 
+                      // Only return bracket status, never fixture/match status
                       return processedRound ? (
                         <span className="text-xs text-gray-600 font-medium">
                           • {processedRound}
