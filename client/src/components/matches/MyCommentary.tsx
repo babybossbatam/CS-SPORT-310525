@@ -196,7 +196,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               allCommentaryItems.push({
                 time: { elapsed: 45 },
                 type: "period_marker",
-                detail: `45 minutes ${homeTeam || "Home"} ${halftimeScore.homeScore}, ${awayTeam || "Away"} ${halftimeScore.awayScore}`,
+                detail: `Second Half begins ${homeTeam || "Home"} ${halftimeScore.homeScore}, ${awayTeam || "Away"} ${halftimeScore.awayScore}`,
                 team: { name: "", logo: "" },
                 player: { name: "" },
               } as any);
@@ -389,11 +389,15 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 <img
                                   src="/assets/matchdetaillogo/i mark.svg"
                                   alt="Period Start"
-                                  className="w-4 h-4 ml-1"
+                                  className="w-4 h-4 ml-1 mb-2"
                                 />
                               ) : (
-                                <span className="text-white text-xs font-semi-bold ">
-                                  ⏱️
+                                <span className="text-white text-xs font-semi-bold ">    <img
+                                    src="/assets/matchdetaillogo/i mark.svg"
+                                    alt="Period Start"
+                                    className="w-4 h-4 ml-1 mb-1"
+                                  />
+                                 
                                 </span>
                               )}
                             </div>
