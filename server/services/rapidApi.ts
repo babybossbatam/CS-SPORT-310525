@@ -867,6 +867,88 @@ export const rapidApiService = {
   },
 
   /**
+   * Get comprehensive match statistics
+   */
+  async getFixtureStatistics(fixtureId: number): Promise<any | null> {
+    const cacheKey = `stats-${fixtureId}`;
+    const cached = playersCache.get(cacheKey);
+
+    const now = Date.now();
+    // Cache for 30 seconds for live matches
+    if (cached && now - cached.timestamp < 30000) {
+      console.log(`📊 [RapidAPI] Using cached statistics for fixture ${fixtureId}`);
+      return cached.data;
+    }
+
+    try {
+      console.log(`📊 [RapidAPI] Fetching statistics for fixture: ${fixtureId}`);
+
+      const response = await apiClient.get("/fixtures/statistics", {
+        params: {
+          fixture: fixtureId
+        }
+      });
+
+      if (response.data?.response && response.data.response.length > 0) {
+        const statistics = response.data.response;
+        
+        // Transform statistics into a more usable format
+        const transformedStats = {
+          ballPossession: this.extractStatistic(statistics, 'Ball Possession'),
+          shotsOnGoal: this.extractStatistic(statistics, 'Shots on Goal'),
+          shotsTotal: this.extractStatistic(statistics, 'Total Shots'),
+          fouls: this.extractStatistic(statistics, 'Fouls'),
+          cornerKicks: this.extractStatistic(statistics, 'Corner Kicks'),
+          yellowCards: this.extractStatistic(statistics, 'Yellow Cards'),
+          redCards: this.extractStatistic(statistics, 'Red Cards'),
+          passes: this.extractStatistic(statistics, 'Passes %'),
+          passesTotal: this.extractStatistic(statistics, 'Passes'),
+          blocked: this.extractStatistic(statistics, 'Blocked Shots'),
+          offsides: this.extractStatistic(statistics, 'Offsides'),
+        };
+
+        playersCache.set(cacheKey, {
+          data: transformedStats,
+          timestamp: now,
+        });
+
+        console.log(`✅ [RapidAPI] Successfully cached statistics for fixture ${fixtureId}`);
+        return transformedStats;
+      }
+
+      console.log(`📊 [RapidAPI] No statistics found for fixture ${fixtureId}`);
+      return null;
+    } catch (error) {
+      console.error(`❌ [RapidAPI] Error fetching statistics for fixture ${fixtureId}:`, error);
+      if (cached?.data) {
+        console.log("Using cached data due to API error");
+        return cached.data;
+      }
+      return null;
+    }
+  },
+
+  /**
+   * Helper function to extract statistics from API response
+   */
+  extractStatistic(statistics: any[], statName: string) {
+    const homeTeam = statistics[0]?.statistics || [];
+    const awayTeam = statistics[1]?.statistics || [];
+    
+    const homeStat = homeTeam.find((stat: any) => stat.type === statName);
+    const awayStat = awayTeam.find((stat: any) => stat.type === statName);
+    
+    if (homeStat && awayStat) {
+      return {
+        home: homeStat.value,
+        away: awayStat.value
+      };
+    }
+    
+    return null;
+  },
+
+  /**
    * Get fixtures by league ID and season
    */
   async getFixturesByLeague(

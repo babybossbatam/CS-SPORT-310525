@@ -1411,13 +1411,35 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           const dayName = format(matchDate, "EEEE");
                           const dateFormatted = format(matchDate, "do MMMM");
                           const timeFormatted = format(matchDate, "HH:mm");
-                          const venue = currentMatch.fixture?.venue?.name || "Venue TBA";
-                          const city = currentMatch.fixture?.venue?.city || "";
+                          const venue = currentMatch.fixture?.venue?.name;
+                          const city = currentMatch.fixture?.venue?.city;
+                          
+                          // Enhanced venue logic
+                          const getVenueDisplay = () => {
+                            if (venue && city) {
+                              return `${venue}, ${city}`;
+                            } else if (venue) {
+                              return venue;
+                            } else if (city) {
+                              return `Stadium in ${city}`;
+                            } else {
+                              // Check if it's a neutral venue match or international competition
+                              const isInternational = ['World', 'Europe'].includes(currentMatch.league.country);
+                              const isNeutralVenue = currentMatch.league.name.toLowerCase().includes('world cup') || 
+                                                   currentMatch.league.name.toLowerCase().includes('euro') ||
+                                                   currentMatch.league.name.toLowerCase().includes('nations league');
+                              
+                              if (isInternational || isNeutralVenue) {
+                                return "Neutral Venue";
+                              } else {
+                                return "Venue TBA";
+                              }
+                            }
+                          };
                           
                           return (
                             <>
-                              {dayName}, {dateFormatted} | {timeFormatted} | {venue}
-                              {city && ` (${city})`}
+                              {dayName}, {dateFormatted} | {timeFormatted} | {getVenueDisplay()}
                             </>
                           );
                         } catch (e) {
