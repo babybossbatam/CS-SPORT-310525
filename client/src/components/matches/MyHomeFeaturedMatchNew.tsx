@@ -1062,13 +1062,37 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     </span>
                     {(() => {
                       // Check multiple possible round properties
-                      const roundInfo = currentMatch.league.round || 
-                                       currentMatch.fixture?.round || 
-                                       currentMatch.league.season?.round ||
-                                       currentMatch.fixture?.status?.round ||
-                                       (currentMatch.league.name === "CONCACAF Gold Cup" ? "Group Stage" : null) ||
-                                       (currentMatch.league.name === "UEFA Europa Conference League" ? "Group Stage" : null) ||
-                                       (currentMatch.league.name === "FIFA Club World Cup" ? "Group Stage" : null);
+                      let roundInfo = currentMatch.league.round || 
+                                     currentMatch.fixture?.round || 
+                                     currentMatch.league.season?.round ||
+                                     currentMatch.fixture?.status?.round;
+                      
+                      // If no round info found, check for tournament-specific rounds in venue or other fields
+                      if (!roundInfo) {
+                        // Check venue name for round information
+                        const venueName = currentMatch.fixture?.venue?.name || '';
+                        if (venueName.toLowerCase().includes('semi')) {
+                          roundInfo = 'Semi Finals';
+                        } else if (venueName.toLowerCase().includes('final') && !venueName.toLowerCase().includes('semi')) {
+                          roundInfo = 'Final';
+                        } else if (venueName.toLowerCase().includes('quarter')) {
+                          roundInfo = 'Quarter Finals';
+                        }
+                      }
+                      
+                      // Enhanced round detection for specific leagues
+                      if (!roundInfo) {
+                        if (currentMatch.league.name === "FIFA Club World Cup") {
+                          // For FIFA Club World Cup, try to determine stage based on teams or date
+                          const matchDate = new Date(currentMatch.fixture.date);
+                          const isLateStage = matchDate > new Date('2025-06-20'); // Assuming later dates are knockout stages
+                          roundInfo = isLateStage ? "Semi Finals" : "Group Stage";
+                        } else if (currentMatch.league.name === "CONCACAF Gold Cup") {
+                          roundInfo = "Group Stage";
+                        } else if (currentMatch.league.name === "UEFA Europa Conference League") {
+                          roundInfo = "Group Stage";
+                        }
+                      }
                       
                       return roundInfo ? (
                         <span className="text-xs text-gray-600 font-medium">
