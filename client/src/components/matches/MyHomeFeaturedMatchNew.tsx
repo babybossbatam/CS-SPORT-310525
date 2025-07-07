@@ -1066,7 +1066,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                      currentMatch.fixture?.round || 
                                      currentMatch.league.season?.round ||
                                      currentMatch.fixture?.status?.round;
-                      
+
                       // Fallback for specific leagues if no round data is available
                       if (!roundInfo) {
                         if (currentMatch.league.name === "FIFA Club World Cup") {
@@ -1077,7 +1077,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           roundInfo = "Group Stage";
                         }
                       }
-                      
+
                       return roundInfo ? (
                         <span className="text-xs text-gray-600 font-medium">
                           • {roundInfo}
@@ -1324,11 +1324,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 "EEEE, do MMMM",
                               );
                               const timeOnly = format(matchDate, "HH:mm");
-                              const venue = currentMatch.fixture?.venue?.name;
+                              // Check multiple possible venue locations
+                              const venue = currentMatch.fixture?.venue?.name || 
+                                          currentMatch.venue?.name || 
+                                          currentMatch.fixture?.venue ||
+                                          null;
 
                               return (
                                 <>
-                                  {formattedDate} | {timeOnly} | {venue}
+                                  {formattedDate} | {timeOnly}
+                                  {venue && ` | ${venue}`}
                                 </>
                               );
                             } catch (e) {
