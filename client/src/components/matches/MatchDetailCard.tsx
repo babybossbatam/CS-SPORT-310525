@@ -1,5 +1,5 @@
-
 import React from "react";
+import MatchEndedDetailsCard from "./MatchEndedDetailsCard";
 import MatchLiveDetailsCard from "./MatchLiveDetailsCard";
 import MatchUpcomingDetailsCard from "./MatchUpcomingDetailsCard";
 
@@ -18,22 +18,26 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
 
   const getMatchStatus = () => {
     const status = match.fixture?.status?.short;
-    
+
     // Live match statuses
     if (["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
       return "Live";
     }
-    
+
     // Ended match statuses
-    if (["FT", "AET", "PEN", "PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+    if (
+      ["FT", "AET", "PEN", "PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(
+        status,
+      )
+    ) {
       return "Ended";
     }
-    
+
     // Upcoming match statuses (including NS - Not Started)
     if (["NS", "TBD", "SUSP"].includes(status) || !status) {
       return "Upcoming";
     }
-    
+
     // Default to upcoming for unknown statuses
     return "Upcoming";
   };
@@ -46,6 +50,15 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
 
   const renderStatusCard = () => {
     switch (matchStatus) {
+      case "Ended":
+        return (
+          <MatchEndedDetailsCard
+            homeTeam={homeTeam}
+            awayTeam={awayTeam}
+            homeTeamLogo={homeTeamLogo}
+            awayTeamLogo={awayTeamLogo}
+          />
+        );
       case "Live":
         return (
           <MatchLiveDetailsCard
@@ -55,9 +68,9 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
             awayTeamLogo={awayTeamLogo}
           />
         );
-      
+
       case "Upcoming":
-      case "Ended":
+
       default:
         return (
           <MatchUpcomingDetailsCard
@@ -71,9 +84,7 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
   };
 
   return (
-    <div className={`match-detail-card ${className}`}>
-      {renderStatusCard()}
-    </div>
+    <div className={`match-detail-card ${className}`}>{renderStatusCard()}</div>
   );
 };
 
