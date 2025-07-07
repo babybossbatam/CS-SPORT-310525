@@ -1050,11 +1050,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
                 >
                   {/* League header */}
-                  {console.log('Debug match data:', {
-                    leagueRound: currentMatch.league.round,
-                    fixtureRound: currentMatch.fixture?.round,
-                    leagueName: currentMatch.league.name
-                  })}
                   <div className="flex items-center justify-center gap-2 mb-4 p-2 bg-gray-50 rounded-lg">
                     <LazyImage
                       src={currentMatch.league.logo}
@@ -1065,11 +1060,22 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     <span className="text-sm font-md text-gray-700">
                       {currentMatch.league.name}
                     </span>
-                    {(currentMatch.league.round || currentMatch.fixture?.round) && (
-                      <span className="text-xs text-gray-600 font-medium">
-                        • {currentMatch.league.round || currentMatch.fixture?.round}
-                      </span>
-                    )}
+                    {(() => {
+                      // Check multiple possible round properties
+                      const roundInfo = currentMatch.league.round || 
+                                       currentMatch.fixture?.round || 
+                                       currentMatch.league.season?.round ||
+                                       currentMatch.fixture?.status?.round ||
+                                       (currentMatch.league.name === "CONCACAF Gold Cup" ? "Group Stage" : null) ||
+                                       (currentMatch.league.name === "UEFA Europa Conference League" ? "Group Stage" : null) ||
+                                       (currentMatch.league.name === "FIFA Club World Cup" ? "Group Stage" : null);
+                      
+                      return roundInfo ? (
+                        <span className="text-xs text-gray-600 font-medium">
+                          • {roundInfo}
+                        </span>
+                      ) : null;
+                    })()}
                     {getStatusDisplay(currentMatch).isLive && (
                       <Star className="h-4 w-4 text-red-500 fill-current" />
                     )}
