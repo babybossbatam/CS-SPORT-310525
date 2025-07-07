@@ -191,11 +191,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 player: { name: "" },
               } as any);
 
-              // Add "45 minutes" period marker
+              // Add "45 minutes" period marker with score
+              const halftimeScore = calculateScoreAtTime(45);
               allCommentaryItems.push({
                 time: { elapsed: 45 },
                 type: "period_marker",
-                detail: "45 minutes",
+                detail: `45 minutes ${homeTeam || "Home"} ${halftimeScore.homeScore}, ${awayTeam || "Away"} ${halftimeScore.awayScore}`,
                 team: { name: "", logo: "" },
                 player: { name: "" },
               } as any);
