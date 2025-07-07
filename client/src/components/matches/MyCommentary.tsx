@@ -351,6 +351,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         })()
                       : event.detail;
 
+                  // Show score for Half Time period
+                  const shouldShowScore = event.detail === "Half Time";
+                  const scoreToShow = shouldShowScore ? (() => {
+                    const halftimeScore = calculateScoreAtTime(45);
+                    return `${halftimeScore.homeScore} - ${halftimeScore.awayScore}`;
+                  })() : null;
+
                   return (
                     <div
                       key={`period-${index}`}
@@ -371,15 +378,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             <div className="text-gray-800 text-sm font-medium leading-tight">
                               {event.time.elapsed}'
                             </div>
+                          ) : event.detail === "Half Time" ? (
+                            <div className="text-gray-800 text-sm font-medium leading-tight">
+                              45'
+                            </div>
                           ) : (
                             <div className="w-3 h-6  flex items-center justify-center ">
-                              {event.detail === "Half Time" ? (
-                                <img
-                                  src="/assets/matchdetaillogo/i mark.svg"
-                                  alt="Half Time"
-                                  className="w-4 h-4 ml-1"
-                                />
-                              ) : event.type === "period_start" ? (
+                              {event.type === "period_start" ? (
                                 <img
                                   src="/assets/matchdetaillogo/i mark.svg"
                                   alt="Period Start"
@@ -403,6 +408,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           <div className="text-xs font-md  text-gray-600 leading-relaxed">
                             {displayText}
                           </div>
+                          {/* Show score for Half Time */}
+                          {scoreToShow && (
+                            <div className="text-sm font-bold text-gray-900 mt-1">
+                              {scoreToShow}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
