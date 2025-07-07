@@ -61,6 +61,11 @@ interface FeaturedMatch {
       long: string;
       elapsed?: number;
     };
+    venue?: {
+      id?: number;
+      name?: string;
+      city?: string;
+    };
   };
   league: {
     id: number;
@@ -83,6 +88,11 @@ interface FeaturedMatch {
   goals: {
     home: number | null;
     away: number | null;
+  };
+  venue?: {
+    id?: number;
+    name?: string;
+    city?: string;
   };
 }
 
@@ -1769,33 +1779,45 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 "EEEE, do MMMM",
                               );
                               const timeOnly = format(matchDate, "HH:mm");
-                              let venue = currentMatch.fixture?.venue?.name;
-                              // Check for SportsRadar venue data if primary venue is missing
+                              
+                              // Safely get venue with proper fallbacks
+                              let venue = currentMatch.fixture?.venue?.name || null;
                               let displayVenue = venue;
                               const matchId = currentMatch.fixture.id;
-                              const sportradarVenueData =
-                                sportradarVenues[matchId];
+                              const sportradarVenueData = sportradarVenues[matchId];
 
+                              // Check if venue is missing or has placeholder values
                               if (
                                 !displayVenue ||
                                 displayVenue === "TBD" ||
-                                displayVenue === "Venue TBA"
+                                displayVenue === "Venue TBA" ||
+                                displayVenue === "" ||
+                                displayVenue === "Unknown"
                               ) {
+                                // Try SportsRadar venue data
                                 if (
                                   sportradarVenueData?.venue?.name &&
-                                  sportradarVenueData.venue.name !== "TBD"
+                                  sportradarVenueData.venue.name !== "TBD" &&
+                                  sportradarVenueData.venue.name !== ""
                                 ) {
                                   displayVenue = sportradarVenueData.venue.name;
                                 } else {
                                   // Fallback to any existing venue data in the match object
                                   const fallbackVenue =
                                     currentMatch.venue?.name ||
-                                    currentMatch.fixture?.venue?.name;
+                                    currentMatch.fixture?.venue?.name ||
+                                    null;
                                   if (
                                     fallbackVenue &&
-                                    fallbackVenue !== "TBD"
+                                    fallbackVenue !== "TBD" &&
+                                    fallbackVenue !== "Venue TBA" &&
+                                    fallbackVenue !== "" &&
+                                    fallbackVenue !== "Unknown"
                                   ) {
                                     displayVenue = fallbackVenue;
+                                  } else {
+                                    // Set to null to indicate no venue available
+                                    displayVenue = null;
                                   }
                                 }
                               }
@@ -1803,15 +1825,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               return (
                                 <>
                                   {formattedDate} | {timeOnly}
-                                  {displayVenue &&
-                                  displayVenue !== "TBD" &&
-                                  displayVenue !== "Venue TBA"
+                                  {displayVenue 
                                     ? ` | ${displayVenue}`
                                     : ""}
                                 </>
                               );
                             } catch (e) {
-                              return "";
+                              console.warn("Error formatting match date/venue:", e);
+                              return "Match details unavailable";
                             }
                           })()}
                         </div>
