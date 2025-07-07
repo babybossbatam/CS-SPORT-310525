@@ -1117,7 +1117,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                      currentMatch.fixture?.status?.long ||
                                      currentMatch.league?.season?.current;
 
-                      // Enhanced bracket status mapping with more comprehensive patterns
+                      // Enhanced bracket status mapping with comprehensive patterns
                       const getBracketStatus = (leagueName: string, round: string) => {
                         const lowerLeague = leagueName.toLowerCase();
                         const lowerRound = round?.toLowerCase() || '';
@@ -1129,15 +1129,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           .replace(/\s+/g, ' ') // Normalize multiple spaces
                           .trim();
 
-                        // Universal tournament stage patterns (applies to all competitions)
+                        // Universal tournament stage patterns (highest priority)
                         if (normalizedRound.includes('final') && !normalizedRound.includes('semi') && !normalizedRound.includes('quarter') && !normalizedRound.includes('3rd')) {
                           return 'Final';
                         }
                         if (normalizedRound.includes('semi final') || normalizedRound.includes('semi-final') || normalizedRound.includes('semifinal')) {
-                          return 'Semi-finals';
+                          return 'Semi Finals';
                         }
                         if (normalizedRound.includes('quarter final') || normalizedRound.includes('quarter-final') || normalizedRound.includes('quarterfinal')) {
-                          return 'Quarter-finals';
+                          return 'Quarter Finals';
                         }
                         if (normalizedRound.includes('3rd place') || normalizedRound.includes('third place') || normalizedRound.includes('bronze')) {
                           return '3rd Place Playoff';
@@ -1146,8 +1146,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         // Round-based patterns
                         if (normalizedRound.includes('round of 32') || normalizedRound.includes('r32')) return 'Round of 32';
                         if (normalizedRound.includes('round of 16') || normalizedRound.includes('r16') || normalizedRound.includes('last 16')) return 'Round of 16';
-                        if (normalizedRound.includes('round of 8') || normalizedRound.includes('r8') || normalizedRound.includes('last 8')) return 'Quarter-finals';
-                        if (normalizedRound.includes('round of 4') || normalizedRound.includes('r4') || normalizedRound.includes('last 4')) return 'Semi-finals';
+                        if (normalizedRound.includes('round of 8') || normalizedRound.includes('r8') || normalizedRound.includes('last 8')) return 'Quarter Finals';
+                        if (normalizedRound.includes('round of 4') || normalizedRound.includes('r4') || normalizedRound.includes('last 4')) return 'Semi Finals';
 
                         // Group stage patterns
                         if (normalizedRound.includes('group') || normalizedRound.includes('league phase')) return 'Group Stage';
@@ -1161,18 +1161,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           return 'Play-off Round';
                         }
 
+                        // Knockout stage patterns
+                        if (normalizedRound.includes('knockout')) return 'Knockout Stage';
+
                         // Competition-specific patterns
                         if (lowerLeague.includes('champions league')) {
-                          if (normalizedRound.includes('knockout')) return 'Knockout Stage';
                           if (normalizedRound.includes('1st knockout')) return 'Round of 16';
-                        }
-
-                        if (lowerLeague.includes('europa') && (lowerLeague.includes('league') || lowerLeague.includes('conference'))) {
-                          if (normalizedRound.includes('knockout')) return 'Knockout Stage';
-                        }
-
-                        if (lowerLeague.includes('world cup') || lowerLeague.includes('euro') || lowerLeague.includes('copa america')) {
-                          if (normalizedRound.includes('knockout')) return 'Knockout Stage';
                         }
 
                         if (lowerLeague.includes('nations league')) {
@@ -1205,48 +1199,89 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         return null;
                       };
 
-                      // Enhanced dynamic inference based on league, timing, and team profiles
-                      const inferBracketStatus = (leagueName: string, matchDate: Date, teamNames: string[]) => {
+                      // Enhanced dynamic inference based on league, timing, team profiles, and match count
+                      const inferBracketStatus = (leagueName: string, matchDate: Date, teamNames: string[], fixtureId: number) => {
                         const lowerLeague = leagueName.toLowerCase();
                         const currentDate = new Date();
                         const daysFromNow = (matchDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
 
-                        // Conference League intelligent inference
-                        if (lowerLeague.includes('conference league')) {
-                          // Analyze team profiles for stage prediction
-                          const hasQualifyingProfile = teamNames.some(name => {
-                            const lowerName = name.toLowerCase();
-                            return lowerName.includes('žalgiris') || 
-                                   lowerName.includes('penybont') ||
-                                   lowerName.includes('celje') ||
-                                   lowerName.includes('sabah') ||
-                                   lowerName.includes('panevežys') ||
-                                   lowerName.includes('vikingur') ||
-                                   lowerName.includes('paks');
+                        // Advanced tournament structure analysis
+                        const analyzeTeamProfile = (teams: string[]) => {
+                          const profiles = {
+                            smallClubProfile: 0,
+                            bigClubProfile: 0,
+                            qualifyingProfile: 0
+                          };
+
+                          teams.forEach(teamName => {
+                            const lowerName = teamName.toLowerCase();
+                            
+                            // Small/qualifying club indicators
+                            if (lowerName.includes('žalgiris') || lowerName.includes('penybont') || 
+                                lowerName.includes('celje') || lowerName.includes('sabah') ||
+                                lowerName.includes('panevežys') || lowerName.includes('vikingur') ||
+                                lowerName.includes('paks') || lowerName.includes('ballkani') ||
+                                lowerName.includes('hajduk') || lowerName.includes('zrinjski')) {
+                              profiles.qualifyingProfile += 2;
+                              profiles.smallClubProfile += 1;
+                            }
+                            
+                            // Big club indicators
+                            if (lowerName.includes('real madrid') || lowerName.includes('barcelona') ||
+                                lowerName.includes('manchester') || lowerName.includes('bayern') ||
+                                lowerName.includes('juventus') || lowerName.includes('psg') ||
+                                lowerName.includes('liverpool') || lowerName.includes('arsenal') ||
+                                lowerName.includes('chelsea') || lowerName.includes('atletico')) {
+                              profiles.bigClubProfile += 2;
+                            }
                           });
 
-                          if (hasQualifyingProfile) {
+                          return profiles;
+                        };
+
+                        const teamProfiles = analyzeTeamProfile(teamNames);
+
+                        // Conference League intelligent inference
+                        if (lowerLeague.includes('conference league')) {
+                          // Strong qualifying profile indicator
+                          if (teamProfiles.qualifyingProfile >= 2) {
                             if (daysFromNow > 30) return 'Qualifying Round';
-                            if (daysFromNow > 0) return 'Qualifying Round';
-                            return 'Qualifying Round';
+                            if (daysFromNow > -15) return 'Qualifying Round';
+                            return 'Play-off Round';
+                          }
+
+                          // Mixed profile (one big, one small club)
+                          if (teamProfiles.bigClubProfile >= 1 && teamProfiles.smallClubProfile >= 1) {
+                            if (daysFromNow > 60) return 'Play-off Round';
+                            if (daysFromNow > 0) return 'Group Stage';
+                            return 'Knockout Stage';
                           }
 
                           // Time-based inference for established teams
                           if (daysFromNow > 120) return 'Qualifying Round';
                           if (daysFromNow > 60) return 'Play-off Round';
                           if (daysFromNow > 0) return 'Group Stage';
-                          if (daysFromNow > -30) return 'Knockout Stage';
+                          if (daysFromNow > -60) return 'Knockout Stage';
                           return 'Final Stages';
                         }
 
-                        // Other European competitions
+                        // Champions League
                         if (lowerLeague.includes('champions league')) {
+                          if (teamProfiles.bigClubProfile >= 2) {
+                            // Two big clubs likely in knockout stages
+                            if (daysFromNow > 30) return 'Group Stage';
+                            if (daysFromNow > -30) return 'Knockout Stage';
+                            if (daysFromNow > -60) return 'Semi Finals';
+                            return 'Final';
+                          }
+                          
                           if (daysFromNow > 90) return 'Qualifying Round';
                           if (daysFromNow > 30) return 'Group Stage';
                           if (daysFromNow > -30) return 'Knockout Stage';
                           return 'Final Stages';
                         }
 
+                        // Europa League
                         if (lowerLeague.includes('europa league') && !lowerLeague.includes('conference')) {
                           if (daysFromNow > 90) return 'Qualifying Round';
                           if (daysFromNow > 30) return 'Group Stage';
@@ -1254,36 +1289,59 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           return 'Final Stages';
                         }
 
-                        // International tournaments
+                        // International tournaments (World Cup, Euro, Copa America)
                         if (lowerLeague.includes('world cup') || lowerLeague.includes('euro') || lowerLeague.includes('copa america')) {
                           if (daysFromNow > 14) return 'Group Stage';
-                          if (daysFromNow > -7) return 'Knockout Stage';
-                          return 'Final Stages';
+                          if (daysFromNow > 7) return 'Round of 16';
+                          if (daysFromNow > 3) return 'Quarter Finals';
+                          if (daysFromNow > 0) return 'Semi Finals';
+                          return 'Final';
                         }
 
                         // FIFA Club World Cup
-                        if (lowerLeague.includes('fifa club world cup')) {
+                        if (lowerLeague.includes('fifa club world cup') || lowerLeague.includes('club world cup')) {
+                          if (teamProfiles.bigClubProfile >= 2) {
+                            // Two big clubs likely in semi/final
+                            if (daysFromNow > 0) return 'Semi Finals';
+                            return 'Final';
+                          }
+                          
                           if (daysFromNow > 7) return 'Group Stage';
-                          return 'Knockout Stage';
+                          if (daysFromNow > 3) return 'Quarter Finals';
+                          if (daysFromNow > 0) return 'Semi Finals';
+                          return 'Final';
+                        }
+
+                        // CONCACAF Gold Cup
+                        if (lowerLeague.includes('concacaf') && lowerLeague.includes('gold cup')) {
+                          if (daysFromNow > 14) return 'Group Stage';
+                          if (daysFromNow > 7) return 'Quarter Finals';
+                          if (daysFromNow > 3) return 'Semi Finals';
+                          return 'Final';
                         }
 
                         // Nations League
                         if (lowerLeague.includes('nations league')) {
                           if (daysFromNow > 30) return 'League Phase';
-                          return 'Final Four';
+                          if (daysFromNow > 3) return 'Semi Finals';
+                          return 'Final';
                         }
 
-                        // Youth tournaments
-                        if (lowerLeague.includes('u21') || lowerLeague.includes('under 21')) {
-                          if (daysFromNow > 7) return 'Group Stage';
-                          return 'Knockout Stage';
+                        // Youth tournaments (U21, etc.)
+                        if (lowerLeague.includes('u21') || lowerLeague.includes('under 21') || lowerLeague.includes('youth')) {
+                          if (daysFromNow > 14) return 'Group Stage';
+                          if (daysFromNow > 7) return 'Quarter Finals';
+                          if (daysFromNow > 3) return 'Semi Finals';
+                          return 'Final';
                         }
 
                         // Generic cup competitions
                         if (lowerLeague.includes('cup') || lowerLeague.includes('trophy')) {
                           if (daysFromNow > 30) return 'Early Rounds';
-                          if (daysFromNow > 0) return 'Knockout Stage';
-                          return 'Final Stages';
+                          if (daysFromNow > 14) return 'Round of 16';
+                          if (daysFromNow > 7) return 'Quarter Finals';
+                          if (daysFromNow > 3) return 'Semi Finals';
+                          return 'Final';
                         }
 
                         return null;
@@ -1292,6 +1350,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       // Main processing logic
                       let processedRound = null;
                       
+                      // First try to extract from round data
                       if (roundInfo && roundInfo.trim() !== '' && roundInfo !== 'TBD' && roundInfo !== 'N/A') {
                         processedRound = getBracketStatus(currentMatch.league.name, roundInfo);
                       }
@@ -1300,7 +1359,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       if (!processedRound) {
                         const matchDate = new Date(currentMatch.fixture.date);
                         const teamNames = [currentMatch.teams.home.name, currentMatch.teams.away.name];
-                        processedRound = inferBracketStatus(currentMatch.league.name, matchDate, teamNames);
+                        processedRound = inferBracketStatus(currentMatch.league.name, matchDate, teamNames, currentMatch.fixture.id);
                       }
 
                       return processedRound ? (
