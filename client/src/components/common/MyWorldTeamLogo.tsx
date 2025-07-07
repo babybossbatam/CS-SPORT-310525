@@ -51,8 +51,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   const isFriendliesClub = leagueContext?.name?.toLowerCase().includes("friendlies clubs");
 
   // Check if this is Friendlies Club (club competition, not national teams)
-  const isUefaEuropaLeague = leagueContext?.name?.toLowerCase().includes("UEFA Europa League"); || 
-  leagueContext?.name?.toLowerCase().includes("uefa europa league);
+  const isUefaEuropaLeague = leagueContext?.name?.toLowerCase().includes("uefa europa league") || 
+  leagueContext?.name?.toLowerCase().includes("europa league");
   
   // Check if this is UEFA Europa Conference League (club competition, not national teams)
   const isUefaConferenceLeague = leagueContext?.name?.toLowerCase().includes("uefa europa conference league") || 
