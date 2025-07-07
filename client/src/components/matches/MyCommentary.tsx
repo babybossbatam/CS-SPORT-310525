@@ -231,8 +231,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               ) : 0;
 
               const ninetyMinDetail = maxExtraTime > 0 
-                ? `90 minutes +${maxExtraTime}' extra time` 
-                : "90 minutes";
+                ? `Full Time` 
+                : "Full Time";
 
               allCommentaryItems.push({
                 time: { elapsed: 90, extra: maxExtraTime > 0 ? maxExtraTime : undefined },
@@ -329,25 +329,40 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       <div className="flex gap-1">
                         {/* Time Column */}
                         <div className="flex flex-col items-center min-w-[45px]">
-                          <div className="w-3 h-6  flex items-center justify-center ">
-                            {event.detail === "Half Time" ? (
-                              <img
-                                src="/assets/matchdetaillogo/i mark.svg"
-                                alt="Half Time"
-                                className="w-4 h-4 ml-1"
-                              />
-                            ) : event.type === "period_start" ? (
-                              <img
-                                src="/assets/matchdetaillogo/i mark.svg"
-                                alt="Period Start"
-                                className="w-4 h-4 ml-1"
-                              />
-                            ) : (
-                              <span className="text-white text-xs font-semi-bold ">
-                                ⏱️
-                              </span>
-                            )}
-                          </div>
+                          {/* Show extra time above elapsed time for Full Time marker */}
+                          {event.detail === "Full Time" && event.time.extra && (
+                            <div className="text-xs font-medium text-red-500 leading-tight">
+                              +{event.time.extra}'
+                            </div>
+                          )}
+                          
+                          {/* Elapsed time */}
+                          {event.detail === "Full Time" ? (
+                            <div className="text-gray-800 text-sm font-medium leading-tight">
+                              {event.time.elapsed}'
+                            </div>
+                          ) : (
+                            <div className="w-3 h-6  flex items-center justify-center ">
+                              {event.detail === "Half Time" ? (
+                                <img
+                                  src="/assets/matchdetaillogo/i mark.svg"
+                                  alt="Half Time"
+                                  className="w-4 h-4 ml-1"
+                                />
+                              ) : event.type === "period_start" ? (
+                                <img
+                                  src="/assets/matchdetaillogo/i mark.svg"
+                                  alt="Period Start"
+                                  className="w-4 h-4 ml-1"
+                                />
+                              ) : (
+                                <span className="text-white text-xs font-semi-bold ">
+                                  ⏱️
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          
                           {index < allCommentaryItems.length - 1 && (
                             <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
                           )}
