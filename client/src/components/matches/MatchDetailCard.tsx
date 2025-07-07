@@ -1,7 +1,6 @@
 import React from "react";
 import MatchLiveDetailsCard from "./MatchLiveDetailsCard";
 import MatchUpcomingDetailsCard from "./MatchUpcomingDetailsCard";
-import MatchEndedDetailsCard from "./MatchEndedDetailsCard";
 
 interface MatchDetailCardProps {
   match: any;
@@ -50,15 +49,6 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
 
   const renderStatusCard = () => {
     switch (matchStatus) {
-      case "Ended":
-        return (
-          <MatchEndedDetailsCard
-            homeTeam={homeTeam}
-            awayTeam={awayTeam}
-            homeTeamLogo={homeTeamLogo}
-            awayTeamLogo={awayTeamLogo}
-          />
-        );
       case "Live":
         return (
           <MatchLiveDetailsCard
@@ -70,7 +60,7 @@ const MatchDetailCard: React.FC<MatchDetailCardProps> = ({
         );
 
       case "Upcoming":
-
+      case "Ended":
       default:
         return (
           <MatchUpcomingDetailsCard
