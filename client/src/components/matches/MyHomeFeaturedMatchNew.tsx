@@ -100,7 +100,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState(0);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
-  const [countdownTimer, setCountdownTimer] = useState<string>('Loading...');
+  const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
 
   const fetchFeaturedMatches = useCallback(
     async (forceRefresh = false) => {
@@ -431,7 +431,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             console.log(
               `🔄 [MyHomeFeaturedMatchNew] Only ${allFixtures.length} fixtures found, expanding to all popular leagues`,
             );
-            
+
             for (const dateInfo of dates) {
               try {
                 const response = await apiRequest(
@@ -449,7 +449,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         fixture.fixture.status.short,
                       );
                       const isNotDuplicate = !allFixtures.some(
-                        (existing) => existing.fixture.id === fixture.fixture.id,
+                        (existing) =>
+                          existing.fixture.id === fixture.fixture.id,
                       );
 
                       return hasValidTeams && isNotLive && isNotDuplicate;
@@ -510,13 +511,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         );
         console.log(
           `📋 [MyHomeFeaturedMatchNew] Fixture details:`,
-          uniqueFixtures.map(f => ({
+          uniqueFixtures.map((f) => ({
             id: f.fixture.id,
             teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
             league: f.league.name,
             status: f.fixture.status.short,
-            date: f.fixture.date
-          }))
+            date: f.fixture.date,
+          })),
         );
 
         // Group fixtures by date
@@ -885,43 +886,43 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   // Countdown timer effect for upcoming matches
   useEffect(() => {
     if (!currentMatch) {
-      setCountdownTimer('--:--:--');
+      setCountdownTimer("--:--:--");
       return;
     }
 
     const statusInfo = getStatusDisplay(currentMatch);
-    
+
     // Only show countdown for upcoming matches
     if (!statusInfo.isUpcoming) {
-      setCountdownTimer('');
+      setCountdownTimer("");
       return;
     }
 
     function updateTimer() {
       try {
         const targetDate = parseISO(currentMatch.fixture.date);
-        
+
         // Use current real time for accurate countdown
         const now = new Date();
-        
+
         const diff = targetDate.getTime() - now.getTime();
-        
+
         if (diff <= 0) {
-          setCountdownTimer('Starting now');
+          setCountdownTimer("Starting now");
           return;
         }
-        
+
         // Calculate time components
         const totalHours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-        
+
         // Only show countdown if match is within 8 hours
         if (totalHours > 8) {
-          setCountdownTimer('');
+          setCountdownTimer("");
           return;
         }
-        
+
         // If more than 99 hours, show days and hours
         if (totalHours > 99) {
           const days = Math.floor(totalHours / 24);
@@ -929,24 +930,26 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           setCountdownTimer(`${days}d ${remainingHours}h`);
         } else {
           // Format with leading zeros for HH:mm:ss format
-          const formattedHours = totalHours.toString().padStart(2, '0');
-          const formattedMinutes = minutes.toString().padStart(2, '0');
-          const formattedSeconds = seconds.toString().padStart(2, '0');
-          
-          setCountdownTimer(`${formattedHours}:${formattedMinutes}:${formattedSeconds}`);
+          const formattedHours = totalHours.toString().padStart(2, "0");
+          const formattedMinutes = minutes.toString().padStart(2, "0");
+          const formattedSeconds = seconds.toString().padStart(2, "0");
+
+          setCountdownTimer(
+            `${formattedHours}:${formattedMinutes}:${formattedSeconds}`,
+          );
         }
       } catch (error) {
-        console.error('Error calculating countdown:', error);
-        setCountdownTimer('--:--:--');
+        console.error("Error calculating countdown:", error);
+        setCountdownTimer("--:--:--");
       }
     }
-    
+
     // Calculate initial time
     updateTimer();
-    
+
     // Set interval to update every second
     const interval = setInterval(updateTimer, 1000);
-    
+
     // Cleanup interval on unmount
     return () => {
       if (interval) {
@@ -1124,7 +1127,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         // Upcoming matches - show countdown timer if within 8 hours, otherwise date
                         const upcomingContent = (() => {
                           // Show countdown timer if available and not empty
-                          if (countdownTimer && countdownTimer !== '' && countdownTimer !== 'Loading...' && countdownTimer !== '--:--:--') {
+                          if (
+                            countdownTimer &&
+                            countdownTimer !== "" &&
+                            countdownTimer !== "Loading..." &&
+                            countdownTimer !== "--:--:--"
+                          ) {
                             return (
                               <div className="space-y-1">
                                 <div className="text-sm text-gray-600">
@@ -1244,7 +1252,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
                           style={{
                             top: "calc(50% - 13px)",
-                            left: "80px",
+                            left: "83px",
                             fontSize: "1.24rem",
                             fontWeight: "normal",
                           }}
@@ -1322,8 +1330,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         <div
                           className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
                           style={{
-                            top: "calc(50% - 13px)",
-                            right: "80px",
+                            top: "calc(50% - 15px)",
+                            right: "88px",
                             fontSize: "1.24rem",
                             fontWeight: "normal",
                           }}
@@ -1335,8 +1343,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
                           style={{
                             cursor: "pointer",
-                            top: "calc(50% - 32px)",
-                            right: "50px",
+                            top: "calc(50% - 35px)",
+                            right: "55px",
                             transform: "translateX(50%)",
                             filter: "contrast(115%) brightness(105%)",
                           }}
