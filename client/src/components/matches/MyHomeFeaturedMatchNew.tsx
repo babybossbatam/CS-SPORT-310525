@@ -1328,8 +1328,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                               return (
                                 <>
-                                  {formattedDate} | {timeOnly}
-                                  {venue && ` | ${venue}`}
+                                  {formattedDate} | {timeOnly} | {venue}
                                 </>
                               );
                             } catch (e) {
