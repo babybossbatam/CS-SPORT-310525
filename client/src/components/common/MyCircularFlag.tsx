@@ -119,6 +119,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       Thailand: "th",
       Indonesia: "id",
       "United States": "us",
+      "Africa": "za",
       Canada: "ca",
       Japan: "jp",
       Singapore: "sg",
@@ -126,6 +127,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       "Hong Kong": "hk",
       Australia: "au",
       "Chinese Taipei": "tw",
+      Zambia: "zm",
       Vietnam: "vn",
     };
 
