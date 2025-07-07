@@ -454,19 +454,15 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       >
                         <div className="flex items-center py-1 mb-1">
                           <div className="text-sm font-semibold text-gray-700 ml-4">
-                            {event.time.elapsed}'
-                            {event.time.extra && event.time.extra > 0 && ` +${event.time.extra}'`}
+                            Ended {finalScore.homeScore}-{finalScore.awayScore}
                           </div>
                           <div className="text-lg font-bold text-gray-900 ml-4">
                             <img
                               src="/assets/matchdetaillogo/clock.png"
-                              alt="Full Time"
+                              alt="Match Ended"
                               className="w-4 h-4 opacity-80 flex-shrink-0"
                             />
                           </div>
-                          <span className="text-lg font-bold text-gray-900 ml-2">
-                            {finalScore.homeScore}-{finalScore.awayScore}
-                          </span>
                         </div>
                       </div>
                     );
