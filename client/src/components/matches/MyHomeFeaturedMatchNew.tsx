@@ -1428,7 +1428,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex justify-around border-t border-gray-200 pt-4"></div>
+                  <div className="flex justify-around border-t border-gray-200 pt-4">
                     <button
                       className="flex flex-col items-center cursor-pointer"
                       onClick={(e) => {
