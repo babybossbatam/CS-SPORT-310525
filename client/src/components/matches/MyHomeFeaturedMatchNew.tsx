@@ -1115,6 +1115,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                      currentMatch.fixture?.status?.round ||
                                      currentMatch.round;
 
+                      // Debug: Log available match data to see what's actually in the API response
+                      if (!roundInfo && (currentMatch.league.name.toLowerCase().includes('europa') || currentMatch.league.name.toLowerCase().includes('champions'))) {
+                        console.log(`🔍 [Bracket Status Debug] No round info found for ${currentMatch.league.name}:`, {
+                          league: currentMatch.league,
+                          fixture: currentMatch.fixture,
+                          matchId: currentMatch.fixture.id,
+                          availableProperties: Object.keys(currentMatch)
+                        });
+                      }
+
                       // Enhanced bracket status mapping for different tournament formats
                       const getBracketStatus = (leagueName: string, round: string) => {
                         const lowerLeague = leagueName.toLowerCase();
@@ -1191,8 +1201,32 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         return round;
                       };
 
-                      // Only process if we have actual round information from the API
-                      const processedRound = roundInfo ? getBracketStatus(currentMatch.league.name, roundInfo) : null;
+                      // Try to get bracket status from API data, or provide fallback for major tournaments
+                      let processedRound = null;
+                      
+                      if (roundInfo) {
+                        processedRound = getBracketStatus(currentMatch.league.name, roundInfo);
+                      } else {
+                        // Provide fallback bracket status for major tournaments when API doesn't provide round info
+                        const leagueName = currentMatch.league.name.toLowerCase();
+                        const matchDate = new Date(currentMatch.fixture.date);
+                        const currentDate = new Date();
+                        
+                        // For European competitions, try to infer stage based on date and competition format
+                        if (leagueName.includes('europa league')) {
+                          if (matchDate > currentDate) {
+                            processedRound = 'Knockout Stage'; // Default for upcoming Europa League matches
+                          } else {
+                            processedRound = 'League Stage'; // Default for past/current Europa League matches
+                          }
+                        } else if (leagueName.includes('champions league')) {
+                          if (matchDate > currentDate) {
+                            processedRound = 'Knockout Stage'; // Default for upcoming Champions League matches
+                          } else {
+                            processedRound = 'League Stage'; // Default for past/current Champions League matches
+                          }
+                        }
+                      }
 
                       return processedRound ? (
                         <span className="text-xs text-gray-600 font-medium">
