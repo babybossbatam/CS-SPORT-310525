@@ -357,41 +357,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   const displayText =
                     event.detail;
 
-                  // Check if this is a "Second Half begins" event to show elapsed time
-                  if (event.detail && event.detail.includes("Second Half begins")) {
-                    return (
-                      <div
-                        key={`period-${index}`}
-                        className="commentary-event-container"
-                      >
-                        <div className="flex gap-1">
-                          {/* Time Column */}
-                          <div className="flex flex-col items-center min-w-[45px]">
-                            <div className="w-4 h-6 flex items-center justify-center">
-                              <img
-                                src="/assets/matchdetaillogo/i mark.svg"
-                                alt="Second Half"
-                                className="w-4 h-4 ml-0.5 mb-1"
-                              />
-                            </div>
-                            <div className="text-xs font-medium text-gray-700 leading-tight">
-                              {event.time.elapsed}'
-                            </div>
-                            {index < allCommentaryItems.length - 1 && (
-                              <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
-                            )}
-                          </div>
-
-                          {/* Content Column */}
-                          <div className="flex-1">
-                            <div className="text-xs font-md text-gray-600 leading-relaxed">
-                              {displayText}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
+                  
 
                   if (event.detail === "Half Time") {
                     const halftimeScore = calculateScoreAtTime(45);
