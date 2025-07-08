@@ -78,8 +78,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
         if (eventIsHomeTeam) {
           awayScore++; // Home team own goal gives away team a point
           console.log("Own goal by home team player, awayScore++", { awayScore, player: event.player?.name });
-        } else {
-          homeScore++; // Away team own goal gives home team a point
+        // Away team own goal gives home team a point
           console.log("Own goal by away team player, homeScore++", { homeScore, player: event.player?.name });
         }
       } else {
@@ -87,8 +86,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
         if (eventIsHomeTeam) {
           homeScore++;
           console.log("Regular goal by home team, homeScore++", { homeScore, player: event.player?.name });
-        } else {
-          awayScore++;
+       
           console.log("Regular goal by away team, awayScore++", { awayScore, player: event.player?.name });
         }
       }
@@ -178,7 +176,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               (e) => e.time.elapsed >= 1 && e.time.elapsed <= 45,
             );
             const hasEventsInSecondHalf = events.some(
-              (e) => e.time.elapsed > 45,
+              (e) => e.time.elapsed >= 45,
             );
 
             if (hasEventsInFirstHalf) {
@@ -200,8 +198,17 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 team: { name: "", logo: "" },
                 player: { name: "" },
               } as any);
-
+            
+              const halftimeScore2 = calculateScoreAtTime(45);
               
+              allCommentaryItems.push({
+                time: { elapsed: 45 },
+                type: "period_marker",
+               
+                detail: `  ${halftimeScore.homeScore} - ${halftimeScore.awayScore}`,
+                team: { name: "", logo: "" },
+                player: { name: "" },
+              } as any);
 
               // Add "Half Time" marker if there are events after minute 45
               if (hasEventsInSecondHalf) {
@@ -218,15 +225,16 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
             // Add "90 minutes" period marker if there are events in the second half and the latest event is close to or after 90 minutes
             const secondHalfEvents = events.filter((e) => e.time.elapsed > 45);
+      
             const latestEvent = events.length > 0 ? events.reduce((latest, current) => 
               (current.time.elapsed + (current.time.extra || 0)) > (latest.time.elapsed + (latest.time.extra || 0)) ? current : latest
             ) : null;
 
-            const shouldShow90Marker = secondHalfEvents.length > 0 && latestEvent && latestEvent.time.elapsed >= 80;
+            const shouldShow90Marker = secondHalfEvents.length > 0 && latestEvent && latestEvent.time.elapsed > 70;
 
             if (shouldShow90Marker) {
               // Find the highest extra time played in events at or after 90 minutes
-              const eventsAt90Plus = events.filter((e) => e.time.elapsed >= 90);
+              const eventsAt90Plus = events.filter((e) => e.time.elapsed > 90);
               const maxExtraTime = eventsAt90Plus.length > 0 ? Math.max(
                 ...eventsAt90Plus
                   .filter((e) => e.time.extra)
@@ -253,7 +261,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
             // Add "Full Time" marker for ended matches
             const hasEndedEvents = events.some(
               (event) =>
-                event.time.elapsed >= 90 &&
+                event.time.elapsed > 90 &&
                 event.time.extra &&
                 event.time.extra > 0,
             );
@@ -316,7 +324,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         <div className="text-lg font-bold text-gray-900 ml-4">
                           <img
                             src="/assets/matchdetaillogo/clock.png"
-                            alt="Goal"
+                            alt="clock"
                             className=" w-4 h-4 opacity-80 flex-shrink-0 "
                           />
 
@@ -349,21 +357,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         key={`period-${index}`}
                         className="commentary-event-container"
                       >
+                       
+                        
                         <div className="flex items-center py-1 mb-1">
-                          <div className="text-sm font-semibold text-gray-700 ml-4">
-                            45'
-                          </div>
-                          <div className="text-lg font-bold text-gray-900 ml-4">
-                            <img
-                              src="/assets/matchdetaillogo/clock.png"
-                              alt="Half Time"
-                              className="w-4 h-4 opacity-80 flex-shrink-0"
-                            />
-                          </div>
-                          <span className="text-lg font-bold text-gray-900 ml-2">
-                            {halftimeScore.homeScore} - {halftimeScore.awayScore}
-                          </span>
+                   
+                          
                         </div>
+                        
                       </div>
                     );
 
@@ -390,7 +390,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               {event.time.elapsed}'
                             </div>
                           ) : (
-                            <div className="w-3 h-6  flex items-center justify-center ">
+                            <div className="w-4 h-6  flex items-center justify-center ">
                               {event.type === "period_start" ? (
                                 <img
                                   src="/assets/matchdetaillogo/i mark.svg"
@@ -398,11 +398,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                   className="w-4 h-4 ml-1 mb-2"
                                 />
                               ) : (
-                                <span className="text-white text-xs font-semi-bold ">    <img
+                                <span className="text-white text-xs font-semi-bold mt-3.5 ">   
+                                  <img
                                     src="/assets/matchdetaillogo/i mark.svg"
-                                    alt="Period Start"
-                                    className="w-4 h-4 ml-1 mb-1"
-                                  />
+                                                                                           
+                                    alt="half time"
+                                    className="w-4 h-4 ml-0.5 mb-1"
+                                  />{event.time.elapsed}'
 
                                 </span>
                               )}
