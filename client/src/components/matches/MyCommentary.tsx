@@ -86,7 +86,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
         if (eventIsHomeTeam) {
           homeScore++;
           console.log("Regular goal by home team, homeScore++", { homeScore, player: event.player?.name });
-       
+
           console.log("Regular goal by away team, awayScore++", { awayScore, player: event.player?.name });
         }
       }
@@ -198,13 +198,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 team: { name: "", logo: "" },
                 player: { name: "" },
               } as any);
-            
+
               const halftimeScore2 = calculateScoreAtTime(45);
-              
+
               allCommentaryItems.push({
                 time: { elapsed: 45 },
                 type: "period_marker",
-               
+
                 detail: `  ${halftimeScore.homeScore} - ${halftimeScore.awayScore}`,
                 team: { name: "", logo: "" },
                 player: { name: "" },
@@ -225,7 +225,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
             // Add "90 minutes" period marker if there are events in the second half and the latest event is close to or after 90 minutes
             const secondHalfEvents = events.filter((e) => e.time.elapsed > 45);
-      
+
             const latestEvent = events.length > 0 ? events.reduce((latest, current) => 
               (current.time.elapsed + (current.time.extra || 0)) > (latest.time.elapsed + (latest.time.extra || 0)) ? current : latest
             ) : null;
@@ -337,7 +337,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   );
                 }
 
-                
+
 
                 // Handle period markers
                 if (
@@ -392,13 +392,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         key={`period-${index}`}
                         className="commentary-event-container"
                       >
-                       
-                        
+
+
                         <div className="flex items-center py-1 mb-1">
-                   
-                          
+
+
                         </div>
-                        
+
                       </div>
                     );
 
@@ -436,7 +436,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 <span className="text-white text-xs font-semi-bold mt-3.5 ">   
                                   <img
                                     src="/assets/matchdetaillogo/i mark.svg"
-                                                                                           
+
                                     alt="half time"
                                     className="w-4 h-4 ml-0.5 mb-1"
                                   />{event.time.elapsed}'
@@ -461,7 +461,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                     </div>
                   );
 
-                  
+
                 }
 
                 // Handle regular period markers (like "90 minutes")
