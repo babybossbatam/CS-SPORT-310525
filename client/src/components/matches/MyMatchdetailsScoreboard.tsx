@@ -10,6 +10,12 @@ import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
+import MyMatchTabCard from "./MyMatchTabCard";
+import MyLineupsTabsCard from "./MyLineupsTabsCard";
+import MyStatsTabCard from "./MyStatsTabCard";
+import MyTrendsTabsCard from "./MyTrendsTabsCard";
+import MyHeadtoheadTabsCard from "./MyHeadtoheadTabsCard";
+
 interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
@@ -654,37 +660,24 @@ const MyMatchdetailsScoreboard = ({
       </Card>
 
       {/* Tab Content */}
+      {activeTab === "match" && (
+        <MyMatchTabCard match={displayMatch} />
+      )}
+
       {activeTab === "stats" && (
-        <MyMatchStats
-          fixtureId={displayMatch.fixture.id}
-          homeTeam={displayMatch.teams.home}
-          awayTeam={displayMatch.teams.away}
-          onClose={() => setActiveTab("match")}
-        />
+        <MyStatsTabCard match={displayMatch} />
       )}
 
       {activeTab === "lineups" && (
-        <Card className="mt-4">
-          <CardContent className="py-8 text-center">
-            <p className="text-gray-500">Lineups data coming soon...</p>
-          </CardContent>
-        </Card>
+        <MyLineupsTabsCard match={displayMatch} />
       )}
 
       {activeTab === "trends" && (
-        <Card className="mt-4">
-          <CardContent className="py-8 text-center">
-            <p className="text-gray-500">Trends data coming soon...</p>
-          </CardContent>
-        </Card>
+        <MyTrendsTabsCard match={displayMatch} />
       )}
 
       {activeTab === "h2h" && (
-        <Card className="mt-4">
-          <CardContent className="py-8 text-center">
-            <p className="text-gray-500">Head to Head data coming soon...</p>
-          </CardContent>
-        </Card>
+        <MyHeadtoheadTabsCard match={displayMatch} />
       )}
 
 
