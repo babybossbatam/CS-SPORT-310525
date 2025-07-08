@@ -304,7 +304,15 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 // Events with higher extra time should appear first
                 const aExtra = a.time.extra || 0;
                 const bExtra = b.time.extra || 0;
-                return bExtra - aExtra;
+                
+                if (aExtra !== bExtra) {
+                  return bExtra - aExtra;
+                }
+
+                // For events at the same time, prioritize period markers to appear first
+                const aPriority = (a.type === "period_end" || a.type === "period_marker") ? 1 : 0;
+                const bPriority = (b.type === "period_end" || b.type === "period_marker") ? 1 : 0;
+                return bPriority - aPriority;
               }) // Sort by time, most recent first, then by extra time
               .map((event, index) => {
                 const timeDisplay = `${event.time.extra ? `+${event.time.extra}` : ""}`;
@@ -392,20 +400,30 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         key={`period-${index}`}
                         className="commentary-event-container"
                       >
-                        <div className="flex items-center py-1 mb-1">
-                          <div className="text-sm font-semibold text-gray-700 ml-4">
-                            45'
+                        <div className="flex gap-3">
+                          {/* Time Column */}
+                          <div className="flex flex-col items-center min-w-[50px]">
+                            <div className="text-gray-800 text-sm font-medium leading-tight">
+                              45'
+                            </div>
+                            {index < allCommentaryItems.length - 1 && (
+                              <div className="w-0.5 h-12 bg-gray-600"></div>
+                            )}
                           </div>
-                          <div className="text-lg font-bold text-gray-900 ml-4">
-                            <img
-                              src="/assets/matchdetaillogo/clock.png"
-                              alt="Half Time"
-                              className="w-4 h-4 opacity-80 flex-shrink-0"
-                            />
+
+                          {/* Content Column */}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 -ml-3 py-1 rounded-md text-xs font-medium">
+                              <img
+                                src="/assets/matchdetaillogo/clock.png"
+                                alt="Half Time"
+                                className="w-4 h-4 opacity-80 flex-shrink-0"
+                              />
+                              <span className="text-lg font-bold text-gray-900">
+                                Half Time: {halftimeScore.homeScore}-{halftimeScore.awayScore}
+                              </span>
+                            </div>
                           </div>
-                          <span className="text-lg font-bold text-gray-900 ml-2">
-                            {halftimeScore.homeScore}-{halftimeScore.awayScore}
-                          </span>
                         </div>
                       </div>
                     );
