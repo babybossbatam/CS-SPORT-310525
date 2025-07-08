@@ -28,8 +28,19 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   leagueName, 
   match,
   homeTeamName,
-  awayTeamName
+  awayTeamName,
+  matchStatus
 }) => {
+  // Check match status to determine if we should render
+  const status = matchStatus || match?.fixture?.status?.short;
+  
+  // Only show highlights for ended matches
+  const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(status);
+  
+  // Don't render if match is not ended
+  if (!isEnded) {
+    return null;
+  }
   const uniqueId = useId();
   const [currentSource, setCurrentSource] = useState<VideoSource | null>(null);
   const [loading, setLoading] = useState(true);

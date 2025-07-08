@@ -24,27 +24,52 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
         />
       </div>
 
-      {/* Match Highlights */}
-      <div className="space-y-2">
-       
-        <MyHighlights 
-          homeTeam={match.teams?.home?.name || "Unknown Team"}
-          awayTeam={match.teams?.away?.name || "Unknown Team"}
-          leagueName={match.league?.name || "Unknown League"}
-          matchStatus={match.fixture?.status?.short}
-        />
-      </div>
+      {/* Conditional rendering based on match status */}
+      {(() => {
+        const matchStatus = match.fixture?.status?.short;
+        const isLive = [
+          "1H",
+          "2H",
+          "LIVE",
+          "LIV",
+          "HT",
+          "ET",
+          "P",
+          "INT",
+        ].includes(matchStatus);
+        const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(matchStatus);
+        const isUpcoming = ["NS", "TBD"].includes(matchStatus);
 
-      {/* Live Action */}
-      <div className="space-y-2">
-       
-        <MyLiveAction 
-          matchId={match.fixture?.id}
-          homeTeam={match.teams?.home}
-          awayTeam={match.teams?.away}
-          status={match.fixture?.status?.short}
-        />
-      </div>
+        return (
+          <>
+            {/* Show MyHighlights only for ended matches */}
+            {isEnded && (
+              <div className="space-y-2">
+                <MyHighlights 
+                  homeTeam={match.teams?.home?.name || "Unknown Team"}
+                  awayTeam={match.teams?.away?.name || "Unknown Team"}
+                  leagueName={match.league?.name || "Unknown League"}
+                  matchStatus={match.fixture?.status?.short}
+                />
+              </div>
+            )}
+
+            {/* Show MyLiveAction only for live matches */}
+            {isLive && !isEnded && (
+              <div className="space-y-2">
+                <MyLiveAction 
+                  matchId={match.fixture?.id}
+                  homeTeam={match.teams?.home}
+                  awayTeam={match.teams?.away}
+                  status={match.fixture?.status?.short}
+                />
+              </div>
+            )}
+
+            {/* For upcoming matches, neither component is shown */}
+          </>
+        );
+      })()}
 
       {/* Match Events */}
       <div className="space-y-2">
