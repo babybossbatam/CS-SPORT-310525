@@ -1,121 +1,172 @@
-
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { format } from 'date-fns';
 
 interface MyHeadtoheadTabsCardProps {
-  match: any;
+  match?: any;
 }
 
-// Placeholder MyHeadtoHead component until the actual component is created
-const MyHeadtoHead = ({ match }: { match: any }) => {
+const MyHeadtoheadTabsCard: React.FC<MyHeadtoheadTabsCardProps> = ({ match }) => {
+  if (!match) {
+    return (
+      <Card>
+        <CardContent className="p-4">
+          <div className="text-center text-gray-500">
+            No match data available
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const homeTeam = match.teams?.home;
+  const awayTeam = match.teams?.away;
+
+  // Sample H2H data - in real implementation, this would come from API
+  const h2hData = {
+    totalMatches: 8,
+    homeWins: 3,
+    awayWins: 3,
+    draws: 2,
+    recentMatches: [
+      {
+        date: '2024-03-15',
+        homeTeam: homeTeam?.name,
+        awayTeam: awayTeam?.name,
+        homeScore: 2,
+        awayScore: 1,
+        competition: 'Premier League'
+      },
+      {
+        date: '2023-11-28',
+        homeTeam: awayTeam?.name,
+        awayTeam: homeTeam?.name,
+        homeScore: 0,
+        awayScore: 0,
+        competition: 'Premier League'
+      },
+      {
+        date: '2023-08-12',
+        homeTeam: homeTeam?.name,
+        awayTeam: awayTeam?.name,
+        homeScore: 1,
+        awayScore: 3,
+        competition: 'Premier League'
+      },
+      {
+        date: '2023-04-20',
+        homeTeam: awayTeam?.name,
+        awayTeam: homeTeam?.name,
+        homeScore: 2,
+        awayScore: 2,
+        competition: 'Premier League'
+      },
+      {
+        date: '2022-12-08',
+        homeTeam: homeTeam?.name,
+        awayTeam: awayTeam?.name,
+        homeScore: 1,
+        awayScore: 0,
+        competition: 'Premier League'
+      }
+    ]
+  };
+
+  const getResultColor = (homeScore: number, awayScore: number, isHomeTeamFirst: boolean) => {
+    if (homeScore === awayScore) return 'text-gray-600';
+    const homeWon = homeScore > awayScore;
+    if (isHomeTeamFirst) {
+      return homeWon ? 'text-green-600' : 'text-red-600';
+    } else {
+      return homeWon ? 'text-red-600' : 'text-green-600';
+    }
+  };
+
   return (
-    <div className="space-y-4">
-      <div className="text-center text-gray-500">
-        <p className="text-lg font-medium">Head to Head Statistics</p>
-        <p className="text-sm">Historical matchup data and statistics</p>
-      </div>
-      
-      <div className="space-y-4">
-        {/* Overall H2H Stats */}
-        <div className="bg-gray-50 rounded-lg p-4">
-          <h4 className="font-semibold mb-3 text-center">Overall Record</h4>
-          
-          <div className="flex items-center justify-between">
-            <div className="text-center">
-              <div className="flex items-center gap-2 mb-2">
-                <img 
-                  src={match?.teams?.home?.logo} 
-                  alt={match?.teams?.home?.name}
-                  className="w-6 h-6"
-                />
-                <span className="font-medium text-sm">{match?.teams?.home?.name}</span>
+    <Card>
+      <CardHeader>
+        <CardTitle>Head to Head Record</CardTitle>
+      </CardHeader>
+      <CardContent className="p-4 space-y-6">
+        {/* Overall Record */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-lg">Overall Record</h3>
+
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div className="text-2xl font-bold text-blue-600">{h2hData.homeWins}</div>
+                <div className="text-sm text-gray-600">{homeTeam?.name} wins</div>
               </div>
-              <div className="text-2xl font-bold text-blue-600">5</div>
-              <div className="text-xs text-gray-500">Wins</div>
-            </div>
-            
-            <div className="text-center">
-              <div className="text-sm text-gray-500 mb-2">Total Matches</div>
-              <div className="text-2xl font-bold text-gray-700">12</div>
-              <div className="text-xs text-gray-500">Draws: 2</div>
-            </div>
-            
-            <div className="text-center">
-              <div className="flex items-center gap-2 mb-2">
-                <img 
-                  src={match?.teams?.away?.logo} 
-                  alt={match?.teams?.away?.name}
-                  className="w-6 h-6"
-                />
-                <span className="font-medium text-sm">{match?.teams?.away?.name}</span>
+              <div>
+                <div className="text-2xl font-bold text-gray-600">{h2hData.draws}</div>
+                <div className="text-sm text-gray-600">Draws</div>
               </div>
-              <div className="text-2xl font-bold text-red-600">5</div>
-              <div className="text-xs text-gray-500">Wins</div>
+              <div>
+                <div className="text-2xl font-bold text-red-600">{h2hData.awayWins}</div>
+                <div className="text-sm text-gray-600">{awayTeam?.name} wins</div>
+              </div>
+            </div>
+            <div className="text-center mt-3 text-sm text-gray-500">
+              Total matches: {h2hData.totalMatches}
             </div>
           </div>
         </div>
-        
+
         {/* Recent Meetings */}
-        <div>
-          <h4 className="font-semibold mb-3">Recent Meetings</h4>
-          <div className="space-y-2">
-            {[
-              { date: '2024-03-15', home: match?.teams?.home?.name, away: match?.teams?.away?.name, score: '2-1', competition: 'League' },
-              { date: '2023-10-22', home: match?.teams?.away?.name, away: match?.teams?.home?.name, score: '0-2', competition: 'Cup' },
-              { date: '2023-05-08', home: match?.teams?.home?.name, away: match?.teams?.away?.name, score: '1-1', competition: 'League' },
-            ].map((meeting, index) => (
-              <div key={index} className="flex items-center justify-between p-2 bg-white rounded border">
-                <div className="text-sm">
-                  <span className="font-medium">{meeting.home}</span>
-                  <span className="mx-2">vs</span>
-                  <span className="font-medium">{meeting.away}</span>
+        <div className="space-y-4">
+          <h3 className="font-semibold text-lg">Recent Meetings</h3>
+
+          <div className="space-y-3">
+            {h2hData.recentMatches.map((match, index) => {
+              const isHomeTeamFirst = match.homeTeam === homeTeam?.name;
+              return (
+                <div key={index} className="border rounded-lg p-3 bg-white">
+                  <div className="flex justify-between items-center">
+                    <div className="flex-1">
+                      <div className="text-sm text-gray-500 mb-1">
+                        {format(new Date(match.date), 'MMM dd, yyyy')} • {match.competition}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-medium">
+                          {match.homeTeam} vs {match.awayTeam}
+                        </div>
+                        <div className={`text-lg font-bold ${getResultColor(match.homeScore, match.awayScore, isHomeTeamFirst)}`}>
+                          {match.homeScore} - {match.awayScore}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-sm">
-                  <span className="font-bold">{meeting.score}</span>
-                  <span className="ml-2 text-gray-500">({meeting.competition})</span>
-                </div>
-                <div className="text-xs text-gray-500">{meeting.date}</div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
-        
-        {/* Goals Statistics */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-blue-50 rounded p-3">
-            <h5 className="font-medium text-sm mb-2">Goals For</h5>
-            <div className="flex justify-between text-sm">
-              <span>{match?.teams?.home?.name}: 18</span>
-              <span>{match?.teams?.away?.name}: 15</span>
+
+        {/* Key Statistics */}
+        <div className="space-y-4">
+          <h3 className="font-semibold text-lg">Key Statistics</h3>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <div className="text-sm text-blue-600 font-medium">Average Goals per Game</div>
+              <div className="text-2xl font-bold text-blue-800">2.3</div>
             </div>
-          </div>
-          
-          <div className="bg-red-50 rounded p-3">
-            <h5 className="font-medium text-sm mb-2">Goals Against</h5>
-            <div className="flex justify-between text-sm">
-              <span>{match?.teams?.home?.name}: 15</span>
-              <span>{match?.teams?.away?.name}: 18</span>
+            <div className="bg-green-50 p-3 rounded-lg">
+              <div className="text-sm text-green-600 font-medium">Clean Sheets</div>
+              <div className="text-2xl font-bold text-green-800">25%</div>
             </div>
           </div>
         </div>
-      </div>
-      
-      <div className="pt-4 border-t text-center text-sm text-gray-500">
-        Detailed head-to-head analysis coming soon...
-      </div>
-    </div>
-  );
-};
 
-const MyHeadtoheadTabsCard = ({ match }: MyHeadtoheadTabsCardProps) => {
-  if (!match) return null;
-
-  return (
-    <Card className="mt-4">
-      <CardContent className="p-4">
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-gray-800">Head to Head</h3>
-          <MyHeadtoHead match={match} />
+        {/* Historical Note */}
+        <div className="bg-amber-50 p-4 rounded-lg">
+          <h4 className="font-medium text-amber-800 mb-2">Historical Context</h4>
+          <p className="text-sm text-amber-700">
+            These teams have faced each other {h2hData.totalMatches} times in recent years, 
+            with a fairly balanced record. Their matches tend to be competitive and 
+            entertaining for neutral fans.
+          </p>
         </div>
       </CardContent>
     </Card>

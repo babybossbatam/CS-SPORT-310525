@@ -1,71 +1,96 @@
-
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface MyLineupsTabsCardProps {
-  match: any;
+  match?: any;
 }
 
-// Placeholder MyLineUp component until the actual component is created
-const MyLineUp = ({ match }: { match: any }) => {
-  return (
-    <div className="space-y-4">
-      <div className="text-center text-gray-500">
-        <p className="text-lg font-medium">Team Lineups</p>
-        <p className="text-sm">
-          {match?.fixture?.status?.short === "NS" 
-            ? "Probable lineups will be available closer to match time"
-            : "Official lineups and formations"
-          }
-        </p>
-      </div>
-      
-      {/* Home Team Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <img 
-              src={match?.teams?.home?.logo} 
-              alt={match?.teams?.home?.name}
-              className="w-6 h-6"
-            />
-            <h4 className="font-semibold">{match?.teams?.home?.name}</h4>
+const MyLineupsTabsCard: React.FC<MyLineupsTabsCardProps> = ({ match }) => {
+  if (!match) {
+    return (
+      <Card>
+        <CardContent className="p-4">
+          <div className="text-center text-gray-500">
+            No match data available
           </div>
-          <div className="text-sm text-gray-600">
-            Lineup data coming soon...
-          </div>
-        </div>
-        
-        {/* Away Team Section */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <img 
-              src={match?.teams?.away?.logo} 
-              alt={match?.teams?.away?.name}
-              className="w-6 h-6"
-            />
-            <h4 className="font-semibold">{match?.teams?.away?.name}</h4>
-          </div>
-          <div className="text-sm text-gray-600">
-            Lineup data coming soon...
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+        </CardContent>
+      </Card>
+    );
+  }
 
-const MyLineupsTabsCard = ({ match }: MyLineupsTabsCardProps) => {
-  if (!match) return null;
+  const isUpcoming = match.fixture?.status?.short === "NS";
+  const homeTeam = match.teams?.home;
+  const awayTeam = match.teams?.away;
 
   return (
-    <Card className="mt-4">
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          {isUpcoming ? "Probable Lineups" : "Team Lineups"}
+        </CardTitle>
+      </CardHeader>
       <CardContent className="p-4">
-        <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-gray-800">
-            {match?.fixture?.status?.short === "NS" ? "Probable Lineups" : "Team Lineups"}
-          </h3>
-          <MyLineUp match={match} />
+        <div className="space-y-6">
+          {/* Home Team Section */}
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg flex items-center gap-2">
+              <img 
+                src={homeTeam?.logo || "/assets/fallback-logo.png"} 
+                alt={homeTeam?.name}
+                className="w-6 h-6 object-contain"
+              />
+              {homeTeam?.name}
+            </h3>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="text-center text-gray-600 py-8">
+                <div className="text-4xl mb-2">⚽</div>
+                <p className="text-sm">
+                  {isUpcoming 
+                    ? "Probable lineup will be available closer to kickoff"
+                    : "Lineup data not available for this match"
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Away Team Section */}
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg flex items-center gap-2">
+              <img 
+                src={awayTeam?.logo || "/assets/fallback-logo.png"} 
+                alt={awayTeam?.name}
+                className="w-6 h-6 object-contain"
+              />
+              {awayTeam?.name}
+            </h3>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="text-center text-gray-600 py-8">
+                <div className="text-4xl mb-2">⚽</div>
+                <p className="text-sm">
+                  {isUpcoming 
+                    ? "Probable lineup will be available closer to kickoff"
+                    : "Lineup data not available for this match"
+                  }
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Formation Info */}
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h4 className="font-medium text-blue-800 mb-2">Expected Formations</h4>
+            <div className="grid grid-cols-2 gap-4 text-sm text-blue-700">
+              <div className="text-center">
+                <span className="font-medium">{homeTeam?.name}</span>
+                <div className="text-lg font-bold">4-4-2</div>
+              </div>
+              <div className="text-center">
+                <span className="font-medium">{awayTeam?.name}</span>
+                <div className="text-lg font-bold">4-3-3</div>
+              </div>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
