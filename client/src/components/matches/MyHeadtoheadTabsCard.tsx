@@ -6,7 +6,7 @@ interface MyHeadtoheadTabsCardProps {
   match?: any;
 }
 
-const MyHeadtoheadTabsCard: React.FC<MyHeadtoheadTabsCardProps> = ({ match }) => {
+const MyHeadtoHeadTabCard: React.FC<MyHeadtoheadTabsCardProps> = ({ match }) => {
   if (!match) {
     return (
       <Card>
@@ -173,4 +173,4 @@ const MyHeadtoheadTabsCard: React.FC<MyHeadtoheadTabsCardProps> = ({ match }) =>
   );
 };
 
-export default MyHeadtoheadTabsCard;
+export default MyHeadtoHeadTabCard;

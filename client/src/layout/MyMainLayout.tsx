@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import MyMatchdetailsScoreboard from "@/components/matches/MyMatchdetailsScoreboard";
 import MyMatchTabCard from "@/components/matches/MyMatchTabCard";
-import MyLineupsTabsCard from "@/components/matches/MyLineupsTabsCard";
-import MyStatsTabCard from "@/components/matches/MyStatsTabCard";
-import MyTrendsTabsCard from "@/components/matches/MyTrendsTabsCard";
-import MyHeadtoheadTabsCard from "@/components/matches/MyHeadtoheadTabsCard";
+import MyLineUpTabCard from "@/components/matches/MyLineupsTabsCard";
+import MyMatchStatsTabCard from "@/components/matches/MyStatsTabCard";
+import MyTrendsTabCard from "@/components/matches/MyTrendsTabsCard";
+import MyHeadtoHeadTabCard from "@/components/matches/MyHeadtoheadTabsCard";
 
 interface MyMainLayoutProps {
   selectedMatchId?: number;
@@ -40,13 +40,13 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       case "match":
         return <MyMatchTabCard match={selectedMatch} />;
       case "lineups":
-        return <MyLineupsTabsCard match={selectedMatch} />;
+        return <MyLineUpTabCard match={selectedMatch} />;
       case "stats":
-        return <MyStatsTabCard match={selectedMatch} />;
+        return <MyMatchStatsTabCard match={selectedMatch} />;
       case "trends":
-        return <MyTrendsTabsCard match={selectedMatch} />;
+        return <MyTrendsTabCard match={selectedMatch} />;
       case "h2h":
-        return <MyHeadtoheadTabsCard match={selectedMatch} />;
+        return <MyHeadtoHeadTabCard match={selectedMatch} />;
       default:
         return <MyMatchTabCard match={selectedMatch} />;
     }

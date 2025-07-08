@@ -6,7 +6,7 @@ interface MyTrendsTabsCardProps {
   match?: any;
 }
 
-const MyTrendsTabsCard: React.FC<MyTrendsTabsCardProps> = ({ match }) => {
+const MyTrendsTabCard: React.FC<MyTrendsTabsCardProps> = ({ match }) => {
   if (!match) {
     return (
       <Card>
@@ -179,4 +179,4 @@ const MyTrendsTabsCard: React.FC<MyTrendsTabsCardProps> = ({ match }) => {
   );
 };
 
-export default MyTrendsTabsCard;
+export default MyTrendsTabCard;
