@@ -62,7 +62,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                  match?.competition?.name ||
                  '';
 
-  const searchQuery = `${home} vs ${away} highlights ${league}`.trim();
+  const searchQuery = `${home} vs ${away} highlights ${league} 2025`.trim();
 
   // Debug logging to verify correct team names
   console.log(`🎬 [Highlights] Match data extraction:`, {
