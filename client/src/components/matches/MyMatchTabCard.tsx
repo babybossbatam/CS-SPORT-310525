@@ -16,7 +16,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
     <>
       {/* Match Prediction */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-gray-800">Match Prediction</h3>
+        
         <MatchPrediction 
           homeTeam={match.teams?.home}
           awayTeam={match.teams?.away}
@@ -26,7 +26,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
 
       {/* Match Highlights */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-gray-800">Match Highlights</h3>
+       
         <MyHighlights 
           homeTeam={match.teams?.home?.name || "Unknown Team"}
           awayTeam={match.teams?.away?.name || "Unknown Team"}
@@ -37,7 +37,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
 
       {/* Live Action */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-gray-800">Live Action</h3>
+       
         <MyLiveAction 
           matchId={match.fixture?.id}
           homeTeam={match.teams?.home}
@@ -48,7 +48,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
 
       {/* Match Events */}
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold text-gray-800">Match Events</h3>
+        
         <MyMatchEventNew 
           fixtureId={match.fixture?.id}
           homeTeam={match.teams?.home?.name}
