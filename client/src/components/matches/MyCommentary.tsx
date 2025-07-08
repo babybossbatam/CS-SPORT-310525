@@ -199,7 +199,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 player: { name: "" },
               } as any);
 
-              
+
 
               // Add "Half Time" marker if there are events after minute 45
               if (hasEventsInSecondHalf) {
@@ -295,7 +295,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 // Events with higher extra time should appear first
                 const aExtra = a.time.extra || 0;
                 const bExtra = b.time.extra || 0;
-                
+
                 if (aExtra !== bExtra) {
                   return bExtra - aExtra;
                 }
@@ -348,7 +348,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   const displayText =
                     event.detail;
 
-                  
+
 
                   if (event.detail === "Half Time") {
                     const halftimeScore = calculateScoreAtTime(45);
@@ -435,9 +435,21 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                         {/* Content Column */}
                         <div className="flex-1">
-                          <div className="text-xs font-md  text-gray-600 leading-relaxed">
-                            {displayText}
-                          </div>
+                          <div className="flex items-center gap-2">
+                              <div className="text-xs font-md text-gray-600 leading-relaxed">
+                                {displayText}
+                              </div>
+                              {event.detail === "Full Time" && (
+                                <div className="text-sm font-bold text-gray-900">
+                                  {(() => {
+                                    const finalScore = calculateScoreAtTime(
+                                      event.time.elapsed + (event.time.extra || 0)
+                                    );
+                                    return `${finalScore.homeScore}-${finalScore.awayScore}`;
+                                  })()}
+                                </div>
+                              )}
+                            </div>
                         </div>
                       </div>
                     </div>
