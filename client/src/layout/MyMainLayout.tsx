@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import MyLiveAction from '@/components/matches/MyLiveAction';
-import MyLiveMatchTracker from '@/components/matches/MyLiveMatchTracker';
-import MyLiveTrackerNew from '@/components/matches/MyLiveTrackerNew';
-import MyMatchTabCard from '@/components/matches/MyMatchTabCard';
-import MyLineupsTabsCard from '@/components/matches/MyLineupsTabsCard';
-import MyStatsTabCard from '@/components/matches/MyStatsTabCard';
-import MyTrendsTabsCard from '@/components/matches/MyTrendsTabsCard';
-import MyHeadtoheadTabsCard from '@/components/matches/MyHeadtoheadTabsCard';
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import MyMatchdetailsScoreboard from "@/components/matches/MyMatchdetailsScoreboard";
+import MyMatchTabCard from "@/components/matches/MyMatchTabCard";
+import MyLineupsTabsCard from "@/components/matches/MyLineupsTabsCard";
+import MyStatsTabCard from "@/components/matches/MyStatsTabCard";
+import MyTrendsTabsCard from "@/components/matches/MyTrendsTabsCard";
+import MyHeadtoheadTabsCard from "@/components/matches/MyHeadtoheadTabsCard";
 
 interface MyMainLayoutProps {
   selectedMatchId?: number;
@@ -16,16 +15,16 @@ interface MyMainLayoutProps {
   onTabChange?: (tab: string) => void;
 }
 
-const MyMainLayout: React.FC<MyMainLayoutProps> = ({ 
-  selectedMatchId, 
-  selectedMatch, 
+const MyMainLayout: React.FC<MyMainLayoutProps> = ({
+  selectedMatchId,
+  selectedMatch,
   children,
-  activeTab,
-  onTabChange
+  activeTab = "match",
+  onTabChange,
 }) => {
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const currentActiveTab = activeTab || internalActiveTab;
-  
+
   const handleTabChange = (tab: string) => {
     if (onTabChange) {
       onTabChange(tab);
@@ -33,83 +32,46 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       setInternalActiveTab(tab);
     }
   };
-  const isLive = selectedMatch?.fixture?.status?.short === 'LIVE' || 
-                selectedMatch?.fixture?.status?.short === 'HT' ||
-                selectedMatch?.fixture?.status?.short === '1H' ||
-                selectedMatch?.fixture?.status?.short === '2H' ||
-                selectedMatch?.fixture?.status?.short === 'LIV' ||
-                selectedMatch?.fixture?.status?.short === 'ET' ||
-                selectedMatch?.fixture?.status?.short === 'P' ||
-                selectedMatch?.fixture?.status?.short === 'INT' ||
-                selectedMatch?.fixture?.status?.short === 'SUSP' ||
-                selectedMatch?.fixture?.status?.short === 'BT';
+
+  const renderTabContent = () => {
+    if (!selectedMatch) return null;
+
+    switch (currentActiveTab) {
+      case "match":
+        return <MyMatchTabCard match={selectedMatch} />;
+      case "lineups":
+        return <MyLineupsTabsCard match={selectedMatch} />;
+      case "stats":
+        return <MyStatsTabCard match={selectedMatch} />;
+      case "trends":
+        return <MyTrendsTabsCard match={selectedMatch} />;
+      case "h2h":
+        return <MyHeadtoheadTabsCard match={selectedMatch} />;
+      default:
+        return <MyMatchTabCard match={selectedMatch} />;
+    }
+  };
 
   return (
-    <div className="w-full space-y-6">
-      {/* MyLiveAction component - show for live matches */}
-      {isLive && (
-        <MyLiveAction 
-          matchId={selectedMatchId}
-          homeTeam={selectedMatch?.teams?.home}
-          awayTeam={selectedMatch?.teams?.away}
-          status={selectedMatch?.fixture?.status?.short}
-          className=""
-        />
-      )}
-
-      {/* MyLiveTrackerNew component - enhanced live tracker for live matches */}
-      {isLive && selectedMatchId && (
-        <MyLiveTrackerNew
-          matchId={selectedMatchId}
-          homeTeam={selectedMatch?.teams?.home}
-          awayTeam={selectedMatch?.teams?.away}
-          isLive={isLive}
-          className=""
-        />
-      )}
-
-      {/* MyLiveMatchTracker component - show below MyLiveAction for live matches */}
-      {isLive && selectedMatchId && (
-        <MyLiveMatchTracker
-          matchId={selectedMatchId}
-          homeTeam={selectedMatch?.teams?.home}
-          awayTeam={selectedMatch?.teams?.away}
-          isLive={isLive}
-          className=""
-        />
-      )}
-
-      {/* Tab Content for Selected Match */}
+    <div className="flex flex-col space-y-4">
       {selectedMatch && (
-        <div className="mt-6">
-          {currentActiveTab === "match" && (
-            <MyMatchTabCard match={selectedMatch} />
-          )}
+        <>
+          <Card className="w-full">
+            <CardContent className="p-0">
+              <MyMatchdetailsScoreboard
+                match={selectedMatch}
+                activeTab={currentActiveTab}
+                onTabChange={handleTabChange}
+              />
+            </CardContent>
+          </Card>
 
-          {currentActiveTab === "stats" && (
-            <MyStatsTabCard match={selectedMatch} />
-          )}
-
-          {currentActiveTab === "lineups" && (
-            <MyLineupsTabsCard match={selectedMatch} />
-          )}
-
-          {currentActiveTab === "trends" && (
-            <MyTrendsTabsCard match={selectedMatch} />
-          )}
-
-          {currentActiveTab === "h2h" && (
-            <MyHeadtoheadTabsCard match={selectedMatch} />
-          )}
-        </div>
+          {/* Tab Content */}
+          {renderTabContent()}
+        </>
       )}
 
-      {/* Any additional children content */}
-      {children && (
-        <div className="mt-6">
-          {children}
-        </div>
-      )}
+      {children}
     </div>
   );
 };
