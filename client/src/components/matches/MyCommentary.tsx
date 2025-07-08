@@ -211,7 +211,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               if (hasEventsInSecondHalf) {
                 allCommentaryItems.push({
                   time: { elapsed: 45 },
-                  type: "period_end",
+                  type: "half time",
                   detail: "Half Time",
                   team: { name: "", logo: "" },
                   player: { name: "" },
@@ -373,7 +373,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                     return (
                       <div
                         key={`period-${index}`}
-                        className="commentary-event-container"
+                        className="commentary-event-container" 
                       >
                         <div className="flex gap-3">
                           {/* Time Column */}
@@ -393,7 +393,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 src="/assets/matchdetaillogo/clock.png"
                                 alt="Half Time"
                                 className="w-4 h-4 opacity-80 flex-shrink-0"
-                              />
+                              />Half Time
                               <span className="text-lg font-bold text-gray-900">
                                 {halftimeScore.homeScore} -{" "}
                                 {halftimeScore.awayScore}
@@ -437,17 +437,17 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 <span className="text-white text-xs font-semi-bold mt-3.5 ">
                                   <img
                                     src="/assets/matchdetaillogo/i mark.svg"
-                                    alt="half time"
-                                    className="w-4 h-4 ml-0.5 mb-1"
+                                    alt="Half Time"
+                                    className="w-4 h-4 ml-0.5 mb-4"
                                   />
-                                  {event.time.elapsed}'
+                                  
                                 </span>
                               )}
                             </div>
                           )}
 
                           {index < allCommentaryItems.length - 1 && (
-                            <div className="w-0.5 h-5 bg-gray-800 "></div>
+                            <div className="w-0.5 h-5 bg-gray-800 ml-1 "></div>
                           )}
                         </div>
 
