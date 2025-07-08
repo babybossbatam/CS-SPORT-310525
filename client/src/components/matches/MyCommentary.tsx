@@ -221,7 +221,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   player: { name: "" },
                 } as any);
               }
-              
+
             }
 
             // Add "90 minutes" period marker if there are events in the second half and the latest event is close to or after 90 minutes
@@ -372,18 +372,79 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   // For Half Time, show Second Half begins with team names and halftime scores
                   const displayText =
                     event.detail;
-                   
-                 
+
+
                   if (event.detail === "Half Time") {
                     const halftimeScore = calculateScoreAtTime(45);
                     return (
                       <>
-                        
-                        
-                       
+                        <div
+                          key={`period-${index}`}
+                          className="commentary-event-container"
+                        >
+                          <div className="flex items-center py-1 mb-1">
+                            <div className="text-sm font-semibold text-gray-700 ml-4">
+                              45'
+                            </div>
+                            <div className="text-lg font-bold text-gray-900 ml-4">
+                              <img
+                                src="/assets/matchdetaillogo/clock.png"
+                                alt="Half Time"
+                                className="w-4 h-4 opacity-80 flex-shrink-0"
+                              />
+                            </div>
+                            <span className="text-lg font-bold text-gray-900 ml-2">
+                              {halftimeScore.homeScore} - {halftimeScore.awayScore}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* First duplicate component */}
+                        <div
+                          key={`period-duplicate-${index}`}
+                          className="commentary-event-container"
+                        >
+                          <div className="flex items-center py-1 mb-1">
+                            <div className="text-sm font-semibold text-gray-700 ml-4">
+                              45'
+                            </div>
+                            <div className="text-lg font-bold text-gray-900 ml-4">
+                              <img
+                                src="/assets/matchdetaillogo/clock.png"
+                                alt="Half Time Duplicate"
+                                className="w-4 h-4 opacity-80 flex-shrink-0"
+                              />
+                            </div>
+                            <span className="text-lg font-bold text-gray-900 ml-2">
+                              {halftimeScore.homeScore} - {halftimeScore.awayScore}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Second duplicate component */}
+                        <div
+                          key={`period-duplicate-2-${index}`}
+                          className="commentary-event-container"
+                        >
+                          <div className="flex items-center py-1 mb-1">
+                            <div className="text-sm font-semibold text-gray-700 ml-4">
+                              45'
+                            </div>
+                            <div className="text-lg font-bold text-gray-900 ml-4">
+                              <img
+                                src="/assets/matchdetaillogo/clock.png"
+                                alt="Half Time Second Duplicate"
+                                className="w-4 h-4 opacity-80 flex-shrink-0"
+                              />
+                            </div>
+                            <span className="text-lg font-bold text-gray-900 ml-2">
+                              {halftimeScore.homeScore} - {halftimeScore.awayScore}
+                            </span>
+                          </div>
+                        </div>
                       </>
                     );
-                    
+
                   }
 
                   return (
@@ -420,7 +481,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     alt="Period Start"
                                     className="w-4 h-4 ml-1 mb-1"
                                   />
-                                 
+
                                 </span>
                               )}
                             </div>
@@ -440,7 +501,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       </div>
                     </div>
                   );
-                  
+
                   {/* Duplicate component */}
                   return (
                     <div
@@ -476,7 +537,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     alt="Period Start"
                                     className="w-4 h-4 ml-1 mb-1"
                                   />
-                                 
+
                                 </span>
                               )}
                             </div>
@@ -543,7 +604,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       >
                         <div className="flex items-center py-1 mb-1">
                           <div className="text-sm font-semibold text-gray-700 ml-4">
-                            
+
                           </div>
                           <div className="text-lg font-bold text-gray-900 ml-4">
                             <img
