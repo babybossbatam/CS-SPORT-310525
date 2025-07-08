@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import MyMatchdetailsScoreboard from "@/components/matches/MyMatchdetailsScoreboard";
@@ -7,7 +8,7 @@ import MyMatchStatsTabCard from "@/components/matches/MyStatsTabCard";
 import MyTrendsTabCard from "@/components/matches/MyTrendsTabsCard";
 import MyHeadtoHeadTabCard from "@/components/matches/MyHeadtoheadTabsCard";
 
-interface MyMainLayoutProps {
+interface MyMainRightProps {
   selectedMatchId?: number;
   selectedMatch?: any;
   children?: React.ReactNode;
@@ -15,7 +16,7 @@ interface MyMainLayoutProps {
   onTabChange?: (tab: string) => void;
 }
 
-const MyMainLayout: React.FC<MyMainLayoutProps> = ({
+const MyMainRight: React.FC<MyMainRightProps> = ({
   selectedMatchId,
   selectedMatch,
   children,
@@ -76,4 +77,4 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   );
 };
 
-export default MyMainLayout;
+export default MyMainRight;
