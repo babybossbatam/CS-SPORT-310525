@@ -87,7 +87,25 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const isPalmeirasChelsea = (home.toLowerCase().includes('palmeiras') && away.toLowerCase().includes('chelsea')) ||
                             (home.toLowerCase().includes('chelsea') && away.toLowerCase().includes('palmeiras'));
 
+  // Special case for USA vs Mexico 2025 Gold Cup - use known video
+  const isUsaMexico2025 = (home.toLowerCase().includes('usa') && away.toLowerCase().includes('mexico')) ||
+                         (home.toLowerCase().includes('mexico') && away.toLowerCase().includes('usa'));
+
   const videoSources = [
+    // Specific USA vs Mexico 2025 Gold Cup video (priority if match detected)
+    ...(isUsaMexico2025 ? [{
+      name: 'CONCACAF Official - USA vs Mexico 2025',
+      type: 'youtube' as const,
+      searchFn: async () => {
+        return {
+          name: 'CONCACAF Official - USA vs Mexico 2025',
+          type: 'youtube' as const,
+          url: 'https://www.youtube.com/watch?v=ZJ4r8dksWpY',
+          embedUrl: 'https://www.youtube.com/embed/ZJ4r8dksWpY?autoplay=0&rel=0',
+          title: 'USA vs Mexico - CONCACAF Gold Cup 2025 Highlights'
+        };
+      }
+    }] : []),
     // Specific Palmeiras vs Chelsea video (priority if match detected)
     ...(isPalmeirasChelsea ? [{
       name: 'FIFA Official - Palmeiras vs Chelsea',
