@@ -1,19 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import MyLiveMatchTracker from '@/components/matches/MyLiveMatchTracker';
 import MyLiveTrackerNew from '@/components/matches/MyLiveTrackerNew';
+import MyMatchTabCard from '@/components/matches/MyMatchTabCard';
+import MyLineupsTabsCard from '@/components/matches/MyLineupsTabsCard';
+import MyStatsTabCard from '@/components/matches/MyStatsTabCard';
+import MyTrendsTabsCard from '@/components/matches/MyTrendsTabsCard';
+import MyHeadtoheadTabsCard from '@/components/matches/MyHeadtoheadTabsCard';
 
 interface MyMainLayoutProps {
   selectedMatchId?: number;
   selectedMatch?: any;
   children?: React.ReactNode;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
 }
 
 const MyMainLayout: React.FC<MyMainLayoutProps> = ({ 
   selectedMatchId, 
   selectedMatch, 
-  children 
+  children,
+  activeTab,
+  onTabChange
 }) => {
+  const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
+  const currentActiveTab = activeTab || internalActiveTab;
+  
+  const handleTabChange = (tab: string) => {
+    if (onTabChange) {
+      onTabChange(tab);
+    } else {
+      setInternalActiveTab(tab);
+    }
+  };
   const isLive = selectedMatch?.fixture?.status?.short === 'LIVE' || 
                 selectedMatch?.fixture?.status?.short === 'HT' ||
                 selectedMatch?.fixture?.status?.short === '1H' ||
@@ -58,6 +77,31 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           isLive={isLive}
           className=""
         />
+      )}
+
+      {/* Tab Content for Selected Match */}
+      {selectedMatch && (
+        <div className="mt-6">
+          {currentActiveTab === "match" && (
+            <MyMatchTabCard match={selectedMatch} />
+          )}
+
+          {currentActiveTab === "stats" && (
+            <MyStatsTabCard match={selectedMatch} />
+          )}
+
+          {currentActiveTab === "lineups" && (
+            <MyLineupsTabsCard match={selectedMatch} />
+          )}
+
+          {currentActiveTab === "trends" && (
+            <MyTrendsTabsCard match={selectedMatch} />
+          )}
+
+          {currentActiveTab === "h2h" && (
+            <MyHeadtoheadTabsCard match={selectedMatch} />
+          )}
+        </div>
       )}
 
       {/* Any additional children content */}

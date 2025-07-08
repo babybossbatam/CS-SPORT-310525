@@ -10,17 +10,14 @@ import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
-import MyMatchTabCard from "./MyMatchTabCard";
-import MyLineupsTabsCard from "./MyLineupsTabsCard";
-import MyStatsTabCard from "./MyStatsTabCard";
-import MyTrendsTabsCard from "./MyTrendsTabsCard";
-import MyHeadtoheadTabsCard from "./MyHeadtoheadTabsCard";
 
 interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
   onClose?: () => void;
   onMatchCardClick?: (match: any) => void;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
 }
 
 const MyMatchdetailsScoreboard = ({
@@ -28,11 +25,22 @@ const MyMatchdetailsScoreboard = ({
   className = "",
   onClose,
   onMatchCardClick,
+  activeTab: externalActiveTab,
+  onTabChange,
 }: MyMatchdetailsScoreboardProps) => {
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<string>("match");
+  const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
+  const activeTab = externalActiveTab || internalActiveTab;
+  
+  const handleTabChange = (tab: string) => {
+    if (onTabChange) {
+      onTabChange(tab);
+    } else {
+      setInternalActiveTab(tab);
+    }
+  };
   // Sample match data for demonstration
   const sampleMatch = {
     fixture: {
@@ -630,55 +638,36 @@ const MyMatchdetailsScoreboard = ({
       <Card>
         <div className="flex space-x-1 pb-0  px-0">
           <button className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'match' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
-          onClick={() => setActiveTab("match")}
+          onClick={() => handleTabChange("match")}
           >
             Match
           </button>
           <button className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'lineups' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
-           onClick={() => setActiveTab("lineups")}
+           onClick={() => handleTabChange("lineups")}
           >
             {displayMatch.fixture.status.short === "NS"
               ? "Probable Lineups"
               : "Lineups"}
           </button>
           <button  className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'stats' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
-           onClick={() => setActiveTab("stats")}
+           onClick={() => handleTabChange("stats")}
           >
             Stats
           </button>
           <button className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'trends' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} relative pb-0`}
-           onClick={() => setActiveTab("trends")}
+           onClick={() => handleTabChange("trends")}
           >
             Trends
           </button>
           <button  className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'h2h' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
-           onClick={() => setActiveTab("h2h")}
+           onClick={() => handleTabChange("h2h")}
           >
             Head to Head
           </button>
         </div>
       </Card>
 
-      {/* Tab Content */}
-      {activeTab === "match" && (
-        <MyMatchTabCard match={displayMatch} />
-      )}
-
-      {activeTab === "stats" && (
-        <MyStatsTabCard match={displayMatch} />
-      )}
-
-      {activeTab === "lineups" && (
-        <MyLineupsTabsCard match={displayMatch} />
-      )}
-
-      {activeTab === "trends" && (
-        <MyTrendsTabsCard match={displayMatch} />
-      )}
-
-      {activeTab === "h2h" && (
-        <MyHeadtoheadTabsCard match={displayMatch} />
-      )}
+      {/* Tab content will be rendered by parent component */}
 
 
     </Card>
