@@ -834,7 +834,7 @@ export const rapidApiService = {
     }
   },
 
-  async getFixtureEvents(fixtureId: number): Promise<any[] | null> {
+  async getFixtureEvents(fixtureId: number): Promise<any[]> {
     try {
       console.log(`📊 [RapidAPI] Fetching events for fixture: ${fixtureId}`);
 
@@ -866,6 +866,53 @@ export const rapidApiService = {
     }
   },
 
+  async getFixtureStatistics(fixtureId: number, teamId?: number): Promise<any[]> {
+    const cacheKey = teamId ? `fixture-stats-${fixtureId}-${teamId}` : `fixture-stats-${fixtureId}`;
+    const cached = playersCache.get(cacheKey);
+
+    const now = Date.now();
+    if (cached && now - cached.timestamp < LIVE_DATA_CACHE_DURATION) {
+      console.log(`📊 [RapidAPI] Using cached statistics for fixture ${fixtureId}${teamId ? ` and team ${teamId}` : ''}`);
+      return cached.data;
+    }
+
+    try {
+      console.log(`📊 [RapidAPI] Fetching statistics for fixture ${fixtureId}${teamId ? ` and team ${teamId}` : ''}`);
+
+      const params: any = {
+        fixture: fixtureId,
+      };
+      if (teamId) {
+        params.team = teamId;
+      }
+
+      const response = await apiClient.get("/fixtures/statistics", {
+        params,
+      });
+
+      if (response.data?.response) {
+        const statistics = response.data.response;
+        playersCache.set(cacheKey, {
+          data: statistics,
+          timestamp: now,
+        });
+        console.log(`✅ [RapidAPI] Found statistics for fixture ${fixtureId}${teamId ? ` and team ${teamId}` : ''}`);
+        return statistics;
+      }
+
+      console.log(`📊 [RapidAPI] No statistics found for fixture ${fixtureId}${teamId ? ` and team ${teamId}` : ''}`);
+      return [];
+    } catch (error) {
+      console.error(`❌ [RapidAPI] Error fetching statistics for fixture ${fixtureId}:`, error);
+      if (cached?.data) {
+        console.log("Using cached data due to API error");
+        return cached.data;
+      }
+      console.error("API request failed and no cache available");
+      return null;
+    }
+  },
+
   /**
    * Get fixtures by league ID and season
    */
@@ -885,7 +932,7 @@ export const rapidApiService = {
         const hasLiveMatches = cachedData.some((fixture: any) => 
           ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
         );
-        
+
         // Force refresh if cached data contains live matches (they need frequent updates)
         if (hasLiveMatches && now - cached.timestamp > LIVE_DATA_CACHE_DURATION) {
           console.log(`🔄 [RapidAPI] Cache contains live matches, forcing refresh for league ${leagueId}`);

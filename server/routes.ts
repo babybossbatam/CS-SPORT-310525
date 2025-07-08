@@ -827,7 +827,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check cache first
-      const cachedLeague = await storage.getCachedLeague(id.toString());
+      const cachedLeague =await storage.getCachedLeague(id.toString());
 
       if (cachedLeague) {
         // Check if cache is fresh (less than 4 hours old)
@@ -1712,7 +1712,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         for (const logoUrl of logoUrls) {
           try {
             const response = await fetch(logoUrl, {
-              headers: {
+              headers:{
                 accept: "image/png,image/jpeg,image/svg+xml,image/*",
                 "user-agent":
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -2684,7 +2684,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           fixture.lastUpdated = Date.now();
         });
 
-        // Only cache ended matches from the live response
+        //        // Only cache ended matches from the live response
         const endedMatches = fixtures.filter((fixture) =>
           ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC"].includes(
             fixture.fixture.status.short,
@@ -2921,6 +2921,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+   // Get fixture statistics
+  apiRouter.get('/fixtures/:id/statistics', async (req, res) => {
+    try {
+      const fixtureId = parseInt(req.params.id);
+      const teamId = req.query.team;
+      console.log(`📊 [Stats API] Fetching statistics for fixture ${fixtureId}, team ${teamId}`);
+
+      const statistics = await rapidApiService.getFixtureStatistics(parseInt(fixtureId), teamId ? parseInt(teamId as string) : undefined);
+      console.log(`📊 [Stats API] Fetched statistics for fixture ${fixtureId}`);
+
+      res.json(statistics);
+    } catch (error) {
+      console.error('❌ [Stats API] Error fetching fixture statistics:', error);
+      res.status(500).json({ error: 'Failed to fetch fixture statistics' });
+    }
+  });
+
   // Create HTTP server
   const httpServer = createServer(app);
 
@@ -2945,7 +2962,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/sportsradar/match-venue/:matchId", async (req: Request, res: Response) => {
     try {
       const { matchId } = req.params;
-      
+
       // Get match details from RapidAPI first
       const rapidApiMatch = await rapidApiService.getFixtureById(parseInt(matchId));
       if (!rapidApiMatch) {
@@ -2970,18 +2987,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const matchingFixture = sportradarFixtures.find((fixture: any) => {
             const srHomeTeam = fixture.home_team?.name || "";
             const srAwayTeam = fixture.away_team?.name || "";
-            
+
             // Try exact match first
             if (srHomeTeam === homeTeam && srAwayTeam === awayTeam) {
               return true;
             }
-            
+
             // Try partial match (in case team names differ slightly)
             const homeMatch = homeTeam.toLowerCase().includes(srHomeTeam.toLowerCase()) ||
                              srHomeTeam.toLowerCase().includes(homeTeam.toLowerCase());
             const awayMatch = awayTeam.toLowerCase().includes(srAwayTeam.toLowerCase()) ||
                              srAwayTeam.toLowerCase().includes(awayTeam.toLowerCase());
-                             
+
             return homeMatch && awayMatch;
           });
 
@@ -3018,7 +3035,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/sportsradar/match-venue/:matchId", async (req: Request, res: Response) => {
     try {
       const { matchId } = req.params;
-      
+
       // Get match details from RapidAPI first
       const rapidApiMatch = await rapidApiService.getFixtureById(parseInt(matchId));
       if (!rapidApiMatch) {
@@ -3043,18 +3060,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const matchingFixture = sportradarFixtures.find((fixture: any) => {
             const srHomeTeam = fixture.home_team?.name || "";
             const srAwayTeam = fixture.away_team?.name || "";
-            
+
             // Try exact match first
             if (srHomeTeam === homeTeam && srAwayTeam === awayTeam) {
               return true;
             }
-            
+
             // Try partial match (in case team names differ slightly)
             const homeMatch = homeTeam.toLowerCase().includes(srHomeTeam.toLowerCase()) ||
                              srHomeTeam.toLowerCase().includes(homeTeam.toLowerCase());
             const awayMatch = awayTeam.toLowerCase().includes(srAwayTeam.toLowerCase()) ||
                              srAwayTeam.toLowerCase().includes(awayTeam.toLowerCase());
-                             
+
             return homeMatch && awayMatch;
           });
 

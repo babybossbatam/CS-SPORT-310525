@@ -25,6 +25,7 @@ const MyMatchdetailsScoreboard = ({
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("match");
   // Sample match data for demonstration
   const sampleMatch = {
     fixture: {
@@ -621,29 +622,74 @@ const MyMatchdetailsScoreboard = ({
       {/* Navigation Tabs */}
       <Card>
         <div className="flex space-x-1 pb-0  px-0">
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-600 border-b border-blue-500 pb-0 ">
+          <button className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'match' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
+          onClick={() => setActiveTab("match")}
+          >
             Match
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
+          <button className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'lineups' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
+           onClick={() => setActiveTab("lineups")}
+          >
             {displayMatch.fixture.status.short === "NS"
               ? "Probable Lineups"
               : "Lineups"}
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
+          <button  className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'stats' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
+           onClick={() => setActiveTab("stats")}
+          >
             Stats
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 relative pb-0">
+          <button className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'trends' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} relative pb-0`}
+           onClick={() => setActiveTab("trends")}
+          >
             Trends
           </button>
-          <button className="flex-0 py-0 px-4 text-sm font-normal text-gray-500 hover:text-gray-700 pb-0">
+          <button  className={`flex-0 py-0 px-4 text-sm font-normal ${activeTab === 'h2h' ? 'text-gray-600 border-b border-blue-500' : 'text-gray-500 hover:text-gray-700'} pb-0`}
+           onClick={() => setActiveTab("h2h")}
+          >
             Head to Head
           </button>
         </div>
       </Card>
 
-      
+      {/* Tab Content */}
+      {activeTab === "stats" && (
+        <MyMatchStats
+          fixtureId={displayMatch.fixture.id}
+          homeTeam={displayMatch.teams.home}
+          awayTeam={displayMatch.teams.away}
+          onClose={() => setActiveTab("match")}
+        />
+      )}
+
+      {activeTab === "lineups" && (
+        <Card className="mt-4">
+          <CardContent className="py-8 text-center">
+            <p className="text-gray-500">Lineups data coming soon...</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {activeTab === "trends" && (
+        <Card className="mt-4">
+          <CardContent className="py-8 text-center">
+            <p className="text-gray-500">Trends data coming soon...</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {activeTab === "h2h" && (
+        <Card className="mt-4">
+          <CardContent className="py-8 text-center">
+            <p className="text-gray-500">Head to Head data coming soon...</p>
+          </CardContent>
+        </Card>
+      )}
+
+
     </Card>
   );
 };
 
 export default MyMatchdetailsScoreboard;
+`
