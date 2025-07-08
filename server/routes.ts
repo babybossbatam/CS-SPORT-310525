@@ -41,7 +41,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/vimeo", vimeoRoutes);
   app.use("/api/dailymotion", dailymotionRoutes);
   app.use("/api/twitch", twitchRoutes);
-  apiRouter.use("/api/highlights", highlightsRoutes);
+  app.use("/api/highlights", highlightsRoutes);
   apiRouter.use('/api', playerRoutes);
 
   // Health check endpoint
@@ -1895,7 +1895,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             );
           } catch (error) {
             console.error(
-              `Error fetching fixtures for ${leagueResponse.league.id}:`,
+              `Error fetching fixtures for league ${leagueResponse.league.id}:`,
               error,
             );
             continue;
@@ -2105,7 +2105,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
               ? {
                   status: sportsRadarData.status,
                   homeTeam: sportsRadarData.home_team?.name,
-                  awayTeam: sportsRadarData.away_score,
+                  awayTeam: sportsRadarData.away_team?.name,
+                  homeGoals: sportsRadarData.home_score,
+                  awayGoals: sportsRadarData.away_score,
                   date: sportsRadarData.scheduled,
                   elapsed: sportsRadarData.clock?.minute,
                   league: sportsRadarData.tournament?.name,
@@ -2939,21 +2941,151 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // SportsRadar venue endpoint removed due to API subscription issues
+  // Get venue information from SportsRadar for a specific match
+  apiRouter.get("/sportsradar/match-venue/:matchId", async (req: Request, res: Response) => {
+    try {
+      const { matchId } = req.params;
+      
+      // Get match details from RapidAPI first
+      const rapidApiMatch = await rapidApiService.getFixtureById(parseInt(matchId));
+      if (!rapidApiMatch) {
+        return res.status(404).json({
+          success: false,
+          error: "Match not found"
+        });
+      }
 
-  // Duplicate SportsRadar venue endpoint removed
+      // Try to find corresponding SportsRadar match with venue info
+      const homeTeam = rapidApiMatch.teams?.home?.name || "";
+      const awayTeam = rapidApiMatch.teams?.away?.name || "";
+      const matchDate = rapidApiMatch.fixture?.date;
 
-  // SportsRadar venue endpoint removed due to API subscription issues
+      if (matchDate) {
+        // Get SportsRadar fixtures for the same date
+        const dateStr = new Date(matchDate).toISOString().split('T')[0];
+        const sportradarFixtures = await sportsradarApi.getFixturesByDate(dateStr);
 
-  // Duplicate SportsRadar venue endpoint removed
+        if (sportradarFixtures && Array.isArray(sportradarFixtures)) {
+          // Find matching fixture by team names (flexible matching)
+          const matchingFixture = sportradarFixtures.find((fixture: any) => {
+            const srHomeTeam = fixture.home_team?.name || "";
+            const srAwayTeam = fixture.away_team?.name || "";
+            
+            // Try exact match first
+            if (srHomeTeam === homeTeam && srAwayTeam === awayTeam) {
+              return true;
+            }
+            
+            // Try partial match (in case team names differ slightly)
+            const homeMatch = homeTeam.toLowerCase().includes(srHomeTeam.toLowerCase()) ||
+                             srHomeTeam.toLowerCase().includes(homeTeam.toLowerCase());
+            const awayMatch = awayTeam.toLowerCase().includes(srAwayTeam.toLowerCase()) ||
+                             srAwayTeam.toLowerCase().includes(awayTeam.toLowerCase());
+                             
+            return homeMatch && awayMatch;
+          });
 
-  // SportsRadar venue endpoint removed due to API subscription issues
+          if (matchingFixture && matchingFixture.venue) {
+            console.log(`✅ [SportsRadar] Found venue for match ${matchId}: ${matchingFixture.venue.name}`);
+            return res.json({
+              success: true,
+              venue: {
+                name: matchingFixture.venue.name,
+                city: matchingFixture.venue.city,
+                country: matchingFixture.venue.country,
+                capacity: matchingFixture.venue.capacity
+              }
+            });
+          }
+        }
+      }
 
-  // Duplicate SportsRadar venue endpoint removed
+      console.log(`❌ [SportsRadar] No venue found for match ${matchId}`);
+      return res.json({
+        success: false,
+        message: "Venue information not available"
+      });
+    } catch (error) {
+      console.error(`❌ [SportsRadar] Error fetching venue for match ${matchId}:`, error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch venue information"
+      });
+    }
+  });
 
-  // SportsRadar venue endpoint removed due to API subscription issues
+  // Get venue information from SportsRadar for a specific match
+  apiRouter.get("/sportsradar/match-venue/:matchId", async (req: Request, res: Response) => {
+    try {
+      const { matchId } = req.params;
+      
+      // Get match details from RapidAPI first
+      const rapidApiMatch = await rapidApiService.getFixtureById(parseInt(matchId));
+      if (!rapidApiMatch) {
+        return res.status(404).json({
+          success: false,
+          error: "Match not found"
+        });
+      }
 
-  // Duplicate SportsRadar venue endpoint removed
+      // Try to find corresponding SportsRadar match with venue info
+      const homeTeam = rapidApiMatch.teams?.home?.name || "";
+      const awayTeam = rapidApiMatch.teams?.away?.name || "";
+      const matchDate = rapidApiMatch.fixture?.date;
+
+      if (matchDate) {
+        // Get SportsRadar fixtures for the same date
+        const dateStr = new Date(matchDate).toISOString().split('T')[0];
+        const sportradarFixtures = await sportsradarApi.getFixturesByDate(dateStr);
+
+        if (sportradarFixtures && Array.isArray(sportradarFixtures)) {
+          // Find matching fixture by team names (flexible matching)
+          const matchingFixture = sportradarFixtures.find((fixture: any) => {
+            const srHomeTeam = fixture.home_team?.name || "";
+            const srAwayTeam = fixture.away_team?.name || "";
+            
+            // Try exact match first
+            if (srHomeTeam === homeTeam && srAwayTeam === awayTeam) {
+              return true;
+            }
+            
+            // Try partial match (in case team names differ slightly)
+            const homeMatch = homeTeam.toLowerCase().includes(srHomeTeam.toLowerCase()) ||
+                             srHomeTeam.toLowerCase().includes(homeTeam.toLowerCase());
+            const awayMatch = awayTeam.toLowerCase().includes(srAwayTeam.toLowerCase()) ||
+                             srAwayTeam.toLowerCase().includes(awayTeam.toLowerCase());
+                             
+            return homeMatch && awayMatch;
+          });
+
+          if (matchingFixture && matchingFixture.venue) {
+            console.log(`✅ [SportsRadar] Found venue for match ${matchId}: ${matchingFixture.venue.name}`);
+            return res.json({
+              success: true,
+              venue: {
+                name: matchingFixture.venue.name,
+                city: matchingFixture.venue.city,
+                country: matchingFixture.venue.country,
+                capacity: matchingFixture.venue.capacity
+              }
+            });
+          }
+        }
+      }
+
+      console.log(`❌ [SportsRadar] No venue found for match ${matchId}`);
+      return res.json({
+        success: false,
+        message: "Venue information not available"
+      });
+    } catch (error) {
+      console.error(`❌ [SportsRadar] Error fetching venue for match ${matchId}:`, error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to fetch venue information"
+      });
+    }
+  });
 
   // Get Sportradar match ID from RapidAPI match ID
   apiRouter.get("/sportsradar/match-id/:rapidApiMatchId", async (req: Request, res: Response) => {
