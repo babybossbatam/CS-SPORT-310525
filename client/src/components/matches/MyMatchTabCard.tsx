@@ -13,7 +13,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
   if (!match) return null;
 
   return (
-    <div className="mt-4 p-4 space-y-6">
+    <>
       {/* Match Prediction */}
       <div className="space-y-2">
         <h3 className="text-lg font-semibold text-gray-800">Match Prediction</h3>
@@ -57,7 +57,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
           theme="light"
         />
       </div>
-    </div>
+    </>
   );
 };
 
