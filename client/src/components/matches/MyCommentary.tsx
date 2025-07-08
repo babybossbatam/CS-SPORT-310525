@@ -489,25 +489,36 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         key={`period-${index}`}
                         className="commentary-event-container"
                       >
-                        <div className="flex items-center py-1 mb-1">
-                          <div className="text-sm font-semibold text-gray-700 ml-4">
-                            {event.time.elapsed}'
+                        <div className="flex gap-3">
+                          {/* Time Column */}
+                          <div className="flex flex-col items-center min-w-[50px]">
+                            {/* Extra time display at top if present */}
                             {event.time.extra && (
-                              <span className="text-red-500">
-                                +{event.time.extra}
-                              </span>
+                              <div className="text-xs font-medium text-red-500 leading-tight">
+                                +{event.time.extra}'
+                              </div>
+                            )}
+                            <div className="text-gray-800 text-sm font-medium leading-tight">
+                              {event.time.elapsed}'
+                            </div>
+                            {index < allCommentaryItems.length - 1 && (
+                              <div className="w-0.5 h-12 bg-gray-600"></div>
                             )}
                           </div>
-                          <div className="text-lg font-bold text-gray-900 ml-4">
-                            <img
-                              src="/assets/matchdetaillogo/clock.png"
-                              alt="Match Ended"
-                              className="w-4 h-4 opacity-80 flex-shrink-0"
-                            />
+
+                          {/* Content Column */}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 -ml-3 -mt-1.5 text-xs font-medium">
+                              <img
+                                src="/assets/matchdetaillogo/clock.png"
+                                alt="Full Time"
+                                className="w-4 h-4 opacity-80 flex-shrink-0"
+                              />
+                              <span className="text-lg font-bold text-gray-900">
+                                {finalScore.homeScore} - {finalScore.awayScore}
+                              </span>
+                            </div>
                           </div>
-                          <span className="text-lg font-bold text-gray-900 ml-2">
-                            {finalScore.homeScore} - {finalScore.awayScore}
-                          </span>
                         </div>
                       </div>
                     );
