@@ -201,15 +201,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 player: { name: "" },
               } as any);
 
-              // Add period marker between halves
-              allCommentaryItems.push({
-                time: { elapsed: 45 },
-                type: "period_separator",
-                detail: "45 minutes",
-                score: `${halftimeScore.homeScore} - ${halftimeScore.awayScore}`,
-                team: { name: "", logo: "" },
-                player: { name: "" },
-              } as any);
+              
 
               // Add "Half Time" marker if there are events after minute 45
               if (hasEventsInSecondHalf) {
@@ -337,31 +329,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   );
                 }
 
-                // Handle period separator (45 minutes marker)
-                if (event.type === "period_separator") {
-                  return (
-                    <div
-                      key={`period-separator-${index}`}
-                      className="commentary-event-container"
-                    >
-                      <div className="flex items-center py-1 mb-1">
-                        <div className="text-sm font-semibold text-gray-700 ml-4">
-                          45'
-                        </div>
-                        <div className="text-lg font-bold text-gray-900 ml-4">
-                          <img
-                            src="/assets/matchdetaillogo/clock.png"
-                            alt="45 Minutes"
-                            className="w-4 h-4 opacity-80 flex-shrink-0"
-                          />
-                        </div>
-                        <span className="text-lg font-bold text-gray-900 ml-2">
-                          {event.score}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                }
+                
 
                 // Handle period markers
                 if (
