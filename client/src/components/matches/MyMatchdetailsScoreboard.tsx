@@ -692,4 +692,3 @@ const MyMatchdetailsScoreboard = ({
 };
 
 export default MyMatchdetailsScoreboard;
-`
