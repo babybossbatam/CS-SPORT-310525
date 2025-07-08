@@ -3,27 +3,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
 import TodayMatchPageCard from "@/components/matches/TodayMatchPageCard";
-import TodaysMatchesByCountryNew from "@/components/matches/TodaysMatchesByCountryNew";
-import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew";
-import HomeTopScorersList from "@/components/leagues/HomeTopScorersList";
-import LeagueStandingsFilter from "@/components/leagues/LeagueStandingsFilter";
-import PopularLeaguesList from "@/components/leagues/PopularLeaguesList";
-import PopularTeamsList from "@/components/teams/PopularTeamsList";
-import MatchPrediction from "@/components/matches/MatchPrediction";
-import ScoreDetailsCard from "@/components/matches/ScoreDetailsCard";
-import MyRightContent from "@/components/layout/MyRightContent";
-import MyMatchdetailsScoreboard from "../matches/MyMatchdetailsScoreboard";
-import MatchDetailCard from "@/components/matches/MatchDetailCard";
-import MyHighlights from "@/components/matches/MyHighlights";
-import MyMatchEvents from "@/components/matches/MyMatchEvents";
-import MyLiveAction from "@/components/matches/MyLiveAction";
-import MyNewLMT from "@/components/matches/MyNewLMT";
-import MyLiveTrackerNew from "@/components/matches/MyLiveTrackerNew";
-import MyMatchEventNew from "@/components/matches/MyMatchEventNew";
+import MyRightContent, { MyRightDetails } from "@/components/layout/MyRightContent";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
-import MyRecentForm from '@/components/matches/MyRecentForm';
-import MatchPredictionsCard from '@/components/matches/MatchPredictionsCard';
 
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -181,91 +163,10 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
         {/* Right column (7 columns) */}
         <div className="lg:col-span-7 space-y-4">
           {selectedFixture ? (
-            <>
-              <ScoreDetailsCard
-                currentFixture={selectedFixture}
-                onClose={handleBackToMain}
-              />
-
-              {/* Match Predictions Card */}
-              <MatchPredictionsCard
-                homeTeam={selectedFixture?.teams?.home?.name || "Home Team"}
-                awayTeam={selectedFixture?.teams?.away?.name || "Away Team"}
-                homeTeamLogo={selectedFixture?.teams?.home?.logo}
-                awayTeamLogo={selectedFixture?.teams?.away?.logo}
-                matchStatus={selectedFixture?.fixture?.status?.short}
-                fixtureId={selectedFixture?.fixture?.id}
-                homeTeamId={selectedFixture?.teams?.home?.id}
-                awayTeamId={selectedFixture?.teams?.away?.id}
-                leagueId={selectedFixture?.league?.id}
-              />
-
-              {/* Conditional rendering based on match status */}
-              {(() => {
-                const matchStatus = selectedFixture?.fixture?.status?.short;
-                const isLive = [
-                  "1H",
-                  "2H",
-                  "LIVE",
-                  "LIV",
-                  "HT",
-                  "ET",
-                  "P",
-                  "INT",
-                ].includes(matchStatus);
-                const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(matchStatus);
-                const isUpcoming = ["NS", "TBD"].includes(matchStatus);
-
-                console.log(`🔍 [MyMainLayout] Match ${selectedFixture?.fixture?.id} status detection:`, {
-                  matchStatus,
-                  isLive,
-                  isEnded,
-                  isUpcoming,
-                  fixtureStatus: selectedFixture?.fixture?.status
-                });
-
-                return (
-                  <>
-                    {/* Show MyLiveAction only for live matches, not for finished matches */}
-                    {isLive && !isEnded && (
-                      <MyLiveAction
-                        matchId={selectedFixture?.fixture?.id}
-                        homeTeam={selectedFixture?.teams?.home}
-                        awayTeam={selectedFixture?.teams?.away}
-                        status={selectedFixture?.fixture?.status?.short}
-                      />
-                    )}
-
-                    {/* Show MyHighlights for finished matches */}
-                    {isEnded && (
-                      <MyHighlights
-                        homeTeam={selectedFixture?.teams?.home?.name}
-                        awayTeam={selectedFixture?.teams?.away?.name}
-                        leagueName={selectedFixture?.league?.name}
-                        matchStatus={selectedFixture?.fixture?.status?.short}
-                      />
-                    )}
-
-                    {/* For upcoming matches, neither component is shown */}
-                  </>
-                );
-              })()}
-
-              <MatchDetailCard match={selectedFixture} />
-
-              {/* Match Events Timeline */}
-              <MyMatchEventNew
-                fixtureId={selectedFixture?.fixture?.id}
-                homeTeam={selectedFixture?.teams?.home?.name}
-                awayTeam={selectedFixture?.teams?.away?.name}
-                matchData={selectedFixture}
-                theme="light"
-                refreshInterval={15}
-                showErrors={false}
-                showLogos={true}
-                className="mt-4"
-              />
-            </>
+            <MyRightDetails 
+              selectedFixture={selectedFixture}
+              onClose={handleBackToMain}
+            />
           ) : (
             <MyRightContent />
           )}
