@@ -3,7 +3,7 @@ import React from 'react';
 import MatchPredictionsCard from '@/components/matches/MatchPredictionsCard';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import MyHighlights from '@/components/matches/MyHighlights';
-import MatchDetailCard from '@/components/matches/MatchDetailCard';
+
 import MyMatchEventNew from '@/components/matches/MyMatchEventNew';
 import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
 
@@ -84,7 +84,7 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
         );
       })()}
 
-      <MatchDetailCard match={selectedFixture} />
+     
 
       {/* Match Events Timeline */}
       <MyMatchEventNew
