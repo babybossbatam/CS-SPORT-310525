@@ -199,16 +199,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 player: { name: "" },
               } as any);
 
-              const halftimeScore2 = calculateScoreAtTime(45);
-
-              allCommentaryItems.push({
-                time: { elapsed: 45 },
-                type: "period_marker",
-
-                detail: `  ${halftimeScore.homeScore} - ${halftimeScore.awayScore}`,
-                team: { name: "", logo: "" },
-                player: { name: "" },
-              } as any);
+              
 
               // Add "Half Time" marker if there are events after minute 45
               if (hasEventsInSecondHalf) {
