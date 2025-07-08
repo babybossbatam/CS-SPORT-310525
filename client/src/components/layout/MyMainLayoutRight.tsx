@@ -143,19 +143,7 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
         </div>
       </div>
 
-      {/* Match Events Timeline */}
-      <MyMatchEventNew
-        fixtureId={selectedFixture?.fixture?.id}
-        homeTeam={selectedFixture?.teams?.home?.name}
-        awayTeam={selectedFixture?.teams?.away?.name}
-        matchData={selectedFixture}
-        theme="light"
-        refreshInterval={15}
-        showErrors={false}
-        showLogos={true}
-        className="mt-4"
-      />
-    </>
+      </>
   );
 };
 
