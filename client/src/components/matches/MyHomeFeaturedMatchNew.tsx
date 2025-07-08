@@ -945,7 +945,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               error,
             );
             // Cache the error result to avoid repeated requests
-            setSportradarVenues((prev) => ({
+            setSportradarVenues```typescript
+((prev) => ({
               ...prev,
               [matchId]: null,
             }));
@@ -1779,12 +1780,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 "EEEE, do MMMM",
                               );
                               const timeOnly = format(matchDate, "HH:mm");
-                              
-                              // Safely get venue with proper fallbacks
-                              let venue = currentMatch.fixture?.venue?.name || null;
+
+                              const venue = currentMatch.fixture?.venue?.name || null;
                               let displayVenue = venue;
-                              const matchId = currentMatch.fixture.id;
-                              const sportradarVenueData = sportradarVenues[matchId];
 
                               // Check if venue is missing or has placeholder values
                               if (
@@ -1794,38 +1792,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 displayVenue === "" ||
                                 displayVenue === "Unknown"
                               ) {
-                                // Try SportsRadar venue data
+                                // Fallback to any existing venue data in the match object
+                                const fallbackVenue =
+                                  currentMatch.venue?.name ||
+                                  currentMatch.fixture?.venue?.name ||
+                                  null;
                                 if (
-                                  sportradarVenueData?.venue?.name &&
-                                  sportradarVenueData.venue.name !== "TBD" &&
-                                  sportradarVenueData.venue.name !== ""
+                                  fallbackVenue &&
+                                  fallbackVenue !== "TBD" &&
+                                  fallbackVenue !== "Venue TBA" &&
+                                  fallbackVenue !== ""
                                 ) {
-                                  displayVenue = sportradarVenueData.venue.name;
+                                  displayVenue = fallbackVenue;
                                 } else {
-                                  // Fallback to any existing venue data in the match object
-                                  const fallbackVenue =
-                                    currentMatch.venue?.name ||
-                                    currentMatch.fixture?.venue?.name ||
-                                    null;
-                                  if (
-                                    fallbackVenue &&
-                                    fallbackVenue !== "TBD" &&
-                                    fallbackVenue !== "Venue TBA" &&
-                                    fallbackVenue !== "" &&
-                                    fallbackVenue !== "Unknown"
-                                  ) {
-                                    displayVenue = fallbackVenue;
-                                  } else {
-                                    // Set to null to indicate no venue available
-                                    displayVenue = null;
-                                  }
+                                  displayVenue = null; // Hide venue if no valid data
                                 }
                               }
 
                               return (
                                 <>
                                   {formattedDate} | {timeOnly}
-                                  {displayVenue 
+                                  {displayVenue
                                     ? ` | ${displayVenue}`
                                     : ""}
                                 </>

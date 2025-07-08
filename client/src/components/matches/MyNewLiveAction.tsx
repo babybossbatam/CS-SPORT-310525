@@ -132,46 +132,7 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
         }
       }
 
-      // Try Sportsradar API for events
-      try {
-        const eventsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/events`, {
-          signal: controller.signal
-        });
-
-        if (eventsResponse.ok && isMounted) {
-          const eventsData = await eventsResponse.json();
-
-          if (eventsData.success && eventsData.events && eventsData.events.length > 0) {
-            setLiveEvents(eventsData.events);
-            setCurrentEvent(eventsData.events[0]);
-            console.log(`✅ [Sportradar] Retrieved ${eventsData.events.length} events`);
-          }
-        }
-      } catch (sportsradarError: any) {
-        if (sportsradarError.name !== 'AbortError' && isMounted) {
-          console.warn('⚠️ [Sportradar] Events API failed:', sportsradarError.message);
-        }
-      }
-
-      // Try Sportsradar stats API
-      try {
-        const statsResponse = await fetch(`/api/sportsradar/fixtures/${matchId}/stats`, {
-          signal: controller.signal
-        });
-
-        if (statsResponse.ok && isMounted) {
-          const statsData = await statsResponse.json();
-
-          if (statsData.success && statsData.statistics) {
-            setLiveStats(statsData.statistics);
-            console.log(`✅ [Sportradar] Retrieved live statistics`);
-          }
-        }
-      } catch (sportsradarStatsError: any) {
-        if (sportsradarStatsError.name !== 'AbortError' && isMounted) {
-          console.warn('⚠️ [Sportradar] Stats API failed:', sportsradarStatsError.message);
-        }
-      }
+      // SportsRadar API calls removed due to subscription issues
 
       // Fallback to default data if APIs fail
       if (!liveStats && isMounted) {
