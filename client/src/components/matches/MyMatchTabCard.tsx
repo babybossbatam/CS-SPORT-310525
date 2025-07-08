@@ -30,9 +30,10 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
         <div className="space-y-2">
           <h3 className="text-lg font-semibold text-gray-800">Match Highlights</h3>
           <MyHighlights 
-            homeTeam={match.teams?.home?.name}
-            awayTeam={match.teams?.away?.name}
-            leagueName={match.league?.name}
+            homeTeam={match.teams?.home?.name || "Unknown Team"}
+            awayTeam={match.teams?.away?.name || "Unknown Team"}
+            leagueName={match.league?.name || "Unknown League"}
+            matchStatus={match.fixture?.status?.short}
           />
         </div>
 
@@ -40,10 +41,10 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
         <div className="space-y-2">
           <h3 className="text-lg font-semibold text-gray-800">Live Action</h3>
           <MyLiveAction 
-            fixtureId={match.fixture?.id}
+            matchId={match.fixture?.id}
             homeTeam={match.teams?.home}
             awayTeam={match.teams?.away}
-            status={match.fixture?.status}
+            status={match.fixture?.status?.short}
           />
         </div>
 
@@ -52,8 +53,10 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
           <h3 className="text-lg font-semibold text-gray-800">Match Events</h3>
           <MyMatchEventNew 
             fixtureId={match.fixture?.id}
-            homeTeam={match.teams?.home}
-            awayTeam={match.teams?.away}
+            homeTeam={match.teams?.home?.name}
+            awayTeam={match.teams?.away?.name}
+            matchData={match}
+            theme="light"
           />
         </div>
       </CardContent>
