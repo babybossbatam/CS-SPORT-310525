@@ -7,6 +7,7 @@ import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 import ScoreDetailsCard from '@/components/matches/ScoreDetailsCard';
+import MyMainLayoutRight from '@/components/layout/MyMainLayoutRight';
 
 
 const MyRightContent: React.FC = () => {
@@ -40,3 +41,4 @@ const MyRightContent: React.FC = () => {
 
 
 export default MyRightContent;
+export { MyMainLayoutRight as MyRightDetails };
