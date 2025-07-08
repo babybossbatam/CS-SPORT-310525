@@ -203,7 +203,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
               allCommentaryItems.push({
                 time: { elapsed: 45 },
-                type: "halftime_score",
+                type: "period_marker",
+
                 detail: `  ${halftimeScore.homeScore} - ${halftimeScore.awayScore}`,
                 team: { name: "", logo: "" },
                 player: { name: "" },
@@ -337,25 +338,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 }
 
 
-
-                // Handle halftime score display
-                if (event.type === "halftime_score") {
-                  return (
-                    <div
-                      key={`halftime-score-${index}`}
-                      className="commentary-event-container"
-                    >
-                      <div className="flex flex-col items-center py-2">
-                        <div className="text-lg font-bold text-gray-900 mb-1">
-                          {event.detail}
-                        </div>
-                        <div className="text-sm font-medium text-gray-700">
-                          {event.time.elapsed}'
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }
 
                 // Handle period markers
                 if (
