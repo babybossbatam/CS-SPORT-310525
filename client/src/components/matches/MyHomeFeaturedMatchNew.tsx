@@ -1002,7 +1002,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         if (totalHours > 99) {
           const days = Math.floor(totalHours / 24);
           const remainingHours = totalHours % 24;
-          setCountdownTimer(`${days}d ${remainingHours}h`);;
+          setCountdownTimer(`${days}d ${remainingHours}h`);
         } else {
           // Format with leading zeros for HH:mm:ss format
           const formattedHours = totalHours.toString().padStart(2, "0");
