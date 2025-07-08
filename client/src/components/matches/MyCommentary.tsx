@@ -202,7 +202,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               allCommentaryItems.push({
                 time: { elapsed: 45 },
                 type: "period_marker",
-                detail: `Second Half begins ${homeTeam || "Home"} ${halftimeScore.homeScore}, ${awayTeam || "Away"} ${halftimeScore.awayScore}`,
+                detail: `Second Half begins (${homeTeam || "Home"} ${halftimeScore.homeScore} - ${halftimeScore.awayScore} ${awayTeam || "Away"})`,
                 team: { name: "", logo: "" },
                 player: { name: "" },
               } as any);
