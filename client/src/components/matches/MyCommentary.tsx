@@ -370,14 +370,14 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                           {/* Content Column */}
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 -ml-3 py-1 rounded-md text-xs font-medium">
+                            <div className="flex items-center gap-2 -ml-3 -mt-1.5  text-xs font-medium">
                               <img
                                 src="/assets/matchdetaillogo/clock.png"
                                 alt="Half Time"
                                 className="w-4 h-4 opacity-80 flex-shrink-0"
                               />
                               <span className="text-lg font-bold text-gray-900">
-                                Half Time: {halftimeScore.homeScore}-{halftimeScore.awayScore}
+                               {halftimeScore.homeScore} - {halftimeScore.awayScore}
                               </span>
                             </div>
                           </div>
