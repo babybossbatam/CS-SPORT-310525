@@ -6,7 +6,7 @@ interface MyStatsTabCardProps {
   match?: any;
 }
 
-const MyMatchStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
+const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
   if (!match) {
     return (
       <Card>
@@ -78,4 +78,4 @@ const MyMatchStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
   );
 };
 
-export default MyMatchStatsTabCard;
+export default MyStatsTabCard;

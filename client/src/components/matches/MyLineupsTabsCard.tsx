@@ -5,7 +5,7 @@ interface MyLineupsTabsCardProps {
   match?: any;
 }
 
-const MyLineUpTabCard: React.FC<MyLineupsTabsCardProps> = ({ match }) => {
+const MyLineupsTabsCard: React.FC<MyLineupsTabsCardProps> = ({ match }) => {
   if (!match) {
     return (
       <Card>
@@ -97,4 +97,4 @@ const MyLineUpTabCard: React.FC<MyLineupsTabsCardProps> = ({ match }) => {
   );
 };
 
-export default MyLineUpTabCard;
+export default MyLineupsTabsCard;

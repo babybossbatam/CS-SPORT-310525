@@ -251,7 +251,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                 );
               })()}
 
-             
+              <MatchDetailCard match={selectedFixture} />
 
               {/* Match Events Timeline */}
               <MyMatchEventNew
