@@ -377,26 +377,50 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   if (event.detail === "Half Time") {
                     const halftimeScore = calculateScoreAtTime(45);
                     return (
-                      <div
-                        key={`period-${index}`}
-                        className="commentary-event-container"
-                      >
-                        <div className="flex items-center py-1 mb-1">
-                          <div className="text-sm font-semibold text-gray-700 ml-4">
-                            45'
+                      <>
+                        <div
+                          key={`period-${index}`}
+                          className="commentary-event-container"
+                        >
+                          <div className="flex items-center py-1 mb-1">
+                            <div className="text-sm font-semibold text-gray-700 ml-4">
+                              45'
+                            </div>
+                            <div className="text-lg font-bold text-gray-900 ml-4">
+                              <img
+                                src="/assets/matchdetaillogo/clock.png"
+                                alt="Half Time"
+                                className="w-4 h-4 opacity-80 flex-shrink-0"
+                              />
+                            </div>
+                            <span className="text-lg font-bold text-gray-900 ml-2">
+                              {halftimeScore.homeScore} - {halftimeScore.awayScore}
+                            </span>
                           </div>
-                          <div className="text-lg font-bold text-gray-900 ml-4">
-                            <img
-                              src="/assets/matchdetaillogo/clock.png"
-                              alt="Half Time"
-                              className="w-4 h-4 opacity-80 flex-shrink-0"
-                            />
-                          </div>
-                          <span className="text-lg font-bold text-gray-900 ml-2">
-                            {halftimeScore.homeScore} - {halftimeScore.awayScore}
-                          </span>
                         </div>
-                      </div>
+                        
+                        {/* Duplicate component below 45' marker */}
+                        <div
+                          key={`period-duplicate-${index}`}
+                          className="commentary-event-container"
+                        >
+                          <div className="flex items-center py-1 mb-1">
+                            <div className="text-sm font-semibold text-gray-700 ml-4">
+                              45'
+                            </div>
+                            <div className="text-lg font-bold text-gray-900 ml-4">
+                              <img
+                                src="/assets/matchdetaillogo/clock.png"
+                                alt="Half Time Duplicate"
+                                className="w-4 h-4 opacity-80 flex-shrink-0"
+                              />
+                            </div>
+                            <span className="text-lg font-bold text-gray-900 ml-2">
+                              {halftimeScore.homeScore} - {halftimeScore.awayScore}
+                            </span>
+                          </div>
+                        </div>
+                      </>
                     );
                   }
 
