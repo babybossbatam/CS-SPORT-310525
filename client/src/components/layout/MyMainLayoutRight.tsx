@@ -29,27 +29,25 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
       />
 
       {/* Tab Content */}
-      <div className="bg-white rounded-lg shadow-md p-4 mt-4">
-        {activeTab === "match" && (
-          <MyMatchTabCard match={selectedFixture} />
-        )}
+      {activeTab === "match" && (
+        <MyMatchTabCard match={selectedFixture} />
+      )}
 
-        {activeTab === "stats" && (
-          <MyStatsTabCard match={selectedFixture} />
-        )}
+      {activeTab === "stats" && (
+        <MyStatsTabCard match={selectedFixture} />
+      )}
 
-        {activeTab === "lineups" && (
-          <MyLineupsTabsCard match={selectedFixture} />
-        )}
+      {activeTab === "lineups" && (
+        <MyLineupsTabsCard match={selectedFixture} />
+      )}
 
-        {activeTab === "trends" && (
-          <MyTrendsTabsCard match={selectedFixture} />
-        )}
+      {activeTab === "trends" && (
+        <MyTrendsTabsCard match={selectedFixture} />
+      )}
 
-        {activeTab === "h2h" && (
-          <MyHeadtoheadTabsCard match={selectedFixture} />
-        )}
-      </div>
+      {activeTab === "h2h" && (
+        <MyHeadtoheadTabsCard match={selectedFixture} />
+      )}
 
 
       
