@@ -7,6 +7,18 @@ import { safeSubstring } from "@/lib/dateUtilsUpdated";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import { fixtureCache } from "@/lib/fixtureCache";
+import { 
+  detectUserTimezone, 
+  formatToUserTimezone, 
+  isDateTodayInUserTimezone,
+  createTimezoneAwareDateFilter 
+} from "@/lib/timezoneDetection";
+import { 
+  fetchFixturesWithTimezone,
+  fetchLiveMatchesWithTimezone,
+  fetchLeagueFixturesWithTimezone,
+  formatMatchTimeWithTimezone 
+} from "@/lib/timezoneApiService";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 
@@ -212,11 +224,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
       console.log(`🔍 [MyNewLeague] Fetching data for ${selectedDate}`);
 
-      // Always fetch live fixtures for real-time data
+      // Always fetch live fixtures for real-time data using timezone-aware service
       try {
-        console.log(`🔴 [MyNewLeague] Fetching live fixtures`);
-        const liveResponse = await apiRequest("GET", "/api/fixtures/live");
-        const liveData = await liveResponse.json();
+        console.log(`🔴 [MyNewLeague] Fetching live fixtures with timezone awareness`);
+        const liveData = await fetchLiveMatchesWithTimezone();
 
         if (Array.isArray(liveData)) {
           // Filter live fixtures to only include our target leagues
@@ -295,15 +306,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             }
           }
 
-          // Fetch fixtures for the league
-          const fixturesResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures`);
-
-          if (!fixturesResponse.ok) {
-            console.warn(`Failed to fetch fixtures for league ${leagueId}, status: ${fixturesResponse.status}`);
-            continue; // Skip this league and try the next one
-          }
-
-          const fixturesData = await fixturesResponse.json();
+          // Fetch fixtures for the league using timezone-aware service
+          const fixturesData = await fetchLeagueFixturesWithTimezone(leagueId);
           console.log(
             `MyNewLeague - League ${leagueId} fixtures count:`,
             fixturesData?.length || 0,
@@ -316,22 +320,32 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               !liveFixtureIds.has(fixture.fixture.id)
             );
 
-            // Filter to only include matches for the selected date
+            // Filter to only include matches for the selected date using timezone-aware logic
             const filteredFixtures = nonLiveFixtures.filter(fixture => {
               const fixtureDate = fixture.fixture?.date;
               if (!fixtureDate) return true;
 
-              const matchDate = new Date(fixtureDate);
-              const year = matchDate.getFullYear();
-              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-              const day = String(matchDate.getDate()).padStart(2, "0");
-              const matchDateString = `${year}-${month}-${day}`;
-              const selectedDay = selectedDate;
-
-              return matchDateString === selectedDay;
+              try {
+                // Use timezone-aware date filtering
+                const timezoneInfo = detectUserTimezone();
+                const userTimezone = timezoneInfo.timezone;
+                
+                // Convert fixture date to user's timezone and extract date part
+                const fixtureInUserTZ = formatToUserTimezone(fixtureDate, 'yyyy-MM-dd', userTimezone);
+                return fixtureInUserTZ === selectedDate;
+              } catch (error) {
+                console.error('Error in timezone-aware filtering for league', leagueId, error);
+                // Fallback to basic date matching
+                const matchDate = new Date(fixtureDate);
+                const year = matchDate.getFullYear();
+                const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+                const day = String(matchDate.getDate()).padStart(2, "0");
+                const matchDateString = `${year}-${month}-${day}`;
+                return matchDateString === selectedDate;
+              }
             });
 
-            // More aggressive validation for data integrity across all dates
+            // More aggressive validation for data integrity across all dates using timezone-aware logic
             const staleDataMatches = filteredFixtures.filter(fixture => {
               const status = fixture.fixture.status.short;
               const fixtureTime = new Date(fixture.fixture.date).getTime();
@@ -339,21 +353,40 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               const minutesAfterFixture = (now - fixtureTime) / (1000 * 60);
               const hoursAfterFixture = minutesAfterFixture / 60;
 
-              // Check for fixture date mismatch (critical issue)
-              const matchDate = new Date(fixture.fixture.date);
-              const year = matchDate.getFullYear();
-              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-              const day = String(matchDate.getDate()).padStart(2, "0");
-              const matchDateString = `${year}-${month}-${day}`;
+              // Check for fixture date mismatch using timezone-aware logic
+              try {
+                const timezoneInfo = detectUserTimezone();
+                const userTimezone = timezoneInfo.timezone;
+                const fixtureInUserTZ = formatToUserTimezone(fixture.fixture.date, 'yyyy-MM-dd', userTimezone);
 
-              if (matchDateString !== selectedDate) {
-                console.log(`🚨 [MyNewLeague] CRITICAL - Fixture date mismatch:`, {
-                  teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                  fixtureDate: matchDateString,
-                  selectedDate,
-                  league: fixture.league.name
-                });
-                return true;
+                if (fixtureInUserTZ !== selectedDate) {
+                  console.log(`🚨 [MyNewLeague] CRITICAL - Fixture date mismatch (timezone-aware):`, {
+                    teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                    fixtureDate: fixtureInUserTZ,
+                    selectedDate,
+                    userTimezone,
+                    league: fixture.league.name
+                  });
+                  return true;
+                }
+              } catch (error) {
+                console.error('Error in timezone-aware stale data validation:', error);
+                // Fallback to basic date matching
+                const matchDate = new Date(fixture.fixture.date);
+                const year = matchDate.getFullYear();
+                const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+                const day = String(matchDate.getDate()).padStart(2, "0");
+                const matchDateString = `${year}-${month}-${day}`;
+
+                if (matchDateString !== selectedDate) {
+                  console.log(`🚨 [MyNewLeague] CRITICAL - Fixture date mismatch (fallback):`, {
+                    teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                    fixtureDate: matchDateString,
+                    selectedDate,
+                    league: fixture.league.name
+                  });
+                  return true;
+                }
               }
 
               // Check for stale NS status
@@ -685,27 +718,42 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Filter matches to show matches for the selected date
+  // Filter matches to show matches for the selected date using timezone-aware filtering
   const selectedDateFixtures = fixtures.filter((f) => {
-    const matchDate = new Date(f.fixture.date);
-    // Extract just the date part for comparison (YYYY-MM-DD format)
-    const year = matchDate.getFullYear();
-    const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-    const day = String(matchDate.getDate()).padStart(2, "0");
-    const matchDateString = `${year}-${month}-${day}`;
-    const dateMatches = matchDateString === selectedDate;
+    try {
+      const fixtureDate = f.fixture.date;
+      if (!fixtureDate) return false;
 
-    // Debug for Friendlies Clubs specifically
-    if (f.league.id === 667 && !dateMatches) {
-      console.log(`🏆 [FRIENDLIES DATE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        fixtureDate: f.fixture.date,
-        matchDateString,
-        selectedDate,
-        reason: 'Date mismatch'
-      });
+      // Use timezone-aware date filtering
+      const timezoneInfo = detectUserTimezone();
+      const userTimezone = timezoneInfo.timezone;
+      
+      // Convert fixture date to user's timezone and extract date part
+      const fixtureInUserTZ = formatToUserTimezone(fixtureDate, 'yyyy-MM-dd', userTimezone);
+      const dateMatches = fixtureInUserTZ === selectedDate;
+
+      // Enhanced debug logging with timezone info
+      if (f.league.id === 667 && !dateMatches) {
+        console.log(`🏆 [FRIENDLIES TIMEZONE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+          fixtureDate: f.fixture.date,
+          fixtureInUserTZ,
+          selectedDate,
+          userTimezone,
+          reason: 'Date mismatch in user timezone'
+        });
+      }
+
+      return dateMatches;
+    } catch (error) {
+      console.error('Error in timezone-aware date filtering:', error);
+      // Fallback to basic date matching
+      const matchDate = new Date(f.fixture.date);
+      const year = matchDate.getFullYear();
+      const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+      const day = String(matchDate.getDate()).padStart(2, "0");
+      const matchDateString = `${year}-${month}-${day}`;
+      return matchDateString === selectedDate;
     }
-
-    return dateMatches;
   });
 
   // Log filtering results for all target leagues
@@ -1089,7 +1137,7 @@ b.fixture.status.elapsed) || 0;
                           className="match-time-display"
                           style={{ fontSize: "0.882em" }}
                         >
-                          {format(fixtureDate, "HH:mm")}
+                          {formatMatchTimeWithTimezone(match.fixture.date)}
                         </div>
                       );
                     }
@@ -1102,7 +1150,7 @@ b.fixture.status.elapsed) || 0;
                     >
                       {status === "TBD"
                         ? "TBD"
-                        : format(fixtureDate, "HH:mm")}
+                        : formatMatchTimeWithTimezone(match.fixture.date)}
                     </div>
                   );
                 })()}
