@@ -1497,7 +1497,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         return null;
                       };
 
-                      // Main processing logic - only show bracket status, never fixture status
+                      // Main processing logic - show bracket status for all matches
                       let processedRound = null;
 
                       // First try to extract from round data
@@ -1528,15 +1528,37 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
                       }
 
-                      // Only return bracket status, never fixture/match status
-                      // Don't show status for Not Started matches
-                      if (processedRound && processedRound !== "Not Started") {
+                      // Show round information for all matches (live, ended, upcoming)
+                      if (processedRound) {
                         return (
                           <span className="text-xs text-gray-600 font-medium">
                             • {processedRound}
                           </span>
                         );
                       }
+
+                      // Fallback: show basic match status for matches without round data
+                      const matchStatus = currentMatch.fixture.status.short;
+                      if (matchStatus === "FT") {
+                        return (
+                          <span className="text-xs text-gray-600 font-medium">
+                            • Match Finished
+                          </span>
+                        );
+                      } else if (["1H", "2H", "HT", "LIVE"].includes(matchStatus)) {
+                        return (
+                          <span className="text-xs text-red-600 font-medium">
+                            • Live Match
+                          </span>
+                        );
+                      } else if (matchStatus === "NS") {
+                        return (
+                          <span className="text-xs text-blue-600 font-medium">
+                            • Upcoming Match
+                          </span>
+                        );
+                      }
+
                       return null;
                     })()}
                     {getStatusDisplay(currentMatch).isLive && (
