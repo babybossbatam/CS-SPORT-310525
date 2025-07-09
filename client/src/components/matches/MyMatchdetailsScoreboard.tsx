@@ -734,7 +734,7 @@ const MyMatchdetailsScoreboard = ({
                       isTrulyLive,
                       hoursElapsed: hoursElapsed.toFixed(2),
                       dataSource: currentMatchData ? "CURRENT" : (isTrulyLive && currentScores?.home != null) ? "LIVE" : "STATIC",
-                      currentScores,
+                      liveScores,
                       currentScores: currentMatchData ? {home: currentMatchData.goals?.home, away: currentMatchData.goals?.away} : null,
                       apiScores: {home: matchToUse.goals?.home, away: matchToUse.goals?.away},
                       displayedScores: {home: homeScore, away: awayScore},
