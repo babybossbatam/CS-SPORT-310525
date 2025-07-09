@@ -5,7 +5,6 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { rapidApiService } from "./services/rapidApi";
 
-import sportsradarApi from "./services/sportsradarApi";
 import soccersApi from "./services/soccersApi";
 import { supabaseService } from "./services/supabase";
 import {
@@ -827,7 +826,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id) || !req.params.id || req.params.id.```text
 trim() === "") {
         return res.status(400).json({ message: "Invalid league ID" });
-      }      // Check cache first
+      }```text
+      // Check cache first
       const cachedLeague =await storage.getCachedLeague(id.toString());
 
       if (cachedLeague) {
@@ -1712,7 +1712,7 @@ trim() === "") {
                 // Try each logo source
         for (const logoUrl of logoUrls) {
           try {
-            const response = await fetch(logoUrl, {
+                        const response = await fetch(logoUrl, {
               headers:{
                 accept: "image/png,image/jpeg,image/svg+xml,image/*",
                 "user-agent":
@@ -2679,8 +2679,7 @@ trim() === "") {
           `🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`,
         );
 
-        // Set a flag on each fixture to```text
-indicate it's from live endpoint
+        // Set a flag on each fixture to indicate it's from live endpoint
         fixtures.forEach(fixture => {
           fixture.isLiveData = true;
           fixture.lastUpdated = Date.now();
@@ -2752,29 +2751,6 @@ indicate it's from live endpoint
       }
 
       console.log(`Getting flag for country: ${country}`);
-
-      // Try SportsRadar flag with timeout
-      try {
-        const sportsRadarFlag = (await Promise.race([
-          sportsradarApi.getCountryFlag(country),
-          new Promise((_, reject) =>
-            setTimeout(() => reject(new Error("SportsRadar timeout")), 5000),
-          ),
-        ])) as string | null;
-
-        if (sportsRadarFlag) {
-          return res.json({
-            success: true,
-            flagUrl: sportsRadarFlag,
-            source: "SportsRadar",
-          });
-        }
-      } catch (sportsRadarError) {
-        console.warn(
-          `SportsRadar flag failed for ${country}:`,
-          sportsRadarError,
-        );
-      }
 
       // If SportsRadar fails, return fallback response
       console.warn(`🚫 Country ${country} will use fallback flag`);
@@ -2943,23 +2919,6 @@ indicate it's from live endpoint
   // Create HTTP server
   const httpServer = createServer(app);
 
-  // Get Sportradar matches endpoint
-  apiRouter.get("/sportsradar/matches/live", async (req: Request, res: Response) => {
-    try {
-      const liveMatches = await sportsradarApi.getLiveFixtures();
-      res.json({
-        success: true,
-        matches: liveMatches
-      });
-    } catch (error) {
-      console.error("Error fetching Sportradar live matches:", error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to fetch live matches"
-      });
-    }
-  });
-
   // Get venue information from SportsRadar for a specific match
   apiRouter.get("/sportsradar/match-venue/:matchId", async (req: Request, res: Response) => {
     try {
@@ -2978,46 +2937,6 @@ indicate it's from live endpoint
       const homeTeam = rapidApiMatch.teams?.home?.name || "";
       const awayTeam = rapidApiMatch.teams?.away?.name || "";
       const matchDate = rapidApiMatch.fixture?.date;
-
-      if (matchDate) {
-        // Get SportsRadar fixtures for the same date
-        const dateStr = new Date(matchDate).toISOString().split('T')[0];
-        const sportradarFixtures = await sportsradarApi.getFixturesByDate(dateStr);
-
-        if (sportradarFixtures && Array.isArray(sportradarFixtures)) {
-          // Find matching fixture by team names (flexible matching)
-          const matchingFixture = sportradarFixtures.find((fixture: any) => {
-            const srHomeTeam = fixture.home_team?.name || "";
-            const srAwayTeam = fixture.away_team?.name || "";
-
-            // Try exact match first
-            if (srHomeTeam === homeTeam && srAwayTeam === awayTeam) {
-              return true;
-            }
-
-            // Try partial match (in case team names differ slightly)
-            const homeMatch = homeTeam.toLowerCase().includes(srHomeTeam.toLowerCase()) ||
-                             srHomeTeam.toLowerCase().includes(homeTeam.toLowerCase());
-            const awayMatch = awayTeam.toLowerCase().includes(srAwayTeam.toLowerCase()) ||
-                             srAwayTeam.toLowerCase().includes(awayTeam.toLowerCase());
-
-            return homeMatch && awayMatch;
-          });
-
-          if (matchingFixture && matchingFixture.venue) {
-            console.log(`✅ [SportsRadar] Found venue for match ${matchId}: ${matchingFixture.venue.name}`);
-            return res.json({
-              success: true,
-              venue: {
-                name: matchingFixture.venue.name,
-                city: matchingFixture.venue.city,
-                country: matchingFixture.venue.country,
-                capacity: matchingFixture.venue.capacity
-              }
-            });
-          }
-        }
-      }
 
       console.log(`❌ [SportsRadar] No venue found for match ${matchId}`);
       return res.json({
@@ -3052,46 +2971,6 @@ indicate it's from live endpoint
       const awayTeam = rapidApiMatch.teams?.away?.name || "";
       const matchDate = rapidApiMatch.fixture?.date;
 
-      if (matchDate) {
-        // Get SportsRadar fixtures for the same date
-        const dateStr = new Date(matchDate).toISOString().split('T')[0];
-        const sportradarFixtures = await sportsradarApi.getFixturesByDate(dateStr);
-
-        if (sportradarFixtures && Array.isArray(sportradarFixtures)) {
-          // Find matching fixture by team names (flexible matching)
-          const matchingFixture = sportradarFixtures.find((fixture: any) => {
-            const srHomeTeam = fixture.home_team?.name || "";
-            const srAwayTeam = fixture.away_team?.name || "";
-
-            // Try exact match first
-            if (srHomeTeam === homeTeam && srAwayTeam === awayTeam) {
-              return true;
-            }
-
-            // Try partial match (in case team names differ slightly)
-            const homeMatch = homeTeam.toLowerCase().includes(srHomeTeam.toLowerCase()) ||
-                             srHomeTeam.toLowerCase().includes(homeTeam.toLowerCase());
-            const awayMatch = awayTeam.toLowerCase().includes(srAwayTeam.toLowerCase()) ||
-                             srAwayTeam.toLowerCase().includes(awayTeam.toLowerCase());
-
-            return homeMatch && awayMatch;
-          });
-
-          if (matchingFixture && matchingFixture.venue) {
-            console.log(`✅ [SportsRadar] Found venue for match ${matchId}: ${matchingFixture.venue.name}`);
-            return res.json({
-              success: true,
-              venue: {
-                name: matchingFixture.venue.name,
-                city: matchingFixture.venue.city,
-                country: matchingFixture.venue.country,
-                capacity: matchingFixture.venue.capacity
-              }
-            });
-          }
-        }
-      }
-
       console.log(`❌ [SportsRadar] No venue found for match ${matchId}`);
       return res.json({
         success: false,
@@ -3106,178 +2985,7 @@ indicate it's from live endpoint
     }
   });
 
-  // Get Sportradar match ID from RapidAPI match ID
-  apiRouter.get("/sportsradar/match-id/:rapidApiMatchId", async (req: Request, res: Response) => {
-    try {
-      const { rapidApiMatchId } = req.params;
-
-      // Get RapidAPI match details
-      const rapidApiMatch = await rapidApiService.getFixtureById(parseInt(rapidApiMatchId));
-      if (!rapidApiMatch) {
-        return res.status(404).json({
-          success: false,
-          error: "RapidAPI match not found"
-        });
-      }
-
-      // Get live Sportradar matches
-      const sportradarMatches = await sportsradarApi.getLiveFixtures();
-
-      if (sportradarMatches && sportradarMatches.length > 0) {
-        // Try to match by team names
-        const homeTeam = rapidApiMatch.teams?.home?.name || "";
-        const awayTeam = rapidApiMatch.teams?.away?.name || "";
-
-        const matchedSportradarMatch = sportradarMatches.find((match: any) => {
-          const srHomeTeam = match.home_team?.name || "";
-          const srAwayTeam = match.away_team?.name || "";
-
-          // Simple name matching
-          return (
-            srHomeTeam.toLowerCase().includes(homeTeam.toLowerCase().split(" ")[0]) &&
-            srAwayTeam.toLowerCase().includes(awayTeam.toLowerCase().split(" ")[0])
-          ) || (
-            srHomeTeam.toLowerCase().includes(awayTeam.toLowerCase().split(" ")[0]) &&
-            srAwayTeam.toLowerCase().includes(homeTeam.toLowerCase().split(" ")[0])
-          );
-        });
-
-        if (matchedSportradarMatch) {
-          return res.json({
-            success: true,
-            sportradarMatchId: matchedSportradarMatch.id,
-            rapidApiMatchId: rapidApiMatchId,
-            matchedTeams: {
-              home: matchedSportradarMatch.home_team?.name,
-              away: matchedSportradarMatch.away_team?.name
-            }
-          });
-        }
-      }
-
-      // Fallback to a working demo match ID
-      res.json({
-        success: true,
-        sportradarMatchId: 61239863, // Working demo match
-        rapidApiMatchId: rapidApiMatchId,
-        fallback: true
-      });
-
-    } catch (error) {
-      console.error("Error mapping match IDs:", error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to map match ID",
-        sportradarMatchId: 61239863 // Fallback
-      });
-    }
-  });
-
-  // Get match predictions endpoint
-  apiRouter.get("/fixtures/:fixtureId/predictions", async (req: Request, res: Response) => {
-    try {
-      const { fixtureId } = req.params;
-
-      if (!fixtureId || isNaN(Number(fixtureId))) {
-        return res.status(400).json({
-          success: false,
-          error: "Invalid fixture ID"
-        });
-      }
-
-      const predictions = await rapidApiService.getMatchPredictions(Number(fixtureId));
-
-      if (!predictions) {
-        return res.status(404).json({
-          success: false,
-          error: "No predictions found for this fixture"
-        });
-      }
-
-      res.json({
-        success: true,
-        data: predictions
-      });
-    } catch (error) {
-      console.error("Error fetching match predictions:", error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to fetch match predictions"
-      });
-    }
-  });
-
-  // Get match odds endpoint
-  apiRouter.get("/fixtures/:fixtureId/odds", async (req: Request, res: Response) => {
-    try {
-      const { fixtureId } = req.params;
-
-      if (!fixtureId || isNaN(Number(fixtureId))) {
-        return res.status(400).json({
-          success: false,
-          error: "Invalid fixture ID"
-        });
-      }
-
-      const odds = await rapidApiService.getFixtureOdds(Number(fixtureId));
-
-      if (!odds) {
-        return res.status(404).json({
-          success: false,
-          error: "No odds found for this fixture"
-        });
-      }
-
-      res.json({
-        success: true,
-        data: odds
-      });
-    } catch (error) {
-      console.error("Error fetching match odds:", error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to fetch match odds"
-      });
-    }
-  });
-
-  // Get team statistics endpoint
-  apiRouter.get("/teams/:teamId/statistics", async (req: Request, res: Response) => {
-    try {
-
-      const { teamId } = req.params;
-      const { league, season } = req.query;
-
-      console.log(`📊 [Team Stats] Fetching statistics for team ${teamId}, league: ${league}, season: ${season}`);
-
-      if (!teamId) {
-        return res.status(400).json({ error: 'Team ID is required' });
-      }
-
-      const currentSeason = season || new Date().getFullYear();
-      const leagueId = league || null;
-
-      // Try to get team statistics from RapidAPI
-      const response = await rapidApiService.getTeamStatistics(
-        parseInt(teamId),
-        parseInt(leagueId),
-        parseInt(currentSeason)
-      );
-
-      if (response) {
-        console.log(`✅ [Team Stats] Successfully retrieved statistics for team ${teamId}`);
-        res.json({ success: true, response: [response] });
-      } else {
-        console.log(`❌ [Team Stats] No statistics found for team ${teamId}`);
-        res.status(404).json({ error: 'Team statistics not found' });
-      }
-    } catch (error) {
-      console.error(`❌ [Team Stats] Error fetching statistics for team ${req.params.teamId}:`, error);
-      res.status(500).json({ error: 'Failed to fetch team statistics' });
-    }
-  });
-
-   // RapidAPI Key and Base URL
+  // RapidAPI Key and Base URL
    const RAPIDAPI_KEY = process.env.RAPID_API_KEY || '';
    const RAPIDAPI_BASE_URL = 'https://api-football-v1.p.rapidapi.com/v3';
 
@@ -3414,18 +3122,11 @@ indicate it's from live endpoint
 // Utility function to get country flag with fallback chain
 async function getCountryFlag(country: string): Promise<string | null> {
   try {
-    // Try SportsRadar flag first
-    let flagUrl = await sportsradarApi.getCountryFlag(country);
-
-    if (flagUrl) {
-      return flagUrl;
-    }
-
     // If SportsRadar fails, try 365scores CDN
     console.log(
       `SportsRadar flag not found for ${country}, trying 365scores CDN fallback`,
     );
-    flagUrl = `https://sports.365scores.com/CDN/images/flags/${country}.svg`;
+    let flagUrl = `https://sports.365scores.com/CDN/images/flags/${country}.svg`;
 
     // Check if the 365scores flag exists (naive check)
     const response = await fetch(flagUrl, { method: "HEAD" });

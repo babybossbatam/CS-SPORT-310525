@@ -61,46 +61,7 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
     setCurrentMinute(match?.fixture?.status?.elapsed || 0);
   }, [displayMatchStatus, match]);
 
-  // Load Sportradar widget
-  useEffect(() => {
-    if (widgetType === 'sportradar' && sportradarConfig && sportradarWidgetRef.current) {
-      // Load Sportradar widget script
-      const loadSportradarWidget = () => {
-        // Check if script already exists
-        if (document.querySelector('script[src*="widgets.media.sportradar.com"]')) {
-          // Script already loaded, initialize widget
-          if (window.USW) {
-            window.USW('addWidget', '#sr-widget', 'us.match.playByPlay', {
-              border: false,
-              matchId: parseInt(sportradarConfig.matchId)
-            });
-          }
-          return;
-        }
-
-        // Create and load the script
-        const script = document.createElement('script');
-        script.type = 'application/javascript';
-        script.src = `https://widgets.media.sportradar.com/${sportradarConfig.clientAlias}/widgetloader`;
-        script.setAttribute('data-sr-language', 'en_us');
-        script.async = true;
-
-        script.onload = () => {
-          // Initialize widget after script loads
-          if (window.USW) {
-            window.USW('addWidget', '#sr-widget', 'us.match.playByPlay', {
-              border: false,
-              matchId: parseInt(sportradarConfig.matchId)
-            });
-          }
-        };
-
-        document.head.appendChild(script);
-      };
-
-      loadSportradarWidget();
-    }
-  }, [widgetType, sportradarConfig]);
+  
 
   // Load API-Football widget
   useEffect(() => {
@@ -377,23 +338,7 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
     </div>
   );
 
-  // Sportradar Widget View
-  const SportradarWidgetView = () => (
-    <div className="w-full min-h-96">
-      <div 
-        id="sr-widget"
-        ref={sportradarWidgetRef}
-        className="w-full h-full"
-      >
-        <div className="flex items-center justify-center h-64 text-gray-500">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent mx-auto mb-3"></div>
-            <p>Loading Sportradar widget...</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  
 
   // API-Football Widget View
   const ApiFootballWidgetView = () => (
@@ -483,7 +428,7 @@ const MyMatchEvents: React.FC<MyMatchEventsProps> = ({
                 {activeTab === 'stats' && <StatsView />}
               </>
             )}
-            {widgetType === 'sportradar' && <SportradarWidgetView />}
+            
             {widgetType === 'api-football' && <ApiFootballWidgetView />}
           </div>
         </div>

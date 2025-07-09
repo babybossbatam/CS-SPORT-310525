@@ -1663,6 +1663,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         })();
 
                         return (
+                          
                           <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
                             {upcomingContent}
                           </div>
@@ -1786,7 +1787,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 "EEEE, do MMMM",
                               );
                               const timeOnly = format(matchDate, "HH:mm");
-                              
+
                               // Safely get venue with proper fallbacks
                               let venue = currentMatch.fixture?.venue?.name || null;
                               let displayVenue = venue;
@@ -1897,7 +1898,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             }
                             alt={currentMatch?.teams?.away?.name || "Away Team"}
                             size="70px"
-                            className="w-full h-full object-contain"
+                            className="w-full hull object-contain"
                             leagueContext={{
                               name: currentMatch.league.name,
                               country: currentMatch.league.country,
