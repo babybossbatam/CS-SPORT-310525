@@ -147,7 +147,6 @@ const MyMatchdetailsScoreboard = ({
   const [currentScores, setCurrentScores] = useState<{home: number, away: number} | null>(null);
   const [currentLiveStatus, setCurrentLiveStatus] = useState<string | null>(null);
   const [isMatchEnded, setIsMatchEnded] = useState<boolean>(false);
-  const [liveScores, setLiveScores] = useState<{home: number, away: number} | null>(null);
   const [dataSource, setDataSource] = useState<'STATIC' | 'LIVE'>('STATIC');
 
   // Memoize all callback functions to prevent infinite re-renders
@@ -169,7 +168,7 @@ const MyMatchdetailsScoreboard = ({
   }, []);
 
   const updateLiveScores = useCallback((scores: {home: number, away: number} | null) => {
-    setLiveScores(prevScores => {
+    setCurrentScores(prevScores => {
       if (!scores && !prevScores) return null;
       if (!scores || !prevScores) return scores;
       if (scores.home === prevScores.home && scores.away === prevScores.away) return prevScores;
@@ -226,7 +225,7 @@ const MyMatchdetailsScoreboard = ({
       });
 
       // Initialize with current scores
-      setLiveScores({
+      setCurrentScores({
         home: displayMatch.goals.home,
         away: displayMatch.goals.away
       });
@@ -290,7 +289,6 @@ const MyMatchdetailsScoreboard = ({
                 away: currentLiveMatch.goals.away
               };
               updateLiveScores(liveMatchScores);
-              // setLiveScores(liveMatchScores);
             }
 
             // Update live status
@@ -344,7 +342,7 @@ const MyMatchdetailsScoreboard = ({
     } else {
       setLiveElapsed(null);
       setRealTimeElapsed(null);
-      setLiveScores(null);
+      setCurrentScores(null);
       setLiveStatus(null);
     }
   }, [
@@ -386,6 +384,7 @@ const MyMatchdetailsScoreboard = ({
       setLiveStatus(null);
       setLiveElapsed(null);
       setRealTimeElapsed(null);
+      setCurrentScores(null);
     } else if (!currentMatchData && liveStatus) {
       // Only use live status if we don't have fresh current data
       currentStatus = liveStatus;
@@ -717,10 +716,10 @@ const MyMatchdetailsScoreboard = ({
                       // Use current fresh data (highest priority)
                       homeScore = currentMatchData.goals?.home ?? 0;
                       awayScore = currentMatchData.goals?.away ?? 0;
-                    } else if (isTrulyLive && liveScores?.home != null && liveScores?.away != null) {
+                    } else if (isTrulyLive && currentScores?.home != null && currentScores?.away != null) {
                       // Use live scores for confirmed live matches (only if no fresh data)
-                      homeScore = liveScores.home;
-                      awayScore = liveScores.away;
+                      homeScore = currentScores.home;
+                      awayScore = currentScores.away;
                     } else {
                       // Use original match data for ended matches or when live scores unavailable
                       homeScore = matchToUse.goals?.home ?? 0;
@@ -734,8 +733,8 @@ const MyMatchdetailsScoreboard = ({
                       isMatchEnded,
                       isTrulyLive,
                       hoursElapsed: hoursElapsed.toFixed(2),
-                      dataSource: currentMatchData ? "CURRENT" : (isTrulyLive && liveScores?.home != null) ? "LIVE" : "STATIC",
-                      liveScores,
+                      dataSource: currentMatchData ? "CURRENT" : (isTrulyLive && currentScores?.home != null) ? "LIVE" : "STATIC",
+                      currentScores,
                       currentScores: currentMatchData ? {home: currentMatchData.goals?.home, away: currentMatchData.goals?.away} : null,
                       apiScores: {home: matchToUse.goals?.home, away: matchToUse.goals?.away},
                       displayedScores: {home: homeScore, away: awayScore},
