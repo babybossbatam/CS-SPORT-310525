@@ -48,25 +48,42 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const [sourceIndex, setSourceIndex] = useState(0);
   const [iframeError, setIframeError] = useState(false); // Added state for iframe error
 
+  // Helper function to clean team names for better search results
+  const cleanTeamName = (name: string): string => {
+    if (!name || name === 'Home Team' || name === 'Away Team') return name;
+    
+    // Remove common suffixes that might confuse search
+    return name
+      .replace(/\s+(FC|CF|SC|AC|BK|SK|FK|GK|NK|RK|VK|JK|LK|MK|PK|TK|UK|WK|YK|ZK)$/i, '')
+      .replace(/\s+(Football Club|Soccer Club|Athletic Club|Club de Fútbol|Club Deportivo)$/i, '')
+      .replace(/\s+(United|City|Town|Rovers|Wanderers|Athletic|Sporting|Real|Club)$/i, '')
+      .replace(/\s+(Academy|Youth|U\d+|Under\d+|Reserves|II|III|IV|V|VI|VII|VIII|IX|X)$/i, '')
+      .trim();
+  };
+
   // Extract team names from match prop or use provided props
   // Handle multiple possible data structures
-  const home = homeTeam || 
-               homeTeamName || 
-               match?.teams?.home?.name || 
-               match?.homeTeam?.name ||
-               match?.homeTeam ||
-               match?.home?.name ||
-               match?.home ||
-               'Home Team';
+  const rawHome = homeTeam || 
+                  homeTeamName || 
+                  match?.teams?.home?.name || 
+                  match?.homeTeam?.name ||
+                  match?.homeTeam ||
+                  match?.home?.name ||
+                  match?.home ||
+                  'Home Team';
 
-  const away = awayTeam || 
-               awayTeamName || 
-               match?.teams?.away?.name || 
-               match?.awayTeam?.name ||
-               match?.awayTeam ||
-               match?.away?.name ||
-               match?.away ||
-               'Away Team';
+  const rawAway = awayTeam || 
+                  awayTeamName || 
+                  match?.teams?.away?.name || 
+                  match?.awayTeam?.name ||
+                  match?.awayTeam ||
+                  match?.away?.name ||
+                  match?.away ||
+                  'Away Team';
+
+  // Clean team names for better search results
+  const home = cleanTeamName(rawHome);
+  const away = cleanTeamName(rawAway);
 
   const league = leagueName || 
                  match?.league?.name || 
@@ -74,18 +91,31 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                  match?.competition?.name ||
                  '';
 
-  // Extract year from match date or use current year as fallback
-  const matchYear = match?.fixture?.date 
-    ? new Date(match.fixture.date).getFullYear()
-    : new Date().getFullYear();
+  // Extract year from match date with better validation
+  const matchYear = (() => {
+    const dateStr = match?.fixture?.date || match?.date || match?.matchDate;
+    if (dateStr) {
+      const year = new Date(dateStr).getFullYear();
+      // Validate year is reasonable (between 2000 and current year + 1)
+      const currentYear = new Date().getFullYear();
+      if (year >= 2000 && year <= currentYear + 1) {
+        return year;
+      }
+    }
+    return new Date().getFullYear();
+  })();
 
+  // Create more targeted search query
   const searchQuery = `${home} vs ${away} highlights ${league} ${matchYear}`.trim();
 
   // Debug logging to verify correct team names
   console.log(`🎬 [Highlights] Match data extraction:`, {
-    homeTeam: home,
-    awayTeam: away,
+    rawHomeTeam: rawHome,
+    rawAwayTeam: rawAway,
+    cleanedHomeTeam: home,
+    cleanedAwayTeam: away,
     league: league,
+    matchYear: matchYear,
     searchQuery: searchQuery,
     rawMatch: match,
     props: { homeTeam, awayTeam, homeTeamName, awayTeamName, leagueName }
@@ -260,23 +290,37 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'YouTube Extended',
       type: 'youtube' as const,
       searchFn: async () => {
-        const fallbackQuery = `${home} ${away} highlights football soccer ${matchYear}`;
-        const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(fallbackQuery)}&maxResults=3&order=relevance`);
-        const data = await response.json();
+        // Try different combinations for better results
+        const fallbackQueries = [
+          `${home} ${away} highlights football ${matchYear}`,
+          `${rawHome} ${rawAway} highlights ${matchYear}`,
+          `${home} vs ${away} football highlights`,
+          `${home} ${away} goals highlights ${league}`
+        ];
 
-        if (data.error || data.quotaExceeded) {
-          throw new Error(data.error || 'YouTube extended search failed');
-        }
+        for (const query of fallbackQueries) {
+          try {
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=3&order=relevance`);
+            const data = await response.json();
 
-        if (data.items && data.items.length > 0) {
-          const video = data.items[0];
-          return {
-            name: 'YouTube Extended',
-            type: 'youtube' as const,
-            url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
-            embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
-            title: video.snippet.title
-          };
+            if (data.error || data.quotaExceeded) {
+              continue; // Try next query
+            }
+
+            if (data.items && data.items.length > 0) {
+              const video = data.items[0];
+              return {
+                name: 'YouTube Extended',
+                type: 'youtube' as const,
+                url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+                embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+                title: video.snippet.title
+              };
+            }
+          } catch (error) {
+            console.warn(`🎬 [Highlights] Extended search failed for query: ${query}`, error);
+            continue;
+          }
         }
         throw new Error('No extended YouTube videos found');
       }
