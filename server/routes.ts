@@ -828,6 +828,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check cache first
+```python
       const cachedLeague = await storage.getCachedLeague(id.toString());
 
       if (cachedLeague) {
@@ -1712,7 +1713,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 // Try each logo source
         for (const logoUrl of logoUrls) {
           try {
-                        const response = await fetch(logoUrl, {
+                        const response = await fetch(```python
+logoUrl, {
               headers:{
                 accept: "image/png,image/jpeg,image/svg+xml,image/*",
                 "user-agent":
@@ -2918,72 +2920,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Create HTTP server
   const httpServer = createServer(app);
-
-  // Get venue information from SportsRadar for a specific match
-  apiRouter.get("/sportsradar/match-venue/:matchId", async (req: Request, res: Response) => {
-    try {
-      const { matchId } = req.params;
-
-      // Get match details from RapidAPI first
-      const rapidApiMatch = await rapidApiService.getFixtureById(parseInt(matchId));
-      if (!rapidApiMatch) {
-        return res.status(404).json({
-          success: false,
-          error: "Match not found"
-        });
-      }
-
-      // Try to find corresponding SportsRadar match with venue info
-      const homeTeam = rapidApiMatch.teams?.home?.name || "";
-      const awayTeam = rapidApiMatch.teams?.away?.name || "";
-      const matchDate = rapidApiMatch.fixture?.date;
-
-      console.log(`❌ [SportsRadar] No venue found for match ${matchId}`);
-      return res.json({
-        success: false,
-        message: "Venue information not available"
-      });
-    } catch (error) {
-      console.error(`❌ [SportsRadar] Error fetching venue for match ${matchId}:`, error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to fetch venue information"
-      });
-    }
-  });
-
-  // Get venue information from SportsRadar for a specific match
-  apiRouter.get("/sportsradar/match-venue/:matchId", async (req: Request, res: Response) => {
-    try {
-      const { matchId } = req.params;
-
-      // Get match details from RapidAPI first
-      const rapidApiMatch = await rapidApiService.getFixtureById(parseInt(matchId));
-      if (!rapidApiMatch) {
-        return res.status(404).json({
-          success: false,
-          error: "Match not found"
-        });
-      }
-
-      // Try to find corresponding SportsRadar match with venue info
-      const homeTeam = rapidApiMatch.teams?.home?.name || "";
-      const awayTeam = rapidApiMatch.teams?.away?.name || "";
-      const matchDate = rapidApiMatch.fixture?.date;
-
-      console.log(`❌ [SportsRadar] No venue found for match ${matchId}`);
-      return res.json({
-        success: false,
-        message: "Venue information not available"
-      });
-    } catch (error) {
-      console.error(`❌ [SportsRadar] Error fetching venue for match ${matchId}:`, error);
-      res.status(500).json({
-        success: false,
-        error: "Failed to fetch venue information"
-      });
-    }
-  });
 
   // RapidAPI Key and Base URL
    const RAPIDAPI_KEY = process.env.RAPID_API_KEY || '';
