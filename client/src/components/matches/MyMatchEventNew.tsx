@@ -81,10 +81,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
       const eventData = await response.json();
       console.log(`✅ [MyMatchEventNew] Received ${eventData.length} events`);
-      
+
       // Debug: Log all events to see what we're getting
       console.log("🔍 [Event Debug] All events from API:", eventData);
-      
+
       // Debug: Check for penalty-related events
       const penaltyRelatedEvents = eventData.filter((event: any) => {
         const detail = event.detail?.toLowerCase() || "";
@@ -635,7 +635,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       .filter((event) => {
         const detail = event.detail?.toLowerCase() || "";
         const type = event.type?.toLowerCase() || "";
-        
+
         // Check for penalty shootout events specifically (not regular match penalties)
         return (
           detail.includes("penalty") || 
@@ -658,27 +658,27 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
     // If we don't have enough penalty events from the API, create mock data based on the final score
     let penaltySequence = [];
-    
+
     if (penaltyEvents.length < 6 && penaltyScores) {
       // Create mock penalty sequence based on the final penalty score
       const homePenalties = penaltyScores.home || 4;
       const awayPenalties = penaltyScores.away || 3;
       const totalPenalties = Math.max(6, homePenalties + awayPenalties);
-      
+
       console.log(`🔍 [Penalty Debug] Creating mock penalties: Home ${homePenalties}, Away ${awayPenalties}`);
-      
+
       // Create alternating pattern (home, away, home, away...)
       for (let i = 1; i <= totalPenalties; i++) {
         const isHomePenalty = i % 2 === 1; // Odd numbers are home team
         const penaltyNumber = Math.ceil(i / 2); // Which penalty for each team
-        
+
         let wasScored = false;
         if (isHomePenalty) {
           wasScored = penaltyNumber <= homePenalties;
         } else {
           wasScored = penaltyNumber <= awayPenalties;
         }
-        
+
         // Create mock event
         const mockEvent = {
           time: { elapsed: 120 + i },
@@ -694,7 +694,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           type: "penalty",
           detail: wasScored ? "Penalty" : "Penalty missed"
         };
-        
+
         penaltySequence.push({
           number: i,
           event: mockEvent
@@ -717,12 +717,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         <div className="penalty-timeline-header">
           <span className="text-sm font-bold text-gray-700">Penalty Shootout</span>
         </div>
-        
+
         <div className="penalty-timeline-container">
           {penaltySequence.reverse().map((penalty, index) => {
             const isHome = penalty.event ? isHomeTeam(penalty.event) : false;
             const isAway = penalty.event ? !isHomeTeam(penalty.event) : false;
-            
+
             return (
               <div key={penalty.number} className="penalty-timeline-item">
                 {/* Penalty event with player info */}
@@ -741,12 +741,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               alt={penalty.event.player?.name || "Player"}
                               className="object-cover"
                             />
-                            <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
-                              {penalty.event.player?.name
-                                ?.split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .slice(0, 2) || "P"}
+                            <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                              <div className="flex flex-col items-center">
+                                <div className="flex gap-1 mb-0.5">
+                                  <div className="w-1 h-1 bg-white rounded-full"></div>
+                                  <div className="w-1 h-1 bg-white rounded-full"></div>
+                                </div>
+                                <div className="w-2 h-1 bg-white rounded-full"></div>
+                              </div>
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col min-w-0 ml-2">
@@ -823,12 +825,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               alt={penalty.event.player?.name || "Player"}
                               className="object-cover"
                             />
-                            <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
-                              {penalty.event.player?.name
-                                ?.split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .slice(0, 2) || "P"}
+                            <AvatarFallback className="bg-red-500 text-white text-xs font-bold flex items-center justify-center">
+                              <div className="flex flex-col items-center">
+                                <div className="flex gap-1 mb-0.5">
+                                  <div className="w-1 h-1 bg-white rounded-full"></div>
+                                  <div className="w-1 h-1 bg-white rounded-full"></div>
+                                </div>
+                                <div className="w-2 h-1 bg-white rounded-full"></div>
+                              </div>
                             </AvatarFallback>
                           </Avatar>
                         </div>
@@ -838,7 +842,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     )}
                   </div>
                 </div>
-                
+
                 {/* Connecting line */}
                 {index < penaltySequence.length - 1 && (
                   <div className="penalty-connecting-line"></div>
@@ -847,7 +851,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             );
           })}
         </div>
-        
+
         {/* Final score indicator at bottom */}
         <div className="penalty-final-score">
           <div className="text-xs text-gray-500 text-center">
@@ -976,7 +980,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 // Add "Full Time" marker for ended matches
                 const matchStatus = matchData?.fixture?.status?.short;
                 const isMatchEnded = ["FT", "AET", "PEN"].includes(matchStatus);
-                
+
                 if (isMatchEnded) {
                   periodMarkers.push({
                     time: { elapsed: 120 }, // Put at the very end
@@ -1120,12 +1124,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt={event.player?.name || "Player"}
                                     className="object-cover"
                                   />
-                                  <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
-                                    {event.player?.name
-                                      ?.split(" ")
-                                      .map((n) => n[0])
-                                      .join("")
-                                      .slice(0, 2) || "P"}
+                                  <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                    <div className="flex flex-col items-center">
+                                      <div className="flex gap-1 mb-0.5">
+                                        <div className="w-1 h-1 bg-white rounded-full"></div>
+                                        <div className="w-1 h-1 bg-white rounded-full"></div>
+                                      </div>
+                                      <div className="w-2 h-1 bg-white rounded-full"></div>
+                                    </div>
                                   </AvatarFallback>
                                 </Avatar>
 
@@ -1140,12 +1146,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         alt={event.assist?.name || "Player"}
                                         className="object-cover"
                                       />
-                                      <AvatarFallback className="bg-blue-400 text-white text-xs font-bold">
-                                        {event.assist?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .slice(0, 2) || "P"}
+                                      <AvatarFallback className="bg-blue-400 text-white text-xs font-bold flex items-center justify-center">
+                                        <div className="flex flex-col items-center">
+                                          <div className="flex gap-1 mb-0.5">
+                                            <div className="w-1 h-1 bg-white rounded-full"></div>
+                                            <div className="w-1 h-1 bg-white rounded-full"></div>
+                                          </div>
+                                          <div className="w-2 h-1 bg-white rounded-full"></div>
+                                        </div>
                                       </AvatarFallback>
                                     </Avatar>
                                   )}
@@ -1416,12 +1424,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         alt={event.assist?.name || "Player"}
                                         className="object-cover"
                                       />
-                                      <AvatarFallback className="bg-red-400 text-white text-xs font-bold">
-                                        {event.assist?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .slice(0, 2) || "P"}
+                                      <AvatarFallback className="bg-red-400 text-white text-xs font-bold flex items-center justify-center">
+                                        <div className="flex flex-col items-center">
+                                          <div className="flex gap-1 mb-0.5">
+                                            <div className="w-1 h-1 bg-white rounded-full"></div>
+                                            <div className="w-1 h-1 bg-white rounded-full"></div>
+                                          </div>
+                                          <div className="w-2 h-1 bg-white rounded-full"></div>
+                                        </div>
                                       </AvatarFallback>
                                     </Avatar>
                                   )}
@@ -1435,12 +1445,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt={event.player?.name || "Player"}
                                     className="object-cover"
                                   />
-                                  <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
-                                    {event.player?.name
-                                      ?.split(" ")
-                                      .map((n) => n[0])
-                                      .join("")
-                                      .slice(0, 2) || "P"}
+                                  <AvatarFallback className="bg-red-500 text-white text-xs font-bold flex items-center justify-center">
+                                    <div className="flex flex-col items-center">
+                                      <div className="flex gap-1 mb-0.5">
+                                        <div className="w-1 h-1 bg-white rounded-full"></div>
+                                        <div className="w-1 h-1 bg-white rounded-full"></div>
+                                      </div>
+                                      <div className="w-2 h-1 bg-white rounded-full"></div>
+                                    </div>
                                   </AvatarFallback>
                                 </Avatar>
                               </div>
