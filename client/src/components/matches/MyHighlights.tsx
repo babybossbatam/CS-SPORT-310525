@@ -73,7 +73,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                  match?.competition?.name ||
                  '';
 
-  const searchQuery = `${home} vs ${away} highlights ${league} 2025`.trim();
+  // Extract year from match date or use current year as fallback
+  const matchYear = match?.fixture?.date 
+    ? new Date(match.fixture.date).getFullYear()
+    : new Date().getFullYear();
+  
+  const searchQuery = `${home} vs ${away} highlights ${league} ${matchYear}`.trim();
 
   // Debug logging to verify correct team names
   console.log(`🎬 [Highlights] Match data extraction:`, {
@@ -254,7 +259,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'YouTube Extended',
       type: 'youtube' as const,
       searchFn: async () => {
-        const fallbackQuery = `${home} ${away} highlights football soccer`;
+        const fallbackQuery = `${home} ${away} highlights football soccer ${matchYear}`;
         const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(fallbackQuery)}&maxResults=3&order=relevance`);
         const data = await response.json();
 
