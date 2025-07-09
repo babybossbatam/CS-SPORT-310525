@@ -828,7 +828,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Check cache first
-```python
+
       const cachedLeague = await storage.getCachedLeague(id.toString());
 
       if (cachedLeague) {
@@ -1712,7 +1712,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 // Try each logo source
         for (const logoUrl of logoUrls) {
           try {
-                        const response = await fetch(```python
+                        const response = await fetch(
 logoUrl, {
               headers:{
                 accept: "image/png,image/jpeg,image/svg+xml,image/*",
