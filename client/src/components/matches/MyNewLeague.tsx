@@ -257,7 +257,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           let leagueFixtures: FixtureData[] = [...cachedEndedMatches];
 
           // Fetch fresh data for this league
-          const response = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures?season=2024`);
+          const response = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures?season=2025`);
           const freshFixtures = await response.json();
 
           console.log(`MyNewLeague - League ${leagueId} fixtures count:`, freshFixtures?.length || 0);
