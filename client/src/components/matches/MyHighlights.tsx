@@ -33,10 +33,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 }) => {
   // Check match status to determine if we should render
   const status = matchStatus || match?.fixture?.status?.short;
-  
+
   // Only show highlights for ended matches
   const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(status);
-  
+
   // Don't render if match is not ended
   if (!isEnded) {
     return null;
@@ -46,6 +46,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sourceIndex, setSourceIndex] = useState(0);
+  const [iframeError, setIframeError] = useState(false); // Added state for iframe error
 
   // Extract team names from match prop or use provided props
   // Handle multiple possible data structures
@@ -77,7 +78,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const matchYear = match?.fixture?.date 
     ? new Date(match.fixture.date).getFullYear()
     : new Date().getFullYear();
-  
+
   const searchQuery = `${home} vs ${away} highlights ${league} ${matchYear}`.trim();
 
   // Debug logging to verify correct team names
@@ -298,6 +299,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       setCurrentSource(result);
       setError(null);
       setLoading(false);
+      setIframeError(false); // Reset iframe error when new source is found
       console.log(`✅ [Highlights] Success with ${source.name}:`, result.title);
     } catch (sourceError) {
       console.warn(`❌ [Highlights] ${source.name} failed for "${searchQuery}":`, sourceError);
@@ -311,6 +313,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       setLoading(true);
       setError(null);
       setSourceIndex(0);
+      setIframeError(false); // Reset iframe error on new search
       tryNextSource();
     }
   }, [home, away, league]);
@@ -327,8 +330,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     setSourceIndex(0);
     setError(null);
     setLoading(true);
+    setIframeError(false); // Reset iframe error on retry
     tryNextSource();
   };
+
+  // Hide the card entirely when no video is available and not loading
+  if (error && !loading) {
+    return null;
+  }
 
   return (
     <Card className="w-full h-500 shadow-sm border-gray-200">
@@ -371,7 +380,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               </p>
             </div>
           </div>
-        ) : error ? (
+        ) : error || iframeError ? (
           <div className="w-full h-64 flex items-center justify-center bg-gray-50">
             <div className="text-center">
               <Video className="w-8 h-8 mx-auto mb-2 text-gray-400" />
@@ -406,7 +415,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
               }}
               onError={() => {
                 console.warn(`🎬 [Highlights] Iframe failed for ${currentSource.name}, trying next source`);
-                setSourceIndex(prev => prev + 1);
+                setIframeError(true); // Set iframe error state
+                //setSourceIndex(prev => prev + 1);  Do not automatically try next source, let user retry
               }}
             />
           </div>
