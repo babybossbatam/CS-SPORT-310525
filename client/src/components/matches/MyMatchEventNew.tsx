@@ -1413,13 +1413,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               <div className="flex items-center gap-1">
                                 {event.type === "subst" &&
                                   event.assist?.name && (
-                                    <Avatar className="w-9 h-9 border-2 border-red-400 shadow-sm -mr-3 z-20">
+                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
                                       <AvatarImage
                                         src={getPlayerImage(
-                                          event.assist?.id,
-                                          event.assist?.name,
+                                          event.player?.id,
+                                          event.player?.name,
                                         )}
-                                        alt={event.assist?.name || "Player"}
+                                        alt={event.player?.name || "Player"}
                                         className="object-cover"
                                       />
                                       <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
