@@ -741,9 +741,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               alt={penalty.event.player?.name || "Player"}
                               className="object-cover"
                             />
-                            <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
+                              <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
+                                <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
                               </svg>
                             </AvatarFallback>
                           </Avatar>
@@ -821,9 +823,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               alt={penalty.event.player?.name || "Player"}
                               className="object-cover"
                             />
-                            <AvatarFallback className="bg-red-500 text-white text-xs font-bold flex items-center justify-center">
-                              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
+                              <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
+                                <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
                               </svg>
                             </AvatarFallback>
                           </Avatar>
@@ -844,7 +848,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           })}
         </div>
 
-        {/* Final score indicator at bottom */}
+        {/* Final score indicator at bottom */}```text
         <div className="penalty-final-score">
           <div className="text-xs text-gray-500 text-center">
             Final: {homeScore} - {awayScore}
@@ -1115,11 +1119,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt={event.player?.name || "Player"}
                                     className="object-cover"
                                   />
-                                  <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                                    </svg>
-                                  </AvatarFallback>
+                                  <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
+                                      <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
+                                        <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                        <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                        <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
+                                      </svg>
+                                    </AvatarFallback>
                                 </Avatar>
 
                                 {event.type === "subst" &&
@@ -1133,9 +1139,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         alt={event.assist?.name || "Player"}
                                         className="object-cover"
                                       />
-                                      <AvatarFallback className="bg-red-400 text-white text-xs font-bold flex items-center justify-center">
-                                          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                      <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
+                                          <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
+                                            <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                            <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                            <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
                                           </svg>
                                         </AvatarFallback>
                                     </Avatar>
@@ -1407,9 +1415,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         alt={event.assist?.name || "Player"}
                                         className="object-cover"
                                       />
-                                      <AvatarFallback className="bg-red-400 text-white text-xs font-bold flex items-center justify-center">
-                                          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                      <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
+                                          <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
+                                            <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                            <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                            <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
                                           </svg>
                                         </AvatarFallback>
                                     </Avatar>
@@ -1424,9 +1434,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     alt={event.player?.name || "Player"}
                                     className="object-cover"
                                   />
-                                  <AvatarFallback className="bg-red-500 text-white text-xs font-bold flex items-center justify-center">
-                                      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                  <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
+                                      <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
+                                        <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                        <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                        <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
                                       </svg>
                                     </AvatarFallback>
                                 </Avatar>
