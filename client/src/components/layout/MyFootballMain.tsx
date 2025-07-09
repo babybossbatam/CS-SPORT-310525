@@ -38,6 +38,19 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
       `🔍 [MyFootballMain] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
     );
 
+    console.log(`📋 [MyFootballMain] selectedDateFixtures filter contents:`, {
+      selectedDate,
+      totalFixtures: fixtures.length,
+      fixturesByDate: fixtures.slice(0, 3).map(f => ({
+        id: f.fixture?.id,
+        date: f.fixture?.date,
+        teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
+        status: f.fixture?.status?.short,
+        league: f.league?.name
+      })),
+      sampleFixtures: fixtures.length > 3 ? `... and ${fixtures.length - 3} more` : 'showing all'
+    });
+
     // Determine what type of date is selected
     const today = new Date();
     const todayString = format(today, "yyyy-MM-dd");
@@ -125,6 +138,29 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
     console.log(
       `✅ [MyFootballMain] After smart filtering: ${filtered.length} matches for ${selectedDate}`,
     );
+
+    console.log(`📊 [MyFootballMain] Final selectedDateFixtures after filtering:`, {
+      selectedDate,
+      finalCount: filtered.length,
+      filteredFixtures: filtered.slice(0, 5).map(f => ({
+        id: f.fixture?.id,
+        date: f.fixture?.date,
+        teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
+        status: f.fixture?.status?.short,
+        league: f.league?.name,
+        smartFilterReason: (() => {
+          const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+            f.fixture.date,
+            f.fixture.status.short,
+            selectedDate + "T12:00:00Z"
+          );
+          return smartResult.reason;
+        })()
+      })),
+      showingFirst: Math.min(5, filtered.length),
+      totalFiltered: filtered.length
+    });
+
     return filtered;
   }, [fixtures, selectedDate]);
 
