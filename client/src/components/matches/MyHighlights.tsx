@@ -334,8 +334,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     tryNextSource();
   };
 
-  // Hide the card entirely when no video is available and not loading
-  if (error && !loading) {
+  // Hide the card entirely when no video is available, not loading, or iframe error
+  if ((error && !loading) || iframeError) {
     return null;
   }
 
@@ -378,19 +378,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   </span>
                 )}
               </p>
-            </div>
-          </div>
-        ) : error || iframeError ? (
-          <div className="w-full h-64 flex items-center justify-center bg-gray-50">
-            <div className="text-center">
-              <Video className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-              <p className="text-sm text-gray-600 mb-2">No highlights available at the moment</p>
-              <button 
-                onClick={handleRetry}
-                className="text-xs text-blue-500 hover:text-blue-700 underline"
-              >
-                Try searching again
-              </button>
             </div>
           </div>
         ) : currentSource ? (
