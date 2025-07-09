@@ -3356,6 +3356,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+    apiRouter.get("/simple/fixtures/live", async (req: Request, res: Response) => {
+        try {
+            console.log(`🔴 [SimpleAPI] Fetching live fixtures`);
+            const fixtures = await simpleRapidApi.getLiveFixtures();
+            res.json(fixtures);
+        } catch (error) {
+            console.error("Error fetching live fixtures using simple API:", error);
+            res.status(500).json({ error: "Failed to fetch live fixtures using simple API" });
+        }
+    });
+
     apiRouter.get("/simple/fixtures/:date", async (req: Request, res: Response) => {
         try {
             const { date } = req.params;
@@ -3364,12 +3375,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 return res.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
             }
 
+            console.log(`📅 [SimpleAPI] Fetching fixtures for date: ${date}`);
             const fixtures = await simpleRapidApi.getFixturesByDate(date);
             res.json(fixtures);
 
         } catch (error) {
             console.error("Error fetching fixtures using simple API:", error);
             res.status(500).json({ error: "Failed to fetch fixtures using simple API" });
+        }
+    });
+
+    apiRouter.get("/simple/leagues/:leagueId/fixtures", async (req: Request, res: Response) => {
+        try {
+            const { leagueId } = req.params;
+            const { season } = req.query;
+
+            const leagueIdNum = parseInt(leagueId);
+            const seasonNum = season ? parseInt(season as string) : 2025;
+
+            if (isNaN(leagueIdNum)) {
+                return res.status(400).json({ error: "Invalid league ID" });
+            }
+
+            console.log(`🏆 [SimpleAPI] Fetching league ${leagueIdNum} fixtures for season ${seasonNum}`);
+            const fixtures = await simpleRapidApi.getLeagueFixtures(leagueIdNum, seasonNum);
+            res.json(fixtures);
+
+        } catch (error) {
+            console.error("Error fetching league fixtures using simple API:", error);
+            res.status(500).json({ error: "Failed to fetch league fixtures using simple API" });
         }
     });
 
