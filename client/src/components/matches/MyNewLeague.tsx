@@ -4,6 +4,7 @@ import { Star, Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
+import { getClientTimezone, debugTimezoneInfo } from "@/lib/timezoneUtils";
 import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import { fixtureCache } from "@/lib/fixtureCache";
@@ -705,24 +706,22 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Enhanced timezone-aware date filtering with explicit local date conversion
+  // Enhanced timezone-aware date filtering with proper timezone conversion
   const selectedDateFixtures = useMemo(() => {
     console.log(`🌍 [MyNewLeague TIMEZONE FILTER] Starting date filtering for ${selectedDate}`);
     console.log(`🌍 [MyNewLeague TIMEZONE FILTER] Total fixtures to process: ${fixtures.length}`);
     
     const filtered = fixtures.filter((f) => {
-      // Step 1: Parse the UTC fixture date
-      const fixtureUTCDate = new Date(f.fixture.date);
-      
-      // Step 2: Convert UTC date to user's local timezone
-      // This automatically handles the user's timezone offset
-      const fixtureLocalDate = new Date(fixtureUTCDate.getTime());
-      
-      // Step 3: Extract local date string in YYYY-MM-DD format
-      const fixtureLocalDateString = `${fixtureLocalDate.getFullYear()}-${String(fixtureLocalDate.getMonth() + 1).padStart(2, "0")}-${String(fixtureLocalDate.getDate()).padStart(2, "0")}`;
-      
-      // Step 4: Compare local date string with selected date
-      const dateMatches = fixtureLocalDateString === selectedDate;
+      try {
+        // Since we're now sending timezone parameter to API, the fixture dates 
+        // should already be in the correct timezone format from the server
+        const fixtureDate = new Date(f.fixture.date);
+        
+        // Extract date string in YYYY-MM-DD format
+        const fixtureDateString = `${fixtureDate.getFullYear()}-${String(fixtureDate.getMonth() + 1).padStart(2, "0")}-${String(fixtureDate.getDate()).padStart(2, "0")}`;
+        
+        // Compare date string with selected date
+        const dateMatches = fixtureDateString === selectedDate;
       
       // For debugging - also get UTC date string
       const fixtureUTCDateString = `${fixtureUTCDate.getUTCFullYear()}-${String(fixtureUTCDate.getUTCMonth() + 1).padStart(2, "0")}-${String(fixtureUTCDate.getUTCDate()).padStart(2, "0")}`;
@@ -734,42 +733,30 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       
       // Enhanced debug for League 2 (UEFA Champions League) - Show ALL fixtures
       if (f.league.id === 2) {
-        console.log(`⚽ [LEAGUE 2 CHAMPIONS LOCAL DATE] ${dateMatches ? 'INCLUDED' : 'EXCLUDED'}: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        console.log(`⚽ [LEAGUE 2 CHAMPIONS TIMEZONE-AWARE] ${dateMatches ? 'INCLUDED' : 'EXCLUDED'}: ${f.teams.home.name} vs ${f.teams.away.name}`, {
           fixtureId: f.fixture.id,
           status: f.fixture.status.short,
-          originalUTCDateTime: f.fixture.date,
-          fixtureUTCDateOnly: fixtureUTCDateString,
-          fixtureLocalDateTime: fixtureLocalDate.toLocaleString(),
-          fixtureLocalDateOnly: fixtureLocalDateString,
+          fixtureDateTime: f.fixture.date,
+          fixtureDateOnly: fixtureDateString,
           selectedDate,
           dateMatches,
-          timezoneOffset: `UTC${timezoneSign}${timezoneOffsetHours}`,
           decision: dateMatches ? 'INCLUDED' : 'EXCLUDED',
-          reason: dateMatches ? 'Local date matches selected date' : 'Local date does not match selected date',
-          conversionDetails: {
-            step1_utcParsed: fixtureUTCDate.toISOString(),
-            step2_localConverted: fixtureLocalDate.toString(),
-            step3_localDateExtracted: fixtureLocalDateString,
-            step4_comparison: `${fixtureLocalDateString} ${dateMatches ? '===' : '!=='} ${selectedDate}`
-          }
+          reason: dateMatches ? 'Date matches selected date (timezone-aware)' : 'Date does not match selected date',
+          timezoneNote: 'API response should already be in client timezone'
         });
       }
       
-      // Debug logging for timezone differences
-      if (fixtureUTCDateString !== fixtureLocalDateString) {
-        console.log(`🕐 [TIMEZONE CONVERSION] ${dateMatches ? 'INCLUDED' : 'EXCLUDED'}: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+      // Debug logging for important matches
+      if ([667, 233, 128, 2].includes(f.league.id)) {
+        console.log(`🕐 [TIMEZONE-AWARE FILTER] ${dateMatches ? 'INCLUDED' : 'EXCLUDED'}: ${f.teams.home.name} vs ${f.teams.away.name}`, {
           league: f.league.name,
           leagueId: f.league.id,
           status: f.fixture.status.short,
-          utcDateTime: f.fixture.date,
-          utcDateOnly: fixtureUTCDateString,
-          localDateTime: fixtureLocalDate.toLocaleString(),
-          localDateOnly: fixtureLocalDateString,
+          fixtureDateTime: f.fixture.date,
+          fixtureDateOnly: fixtureDateString,
           selectedDate,
           dateMatches,
-          timezoneOffset: `UTC${timezoneSign}${timezoneOffsetHours}`,
-          timezoneChanged: true,
-          reason: dateMatches ? 'Local date matches despite timezone difference' : 'Local date does not match after timezone conversion'
+          reason: dateMatches ? 'Date matches (API timezone-aware)' : 'Date does not match'
         });
       }
       
@@ -785,16 +772,20 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       }
       
       return dateMatches;
+      } catch (error) {
+        console.error('Error processing fixture date:', error, f.fixture);
+        return false;
+      }
     });
     
     // Summary logging
     const excludedCount = fixtures.length - filtered.length;
-    console.log(`📊 [MyNewLeague LOCAL DATE FILTER] Summary for ${selectedDate}:`, {
+    console.log(`📊 [MyNewLeague TIMEZONE-AWARE FILTER] Summary for ${selectedDate}:`, {
       totalFixtures: fixtures.length,
       includedFixtures: filtered.length,
       excludedFixtures: excludedCount,
       exclusionRate: `${((excludedCount / fixtures.length) * 100).toFixed(1)}%`,
-      filteringMethod: 'Local date conversion (UTC → Local timezone)'
+      filteringMethod: 'Timezone-aware API responses + client-side date matching'
     });
     
     // Log breakdown by league for excluded fixtures
@@ -1365,6 +1356,11 @@ b.fixture.status.elapsed) || 0;
       </div>
     );
   });
+
+  // Debug timezone information on component mount
+  useEffect(() => {
+    debugTimezoneInfo();
+  }, []);
 
   // Clear cache for specific match when status transitions occur
   const clearMatchCache = useCallback((matchId: number, transition: string, fixtureDate: string) => {

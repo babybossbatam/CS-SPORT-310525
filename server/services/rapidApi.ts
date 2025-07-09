@@ -216,6 +216,7 @@ export const rapidApiService = {
   async getFixturesByDate(
     date: string,
     fetchAll: boolean = false,
+    timezone?: string,
   ): Promise<FixtureResponse[]> {
     const cacheKey = `fixtures-date-${date}${fetchAll ? "-all" : ""}`;
     const cached = fixturesCache.get(cacheKey);
@@ -307,6 +308,7 @@ export const rapidApiService = {
             const response = await apiClient.get("/fixtures", {
               params: {
                 date: queryDate,
+                ...(timezone && { timezone }),
               },
             });
 
@@ -615,7 +617,7 @@ export const rapidApiService = {
   /**
    * Get live fixtures - ALWAYS fetch fresh data for live matches
    */
-  async getLiveFixtures(): Promise<FixtureResponse[]> {
+  async getLiveFixtures(timezone?: string): Promise<FixtureResponse[]> {
     // NO CACHE for live fixtures - always fetch fresh data for accuracy
 
     try {
@@ -625,7 +627,7 @@ export const rapidApiService = {
       const response = await apiClient.get("/fixtures", {
         params: {
           live: "all",
-          // No timezone parameter - get all live fixtures regardless of timezone
+          ...(timezone && { timezone }),
         },
         headers: {
           "X-RapidAPI-Key": apiKey,

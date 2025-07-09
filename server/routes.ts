@@ -2679,8 +2679,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
 
         // Set a flag on each fixture to indicate it's from live endpoint
-        fixtures.forEach(fixture => {
-          fixture.isLiveData = true;
+        fixtures.forEach(fixture => {          fixture.isLiveData = true;
           fixture.lastUpdated = Date.now();
         });
 
@@ -3272,6 +3271,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error(`❌ [Team Stats] Error fetching statistics for team ${req.params.teamId}:`, error);
       res.status(500).json({ error: 'Failed to fetch team statistics' });
+    }
+  });
+
+  // Get fixtures by date with timezone-aware filtering
+  apiRouter.get("/fixtures/date/:date", async (req: Request, res: Response) => {
+    try {
+      const { date } = req.params;
+      const fetchAll = req.query.all === 'true';
+      const timezone = req.query.timezone as string;
+
+      const fixtures = await rapidApiService.getFixturesByDate(date, fetchAll, timezone);
+
+      console.log(`Got ${fixtures.length} fixtures ${fetchAll ? 'from all leagues' : 'from popular leagues'} for date ${date} with timezone ${timezone}`);
+
+      res.json(fixtures);
+    } catch (error) {
+      console.error("Error fetching fixtures by date:", error);
+      res.status(500).json({ error: "Failed to fetch fixtures" });
+    }
+  });
+
+  // Get live fixtures endpoint
+  apiRouter.get("/fixtures/live", async (req: Request, res: Response) => {
+    try {
+      const timezone = req.query.timezone as string;
+      const liveFixtures = await rapidApiService.getLiveFixtures(timezone);
+      console.log(`Retrieved ${liveFixtures.length} live fixtures from RapidAPI with timezone ${timezone}`);
+      res.json(liveFixtures);
+    } catch (error) {
+      console.error("Error fetching live fixtures:", error);
+      res.status(500).json({ message: "Failed to fetch live fixtures" });
     }
   });
 
