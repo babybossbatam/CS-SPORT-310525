@@ -243,7 +243,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Football API routes - Using API-Football
   apiRouter.get("/fixtures/live", async (req: Request, res: Response) => {
     try {
-      const { skipFilter } = req.query;
+      const { skipFilter, timezone } = req.query;
+      const userTimezone = timezone as string || 'UTC';
+
+      console.log(`API: Fetching live fixtures with timezone: ${userTimezone}`);
 
       // Use API-Football (RapidAPI) only
       try {
@@ -1706,13 +1709,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ];
 
         let imageBuffer = null;
-        let sourceUrl = "";
+        let sourceUrl = null;
 
         // Try each logo source
         for (const logoUrl of logoUrls) {
           try {
             const response = await fetch(logoUrl, {
-              ```tool_code
               headers:{
                 accept: "image/png,image/jpeg,image/svg+xml,image/*",
                 "user-agent":

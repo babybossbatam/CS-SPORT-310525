@@ -9,6 +9,7 @@ import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import { fixtureCache } from "@/lib/fixtureCache";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
+import { getUserTimezone } from "@/lib/timezoneUtils";
 
 interface MyNewLeagueProps {
   selectedDate: string;
@@ -248,55 +249,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         try {
           console.log(`🔍 [MyNewLeague] Processing league ${leagueId}`);
 
-          // Check for cached ended matches first (only for past dates)
-          const selectedDateObj = new Date(selectedDate);
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          selectedDateObj.setHours(0, 0, 0, 0);
+          // Get user's timezone for API request
+          const userTimezone = getUserTimezone();
 
-          let cachedEndedMatches: FixtureData[] = [];
-          if (selectedDateObj < today) {
-            cachedEndedMatches = getCachedEndedMatches(selectedDate, leagueId);
-
-            // Validate cached data for past dates - should not have NS status
-            if (cachedEndedMatches.length > 0) {
-              const invalidNSMatches = cachedEndedMatches.filter(match => {
-                const status = match.fixture.status.short;
-                const fixtureTime = new Date(match.fixture.date).getTime();
-                const now = Date.now();
-                const minutesAfterFixture = (now - fixtureTime) / (1000 * 60);
-
-                // More aggressive: 30 minutes for past dates, immediate for today
-                const thresholdMinutes = selectedDateObj < today ? 30 : 30;
-                return status === 'NS' && minutesAfterFixture > thresholdMinutes;
-              });
-
-              if (invalidNSMatches.length > 0) {
-                console.log(`🚨 [MyNewLeague] Found ${invalidNSMatches.length} invalid NS matches for past date ${selectedDate} in league ${leagueId}, clearing cache`);
-                invalidNSMatches.forEach(match => {
-                  console.log(`🚨 Invalid NS match: ${match.teams.home.name} vs ${match.teams.away.name} (${match.fixture.status.short})`);
-                });
-                cachedEndedMatches = []; // Clear invalid cache
-              }
-            }
-          }
-
-          // Fetch league info only on initial load
-          if (!isUpdate) {
-            const leagueResponse = await apiRequest(
-              "GET",
-              `/api/leagues/${leagueId}`,
-            );
-            const leagueData = await leagueResponse.json();
-            console.log(`MyNewLeague - League ${leagueId} info:`, leagueData);
-
-            if (!primaryLeagueInfo) {
-              primaryLeagueInfo = leagueData;
-            }
-          }
-
-          // Fetch fixtures for the league
-          const fixturesResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures`);
+          const fixturesResponse = await apiRequest(
+            "GET",
+            `/api/leagues/${leagueId}/fixtures?timezone=${encodeURIComponent(userTimezone)}`
+          );
 
           if (!fixturesResponse.ok) {
             console.warn(`Failed to fetch fixtures for league ${leagueId}, status: ${fixturesResponse.status}`);

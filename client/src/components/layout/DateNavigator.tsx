@@ -123,8 +123,10 @@ const DateNavigator = () => {
       const formattedDate = date;
       const userTimezone = getUserTimezone();
       
+      console.log(`🌍 [DateNavigator] Fetching data for ${formattedDate} with timezone: ${userTimezone}`);
+      
       // Fetch data from your sports API using the selected date with timezone
-      const response = await apiRequest('GET', `/api/fixtures/date/${formattedDate}?timezone=${encodeURIComponent(userTimezone)}`);
+      const response = await apiRequest('GET', `/api/fixtures/date/${formattedDate}?timezone=${encodeURIComponent(userTimezone)}&all=true`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch match data');
