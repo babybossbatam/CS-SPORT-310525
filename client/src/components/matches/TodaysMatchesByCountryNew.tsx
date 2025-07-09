@@ -479,10 +479,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     selectedDate,
     totalRawFixtures: fixtures.length,
     validAfterFiltering: validFixtures.length,
-    rejectedCount: rejectedFixtures.length,
     liveMatchesCount: validFixtures.filter((f) =>
-      ["LIVE", "1H",// Analyze the code and apply pure data source logic to TodaysMatchesByCountryNew
-"HT", "2H", "ET", "BT", "P", "INT"].includes(
+      ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
         f.fixture?.status?.short,
       ),
     ).length,
@@ -497,19 +495,6 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     selectedDate,
     originalCount: fixtures.length,
     filteredCount: validFixtures.length,
-    removedCount: fixtures.length - validFixtures.length,
-    removedFixtures: fixtures
-      .filter((f) => !validFixtures.includes(f))
-      .slice(0, 10)
-      .map((f) => ({
-        id: f.fixture?.id,
-        date: f.fixture?.date,
-        status: f.fixture?.status?.short,
-        league: f.league?.country,
-        country: f.league?.country,
-        teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
-        reason: "Date mismatch",
-      })),
     statusBreakdown: {
       original: [
         ...new Set(
