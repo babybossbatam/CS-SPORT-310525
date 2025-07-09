@@ -1712,6 +1712,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         for (const logoUrl of logoUrls) {
           try {
             const response = await fetch(logoUrl, {
+              ```tool_code
               headers:{
                 accept: "image/png,image/jpeg,image/svg+xml,image/*",
                 "user-agent":
@@ -2445,11 +2446,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
-  // Get fixtures by date
-  apiRouter.get("/fixtures/date/:date", async (req: Request, res: Response) => {
-    try {
-      const { date } = req.params;
-      const { all } = req.query;
+  // Add timezone parameter support
+  apiRouter.get('/fixtures/date/:date', async (req: Request, res: Response) => {
+  try {
+    const { date } = req.params;
+    const { all = 'false', timezone } = req.query;
+    const userTimezone = timezone as string || 'UTC';
 
       if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
         return res
@@ -2679,8 +2681,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
 
         // Set a flag on each fixture to indicate it's from live endpoint
-        fixtures.forEach(fixture => {
-          fixture.isLiveData = true;
+        fixtures.forEach(fixture => {          fixture.isLiveData = true;
           fixture.lastUpdated = Date.now();
         });
 

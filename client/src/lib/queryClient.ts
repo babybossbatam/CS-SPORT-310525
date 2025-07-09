@@ -30,11 +30,18 @@ const checkRateLimit = (key: string) => {
 };
 
 // API request helper with improved error handling
-export async function apiRequest(
-  method: string,
-  url: string,
-  data?: unknown | undefined,
-): Promise<Response> {
+export const apiRequest = async (method: string, url: string, data?: any): Promise<Response> => {
+  // Get user's timezone for API requests
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const config: RequestInit = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-User-Timezone': userTimezone,
+    },
+  };
+
   try {
     // Ensure URL is properly formatted
     const apiUrl = url.startsWith("/")
@@ -46,6 +53,7 @@ export async function apiRequest(
       headers: {
         ...(data ? { "Content-Type": "application/json" } : {}),
         Accept: "application/json",
+        'X-User-Timezone': userTimezone,
       },
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
@@ -75,7 +83,7 @@ export async function apiRequest(
     console.error(`❌ API request error for ${method} ${url}:`, error);
     throw error;
   }
-}
+};
 
 // Query function type
 type UnauthorizedBehavior = "returnNull" | "throw";

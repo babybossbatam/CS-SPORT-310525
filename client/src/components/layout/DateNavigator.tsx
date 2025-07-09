@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { format, addDays, subDays, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay } from 'date-fns';
+import { getUserTimezone, getCurrentDateInUserTimezone } from '@/lib/timezoneUtils';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,7 +19,7 @@ const DateNavigator = () => {
   // Always ensure today's date is set as default on component mount
   useEffect(() => {
     if (!selectedDate) {
-      const today = format(new Date(), 'yyyy-MM-dd');
+      const today = getCurrentDateInUserTimezone();
       dispatch(uiActions.setSelectedDate(today));
     }
   }, [selectedDate, dispatch]);
@@ -86,7 +87,7 @@ const DateNavigator = () => {
 
   // Handle today button click
   const goToToday = () => {
-    const today = format(new Date(), 'yyyy-MM-dd');
+    const today = getCurrentDateInUserTimezone();
     dispatch(uiActions.setSelectedDate(today));
     fetchMatchDataForDate(today);
   };
@@ -120,9 +121,10 @@ const DateNavigator = () => {
 
       // Format date for API (already in YYYY-MM-DD format)
       const formattedDate = date;
+      const userTimezone = getUserTimezone();
       
-      // Fetch data from your sports API using the selected date
-      const response = await apiRequest('GET', `/api/fixtures/date/${formattedDate}`);
+      // Fetch data from your sports API using the selected date with timezone
+      const response = await apiRequest('GET', `/api/fixtures/date/${formattedDate}?timezone=${encodeURIComponent(userTimezone)}`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch match data');
