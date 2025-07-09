@@ -685,28 +685,114 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Filter matches to show matches for the selected date
-  const selectedDateFixtures = fixtures.filter((f) => {
-    const matchDate = new Date(f.fixture.date);
-    // Extract just the date part for comparison (YYYY-MM-DD format)
-    const year = matchDate.getFullYear();
-    const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-    const day = String(matchDate.getDate()).padStart(2, "0");
-    const matchDateString = `${year}-${month}-${day}`;
-    const dateMatches = matchDateString === selectedDate;
-
-    // Debug for Friendlies Clubs specifically
-    if (f.league.id === 667 && !dateMatches) {
-      console.log(`🏆 [FRIENDLIES DATE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        fixtureDate: f.fixture.date,
-        matchDateString,
-        selectedDate,
-        reason: 'Date mismatch'
-      });
+  // Enhanced timezone-aware date filtering with debugging
+  const selectedDateFixtures = useMemo(() => {
+    console.log(`🌍 [MyNewLeague TIMEZONE FILTER] Starting date filtering for ${selectedDate}`);
+    console.log(`🌍 [MyNewLeague TIMEZONE FILTER] Total fixtures to process: ${fixtures.length}`);
+    
+    const filtered = fixtures.filter((f) => {
+      // Original server date/time (UTC)
+      const serverDateTime = new Date(f.fixture.date);
+      const serverDateString = f.fixture.date;
+      
+      // Convert to local timezone for date comparison
+      const localDateTime = new Date(serverDateTime.getTime());
+      const localYear = localDateTime.getFullYear();
+      const localMonth = String(localDateTime.getMonth() + 1).padStart(2, "0");
+      const localDay = String(localDateTime.getDate()).padStart(2, "0");
+      const localDateString = `${localYear}-${localMonth}-${localDay}`;
+      
+      // Server date string for comparison
+      const serverYear = serverDateTime.getUTCFullYear();
+      const serverMonth = String(serverDateTime.getUTCMonth() + 1).padStart(2, "0");
+      const serverDay = String(serverDateTime.getUTCDate()).padStart(2, "0");
+      const serverDateOnlyString = `${serverYear}-${serverMonth}-${serverDay}`;
+      
+      // Check both server and local date matching
+      const serverDateMatches = serverDateOnlyString === selectedDate;
+      const localDateMatches = localDateString === selectedDate;
+      const shouldInclude = localDateMatches; // Use local timezone for filtering
+      
+      // Get timezone offset for debugging
+      const timezoneOffset = localDateTime.getTimezoneOffset();
+      const timezoneOffsetHours = Math.abs(timezoneOffset) / 60;
+      const timezoneSign = timezoneOffset > 0 ? '-' : '+';
+      
+      // Debug logging for mismatches or interesting cases
+      if (!shouldInclude || serverDateOnlyString !== localDateString) {
+        console.log(`🕐 [TIMEZONE DEBUG] ${shouldInclude ? 'INCLUDED' : 'EXCLUDED'}: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+          league: f.league.name,
+          leagueId: f.league.id,
+          status: f.fixture.status.short,
+          serverDateTime: serverDateString,
+          serverDateOnly: serverDateOnlyString,
+          localDateTime: localDateTime.toLocaleString(),
+          localDateOnly: localDateString,
+          selectedDate,
+          serverDateMatches,
+          localDateMatches,
+          timezoneOffset: `UTC${timezoneSign}${timezoneOffsetHours}`,
+          shouldInclude,
+          reason: !shouldInclude ? 'Local date mismatch' : 'Timezone difference detected but included'
+        });
+      }
+      
+      // Special debug for specific leagues
+      if ([667, 233, 128].includes(f.league.id)) {
+        console.log(`🏆 [LEAGUE ${f.league.id} FILTER] ${shouldInclude ? 'INCLUDED' : 'EXCLUDED'}: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+          serverDate: serverDateOnlyString,
+          localDate: localDateString,
+          selectedDate,
+          timezoneOffset: `UTC${timezoneSign}${timezoneOffsetHours}`,
+          decision: shouldInclude ? 'INCLUDED' : 'EXCLUDED'
+        });
+      }
+      
+      return shouldInclude;
+    });
+    
+    // Summary logging
+    const excludedCount = fixtures.length - filtered.length;
+    console.log(`📊 [MyNewLeague TIMEZONE FILTER] Summary for ${selectedDate}:`, {
+      totalFixtures: fixtures.length,
+      includedFixtures: filtered.length,
+      excludedFixtures: excludedCount,
+      exclusionRate: `${((excludedCount / fixtures.length) * 100).toFixed(1)}%`
+    });
+    
+    // Log breakdown by league for excluded fixtures
+    if (excludedCount > 0) {
+      const excludedByLeague = fixtures
+        .filter(f => {
+          const localDateTime = new Date(f.fixture.date);
+          const localDateString = `${localDateTime.getFullYear()}-${String(localDateTime.getMonth() + 1).padStart(2, "0")}-${String(localDateTime.getDate()).padStart(2, "0")}`;
+          return localDateString !== selectedDate;
+        })
+        .reduce((acc, f) => {
+          const leagueId = f.league.id;
+          if (!acc[leagueId]) {
+            acc[leagueId] = {
+              name: f.league.name,
+              count: 0,
+              examples: []
+            };
+          }
+          acc[leagueId].count++;
+          if (acc[leagueId].examples.length < 2) {
+            acc[leagueId].examples.push({
+              match: `${f.teams.home.name} vs ${f.teams.away.name}`,
+              serverDate: f.fixture.date,
+              localDate: new Date(f.fixture.date).toLocaleString()
+            });
+          }
+          return acc;
+        }, {} as Record<number, any>);
+      
+      console.log(`🚫 [MyNewLeague EXCLUDED BREAKDOWN] Fixtures excluded by league:`, excludedByLeague);
     }
-
-    return dateMatches;
-  });
+    
+    return filtered;
+  }, [fixtures, selectedDate]);
 
   // Log filtering results for all target leagues
   const friendliesFiltered = selectedDateFixtures.filter(f => f.league.id === 667);
