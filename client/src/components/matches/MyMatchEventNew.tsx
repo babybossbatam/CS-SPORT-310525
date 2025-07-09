@@ -930,8 +930,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 (a, b) => b.time.elapsed - a.time.elapsed,
               );
 
-              // Create period markers safely using useMemo
-              const periodMarkers = useMemo(() => {
+              // Create period markers without useMemo to avoid hooks order violation
+              const createPeriodMarkers = () => {
                 const markers = [];
 
                 try {
@@ -1029,7 +1029,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 }
 
                 return markers;
-              }, [events, getCurrentScores, homeTeam, awayTeam, matchData?.fixture?.status?.short]);
+              };
+
+              const periodMarkers = createPeriodMarkers();
 
               // Combine events and period markers safely
               const allItems = [...sortedEvents, ...periodMarkers].sort(

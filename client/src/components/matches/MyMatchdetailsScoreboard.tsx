@@ -95,15 +95,11 @@ const MyMatchdetailsScoreboard = ({
   // State for real-time timer
   const [realTimeElapsed, setRealTimeElapsed] = useState<number | null>(null);
 
-  // Enhanced state management with proper memoization
+  // Simple state management without unnecessary memoization
   const [currentScores, setCurrentScores] = useState<{home: number, away: number} | null>(null);
   const [currentLiveStatus, setCurrentLiveStatus] = useState<string | null>(null);
   const [isMatchEnded, setIsMatchEnded] = useState<boolean>(false);
   const [dataSource, setDataSource] = useState<'STATIC' | 'LIVE'>('STATIC');
-
-  // Simplified state updates without unnecessary memoization
-
-  // Since this component only displays passed data, no data fetching needed
 
   // Real-time update effect for live matches with continuous timer
   useEffect(() => {
