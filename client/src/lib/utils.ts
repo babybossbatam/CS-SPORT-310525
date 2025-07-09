@@ -565,6 +565,16 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       requestBody = JSON.stringify(options);
     }
 
+    // Validate URL before making request
+    try {
+      new URL(url);
+    } catch (urlError) {
+      console.error(`🚨 Invalid URL: ${url}`);
+      throw new Error(`Invalid URL: ${url}`);
+    }
+
+    console.log(`🔍 Making ${method} request to: ${url}`);
+
     // Attempt the fetch with better error handling
     let response: Response;
     try {
@@ -572,6 +582,7 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
         method,
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         body: requestBody,
         credentials: 'same-origin',
@@ -586,40 +597,24 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       console.error(`🌐 Fetch failed for ${method} ${endpoint}: ${fetchErrorMessage}`);
       
       // Log additional context for debugging
-      console.error(`🔍 Request details: URL=${url}, Method=${method}`);
+      console.error(`🔍 Request details: URL=${url}, Method=${method}, BaseUrl=${baseUrl}`);
       
-      // Create a proper error response object that indicates network failure
-      const createNetworkErrorResponse = (): Response => ({
-        ok: false,
-        status: 0, // Status 0 indicates network failure
-        statusText: 'Network Error',
-        headers: new Headers(),
-        redirected: false,
-        type: 'error',
-        url: '',
-        body: null,
-        bodyUsed: false,
-        json: async () => ({ 
-          error: true, 
-          message: 'Network connectivity failed - please check your connection',
-          details: fetchErrorMessage,
-          networkError: true,
-          endpoint: endpoint
-        }),
-        text: async () => `Network Error: ${fetchErrorMessage}`,
-        blob: async () => new Blob(),
-        arrayBuffer: async () => new ArrayBuffer(0),
-        formData: async () => new FormData(),
-        clone: function() {
-          return createNetworkErrorResponse();
-        }
-      } as Response);
-
-      // Return error response instead of throwing
-      return createNetworkErrorResponse();
+      // Check if it's a network connectivity issue
+      if (fetchErrorMessage.includes('Failed to fetch') || 
+          fetchErrorMessage.includes('NetworkError') ||
+          fetchErrorMessage.includes('fetch') ||
+          fetchError instanceof TypeError) {
+        console.error(`🌐 Network connectivity issue detected. Server might be down or unreachable.`);
+      }
+      
+      // Re-throw the error to be handled by the calling function
+      throw new Error(`Network Error: ${fetchErrorMessage}`);
     }
 
     clearTimeout(timeoutId);
+
+    // Log response status for debugging
+    console.log(`✅ Response status: ${response.status} for ${method} ${endpoint}`);
 
     // Return the response object instead of parsing JSON immediately
     // This allows the caller to handle different response types 
@@ -632,44 +627,14 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
     
     if (error instanceof Error && error.name === 'AbortError') {
       console.error(`🚫 API request timeout for ${method} ${endpoint} after ${options?.timeout || 15000}ms`);
+      throw new Error(`Request timeout: ${endpoint}`);
     } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch') || errorMessage.includes('Network Error')) {
       console.error(`🌐 Network connectivity issue for ${method} ${endpoint}: ${errorMessage}`);
+      throw new Error(`Network connectivity failed: ${errorMessage}`);
     } else {
       console.error(`❌ API request error for ${method} ${endpoint}:`, error);
+      throw error;
     }
-    
-    // Create a more detailed error response that properly indicates network failure
-    const createErrorResponse = (statusText: string, isNetworkError = false): Response => ({
-      ok: false,
-      status: isNetworkError ? 0 : 500,
-      statusText,
-      headers: new Headers(),
-      redirected: false,
-      type: 'error',
-      url: '',
-      body: null,
-      bodyUsed: false,
-      json: async () => ({ 
-        error: true, 
-        message: isNetworkError ? 'Network connectivity failed' : 'Server error',
-        details: statusText,
-        networkError: isNetworkError
-      }),
-      text: async () => `${isNetworkError ? 'Network' : 'Server'} Error: ${statusText}`,
-      blob: async () => new Blob(),
-      arrayBuffer: async () => new ArrayBuffer(0),
-      formData: async () => new FormData(),
-      clone: function() {
-        return createErrorResponse(statusText, isNetworkError);
-      }
-    } as Response);
-
-    const isNetworkError = errorMessage.includes('Failed to fetch') || 
-                          errorMessage.includes('NetworkError') || 
-                          errorMessage.includes('Network Error') ||
-                          errorMessage.includes('fetch');
-
-    return createErrorResponse(errorMessage, isNetworkError);
   } finally {
     // Ensure timeout is always cleared
     clearTimeout(timeoutId);

@@ -111,14 +111,35 @@ export async function fetchLeagueFixturesWithTimezone(
     };
     
     const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`, {
-      params
+      params,
+      timeout: 30000 // 30 second timeout for league fixtures
     });
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch league fixtures: ${response.status}`);
+      console.error(`❌ [TIMEZONE API] League fixtures request failed:`, {
+        leagueId,
+        status: response.status,
+        statusText: response.statusText
+      });
+      
+      // Try to get error details from response
+      try {
+        const errorData = await response.json();
+        console.error(`❌ [TIMEZONE API] Error details:`, errorData);
+      } catch (jsonError) {
+        console.error(`❌ [TIMEZONE API] Could not parse error response`);
+      }
+      
+      throw new Error(`Failed to fetch league fixtures for league ${leagueId}: ${response.status} ${response.statusText}`);
     }
     
     const data = await response.json();
+    
+    // Validate response data
+    if (!Array.isArray(data)) {
+      console.warn(`⚠️ [TIMEZONE API] Expected array but got:`, typeof data);
+      return [];
+    }
     
     console.log('✅ [TIMEZONE API] Retrieved league fixtures:', {
       leagueId,
@@ -128,7 +149,19 @@ export async function fetchLeagueFixturesWithTimezone(
     
     return data;
   } catch (error) {
-    console.error('❌ [TIMEZONE API] Error fetching league fixtures:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('❌ [TIMEZONE API] Error fetching league fixtures:', {
+      leagueId,
+      error: errorMessage,
+      season
+    });
+    
+    // Return empty array instead of throwing to prevent component crashes
+    if (errorMessage.includes('Network connectivity failed') || errorMessage.includes('Failed to fetch')) {
+      console.warn(`🌐 [TIMEZONE API] Network issue for league ${leagueId}, returning empty array`);
+      return [];
+    }
+    
     throw error;
   }
 }
