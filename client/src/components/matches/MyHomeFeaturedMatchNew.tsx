@@ -1545,7 +1545,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             • Match Finished
                           </span>
                         );
-                      } else if (["1H", "2H", "HT", "LIVE"].includes(matchStatus)) {
+                      } else if (
+                        ["1H", "2H", "HT", "LIVE"].includes(matchStatus)
+                      ) {
                         return (
                           <span className="text-xs text-red-600 font-medium">
                             • Live Match
@@ -1663,9 +1665,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         })();
 
                         return (
-                          
-                          <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
-                            {upcomingContent}
+                          <div className="space-y-1">
+                            <div className="text-sm text-gray-600 invisible">
+                              {/* Hidden status placeholder to maintain spacing */}
+                              Ended
+                            </div>
+                            <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
+                              {upcomingContent}
+                            </div>
                           </div>
                         );
                       })()}
@@ -1789,10 +1796,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               const timeOnly = format(matchDate, "HH:mm");
 
                               // Safely get venue with proper fallbacks
-                              let venue = currentMatch.fixture?.venue?.name || null;
+                              let venue =
+                                currentMatch.fixture?.venue?.name || null;
                               let displayVenue = venue;
                               const matchId = currentMatch.fixture.id;
-                              const sportradarVenueData = sportradarVenues[matchId];
+                              const sportradarVenueData =
+                                sportradarVenues[matchId];
 
                               // Check if venue is missing or has placeholder values
                               if (
@@ -1833,13 +1842,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               return (
                                 <>
                                   {formattedDate} | {timeOnly}
-                                  {displayVenue 
-                                    ? ` | ${displayVenue}`
-                                    : ""}
+                                  {displayVenue ? ` | ${displayVenue}` : ""}
                                 </>
                               );
                             } catch (e) {
-                              console.warn("Error formatting match date/venue:", e);
+                              console.warn(
+                                "Error formatting match date/venue:",
+                                e,
+                              );
                               return "Match details unavailable";
                             }
                           })()}
