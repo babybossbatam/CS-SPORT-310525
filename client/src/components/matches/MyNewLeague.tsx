@@ -200,7 +200,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     }
   }, [getCacheKey, isMatchOldEnded]);
 
-  // Simplified data fetching function using user timezone
+  // Optimized data fetching - only update scores and status for existing matches
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
     if (!isUpdate) {
       setLoading(true);
@@ -208,7 +208,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     }
 
     try {
-      console.log(`🔍 [MyNewLeague] Fetching data for ${selectedDate}`);
+      console.log(`🔍 [MyNewLeague] ${isUpdate ? 'Updating' : 'Fetching'} data for ${selectedDate}`);
 
       // Get user's timezone for API request
       const userTimezone = getUserTimezone();
@@ -233,17 +233,48 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
       console.log(`🎯 [MyNewLeague] Filtered to ${leagueFixtures.length} fixtures from target leagues`);
 
-      // Log some sample fixtures for debugging
-      leagueFixtures.slice(0, 3).forEach((fixture: FixtureData) => {
-        console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
-          teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-          league: fixture.league?.name,
-          status: fixture.fixture?.status?.short,
-          date: fixture.fixture?.date,
-        });
-      });
+      // For updates, only merge dynamic data (scores, status, elapsed time) to prevent flashing
+      if (isUpdate && fixtures.length > 0) {
+        setFixtures(prevFixtures => {
+          const updatedFixtures = prevFixtures.map(prevFixture => {
+            const updatedFixture = leagueFixtures.find(f => f.fixture.id === prevFixture.fixture.id);
+            if (updatedFixture) {
+              // Only update dynamic fields, keep static data (team names, logos, league info)
+              return {
+                ...prevFixture,
+                fixture: {
+                  ...prevFixture.fixture,
+                  status: updatedFixture.fixture.status, // Update status and elapsed time
+                },
+                goals: updatedFixture.goals, // Update scores
+                score: updatedFixture.score, // Update penalty scores
+              };
+            }
+            return prevFixture;
+          });
 
-      setFixtures(leagueFixtures);
+          // Add any new fixtures that weren't in the previous list
+          const newFixtures = leagueFixtures.filter(newFixture => 
+            !prevFixtures.some(prevFixture => prevFixture.fixture.id === newFixture.fixture.id)
+          );
+
+          console.log(`🔄 [MyNewLeague] Updated ${updatedFixtures.length} existing fixtures, added ${newFixtures.length} new fixtures`);
+          return [...updatedFixtures, ...newFixtures];
+        });
+      } else {
+        // Initial load or full refresh
+        setFixtures(leagueFixtures);
+        
+        // Log some sample fixtures for debugging
+        leagueFixtures.slice(0, 3).forEach((fixture: FixtureData) => {
+          console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
+            teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            league: fixture.league?.name,
+            status: fixture.fixture?.status?.short,
+            date: fixture.fixture?.date,
+          });
+        });
+      }
     } catch (err) {
       console.error("Error fetching league data:", err);
       if (!isUpdate) {
@@ -254,7 +285,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         setLoading(false);
       }
     }
-  }, [selectedDate]);
+  }, [selectedDate, fixtures.length]);
 
   // Comprehensive cache cleanup on date change and component mount
   useEffect(() => {
@@ -349,13 +380,14 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture.status.short)
     );
 
-    // More aggressive refresh for live matches, less aggressive for non-live
-    const refreshInterval = hasLiveMatches ? 15000 : 60000; // 15s for live, 60s for non-live
+    // Optimized refresh intervals - longer intervals to reduce flashing
+    const refreshInterval = hasLiveMatches ? 30000 : 120000; // 30s for live, 2min for non-live
 
     console.log(`⏰ [MyNewLeague] Setting refresh interval to ${refreshInterval/1000}s (hasLiveMatches: ${hasLiveMatches})`);
 
-    // Set up periodic refresh with dynamic interval
+    // Set up periodic refresh with dynamic interval - only for updates
     const interval = setInterval(() => {
+      console.log(`🔄 [MyNewLeague] Auto-refresh (update only) - Live matches: ${hasLiveMatches}`);
       fetchLeagueData(true); // Pass true to indicate this is an update
     }, refreshInterval);
 
@@ -368,7 +400,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       clearInterval(interval);
       clearInterval(cleanupInterval);
     };
-  }, [fetchLeagueData, selectedDate, fixtures.length]); // Add fixtures.length to recalculate when matches change
+  }, [fetchLeagueData, selectedDate]); // Remove fixtures.length dependency to prevent unnecessary re-renders
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
@@ -581,7 +613,7 @@ b.fixture.status.elapsed) || 0;
     });
   }, []);
 
-  // Memoized match card component to prevent unnecessary re-renders
+  // Heavily memoized match card component to prevent unnecessary re-renders
   const MatchCard = memo(({ 
     match, 
     isHalftimeFlash, 
@@ -934,6 +966,24 @@ b.fixture.status.elapsed) || 0;
           </div>
         </div>
       </div>
+    );
+  }, (prevProps, nextProps) => {
+    // Custom comparison to prevent re-renders unless essential data changes
+    const prevMatch = prevProps.match;
+    const nextMatch = nextProps.match;
+    
+    // Only re-render if dynamic data changed (status, scores, flash states)
+    return (
+      prevMatch.fixture.id === nextMatch.fixture.id &&
+      prevMatch.fixture.status.short === nextMatch.fixture.status.short &&
+      prevMatch.fixture.status.elapsed === nextMatch.fixture.status.elapsed &&
+      prevMatch.goals.home === nextMatch.goals.home &&
+      prevMatch.goals.away === nextMatch.goals.away &&
+      prevProps.isHalftimeFlash === nextProps.isHalftimeFlash &&
+      prevProps.isFulltimeFlash === nextProps.isFulltimeFlash &&
+      prevProps.isGoalFlash === nextProps.isGoalFlash &&
+      prevProps.isStarred === nextProps.isStarred &&
+      JSON.stringify(prevMatch.score?.penalty) === JSON.stringify(nextMatch.score?.penalty)
     );
   });
 
