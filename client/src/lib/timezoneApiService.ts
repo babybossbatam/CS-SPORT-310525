@@ -130,6 +130,12 @@ export async function fetchLeagueFixturesWithTimezone(
         console.error(`❌ [TIMEZONE API] Could not parse error response`);
       }
       
+      // Return empty array for non-critical errors to prevent crashes
+      if (response.status >= 400 && response.status < 500) {
+        console.warn(`⚠️ [TIMEZONE API] Client error ${response.status} for league ${leagueId}, returning empty array`);
+        return [];
+      }
+      
       throw new Error(`Failed to fetch league fixtures for league ${leagueId}: ${response.status} ${response.statusText}`);
     }
     
@@ -156,13 +162,18 @@ export async function fetchLeagueFixturesWithTimezone(
       season
     });
     
-    // Return empty array instead of throwing to prevent component crashes
-    if (errorMessage.includes('Network connectivity failed') || errorMessage.includes('Failed to fetch')) {
-      console.warn(`🌐 [TIMEZONE API] Network issue for league ${leagueId}, returning empty array`);
+    // Return empty array for network issues to prevent component crashes
+    if (errorMessage.includes('Network connectivity failed') || 
+        errorMessage.includes('Failed to fetch') ||
+        errorMessage.includes('Network Error') ||
+        errorMessage.includes('timeout')) {
+      console.warn(`🌐 [TIMEZONE API] Network/timeout issue for league ${leagueId}, returning empty array`);
       return [];
     }
     
-    throw error;
+    // For other errors, still return empty array to maintain component stability
+    console.warn(`⚠️ [TIMEZONE API] Returning empty array for league ${leagueId} due to error: ${errorMessage}`);
+    return [];
   }
 }
 

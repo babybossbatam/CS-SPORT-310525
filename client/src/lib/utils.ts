@@ -541,12 +541,18 @@ export function getTeamGradient(teamName: string, direction: 'to-r' | 'to-l' = '
   }
 }
 export const apiRequest = async (method: string, endpoint: string, options?: any) => {
-  const baseUrl = import.meta.env.VITE_API_URL || 'http://0.0.0.0:5000';
+  // Use window.location.origin in browser environment for proper URL construction
+  const baseUrl = typeof window !== 'undefined' 
+    ? window.location.origin 
+    : (import.meta.env.VITE_API_URL || 'http://0.0.0.0:5000');
+  
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), options?.timeout || 15000);
 
   try {
-    let url = `${baseUrl}${endpoint}`;
+    // Ensure endpoint starts with /
+    const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    let url = `${baseUrl}${normalizedEndpoint}`;
     let requestBody: string | undefined;
 
     // Handle GET requests with query parameters
@@ -560,17 +566,9 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       if (searchParams.toString()) {
         url += `?${searchParams.toString()}`;
       }
-    } else if (method.toUpperCase() !== 'GET' && options) {
-      // For non-GET requests, use options as request body
+    } else if (method.toUpperCase() !== 'GET' && options && !options.params) {
+      // For non-GET requests, use options as request body (but not if it contains params)
       requestBody = JSON.stringify(options);
-    }
-
-    // Validate URL before making request
-    try {
-      new URL(url);
-    } catch (urlError) {
-      console.error(`🚨 Invalid URL: ${url}`);
-      throw new Error(`Invalid URL: ${url}`);
     }
 
     console.log(`🔍 Making ${method} request to: ${url}`);
@@ -585,8 +583,7 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
           'Accept': 'application/json',
         },
         body: requestBody,
-        credentials: 'same-origin',
-        mode: 'cors',
+        credentials: 'include',
         signal: controller.signal,
       });
     } catch (fetchError) {
@@ -594,7 +591,7 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
       clearTimeout(timeoutId);
       
       const fetchErrorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown fetch error';
-      console.error(`🌐 Fetch failed for ${method} ${endpoint}: ${fetchErrorMessage}`);
+      console.error(`🌐 Fetch failed for ${method} ${normalizedEndpoint}: ${fetchErrorMessage}`);
       
       // Log additional context for debugging
       console.error(`🔍 Request details: URL=${url}, Method=${method}, BaseUrl=${baseUrl}`);
@@ -614,7 +611,7 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
     clearTimeout(timeoutId);
 
     // Log response status for debugging
-    console.log(`✅ Response status: ${response.status} for ${method} ${endpoint}`);
+    console.log(`✅ Response status: ${response.status} for ${method} ${normalizedEndpoint}`);
 
     // Return the response object instead of parsing JSON immediately
     // This allows the caller to handle different response types 
