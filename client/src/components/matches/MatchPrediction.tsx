@@ -154,6 +154,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
 
         // Add odds fetch if fixtureId is available
         if (fixtureId) {
+          console.log(`📊 [MatchPrediction] Fetching odds for fixture: ${fixtureId}`);
           fetchPromises.push(fetch(`/api/fixtures/${fixtureId}/odds`));
         }
 
