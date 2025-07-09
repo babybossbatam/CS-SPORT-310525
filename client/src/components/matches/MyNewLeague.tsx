@@ -415,10 +415,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     };
   }, [fetchLeagueData, selectedDate]); // Remove fixtures.length dependency to prevent unnecessary re-renders
 
-  // Since server already filters by date and timezone, use fixtures directly
-  const selectedDateFixtures = fixtures;
-  
-  console.log(`✅ [MyNewLeague] Using ${selectedDateFixtures.length} fixtures (server already filtered by date and timezone)`);
+  // Server already filters by date and timezone, so we use fixtures directly
+  console.log(`✅ [MyNewLeague] Using ${fixtures.length} fixtures (server pre-filtered by date and timezone)`);
 
   // Enhanced debugging for specific leagues
   const leagueBreakdown = selectedDateFixtures.reduce((acc, f) => {
@@ -446,7 +444,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   });
 
   // Group matches by league ID (fixtures are already filtered by server)
-  const matchesByLeague = selectedDateFixtures.reduce(
+  const matchesByLeague = fixtures.reduce(
     (acc, fixture) => {
       const leagueId = fixture.league.id;
       if (!acc[leagueId]) {

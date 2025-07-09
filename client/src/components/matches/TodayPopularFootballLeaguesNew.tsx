@@ -572,27 +572,17 @@ const TodayPopularFootballLeaguesNew: React.FC<
     fixtureCount: allFixtures.length
   });
 
-  // Simple filtering without complex date conversions
+  // Server already filters by date, so we apply only league/country filtering
   const filteredFixtures = useMemo(() => {
     if (!allFixtures?.length) return [];
 
     console.log(
-      `🔍 [SIMPLE FILTER] Processing ${allFixtures.length} fixtures for date: ${selectedDate}`,
+      `🔍 [TodayPopularFootballLeaguesNew] Processing ${allFixtures.length} fixtures for date: ${selectedDate}`,
     );
 
-    const startTime = Date.now();
-
-    // Simple date matching - check if fixture date matches selected date
+    // Apply league and country filtering only (server already filtered by date)
     const filtered = allFixtures.filter((fixture) => {
       if (!fixture?.fixture?.date || !fixture?.league || !fixture?.teams) {
-        return false;
-      }
-
-      // Simple date comparison - extract date part from fixture date
-      const fixtureDate = fixture.fixture.date.split('T')[0]; // Gets YYYY-MM-DD part
-      const dateMatches = fixtureDate === selectedDate;
-
-      if (!dateMatches) {
         return false;
       }
 
@@ -609,7 +599,6 @@ const TodayPopularFootballLeaguesNew: React.FC<
       );
 
       if (isExcludedCountry) {
-        console.log(`❌ [COUNTRY EXCLUSION] Excluding fixture from excluded country: "${fixture.league.country}"`);
         return false;
       }
 
@@ -673,10 +662,8 @@ const TodayPopularFootballLeaguesNew: React.FC<
       return isPopularLeague || isFromPopularCountry || isInternationalCompetition;
     });
 
-    const endTime = Date.now();
-
     console.log(
-      `🔍 [SIMPLE FILTER] Filtered ${allFixtures.length} fixtures to ${filtered.length} in ${endTime - startTime}ms for ${selectedDate}`,
+      `✅ [TodayPopularFootballLeaguesNew] Using ${filtered.length} fixtures after league/country filtering (server pre-filtered by date)`,
     );
 
     return filtered;
