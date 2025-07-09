@@ -29,6 +29,7 @@ import twitchRoutes from "./routes/twitchRoutes";
 import highlightsRoutes from "./routes/highlightsRoutes";
 import playerRoutes from './routes/playerRoutes';
 import axios from "axios";
+import { simpleRapidApi } from "./services/simpleRapidApi";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -373,7 +374,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Past dates: 7 days cache (matches are finished and stable)
         // Today: 2 hours cache (only live matches need frequent updates)
-        // Future dates: 12 hours cache (schedules rarely change)
+        // Future dates: 12 hours cache cache (schedules rarely change)
         const maxCacheAge = isPastDate
           ? 7 * 24 * 60 * 60 * 1000
           : isToday
@@ -824,6 +825,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
 
       if (isNaN(id) || !req.params.id || req.params.id.trim() === "") {
+```text
         return res.status(400).json({ message: "Invalid league ID" });
       }      // Check cache first
       const cachedLeague =await storage.getCachedLeague(id.toString());
@@ -1707,7 +1709,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let imageBuffer = null;
         let sourceUrl = "";
 
-        // Try each logo source
+                // Try each logo source
         for (const logoUrl of logoUrls) {
           try {
             const response = await fetch(logoUrl, {
@@ -3353,6 +3355,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to fetch fixtures" });
     }
   });
+
+    apiRouter.get("/simple/fixtures/:date", async (req: Request, res: Response) => {
+        try {
+            const { date } = req.params;
+
+            if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                return res.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
+            }
+
+            const fixtures = await simpleRapidApi.getFixturesByDate(date);
+            res.json(fixtures);
+
+        } catch (error) {
+            console.error("Error fetching fixtures using simple API:", error);
+            res.status(500).json({ error: "Failed to fetch fixtures using simple API" });
+        }
+    });
 
   return httpServer;
 }
