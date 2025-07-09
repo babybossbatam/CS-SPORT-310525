@@ -79,26 +79,42 @@ class PlayerImageCache {
       return cached.url;
     }
 
-    // Try direct CDN URL first if we have a player ID
+    // Try multiple CDN sources if we have a player ID
     if (playerId) {
       try {
-        const cdnUrl = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
-        console.log(`🔍 [PlayerImageCache] Using CDN URL: ${cdnUrl}`);
+        const cdnSources = [
+          // BeSoccer CDN (primary)
+          `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`,
+          // Alternative BeSoccer formats
+          `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg`,
+          `https://cdn.resfu.com/img_data/players/small/${playerId}.jpg?size=120x&lossy=1`,
+          // API-Sports CDN
+          `https://media.api-sports.io/football/players/${playerId}.png`,
+        ];
+
+        console.log(`🔍 [PlayerImageCache] Trying ${cdnSources.length} CDN sources for player ${playerId}`);
         
-        // Validate the CDN URL
-        const isValid = await this.validateImageUrl(cdnUrl);
-        if (isValid) {
-          this.setCachedImage(playerId, playerName, cdnUrl, 'api');
-          return cdnUrl;
+        // Try each CDN source
+        for (const cdnUrl of cdnSources) {
+          try {
+            const isValid = await this.validateImageUrl(cdnUrl);
+            if (isValid) {
+              console.log(`✅ [PlayerImageCache] Success with CDN: ${cdnUrl}`);
+              this.setCachedImage(playerId, playerName, cdnUrl, 'api');
+              return cdnUrl;
+            }
+          } catch (error) {
+            console.log(`⚠️ [PlayerImageCache] CDN failed: ${cdnUrl}`);
+          }
         }
         
         // Fallback to API endpoint
         const apiUrl = `/api/player-photo/${playerId}`;
-        console.log(`🔍 [PlayerImageCache] CDN failed, trying API endpoint: ${apiUrl}`);
+        console.log(`🔍 [PlayerImageCache] All CDNs failed, trying API endpoint: ${apiUrl}`);
         this.setCachedImage(playerId, playerName, apiUrl, 'api');
         return apiUrl;
       } catch (error) {
-        console.warn(`⚠️ [PlayerImageCache] Both CDN and API failed for player ${playerId}:`, error);
+        console.warn(`⚠️ [PlayerImageCache] All sources failed for player ${playerId}:`, error);
       }
     }
 

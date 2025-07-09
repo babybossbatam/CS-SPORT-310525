@@ -38,9 +38,14 @@ const MyPlayerProfilePicture: React.FC<MyPlayerProfilePictureProps> = ({
     xl: 'text-lg'
   };
 
-  // Generate player image URL using the provided pattern
-  const getPlayerImageUrl = (id: number): string => {
-    return `https://cdn.resfu.com/img_data/players/medium/${id}.jpg?size=120x&lossy=1`;
+  // Generate player image URLs with multiple BeSoccer CDN sources
+  const getPlayerImageUrls = (id: number): string[] => {
+    return [
+      `https://cdn.resfu.com/img_data/players/medium/${id}.jpg?size=120x&lossy=1`,
+      `https://cdn.resfu.com/img_data/players/medium/${id}.jpg`,
+      `https://cdn.resfu.com/img_data/players/small/${id}.jpg?size=120x&lossy=1`,
+      `https://media.api-sports.io/football/players/${id}.png`,
+    ];
   };
 
   // Generate initials fallback
@@ -65,27 +70,40 @@ const MyPlayerProfilePicture: React.FC<MyPlayerProfilePictureProps> = ({
       setIsLoading(true);
       setHasError(false);
 
-      // If we have a player ID, try to get the image
+      // If we have a player ID, try multiple CDN sources
       if (playerId) {
         try {
-          const playerImageUrl = getPlayerImageUrl(playerId);
-          
-          // Test if the image exists
-          const img = new Image();
-          img.onload = () => {
-            setImageUrl(playerImageUrl);
-            setIsLoading(false);
-            console.log(`✅ [MyPlayerProfilePicture] Successfully loaded image for player ${playerId} (${playerName})`);
+          const imageUrls = getPlayerImageUrls(playerId);
+          let urlIndex = 0;
+
+          const tryNextUrl = () => {
+            if (urlIndex >= imageUrls.length) {
+              console.warn(`⚠️ [MyPlayerProfilePicture] All CDN sources failed for player ${playerId} (${playerName}), using fallback`);
+              setImageUrl(getFallbackAvatarUrl(playerName));
+              setHasError(true);
+              setIsLoading(false);
+              return;
+            }
+
+            const currentUrl = imageUrls[urlIndex];
+            const img = new Image();
+            
+            img.onload = () => {
+              setImageUrl(currentUrl);
+              setIsLoading(false);
+              console.log(`✅ [MyPlayerProfilePicture] Successfully loaded image for player ${playerId} (${playerName}) from source ${urlIndex + 1}`);
+            };
+            
+            img.onerror = () => {
+              console.log(`⚠️ [MyPlayerProfilePicture] Source ${urlIndex + 1} failed for player ${playerId}, trying next...`);
+              urlIndex++;
+              tryNextUrl();
+            };
+            
+            img.src = currentUrl;
           };
-          
-          img.onerror = () => {
-            console.warn(`⚠️ [MyPlayerProfilePicture] Image failed for player ${playerId} (${playerName}), using fallback`);
-            setImageUrl(getFallbackAvatarUrl(playerName));
-            setHasError(true);
-            setIsLoading(false);
-          };
-          
-          img.src = playerImageUrl;
+
+          tryNextUrl();
         } catch (error) {
           console.error(`❌ [MyPlayerProfilePicture] Error loading image for player ${playerId}:`, error);
           setImageUrl(getFallbackAvatarUrl(playerName));
