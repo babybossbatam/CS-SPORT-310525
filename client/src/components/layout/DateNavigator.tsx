@@ -134,6 +134,8 @@ const DateNavigator = () => {
       
       const data = await response.json();
       
+      console.log(`✅ [DateNavigator] Received ${data.length} fixtures for ${formattedDate} with timezone ${userTimezone}`);
+      
       // Store the fetched data in Redux
       dispatch(fixturesActions.setFixturesByDate({ 
         date: formattedDate,

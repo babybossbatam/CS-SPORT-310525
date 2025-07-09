@@ -200,7 +200,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     }
   }, [getCacheKey, isMatchOldEnded]);
 
-  // Simple data fetching function with 24-hour cache for ended matches
+  // Simplified data fetching function using user timezone
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
     if (!isUpdate) {
       setLoading(true);
@@ -208,231 +208,42 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     }
 
     try {
-      const allFixtures: FixtureData[] = [];
-      let primaryLeagueInfo: LeagueData | null = null;
-
       console.log(`🔍 [MyNewLeague] Fetching data for ${selectedDate}`);
 
-      // Always fetch live fixtures for real-time data
-      try {
-        console.log(`🔴 [MyNewLeague] Fetching live fixtures`);
-        const liveResponse = await apiRequest("GET", "/api/fixtures/live");
-        const liveData = await liveResponse.json();
-
-        if (Array.isArray(liveData)) {
-          // Filter live fixtures to only include our target leagues
-          const relevantLiveFixtures = liveData.filter(fixture => 
-            leagueIds.includes(fixture.league?.id)
-          );
-
-          if (relevantLiveFixtures.length > 0) {
-            console.log(`🔴 [MyNewLeague] Found ${relevantLiveFixtures.length} live fixtures from target leagues`);
-
-            // Check if any live fixtures were previously cached as upcoming
-            relevantLiveFixtures.forEach(liveFixture => {
-              const previousFixture = fixtures.find(f => f.fixture.id === liveFixture.fixture.id);
-              if (previousFixture && previousFixture.fixture.status.short === 'NS') {
-                console.log(`🔄 [MyNewLeague] Status transition detected: ${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name} (NS → ${liveFixture.fixture.status.short})`);
-              }
-            });
-          }
-
-          // Add live fixtures first
-          allFixtures.push(...relevantLiveFixtures);
-        }
-      } catch (liveError) {
-        console.warn("🔴 [MyNewLeague] Failed to fetch live fixtures:", liveError);
+      // Get user's timezone for API request
+      const userTimezone = getUserTimezone();
+      
+      // Fetch fixtures directly from the date endpoint with user timezone
+      const response = await apiRequest(
+        "GET", 
+        `/api/fixtures/date/${selectedDate}?timezone=${encodeURIComponent(userTimezone)}&all=true`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch fixtures: ${response.status}`);
       }
 
-      // Fetch data for each league
-      for (const leagueId of leagueIds) {
-        try {
-          console.log(`🔍 [MyNewLeague] Processing league ${leagueId}`);
+      const allFixtures = await response.json();
+      console.log(`📊 [MyNewLeague] Received ${allFixtures.length} fixtures for ${selectedDate} with timezone ${userTimezone}`);
 
-          // Get user's timezone for API request
-          const userTimezone = getUserTimezone();
+      // Filter to only include our target leagues
+      const leagueFixtures = allFixtures.filter((fixture: FixtureData) => 
+        leagueIds.includes(fixture.league?.id)
+      );
 
-          const fixturesResponse = await apiRequest(
-            "GET",
-            `/api/leagues/${leagueId}/fixtures?timezone=${encodeURIComponent(userTimezone)}`
-          );
+      console.log(`🎯 [MyNewLeague] Filtered to ${leagueFixtures.length} fixtures from target leagues`);
 
-          if (!fixturesResponse.ok) {
-            console.warn(`Failed to fetch fixtures for league ${leagueId}, status: ${fixturesResponse.status}`);
-            continue; // Skip this league and try the next one
-          }
-
-          const fixturesData = await fixturesResponse.json();
-          console.log(
-            `MyNewLeague - League ${leagueId} fixtures count:`,
-            fixturesData?.length || 0,
-          );
-
-          if (Array.isArray(fixturesData)) {
-            // Filter out fixtures that are already in live data to avoid duplicates
-            const liveFixtureIds = new Set(allFixtures.map(f => f.fixture.id));
-            const nonLiveFixtures = fixturesData.filter(fixture => 
-              !liveFixtureIds.has(fixture.fixture.id)
-            );
-
-            // Filter to only include matches for the selected date
-            const filteredFixtures = nonLiveFixtures.filter(fixture => {
-              const fixtureDate = fixture.fixture?.date;
-              if (!fixtureDate) return true;
-
-              const matchDate = new Date(fixtureDate);
-              const year = matchDate.getFullYear();
-              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-              const day = String(matchDate.getDate()).padStart(2, "0");
-              const matchDateString = `${year}-${month}-${day}`;
-              const selectedDay = selectedDate;
-
-              return matchDateString === selectedDay;
-            });
-
-            // More aggressive validation for data integrity across all dates
-            const staleDataMatches = filteredFixtures.filter(fixture => {
-              const status = fixture.fixture.status.short;
-              const fixtureTime = new Date(fixture.fixture.date).getTime();
-              const now = Date.now();
-              const minutesAfterFixture = (now - fixtureTime) / (1000 * 60);
-              const hoursAfterFixture = minutesAfterFixture / 60;
-
-              // Check for fixture date mismatch (critical issue)
-              const matchDate = new Date(fixture.fixture.date);
-              const year = matchDate.getFullYear();
-              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-              const day = String(matchDate.getDate()).padStart(2, "0");
-              const matchDateString = `${year}-${month}-${day}`;
-
-              if (matchDateString !== selectedDate) {
-                console.log(`🚨 [MyNewLeague] CRITICAL - Fixture date mismatch:`, {
-                  teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                  fixtureDate: matchDateString,
-                  selectedDate,
-                  league: fixture.league.name
-                });
-                return true;
-              }
-
-              // Check for stale NS status
-              if (status === 'NS') {
-                // For past dates: NS status should not exist if more than 2 hours after kickoff
-                if (selectedDateObj < today && hoursAfterFixture > 2) {
-                  console.log(`🚨 [MyNewLeague] Stale NS status for past date:`, {
-                    teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                    status,
-                    hoursAfterFixture: Math.round(hoursAfterFixture * 100) / 100,
-                    selectedDate
-                  });
-                  return true;
-                }
-
-                // For today: NS status should not exist if more than 30 minutes after kickoff
-                if (selectedDateObj.getTime() === today.getTime() && minutesAfterFixture > 30) {
-                  console.log(`🚨 [MyNewLeague] Stale NS status for today:`, {
-                    teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                    status,
-                    minutesAfterFixture: Math.round(minutesAfterFixture),
-                    selectedDate
-                  });
-                  return true;
-                }
-              }
-
-              return false;
-            });
-
-            // If we found any stale data, force refresh for this league
-            if (staleDataMatches.length > 0) {
-              console.log(`🔄 [MyNewLeague] Found ${staleDataMatches.length} stale/mismatched fixtures for league ${leagueId}, forcing fresh fetch`);
-
-              // Clear all cache for this league and date
-              const cacheKey = getCacheKey(selectedDate, leagueId);
-              localStorage.removeItem(cacheKey);
-              fixtureCache.clearCache();
-
-              try {
-                const freshResponse = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures?force=true&t=${Date.now()}`);
-                const freshData = await freshResponse.json();
-
-                if (Array.isArray(freshData)) {
-                  const freshFilteredFixtures = freshData.filter(fixture => {
-                    const fixtureDate = fixture.fixture?.date;
-                    if (!fixtureDate) return false;
-
-                    const matchDate = new Date(fixtureDate);
-                    const year = matchDate.getFullYear();
-                    const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-                    const day = String(matchDate.getDate()).padStart(2, "0");
-                    const matchDateString = `${year}-${month}-${day}`;
-                    return matchDateString === selectedDate;
-                  });
-
-                  console.log(`✅ [MyNewLeague] Refreshed ${freshFilteredFixtures.length} fixtures for league ${leagueId} (was ${filteredFixtures.length})`);
-
-                  // Simple: clear all and use only fresh data
-                  allFixtures.length = 0;
-                  allFixtures.push(...freshFilteredFixtures);
-
-                  // Use fresh data instead of potentially stale cached data
-                  continue;
-                }
-              } catch (refreshError) {
-                console.error(`❌ [MyNewLeague] Failed to refresh stale data for league ${leagueId}:`, refreshError);
-              }
-            }
-
-            console.log(`🎯 [MyNewLeague] League ${leagueId}: ${nonLiveFixtures.length} → ${filteredFixtures.length} fixtures after date filtering`);
-
-            // Separate fresh fixtures from cached ones
-            const cachedFixtureIds = new Set(cachedEndedMatches.map(f => f.fixture.id));
-            const freshFixtures = filteredFixtures.filter(fixture => 
-              !cachedFixtureIds.has(fixture.fixture.id)
-            );
-
-            // Combine fresh fixtures with cached ended matches
-            const combinedFixtures = [...freshFixtures, ...cachedEndedMatches];
-
-            combinedFixtures.forEach((fixture, index) => {
-              if (index < 3) { // Only log first 3 to avoid spam
-                console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
-                  teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-                  league: fixture.league?.name,
-                  status: fixture.fixture?.status?.short,
-                  date: fixture.fixture?.date,
-                  source: cachedFixtureIds.has(fixture.fixture.id) ? 'cache' : 'api'
-                });
-              }
-            });
-
-            // Cache any new ended matches for future use
-            if (selectedDateObj < today) {
-              cacheEndedMatches(selectedDate, leagueId, filteredFixtures);
-            }
-
-            allFixtures.push(...combinedFixtures);
-          }
-        } catch (leagueError) {
-          const errorMessage = leagueError instanceof Error ? leagueError.message : 'Unknown error';
-          console.warn(
-            `Failed to fetch data for league ${leagueId}:`,
-            errorMessage,
-          );
-        }
-      }
-
-      if (!isUpdate && primaryLeagueInfo) {
-        setLeagueInfo(primaryLeagueInfo);
-      }
-
-      console.log(`📊 [MyNewLeague] Final result: ${allFixtures.length} fixtures`);
-
-      // Only update fixtures if there are actual changes
-      setFixtures(prevFixtures => {
-        const hasChanges = JSON.stringify(prevFixtures) !== JSON.stringify(allFixtures);
-        return hasChanges ? allFixtures : prevFixtures;
+      // Log some sample fixtures for debugging
+      leagueFixtures.slice(0, 3).forEach((fixture: FixtureData) => {
+        console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
+          teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+          league: fixture.league?.name,
+          status: fixture.fixture?.status?.short,
+          date: fixture.fixture?.date,
+        });
       });
+
+      setFixtures(leagueFixtures);
     } catch (err) {
       console.error("Error fetching league data:", err);
       if (!isUpdate) {
@@ -443,7 +254,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         setLoading(false);
       }
     }
-  }, [selectedDate, getCachedEndedMatches, cacheEndedMatches]);
+  }, [selectedDate]);
 
   // Comprehensive cache cleanup on date change and component mount
   useEffect(() => {
@@ -644,28 +455,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Filter matches to show matches for the selected date
-  const selectedDateFixtures = fixtures.filter((f) => {
-    const matchDate = new Date(f.fixture.date);
-    // Extract just the date part for comparison (YYYY-MM-DD format)
-    const year = matchDate.getFullYear();
-    const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-    const day = String(matchDate.getDate()).padStart(2, "0");
-    const matchDateString = `${year}-${month}-${day}`;
-    const dateMatches = matchDateString === selectedDate;
-
-    // Debug for Friendlies Clubs specifically
-    if (f.league.id === 667 && !dateMatches) {
-      console.log(`🏆 [FRIENDLIES DATE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        fixtureDate: f.fixture.date,
-        matchDateString,
-        selectedDate,
-        reason: 'Date mismatch'
-      });
-    }
-
-    return dateMatches;
-  });
+  // Since fixtures are now filtered by timezone on the server, use them directly
+  const selectedDateFixtures = fixtures;
 
   // Log filtering results for all target leagues
   const friendliesFiltered = selectedDateFixtures.filter(f => f.league.id === 667);
