@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Calendar, MapPin, Users, Star, X } from "lucide-react";
 
@@ -143,24 +143,62 @@ const MyMatchdetailsScoreboard = ({
   // State for real-time timer
   const [realTimeElapsed, setRealTimeElapsed] = useState<number | null>(null);
 
+  // Enhanced state management with proper memoization
+  const [currentScores, setCurrentScores] = useState<{home: number, away: number} | null>(null);
+  const [currentLiveStatus, setCurrentLiveStatus] = useState<string | null>(null);
+  const [isMatchEnded, setIsMatchEnded] = useState<boolean>(false);
+  const [liveScores, setLiveScores] = useState<{home: number, away: number} | null>(null);
+  const [dataSource, setDataSource] = useState<'STATIC' | 'LIVE'>('STATIC');
+
+  // Memoize all callback functions to prevent infinite re-renders
+  const updateCurrentScores = useCallback((scores: {home: number, away: number} | null) => {
+    setCurrentScores(prevScores => {
+      if (!scores && !prevScores) return null;
+      if (!scores || !prevScores) return scores;
+      if (scores.home === prevScores.home && scores.away === prevScores.away) return prevScores;
+      return scores;
+    });
+  }, []);
+
+  const updateCurrentLiveStatus = useCallback((status: string | null) => {
+    setCurrentLiveStatus(prevStatus => prevStatus === status ? prevStatus : status);
+  }, []);
+
+  const updateIsMatchEnded = useCallback((ended: boolean) => {
+    setIsMatchEnded(prevEnded => prevEnded === ended ? prevEnded : ended);
+  }, []);
+
+  const updateLiveScores = useCallback((scores: {home: number, away: number} | null) => {
+    setLiveScores(prevScores => {
+      if (!scores && !prevScores) return null;
+      if (!scores || !prevScores) return scores;
+      if (scores.home === prevScores.home && scores.away === prevScores.away) return prevScores;
+      return scores;
+    });
+  }, []);
+
+  const updateDataSource = useCallback((source: 'STATIC' | 'LIVE') => {
+    setDataSource(prevSource => prevSource === source ? prevSource : source);
+  }, []);
+
   // Fetch current match status when component mounts or match changes
   useEffect(() => {
     if (!displayMatch?.fixture?.id) return;
 
     const matchId = displayMatch.fixture.id;
-    
+
     // Always fetch fresh data for match details
     fetchCurrentMatchStatus(matchId);
-    
+
     // Set up interval to refresh data every 30 seconds for live matches
     const statusShort = displayMatch.fixture.status.short;
     const isLiveOrRecent = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(statusShort);
-    
+
     if (isLiveOrRecent) {
       const interval = setInterval(() => {
         fetchCurrentMatchStatus(matchId);
       }, 30000); // 30 seconds
-      
+
       return () => clearInterval(interval);
     }
   }, [displayMatch?.fixture?.id, fetchCurrentMatchStatus]);
@@ -247,15 +285,18 @@ const MyMatchdetailsScoreboard = ({
 
             // Update live scores
             if (currentLiveMatch.goals) {
-              setLiveScores({
+              const liveMatchScores = {
                 home: currentLiveMatch.goals.home,
                 away: currentLiveMatch.goals.away
-              });
+              };
+              updateLiveScores(liveMatchScores);
+              // setLiveScores(liveMatchScores);
             }
 
             // Update live status
             if (currentLiveMatch.fixture.status.short) {
-              setLiveStatus(currentLiveMatch.fixture.status.short);
+              updateCurrentLiveStatus(currentLiveMatch.fixture.status.short);
+              // setCurrentLiveStatus(currentLiveMatch.fixture.status.short);
 
               // Stop real-time timer if match is now in halftime or penalties
               if ((currentLiveMatch.fixture.status.short === "HT" || currentLiveMatch.fixture.status.short === "P") && realtimeTimer) {
@@ -337,7 +378,7 @@ const MyMatchdetailsScoreboard = ({
     // 2. If we have fresh API data and it's live, use API status
     // 3. Otherwise use live status or fallback to passed status
     let currentStatus = apiStatus;
-    
+
     // If match is ended according to API, always use that status
     if (isEndedMatch) {
       currentStatus = apiStatus;
@@ -462,6 +503,28 @@ const MyMatchdetailsScoreboard = ({
       </Badge>
     );
   };
+
+  // Function to update scores based on match data (either live or static)
+  const updateScores = useCallback(() => {
+    // Determine if match has ended based on status code
+    const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(displayMatch.fixture?.status?.short || "");
+
+    // Extract the match scores
+    const matchScores = {
+      home: displayMatch.goals?.home ?? 0,
+      away: displayMatch.goals?.away ?? 0,
+    };
+
+    // Extract the match status
+    const status = displayMatch.fixture?.status?.short || "NS";
+
+    // Set the scores, status, and match ended flag
+    updateCurrentScores(matchScores);
+    updateCurrentLiveStatus(status);
+    updateIsMatchEnded(isEnded);
+    updateDataSource('STATIC');
+  }, [displayMatch, updateCurrentScores, updateCurrentLiveStatus, updateIsMatchEnded, updateDataSource]);
+
   return (
     <Card
       className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 `}
