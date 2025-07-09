@@ -79,17 +79,26 @@ class PlayerImageCache {
       return cached.url;
     }
 
-    // Try API endpoint if we have a player ID - trust it works since console shows 200 responses
+    // Try direct CDN URL first if we have a player ID
     if (playerId) {
       try {
-        const apiUrl = `/api/player-photo/${playerId}`;
-        console.log(`🔍 [PlayerImageCache] Using API endpoint: ${apiUrl}`);
+        const cdnUrl = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
+        console.log(`🔍 [PlayerImageCache] Using CDN URL: ${cdnUrl}`);
         
-        // Cache and return API URL directly - validation will happen when the image loads
+        // Validate the CDN URL
+        const isValid = await this.validateImageUrl(cdnUrl);
+        if (isValid) {
+          this.setCachedImage(playerId, playerName, cdnUrl, 'api');
+          return cdnUrl;
+        }
+        
+        // Fallback to API endpoint
+        const apiUrl = `/api/player-photo/${playerId}`;
+        console.log(`🔍 [PlayerImageCache] CDN failed, trying API endpoint: ${apiUrl}`);
         this.setCachedImage(playerId, playerName, apiUrl, 'api');
         return apiUrl;
       } catch (error) {
-        console.warn(`⚠️ [PlayerImageCache] API failed for player ${playerId}:`, error);
+        console.warn(`⚠️ [PlayerImageCache] Both CDN and API failed for player ${playerId}:`, error);
       }
     }
 
