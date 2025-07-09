@@ -1,0 +1,27 @@
+if fixture time > CurrentTime but status "NS" and within time range 00:00 - 23:59 then its Today's Matches
+example fixture time is 03:00 then CurrentTime is 15:45 and the status is NS but its within time range 00:00 - 23:59 but because it < than current time then its not Today's Matches, but example fixture time is 15:45 then CurrentTime is 03:00 and the status is NS but its within time range 00:00 - 23:59. but because it > than current time then its Today's Matches
+if fixture time < CurrentTime but status "NS" and within time range 00:00 - 23:59 then its Tomorrow's Matches
+example fixture time is 03:00 then CurrentTime is 15:45 and the status is NS but its within time range 00:00 - 23:59 but because it < current time then its Tomorrow's Matches, but example fixture time is 15:45 then CurrentTime is 03:00 and the status is NS but its within time range 00:00 - 23:59. but because it > than current time then its Tomorrow's Matches
+if fixture time < CurrentTime but status "FT" and within time range 00:00 - 23:59 then its Yesterday's Ended Matches
+example fixture time is 03:00 then CurrentTime is 15:45 and the status is FT but its within time range 00:00 - 23:59 but because it < current time then its Today's Ended Matches, but example fixture time is 15:45 then CurrentTime is 03:00 but the date is < current date then its Yesterday Ended matches
+div
+BA
+
+compitobatam
+Assistant
+2 hours ago
+Looking at your requirements and the MyNewLeague.tsx file, I can see you need to implement smart time-based filtering logic for match classification. Based on your examples, you want to classify matches based on fixture time vs current time and match status.
+
+Let me update the MySmartTimeFilter.ts file to implement this logic:
+
+client/src/lib/MySmartTimeFilter.ts
+Implement smart time-based match classification logic
+Message was stopped
+instead of using mySmarttimeFilter lets create a new file :
+
+if fixture time > CurrentTime but status "NS" and within time range 00:00 - 23:59 then its Today's Matches
+example fixture time is 03:00 then CurrentTime is 15:45 and the status is NS but its within time range 00:00 - 23:59 but because it < than current time then its not Today's Matches, but example fixture time is 15:45 then CurrentTime is 03:00 and the status is NS but its within time range 00:00 - 23:59. but because it > than current time then its Today's Matches
+if fixture time < CurrentTime but status "NS" and within time range 00:00 - 23:59 then its Tomorrow's Matches
+example fixture time is 03:00 then CurrentTime is 15:45 and the status is NS but its within time range 00:00 - 23:59 but because it < current time then its Tomorrow's Matches, but example fixture time is 15:45 then CurrentTime is 03:00 and the status is NS but its within time range 00:00 - 23:59. but because it > than current time then its Tomorrow's Matches
+if fixture time < CurrentTime but status "FT" and within time range 00:00 - 23:59 then its Yesterday's Ended Matches
+example fixture time is 03:00 then CurrentTime is 15:45 and the status is FT but its within time range 00:00 - 23:59 but because it < current time then its Today's Ended Matches, but example fixture time is 15:45 then CurrentTime is 03:00 but the date is < current date then its Yesterday Ended matches
