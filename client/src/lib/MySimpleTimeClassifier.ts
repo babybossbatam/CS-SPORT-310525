@@ -67,11 +67,20 @@ export class MySimpleTimeClassifier {
         };
       }
 
-      // Rule 1: NS status and fixture time > current time = Today's Matches
-      if (matchStatus === 'NS' && fixtureMinutes > currentMinutes) {
+      // Get date comparison for proper classification
+      const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
+      const currentDateString = format(currentDate, 'yyyy-MM-dd');
+      
+      // Check if fixture is on the same date as current date
+      const isSameDate = fixtureDateString === currentDateString;
+      const isFutureDate = fixtureDateString > currentDateString;
+      const isPastDate = fixtureDateString < currentDateString;
+
+      // Rule 1: NS status and fixture time > current time AND same date = Today's Matches
+      if (matchStatus === 'NS' && isSameDate && fixtureMinutes > currentMinutes) {
         return {
           category: 'today',
-          reason: `NS match scheduled for later today (${fixtureTimeOnly} > ${currentTimeOnly})`,
+          reason: `NS match scheduled for later today (${fixtureTimeOnly} > ${currentTimeOnly}, same date: ${fixtureDateString})`,
           fixtureTime: fixtureTimeOnly,
           currentTime: currentTimeOnly,
           status: matchStatus,
@@ -79,11 +88,15 @@ export class MySimpleTimeClassifier {
         };
       }
 
-      // Rule 2: NS status and fixture time < current time = Tomorrow's Matches
-      if (matchStatus === 'NS' && fixtureMinutes < currentMinutes) {
+      // Rule 2: NS status and (fixture time < current time AND same date) OR future date = Tomorrow's Matches
+      if (matchStatus === 'NS' && ((isSameDate && fixtureMinutes < currentMinutes) || isFutureDate)) {
+        const reason = isFutureDate 
+          ? `NS match on future date (${fixtureDateString} > ${currentDateString})`
+          : `NS match time has passed, moving to tomorrow (${fixtureTimeOnly} < ${currentTimeOnly}, same date: ${fixtureDateString})`;
+        
         return {
           category: 'tomorrow',
-          reason: `NS match time has passed, moving to tomorrow (${fixtureTimeOnly} < ${currentTimeOnly})`,
+          reason,
           fixtureTime: fixtureTimeOnly,
           currentTime: currentTimeOnly,
           status: matchStatus,
@@ -91,25 +104,31 @@ export class MySimpleTimeClassifier {
         };
       }
 
-      // Rule 3: FT status and fixture time < current time = Yesterday's Ended Matches
-      if (matchStatus === 'FT' && fixtureMinutes < currentMinutes) {
-        // Additional check: if the fixture date is actually from yesterday
-        const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
-        const currentDateString = format(currentDate, 'yyyy-MM-dd');
-        
-        if (fixtureDateString < currentDateString) {
+      // Rule 3: FT status classification based on date
+      if (matchStatus === 'FT') {
+        if (isPastDate) {
           return {
             category: 'yesterday',
-            reason: `FT match from yesterday (${fixtureDateString} < ${currentDateString})`,
+            reason: `FT match from past date (${fixtureDateString} < ${currentDateString})`,
+            fixtureTime: fixtureTimeOnly,
+            currentTime: currentTimeOnly,
+            status: matchStatus,
+            isWithinTimeRange: true
+          };
+        } else if (isSameDate) {
+          return {
+            category: 'today',
+            reason: `FT match ended today (${fixtureDateString} = ${currentDateString})`,
             fixtureTime: fixtureTimeOnly,
             currentTime: currentTimeOnly,
             status: matchStatus,
             isWithinTimeRange: true
           };
         } else {
+          // Future date with FT status (shouldn't happen but handle gracefully)
           return {
             category: 'today',
-            reason: `FT match ended earlier today (${fixtureTimeOnly} < ${currentTimeOnly})`,
+            reason: `FT match with future date (${fixtureDateString} > ${currentDateString}) - treating as today`,
             fixtureTime: fixtureTimeOnly,
             currentTime: currentTimeOnly,
             status: matchStatus,
@@ -132,14 +151,25 @@ export class MySimpleTimeClassifier {
 
       // Handle NS matches where times are equal
       if (matchStatus === 'NS' && fixtureMinutes === currentMinutes) {
-        return {
-          category: 'today',
-          reason: `NS match starting now (${fixtureTimeOnly} = ${currentTimeOnly})`,
-          fixtureTime: fixtureTimeOnly,
-          currentTime: currentTimeOnly,
-          status: matchStatus,
-          isWithinTimeRange: true
-        };
+        if (isSameDate) {
+          return {
+            category: 'today',
+            reason: `NS match starting now (${fixtureTimeOnly} = ${currentTimeOnly}, same date: ${fixtureDateString})`,
+            fixtureTime: fixtureTimeOnly,
+            currentTime: currentTimeOnly,
+            status: matchStatus,
+            isWithinTimeRange: true
+          };
+        } else if (isFutureDate) {
+          return {
+            category: 'tomorrow',
+            reason: `NS match on future date (${fixtureDateString} > ${currentDateString})`,
+            fixtureTime: fixtureTimeOnly,
+            currentTime: currentTimeOnly,
+            status: matchStatus,
+            isWithinTimeRange: true
+          };
+        }
       }
 
       // Handle live matches
