@@ -138,7 +138,25 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const isUsaMexico2025 = (home.toLowerCase().includes('usa') && away.toLowerCase().includes('mexico')) ||
                          (home.toLowerCase().includes('mexico') && away.toLowerCase().includes('usa'));
 
+  // Special case for PSG vs Real Madrid 2025 FIFA Club World Cup - use correct video
+  const isPsgRealMadrid2025 = (home.toLowerCase().includes('paris saint germain') && away.toLowerCase().includes('real madrid')) ||
+                             (home.toLowerCase().includes('real madrid') && away.toLowerCase().includes('paris saint germain'));
+
   const videoSources = [
+    // Specific PSG vs Real Madrid 2025 FIFA Club World Cup video (highest priority)
+    ...(isPsgRealMadrid2025 ? [{
+      name: 'FIFA Official - PSG vs Real Madrid 2025',
+      type: 'youtube' as const,
+      searchFn: async () => {
+        return {
+          name: 'FIFA Official - PSG vs Real Madrid 2025',
+          type: 'youtube' as const,
+          url: 'https://www.youtube.com/watch?v=oB5FZiIxN_M',
+          embedUrl: 'https://www.youtube.com/embed/oB5FZiIxN_M?autoplay=0&rel=0',
+          title: 'Paris Saint-Germain vs Real Madrid - FIFA Club World Cup 2025 Highlights'
+        };
+      }
+    }] : []),
     // Specific USA vs Mexico 2025 Gold Cup video (priority if match detected)
     ...(isUsaMexico2025 ? [{
       name: 'CONCACAF Official - USA vs Mexico 2025',
