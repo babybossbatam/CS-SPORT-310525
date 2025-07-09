@@ -717,15 +717,26 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       f.fixture.status.short
     );
 
+    // Debug log for time classification
+    console.log(`🕐 [TIME CLASSIFICATION] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+      fixtureTime: classification.fixtureTime,
+      currentTime: classification.currentTime,
+      status: f.fixture.status.short,
+      category: classification.category,
+      reason: classification.reason,
+      selectedDate
+    });
+
     // Show matches that are classified as 'today', 'tomorrow', 'yesterday', or live matches
     const shouldShow = ['today', 'tomorrow', 'yesterday'].includes(classification.category) || 
                       ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(f.fixture.status.short);
 
-    if (!shouldShow && f.league.id === 667) {
-      console.log(`🏆 [FRIENDLIES TIME FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+    if (!shouldShow) {
+      console.log(`❌ [TIME FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
         classification: classification.category,
         reason: classification.reason,
-        status: f.fixture.status.short
+        status: f.fixture.status.short,
+        fixtureTime: classification.fixtureTime
       });
     }
 
