@@ -37,7 +37,7 @@ import { getCachedTeamLogo } from "../../lib/MyAPIFallback";
 import { isNationalTeam } from "../../lib/teamLogoSources";
 import { MySmartDateLabeling } from "../../lib/MySmartDateLabeling";
 import LazyImage from "../common/LazyImage";
-import MyCircularFlag from "../common/MyCircularFlag";
+import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import LazyMatchItem from "./LazyMatchItem";
 import { MySmartTimeFilter } from "@/lib/MySmartTimeFilter";
 import "../../styles/MyLogoPositioning.css";
@@ -1850,83 +1850,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                           {/* Home team logo - grid area */}
                                           <div className="home-team-logo-container">
-                                            {(() => {
-                                              // Check if this is a national team
-                                              const isActualNationalTeam =
-                                                isNationalTeam(
-                                                  match.teams.home,
-                                                  {
-                                                    name: leagueData.league
-                                                      .name,
-                                                    country:
-                                                      leagueData.league.country,
-                                                  },
-                                                );
-
-                                              // Check for youth teams
-                                              const isYouthTeam =
-                                                match.teams.home.name?.includes(
-                                                  "U20",
-                                                ) ||
-                                                match.teams.home.name?.includes(
-                                                  "U21",
-                                                ) ||
-                                                match.teams.home.name?.includes(
-                                                  "U19",
-                                                ) ||
-                                                match.teams.home.name?.includes(
-                                                  "U23",
-                                                );
-
-                                              // Check if this is FIFA Club World Cup (club competition, not national teams)
-                                            const isFifaClubWorldCup = leagueData.league.name?.toLowerCase().includes("fifa club world cup");
-
-                                            // Check if this is Friendlies Club (club competition, not national teams)
-                                            const isFriendliesClub = leagueData.league.name?.toLowerCase().includes("friendlies clubs");
-
-                                            // Check if this is UEFA Europa Conference League (club competition, not national teams)
-                                            const isUefaConferenceLeague = leagueData.league.name?.toLowerCase().includes("uefa europa conference league") || 
-                                                                          leagueData.league.name?.toLowerCase().includes("europa conference league");
-
-                                            // Use MyCircularFlag for ONLY actual national teams and youth teams, but NOT for club competitions
-                                            if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isFriendliesClub && !isUefaConferenceLeague) {
-                                                return (
-                                                  <MyCircularFlag
-                                                    teamName={
-                                                      match.teams.home.name ||
-                                                      ""
-                                                    }
-                                                    fallbackUrl={
-                                                      match.teams.home.id
-                                                        ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                                        : "/assets/fallback-logo.svg"
-                                                    }
-                                                    alt={match.teams.home.name}
-                                                    size="34px"
-                                                    className="popular-leagues-size"
-                                                  />
-                                                );
+                                            <MyWorldTeamLogo
+                                              teamName={match.teams.home.name || ""}
+                                              teamLogo={
+                                                match.teams.home.id
+                                                  ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                                  : "/assets/fallback-logo.svg"
                                               }
-
-                                              // Default to regular team logo for club teams
-                                              return (
-                                                <LazyImage
-                                                  src={
-                                                    match.teams.home.id
-                                                      ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                                      : "/assets/fallback-logo.svg"
-                                                  }
-                                                  alt={match.teams.home.name}
-                                                  title={match.teams.home.name}
-                                                  className="team-logo"
-                                                  style={{
-                                                    filter:
-                                                      "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                                  }}
-                                                  fallbackSrc="/assets/fallback-logo.svg"
-                                                />
-                                              );
-                                            })()}
+                                              alt={match.teams.home.name}
+                                              size="34px"
+                                              className="popular-leagues-size"
+                                              leagueContext={{
+                                                name: leagueData.league.name,
+                                                country: leagueData.league.country,
+                                              }}
+                                            />
                                           </div>
 
                                           {/* Score/Time Center - Fixed width and centered */}
@@ -2084,83 +2022,21 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
                                           {/* Away team logo - grid area */}
                                           <div className="away-team-logo-container">
-                                            {(() => {
-                                              // Check if this is a national team
-                                              const isActualNationalTeam =
-                                                isNationalTeam(
-                                                  match.teams.away,
-                                                  {
-                                                    name: leagueData.league
-                                                      .name,
-                                                    country:
-                                                      leagueData.league.country,
-                                                  },
-                                                );
-
-                                              // Check for youth teams
-                                              const isYouthTeam =
-                                                match.teams.away.name?.includes(
-                                                  "U20",
-                                                ) ||
-                                                match.teams.away.name?.includes(
-                                                  "U21",
-                                                ) ||
-                                                match.teams.away.name?.includes(
-                                                  "U19",
-                                                ) ||
-                                                match.teams.away.name?.includes(
-                                                  "U23",
-                                                );
-
-                                              // Check if this is FIFA Club World Cup (club competition, not national teams)
-                                            const isFifaClubWorldCup = leagueData.league.name?.toLowerCase().includes("fifa club world cup");
-
-                                            // Check if this is Friendlies Club (club competition, not national teams)
-                                            const isFriendliesClub = leagueData.league.name?.toLowerCase().includes("friendlies clubs");
-
-                                            // Check if this is UEFA Europa Conference League (club competition, not national teams)
-                                            const isUefaConferenceLeague = leagueData.league.name?.toLowerCase().includes("uefa europa conference league") || 
-                                                                          leagueData.league.name?.toLowerCase().includes("europa conference league");
-
-                                            // Use MyCircularFlag for ONLY actual national teams and youth teams, but NOT for club competitions
-                                            if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isFriendliesClub && !isUefaConferenceLeague) {
-                                                return (
-                                                  <MyCircularFlag
-                                                    teamName={
-                                                      match.teams.away.name ||
-                                                      ""
-                                                    }
-                                                    fallbackUrl={
-                                                      match.teams.away.id
-                                                        ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                                        : "/assets/fallback-logo.svg"
-                                                    }
-                                                    alt={match.teams.away.name}
-                                                    size="34px"
-                                                    className="popular-leagues-size"
-                                                  />
-                                                );
+                                            <MyWorldTeamLogo
+                                              teamName={match.teams.away.name || ""}
+                                              teamLogo={
+                                                match.teams.away.id
+                                                  ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                                  : "/assets/fallback-logo.svg"
                                               }
-
-                                              // Default to regular team logo for club teams
-                                              return (
-                                                <LazyImage
-                                                  src={
-                                                    match.teams.away.id
-                                                      ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                                      : "/assets/fallback-logo.svg"
-                                                  }
-                                                  alt={match.teams.away.name}
-                                                  title={match.teams.away.name}
-                                                  className="team-logo"
-                                                  style={{
-                                                    filter:
-                                                      "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                                  }}
-                                                  fallbackSrc="/assets/fallback-logo.svg"
-                                                />
-                                              );
-                                            })()}
+                                              alt={match.teams.away.name}
+                                              size="34px"
+                                              className="popular-leagues-size"
+                                              leagueContext={{
+                                                name: leagueData.league.name,
+                                                country: leagueData.league.country,
+                                              }}
+                                            />
                                           </div>
 
                                           {/* Away Team Name - positioned further right */}
