@@ -31,6 +31,7 @@ const MyMatchdetailsScoreboard = ({
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
+  const [currentMatchData, setCurrentMatchData] = useState<any | null>(null);
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const activeTab = externalActiveTab || internalActiveTab;
   
@@ -41,6 +42,56 @@ const MyMatchdetailsScoreboard = ({
       setInternalActiveTab(tab);
     }
   };
+
+  // Function to fetch current match status by match ID
+  const fetchCurrentMatchStatus = useCallback(async (matchId: number) => {
+    try {
+      console.log(`🔍 [Status Fetch] Fetching current status for match ${matchId}`);
+      
+      // Try live fixtures first
+      const liveResponse = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
+      if (liveResponse.ok) {
+        const liveFixtures = await liveResponse.json();
+        const liveMatch = liveFixtures.find((fixture: any) => 
+          fixture.fixture.id === matchId
+        );
+
+        if (liveMatch) {
+          console.log(`✅ [Status Fetch] Found match ${matchId} in live fixtures:`, {
+            status: liveMatch.fixture.status.short,
+            elapsed: liveMatch.fixture.status.elapsed,
+            homeScore: liveMatch.goals.home,
+            awayScore: liveMatch.goals.away
+          });
+          setCurrentMatchData(liveMatch);
+          return liveMatch;
+        }
+      }
+
+      // Fallback to specific match endpoint
+      const matchResponse = await fetch(`/api/fixtures?ids=${matchId}`);
+      if (matchResponse.ok) {
+        const matchData = await matchResponse.json();
+        if (matchData.length > 0) {
+          const match = matchData[0];
+          console.log(`✅ [Status Fetch] Found match ${matchId} in regular fixtures:`, {
+            status: match.fixture.status.short,
+            elapsed: match.fixture.status.elapsed,
+            homeScore: match.goals.home,
+            awayScore: match.goals.away
+          });
+          setCurrentMatchData(match);
+          return match;
+        }
+      }
+
+      console.warn(`⚠️ [Status Fetch] Could not find current data for match ${matchId}`);
+      return null;
+    } catch (error) {
+      console.error(`❌ [Status Fetch] Error fetching status for match ${matchId}:`, error);
+      return null;
+    }
+  }, []);
   // Sample match data for demonstration
   const sampleMatch = {
     fixture: {
@@ -92,11 +143,21 @@ const MyMatchdetailsScoreboard = ({
   // State for real-time timer
   const [realTimeElapsed, setRealTimeElapsed] = useState<number | null>(null);
 
+  // Fetch current match status when component mounts or match changes
+  useEffect(() => {
+    if (!displayMatch?.fixture?.id) return;
+
+    const matchId = displayMatch.fixture.id;
+    fetchCurrentMatchStatus(matchId);
+  }, [displayMatch?.fixture?.id, fetchCurrentMatchStatus]);
+
   // Real-time update effect for live matches with continuous timer
   useEffect(() => {
     if (!displayMatch) return;
 
-    const status = displayMatch.fixture.status.short;
+    // Use current match data if available, otherwise fallback to passed data
+    const matchToUse = currentMatchData || displayMatch;
+    const status = matchToUse.fixture.status.short;
     const isLiveMatch = ["1H", "2H", "LIVE", "HT", "ET", "P"].includes(status);
 
     if (isLiveMatch) {
@@ -247,30 +308,32 @@ const MyMatchdetailsScoreboard = ({
   };
 
   const getStatusBadge = (status: string) => {
-    // Determine if match is truly live or ended
-    const apiStatus = status;
+    // Use current match data if available for more accurate status
+    const matchToUse = currentMatchData || displayMatch;
+    const apiStatus = matchToUse.fixture.status.short;
     const currentLiveStatus = liveStatus || apiStatus;
     const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(apiStatus);
 
     // Check if match has definitively ended based on API status only
-    const matchDate = new Date(displayMatch.fixture.date);
+    const matchDate = new Date(matchToUse.fixture.date);
     const now = new Date();
     const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
 
-    // Only use definitive API status - don't override live matches
+    // Use current status from fresh data
     let currentStatus = currentLiveStatus;
     if (isEndedMatch) {
       currentStatus = apiStatus;
     }
 
     console.log("🔍 [Status Check] Match status analysis:", {
-      fixtureId: displayMatch.fixture.id,
+      fixtureId: matchToUse.fixture.id,
       apiStatus,
       liveStatus,
       currentLiveStatus,
       hoursElapsed: hoursElapsed.toFixed(2),
       isEndedMatch,
-      finalStatus: currentStatus
+      finalStatus: currentStatus,
+      usingCurrentData: !!currentMatchData
     });
 
     // Check if it's a finished match and determine the appropriate label
@@ -541,13 +604,14 @@ const MyMatchdetailsScoreboard = ({
                 </div>
                 <div className="text-3xl font-semi-bold">
                   {(() => {
-                    // Determine if match is truly live or ended
-                    const apiStatus = displayMatch.fixture.status.short;
+                    // Use current match data if available for more accurate scores
+                    const matchToUse = currentMatchData || displayMatch;
+                    const apiStatus = matchToUse.fixture.status.short;
                     const currentLiveStatus = liveStatus || apiStatus;
                     const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(apiStatus);
 
                     // Check if match has definitively ended based on API status only
-                    const matchDate = new Date(displayMatch.fixture.date);
+                    const matchDate = new Date(matchToUse.fixture.date);
                     const now = new Date();
                     const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
 
@@ -555,17 +619,21 @@ const MyMatchdetailsScoreboard = ({
                     const isMatchEnded = isEndedMatch;
                     const isTrulyLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentLiveStatus) && !isMatchEnded;
 
-                    // Use live scores only for truly live matches, static scores for ended matches
+                    // Use current match data scores when available, fallback to live scores
                     let homeScore, awayScore;
 
-                    if (isTrulyLive && liveScores?.home != null && liveScores?.away != null) {
+                    if (currentMatchData) {
+                      // Use current fresh data
+                      homeScore = currentMatchData.goals?.home ?? 0;
+                      awayScore = currentMatchData.goals?.away ?? 0;
+                    } else if (isTrulyLive && liveScores?.home != null && liveScores?.away != null) {
                       // Use live scores for confirmed live matches
                       homeScore = liveScores.home;
                       awayScore = liveScores.away;
                     } else {
                       // Use static API scores for ended or when live scores unavailable
-                      homeScore = displayMatch.goals?.home ?? 0;
-                      awayScore = displayMatch.goals?.away ?? 0;
+                      homeScore = matchToUse.goals?.home ?? 0;
+                      awayScore = matchToUse.goals?.away ?? 0;
                     }
 
                     console.log("🔄 [Score Display] Score update:", {
@@ -575,9 +643,10 @@ const MyMatchdetailsScoreboard = ({
                       isMatchEnded,
                       isTrulyLive,
                       hoursElapsed: hoursElapsed.toFixed(2),
-                      dataSource: (isTrulyLive && liveScores?.home != null) ? "LIVE" : "STATIC",
+                      dataSource: currentMatchData ? "CURRENT" : (isTrulyLive && liveScores?.home != null) ? "LIVE" : "STATIC",
                       liveScores,
-                      apiScores: {home: displayMatch.goals?.home, away: displayMatch.goals?.away},
+                      currentScores: currentMatchData ? {home: currentMatchData.goals?.home, away: currentMatchData.goals?.away} : null,
+                      apiScores: {home: matchToUse.goals?.home, away: matchToUse.goals?.away},
                       displayedScores: {home: homeScore, away: awayScore},
                     });
 
