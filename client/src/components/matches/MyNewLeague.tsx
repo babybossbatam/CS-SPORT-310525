@@ -400,16 +400,16 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     const hasUpcomingMatches = fixtures.some(fixture => 
       ['NS', 'TBD', 'PST'].includes(fixture.fixture.status.short)
     );
-    
+
     const isToday = selectedDate === new Date().toISOString().slice(0, 10);
     const isFutureDate = selectedDate > new Date().toISOString().slice(0, 10);
-    
+
     // Only refresh if:
     // 1. We have live matches (any date)
     // 2. We have upcoming matches for today or future dates
     // 3. Skip refresh for past dates unless there are live matches
     const shouldRefresh = hasLiveMatches || (hasUpcomingMatches && (isToday || isFutureDate));
-    
+
     console.log(`⏰ [MyNewLeague] Setting refresh interval to ${refreshInterval/1000}s (hasLiveMatches: ${hasLiveMatches}, shouldRefresh: ${shouldRefresh})`);
 
     // Set up periodic refresh with dynamic interval - only when needed
@@ -433,8 +433,16 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     };
   }, [fetchLeagueData, selectedDate]); // Remove fixtures.length dependency to prevent unnecessary re-renders
 
-  // Server already filters by date and timezone, so we use fixtures directly
-  console.log(`✅ [MyNewLeague] Using ${fixtures.length} fixtures (server pre-filtered by date and timezone)`);
+  // Use fixtures directly since server already filters by date and timezone
+  const filteredFixtures = useMemo(() => {
+    if (!fixtures?.length) return [];
+
+    console.log(`✅ [MyNewLeague] Using ${fixtures.length} fixtures (server pre-filtered by date and timezone)`);
+
+    // Server endpoint /api/fixtures/date/${selectedDate}?timezone=${userTimezone} 
+    // already returns the correct fixtures for the selected date in user's timezone
+    return fixtures;
+  }, [fixtures]);
 
   // Enhanced debugging for specific leagues
   const leagueBreakdown = fixtures.reduce((acc, f) => {
@@ -1141,7 +1149,7 @@ b.fixture.status.elapsed) || 0;
           ['1H', '2H', 'LIVE', 'LIV'].includes(currentStatus)) {
         console.log(`⚽ [MyNewLeague GOAL FLASH] Match ${matchId} score changed!`, {
           home: fixture.teams?.home?.name,
-          away: fixture.teams?.away?.name,
+          away: fixture.teams?.away?.name},
           previousScore,
           currentScore,
           status: currentStatus,
