@@ -88,6 +88,18 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
           fixtureStatus: selectedFixture?.fixture?.status
         });
 
+        console.log(`📋 [MyMainLayoutRight] Complete selectedFixture data:`, {
+          fixtureId: selectedFixture?.fixture?.id,
+          fixtureDate: selectedFixture?.fixture?.date,
+          status: selectedFixture?.fixture?.status,
+          homeTeam: selectedFixture?.teams?.home,
+          awayTeam: selectedFixture?.teams?.away,
+          league: selectedFixture?.league,
+          goals: selectedFixture?.goals,
+          events: selectedFixture?.events?.length || 0,
+          fullObject: selectedFixture
+        });
+
         return (
           <>
             {/* Show MyLiveAction only for live matches, not for finished matches */}
