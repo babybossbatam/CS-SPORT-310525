@@ -824,8 +824,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
 
-      if (isNaN(id) || !req.params.id || req.params.id.trim() === "") {
-```text
+      if (isNaN(id) || !req.params.id || req.params.id.```text
+trim() === "") {
         return res.status(400).json({ message: "Invalid league ID" });
       }      // Check cache first
       const cachedLeague =await storage.getCachedLeague(id.toString());
@@ -881,7 +881,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get("/leagues/:id/fixtures", async (req: Request, res: Response) => {
     try {
       const leagueId = parseInt(req.params.id);
-      const season = parseInt(req.query.season as string) || 2024;
+      const season = parseInt(req.query.season as string) || 2025;
       const forceRefresh = req.query.force === 'true';
 
       console.log(`API: Fetching fixtures for league ${leagueId}, season ${season}${forceRefresh ? ' (force refresh)' : ''}`);
@@ -2679,7 +2679,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`,
         );
 
-        // Set a flag on each fixture to indicate it's from live endpoint
+        // Set a flag on each fixture to```text
+indicate it's from live endpoint
         fixtures.forEach(fixture => {
           fixture.isLiveData = true;
           fixture.lastUpdated = Date.now();
