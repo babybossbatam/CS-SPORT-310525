@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
 import { Clock, RefreshCw, AlertCircle } from "lucide-react";
@@ -61,7 +61,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const fetchMatchEvents = async () => {
+  const fetchMatchEvents = useCallback(async () => {
     if (!fixtureId) {
       setError("No fixture ID provided");
       setIsLoading(false);
@@ -104,7 +104,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [fixtureId]);
 
   useEffect(() => {
     fetchMatchEvents();
@@ -388,12 +388,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     return periods;
   };
 
-  const isHomeTeam = (event: MatchEvent) => {
+  const isHomeTeam = useCallback((event: MatchEvent) => {
     return event.team?.name?.toLowerCase() === homeTeam?.toLowerCase();
-  };
+  }, [homeTeam]);
 
-  const isDarkTheme = theme === "dark";
-  const groupedEvents = groupEventsByPeriod(events);
+  const isDarkTheme = useMemo(() => theme === "dark", [theme]);
+  const groupedEvents = useMemo(() => groupEventsByPeriod(events), [events]);
 
   if (error && showErrors) {
     return (
@@ -410,7 +410,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  const getPlayerImage = (
+  const getPlayerImage = useCallback((
     playerId: number | undefined,
     playerName: string | undefined,
   ) => {
@@ -418,7 +418,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       return "";
     }
     return `/api/player-photo/${playerId}`;
-  };
+  }, []);
 
   const EventItem = ({
     event,
@@ -859,14 +859,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   // Get current scores from API data
-  const getCurrentScores = () => {
-    if (matchData?.goals) {      return {
+  const getCurrentScores = useMemo(() => {
+    if (matchData?.goals) {
+      return {
         homeScore: matchData.goals.home || 0,
         awayScore: matchData.goals.away || 0,
       };
     }
     return { homeScore: 0, awayScore: 0 };
-  };
+  }, [matchData?.goals]);
 
   return (
     <Card
@@ -929,102 +930,106 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 (a, b) => b.time.elapsed - a.time.elapsed,
               );
 
-              // Create period markers safely
-              const periodMarkers = [];
+              // Create period markers safely using useMemo
+              const periodMarkers = useMemo(() => {
+                const markers = [];
 
-              try {
-                const currentScores = getCurrentScores();
+                try {
+                  const currentScores = getCurrentScores;
 
-                // Calculate halftime score by counting goals scored up to 45 minutes
-                const calculateHalftimeScore = () => {
-                  let homeHalftimeScore = 0;
-                  let awayHalftimeScore = 0;
+                  // Calculate halftime score by counting goals scored up to 45 minutes
+                  const calculateHalftimeScore = () => {
+                    let homeHalftimeScore = 0;
+                    let awayHalftimeScore = 0;
 
-                  const firstHalfGoals = events.filter(
-                    (event) =>
-                      event.type === "Goal" && event.time?.elapsed <= 45,
+                    const firstHalfGoals = events.filter(
+                      (event) =>
+                        event.type === "Goal" && event.time?.elapsed <= 45,
+                    );
+
+                    firstHalfGoals.forEach((goal) => {
+                      if (goal.team?.name === homeTeam) {
+                        homeHalftimeScore++;
+                      } else if (goal.team?.name === awayTeam) {
+                        awayHalftimeScore++;
+                      }
+                    });
+
+                    return { homeHalftimeScore, awayHalftimeScore };
+                  };
+
+                  // Add "End of 90 Minutes" marker if there are events after minute 90
+                  const fullTimeEvents = events.filter(
+                    (e) => e.time?.elapsed >= 90,
                   );
+                  if (fullTimeEvents.length > 0) {
+                    markers.push({
+                      time: { elapsed: 90 },
+                      type: "period_score",
+                      detail: "End of 90 Minutes",
+                      score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
+                      team: { name: "", logo: "" },
+                      player: { name: "" },
+                      id: "period-90",
+                    });
+                  }
 
-                  firstHalfGoals.forEach((goal) => {
-                    if (goal.team?.name === homeTeam) {
-                      homeHalftimeScore++;
-                    } else if (goal.team?.name === awayTeam) {
-                      awayHalftimeScore++;
-                    }
-                  });
+                  // Add "Full Time" marker for ended matches
+                  const matchStatus = matchData?.fixture?.status?.short;
+                  const isMatchEnded = ["FT", "AET", "PEN"].includes(matchStatus);
 
-                  return { homeHalftimeScore, awayHalftimeScore };
-                };
+                  if (isMatchEnded) {
+                    markers.push({
+                      time: { elapsed: 120 }, // Put at the very end
+                      type: "period_score",
+                      detail: "Full Time",
+                      score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
+                      team: { name: "", logo: "" },
+                      player: { name: "" },
+                      id: "period-ft",
+                    });
+                  }
 
-                // Add "End of 90 Minutes" marker if there are events after minute 90
-                const fullTimeEvents = events.filter(
-                  (e) => e.time?.elapsed >= 90,
-                );
-                if (fullTimeEvents.length > 0) {
-                  periodMarkers.push({
-                    time: { elapsed: 90 },
-                    type: "period_score",
-                    detail: "End of 90 Minutes",
-                    score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
-                    team: { name: "", logo: "" },
-                    player: { name: "" },
-                    id: "period-90",
-                  });
+                  // Add "Halftime" marker if there are events in both halves
+                  const firstHalfEvents = events.filter(
+                    (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
+                  );
+                  const secondHalfEvents = events.filter(
+                    (e) => e.time?.elapsed > 45,
+                  );
+                  if (firstHalfEvents.length > 0 && secondHalfEvents.length > 0) {
+                    const halftimeScore = calculateHalftimeScore();
+                    markers.push({
+                      time: { elapsed: 45 },
+                      type: "period_score",
+                      detail: "Halftime",
+                      score: `${halftimeScore.homeHalftimeScore} - ${halftimeScore.awayHalftimeScore}`,
+                      team: { name: "", logo: "" },
+                      player: { name: "" },
+                      id: "period-45",
+                    });
+                  }
+
+                  // Add penalty shootout marker if match ended with penalties
+                  if (events.some((event) => 
+                    event.type?.toLowerCase() === "penalty" || 
+                    event.detail?.toLowerCase().includes("penalty")
+                  ) || matchData?.fixture?.status?.short === "PEN") {
+                    markers.push({
+                      time: { elapsed: 121 }, // Put penalties after extra time
+                      type: "penalty_shootout",
+                      detail: "Penalties",
+                      team: { name: "", logo: "" },
+                      player: { name: "" },
+                      id: "penalty-shootout",
+                    });
+                  }
+                } catch (error) {
+                  console.error("Error creating period markers:", error);
                 }
 
-                // Add "Full Time" marker for ended matches
-                const matchStatus = matchData?.fixture?.status?.short;
-                const isMatchEnded = ["FT", "AET", "PEN"].includes(matchStatus);
-
-                if (isMatchEnded) {
-                  periodMarkers.push({
-                    time: { elapsed: 120 }, // Put at the very end
-                    type: "period_score",
-                    detail: "Full Time",
-                    score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
-                    team: { name: "", logo: "" },
-                    player: { name: "" },
-                    id: "period-ft",
-                  });
-                }
-
-                // Add "Halftime" marker if there are events in both halves
-                const firstHalfEvents = events.filter(
-                  (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
-                );
-                const secondHalfEvents = events.filter(
-                  (e) => e.time?.elapsed > 45,
-                );
-                if (firstHalfEvents.length > 0 && secondHalfEvents.length > 0) {
-                  const halftimeScore = calculateHalftimeScore();
-                  periodMarkers.push({
-                    time: { elapsed: 45 },
-                    type: "period_score",
-                    detail: "Halftime",
-                    score: `${halftimeScore.homeHalftimeScore} - ${halftimeScore.awayHalftimeScore}`,
-                    team: { name: "", logo: "" },
-                    player: { name: "" },
-                    id: "period-45",
-                  });
-                }
-
-                // Add penalty shootout marker if match ended with penalties
-                if (events.some((event) => 
-                  event.type?.toLowerCase() === "penalty" || 
-                  event.detail?.toLowerCase().includes("penalty")
-                ) || matchData?.fixture?.status?.short === "PEN") {
-                  periodMarkers.push({
-                    time: { elapsed: 121 }, // Put penalties after extra time
-                    type: "penalty_shootout",
-                    detail: "Penalties",
-                    team: { name: "", logo: "" },
-                    player: { name: "" },
-                    id: "penalty-shootout",
-                  });
-                }
-              } catch (error) {
-                console.error("Error creating period markers:", error);
-              }
+                return markers;
+              }, [events, getCurrentScores, homeTeam, awayTeam, matchData?.fixture?.status?.short]);
 
               // Combine events and period markers safely
               const allItems = [...sortedEvents, ...periodMarkers].sort(
