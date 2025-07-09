@@ -281,7 +281,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               const month = String(matchDate.getMonth() + 1).padStart(2, "0");
               const day = String(matchDate.getDate()).padStart(2, "0");
               const matchDateString = `${year}-${month}-${day}`;
-              
+
               return matchDateString === selectedDate;
             });
 
@@ -303,7 +303,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             // Merge cached and fresh fixtures, avoiding duplicates
             const existingIds = new Set(leagueFixtures.map(f => f.fixture.id));
             const newFixtures = filteredFixtures.filter(f => !existingIds.has(f.fixture.id));
-            
+
             leagueFixtures = [...leagueFixtures, ...newFixtures];
 
             // Cache ended matches for this league
@@ -473,7 +473,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       clearInterval(interval);
       clearInterval(cleanupInterval);
     };
-  }, [fetchLeagueData, selectedDate, fixtures.length]); // Add fixtures.length to recalculate when matches change
+  }, [fetchLeagueData, selectedDate, fixtures.length]);
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
@@ -571,14 +571,14 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     const month = String(matchDate.getMonth() + 1).padStart(2, "0");
     const day = String(matchDate.getDate()).padStart(2, "0");
     const matchDateString = `${year}-${month}-${day}`;
-    
+
     const dateMatches = matchDateString === selectedDate;
 
     // Special debugging for FIFA Club World Cup
     if (f.league.id === 15) {
       const matchDate = new Date(f.fixture.date);
       const utcDateString = `${matchDate.getUTCFullYear()}-${String(matchDate.getUTCMonth() + 1).padStart(2, "0")}-${String(matchDate.getUTCDate()).padStart(2, "0")}`;
-      
+
       console.log(`🏆 [FIFA CLUB WORLD CUP DATE FILTER] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
         fixtureDate: f.fixture.date,
         utcDate: utcDateString,
@@ -784,8 +784,7 @@ b.fixture.status.elapsed) || 0;
   // Memoized match card component to prevent unnecessary re-renders
   const MatchCard = memo(({ 
     match, 
-    isHalftimeFlash, 
-    isFulltimeFlash, 
+    isHalftimeFlash, isFulltimeFlash, 
     isGoalFlash, 
     isStarred, 
     onStarToggle, 

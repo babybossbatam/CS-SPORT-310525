@@ -70,6 +70,18 @@ const LazyMatchItem: React.FC<LazyMatchItemProps> = ({
     }
   }, [hasLoaded]);
 
+  // Cleanup function to prevent memory leaks
+  const cleanup = useCallback(() => {
+    if (elementRef.current && globalObserver) {
+      observedElements.delete(elementRef.current);
+      globalObserver.unobserve(elementRef.current);
+    }
+    if (elementRef.current && prefetchObserver) {
+      prefetchElements.delete(elementRef.current);
+      prefetchObserver.unobserve(elementRef.current);
+    }
+  }, []);
+
   const handlePrefetch = useCallback(async () => {
     if (!isPrefetched && onPrefetch) {
       setIsPrefetched(true);

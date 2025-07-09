@@ -1043,7 +1043,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       // Fallback to existing color extraction
       return getTeamColor(teamName, isHome);
     },
-    [teamLogoColors],
+    [teamLogoColors, getTeamColor],
   );
 
   if (isLoading) {

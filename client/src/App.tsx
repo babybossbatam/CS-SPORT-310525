@@ -102,6 +102,7 @@ function App() {
         event.reason?.message?.includes("plugin:runtime-error-plugin") ||
         event.reason?.message?.includes("unknown runtime error") ||
         event.reason?.message?.includes("sendError") ||
+        event.reason?.message?.includes("Too many re-renders") ||
         event.reason?.toString()?.includes("riker.replit.dev") ||
         event.reason?.toString()?.includes("plugin:runtime-error-plugin") ||
         (typeof event.reason === 'string' && event.reason.includes("plugin:runtime-error-plugin"))
@@ -117,6 +118,7 @@ function App() {
         event.message?.includes("plugin:runtime-error-plugin") ||
         event.message?.includes("unknown runtime error") ||
         event.message?.includes("sendError") ||
+        event.message?.includes("Too many re-renders") ||
         event.filename?.includes("riker.replit.dev") ||
         event.error?.toString()?.includes("plugin:runtime-error-plugin")
       ) {

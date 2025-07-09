@@ -404,8 +404,9 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
   // Lazy loading ref callback
   const createLazyRef = useCallback((matchId: number) => {
     return (node: HTMLDivElement | null) => {
-      if (node && observerRef.current) {
+      if (node && observerRef.current && !node.hasAttribute('data-observed')) {
         node.setAttribute('data-match-id', matchId.toString());
+        node.setAttribute('data-observed', 'true');
         observerRef.current.observe(node);
       }
     };
