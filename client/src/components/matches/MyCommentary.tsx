@@ -365,15 +365,57 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   event.type === "period_end" ||
                   event.type === "period_marker"
                 ) {
-                  // For Half Time, show Second Half begins with team names and halftime scores
-                  const displayText = event.detail;
+                  // Handle "First Half begins" / "Kick Off"
+                  if (event.detail === "First Half begins") {
+                    return (
+                      <div
+                        key={`period-${index}`}
+                        className="commentary-event-container"
+                      >
+                        <div className="flex gap-3">
+                          {/* Time Column */}
+                          <div className="flex flex-col items-center min-w-[45px]">
+                            <div className="w-4 h-6 flex items-center justify-center">
+                              <img
+                                src="/assets/matchdetaillogo/i mark.svg"
+                                alt="Kick Off"
+                                className="w-4 h-4"
+                              />
+                            </div>
+                            {index < allCommentaryItems.length - 1 && (
+                              <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
+                            )}
+                          </div>
 
+                          {/* Content Column */}
+                          <div className="flex-1"> 
+                            <div className="text-sm text-gray-700 leading-relaxed mt-1">
+                              <img
+                                src="/assets/matchdetaillogo/clock.png"
+                                alt="Kick Off"
+                                className="w-4 h-4 "
+                              /> 
+                              <div>
+                                
+                                Kick Off</div>
+                              <div className="text-xs text-gray-600 mt-1">
+                                First Half begins.
+                              </div>
+                              
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Handle "Half Time" / "Second Half begins"
                   if (event.detail === "Half Time") {
                     const halftimeScore = calculateScoreAtTime(45);
                     return (
                       <div
                         key={`period-${index}`}
-                        className="commentary-event-container" 
+                        className="commentary-event-container"
                       >
                         <div className="flex gap-3">
                           {/* Time Column */}
@@ -388,16 +430,50 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                           {/* Content Column */}
                           <div className="flex-1">
-                            <div className="flex items-center gap-2 -ml-3 -mt-1.5  text-xs font-medium">
-                              <img
-                                src="/assets/matchdetaillogo/clock.png"
-                                alt="Half Time"
-                                className="w-4 h-4 opacity-80 flex-shrink-0"
-                              />Half Time
-                              <span className="text-lg font-bold text-gray-900">
-                                {halftimeScore.homeScore} -{" "}
+                            <div className="text-sm text-gray-700 leading-relaxed">
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src="/assets/matchdetaillogo/clock.png"
+                                  alt="Half Time"
+                                  className="w-4 h-4 opacity-80 flex-shrink-0"
+                                />
+                                Second Half begins. {homeTeam || "Home"}{" "}
+                                {halftimeScore.homeScore}, {awayTeam || "Away"}{" "}
                                 {halftimeScore.awayScore}
-                              </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Handle "Second Half begins" with score display
+                  if (event.detail.includes("Second Half begins")) {
+                    return (
+                      <div
+                        key={`period-${index}`}
+                        className="commentary-event-container"
+                      >
+                        <div className="flex gap-3">
+                          {/* Time Column */}
+                          <div className="flex flex-col items-center min-w-[45px]">
+                            <div className="w-4 h-6 flex items-center justify-center">
+                              <img
+                                src="/assets/matchdetaillogo/i mark.svg"
+                                alt="Second Half"
+                                className="w-4 h-4"
+                              />
+                            </div>
+                            {index < allCommentaryItems.length - 1 && (
+                              <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
+                            )}
+                          </div>
+
+                          {/* Content Column */}
+                          <div className="flex-1">
+                            <div className="text-sm text-gray-700 leading-relaxed">
+                              {event.detail}
                             </div>
                           </div>
                         </div>
@@ -440,7 +516,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     alt="Half Time"
                                     className="w-4 h-4 ml-0.5 mb-4"
                                   />
-                                  
                                 </span>
                               )}
                             </div>
