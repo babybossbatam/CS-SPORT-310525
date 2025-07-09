@@ -2684,7 +2684,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           fixture.lastUpdated = Date.now();
         });
 
-        //        // Only cache ended matches from the live response
+                //        // Only cache ended matches from the live response
         const endedMatches = fixtures.filter((fixture) =>
           ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC"].includes(
             fixture.fixture.status.short,
@@ -3242,6 +3242,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get team statistics endpoint
   apiRouter.get("/teams/:teamId/statistics", async (req: Request, res: Response) => {
     try {
+
       const { teamId } = req.params;
       const { league, season } = req.query;
 
@@ -3268,10 +3269,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log(`❌ [Team Stats] No statistics found for team ${teamId}`);
         res.status(404).json({ error: 'Team statistics not found' });
       }
-
     } catch (error) {
       console.error(`❌ [Team Stats] Error fetching statistics for team ${req.params.teamId}:`, error);
       res.status(500).json({ error: 'Failed to fetch team statistics' });
+    }
+  });
+
+  // Get fixture by ID
+  apiRouter.get("/fixtures", async (req: Request, res: Response) => {
+    try {
+      const { ids, _t } = req.query;
+
+      if (!ids) {
+        return res.status(400).json({ error: "Fixture IDs are required" });
+      }
+
+      const fixtureIds = String(ids).split(',').map(id => parseInt(id.trim()));
+      const fixtures = [];
+      const bypassCache = !!_t; // Cache bypass if timestamp param is present
+
+      for (const id of fixtureIds) {
+        if (isNaN(id)) continue;
+
+        if (bypassCache) {
+          console.log(`🔄 [API] Bypassing cache for fixture ${id} (fresh request)`);
+        }
+
+        const fixture = await rapidApiService.getFixtureById(id);
+        if (fixture) {
+          fixtures.push(fixture);
+        }
+      }
+
+      // Set shorter cache headers for fresh requests
+      if (bypassCache) {
+        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+      }
+
+      res.json(fixtures);
+    } catch (error) {
+      console.error("Error fetching fixtures by IDs:", error);
+      res.status(500).json({ error: "Failed to fetch fixtures" });
     }
   });
 

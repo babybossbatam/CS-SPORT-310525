@@ -34,7 +34,7 @@ const MyMatchdetailsScoreboard = ({
   const [currentMatchData, setCurrentMatchData] = useState<any | null>(null);
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const activeTab = externalActiveTab || internalActiveTab;
-  
+
   const handleTabChange = (tab: string) => {
     if (onTabChange) {
       onTabChange(tab);
@@ -47,7 +47,7 @@ const MyMatchdetailsScoreboard = ({
   const fetchCurrentMatchStatus = useCallback(async (matchId: number) => {
     try {
       console.log(`🔍 [Status Fetch] Fetching current status for match ${matchId}`);
-      
+
       // Try live fixtures first
       const liveResponse = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
       if (liveResponse.ok) {
@@ -308,19 +308,20 @@ const MyMatchdetailsScoreboard = ({
   };
 
   const getStatusBadge = (status: string) => {
-    // Use current match data if available for more accurate status
+    // Always prioritize fresh API data over any cached or live status
     const matchToUse = currentMatchData || displayMatch;
     const apiStatus = matchToUse.fixture.status.short;
-    const currentLiveStatus = liveStatus || apiStatus;
     const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(apiStatus);
 
-    // Check if match has definitively ended based on API status only
+    // Check match timing
     const matchDate = new Date(matchToUse.fixture.date);
     const now = new Date();
     const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
 
-    // Use current status from fresh data
-    let currentStatus = currentLiveStatus;
+    // Use fresh API status if we have current match data, otherwise fall back
+    let currentStatus = currentMatchData ? apiStatus : (liveStatus || apiStatus);
+
+    // Force ended status if API confirms it's ended
     if (isEndedMatch) {
       currentStatus = apiStatus;
     }
@@ -329,11 +330,13 @@ const MyMatchdetailsScoreboard = ({
       fixtureId: matchToUse.fixture.id,
       apiStatus,
       liveStatus,
-      currentLiveStatus,
+      currentStatus,
       hoursElapsed: hoursElapsed.toFixed(2),
       isEndedMatch,
       finalStatus: currentStatus,
-      usingCurrentData: !!currentMatchData
+      usingCurrentData: !!currentMatchData,
+      statusSource: currentMatchData ? "FRESH_API" : isEndedMatch ? "FORCED_ENDED" : "LIVE_STATUS",
+      matchAge: `${hoursElapsed.toFixed(1)} hours`
     });
 
     // Check if it's a finished match and determine the appropriate label
