@@ -74,11 +74,22 @@ interface ErrorCategory {
 const categorizeError = (error: any): ErrorCategory => {
   const errorStr = error?.message || error?.toString?.() || String(error);
   
+  // AbortError and signal aborted errors - suppress
+  if (error instanceof Error && (error.name === 'AbortError' || errorStr.includes('signal is aborted'))) {
+    return {
+      name: 'abort-signal',
+      shouldSuppress: true,
+      shouldReport: false,
+      action: 'suppress'
+    };
+  }
+  
   // Replit development environment errors - suppress but log
   if (errorStr.includes('plugin:runtime-error-plugin') || 
       errorStr.includes('unknown runtime error') ||
       errorStr.includes('sendError') ||
-      errorStr.includes('riker.replit.dev')) {
+      errorStr.includes('riker.replit.dev') ||
+      errorStr.includes('signal is aborted')) {
     return {
       name: 'replit-dev-environment',
       shouldSuppress: true,
@@ -177,6 +188,20 @@ export const setupGlobalErrorHandlers = () => {
     const error = event.reason;
     const category = categorizeError(error);
     
+    // Handle AbortError specifically
+    if (error instanceof Error && (error.name === 'AbortError' || error.message?.includes('signal is aborted'))) {
+      console.log('🛑 AbortError detected and suppressed:', error.message);
+      event.preventDefault();
+      return;
+    }
+
+    // Handle runtime-error-plugin errors
+    if (typeof error === 'string' && error.includes('runtime-error-plugin')) {
+      console.log('🔧 Runtime error plugin issue suppressed:', error);
+      event.preventDefault();
+      return;
+    }
+    
     // Report the error for analysis
     reportError(error, category, 'unhandledrejection');
     
@@ -228,8 +253,9 @@ export const setupGlobalErrorHandlers = () => {
          error.includes('Network') || 
          error.includes('dynamically imported') ||
          error.includes('MaxListenersExceeded') ||
-         error.includes('runtime-error-plugin'))) {
-      console.log('🌐 Network/import error string detected, attempting recovery...');
+         error.includes('runtime-error-plugin') ||
+         error.includes('signal is aborted'))) {
+      console.log('🌐 Network/import/abort error string detected, attempting recovery...');
       handleNetworkRecovery();
       event.preventDefault();
       return;

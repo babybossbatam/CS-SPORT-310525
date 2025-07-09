@@ -103,14 +103,15 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
       timeoutId = setTimeout(() => {
         if (isMounted && !controller.signal.aborted) {
           try {
-            controller.abort();
+            controller.abort('Request timeout');
             console.warn('⏰ [Sportradar] Request timeout');
             if (isMounted) {
               setError('Request timeout');
               setIsLoading(false);
             }
           } catch (abortError) {
-            console.warn('⚠️ [Sportradar] Error during abort:', abortError);
+            // Silently handle abort errors
+            console.log('🛑 [Sportradar] Abort completed:', abortError instanceof Error ? abortError.message : 'Signal aborted');
           }
         }
       }, 10000);
@@ -127,7 +128,9 @@ const MyNewLiveAction: React.FC<MyNewLiveActionProps> = ({
           setElapsed(match.fixture?.status?.elapsed || 0);
         }
       } catch (matchError: any) {
-        if (matchError.name !== 'AbortError' && isMounted) {
+        if (matchError.name === 'AbortError' || matchError.message?.includes('signal is aborted')) {
+          console.log('🛑 [Sportradar] Match request aborted');
+        } else if (isMounted) {
           console.warn('⚠️ [Sportradar] Match data failed:', matchError.message);
         }
       }

@@ -118,6 +118,12 @@ export const getQueryFn: <T>(options: {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
 
+      // Handle AbortError specifically
+      if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('signal is aborted'))) {
+        console.log(`🛑 Query aborted for ${queryKey[0]}: ${errorMessage}`);
+        return null as any; // Return null for aborted queries
+      }
+
       if (
         errorMessage.includes("Failed to fetch") ||
         errorMessage.includes("NetworkError") ||
