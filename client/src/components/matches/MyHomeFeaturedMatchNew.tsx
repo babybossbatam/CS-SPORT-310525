@@ -947,7 +947,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           setCountdownTimer(
             `${formattedHours}:${formattedMinutes}:${formattedSeconds}`,
           );
-        }```python
+        }
       } catch (error) {
         console.error("Error calculating countdown:", error);
         setCountdownTimer("--:--:--");
