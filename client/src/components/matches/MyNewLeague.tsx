@@ -10,7 +10,7 @@ import { fixtureCache } from "@/lib/fixtureCache";
 import { 
   formatMatchTimeWithTimezone 
 } from "@/lib/timezoneApiService";
-import { MySimpleTimeClassifier } from "@/lib/MySimpleTimeClassifier";
+import { MyAdvancedTimeClassifier } from "@/lib/MyAdvancedTimeClassifier";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 
@@ -609,19 +609,20 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       return false;
     }
 
-    // For matches on the selected date, use simple time classifier to determine if they should be shown
-    const classification = MySimpleTimeClassifier.classifyFixture(
+    // For matches on the selected date, use advanced time classifier to determine if they should be shown
+    const classification = MyAdvancedTimeClassifier.classifyFixture(
       f.fixture.date,
       f.fixture.status.short
     );
 
     // Debug log for time classification
-    console.log(`🕐 [TIME CLASSIFICATION] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+    console.log(`🕐 [ADVANCED TIME CLASSIFICATION] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
       fixtureTime: classification.fixtureTime,
       currentTime: classification.currentTime,
       status: f.fixture.status.short,
       category: classification.category,
       reason: classification.reason,
+      shouldShow: classification.shouldShow,
       selectedDate,
       league: f.league.name,
       leagueId: f.league.id
@@ -629,24 +630,19 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
     // Special attention to FIFA Club World Cup classification
     if (f.league.id === 15) {
-      console.log(`🏆 [FIFA CLUB WORLD CUP TIME CLASSIFICATION] ${f.teams.home.name} vs ${f.teams.away.name}`, {
+      console.log(`🏆 [FIFA CLUB WORLD CUP ADVANCED TIME CLASSIFICATION] ${f.teams.home.name} vs ${f.teams.away.name}`, {
         fullFixtureDate: f.fixture.date,
         extractedTime: classification.fixtureTime,
         currentTime: classification.currentTime,
         category: classification.category,
         reason: classification.reason,
         status: f.fixture.status.short,
-        shouldShow: ['today', 'tomorrow', 'yesterday'].includes(classification.category) || 
-                   ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(f.fixture.status.short)
+        shouldShow: classification.shouldShow
       });
     }
 
-    // Show matches that are classified as 'today', 'tomorrow', 'yesterday', or live matches
-    const shouldShow = ['today', 'tomorrow', 'yesterday'].includes(classification.category) || 
-                      ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(f.fixture.status.short);
-
-    if (!shouldShow) {
-      console.log(`❌ [TIME FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+    if (!classification.shouldShow) {
+      console.log(`❌ [ADVANCED TIME FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
         classification: classification.category,
         reason: classification.reason,
         status: f.fixture.status.short,
@@ -654,7 +650,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       });
     }
 
-    return shouldShow;
+    return classification.shouldShow;
   });
 
   // Log filtering results for all target leagues
