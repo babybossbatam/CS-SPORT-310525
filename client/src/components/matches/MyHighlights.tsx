@@ -327,8 +327,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         // we should hide the component after a reasonable wait time
         if (currentSource.type === 'youtube') {
           console.warn(`🎬 [Highlights] YouTube video timeout - may be unavailable: ${currentSource.title}`);
-          // Set iframe error to hide the component
-          setIframeError(true);
+      
         }
       }, 10000); // 10 second timeout for video availability check
 
