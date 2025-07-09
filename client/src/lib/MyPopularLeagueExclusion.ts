@@ -74,9 +74,11 @@ export const popularLeagueExclusionTerms = [
 
   // Brazilian regional cups
   "copa espírito santo",
+  "copa do nordeste",
 
   // South American lower divisions
   "primera b",
+  "copa chile",
 
   // Women's leagues (additional)
   "liga femenina",
@@ -84,6 +86,7 @@ export const popularLeagueExclusionTerms = [
   // US lower-tier leagues
   "usl league one",
   "npsl",
+  "us open cup",
 
   // FIFA competitions to exclude
   "fifa club world cup",
