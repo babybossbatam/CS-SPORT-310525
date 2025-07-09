@@ -233,6 +233,19 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
       console.log(`🎯 [MyNewLeague] Filtered to ${leagueFixtures.length} fixtures from target leagues`);
 
+      // Log league breakdown
+      const leagueBreakdown = leagueFixtures.reduce((acc, fixture) => {
+        const leagueId = fixture.league.id;
+        const leagueName = fixture.league.name;
+        if (!acc[leagueId]) {
+          acc[leagueId] = { name: leagueName, count: 0 };
+        }
+        acc[leagueId].count++;
+        return acc;
+      }, {} as Record<number, { name: string; count: number }>);
+
+      console.log(`📋 [MyNewLeague] League breakdown:`, leagueBreakdown);
+
       // For updates, only merge dynamic data (scores, status, elapsed time) to prevent flashing
       if (isUpdate && fixtures.length > 0) {
         setFixtures(prevFixtures => {
@@ -262,12 +275,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           return [...updatedFixtures, ...newFixtures];
         });
       } else {
-        // Initial load or full refresh
+        // Initial load or full refresh - server already filtered by date and timezone
         setFixtures(leagueFixtures);
         
         // Log some sample fixtures for debugging
         leagueFixtures.slice(0, 3).forEach((fixture: FixtureData) => {
-          console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
+          console.log(`✅ [MyNewLeague] Fixture ${fixture.fixture.id}:`, {
             teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
             league: fixture.league?.name,
             status: fixture.fixture?.status?.short,
@@ -402,104 +415,37 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     };
   }, [fetchLeagueData, selectedDate]); // Remove fixtures.length dependency to prevent unnecessary re-renders
 
-  // Debug logging
-  console.log("MyNewLeague - All fixtures:", fixtures.length);
+  // Since server already filters by date and timezone, use fixtures directly
+  const selectedDateFixtures = fixtures;
+  
+  console.log(`✅ [MyNewLeague] Using ${selectedDateFixtures.length} fixtures (server already filtered by date and timezone)`);
 
   // Enhanced debugging for specific leagues
-  const friendliesFixtures = fixtures.filter(f => f.league.id === 667);
-  const iraqiFixtures = fixtures.filter(f => f.league.id === 233);
-  const copaArgentinaFixtures = fixtures.filter(f => f.league.id === 128);
-
-  console.log("🏆 [MyNewLeague FRIENDLIES] Total Friendlies fixtures:", friendliesFixtures.length);
-  console.log("🇮🇶 [MyNewLeague IRAQI] Total Iraqi League fixtures:", iraqiFixtures.length);
-  console.log("🇦🇷 [MyNewLeague COPA ARG] Total Copa Argentina fixtures:", copaArgentinaFixtures.length);
-
-  // Debug Iraqi League
-  if (iraqiFixtures.length > 0) {
-    console.log("🇮🇶 [MyNewLeague IRAQI] Sample fixtures with dates:");
-    iraqiFixtures.slice(0, 5).forEach((f) => {
-      const matchDate = new Date(f.fixture.date);
-      const year = matchDate.getFullYear();
-      const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-      const day = String(matchDate.getDate()).padStart(2, "0");
-      const matchDateString = `${year}-${month}-${day}`;
-
-      console.log(`🇮🇶 Iraqi Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        fixtureDate: f.fixture.date,
-        matchDateString,
-        selectedDate,
-        dateMatches: matchDateString === selectedDate,
-        status: f.fixture.status.short,
-        league: f.league.name
-      });
-    });
-  }
-
-  // Debug Copa Argentina
-  if (copaArgentinaFixtures.length > 0) {
-    console.log("🇦🇷 [MyNewLeague COPA ARG] Sample fixtures with dates:");
-    copaArgentinaFixtures.slice(0, 5).forEach((f) => {
-      const matchDate = new Date(f.fixture.date);
-      const year = matchDate.getFullYear();
-      const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-      const day = String(matchDate.getDate()).padStart(2, "0");
-      const matchDateString = `${year}-${month}-${day}`;
-
-      console.log(`🇦🇷 Copa Argentina Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        fixtureDate: f.fixture.date,
-        matchDateString,
-        selectedDate,
-        dateMatches: matchDateString === selectedDate,
-        status: f.fixture.status.short,
-        league: f.league.name
-      });
-    });
-  }
-
-  // Debug Friendlies
-  if (friendliesFixtures.length > 0) {
-    console.log("🏆 [MyNewLeague FRIENDLIES] Sample fixtures with dates:");
-    friendliesFixtures.slice(0, 5).forEach((f) => {
-      const matchDate = new Date(f.fixture.date);
-      const year = matchDate.getFullYear();
-      const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-      const day = String(matchDate.getDate()).padStart(2, "0");
-      const matchDateString = `${year}-${month}-${day}`;
-
-      console.log(`🏆 Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        fixtureDate: f.fixture.date,
-        matchDateString,
-        selectedDate,
-        dateMatches: matchDateString === selectedDate,
-        status: f.fixture.status.short,
-        league: f.league.name
-      });
-    });
-  }
-
-  fixtures.forEach((f) => {
-    console.log("Fixture:", {
+  const leagueBreakdown = selectedDateFixtures.reduce((acc, f) => {
+    const leagueId = f.league.id;
+    const leagueName = f.league.name;
+    if (!acc[leagueId]) {
+      acc[leagueId] = { name: leagueName, count: 0, fixtures: [] };
+    }
+    acc[leagueId].count++;
+    acc[leagueId].fixtures.push({
       id: f.fixture.id,
       teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
       status: f.fixture.status.short,
-      league: f.league.name,
-      date: f.fixture.date,
+      date: f.fixture.date
     });
+    return acc;
+  }, {} as Record<number, { name: string; count: number; fixtures: any[] }>);
+
+  // Log breakdown by league
+  Object.entries(leagueBreakdown).forEach(([leagueId, data]) => {
+    console.log(`🏆 [MyNewLeague] League ${leagueId} (${data.name}): ${data.count} matches`);
+    if (data.fixtures.length > 0) {
+      console.log(`   Sample: ${data.fixtures[0].teams} (${data.fixtures[0].status})`);
+    }
   });
 
-  // Since fixtures are now filtered by timezone on the server, use them directly
-  const selectedDateFixtures = fixtures;
-
-  // Log filtering results for all target leagues
-  const friendliesFiltered = selectedDateFixtures.filter(f => f.league.id === 667);
-  const iraqiFiltered = selectedDateFixtures.filter(f => f.league.id === 233);
-  const copaArgentinaFiltered = selectedDateFixtures.filter(f => f.league.id === 128);
-
-  console.log(`🏆 [MyNewLeague FRIENDLIES] After date filtering: ${friendliesFiltered.length} matches for ${selectedDate}`);
-  console.log(`🇮🇶 [MyNewLeague IRAQI] After date filtering: ${iraqiFiltered.length} matches for ${selectedDate}`);
-  console.log(`🇦🇷 [MyNewLeague COPA ARG] After date filtering: ${copaArgentinaFiltered.length} matches for ${selectedDate}`);
-
-  // Group matches by league ID
+  // Group matches by league ID (fixtures are already filtered by server)
   const matchesByLeague = selectedDateFixtures.reduce(
     (acc, fixture) => {
       const leagueId = fixture.league.id;
@@ -513,6 +459,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       return acc;
     },
     {} as Record<number, { league: any; matches: FixtureData[] }>,
+  );
+
+  console.log(`📊 [MyNewLeague] Grouped into ${Object.keys(matchesByLeague).length} leagues:`, 
+    Object.entries(matchesByLeague).map(([id, data]) => `${data.league.name}: ${data.matches.length} matches`)
   );
 
   // Auto-expand all leagues by default when data changes
