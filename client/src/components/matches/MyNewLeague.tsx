@@ -270,16 +270,16 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               return !isAlreadyLive;
             });
 
-            // Filter to only include matches for the selected date using simple UTC date matching
+            // Filter to only include matches for the selected date using proper timezone conversion
             const filteredFixtures = nonLiveFixtures.filter(fixture => {
               const fixtureDate = fixture.fixture?.date;
               if (!fixtureDate) return false;
 
-              // Simple UTC date extraction without timezone conversion
+              // Convert UTC time to local timezone for proper date comparison
               const matchDate = new Date(fixtureDate);
-              const year = matchDate.getUTCFullYear();
-              const month = String(matchDate.getUTCMonth() + 1).padStart(2, "0");
-              const day = String(matchDate.getUTCDate()).padStart(2, "0");
+              const year = matchDate.getFullYear();
+              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+              const day = String(matchDate.getDate()).padStart(2, "0");
               const matchDateString = `${year}-${month}-${day}`;
               
               return matchDateString === selectedDate;
@@ -560,29 +560,34 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Filter matches using simple time classifier for the selected date
+  // Filter matches using proper timezone conversion for the selected date
   const selectedDateFixtures = fixtures.filter((f) => {
     const fixtureDate = f.fixture.date;
     if (!fixtureDate) return false;
 
-    // First, check if fixture is on the selected date (basic date matching)
+    // Convert UTC fixture time to local timezone for proper date comparison
     const matchDate = new Date(fixtureDate);
-    const year = matchDate.getUTCFullYear();
-    const month = String(matchDate.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(matchDate.getUTCDate()).padStart(2, "0");
+    const year = matchDate.getFullYear();
+    const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+    const day = String(matchDate.getDate()).padStart(2, "0");
     const matchDateString = `${year}-${month}-${day}`;
     
     const dateMatches = matchDateString === selectedDate;
 
     // Special debugging for FIFA Club World Cup
     if (f.league.id === 15) {
+      const matchDate = new Date(f.fixture.date);
+      const utcDateString = `${matchDate.getUTCFullYear()}-${String(matchDate.getUTCMonth() + 1).padStart(2, "0")}-${String(matchDate.getUTCDate()).padStart(2, "0")}`;
+      
       console.log(`🏆 [FIFA CLUB WORLD CUP DATE FILTER] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
         fixtureDate: f.fixture.date,
-        extractedDate: matchDateString,
+        utcDate: utcDateString,
+        localDate: matchDateString,
         selectedDate,
         dateMatches,
         status: f.fixture.status.short,
-        league: f.league.name
+        league: f.league.name,
+        timezoneOffset: matchDate.getTimezoneOffset()
       });
     }
 

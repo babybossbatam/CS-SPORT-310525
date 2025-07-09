@@ -25,7 +25,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 }) => {
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const currentActiveTab = activeTab || internalActiveTab;
-  
+
   const handleTabChange = (tab: string) => {
     if (onTabChange) {
       onTabChange(tab);

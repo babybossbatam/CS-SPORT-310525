@@ -10,7 +10,13 @@ import TodayPopularFootballLeaguesNew from "@/components/matches/TodayPopularFoo
 import TodaysMatchesByCountryNew from "@/components/matches/TodaysMatchesByCountryNew";
 
 const Home = () => {
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
+  const [selectedDate, setSelectedDate] = React.useState(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
   const [timeFilterActive, setTimeFilterActive] = React.useState(false);
   const [showTop20, setShowTop20] = React.useState(false);
   const [liveFilterActive, setLiveFilterActive] = React.useState(false);
