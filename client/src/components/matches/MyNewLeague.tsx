@@ -10,6 +10,7 @@ import { fixtureCache } from "@/lib/fixtureCache";
 import { 
   formatMatchTimeWithTimezone 
 } from "@/lib/timezoneApiService";
+import { MySimpleTimeClassifier } from "@/lib/MySimpleTimeClassifier";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 
@@ -682,12 +683,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Filter matches to show matches for the selected date using simple UTC date matching
+  // Filter matches using simple time classifier for the selected date
   const selectedDateFixtures = fixtures.filter((f) => {
     const fixtureDate = f.fixture.date;
     if (!fixtureDate) return false;
 
-    // Simple UTC date extraction without timezone conversion
+    // First, check if fixture is on the selected date (basic date matching)
     const matchDate = new Date(fixtureDate);
     const year = matchDate.getUTCFullYear();
     const month = String(matchDate.getUTCMonth() + 1).padStart(2, "0");
@@ -696,17 +697,39 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     
     const dateMatches = matchDateString === selectedDate;
 
-    // Debug logging for Friendlies
-    if (f.league.id === 667 && !dateMatches) {
-      console.log(`🏆 [FRIENDLIES UTC FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        fixtureDate: f.fixture.date,
-        extractedDate: matchDateString,
-        selectedDate,
-        reason: 'Date mismatch in UTC'
+    // If basic date doesn't match, exclude immediately
+    if (!dateMatches) {
+      // Debug logging for Friendlies
+      if (f.league.id === 667) {
+        console.log(`🏆 [FRIENDLIES DATE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+          fixtureDate: f.fixture.date,
+          extractedDate: matchDateString,
+          selectedDate,
+          reason: 'Date mismatch'
+        });
+      }
+      return false;
+    }
+
+    // For matches on the selected date, use simple time classifier to determine if they should be shown
+    const classification = MySimpleTimeClassifier.classifyFixture(
+      f.fixture.date,
+      f.fixture.status.short
+    );
+
+    // Show matches that are classified as 'today', 'tomorrow', 'yesterday', or live matches
+    const shouldShow = ['today', 'tomorrow', 'yesterday'].includes(classification.category) || 
+                      ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(f.fixture.status.short);
+
+    if (!shouldShow && f.league.id === 667) {
+      console.log(`🏆 [FRIENDLIES TIME FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        classification: classification.category,
+        reason: classification.reason,
+        status: f.fixture.status.short
       });
     }
 
-    return dateMatches;
+    return shouldShow;
   });
 
   // Log filtering results for all target leagues
