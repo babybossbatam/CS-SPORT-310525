@@ -148,7 +148,21 @@ const MyMatchdetailsScoreboard = ({
     if (!displayMatch?.fixture?.id) return;
 
     const matchId = displayMatch.fixture.id;
+    
+    // Always fetch fresh data for match details
     fetchCurrentMatchStatus(matchId);
+    
+    // Set up interval to refresh data every 30 seconds for live matches
+    const statusShort = displayMatch.fixture.status.short;
+    const isLiveOrRecent = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(statusShort);
+    
+    if (isLiveOrRecent) {
+      const interval = setInterval(() => {
+        fetchCurrentMatchStatus(matchId);
+      }, 30000); // 30 seconds
+      
+      return () => clearInterval(interval);
+    }
   }, [displayMatch?.fixture?.id, fetchCurrentMatchStatus]);
 
   // Real-time update effect for live matches with continuous timer
@@ -308,7 +322,7 @@ const MyMatchdetailsScoreboard = ({
   };
 
   const getStatusBadge = (status: string) => {
-    // Always prioritize fresh API data over any cached or live status
+    // Always prioritize current match data if available
     const matchToUse = currentMatchData || displayMatch;
     const apiStatus = matchToUse.fixture.status.short;
     const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(apiStatus);
@@ -318,12 +332,22 @@ const MyMatchdetailsScoreboard = ({
     const now = new Date();
     const hoursElapsed = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
 
-    // Use fresh API status if we have current match data, otherwise fall back
-    let currentStatus = currentMatchData ? apiStatus : (liveStatus || apiStatus);
-
-    // Force ended status if API confirms it's ended
+    // Determine current status priority: 
+    // 1. If we have fresh API data and it's ended, use API status
+    // 2. If we have fresh API data and it's live, use API status
+    // 3. Otherwise use live status or fallback to passed status
+    let currentStatus = apiStatus;
+    
+    // If match is ended according to API, always use that status
     if (isEndedMatch) {
       currentStatus = apiStatus;
+      // Clear any live status for ended matches
+      setLiveStatus(null);
+      setLiveElapsed(null);
+      setRealTimeElapsed(null);
+    } else if (!currentMatchData && liveStatus) {
+      // Only use live status if we don't have fresh current data
+      currentStatus = liveStatus;
     }
 
     console.log("🔍 [Status Check] Match status analysis:", {
@@ -357,7 +381,8 @@ const MyMatchdetailsScoreboard = ({
     };
 
     // For live matches, show elapsed time with pulse animation
-    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentStatus);
+    // But ensure match is not ended according to API
+    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentStatus) && !isEndedMatch;
     if (isLiveMatch) {
       // Real-time calculation for live matches
       let displayText = "LIVE";
@@ -626,15 +651,15 @@ const MyMatchdetailsScoreboard = ({
                     let homeScore, awayScore;
 
                     if (currentMatchData) {
-                      // Use current fresh data
+                      // Use current fresh data (highest priority)
                       homeScore = currentMatchData.goals?.home ?? 0;
                       awayScore = currentMatchData.goals?.away ?? 0;
                     } else if (isTrulyLive && liveScores?.home != null && liveScores?.away != null) {
-                      // Use live scores for confirmed live matches
+                      // Use live scores for confirmed live matches (only if no fresh data)
                       homeScore = liveScores.home;
                       awayScore = liveScores.away;
                     } else {
-                      // Use static API scores for ended or when live scores unavailable
+                      // Use original match data for ended matches or when live scores unavailable
                       homeScore = matchToUse.goals?.home ?? 0;
                       awayScore = matchToUse.goals?.away ?? 0;
                     }

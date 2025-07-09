@@ -28,6 +28,7 @@ import dailymotionRoutes from "./routes/dailymotionRoutes";
 import twitchRoutes from "./routes/twitchRoutes";
 import highlightsRoutes from "./routes/highlightsRoutes";
 import playerRoutes from './routes/playerRoutes';
+import axios from "axios";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -824,9 +825,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (isNaN(id) || !req.params.id || req.params.id.trim() === "") {
         return res.status(400).json({ message: "Invalid league ID" });
-      }
-
-      // Check cache first
+      }      // Check cache first
       const cachedLeague =await storage.getCachedLeague(id.toString());
 
       if (cachedLeague) {
@@ -3275,7 +3274,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+   // RapidAPI Key and Base URL
+   const RAPIDAPI_KEY = process.env.RAPID_API_KEY || '';
+   const RAPIDAPI_BASE_URL = 'https://api-football-v1.p.rapidapi.com/v3';
+
   // Get fixture by ID
+  apiRouter.get("/fixtures/:id", async (req: Request, res: Response) => {
+    try {
+      const fixtureId = parseInt(req.params.id);
+
+      if (!fixtureId) {
+        return res.status(400).json({ error: "Invalid fixture ID" });
+      }
+
+      console.log(`🔍 [Routes] Fetching fresh data for fixture ${fixtureId}`);
+
+      // Always fetch fresh data for single fixture requests
+      const response = await axios.get(`${RAPIDAPI_BASE_URL}/fixtures`, {
+        params: {
+          id: fixtureId
+        },
+        headers: {
+          'X-RapidAPI-Key': RAPIDAPI_KEY,
+          'X-RapidAPI-Host': 'v3.football.api-sports.io'
+        }
+      });
+
+      if (response.data?.response && response.data.response.length > 0) {
+        const fixture = response.data.response[0];
+        console.log(`✅ [Routes] Fresh fixture ${fixtureId} status: ${fixture.fixture.status.short}, score: ${fixture.goals.home}-${fixture.goals.away}`);
+        return res.json(fixture);
+      } else {
+        console.warn(`⚠️ [Routes] No data found for fixture ${fixtureId}`);
+        return res.status(404).json({ error: "Fixture not found" });
+      }
+    } catch (error) {
+      console.error(`❌ [Routes] Error fetching fixture ${req.params.id}:`, error);
+      return res.status(500).json({ error: "Failed to fetch fixture" });
+    }
+  });
+
+  // Get fixtures by ID
   apiRouter.get("/fixtures", async (req: Request, res: Response) => {
     try {
       const { ids, _t } = req.query;
