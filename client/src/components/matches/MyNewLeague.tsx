@@ -1364,9 +1364,19 @@ b.fixture.status.elapsed) || 0;
       }
     });
 
-    // Update previous statuses and scores AFTER checking for changes
-    setPreviousMatchStatuses(currentStatuses);
-    setPreviousMatchScores(currentScores);
+    // Only update state if there are actual changes to prevent infinite loops
+    setPreviousMatchStatuses(prev => {
+      const hasChanges = Array.from(currentStatuses.entries()).some(([id, status]) => prev.get(id) !== status);
+      return hasChanges ? currentStatuses : prev;
+    });
+
+    setPreviousMatchScores(prev => {
+      const hasChanges = Array.from(currentScores.entries()).some(([id, score]) => {
+        const prevScore = prev.get(id);
+        return !prevScore || prevScore.home !== score.home || prevScore.away !== score.away;
+      });
+      return hasChanges ? currentScores : prev;
+    });
 
     // Trigger flash for new halftime matches
     if (newHalftimeMatches.size > 0) {
@@ -1397,7 +1407,7 @@ b.fixture.status.elapsed) || 0;
         setGoalFlashMatches(new Set());
       }, 2000);
     }
-  }, [fixtures, clearMatchCache]);
+  }, [fixtures, clearMatchCache, previousMatchStatuses, previousMatchScores]);
 
   if (loading) {
     return (

@@ -312,9 +312,19 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
       }
     });
 
-    // Update previous statuses and scores AFTER checking for changes
-    setPreviousMatchStatuses(currentStatuses);
-    setPreviousMatchScores(currentScores);
+    // Only update state if there are actual changes to prevent infinite loops
+    setPreviousMatchStatuses(prev => {
+      const hasChanges = Array.from(currentStatuses.entries()).some(([id, status]) => prev.get(id) !== status);
+      return hasChanges ? currentStatuses : prev;
+    });
+
+    setPreviousMatchScores(prev => {
+      const hasChanges = Array.from(currentScores.entries()).some(([id, score]) => {
+        const prevScore = prev.get(id);
+        return !prevScore || prevScore.home !== score.home || prevScore.away !== score.away;
+      });
+      return hasChanges ? currentScores : prev;
+    });
 
     // Trigger flash for new halftime matches
     if (newHalftimeMatches.size > 0) {
@@ -345,7 +355,7 @@ const TodayMatchByTime: React.FC<TodayMatchByTimeProps> = ({
         setGoalFlashMatches(new Set());
       }, 2000);
     }
-  }, [filteredFixtures]);
+  }, [filteredFixtures, previousMatchStatuses, previousMatchScores]);
 
   const allFixturesError = error;
 
