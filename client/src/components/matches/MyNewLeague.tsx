@@ -770,6 +770,13 @@ b.fixture.status.elapsed) || 0;
 
   // Memoize the match click handler to prevent infinite re-renders
   const handleMatchCardClick = useCallback((match: any) => {
+    console.log('🎯 [MyNewLeague] Match card clicked:', {
+      fixtureId: match.fixture?.id,
+      teams: `${match.teams?.home?.name} vs ${match.teams?.away?.name}`,
+      league: match.league?.name,
+      status: match.fixture?.status?.short,
+      source: 'MyNewLeague'
+    });
     if (onMatchCardClick) {
       onMatchCardClick(match);
     }
@@ -808,9 +815,7 @@ b.fixture.status.elapsed) || 0;
     leagueGroup: any;
   }) => {
     // Memoize the click handler to prevent re-renders
-    const handleMatchClick = useCallback((e: React.MouseEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+    const handleMatchClick = useCallback(() => {
       if (onMatchClick) {
         onMatchClick(match);
       }
