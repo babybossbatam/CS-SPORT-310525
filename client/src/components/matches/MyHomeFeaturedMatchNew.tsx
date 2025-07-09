@@ -1635,12 +1635,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             countdownTimer !== "--:--:--"
                           ) {
                             return (
-                              <div className="space-y-1">
-                                <div className="text-sm text-gray-600">
+                              <div className="space-y-0">
+                                <div className="text-sm text-gray-600 invisible">
                                   Starts in
                                 </div>
                                 <div className=" text-2xl font-bold text-gray-800">
-                                  {countdownTimer}
+                                   {countdownTimer}
                                 </div>
                               </div>
                             );
