@@ -512,71 +512,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           <p>{getRecommendation()}</p>
         </div>
 
-        {/* Team Stats Comparison */}
-        <div className="mt-6 grid grid-cols-3 gap-2 pt-4 border-t border-gray-200">
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-center">{homeTeam?.name || 'Home Team'}</h4>
-            <div className="flex flex-col space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span>Form:</span>
-                <span className="font-semibold">{homeStats?.form || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Goals Scored:</span>
-                <span className="font-semibold">{homeStats?.goalsScored || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Goals Conceded:</span>
-                <span className="font-semibold">{homeStats?.goalsConceded || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Clean Sheets:</span>
-                <span className="font-semibold">{homeStats?.cleanSheets || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Win Rate:</span>
-                <span className="font-semibold">
-                  {homeStats?.matchesPlayed ? Math.round((homeStats.wins / homeStats.matchesPlayed) * 100) : 0}%
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center justify-center">
-            <div className="text-sm font-medium mb-2">vs</div>
-            <div className="text-xs text-gray-500 text-center">
-              Stats based on<br/>current season data
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium text-center">{awayTeam?.name || 'Away Team'}</h4>
-            <div className="flex flex-col space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span>Form:</span>
-                <span className="font-semibold">{awayStats?.form || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Goals Scored:</span>
-                <span className="font-semibold">{awayStats?.goalsScored || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Goals Conceded:</span>
-                <span className="font-semibold">{awayStats?.goalsConceded || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Clean Sheets:</span>
-                <span className="font-semibold">{awayStats?.cleanSheets || 0}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Win Rate:</span>
-                <span className="font-semibold">
-                  {awayStats?.matchesPlayed ? Math.round((awayStats.wins / awayStats.matchesPlayed) * 100) : 0}%
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
+        
       </CardContent>
     </Card>
   );
