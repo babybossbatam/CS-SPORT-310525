@@ -823,12 +823,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
 
-      if (isNaN(id) || !req.params.id || req.params.id.```text
-trim() === "") {
+      if (isNaN(id) || !req.params.id || req.params.id.trim() === "") {
         return res.status(400).json({ message: "Invalid league ID" });
-      }```text
+      }
+
       // Check cache first
-      const cachedLeague =await storage.getCachedLeague(id.toString());
+      const cachedLeague = await storage.getCachedLeague(id.toString());
 
       if (cachedLeague) {
         // Check if cache is fresh (less than 4 hours old)
