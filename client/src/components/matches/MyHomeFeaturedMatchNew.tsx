@@ -1634,13 +1634,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             countdownTimer !== "Loading..." &&
                             countdownTimer !== "--:--:--"
                           ) {
-                            return (
-                              <div className="space-y-1">
-                                <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
-                                  {countdownTimer}
-                                </div>
-                              </div>
-                            );
+                            return countdownTimer;
                           }
 
                           // Fallback to date labeling
@@ -1669,14 +1663,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         })();
 
                         return (
-                          <div className="space-y-1">
-                            <div className="text-sm text-gray-600 invisible">
-                              {/* Hidden status placeholder to maintain spacing */}
-                              Ended
-                            </div>
-                            <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
-                              {upcomingContent}
-                            </div>
+                          <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
+                            {upcomingContent}
                           </div>
                         );
                       })()}
