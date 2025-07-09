@@ -547,7 +547,11 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
     : (import.meta.env.VITE_API_URL || 'http://0.0.0.0:5000');
   
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), options?.timeout || 15000);
+  const timeoutId = setTimeout(() => {
+    if (!controller.signal.aborted) {
+      controller.abort('Request timeout');
+    }
+  }, options?.timeout || 15000);
 
   try {
     // Ensure endpoint starts with /
@@ -622,7 +626,7 @@ export const apiRequest = async (method: string, endpoint: string, options?: any
     // Log the error for debugging
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     
-    if (error instanceof Error && error.name === 'AbortError') {
+    if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('aborted'))) {
       console.error(`🚫 API request timeout for ${method} ${endpoint} after ${options?.timeout || 15000}ms`);
       throw new Error(`Request timeout: ${endpoint}`);
     } else if (errorMessage.includes('Failed to fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('fetch') || errorMessage.includes('Network Error')) {
