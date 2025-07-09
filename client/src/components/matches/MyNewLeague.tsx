@@ -393,15 +393,27 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture.status.short)
     );
 
-    // Optimized refresh intervals - longer intervals to reduce flashing
-    const refreshInterval = hasLiveMatches ? 30000 : 120000; // 30s for live, 2min for non-live
+    // Optimized refresh intervals - reduce API calls for non-live content
+    const refreshInterval = hasLiveMatches ? 30000 : 300000; // 30s for live, 5min for non-live
 
-    console.log(`⏰ [MyNewLeague] Setting refresh interval to ${refreshInterval/1000}s (hasLiveMatches: ${hasLiveMatches})`);
+    // Smart refresh logic based on content type
+    const hasUpcomingMatches = fixtures.some(fixture => 
+      ['NS', 'TBD', 'PST'].includes(fixture.fixture.status.short)
+    );
+    
+    // Only refresh if we have live matches or upcoming matches close to start time
+    const shouldRefresh = hasLiveMatches || (hasUpcomingMatches && selectedDate === new Date().toISOString().slice(0, 10));
+    
+    console.log(`⏰ [MyNewLeague] Setting refresh interval to ${refreshInterval/1000}s (hasLiveMatches: ${hasLiveMatches}, shouldRefresh: ${shouldRefresh})`);
 
-    // Set up periodic refresh with dynamic interval - only for updates
+    // Set up periodic refresh with dynamic interval - only when needed
     const interval = setInterval(() => {
-      console.log(`🔄 [MyNewLeague] Auto-refresh (update only) - Live matches: ${hasLiveMatches}`);
-      fetchLeagueData(true); // Pass true to indicate this is an update
+      if (shouldRefresh) {
+        console.log(`🔄 [MyNewLeague] Auto-refresh (update only) - Live matches: ${hasLiveMatches}`);
+        fetchLeagueData(true); // Pass true to indicate this is an update
+      } else {
+        console.log(`⏸️ [MyNewLeague] Skipping refresh - no live/upcoming matches for today`);
+      }
     }, refreshInterval);
 
     // Set up periodic cleanup of status transitions - every 5 minutes
