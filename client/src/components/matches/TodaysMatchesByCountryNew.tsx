@@ -468,10 +468,120 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, [processedFixtures, selectedDate]);
 
-  // Server already filters by date and timezone, so we use fixtures directly
-  const validFixtures = processedFixtures;
+  // Enhanced filtering using smart time filter for accurate date handling
+  const { validFixtures, rejectedFixtures, stats } = useMemo(() => {
+    // Use only date-based fixtures
+    const allFixtures = processedFixtures;
+    if (!allFixtures?.length) {
+      return {
+        validFixtures: [],
+        rejectedFixtures: [],
+        stats: { total: 0, valid: 0, rejected: 0, methods: {} },
+      };
+    }
 
-  console.log(`📊 [TodaysMatchesByCountryNew] Using ${validFixtures.length} fixtures for ${selectedDate} (server pre-filtered)`);
+    const filtered: any[] = [];
+    const rejected: Array<{ fixture: any; reason: string }> = [];
+
+    // Determine what type of date is selected (standardized with TodayPopularFootballLeaguesNew)
+    const today = new Date();
+    const todayString = format(today, "yyyy-MM-dd");
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowString = format(tomorrow, "yyyy-MM-dd");
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayString = format(yesterday, "yyyy-MM-dd");
+
+    allFixtures.forEach((fixture: any) => {
+      // Basic validation
+      if (!fixture || !fixture.league || !fixture.fixture || !fixture.teams) {
+        rejected.push({ fixture, reason: 'Invalid fixture structure' });
+        return;
+      }
+
+      // Removed live filter logic - this component only handles date-based filtering
+
+      // For date-based filtering, use smart time filter for accurate date handling
+      if (fixture.fixture.date && fixture.fixture.status?.short) {
+        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+          fixture.fixture.date,
+          fixture.fixture.status.short,
+          selectedDate + "T12:00:00Z"
+        );
+
+        // Check if this match should be included based on the selected date (standardized logic)
+        const shouldInclude = (() => {
+          if (selectedDate === tomorrowString && smartResult.label === "tomorrow") return true;
+          if (selectedDate === todayString && smartResult.label === "today") return true;
+          if (selectedDate === yesterdayString && smartResult.label === "yesterday") return true;
+
+          // Handle custom dates (dates that are not today/tomorrow/yesterday)
+          if (
+            selectedDate !== todayString &&
+            selectedDate !== tomorrowString &&
+            selectedDate !== yesterdayString
+          ) {
+            if (smartResult.label === "custom" && smartResult.isWithinTimeRange) return true;
+          }
+
+          return false;
+        })();
+
+        if (shouldInclude) {
+          filtered.push(fixture);
+          console.log(`✅ [Smart Filter] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+            fixtureId: fixture.fixture.id,
+            fixtureDate: fixture.fixture.date,
+            status: fixture.fixture.status.short,
+            reason: smartResult.reason,
+            label: smartResult.label,
+            selectedDate,
+            isWithinTimeRange: smartResult.isWithinTimeRange,
+          });
+        } else {
+          rejected.push({ 
+            fixture, 
+            reason: `Smart filter: ${smartResult.reason}` 
+          });
+          console.log(`❌ [Smart Filter] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+            fixtureId: fixture.fixture.id,
+            fixtureDate: fixture.fixture.date,
+            status: fixture.fixture.status.short,
+            reason: smartResult.reason,
+            label: smartResult.label,
+            selectedDate,
+            isWithinTimeRange: smartResult.isWithinTimeRange,
+          });
+        }
+      } else {
+        rejected.push({ fixture, reason: 'Missing date or status' });
+      }
+    });
+
+    return {
+      validFixtures: filtered,
+      rejectedFixtures: rejected,
+      stats: {
+        total: allFixtures.length,
+        valid: filtered.length,
+        rejected: rejected.length,
+        methods: {
+          "smart-filter": filtered.length,
+          "live-filter": liveFilterActive ? filtered.length : 0,
+        },
+      },
+    };
+  }, [processedFixtures, selectedDate, liveFilterActive]);
+
+  // Log filtering statistics
+  console.log(`📊 [MyDateFilter] Filtering Results for ${selectedDate}:`, {
+    total: stats.total,
+    valid: stats.valid,
+    rejected: stats.rejected,
+    methods: stats.methods,
+    selectedDate,
+  });
 
   // Add comparison logs with LiveMatchForAllCountry
   console.log(`🔄 [TodaysMatchesByCountryNew] COMPARISON DATA:`, {
@@ -479,8 +589,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     selectedDate,
     totalRawFixtures: fixtures.length,
     validAfterFiltering: validFixtures.length,
+    rejectedCount: rejectedFixtures.length,
     liveMatchesCount: validFixtures.filter((f) =>
-      ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+      ["LIVE", "1H",// Analyze the code and apply pure data source logic to TodaysMatchesByCountryNew
+"HT", "2H", "ET", "BT", "P", "INT"].includes(
         f.fixture?.status?.short,
       ),
     ).length,
@@ -495,6 +607,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     selectedDate,
     originalCount: fixtures.length,
     filteredCount: validFixtures.length,
+    removedCount: fixtures.length - validFixtures.length,
+    removedFixtures: fixtures
+      .filter((f) => !validFixtures.includes(f))
+      .slice(0, 10)
+      .map((f) => ({
+        id: f.fixture?.id,
+        date: f.fixture?.date,
+        status: f.fixture?.status?.short,
+        league: f.league?.country,
+        country: f.league?.country,
+        teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
+        reason: "Date mismatch",
+      })),
     statusBreakdown: {
       original: [
         ...new Set(
