@@ -95,10 +95,10 @@ app.use((req, res, next) => {
   }
 
   // Serve static files from client/public
-app.use(express.static(path.join(__dirname, "../client/public")));
+app.use(express.static(path.join(import.meta.dirname, "../client/public")));
 
 // Serve attached assets with proper URL decoding
-app.use('/attached_assets', express.static(path.join(__dirname, "../attached_assets"), {
+app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../attached_assets"), {
   setHeaders: (res, path) => {
     // Set proper cache headers for images
     if (path.endsWith('.png') || path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.gif')) {
