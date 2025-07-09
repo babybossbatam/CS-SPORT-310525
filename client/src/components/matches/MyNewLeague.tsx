@@ -697,6 +697,18 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     
     const dateMatches = matchDateString === selectedDate;
 
+    // Special debugging for FIFA Club World Cup
+    if (f.league.id === 15) {
+      console.log(`🏆 [FIFA CLUB WORLD CUP DATE FILTER] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        fixtureDate: f.fixture.date,
+        extractedDate: matchDateString,
+        selectedDate,
+        dateMatches,
+        status: f.fixture.status.short,
+        league: f.league.name
+      });
+    }
+
     // If basic date doesn't match, exclude immediately
     if (!dateMatches) {
       // Debug logging for Friendlies
@@ -706,6 +718,15 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           extractedDate: matchDateString,
           selectedDate,
           reason: 'Date mismatch'
+        });
+      }
+      // Debug logging for FIFA Club World Cup exclusions
+      if (f.league.id === 15) {
+        console.log(`🚨 [FIFA CLUB WORLD CUP DATE FILTER] EXCLUDED match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+          fixtureDate: f.fixture.date,
+          extractedDate: matchDateString,
+          selectedDate,
+          reason: 'Date mismatch - this might be the issue!'
         });
       }
       return false;
@@ -724,8 +745,24 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       status: f.fixture.status.short,
       category: classification.category,
       reason: classification.reason,
-      selectedDate
+      selectedDate,
+      league: f.league.name,
+      leagueId: f.league.id
     });
+
+    // Special attention to FIFA Club World Cup classification
+    if (f.league.id === 15) {
+      console.log(`🏆 [FIFA CLUB WORLD CUP TIME CLASSIFICATION] ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        fullFixtureDate: f.fixture.date,
+        extractedTime: classification.fixtureTime,
+        currentTime: classification.currentTime,
+        category: classification.category,
+        reason: classification.reason,
+        status: f.fixture.status.short,
+        shouldShow: ['today', 'tomorrow', 'yesterday'].includes(classification.category) || 
+                   ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(f.fixture.status.short)
+      });
+    }
 
     // Show matches that are classified as 'today', 'tomorrow', 'yesterday', or live matches
     const shouldShow = ['today', 'tomorrow', 'yesterday'].includes(classification.category) || 
