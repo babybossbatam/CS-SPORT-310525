@@ -40,6 +40,13 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
         const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(matchStatus);
         const isUpcoming = ["NS", "TBD"].includes(matchStatus);
 
+        console.log("🎬 [MyMatchTabCard] Match status check:", {
+          matchStatus,
+          isEnded,
+          teams: `${match.teams?.home?.name} vs ${match.teams?.away?.name}`,
+          willShowHighlights: isEnded
+        });
+
         return (
           <>
             {/* Show MyHighlights only for ended matches */}
@@ -50,6 +57,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
                   awayTeam={match.teams?.away?.name || "Unknown Team"}
                   leagueName={match.league?.name || "Unknown League"}
                   matchStatus={match.fixture?.status?.short}
+                  match={match}
                 />
               </div>
             )}
