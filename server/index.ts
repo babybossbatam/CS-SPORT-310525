@@ -94,6 +94,19 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
+  // Serve static files from client/public
+app.use(express.static(path.join(__dirname, "../client/public")));
+
+// Serve attached assets with proper URL decoding
+app.use('/attached_assets', express.static(path.join(__dirname, "../attached_assets"), {
+  setHeaders: (res, path) => {
+    // Set proper cache headers for images
+    if (path.endsWith('.png') || path.endsWith('.jpg') || path.endsWith('.jpeg') || path.endsWith('.gif')) {
+      res.set('Cache-Control', 'public, max-age=86400'); // 24 hours
+    }
+  }
+}));
+
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
