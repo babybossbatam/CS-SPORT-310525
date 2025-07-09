@@ -718,6 +718,24 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       const timezoneOffsetHours = Math.abs(timezoneOffset) / 60;
       const timezoneSign = timezoneOffset > 0 ? '-' : '+';
       
+      // Special debug for League 2 (UEFA Champions League)
+      if (f.league.id === 2) {
+        console.log(`⚽ [LEAGUE 2 CHAMPIONS FILTER] ${shouldInclude ? 'INCLUDED' : 'EXCLUDED'}: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+          fixtureId: f.fixture.id,
+          status: f.fixture.status.short,
+          serverDateTime: serverDateString,
+          serverDateOnly: serverDateOnlyString,
+          localDateTime: localDateTime.toLocaleString(),
+          localDateOnly: localDateString,
+          selectedDate,
+          serverDateMatches,
+          localDateMatches,
+          timezoneOffset: `UTC${timezoneSign}${timezoneOffsetHours}`,
+          decision: shouldInclude ? 'INCLUDED' : 'EXCLUDED',
+          reason: !shouldInclude ? 'Local date mismatch' : 'Date matches'
+        });
+      }
+      
       // Debug logging for mismatches or interesting cases
       if (!shouldInclude || serverDateOnlyString !== localDateString) {
         console.log(`🕐 [TIMEZONE DEBUG] ${shouldInclude ? 'INCLUDED' : 'EXCLUDED'}: ${f.teams.home.name} vs ${f.teams.away.name}`, {
@@ -795,10 +813,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   }, [fixtures, selectedDate]);
 
   // Log filtering results for all target leagues
+  const championsFiltered = selectedDateFixtures.filter(f => f.league.id === 2);
   const friendliesFiltered = selectedDateFixtures.filter(f => f.league.id === 667);
   const iraqiFiltered = selectedDateFixtures.filter(f => f.league.id === 233);
   const copaArgentinaFiltered = selectedDateFixtures.filter(f => f.league.id === 128);
 
+  console.log(`⚽ [MyNewLeague CHAMPIONS] After date filtering: ${championsFiltered.length} matches for ${selectedDate}`);
   console.log(`🏆 [MyNewLeague FRIENDLIES] After date filtering: ${friendliesFiltered.length} matches for ${selectedDate}`);
   console.log(`🇮🇶 [MyNewLeague IRAQI] After date filtering: ${iraqiFiltered.length} matches for ${selectedDate}`);
   console.log(`🇦🇷 [MyNewLeague COPA ARG] After date filtering: ${copaArgentinaFiltered.length} matches for ${selectedDate}`);
@@ -817,6 +837,16 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       return acc;
     },
     {} as Record<number, { league: any; matches: FixtureData[] }>,
+  );
+
+  // Debug: Log which leagues are grouped and their match counts
+  console.log(`📊 [MyNewLeague GROUPING] Leagues grouped for ${selectedDate}:`, 
+    Object.entries(matchesByLeague).map(([leagueId, group]) => ({
+      leagueId: parseInt(leagueId),
+      leagueName: group.league.name,
+      matchCount: group.matches.length,
+      isTargetLeague: [38, 15, 2, 71, 22, 72, 73, 75, 128, 233, 667, 253].includes(parseInt(leagueId))
+    }))
   );
 
   // Auto-expand all leagues by default when data changes
