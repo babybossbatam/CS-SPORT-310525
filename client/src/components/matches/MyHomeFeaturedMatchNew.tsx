@@ -1060,7 +1060,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
                 >
                   {/* League header */}
-                  <div className="flex items-center justify-center gap-2 mb-4 p-2 bg-gray-50 rounded-lg">
+                  <div className="flex items-center justify-center gap-2 mb-4 p-2">
                     <LazyImage
                       src={currentMatch.league.logo}
                       alt={currentMatch.league.name}
