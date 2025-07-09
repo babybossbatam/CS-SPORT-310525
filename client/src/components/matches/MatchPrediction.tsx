@@ -398,7 +398,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
     );
   }
 
-  if (error) {
+  if (error && !predictionData) {
     return (
       <Card className="w-full shadow-md">
         <CardHeader className="pb-2">
