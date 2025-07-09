@@ -1636,9 +1636,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           ) {
                             return (
                               <div className="space-y-1">
-                                <div className="text-sm text-gray-600">
-                                  Starts in
-                                </div>
                                 <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
                                   {countdownTimer}
                                 </div>
