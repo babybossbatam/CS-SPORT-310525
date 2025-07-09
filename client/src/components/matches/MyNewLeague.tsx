@@ -226,31 +226,25 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       const allFixtures = await response.json();
       console.log(`📊 [MyNewLeague] Received ${allFixtures.length} fixtures for ${selectedDate} with timezone ${userTimezone}`);
 
-      // Filter to only include our target leagues - REMOVED additional date filtering since server already handles this
+      // Filter to only include our target leagues - NO additional date filtering needed
       const leagueFixtures = allFixtures.filter((fixture: FixtureData) => 
         leagueIds.includes(fixture.league?.id)
       );
 
-      console.log(`🎯 [MyNewLeague] Filtered to ${leagueFixtures.length} fixtures from target leagues (server pre-filtered by date)`);
+      console.log(`🎯 [MyNewLeague] Filtered to ${leagueFixtures.length} fixtures from target leagues (server already filtered by date and timezone)`);
 
-      // Log league breakdown with fixture details for debugging
+      // Log league breakdown for debugging
       const leagueBreakdown = leagueFixtures.reduce((acc, fixture) => {
         const leagueId = fixture.league.id;
         const leagueName = fixture.league.name;
         if (!acc[leagueId]) {
-          acc[leagueId] = { name: leagueName, count: 0, fixtures: [] };
+          acc[leagueId] = { name: leagueName, count: 0 };
         }
         acc[leagueId].count++;
-        acc[leagueId].fixtures.push({
-          id: fixture.fixture.id,
-          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-          status: fixture.fixture.status.short,
-          date: fixture.fixture.date
-        });
         return acc;
-      }, {} as Record<number, { name: string; count: number; fixtures: any[] }>);
+      }, {} as Record<number, { name: string; count: number }>);
 
-      console.log(`📋 [MyNewLeague] League breakdown with fixtures:`, leagueBreakdown);
+      console.log(`📋 [MyNewLeague] League breakdown:`, leagueBreakdown);
 
       // For updates, only merge dynamic data (scores, status, elapsed time) to prevent flashing
       if (isUpdate && fixtures.length > 0) {
@@ -447,24 +441,15 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     const leagueId = f.league.id;
     const leagueName = f.league.name;
     if (!acc[leagueId]) {
-      acc[leagueId] = { name: leagueName, count: 0, fixtures: [] };
+      acc[leagueId] = { name: leagueName, count: 0 };
     }
     acc[leagueId].count++;
-    acc[leagueId].fixtures.push({
-      id: f.fixture.id,
-      teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
-      status: f.fixture.status.short,
-      date: f.fixture.date
-    });
     return acc;
-  }, {} as Record<number, { name: string; count: number; fixtures: any[] }>);
+  }, {} as Record<number, { name: string; count: number }>);
 
   // Log breakdown by league
   Object.entries(leagueBreakdown).forEach(([leagueId, data]) => {
     console.log(`🏆 [MyNewLeague] League ${leagueId} (${data.name}): ${data.count} matches`);
-    if (data.fixtures.length > 0) {
-      console.log(`   Sample: ${data.fixtures[0].teams} (${data.fixtures[0].status})`);
-    }
   });
 
   // Group matches by league ID (fixtures are already filtered by server)
