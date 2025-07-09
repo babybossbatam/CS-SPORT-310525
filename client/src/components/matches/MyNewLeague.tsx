@@ -203,7 +203,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     }
   }, [getCacheKey, isMatchOldEnded]);
 
-  // Simple data fetching function using the new simpleRapidApi endpoints
+  // Enhanced data fetching function combining original league iteration with Simple API
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
     if (!isUpdate) {
       setLoading(true);
@@ -214,12 +214,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       const allFixtures: FixtureData[] = [];
       let primaryLeagueInfo: LeagueData | null = null;
 
-      console.log(`🔍 [MyNewLeague] Fetching data for ${selectedDate} using Simple API`);
+      console.log(`🔍 [MyNewLeague] Fetching data for ${selectedDate}`);
 
-      // Always fetch live fixtures for real-time data using simple API
+      // Always fetch live fixtures for real-time data
       try {
-        console.log(`🔴 [MyNewLeague] Fetching live fixtures using Simple API`);
-        const response = await apiRequest("GET", "/api/simple/fixtures/live");
+        console.log(`🔴 [MyNewLeague] Fetching live fixtures`);
+        const response = await apiRequest("GET", "/api/fixtures/live");
         const liveData = await response.json();
 
         if (Array.isArray(liveData)) {
@@ -247,44 +247,35 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         console.warn("🔴 [MyNewLeague] Failed to fetch live fixtures:", liveError);
       }
 
-      // Fetch fixtures for the selected date using Simple API
-      try {
-        console.log(`📅 [MyNewLeague] Fetching fixtures for date ${selectedDate} using Simple API`);
-        const response = await apiRequest("GET", `/api/simple/fixtures/${selectedDate}`);
-        const dateFixtures = await response.json();
-
-        if (Array.isArray(dateFixtures)) {
-          // Filter to only include our target leagues and exclude already live fixtures
-          const liveFixtureIds = new Set(allFixtures.map(f => f.fixture.id));
-          const relevantDateFixtures = dateFixtures.filter(fixture => 
-            leagueIds.includes(fixture.league?.id) && !liveFixtureIds.has(fixture.fixture.id)
-          );
-
-          console.log(`📅 [MyNewLeague] Found ${relevantDateFixtures.length} date fixtures from target leagues for ${selectedDate}`);
-          allFixtures.push(...relevantDateFixtures);
-        }
-      } catch (dateError) {
-        console.warn(`📅 [MyNewLeague] Failed to fetch date fixtures for ${selectedDate}:`, dateError);
-      }
-
-      // For FIFA Club World Cup (league 15), fetch specific league data to ensure we get all matches
-      if (leagueIds.includes(15)) {
+      // Iterate through each league to fetch fixtures
+      for (const leagueId of leagueIds) {
         try {
-          console.log(`🏆 [MyNewLeague] Fetching FIFA Club World Cup fixtures using Simple API`);
-          const response = await apiRequest("GET", "/api/simple/leagues/15/fixtures?season=2025");
-          const fifaFixtures = await response.json();
+          console.log(`🔍 [MyNewLeague] Processing league ${leagueId}`);
 
-          if (Array.isArray(fifaFixtures)) {
-            // Filter FIFA fixtures for the selected date and exclude already included fixtures
-            const existingFixtureIds = new Set(allFixtures.map(f => f.fixture.id));
-            const relevantFifaFixtures = fifaFixtures.filter(fixture => {
-              // Check if already included
-              if (existingFixtureIds.has(fixture.fixture.id)) return false;
+          // Check cache first for ended matches
+          const cachedEndedMatches = getCachedEndedMatches(selectedDate, leagueId);
+          let leagueFixtures: FixtureData[] = [...cachedEndedMatches];
 
-              // Check if date matches
+          // Fetch fresh data for this league
+          const response = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures?season=2024`);
+          const freshFixtures = await response.json();
+
+          console.log(`MyNewLeague - League ${leagueId} fixtures count:`, freshFixtures?.length || 0);
+
+          if (Array.isArray(freshFixtures)) {
+            // Filter to only include fixtures for the selected date using simple UTC date matching
+            const nonLiveFixtures = freshFixtures.filter(fixture => {
+              // Skip if already included as live fixture
+              const isAlreadyLive = allFixtures.some(liveFixture => liveFixture.fixture.id === fixture.fixture.id);
+              return !isAlreadyLive;
+            });
+
+            // Filter to only include matches for the selected date using simple UTC date matching
+            const filteredFixtures = nonLiveFixtures.filter(fixture => {
               const fixtureDate = fixture.fixture?.date;
               if (!fixtureDate) return false;
 
+              // Simple UTC date extraction without timezone conversion
               const matchDate = new Date(fixtureDate);
               const year = matchDate.getUTCFullYear();
               const month = String(matchDate.getUTCMonth() + 1).padStart(2, "0");
@@ -294,21 +285,36 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               return matchDateString === selectedDate;
             });
 
-            console.log(`🏆 [MyNewLeague] Found ${relevantFifaFixtures.length} additional FIFA Club World Cup fixtures for ${selectedDate}`);
-            
-            // Log FIFA fixtures for debugging
-            relevantFifaFixtures.forEach(fixture => {
-              console.log(`🏆 [FIFA CLUB WORLD CUP] Match: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`, {
-                fixtureDate: fixture.fixture.date,
-                status: fixture.fixture.status.short,
-                league: fixture.league.name
-              });
-            });
+            console.log(`🎯 [MyNewLeague] League ${leagueId}: ${freshFixtures.length} → ${filteredFixtures.length} fixtures after date filtering`);
 
-            allFixtures.push(...relevantFifaFixtures);
+            // Log sample fixtures for debugging
+            if (filteredFixtures.length > 0) {
+              filteredFixtures.slice(0, 3).forEach(fixture => {
+                console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
+                  teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                  league: fixture.league.name,
+                  status: fixture.fixture.status.short,
+                  date: fixture.fixture.date,
+                  source: "api"
+                });
+              });
+            }
+
+            // Merge cached and fresh fixtures, avoiding duplicates
+            const existingIds = new Set(leagueFixtures.map(f => f.fixture.id));
+            const newFixtures = filteredFixtures.filter(f => !existingIds.has(f.fixture.id));
+            
+            leagueFixtures = [...leagueFixtures, ...newFixtures];
+
+            // Cache ended matches for this league
+            cacheEndedMatches(selectedDate, leagueId, filteredFixtures);
           }
-        } catch (fifaError) {
-          console.warn("🏆 [MyNewLeague] Failed to fetch FIFA Club World Cup fixtures:", fifaError);
+
+          // Add league fixtures to overall collection
+          allFixtures.push(...leagueFixtures);
+
+        } catch (leagueError) {
+          console.warn(`Failed to fetch league ${leagueId}:`, leagueError);
         }
       }
 
@@ -328,7 +334,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         setLeagueInfo(primaryLeagueInfo);
       }
 
-      console.log(`📊 [MyNewLeague] Final result: ${allFixtures.length} fixtures using Simple API`);
+      console.log(`📊 [MyNewLeague] Final result: ${allFixtures.length} fixtures`);
 
       // Log breakdown by league
       leagueIds.forEach(leagueId => {
@@ -353,7 +359,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         setLoading(false);
       }
     }
-  }, [selectedDate]);
+  }, [selectedDate, getCachedEndedMatches, cacheEndedMatches]);
 
   // Comprehensive cache cleanup on date change and component mount
   useEffect(() => {
