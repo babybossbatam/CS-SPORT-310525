@@ -109,6 +109,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
       console.log('📊 [MatchPrediction] Starting prediction data fetch:', {
         homeTeamId: homeTeam?.id,
         awayTeamId: awayTeam?.id,
+        fixtureId,
         hasProps: { propHomeWin, propDraw, propAwayWin }
       });
 
@@ -145,11 +146,19 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
       try {
         setError(null);
         
-        // Fetch team statistics in parallel
-        const [homeStatsResponse, awayStatsResponse] = await Promise.all([
+        // Fetch team statistics and odds in parallel
+        const fetchPromises = [
           fetch(`/api/teams/${homeTeam.id}/statistics?league=${leagueId}&season=${season || new Date().getFullYear()}`),
           fetch(`/api/teams/${awayTeam.id}/statistics?league=${leagueId}&season=${season || new Date().getFullYear()}`)
-        ]);
+        ];
+
+        // Add odds fetch if fixtureId is available
+        if (fixtureId) {
+          fetchPromises.push(fetch(`/api/fixtures/${fixtureId}/odds`));
+        }
+
+        const responses = await Promise.all(fetchPromises);
+        const [homeStatsResponse, awayStatsResponse, oddsResponse] = responses;
 
         let homeStats: TeamStats | null = null;
         let awayStats: TeamStats | null = null;
@@ -192,12 +201,64 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           }
         }
 
+        // Process odds data if available
+        let oddsBasedProbabilities = null;
+        if (oddsResponse && oddsResponse.ok) {
+          try {
+            const oddsData = await oddsResponse.json();
+            console.log('📊 [MatchPrediction] Odds response:', oddsData);
+            
+            if (oddsData.success && oddsData.data && oddsData.data.length > 0) {
+              // Find 1X2 (Match Winner) odds from a major bookmaker
+              const bookmaker = oddsData.data.find((bm: any) => 
+                bm.bookmaker?.name && ['Bet365', '1xBet', 'Unibet', 'William Hill', 'Pinnacle'].includes(bm.bookmaker.name)
+              ) || oddsData.data[0];
+
+              console.log('📊 [MatchPrediction] Using bookmaker:', bookmaker?.bookmaker?.name);
+
+              if (bookmaker?.bets) {
+                const matchWinnerBet = bookmaker.bets.find((bet: any) => 
+                  bet.name === 'Match Winner' || bet.name === '1X2'
+                );
+
+                if (matchWinnerBet?.values && matchWinnerBet.values.length >= 3) {
+                  const homeOdd = parseFloat(matchWinnerBet.values[0]?.odd || '2.0');
+                  const drawOdd = parseFloat(matchWinnerBet.values[1]?.odd || '3.0');
+                  const awayOdd = parseFloat(matchWinnerBet.values[2]?.odd || '2.0');
+
+                  console.log('📊 [MatchPrediction] Raw odds:', { homeOdd, drawOdd, awayOdd });
+
+                  // Convert odds to implied probabilities
+                  const homeProb = (1 / homeOdd) * 100;
+                  const drawProb = (1 / drawOdd) * 100;
+                  const awayProb = (1 / awayOdd) * 100;
+
+                  // Normalize to ensure they add up to 100%
+                  const total = homeProb + drawProb + awayProb;
+                  oddsBasedProbabilities = {
+                    homeWinProbability: Math.round((homeProb / total) * 100),
+                    drawProbability: Math.round((drawProb / total) * 100),
+                    awayWinProbability: Math.round((awayProb / total) * 100),
+                    confidence: 85, // High confidence for bookmaker odds
+                    source: 'odds'
+                  };
+
+                  console.log('📊 [MatchPrediction] Using odds-based predictions from', bookmaker.bookmaker?.name, oddsBasedProbabilities);
+                }
+              }
+            }
+          } catch (oddsError) {
+            console.error('❌ [MatchPrediction] Error processing odds data:', oddsError);
+          }
+        }
+
         // Calculate probabilities based on team performance if we have stats
         let calculatedProbabilities = {
           homeWinProbability: propHomeWin ?? 33,
           drawProbability: propDraw ?? 34,
           awayWinProbability: propAwayWin ?? 33,
-          confidence: 50
+          confidence: 50,
+          source: 'fallback'
         };
 
         if (homeStats && awayStats && homeStats.matchesPlayed > 0 && awayStats.matchesPlayed > 0) {
@@ -225,13 +286,17 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
               homeWinProbability: Math.round((homeProb / totalProb) * 100),
               drawProbability: Math.round((drawProb / totalProb) * 100),
               awayWinProbability: Math.round((awayProb / totalProb) * 100),
-              confidence: Math.min(90, Math.max(50, (homeStats.matchesPlayed + awayStats.matchesPlayed) * 2))
+              confidence: Math.min(90, Math.max(50, (homeStats.matchesPlayed + awayStats.matchesPlayed) * 2)),
+              source: 'statistics'
             };
           }
         }
 
+        // Use odds-based predictions if available, otherwise use statistics-based predictions
+        const finalProbabilities = oddsBasedProbabilities || calculatedProbabilities;
+
         setPredictionData({
-          ...calculatedProbabilities,
+          ...finalProbabilities,
           homeTeamStats: homeStats || {
             form: 'N/A',
             goalsScored: 0,
@@ -287,7 +352,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
     };
 
     fetchPredictionData();
-  }, [homeTeam?.id, awayTeam?.id, leagueId, season, propHomeWin, propDraw, propAwayWin]);
+  }, [homeTeam?.id, awayTeam?.id, fixtureId, leagueId, season, propHomeWin, propDraw, propAwayWin]);
   // Get color based on probability
   const getProbabilityColor = (probability: number) => {
     if (probability >= 60) return 'bg-green-600';
@@ -367,7 +432,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
               <TooltipContent>
                 <p className="text-xs max-w-xs">
                   {predictionData ? 
-                    `Predictions based on real team statistics including form, goals scored/conceded, and recent performance. Confidence: ${predictionData.confidence}%` :
+                    `Predictions based on ${(predictionData as any).source === 'odds' ? 'live betting odds' : 'team statistics including form, goals scored/conceded, and recent performance'}. Confidence: ${predictionData.confidence}%` :
                     'Win probabilities based on team form, head-to-head records, and other statistical factors.'
                   }
                 </p>
