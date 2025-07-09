@@ -469,6 +469,26 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
       console.log(`📊 [MyNewLeague] Final result: ${allFixtures.length} fixtures`);
 
+      // Pre-filtering League 2 analysis
+      const preFilterLeague2 = allFixtures.filter(f => f.league.id === 2);
+      console.log(`⚽ [LEAGUE 2 PRE-FILTER] Found ${preFilterLeague2.length} Champions League fixtures before date filtering for ${selectedDate}:`);
+      preFilterLeague2.forEach((f, index) => {
+        const fixtureDate = new Date(f.fixture.date);
+        const serverDateOnly = `${fixtureDate.getUTCFullYear()}-${String(fixtureDate.getUTCMonth() + 1).padStart(2, "0")}-${String(fixtureDate.getUTCDate()).padStart(2, "0")}`;
+        const localDateOnly = `${fixtureDate.getFullYear()}-${String(fixtureDate.getMonth() + 1).padStart(2, "0")}-${String(fixtureDate.getDate()).padStart(2, "0")}`;
+        
+        console.log(`  ${index + 1}. ${f.teams.home.name} vs ${f.teams.away.name}`, {
+          fixtureId: f.fixture.id,
+          status: f.fixture.status.short,
+          utcDateTime: f.fixture.date,
+          serverDate: serverDateOnly,
+          localDate: localDateOnly,
+          selectedDate,
+          serverMatches: serverDateOnly === selectedDate,
+          localMatches: localDateOnly === selectedDate
+        });
+      });
+
       // Only update fixtures if there are actual changes
       setFixtures(prevFixtures => {
         const hasChanges = JSON.stringify(prevFixtures) !== JSON.stringify(allFixtures);
@@ -718,12 +738,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       const timezoneOffsetHours = Math.abs(timezoneOffset) / 60;
       const timezoneSign = timezoneOffset > 0 ? '-' : '+';
       
-      // Special debug for League 2 (UEFA Champions League)
+      // Enhanced debug for League 2 (UEFA Champions League) - Show ALL fixtures
       if (f.league.id === 2) {
-        console.log(`⚽ [LEAGUE 2 CHAMPIONS FILTER] ${shouldInclude ? 'INCLUDED' : 'EXCLUDED'}: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        console.log(`⚽ [LEAGUE 2 CHAMPIONS COMPREHENSIVE] ${shouldInclude ? 'INCLUDED' : 'EXCLUDED'}: ${f.teams.home.name} vs ${f.teams.away.name}`, {
           fixtureId: f.fixture.id,
           status: f.fixture.status.short,
-          serverDateTime: serverDateString,
+          originalServerDateTime: serverDateString,
           serverDateOnly: serverDateOnlyString,
           localDateTime: localDateTime.toLocaleString(),
           localDateOnly: localDateString,
@@ -732,7 +752,19 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           localDateMatches,
           timezoneOffset: `UTC${timezoneSign}${timezoneOffsetHours}`,
           decision: shouldInclude ? 'INCLUDED' : 'EXCLUDED',
-          reason: !shouldInclude ? 'Local date mismatch' : 'Date matches'
+          reason: !shouldInclude ? 'Local date mismatch' : 'Date matches',
+          detailedAnalysis: {
+            serverUTCTime: serverDateTime.toISOString(),
+            localTimezoneTime: localDateTime.toString(),
+            serverDateExtracted: serverDateOnlyString,
+            localDateExtracted: localDateString,
+            targetDate: selectedDate,
+            matchingLogic: {
+              serverMatches: serverDateOnlyString === selectedDate,
+              localMatches: localDateString === selectedDate,
+              usingLocalForDecision: true
+            }
+          }
         });
       }
       
@@ -822,6 +854,46 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   console.log(`🏆 [MyNewLeague FRIENDLIES] After date filtering: ${friendliesFiltered.length} matches for ${selectedDate}`);
   console.log(`🇮🇶 [MyNewLeague IRAQI] After date filtering: ${iraqiFiltered.length} matches for ${selectedDate}`);
   console.log(`🇦🇷 [MyNewLeague COPA ARG] After date filtering: ${copaArgentinaFiltered.length} matches for ${selectedDate}`);
+
+  // Post-filtering League 2 analysis - show what was excluded and why
+  const allLeague2 = fixtures.filter(f => f.league.id === 2);
+  const excludedLeague2 = allLeague2.filter(f => {
+    const localDateTime = new Date(f.fixture.date);
+    const localDateString = `${localDateTime.getFullYear()}-${String(localDateTime.getMonth() + 1).padStart(2, "0")}-${String(localDateTime.getDate()).padStart(2, "0")}`;
+    return localDateString !== selectedDate;
+  });
+
+  if (excludedLeague2.length > 0) {
+    console.log(`⚽ [LEAGUE 2 EXCLUDED ANALYSIS] ${excludedLeague2.length} Champions League fixtures were excluded from ${selectedDate}:`);
+    excludedLeague2.forEach((f, index) => {
+      const localDateTime = new Date(f.fixture.date);
+      const localDateString = `${localDateTime.getFullYear()}-${String(localDateTime.getMonth() + 1).padStart(2, "0")}-${String(localDateTime.getDate()).padStart(2, "0")}`;
+      const serverDateTime = new Date(f.fixture.date);
+      const serverDateString = `${serverDateTime.getUTCFullYear()}-${String(serverDateTime.getUTCMonth() + 1).padStart(2, "0")}-${String(serverDateTime.getUTCDate()).padStart(2, "0")}`;
+      
+      console.log(`  ❌ ${index + 1}. ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        fixtureId: f.fixture.id,
+        status: f.fixture.status.short,
+        originalUTC: f.fixture.date,
+        serverDate: serverDateString,
+        localDate: localDateString,
+        selectedDate,
+        reason: `Local date (${localDateString}) ≠ Selected date (${selectedDate})`,
+        timezoneOffset: localDateTime.getTimezoneOffset()
+      });
+    });
+  }
+
+  if (championsFiltered.length > 0) {
+    console.log(`⚽ [LEAGUE 2 INCLUDED ANALYSIS] ${championsFiltered.length} Champions League fixtures were included for ${selectedDate}:`);
+    championsFiltered.forEach((f, index) => {
+      console.log(`  ✅ ${index + 1}. ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        fixtureId: f.fixture.id,
+        status: f.fixture.status.short,
+        date: f.fixture.date
+      });
+    });
+  }
 
   // Group matches by league ID
   const matchesByLeague = selectedDateFixtures.reduce(
