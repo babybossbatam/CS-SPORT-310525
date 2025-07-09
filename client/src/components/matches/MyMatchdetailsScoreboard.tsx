@@ -44,7 +44,7 @@ const MyMatchdetailsScoreboard = ({
   };
 
   // Function to fetch current match status by match ID
-  const fetchCurrentMatchStatus = useCallback(async (matchId: number) => {
+  const fetchCurrentMatchStatus = async (matchId: number) => {
     try {
       console.log(`🔍 [Status Fetch] Fetching current status for match ${matchId}`);
 
@@ -91,7 +91,7 @@ const MyMatchdetailsScoreboard = ({
       console.error(`❌ [Status Fetch] Error fetching status for match ${matchId}:`, error);
       return null;
     }
-  }, []);
+  };
   // Sample match data for demonstration
   const sampleMatch = {
     fixture: {
@@ -149,36 +149,36 @@ const MyMatchdetailsScoreboard = ({
   const [isMatchEnded, setIsMatchEnded] = useState<boolean>(false);
   const [dataSource, setDataSource] = useState<'STATIC' | 'LIVE'>('STATIC');
 
-  // Memoize all callback functions to prevent infinite re-renders
-  const updateCurrentScores = useCallback((scores: {home: number, away: number} | null) => {
+  // Simplified update functions without useCallback to prevent infinite re-renders
+  const updateCurrentScores = (scores: {home: number, away: number} | null) => {
     setCurrentScores(prevScores => {
       if (!scores && !prevScores) return null;
       if (!scores || !prevScores) return scores;
       if (scores.home === prevScores.home && scores.away === prevScores.away) return prevScores;
       return scores;
     });
-  }, []);
+  };
 
-  const updateCurrentLiveStatus = useCallback((status: string | null) => {
+  const updateCurrentLiveStatus = (status: string | null) => {
     setCurrentLiveStatus(prevStatus => prevStatus === status ? prevStatus : status);
-  }, []);
+  };
 
-  const updateIsMatchEnded = useCallback((ended: boolean) => {
+  const updateIsMatchEnded = (ended: boolean) => {
     setIsMatchEnded(prevEnded => prevEnded === ended ? prevEnded : ended);
-  }, []);
+  };
 
-  const updateLiveScores = useCallback((scores: {home: number, away: number} | null) => {
+  const updateLiveScores = (scores: {home: number, away: number} | null) => {
     setCurrentScores(prevScores => {
       if (!scores && !prevScores) return null;
       if (!scores || !prevScores) return scores;
       if (scores.home === prevScores.home && scores.away === prevScores.away) return prevScores;
       return scores;
     });
-  }, []);
+  };
 
-  const updateDataSource = useCallback((source: 'STATIC' | 'LIVE') => {
+  const updateDataSource = (source: 'STATIC' | 'LIVE') => {
     setDataSource(prevSource => prevSource === source ? prevSource : source);
-  }, []);
+  };
 
   // Fetch current match status when component mounts or match changes
   useEffect(() => {
@@ -200,7 +200,7 @@ const MyMatchdetailsScoreboard = ({
 
       return () => clearInterval(interval);
     }
-  }, [displayMatch?.fixture?.id, fetchCurrentMatchStatus]);
+  }, [displayMatch?.fixture?.id]); // Removed fetchCurrentMatchStatus from dependencies
 
   // Real-time update effect for live matches with continuous timer
   useEffect(() => {
@@ -345,11 +345,7 @@ const MyMatchdetailsScoreboard = ({
       setCurrentScores(null);
       setLiveStatus(null);
     }
-  }, [
-    displayMatch,
-    displayMatch?.fixture?.status?.short,
-    displayMatch?.fixture?.id,
-  ]);
+  }, [displayMatch?.fixture?.id, displayMatch?.fixture?.status?.short]);
 
   const formatDateTime = (dateStr: string) => {
     try {
@@ -504,7 +500,7 @@ const MyMatchdetailsScoreboard = ({
   };
 
   // Function to update scores based on match data (either live or static)
-  const updateScores = useCallback(() => {
+  const updateScores = () => {
     // Determine if match has ended based on status code
     const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(displayMatch.fixture?.status?.short || "");
 
@@ -522,7 +518,7 @@ const MyMatchdetailsScoreboard = ({
     updateCurrentLiveStatus(status);
     updateIsMatchEnded(isEnded);
     updateDataSource('STATIC');
-  }, [displayMatch, updateCurrentScores, updateCurrentLiveStatus, updateIsMatchEnded, updateDataSource]);
+  };
 
   return (
     <Card
