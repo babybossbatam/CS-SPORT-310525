@@ -419,7 +419,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   console.log(`✅ [MyNewLeague] Using ${fixtures.length} fixtures (server pre-filtered by date and timezone)`);
 
   // Enhanced debugging for specific leagues
-  const leagueBreakdown = selectedDateFixtures.reduce((acc, f) => {
+  const leagueBreakdown = fixtures.reduce((acc, f) => {
     const leagueId = f.league.id;
     const leagueName = f.league.name;
     if (!acc[leagueId]) {
