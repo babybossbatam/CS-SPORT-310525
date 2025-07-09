@@ -742,13 +742,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               className="object-cover"
                             />
                             <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                              <div className="flex flex-col items-center">
-                                <div className="flex gap-1 mb-0.5">
-                                  <div className="w-1 h-1 bg-white rounded-full"></div>
-                                  <div className="w-1 h-1 bg-white rounded-full"></div>
-                                </div>
-                                <div className="w-2 h-1 bg-white rounded-full"></div>
-                              </div>
+                              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                              </svg>
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col min-w-0 ml-2">
@@ -826,13 +822,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               className="object-cover"
                             />
                             <AvatarFallback className="bg-red-500 text-white text-xs font-bold flex items-center justify-center">
-                              <div className="flex flex-col items-center">
-                                <div className="flex gap-1 mb-0.5">
-                                  <div className="w-1 h-1 bg-white rounded-full"></div>
-                                  <div className="w-1 h-1 bg-white rounded-full"></div>
-                                </div>
-                                <div className="w-2 h-1 bg-white rounded-full"></div>
-                              </div>
+                              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                              </svg>
                             </AvatarFallback>
                           </Avatar>
                         </div>
@@ -864,8 +856,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   // Get current scores from API data
   const getCurrentScores = () => {
-    if (matchData?.goals) {
-      return {
+    if (matchData?.goals) {      return {
         homeScore: matchData.goals.home || 0,
         awayScore: matchData.goals.away || 0,
       };
@@ -1125,13 +1116,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     className="object-cover"
                                   />
                                   <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                                    <div className="flex flex-col items-center">
-                                      <div className="flex gap-1 mb-0.5">
-                                        <div className="w-1 h-1 bg-white rounded-full"></div>
-                                        <div className="w-1 h-1 bg-white rounded-full"></div>
-                                      </div>
-                                      <div className="w-2 h-1 bg-white rounded-full"></div>
-                                    </div>
+                                    <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                    </svg>
                                   </AvatarFallback>
                                 </Avatar>
 
@@ -1146,15 +1133,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         alt={event.assist?.name || "Player"}
                                         className="object-cover"
                                       />
-                                      <AvatarFallback className="bg-blue-400 text-white text-xs font-bold flex items-center justify-center">
-                                        <div className="flex flex-col items-center">
-                                          <div className="flex gap-1 mb-0.5">
-                                            <div className="w-1 h-1 bg-white rounded-full"></div>
-                                            <div className="w-1 h-1 bg-white rounded-full"></div>
-                                          </div>
-                                          <div className="w-2 h-1 bg-white rounded-full"></div>
-                                        </div>
-                                      </AvatarFallback>
+                                      <AvatarFallback className="bg-red-400 text-white text-xs font-bold flex items-center justify-center">
+                                          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                          </svg>
+                                        </AvatarFallback>
                                     </Avatar>
                                   )}
                               </div>
@@ -1425,14 +1408,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         className="object-cover"
                                       />
                                       <AvatarFallback className="bg-red-400 text-white text-xs font-bold flex items-center justify-center">
-                                        <div className="flex flex-col items-center">
-                                          <div className="flex gap-1 mb-0.5">
-                                            <div className="w-1 h-1 bg-white rounded-full"></div>
-                                            <div className="w-1 h-1 bg-white rounded-full"></div>
-                                          </div>
-                                          <div className="w-2 h-1 bg-white rounded-full"></div>
-                                        </div>
-                                      </AvatarFallback>
+                                          <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                          </svg>
+                                        </AvatarFallback>
                                     </Avatar>
                                   )}
 
@@ -1446,14 +1425,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     className="object-cover"
                                   />
                                   <AvatarFallback className="bg-red-500 text-white text-xs font-bold flex items-center justify-center">
-                                    <div className="flex flex-col items-center">
-                                      <div className="flex gap-1 mb-0.5">
-                                        <div className="w-1 h-1 bg-white rounded-full"></div>
-                                        <div className="w-1 h-1 bg-white rounded-full"></div>
-                                      </div>
-                                      <div className="w-2 h-1 bg-white rounded-full"></div>
-                                    </div>
-                                  </AvatarFallback>
+                                      <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                      </svg>
+                                    </AvatarFallback>
                                 </Avatar>
                               </div>
                             </div>
