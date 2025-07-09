@@ -212,13 +212,13 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
       // Get user's timezone for API request
       const userTimezone = getUserTimezone();
-      
+
       // Fetch fixtures directly from the date endpoint with user timezone
       const response = await apiRequest(
         "GET", 
         `/api/fixtures/date/${selectedDate}?timezone=${encodeURIComponent(userTimezone)}&all=true`
       );
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch fixtures: ${response.status}`);
       }
@@ -277,7 +277,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       } else {
         // Initial load or full refresh - server already filtered by date and timezone
         setFixtures(leagueFixtures);
-        
+
         // Log some sample fixtures for debugging
         leagueFixtures.slice(0, 3).forEach((fixture: FixtureData) => {
           console.log(`✅ [MyNewLeague] Fixture ${fixture.fixture.id}:`, {
@@ -919,7 +919,7 @@ b.fixture.status.elapsed) || 0;
     // Custom comparison to prevent re-renders unless essential data changes
     const prevMatch = prevProps.match;
     const nextMatch = nextProps.match;
-    
+
     // Only re-render if dynamic data changed (status, scores, flash states)
     return (
       prevMatch.fixture.id === nextMatch.fixture.id &&
