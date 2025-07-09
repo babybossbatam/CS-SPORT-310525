@@ -226,25 +226,31 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       const allFixtures = await response.json();
       console.log(`📊 [MyNewLeague] Received ${allFixtures.length} fixtures for ${selectedDate} with timezone ${userTimezone}`);
 
-      // Filter to only include our target leagues
+      // Filter to only include our target leagues - REMOVED additional date filtering since server already handles this
       const leagueFixtures = allFixtures.filter((fixture: FixtureData) => 
         leagueIds.includes(fixture.league?.id)
       );
 
-      console.log(`🎯 [MyNewLeague] Filtered to ${leagueFixtures.length} fixtures from target leagues`);
+      console.log(`🎯 [MyNewLeague] Filtered to ${leagueFixtures.length} fixtures from target leagues (server pre-filtered by date)`);
 
-      // Log league breakdown
+      // Log league breakdown with fixture details for debugging
       const leagueBreakdown = leagueFixtures.reduce((acc, fixture) => {
         const leagueId = fixture.league.id;
         const leagueName = fixture.league.name;
         if (!acc[leagueId]) {
-          acc[leagueId] = { name: leagueName, count: 0 };
+          acc[leagueId] = { name: leagueName, count: 0, fixtures: [] };
         }
         acc[leagueId].count++;
+        acc[leagueId].fixtures.push({
+          id: fixture.fixture.id,
+          teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+          status: fixture.fixture.status.short,
+          date: fixture.fixture.date
+        });
         return acc;
-      }, {} as Record<number, { name: string; count: number }>);
+      }, {} as Record<number, { name: string; count: number; fixtures: any[] }>);
 
-      console.log(`📋 [MyNewLeague] League breakdown:`, leagueBreakdown);
+      console.log(`📋 [MyNewLeague] League breakdown with fixtures:`, leagueBreakdown);
 
       // For updates, only merge dynamic data (scores, status, elapsed time) to prevent flashing
       if (isUpdate && fixtures.length > 0) {
@@ -396,13 +402,19 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     // Optimized refresh intervals - reduce API calls for non-live content
     const refreshInterval = hasLiveMatches ? 30000 : 300000; // 30s for live, 5min for non-live
 
-    // Smart refresh logic based on content type
+    // Smart refresh logic based on content type and date
     const hasUpcomingMatches = fixtures.some(fixture => 
       ['NS', 'TBD', 'PST'].includes(fixture.fixture.status.short)
     );
     
-    // Only refresh if we have live matches or upcoming matches close to start time
-    const shouldRefresh = hasLiveMatches || (hasUpcomingMatches && selectedDate === new Date().toISOString().slice(0, 10));
+    const isToday = selectedDate === new Date().toISOString().slice(0, 10);
+    const isFutureDate = selectedDate > new Date().toISOString().slice(0, 10);
+    
+    // Only refresh if:
+    // 1. We have live matches (any date)
+    // 2. We have upcoming matches for today or future dates
+    // 3. Skip refresh for past dates unless there are live matches
+    const shouldRefresh = hasLiveMatches || (hasUpcomingMatches && (isToday || isFutureDate));
     
     console.log(`⏰ [MyNewLeague] Setting refresh interval to ${refreshInterval/1000}s (hasLiveMatches: ${hasLiveMatches}, shouldRefresh: ${shouldRefresh})`);
 
