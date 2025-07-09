@@ -142,39 +142,23 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
     console.log(`📊 [MyFootballMain] Final selectedDateFixtures after filtering:`, {
       selectedDate,
       finalCount: filtered.length,
-      filteredFixtures: filtered.slice(0, 5).map(f => {
-        const serverDate = new Date(f.fixture?.date);
-        const localDate = new Date(serverDate.getTime());
-        const serverDateString = `${serverDate.getUTCFullYear()}-${String(serverDate.getUTCMonth() + 1).padStart(2, "0")}-${String(serverDate.getUTCDate()).padStart(2, "0")}`;
-        const localDateString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, "0")}-${String(localDate.getDate()).padStart(2, "0")}`;
-        
-        return {
-          id: f.fixture?.id,
-          serverDateTime: f.fixture?.date,
-          serverDateOnly: serverDateString,
-          localDateTime: localDate.toLocaleString(),
-          localDateOnly: localDateString,
-          teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
-          status: f.fixture?.status?.short,
-          league: f.league?.name,
-          timezoneOffset: `UTC${localDate.getTimezoneOffset() > 0 ? '-' : '+'}${Math.abs(localDate.getTimezoneOffset()) / 60}`,
-          smartFilterReason: (() => {
-            const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-              f.fixture.date,
-              f.fixture.status.short,
-              selectedDate + "T12:00:00Z"
-            );
-            return smartResult.reason;
-          })()
-        };
-      }),
+      filteredFixtures: filtered.slice(0, 5).map(f => ({
+        id: f.fixture?.id,
+        date: f.fixture?.date,
+        teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
+        status: f.fixture?.status?.short,
+        league: f.league?.name,
+        smartFilterReason: (() => {
+          const smartResult = MySmartTimeFilter.getSmartTimeLabel(
+            f.fixture.date,
+            f.fixture.status.short,
+            selectedDate + "T12:00:00Z"
+          );
+          return smartResult.reason;
+        })()
+      })),
       showingFirst: Math.min(5, filtered.length),
-      totalFiltered: filtered.length,
-      timezoneInfo: {
-        userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        offsetMinutes: new Date().getTimezoneOffset(),
-        offsetHours: `UTC${new Date().getTimezoneOffset() > 0 ? '-' : '+'}${Math.abs(new Date().getTimezoneOffset()) / 60}`
-      }
+      totalFiltered: filtered.length
     });
 
     return filtered;
