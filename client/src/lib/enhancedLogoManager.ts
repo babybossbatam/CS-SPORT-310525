@@ -288,6 +288,7 @@ class EnhancedLogoManager {
         61: 'https://media.api-sports.io/football/leagues/61.png', // Ligue 1
         2: 'https://media.api-sports.io/football/leagues/2.png', // Champions League
         3: 'https://media.api-sports.io/football/leagues/3.png', // Europa League
+        848: 'https://media.api-sports.io/football/leagues/848.png', // UEFA Europa Conference League
       };
 
       if (wellKnownLogos[request.leagueId]) {
