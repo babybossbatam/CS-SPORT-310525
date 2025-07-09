@@ -371,15 +371,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           <div className="flex items-center">
             Official Highlights
           </div>
-          {currentSource && !loading && (
-            <button 
-              onClick={() => setIframeError(true)}
-              className="text-xs text-gray-400 hover:text-gray-600 underline"
-              title="Hide highlights if video is unavailable"
-            >
-              Hide
-            </button>
-          )}
+          {currentSource && !loading  }
         </CardTitle>
       </CardHeader>
       <CardContent className="py-0 px-0">
@@ -399,11 +391,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                     Checking FIFA Official Channel first
                   </span>
                 )}
-                {sourceIndex === 0 && !isFifaClubWorldCup && !isConcacafCompetition && (
-                  <span className="block text-xs text-blue-500">
-                    Trying YouTube first
-                  </span>
-                )}
+                {sourceIndex === 0 && !isFifaClubWorldCup && !isConcacafCompetition }
                 {sourceIndex > 0 && (
                   <span className="block text-xs text-gray-400">
                     Trying {videoSources[sourceIndex]?.name || 'alternative source'}
