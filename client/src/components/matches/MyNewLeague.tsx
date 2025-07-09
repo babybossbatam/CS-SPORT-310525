@@ -768,6 +768,13 @@ b.fixture.status.elapsed) || 0;
     });
   }, []);
 
+  // Memoize the match click handler to prevent infinite re-renders
+  const handleMatchCardClick = useCallback((match: any) => {
+    if (onMatchCardClick) {
+      onMatchCardClick(match);
+    }
+  }, [onMatchCardClick]);
+
   const toggleLeague = useCallback((leagueId: number) => {
     setExpandedLeagues((prev) => {
       const newExpanded = new Set(prev);
@@ -800,6 +807,15 @@ b.fixture.status.elapsed) || 0;
     onMatchClick?: (match: any) => void;
     leagueGroup: any;
   }) => {
+    // Memoize the click handler to prevent re-renders
+    const handleMatchClick = useCallback((e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (onMatchClick) {
+        onMatchClick(match);
+      }
+    }, [match, onMatchClick]);
+
     return (
       <div
         key={match.fixture.id}
@@ -814,7 +830,7 @@ b.fixture.status.elapsed) || 0;
             isGoalFlash ? 'goal-flash' : ''
           }`}
           data-fixture-id={match.fixture.id}
-          onClick={() => onMatchClick?.(match)}
+          onClick={handleMatchClick}
           style={{
             cursor: onMatchClick ? "pointer" : "default",
           }}
@@ -1588,7 +1604,7 @@ b.fixture.status.elapsed) || 0;
                       isGoalFlash={isGoalFlash}
                       isStarred={isStarred}
                       onStarToggle={toggleStarMatch}
-                      onMatchClick={onMatchCardClick}
+                      onMatchClick={handleMatchCardClick}
                       leagueGroup={leagueGroup}
                     />
                   );
