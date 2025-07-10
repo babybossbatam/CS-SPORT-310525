@@ -1182,24 +1182,24 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           )}
 
-          {/* Current event display - exact 365scores style */}
+          {/* Current event display - inside card */}
           {currentEvent && currentView === 'event' && currentStatus !== 'P' && (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none">
               <div className="text-center text-white">
-                <div className="text-3xl font-bold mb-2">
+                <div className="text-2xl font-bold mb-2 drop-shadow-lg">
                   {currentEvent.description}
                 </div>
-                <div className="text-xl font-semibold opacity-90">
+                <div className="text-lg font-semibold opacity-90 drop-shadow-lg">
                   {currentEvent.team === 'home' ? homeTeamData?.name?.toUpperCase() : awayTeamData?.name?.toUpperCase()}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Event notification card - top right */}
+          {/* Event notification card - inside field area */}
           {currentEvent && (currentEvent.type === 'goal' || currentEvent.type === 'goalkick' || currentEvent.type === 'corner' || currentEvent.type === 'substitution') && (
-            <div className="absolute top-4 right-4 z-50">
-              <div className="bg-white rounded-lg shadow-lg px-4 py-2 flex items-center gap-2">
+            <div className="absolute top-4 right-4 z-40 pointer-events-none">
+              <div className="bg-white/95 backdrop-blur-sm rounded-lg shadow-lg px-3 py-2 flex items-center gap-2 border border-white/20">
                 <div className={`text-white px-2 py-1 rounded text-xs font-bold ${
                   currentEvent.type === 'goalkick' ? 'bg-blue-500' : 
                   currentEvent.type === 'corner' ? 'bg-yellow-500' : 
@@ -1207,12 +1207,12 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 }`}>
                   {currentEvent.minute}'
                 </div>
-                <span className="text-sm font-semibold">
+                <span className="text-sm font-semibold text-gray-800">
                   {currentEvent.type === 'goalkick' ? 'Goal kick' : 
                    currentEvent.type === 'corner' ? 'Corner kick' : 
                    currentEvent.type === 'substitution' ? 'Substitution' : 'Goal'}
                 </span>
-                <div className="text-gray-500 text-xs">
+                <div className="text-gray-600 text-xs">
                   {currentEvent.team === 'home' ? homeTeamData?.name : awayTeamData?.name}
                 </div>
               </div>
