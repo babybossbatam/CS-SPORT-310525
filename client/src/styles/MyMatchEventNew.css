@@ -383,30 +383,29 @@
 /* Period score marker styling */
 .period-score-marker {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  
- 
-  margin: 8px 0;
-  border-radius: 8px;
-  border-color: #ebebeb;
+  align-items: left;
+
+   margin-left: -25px;
+  background: #c7c7c7;
+  margin-right: -25px;
 }
 
 .period-score-label {
   font-size: 12px;
   font-weight: var(--semiBold-font-weight);
   color: black;
-  margin-left: -200px;
-  margin-right: 30px;
+  margin-left: 5px;
+  margin-right: 155px;
 }
 
 .period-score-display {
   font-size: 14px;
   font-weight: var(--bold-font-weight);
-  color: black;
+  color: #000000;
   text-align: center;
-  min-width: 60px;
-  margin-left: 100px;
+  min-width: 25px;
+  margin-left: -5px;
+  margin-right: 180px;
 }
 
 /* Commentary Events Section */
