@@ -382,30 +382,38 @@
 /* Event text styling */
 /* Period score marker styling */
 .period-score-marker {
-  display: flex;
-  align-items: left;
-
-   margin-left: -25px;
-  background: #c7c7c7;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas: "label score spacer";
+  align-items: center;
+  width: 100%;
+  padding: 8px 16px;
+  margin-left: -25px;
   margin-right: -25px;
+  background: #c7c7c7;
+  border-radius: 4px;
 }
 
 .period-score-label {
+  grid-area: label;
   font-size: 12px;
   font-weight: var(--semiBold-font-weight);
   color: black;
-  margin-left: 5px;
-  margin-right: 225px;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .period-score-display {
+  grid-area: score;
   font-size: 14px;
   font-weight: var(--bold-font-weight);
   color: #000000;
   text-align: center;
-  min-width: 25px;
-  margin-left: -5px;
-  margin-right: 200px;
+  min-width: 60px;
+  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  justify-self: center;
 }
 
 /* Commentary Events Section */
@@ -575,16 +583,18 @@
 
   .period-score-marker {
     padding: 6px 12px;
+    margin-left: -12px;
+    margin-right: -12px;
   }
 
   .period-score-label {
     font-size: 11px;
-    margin-right: 12px;
   }
 
   .period-score-display {
     font-size: 12px;
-    min-width: 45px;
+    min-width: 50px;
+    padding: 0 8px;
   }
 
   .match-event-icon {
