@@ -1239,7 +1239,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   <img
                                     src="/assets/matchdetaillogo/substitution.svg"
                                     alt="Substitution"
-                                    className="w-4 h-4 hover:scale-110 transition-transform duration-200 cursor-pointer"
+                                    className="w-4 h-4   duration-200 "
                                   />
                                 ) : event.type === "Goal" ? (
                                   (() => {
@@ -1250,7 +1250,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           <img
                                             src="/assets/matchdetaillogo/missed-penalty.svg"
                                             alt="Missed Penalty"
-                                            className="w-4 h-4 hover:scale-110 transition-transform duration-200 cursor-pointer"
+                                            className="w-4 h-4  "
                                           />
                                         );
                                       } else {
@@ -1258,7 +1258,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           <img
                                             src="/assets/matchdetaillogo/penalty.svg"
                                             alt="Penalty Goal"
-                                            className="w-4 h-4 hover:scale-110 transition-transform duration-200 cursor-pointer"
+                                            className="w-4 h-4  "
                                           />
                                         );
                                       }
@@ -1267,7 +1267,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         <img
                                           src="/assets/matchdetaillogo/soccer-logo.svg"
                                           alt="Own Goal"
-                                          className="w-4 h-4 hover:scale-110 transition-transform duration-200 cursor-pointer"
+                                          className="w-4 h-4 "
                                         />
                                       );
                                     } else {
@@ -1275,7 +1275,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         <img
                                           src="/assets/matchdetaillogo/soccer-ball.svg"
                                           alt="Goal"
-                                          className="w-4 h-4 hover:scale-110 transition-transform duration-200 cursor-pointer"
+                                          className="w-4 h-4 "
                                         />
                                       );
                                     }
@@ -1296,7 +1296,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         ? "Yellow Card"
                                         : "Red Card"
                                     }
-                                    className="w-4 h-8 hover:scale-110 transition-transform duration-200 cursor-pointer"
+                                    className="w-4 h-8 "
                                   />
                                 ) : (
                                   <span className="text-xs">
@@ -1305,7 +1305,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 )}
                                 
                                 {/* Tooltip */}
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg">
+                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs  opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 ">
                                   {getEventDescription(event)}
                                   <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
                                 </div>
