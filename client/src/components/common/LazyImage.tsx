@@ -35,7 +35,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          setImageSrc(src);
+          setImageSrc(prevSrc => prevSrc !== src ? src : prevSrc);
           observer.disconnect();
         }
       },
@@ -59,7 +59,7 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const handleError = () => {
     if (!hasError && fallbackSrc) {
       setHasError(true);
-      setImageSrc(fallbackSrc);
+      setImageSrc(prevSrc => prevSrc !== fallbackSrc ? fallbackSrc : prevSrc);
     }
   };
 
