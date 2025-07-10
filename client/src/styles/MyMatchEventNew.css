@@ -138,7 +138,7 @@
 .penalty-player-name {
   font-size: 11px;
   font-weight: 500;
-  color: #374151;
+  color: #85878a;
   white-space: nowrap;
   max-width: 120px;
   overflow: hidden;
@@ -399,14 +399,15 @@
 /* Period score marker styling */
 .period-score-marker {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 3fr auto 3fr;
   grid-template-areas: "label score spacer";
   align-items: center;
   width: 100%;
   
-  padding: 4px 8px;
+  padding: 1px 8px;
+  margin-top: -14px;
  
-  background: #ababab;
+  background: #d1d1d1;
 
 }
 
