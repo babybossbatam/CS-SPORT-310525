@@ -191,7 +191,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         } else if (detail.toLowerCase().includes("own goal")) {
           return `${playerName} (${teamName}) - Own Goal`;
         } else {
-          return `${playerName} (${teamName}) - Goal${assistName ? `, assist: ${assistName}` : ""}`;
+          return `${playerName} (${teamName})${assistName ? `, assist: ${assistName}` : ""}`;
         }
       case "Card":
         if (detail.toLowerCase().includes("yellow")) {
