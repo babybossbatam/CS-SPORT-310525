@@ -26,18 +26,16 @@ const LazyImage: React.FC<LazyImageProps> = ({
   const [hasError, setHasError] = useState(false);
   const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [isStable, setIsStable] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || isStable) return;
+    if (!container) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !isStable) {
+        if (entry.isIntersecting) {
           setIsVisible(true);
           setImageSrc(src);
-          setIsStable(true);
           observer.disconnect();
         }
       },
@@ -52,18 +50,17 @@ const LazyImage: React.FC<LazyImageProps> = ({
     return () => {
       observer.disconnect();
     };
-  }, [src, rootMargin, threshold, isStable]);
+  }, [src, rootMargin, threshold]);
 
   const handleLoad = () => {
-    if (!isStable) {
-      setIsLoaded(true);
-      setIsStable(true);
-    }
+    setIsLoaded(true);
   };
 
   const handleError = () => {
-    // Prevent error handling to avoid re-rendering and logo updates
-    return;
+    if (!hasError && fallbackSrc) {
+      setHasError(true);
+      setImageSrc(fallbackSrc);
+    }
   };
 
   const defaultPlaceholder = (
