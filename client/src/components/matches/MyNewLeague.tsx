@@ -795,7 +795,177 @@ b.fixture.status.elapsed) || 0;
     });
   }, []);
 
-  // Memoized match card component to prevent unnecessary re-renders
+  // Optimized live match status component that only updates dynamic elements
+  const LiveMatchStatus = memo(({ 
+    match 
+  }: { 
+    match: any 
+  }) => {
+    const status = match.fixture.status.short;
+    const elapsed = match.fixture.status.elapsed;
+
+    if (
+      [
+        "LIVE",
+        "LIV", 
+        "1H",
+        "HT",
+        "2H",
+        "ET",
+        "BT",
+        "P",
+        "INT",
+      ].includes(status)
+    ) {
+      let displayText = "";
+      if (status === "HT") {
+        displayText = "Halftime";
+      } else if (status === "P") {
+        displayText = "Penalties";
+      } else if (status === "ET") {
+        displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
+      } else if (status === "BT") {
+        displayText = "Break Time";
+      } else if (status === "INT") {
+        displayText = "Interrupted";
+      } else {
+        displayText = elapsed ? `${elapsed}'` : "LIVE";
+      }
+
+      return (
+        <div className="match-status-label status-live">
+          {displayText}
+        </div>
+      );
+    }
+
+    if (
+      [
+        "FT",
+        "AET",
+        "PEN",
+        "AWD",
+        "WO",
+        "ABD",
+        "CANC",
+        "SUSP",
+      ].includes(status)
+    ) {
+      return (
+        <div className="match-status-label status-ended">
+          {status === "FT"
+            ? "Ended"
+            : status === "AET"
+              ? "After Extra Time"
+              : status}
+        </div>
+      );
+    }
+
+    if (status === "TBD") {
+      return (
+        <div className="match-status-label status-upcoming">
+          Time TBD
+        </div>
+      );
+    }
+
+    return null;
+  });
+
+  // Optimized score display component that only updates scores
+  const LiveScoreDisplay = memo(({ 
+    match 
+  }: { 
+    match: any 
+  }) => {
+    const status = match.fixture.status.short;
+
+    if (
+      [
+        "LIVE",
+        "LIV",
+        "1H",
+        "HT",
+        "2H",
+        "ET",
+        "BT",
+        "P",
+        "INT",
+      ].includes(status)
+    ) {
+      return (
+        <div className="match-score-display">
+          <span className="score-number">
+            {match.goals.home ?? 0}
+          </span>
+          <span className="score-separator">-</span>
+          <span className="score-number">
+            {match.goals.away ?? 0}
+          </span>
+        </div>
+      );
+    }
+
+    if (
+      [
+        "FT",
+        "AET",
+        "PEN",
+        "AWD",
+        "WO",
+        "ABD",
+        "CANC",
+        "SUSP",
+      ].includes(status)
+    ) {
+      const homeScore = match.goals.home;
+      const awayScore = match.goals.away;
+      const hasValidScores =
+        homeScore !== null &&
+        homeScore !== undefined &&
+        awayScore !== null &&
+        awayScore !== undefined &&
+        !isNaN(Number(homeScore)) &&
+        !isNaN(Number(awayScore));
+
+      if (hasValidScores) {
+        return (
+          <div className="match-score-display">
+            <span className="score-number">
+              {homeScore}
+            </span>
+            <span className="score-separator">-</span>
+            <span className="score-number">
+              {awayScore}
+            </span>
+          </div>
+        );
+      } else {
+        return (
+          <div
+            className="match-time-display"
+            style={{ fontSize: "0.882em" }}
+          >
+            {formatMatchTimeWithTimezone(match.fixture.date)}
+          </div>
+        );
+      }
+    }
+
+    return (
+      <div
+        className="match-time-display"
+        style={{ fontSize: "0.882em" }}
+      >
+        {status === "TBD"
+          ? "TBD"
+          : formatMatchTimeWithTimezone(match.fixture.date)}
+      </div>
+    );
+  });
+
+  // Memoized match card component with static elements separated from dynamic ones
   const MatchCard = memo(({ 
     match, 
     isHalftimeFlash, isFulltimeFlash, 
@@ -819,7 +989,19 @@ b.fixture.status.elapsed) || 0;
       if (onMatchClick) {
         onMatchClick(match);
       }
-    }, [match, onMatchClick]);
+    }, [match.fixture.id, onMatchClick]);
+
+    // Memoize static team data to prevent unnecessary re-renders
+    const staticTeamData = useMemo(() => ({
+      homeTeamName: shortenTeamName(match.teams.home.name) || "Unknown Team",
+      awayTeamName: shortenTeamName(match.teams.away.name) || "Unknown Team",
+      homeTeamLogo: match.teams.home.id
+        ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+        : "/assets/fallback-logo.svg",
+      awayTeamLogo: match.teams.away.id
+        ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+        : "/assets/fallback-logo.svg",
+    }), [match.teams.home.name, match.teams.away.name, match.teams.home.id, match.teams.away.id]);
 
     return (
       <div
@@ -866,87 +1048,14 @@ b.fixture.status.elapsed) || 0;
 
           {/* Match content container */}
           <div className="match-three-grid-container">
-            {/* Top Grid: Match Status */}
+            {/* Top Grid: Match Status - Dynamic */}
             <div className="match-status-top">
-              {(() => {
-                const status = match.fixture.status.short;
-                const elapsed = match.fixture.status.elapsed;
-
-                if (
-                  [
-                    "LIVE",
-                    "LIV",
-                    "1H",
-                    "HT",
-                    "2H",
-                    "ET",
-                    "BT",
-                    "P",
-                    "INT",
-                  ].includes(status)
-                ) {
-                  let displayText = "";
-                  if (status === "HT") {
-                    displayText = "Halftime";
-                  } else if (status === "P") {
-                    displayText = "Penalties";
-                  } else if (status === "ET") {
-                    displayText = elapsed
-                      ? `${elapsed}' ET`
-                      : "Extra Time";
-                  } else if (status === "BT") {
-                    displayText = "Break Time";
-                  } else if (status === "INT") {
-                    displayText = "Interrupted";
-                  } else {
-                    displayText = elapsed ? `${elapsed}'` : "LIVE";
-                  }
-
-                  return (
-                    <div className="match-status-label status-live">
-                      {displayText}
-                    </div>
-                  );
-                }
-
-                if (
-                  [
-                    "FT",
-                    "AET",
-                    "PEN",
-                    "AWD",
-                    "WO",
-                    "ABD",
-                    "CANC",
-                    "SUSP",
-                  ].includes(status)
-                ) {
-                  return (
-                    <div className="match-status-label status-ended">
-                      {status === "FT"
-                        ? "Ended"
-                        : status === "AET"
-                          ? "After Extra Time"
-                          : status}
-                    </div>
-                  );
-                }
-
-                if (status === "TBD") {
-                  return (
-                    <div className="match-status-label status-upcoming">
-                      Time TBD
-                    </div>
-                  );
-                }
-
-                return null;
-              })()}
+              <LiveMatchStatus match={match} />
             </div>
 
             {/* Middle Grid: Main match content */}
             <div className="match-content-container">
-              {/* Home Team Name */}
+              {/* Home Team Name - Static */}
               <div
                 className={`home-team-name ${
                   match.goals.home !== null &&
@@ -962,21 +1071,17 @@ b.fixture.status.elapsed) || 0;
                   whiteSpace: "nowrap",
                 }}
               >
-                {shortenTeamName(match.teams.home.name) || "Unknown Team"}
+                {staticTeamData.homeTeamName}
               </div>
 
-              {/* Home team logo */}
+              {/* Home team logo - Static */}
               <div
                 className="home-team-logo-container"
                 style={{ padding: "0 0.6rem" }}
               >
                 <MyWorldTeamLogo
                   teamName={match.teams.home.name}
-                  teamLogo={
-                    match.teams.home.id
-                      ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                      : "/assets/fallback-logo.svg"
-                  }
+                  teamLogo={staticTeamData.homeTeamLogo}
                   alt={match.teams.home.name}
                   size="34px"
                   className="popular-leagues-size"
@@ -987,109 +1092,19 @@ b.fixture.status.elapsed) || 0;
                 />
               </div>
 
-              {/* Score/Time Center */}
+              {/* Score/Time Center - Dynamic */}
               <div className="match-score-container">
-                {(() => {
-                  const status = match.fixture.status.short;
-                  const fixtureDate = parseISO(match.fixture.date);
-
-                  if (
-                    [
-                      "LIVE",
-                      "LIV",
-                      "1H",
-                      "HT",
-                      "2H",
-                      "ET",
-                      "BT",
-                      "P",
-                      "INT",
-                    ].includes(status)
-                  ) {
-                    return (
-                      <div className="match-score-display">
-                        <span className="score-number">
-                          {match.goals.home ?? 0}
-                        </span>
-                        <span className="score-separator">-</span>
-                        <span className="score-number">
-                          {match.goals.away ?? 0}
-                        </span>
-                      </div>
-                    );
-                  }
-
-                  if (
-                    [
-                      "FT",
-                      "AET",
-                      "PEN",
-                      "AWD",
-                      "WO",
-                      "ABD",
-                      "CANC",
-                      "SUSP",
-                    ].includes(status)
-                  ) {
-                    const homeScore = match.goals.home;
-                    const awayScore = match.goals.away;
-                    const hasValidScores =
-                      homeScore !== null &&
-                      homeScore !== undefined &&
-                      awayScore !== null &&
-                      awayScore !== undefined &&
-                      !isNaN(Number(homeScore)) &&
-                      !isNaN(Number(awayScore));
-
-                    if (hasValidScores) {
-                      return (
-                        <div className="match-score-display">
-                          <span className="score-number">
-                            {homeScore}
-                          </span>
-                          <span className="score-separator">-</span>
-                          <span className="score-number">
-                            {awayScore}
-                          </span>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div
-                          className="match-time-display"
-                          style={{ fontSize: "0.882em" }}
-                        >
-                          {formatMatchTimeWithTimezone(match.fixture.date)}
-                        </div>
-                      );
-                    }
-                  }
-
-                  return (
-                    <div
-                      className="match-time-display"
-                      style={{ fontSize: "0.882em" }}
-                    >
-                      {status === "TBD"
-                        ? "TBD"
-                        : formatMatchTimeWithTimezone(match.fixture.date)}
-                    </div>
-                  );
-                })()}
+                <LiveScoreDisplay match={match} />
               </div>
 
-              {/* Away team logo */}
+              {/* Away team logo - Static */}
               <div
                 className="away-team-logo-container"
                 style={{ padding: "0 0.5rem" }}
               >
                 <MyWorldTeamLogo
                   teamName={match.teams.away.name}
-                  teamLogo={
-                    match.teams.away.id
-                      ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                      : "/assets/fallback-logo.svg"
-                  }
+                  teamLogo={staticTeamData.awayTeamLogo}
                   alt={match.teams.away.name}
                   size="34px"
                   className="popular-leagues-size"
@@ -1100,7 +1115,7 @@ b.fixture.status.elapsed) || 0;
                 />
               </div>
 
-              {/* Away Team Name */}
+              {/* Away Team Name - Static */}
               <div
                 className={`away-team-name ${
                   match.goals.home !== null &&
@@ -1117,11 +1132,11 @@ b.fixture.status.elapsed) || 0;
                   whiteSpace: "nowrap",
                 }}
               >
-                {shortenTeamName(match.teams.away.name) || "Unknown Team"}
+                {staticTeamData.awayTeamName}
               </div>
             </div>
 
-            {/* Bottom Grid: Penalty Result Status */}
+            {/* Bottom Grid: Penalty Result Status - Dynamic */}
             <div className="match-penalty-bottom">
               {(() => {
                 const status = match.fixture.status.short;
@@ -1137,8 +1152,8 @@ b.fixture.status.elapsed) || 0;
                 if (isPenaltyMatch && hasPenaltyScores) {
                   const winnerText =
                     penaltyHome > penaltyAway
-                      ? `${shortenTeamName(match.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
-                      : `${shortenTeamName(match.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
+                      ? `${staticTeamData.homeTeamName} won ${penaltyHome}-${penaltyAway} on penalties`
+                      : `${staticTeamData.awayTeamName} won ${penaltyAway}-${penaltyHome} on penalties`;
 
                   return (
                     <div className="penalty-result-display">
