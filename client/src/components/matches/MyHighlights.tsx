@@ -106,10 +106,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   })();
 
   // Create more targeted search queries with different levels of specificity
-  const primarySearchQuery = `"${home}" vs "${away}" match highlights ${matchYear}`.trim();
-  const secondarySearchQuery = `"${home}" "${away}" goals highlights ${matchYear}`.trim();
-  const tertiarySearchQuery = `${home} vs ${away} ${league} highlights ${matchYear}`.trim();
-  const fallbackSearchQuery = `${home} ${away} football highlights ${matchYear}`.trim();
+  const primarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear}`.trim();
+  const secondarySearchQuery = `${home} ${away} highlights ${league} ${matchYear}`.trim();
+  const tertiarySearchQuery = `${home} vs ${away} ${matchYear} highlights`.trim();
+  const fallbackSearchQuery = `${home} vs ${away} highlights`.trim();
 
   // Debug logging to verify correct team names
   console.log(`🎬 [Highlights] Match data extraction:`, {
@@ -283,7 +283,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         
         for (const query of queries) {
           try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=1&order=relevance`);
             const data = await response.json();
 
             if (data.error || data.quotaExceeded) {
@@ -291,61 +291,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             }
 
             if (data.items && data.items.length > 0) {
-              // Filter out non-match content with stricter validation
-              const validVideo = data.items.find((video: any) => {
-                const title = video.snippet.title.toLowerCase();
-                const description = video.snippet.description?.toLowerCase() || '';
-                
-                // Exclude news shows, podcasts, and talk shows
-                const excludeKeywords = [
-                  'newsround', 'news', 'podcast', 'talk show', 'interview', 
-                  'press conference', 'analysis', 'preview', 'review',
-                  'reaction', 'discussion', 'debate', 'radio show'
-                ];
-                
-                // Must include highlight-related keywords
-                const highlightKeywords = [
-                  'highlights', 'goals', 'best moments', 'match recap',
-                  'summary', 'extended highlights', 'all goals'
-                ];
-                
-                const hasExcluded = excludeKeywords.some(keyword => 
-                  title.includes(keyword) || description.includes(keyword)
-                );
-                
-                const hasHighlights = highlightKeywords.some(keyword => 
-                  title.includes(keyword) || description.includes(keyword)
-                );
-                
-                // Validate team names are present in title or description
-                const homeTeamLower = home.toLowerCase();
-                const awayTeamLower = away.toLowerCase();
-                const hasHomeTeam = title.includes(homeTeamLower) || description.includes(homeTeamLower);
-                const hasAwayTeam = title.includes(awayTeamLower) || description.includes(awayTeamLower);
-                
-                // Validate current year is present (2025 or current year)
-                const currentYear = new Date().getFullYear();
-                const hasCurrentYear = title.includes(currentYear.toString()) || 
-                                     description.includes(currentYear.toString()) ||
-                                     title.includes('2025') || description.includes('2025');
-                
-                // Additional validation for match year consistency
-                const publishedDate = new Date(video.snippet.publishedAt);
-                const publishedYear = publishedDate.getFullYear();
-                const isRecentYear = publishedYear >= currentYear - 1; // Allow videos from current year or previous year
-                
-                return !hasExcluded && hasHighlights && hasHomeTeam && hasAwayTeam && hasCurrentYear && isRecentYear;
-              });
-
-              if (validVideo) {
-                return {
-                  name: 'YouTube',
-                  type: 'youtube' as const,
-                  url: `https://www.youtube.com/watch?v=${validVideo.id.videoId}`,
-                  embedUrl: `https://www.youtube.com/embed/${validVideo.id.videoId}?autoplay=0&rel=0`,
-                  title: validVideo.snippet.title
-                };
-              }
+              const video = data.items[0];
+              return {
+                name: 'YouTube',
+                type: 'youtube' as const,
+                url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+                embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+                title: video.snippet.title
+              };
             }
           } catch (error) {
             console.warn(`🎬 [Highlights] YouTube search failed for query: ${query}`, error);
@@ -402,19 +355,19 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         // Try different combinations for better results with year emphasis
         const fallbackQueries = [
-          `"${home}" "${away}" match highlights ${matchYear}`,
-          `${home} ${away} goals ${matchYear}`,
+          `"${home}" "${away}" highlights ${matchYear}`,
+          `${home} ${away} highlights football ${matchYear}`,
           `"${rawHome}" "${rawAway}" highlights ${matchYear}`,
-          `${home} vs ${away} ${league} highlights ${matchYear}`,
-          `${home} ${away} all goals ${matchYear}`,
-          `${home} ${away} ${matchYear} extended highlights`,
-          `${home} vs ${away} ${matchYear} goals`,
+          `${home} vs ${away} ${league} ${matchYear}`,
+          `${home} ${away} goals highlights ${matchYear}`,
+          `${home} ${away} ${matchYear} match highlights`,
+          `${home} vs ${away} ${matchYear}`,
           fallbackSearchQuery
         ];
 
         for (const query of fallbackQueries) {
           try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=3&order=relevance`);
             const data = await response.json();
 
             if (data.error || data.quotaExceeded) {
@@ -422,59 +375,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             }
 
             if (data.items && data.items.length > 0) {
-              // Apply same strict filtering as above
-              const validVideo = data.items.find((video: any) => {
-                const title = video.snippet.title.toLowerCase();
-                const description = video.snippet.description?.toLowerCase() || '';
-                
-                const excludeKeywords = [
-                  'newsround', 'news', 'podcast', 'talk show', 'interview', 
-                  'press conference', 'analysis', 'preview', 'review',
-                  'reaction', 'discussion', 'debate', 'radio show'
-                ];
-                
-                const highlightKeywords = [
-                  'highlights', 'goals', 'best moments', 'match recap',
-                  'summary', 'extended highlights', 'all goals'
-                ];
-                
-                const hasExcluded = excludeKeywords.some(keyword => 
-                  title.includes(keyword) || description.includes(keyword)
-                );
-                
-                const hasHighlights = highlightKeywords.some(keyword => 
-                  title.includes(keyword) || description.includes(keyword)
-                );
-                
-                // Validate team names are present in title or description
-                const homeTeamLower = home.toLowerCase();
-                const awayTeamLower = away.toLowerCase();
-                const hasHomeTeam = title.includes(homeTeamLower) || description.includes(homeTeamLower);
-                const hasAwayTeam = title.includes(awayTeamLower) || description.includes(awayTeamLower);
-                
-                // Validate current year is present (2025 or current year)
-                const currentYear = new Date().getFullYear();
-                const hasCurrentYear = title.includes(currentYear.toString()) || 
-                                     description.includes(currentYear.toString()) ||
-                                     title.includes('2025') || description.includes('2025');
-                
-                // Additional validation for match year consistency
-                const publishedDate = new Date(video.snippet.publishedAt);
-                const publishedYear = publishedDate.getFullYear();
-                const isRecentYear = publishedYear >= currentYear - 1; // Allow videos from current year or previous year
-                
-                return !hasExcluded && hasHighlights && hasHomeTeam && hasAwayTeam && hasCurrentYear && isRecentYear;
-              });
-
-              if (validVideo) {
-                return {
-                  name: 'YouTube Extended',
-                  type: 'youtube' as const,
-                  url: `https://www.youtube.com/watch?v=${validVideo.id.videoId}`,
-                  embedUrl: `https://www.youtube.com/embed/${validVideo.id.videoId}?autoplay=0&rel=0`,
-                  title: validVideo.snippet.title
-                };
-              }
+              const video = data.items[0];
+              return {
+                name: 'YouTube Extended',
+                type: 'youtube' as const,
+                url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+                embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+                title: video.snippet.title
+              };
             }
           } catch (error) {
             console.warn(`🎬 [Highlights] Extended search failed for query: ${query}`, error);
