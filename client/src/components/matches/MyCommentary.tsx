@@ -287,12 +287,14 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 (latest, current) =>
                   current.totalTime > latest.totalTime ? current : latest,
               );
+        
 
               const finalScore = calculateScoreAtTime(finalEvent.totalTime);
+              
               periodMarkers.push({
-                time: {
+                time: {  
                   elapsed: finalEvent.time.elapsed,
-                  extra: finalEvent.time.extra,
+                  extra: finalEvent.time.extra && finalEvent.time.extra > 0 ? finalEvent.time.extra : "",
                 },
                 type: "period_score",
                 detail: "Full Time",
@@ -312,6 +314,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 // First sort by elapsed time (descending)
                 if (a.time.elapsed !== b.time.elapsed) {
                   return b.time.elapsed - a.time.elapsed;
+                  
                 }
 
                 // If elapsed time is the same, sort by extra time (descending)
@@ -321,6 +324,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                 if (aExtra !== bExtra) {
                   return bExtra - aExtra;
+                  
                 }
 
                 // For events at the same time, prioritize period markers to appear first
@@ -345,6 +349,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           {event.time.elapsed}'
                         </div>
                         <div className="text-lg font-bold text-gray-900 ml-4">
+                          
                           <img
                             src="/assets/matchdetaillogo/clock.png"
                             alt="clock"
