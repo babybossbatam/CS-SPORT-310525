@@ -105,8 +105,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     return new Date().getFullYear();
   })();
 
-  // Create more targeted search query
-  const searchQuery = `${home} vs ${away} highlights ${league} ${matchYear}`.trim();
+  // Create more targeted search queries with different levels of specificity
+  const primarySearchQuery = `"${home}" vs "${away}" highlights ${league} ${matchYear}`.trim();
+  const secondarySearchQuery = `${home} ${away} highlights ${matchYear}`.trim();
+  const fallbackSearchQuery = `${home} vs ${away} highlights`.trim();
 
   // Debug logging to verify correct team names
   console.log(`🎬 [Highlights] Match data extraction:`, {
@@ -116,7 +118,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     cleanedAwayTeam: away,
     league: league,
     matchYear: matchYear,
-    searchQuery: searchQuery,
+    primarySearchQuery: primarySearchQuery,
+    secondarySearchQuery: secondarySearchQuery,
+    fallbackSearchQuery: fallbackSearchQuery,
     rawMatch: match,
     props: { homeTeam, awayTeam, homeTeamName, awayTeamName, leagueName }
   });
@@ -191,8 +195,19 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       type: 'youtube' as const,
       searchFn: async () => {
         const concacafChannelId = 'UCqn7r-so0mBLaJTtTms9dAQ';
-        const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(searchQuery)}&maxResults=1&channelId=${concacafChannelId}&order=relevance`);
-        const data = await response.json();
+        // Try primary search first, then fallback to secondary
+        let response, data;
+        try {
+          response = await fetch(`/api/youtube/search?q=${encodeURIComponent(primarySearchQuery)}&maxResults=1&channelId=${concacafChannelId}&order=relevance`);
+          data = await response.json();
+          if (!data.items || data.items.length === 0) {
+            response = await fetch(`/api/youtube/search?q=${encodeURIComponent(secondarySearchQuery)}&maxResults=1&channelId=${concacafChannelId}&order=relevance`);
+            data = await response.json();
+          }
+        } catch (error) {
+          response = await fetch(`/api/youtube/search?q=${encodeURIComponent(secondarySearchQuery)}&maxResults=1&channelId=${concacafChannelId}&order=relevance`);
+          data = await response.json();
+        }
 
         if (data.error || data.quotaExceeded) {
           throw new Error(data.error || 'CONCACAF channel search failed');
@@ -218,9 +233,19 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         const fifaChannelId = 'UCK-mxP4hLap1t3dp4bPbSBg';
         // For Palmeiras vs Chelsea, use Chelsea-focused search to avoid Benfica results
-        const searchTerm = isPalmeirasChelsea ? 'Chelsea highlights FIFA Club World Cup' : searchQuery;
-        const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(searchTerm)}&maxResults=1&channelId=${fifaChannelId}&order=relevance`);
-        const data = await response.json();
+        const searchTerm = isPalmeirasChelsea ? 'Chelsea highlights FIFA Club World Cup' : primarySearchQuery;
+        let response, data;
+        try {
+          response = await fetch(`/api/youtube/search?q=${encodeURIComponent(searchTerm)}&maxResults=1&channelId=${fifaChannelId}&order=relevance`);
+          data = await response.json();
+          if (!data.items || data.items.length === 0) {
+            response = await fetch(`/api/youtube/search?q=${encodeURIComponent(secondarySearchQuery)}&maxResults=1&channelId=${fifaChannelId}&order=relevance`);
+            data = await response.json();
+          }
+        } catch (error) {
+          response = await fetch(`/api/youtube/search?q=${encodeURIComponent(secondarySearchQuery)}&maxResults=1&channelId=${fifaChannelId}&order=relevance`);
+          data = await response.json();
+        }
 
         if (data.error || data.quotaExceeded) {
           throw new Error(data.error || 'FIFA official channel search failed');
@@ -243,8 +268,19 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'YouTube',
       type: 'youtube' as const,
       searchFn: async () => {
-        const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(searchQuery)}&maxResults=1&order=relevance`);
-        const data = await response.json();
+        // Try primary search with exact team names first
+        let response, data;
+        try {
+          response = await fetch(`/api/youtube/search?q=${encodeURIComponent(primarySearchQuery)}&maxResults=1&order=relevance`);
+          data = await response.json();
+          if (!data.items || data.items.length === 0) {
+            response = await fetch(`/api/youtube/search?q=${encodeURIComponent(secondarySearchQuery)}&maxResults=1&order=relevance`);
+            data = await response.json();
+          }
+        } catch (error) {
+          response = await fetch(`/api/youtube/search?q=${encodeURIComponent(secondarySearchQuery)}&maxResults=1&order=relevance`);
+          data = await response.json();
+        }
 
         if (data.error || data.quotaExceeded) {
           throw new Error(data.error || 'YouTube quota exceeded');
@@ -308,12 +344,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'YouTube Extended',
       type: 'youtube' as const,
       searchFn: async () => {
-        // Try different combinations for better results
+        // Try different combinations for better results with year emphasis
         const fallbackQueries = [
+          `"${home}" "${away}" highlights ${matchYear}`,
           `${home} ${away} highlights football ${matchYear}`,
-          `${rawHome} ${rawAway} highlights ${matchYear}`,
-          `${home} vs ${away} football highlights`,
-          `${home} ${away} goals highlights ${league}`
+          `"${rawHome}" "${rawAway}" highlights ${matchYear}`,
+          `${home} vs ${away} ${league} ${matchYear}`,
+          `${home} ${away} goals highlights ${matchYear}`,
+          fallbackSearchQuery
         ];
 
         for (const query of fallbackQueries) {
