@@ -870,7 +870,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               {penalty.event.player?.name}
                             </span>
                           </div>
-                          <MyPlayerProfilePicture```text
+                          <MyPlayerProfilePicture
                             playerId={penalty.event.player?.id}
                             playerName={penalty.event.player?.name}
                             size="md"
