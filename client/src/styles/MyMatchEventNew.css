@@ -403,7 +403,8 @@
   grid-template-areas: "label score spacer";
   align-items: center;
   width: 100%;
-  
+  margin-top: -14px;
+  margin-bottom: -14px;
   padding: 1px 8px;
   
  

@@ -940,10 +940,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       </CardHeader>
 
       {/* Tab Navigation */}
-      <div className="pl-16 pr-16 py-8 flex">
+      <div className="pl-28 pr-28 py-4 flex">
         <button
           onClick={() => setActiveTab('all')}
-          className={`flex-1  text-sm font-medium  transition-colors ${
+          className={`flex-1  text-xs font-small  transition-colors ${
             activeTab === 'all'
               ? 'bg-blue-500 text-white '
               : 'bg-white text-blue-400 border border-blue-400 hover:bg-gray-200'
@@ -953,7 +953,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('top')}
-          className={`flex-1 py-3  text-sm font-medium text-center transition-colors ${
+          className={`flex-1 py-3  text-xs font-small text-center transition-colors ${
             activeTab === 'top'
               ? 'bg-blue-500 text-white'
               : 'bg-white text-blue-400 border border-blue-400 hover:bg-gray-200'
@@ -963,7 +963,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('commentary')}
-          className={`flex-1 py-3  text-sm font-medium text-center transition-colors ${
+          className={`flex-1 py-3  text-xs font-small text-center transition-colors ${
             activeTab === 'commentary'
               ? 'bg-blue-500 text-white'
               : 'bg-white text-blue-400 border border-blue-400 hover:bg-gray-200'
