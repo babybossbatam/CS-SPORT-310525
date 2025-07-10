@@ -795,6 +795,27 @@ b.fixture.status.elapsed) || 0;
     });
   }, []);
 
+  // Memoize team logos separately to prevent logo rerenders
+  const TeamLogo = memo(({ teamId, teamName, logoUrl, size, leagueGroup }: {
+    teamId: number;
+    teamName: string;
+    logoUrl: string;
+    size: string;
+    leagueGroup: any;
+  }) => (
+    <MyWorldTeamLogo
+      teamName={teamName}
+      teamLogo={logoUrl}
+      alt={teamName}
+      size={size}
+      className="popular-leagues-size"
+      leagueContext={{
+        name: leagueGroup.league.name,
+        country: leagueGroup.league.country,
+      }}
+    />
+  ));
+
   // Memoized match card component to prevent unnecessary re-renders
   const MatchCard = memo(({ 
     match, 
@@ -970,20 +991,16 @@ b.fixture.status.elapsed) || 0;
                 className="home-team-logo-container"
                 style={{ padding: "0 0.6rem" }}
               >
-                <MyWorldTeamLogo
+                <TeamLogo
+                  teamId={match.teams.home.id}
                   teamName={match.teams.home.name}
-                  teamLogo={
+                  logoUrl={
                     match.teams.home.id
                       ? `/api/team-logo/square/${match.teams.home.id}?size=32`
                       : "/assets/fallback-logo.svg"
                   }
-                  alt={match.teams.home.name}
                   size="34px"
-                  className="popular-leagues-size"
-                  leagueContext={{
-                    name: leagueGroup.league.name,
-                    country: leagueGroup.league.country,
-                  }}
+                  leagueGroup={leagueGroup}
                 />
               </div>
 
@@ -1083,20 +1100,16 @@ b.fixture.status.elapsed) || 0;
                 className="away-team-logo-container"
                 style={{ padding: "0 0.5rem" }}
               >
-                <MyWorldTeamLogo
+                <TeamLogo
+                  teamId={match.teams.away.id}
                   teamName={match.teams.away.name}
-                  teamLogo={
+                  logoUrl={
                     match.teams.away.id
                       ? `/api/team-logo/square/${match.teams.away.id}?size=32`
                       : "/assets/fallback-logo.svg"
                   }
-                  alt={match.teams.away.name}
                   size="34px"
-                  className="popular-leagues-size"
-                  leagueContext={{
-                    name: leagueGroup.league.name,
-                    country: leagueGroup.league.country,
-                  }}
+                  leagueGroup={leagueGroup}
                 />
               </div>
 
