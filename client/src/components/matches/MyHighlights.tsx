@@ -51,7 +51,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   // Helper function to clean team names for better search results
   const cleanTeamName = (name: string): string => {
     if (!name || name === 'Home Team' || name === 'Away Team') return name;
-    
+
     // Remove common suffixes that might confuse search
     return name
       .replace(/\s+(FC|CF|SC|AC|BK|SK|FK|GK|NK|RK|VK|JK|LK|MK|PK|TK|UK|WK|YK|ZK)$/i, '')
@@ -128,7 +128,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   // Check if this is a CONCACAF competition
   const isConcacafCompetition = league.toLowerCase().includes('concacaf') || 
                                league.toLowerCase().includes('gold cup') ||
-                               searchQuery.toLowerCase().includes('concacaf');
+                               primarySearchQuery.toLowerCase().includes('concacaf');
 
   // Check if this is a FIFA Club World Cup competition
   const isFifaClubWorldCup = league.toLowerCase().includes('fifa') && 
@@ -303,7 +303,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'Vimeo',
       type: 'vimeo' as const,
       searchFn: async () => {
-        const response = await fetch(`/api/vimeo/search?q=${encodeURIComponent(searchQuery)}&maxResults=1`);
+        const response = await fetch(`/api/vimeo/search?q=${encodeURIComponent(primarySearchQuery)}&maxResults=1`);
         const data = await response.json();
 
         if (data.items && data.items.length > 0) {
@@ -323,7 +323,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'Dailymotion',
       type: 'dailymotion' as const,
       searchFn: async () => {
-        const response = await fetch(`/api/dailymotion/search?q=${encodeURIComponent(searchQuery)}&maxResults=1`);
+        const response = await fetch(`/api/dailymotion/search?q=${encodeURIComponent(primarySearchQuery)}&maxResults=1`);
         const data = await response.json();
 
         if (data.items && data.items.length > 0) {
@@ -386,7 +386,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const tryNextSource = async () => {
     if (sourceIndex >= videoSources.length) {
       // All sources failed, show error with retry option
-      console.error(`🎬 [Highlights] All sources failed for: ${searchQuery}`);
+      console.error(`🎬 [Highlights] All sources failed for: ${primarySearchQuery}`);
       setError('No video sources available');
       setLoading(false);
       return;
@@ -394,7 +394,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
     const source = videoSources[sourceIndex];
     try {
-      console.log(`🎬 [Highlights] Trying ${source.name} for: ${searchQuery}`);
+      console.log(`🎬 [Highlights] Trying ${source.name} for: ${primarySearchQuery}`);
       const result = await source.searchFn();
       setCurrentSource(result);
       setError(null);
@@ -402,7 +402,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       setIframeError(false); // Reset iframe error when new source is found
       console.log(`✅ [Highlights] Success with ${source.name}:`, result.title);
     } catch (sourceError) {
-      console.warn(`❌ [Highlights] ${source.name} failed for "${searchQuery}":`, sourceError);
+      console.warn(`❌ [Highlights] ${source.name} failed for "${primarySearchQuery}":`, sourceError);
       setSourceIndex(prev => prev + 1);
       // Continue to next source
     }
@@ -427,7 +427,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         // we should hide the component after a reasonable wait time
         if (currentSource.type === 'youtube') {
           console.warn(`🎬 [Highlights] YouTube video timeout - may be unavailable: ${currentSource.title}`);
-      
+
         }
       }, 10000); // 10 second timeout for video availability check
 
