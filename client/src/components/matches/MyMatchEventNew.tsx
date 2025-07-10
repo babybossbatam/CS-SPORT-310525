@@ -7,6 +7,7 @@ import "@/styles/MyPlayer.css";
 import "@/styles/MyMatchEventNew.css";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import MyCommentary from "./MyCommentary";
+import MyPlayerProfilePicture from "./MyPlayerProfilePicture";
 
 interface MyMatchEventNewProps {
   fixtureId: string | number;
@@ -732,23 +733,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     {penalty.event && isHome ? (
                       <>
                         <div className="penalty-player-info penalty-player-info-home">
-                          <Avatar className="w-10 h-10 border-2 border-gray-400 shadow-sm flex-shrink-0">
-                            <AvatarImage
-                              src={getPlayerImage(
-                                penalty.event.player?.id,
-                                penalty.event.player?.name,
-                              )}
-                              alt={penalty.event.player?.name || "Player"}
-                              className="object-cover"
-                            />
-                            <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
-                              <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
-                                <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
-                                <circle cx="50" cy="35" r="12" fill="#6b7280"/>
-                                <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
-                              </svg>
-                            </AvatarFallback>
-                          </Avatar>
+                          <MyPlayerProfilePicture
+                            playerId={penalty.event.player?.id}
+                            playerName={penalty.event.player?.name}
+                            size="md"
+                            teamType="home"
+                            className="flex-shrink-0"
+                          />
                           <div className="flex flex-col min-w-0 ml-2">
                             <span className="penalty-player-name text-xs font-medium text-left truncate">
                               {penalty.event.player?.name}
@@ -814,23 +805,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               {penalty.event.player?.name}
                             </span>
                           </div>
-                          <Avatar className="w-10 h-10 border-2 border-gray-400 shadow-sm flex-shrink-0">
-                            <AvatarImage
-                              src={getPlayerImage(
-                                penalty.event.player?.id,
-                                penalty.event.player?.name,
-                              )}
-                              alt={penalty.event.player?.name || "Player"}
-                              className="object-cover"
-                            />
-                            <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
-                              <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
-                                <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
-                                <circle cx="50" cy="35" r="12" fill="#6b7280"/>
-                                <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
-                              </svg>
-                            </AvatarFallback>
-                          </Avatar>
+                          <MyPlayerProfilePicture
+                            playerId={penalty.event.player?.id}
+                            playerName={penalty.event.player?.name}
+                            size="md"
+                            teamType="away"
+                            className="flex-shrink-0"
+                          />
                         </div>
                       </>
                     ) : (
@@ -848,7 +829,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           })}
         </div>
 
-        {/* Final score indicator at bottom */}```text
+        {/* Final score indicator at bottom */}
         <div className="penalty-final-score">
           <div className="text-xs text-gray-500 text-center">
             Final: {homeScore} - {awayScore}
@@ -964,7 +945,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   const fullTimeEvents = events.filter(
                     (e) => e.time?.elapsed >= 90,
                   );
-                  
+
                   if (isMatchEnded || fullTimeEvents.length > 0) {
                     markers.push({
                       time: { elapsed: 90 },
