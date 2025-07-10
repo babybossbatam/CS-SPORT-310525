@@ -22,9 +22,9 @@ import { format, addDays, subDays } from "date-fns";
 import cors from "cors";
 import featuredMatchRoutes from "./routes/featuredMatchRoutes";
 import youtubeRoutes from "./routes/youtubeRoutes";
-import vimeoRoutes from "./routes/vimeoRoutes";
-import dailymotionRoutes from "./routes/dailymotionRoutes";
-import twitchRoutes from "./routes/twitchRoutes";
+import vimeoRoutes from "./vimeoRoutes";
+import dailymotionRoutes from "./dailymotionRoutes";
+import twitchRoutes from "./twitchRoutes";
 import highlightsRoutes from './routes/highlightsRoutes';
 import playerRoutes from './routes/playerRoutes';
 import axios from "axios";
@@ -823,8 +823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             league: {
               id: 2,
               name: "UEFA Champions League",
-              type:```text
-"Cup",
+              type: "Cup",
               logo: "https://media.api-sports.io/football/leagues/2.png",
               country: "World",
             },
@@ -1708,7 +1707,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         console.error(
           `Error fetching 365scores league logo for ${req.params.leagueId}:`,
-          error,        );
+          error,
+        );
         res.status(500).json({ error: "Failed to fetch league logo" });
       }
     },
@@ -2684,8 +2684,7 @@ logoUrl, {
         const lineups = await soccersApi.getMatchLineups(id);
         res.json({
           success: true,
-          lineups: lineups,
-        });
+          lineups: lineups,        });
       } catch (error) {
         console.error("❌ [SoccersAPI] Error fetching match lineups:", error);
         res.status(500).json({
