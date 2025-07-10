@@ -417,14 +417,14 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         key={`period-${index}`}
                         className="commentary-event-container"
                       >
-                        <div className="flex gap-1">
+                        <div className="flex gap-3">
                           {/* Time Column */}
-                          <div className="flex flex-col items-center min-w-[45px]">
+                          <div className="flex flex-col items-center min-w-[50px]">
                             <div className="text-gray-800 text-sm font-medium leading-tight">
                               45'
                             </div>
                             {index < allCommentaryItems.length - 1 && (
-                              <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
+                              <div className="w-0.5 h-12 bg-gray-600"></div>
                             )}
                           </div>
 
