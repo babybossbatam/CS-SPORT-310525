@@ -83,16 +83,20 @@ class PlayerImageCache {
     if (playerId) {
       try {
         const cdnSources = [
-          // BeSoccer CDN (primary)
+          // 365Scores CDN (primary - likely to work)
+          `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
+          // API-Sports CDN
+          `https://media.api-sports.io/football/players/${playerId}.png`,
+          // BeSoccer CDN
           `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`,
           // Alternative BeSoccer formats
           `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg`,
           `https://cdn.resfu.com/img_data/players/small/${playerId}.jpg?size=120x&lossy=1`,
-          // API-Sports CDN
-          `https://media.api-sports.io/football/players/${playerId}.png`,
+          // SportMonks CDN
+          `https://cdn.sportmonks.com/images/soccer/players/${playerId}.png`,
         ];
 
-        console.log(`🔍 [PlayerImageCache] Trying ${cdnSources.length} CDN sources for player ${playerId}`);
+        console.log(`🔍 [PlayerImageCache] Trying ${cdnSources.length} CDN sources for player ${playerId} (${playerName})`);
         
         // Try each CDN source
         for (const cdnUrl of cdnSources) {
@@ -111,17 +115,27 @@ class PlayerImageCache {
         // Fallback to API endpoint
         const apiUrl = `/api/player-photo/${playerId}`;
         console.log(`🔍 [PlayerImageCache] All CDNs failed, trying API endpoint: ${apiUrl}`);
-        this.setCachedImage(playerId, playerName, apiUrl, 'api');
-        return apiUrl;
+        
+        // Test if API endpoint works
+        try {
+          const isValidApi = await this.validateImageUrl(apiUrl);
+          if (isValidApi) {
+            this.setCachedImage(playerId, playerName, apiUrl, 'api');
+            return apiUrl;
+          }
+        } catch (error) {
+          console.log(`⚠️ [PlayerImageCache] API endpoint also failed: ${apiUrl}`);
+        }
       } catch (error) {
         console.warn(`⚠️ [PlayerImageCache] All sources failed for player ${playerId}:`, error);
       }
     }
 
-    // Generate initials fallback only if no player ID
+    // Generate initials fallback only if no player ID or all sources failed
     const initials = this.generateInitials(playerName);
-    const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=32&background=4F46E5&color=fff&bold=true&format=svg`;
+    const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=64&background=4F46E5&color=fff&bold=true&format=svg`;
     
+    console.log(`🎨 [PlayerImageCache] Using initials fallback for ${playerName}: ${fallbackUrl}`);
     this.setCachedImage(playerId, playerName, fallbackUrl, 'initials');
     return fallbackUrl;
   }
@@ -143,20 +157,44 @@ class PlayerImageCache {
     try {
       // For local API endpoints, do a proper validation
       if (url.startsWith('/api/')) {
-        const response = await fetch(url, { 
-          method: 'HEAD',
-          signal: AbortSignal.timeout(2000)
-        });
-        return response.ok && response.headers.get('content-type')?.startsWith('image/');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        
+        try {
+          const response = await fetch(url, { 
+            method: 'HEAD',
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          return response.ok && response.headers.get('content-type')?.startsWith('image/');
+        } catch (error) {
+          clearTimeout(timeoutId);
+          throw error;
+        }
       }
 
       // For external URLs, do a quick validation
-      const response = await fetch(url, { 
-        method: 'HEAD',
-        signal: AbortSignal.timeout(3000)
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
       
-      return response.ok && response.headers.get('content-type')?.startsWith('image/');
+      try {
+        const response = await fetch(url, { 
+          method: 'HEAD',
+          signal: controller.signal,
+          mode: 'cors'
+        });
+        clearTimeout(timeoutId);
+        
+        const isOk = response.ok;
+        const contentType = response.headers.get('content-type');
+        const isImage = contentType?.startsWith('image/') || url.includes('.jpg') || url.includes('.png') || url.includes('.svg');
+        
+        console.log(`🔍 [PlayerImageCache] URL validation for ${url}: status=${response.status}, ok=${isOk}, contentType=${contentType}`);
+        return isOk && isImage;
+      } catch (error) {
+        clearTimeout(timeoutId);
+        throw error;
+      }
     } catch (error) {
       console.warn(`⚠️ [PlayerImageCache] URL validation failed for ${url}:`, error);
       return false;

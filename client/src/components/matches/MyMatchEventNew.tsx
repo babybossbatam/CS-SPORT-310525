@@ -60,6 +60,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [playerImages, setPlayerImages] = useState<Record<string, string>>({});
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchMatchEvents = useCallback(async () => {
@@ -411,15 +412,78 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
+  // Load player images asynchronously
+  useEffect(() => {
+    const loadPlayerImages = async () => {
+      const { getPlayerImage } = await import('../../lib/playerImageCache');
+      const imagePromises: Record<string, Promise<string>> = {};
+      
+      events.forEach(event => {
+        if (event.player?.id || event.player?.name) {
+          const key = `${event.player.id}_${event.player.name}`;
+          if (!playerImages[key]) {
+            imagePromises[key] = getPlayerImage(event.player.id, event.player.name);
+          }
+        }
+        
+        // Also load assist player images for substitutions
+        if (event.assist?.id || event.assist?.name) {
+          const assistKey = `${event.assist.id}_${event.assist.name}`;
+          if (!playerImages[assistKey]) {
+            imagePromises[assistKey] = getPlayerImage(event.assist.id, event.assist.name);
+          }
+        }
+      });
+      
+      // Resolve all image promises
+      const resolvedImages = await Promise.allSettled(
+        Object.entries(imagePromises).map(async ([key, promise]) => {
+          try {
+            const url = await promise;
+            return { key, url };
+          } catch (error) {
+            console.warn(`Failed to load image for ${key}:`, error);
+            return { key, url: '' };
+          }
+        })
+      );
+      
+      // Update state with resolved images
+      const newImages: Record<string, string> = {};
+      resolvedImages.forEach(result => {
+        if (result.status === 'fulfilled') {
+          newImages[result.value.key] = result.value.url;
+        }
+      });
+      
+      if (Object.keys(newImages).length > 0) {
+        setPlayerImages(prev => ({ ...prev, ...newImages }));
+      }
+    };
+    
+    if (events.length > 0) {
+      loadPlayerImages();
+    }
+  }, [events]);
+
   const getPlayerImage = useCallback((
     playerId: number | undefined,
     playerName: string | undefined,
-  ) => {
-    if (!playerId) {
-      return "";
+  ): string => {
+    const key = `${playerId}_${playerName}`;
+    const cachedImage = playerImages[key];
+    
+    if (cachedImage) {
+      return cachedImage;
     }
-    return `/api/player-photo/${playerId}`;
-  }, []);
+    
+    // Fallback while loading
+    if (playerId) {
+      return `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
+    }
+    
+    return "";
+  }, [playerImages]);
 
   const EventItem = ({
     event,

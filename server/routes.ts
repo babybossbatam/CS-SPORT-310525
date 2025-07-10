@@ -25,7 +25,7 @@ import youtubeRoutes from "./routes/youtubeRoutes";
 import vimeoRoutes from "./routes/vimeoRoutes";
 import dailymotionRoutes from "./routes/dailymotionRoutes";
 import twitchRoutes from "./routes/twitchRoutes";
-import highlightsRoutes from "./routes/highlightsRoutes";
+import highlightsRoutes from './routes/highlightsRoutes';
 import playerRoutes from './routes/playerRoutes';
 import axios from "axios";
 import { simpleRapidApi } from "./services/simpleRapidApi";
@@ -823,7 +823,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             league: {
               id: 2,
               name: "UEFA Champions League",
-              type: "Cup",
+              type:```text
+"Cup",
               logo: "https://media.api-sports.io/football/leagues/2.png",
               country: "World",
             },
