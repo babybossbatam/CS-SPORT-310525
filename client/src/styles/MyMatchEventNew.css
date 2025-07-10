@@ -620,11 +620,13 @@
     width: 20px;
     height: 20px;
     font-size: 10px;
+    
   }
 
   .match-event-home-side,
   .match-event-away-side {
     padding: 0 4px;
+    
   }
 
   .match-event-event-title {
