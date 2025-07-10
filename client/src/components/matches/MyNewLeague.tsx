@@ -795,6 +795,77 @@ b.fixture.status.elapsed) || 0;
     });
   }, []);
 
+  // Selective update component for match data
+  const MatchDataUpdater = memo(({ 
+    matchId, 
+    status, 
+    elapsed, 
+    homeScore, 
+    awayScore,
+    penaltyHome,
+    penaltyAway 
+  }: {
+    matchId: number;
+    status: string;
+    elapsed?: number;
+    homeScore: number | null;
+    awayScore: number | null;
+    penaltyHome?: number | null;
+    penaltyAway?: number | null;
+  }) => {
+    useEffect(() => {
+      // Update status display
+      const statusElement = document.querySelector(`[data-fixture-id="${matchId}"] .match-status-label`);
+      if (statusElement) {
+        if (['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+          let displayText = '';
+          if (status === 'HT') {
+            displayText = 'Halftime';
+          } else if (status === 'P') {
+            displayText = 'Penalties';
+          } else if (status === 'ET') {
+            displayText = elapsed ? `${elapsed}' ET` : 'Extra Time';
+          } else if (status === 'BT') {
+            displayText = 'Break Time';
+          } else if (status === 'INT') {
+            displayText = 'Interrupted';
+          } else {
+            displayText = elapsed ? `${elapsed}'` : 'LIVE';
+          }
+          statusElement.textContent = displayText;
+          statusElement.className = 'match-status-label status-live';
+        } else if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
+          statusElement.textContent = status === 'FT' ? 'Ended' : status === 'AET' ? 'After Extra Time' : status;
+          statusElement.className = 'match-status-label status-ended';
+        }
+      }
+
+      // Update score display
+      const scoreElement = document.querySelector(`[data-fixture-id="${matchId}"] .match-score-display`);
+      if (scoreElement && homeScore !== null && awayScore !== null) {
+        const homeSpan = scoreElement.querySelector('.score-number:first-child');
+        const awaySpan = scoreElement.querySelector('.score-number:last-child');
+        if (homeSpan && awaySpan) {
+          homeSpan.textContent = homeScore.toString();
+          awaySpan.textContent = awayScore.toString();
+        }
+      }
+
+      // Update penalty result if applicable
+      if (status === 'PEN' && penaltyHome !== null && penaltyAway !== null) {
+        const penaltyElement = document.querySelector(`[data-fixture-id="${matchId}"] .penalty-result-display`);
+        if (penaltyElement) {
+          const winnerText = penaltyHome > penaltyAway
+            ? `Home won ${penaltyHome}-${penaltyAway} on penalties`
+            : `Away won ${penaltyAway}-${penaltyHome} on penalties`;
+          penaltyElement.innerHTML = `<span class="penalty-winner">${winnerText}</span>`;
+        }
+      }
+    }, [matchId, status, elapsed, homeScore, awayScore, penaltyHome, penaltyAway]);
+
+    return null; // This component doesn't render anything
+  });
+
   // Memoized match card component to prevent unnecessary re-renders
   const MatchCard = memo(({ 
     match, 
@@ -826,6 +897,17 @@ b.fixture.status.elapsed) || 0;
         key={match.fixture.id}
         className="country-matches-container"
       >
+        {/* Selective data updater - only updates specific DOM elements */}
+        <MatchDataUpdater
+          matchId={match.fixture.id}
+          status={match.fixture.status.short}
+          elapsed={match.fixture.status.elapsed}
+          homeScore={match.goals.home}
+          awayScore={match.goals.away}
+          penaltyHome={match.score?.penalty?.home}
+          penaltyAway={match.score?.penalty?.away}
+        />
+        
         <div 
           className={`match-card-container group ${
             isHalftimeFlash ? 'halftime-flash' : ''
@@ -1224,6 +1306,7 @@ b.fixture.status.elapsed) || 0;
     const newGoalMatches = new Set<number>();
     const currentStatuses = new Map<number, string>();
     const currentScores = new Map<number, {home: number, away: number}>();
+    const changedMatches = new Set<number>(); // Track which matches need selective updates
 
     // Check for stale live matches that should be updated
     const staleLiveMatches = fixtures.filter((fixture) => {
@@ -1287,6 +1370,9 @@ b.fixture.status.elapsed) || 0;
           time: new Date().toLocaleTimeString(),
           elapsed: fixture.fixture.status.elapsed
         });
+
+        // Mark this match for selective update
+        changedMatches.add(matchId);
 
         // Track status transition in cache system for invalidation
         fixtureCache.trackStatusTransition(matchId, previousStatus, currentStatus);
@@ -1361,6 +1447,7 @@ b.fixture.status.elapsed) || 0;
           elapsed: fixture.fixture.status.elapsed
         });
         newGoalMatches.add(matchId);
+        changedMatches.add(matchId); // Mark for selective update
 
         // Clear cache immediately when goals are scored
         clearMatchCache(matchId, 'GOAL_SCORED', fixture.fixture.date);
@@ -1378,6 +1465,7 @@ b.fixture.status.elapsed) || 0;
             elapsed: `${previousElapsed}' → ${currentElapsed}'`,
             status: currentStatus
           });
+          changedMatches.add(matchId); // Mark for selective update
         }
 
         // Store elapsed time for tracking

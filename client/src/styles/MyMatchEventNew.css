@@ -320,6 +320,32 @@
    gap: 13px;
 }
 
+/* Smooth transitions for selective updates */
+.match-status-label,
+.match-score-display .score-number,
+.penalty-result-display {
+  transition: all 0.2s ease-in-out;
+}
+
+.match-status-label.status-live {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Score number update animation */
+.score-number {
+  transition: transform 0.3s ease, color 0.2s ease;
+}
+
+.score-number.updated {
+  transform: scale(1.1);
+  color: var(--successPrimary);
+}
+
 /* Match event icons with enhanced styling */
 .match-event-icon {
   display: flex;
