@@ -315,6 +315,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get rounds for a specific league and season
+  apiRouter.get("/fixtures/rounds", async (req: Request, res: Response) => {
+    try {
+      const { league, season } = req.query;
+
+      if (!league) {
+        return res.status(400).json({ error: "League parameter is required" });
+      }
+
+      const leagueId = parseInt(league as string);
+      const seasonYear = season ? parseInt(season as string) : 2025;
+
+      console.log(`📋 [Rounds API] Fetching rounds for league ${leagueId}, season ${seasonYear}`);
+
+      // Use RapidAPI to get rounds
+      const rounds = await rapidApiService.getFixtureRounds(leagueId, seasonYear);
+
+      if (!rounds || rounds.length === 0) {
+        console.log(`📋 [Rounds API] No rounds found for league ${leagueId}`);
+        return res.json([]);
+      }
+
+      console.log(`📋 [Rounds API] Found ${rounds.length} rounds for league ${leagueId}`);
+      res.json(rounds);
+
+    } catch (error) {
+      console.error("Error fetching rounds:", error);
+      res.status(500).json({ error: "Failed to fetch rounds" });
+    }
+  });
+
   apiRouter.get("/fixtures/date/:date", async (req: Request, res: Response) => {
     try {
       const { date } = req.params;
@@ -2107,9 +2138,7 @@ logoUrl, {
               ? {
                   status: sportsRadarData.status,
                   homeTeam: sportsRadarData.home_team?.name,
-                  awayTeam: sportsRadarData.away_team?.name,
-                  homeGoals: sportsRadarData.home_score,
-                  awayGoals: sportsRadarData.away_score,
+                  awayTeam: sportsRadarData.away_score,
                   date: sportsRadarData.scheduled,
                   elapsed: sportsRadarData.clock?.minute,
                   league: sportsRadarData.tournament?.name,

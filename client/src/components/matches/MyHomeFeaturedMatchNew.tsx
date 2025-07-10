@@ -111,6 +111,29 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [selectedDay, setSelectedDay] = useState(0);
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
   const [countdownTimer, setCountdownTimer] = useState<string>("Loading...");
+  const [roundsCache, setRoundsCache] = useState<Record<string, string[]>>({});
+
+  const fetchRoundsForLeague = useCallback(async (leagueId: number, season: number) => {
+    const cacheKey = `${leagueId}-${season}`;
+    if (roundsCache[cacheKey]) {
+      return roundsCache[cacheKey];
+    }
+
+    try {
+      const response = await apiRequest("GET", `/api/fixtures/rounds?league=${leagueId}&season=${season}`);
+      const rounds = await response.json();
+      
+      setRoundsCache(prev => ({
+        ...prev,
+        [cacheKey]: rounds
+      }));
+      
+      return rounds;
+    } catch (error) {
+      console.warn(`Failed to fetch rounds for league ${leagueId}:`, error);
+      return [];
+    }
+  }, [roundsCache]);
 
   const fetchFeaturedMatches = useCallback(
     async (forceRefresh = false) => {
@@ -619,6 +642,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [maxMatches],
   );
 
+  // Fetch rounds data for current match league
+  useEffect(() => {
+    if (currentMatch && !roundsCache[`${currentMatch.league.id}-2025`]) {
+      fetchRoundsForLeague(currentMatch.league.id, 2025);
+    }
+  }, [currentMatch, fetchRoundsForLeague, roundsCache]);
+
   useEffect(() => {
     // Initial fetch with force refresh
     fetchFeaturedMatches(true);
@@ -1080,6 +1110,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         currentMatch.round ||
                         currentMatch.fixture?.status?.long ||
                         currentMatch.league?.season?.current;
+
+                      // Try to get more accurate round info from API if available
+                      const cacheKey = `${currentMatch.league.id}-2025`;
+                      if (roundsCache[cacheKey] && !roundInfo) {
+                        // Use the rounds data to infer current round based on match date
+                        const matchDate = new Date(currentMatch.fixture.date);
+                        const rounds = roundsCache[cacheKey];
+                        // This could be enhanced with more sophisticated logic
+                        // For now, we'll still rely on the existing inference
+                      }
 
                       // Enhanced bracket status mapping with comprehensive patterns
                       const getBracketStatus = (

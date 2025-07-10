@@ -913,6 +913,26 @@ export const rapidApiService = {
     }
   },
 
+  async getFixtureRounds(leagueId: number, season: number): Promise<string[]> {
+    try {
+      const response = await apiClient.get("/fixtures/rounds", {
+        params: {
+          league: leagueId.toString(),
+          season: season.toString(),
+        },
+      });
+
+      if (response.data && response.data.response) {
+        return response.data.response;
+      }
+
+      return [];
+    } catch (error) {
+      console.error(`Error fetching rounds for league ${leagueId}, season ${season}:`, error);
+      return [];
+    }
+  },
+
   /**
    * Get fixtures by league ID and season
    */
@@ -930,7 +950,8 @@ export const rapidApiService = {
       const cachedData = cached.data;
       if (Array.isArray(cachedData)) {
         const hasLiveMatches = cachedData.some((fixture: any) => 
-          ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
+          ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(```text
+fixture.fixture?.status?.short)
         );
 
         // Force refresh if cached data contains live matches (they need frequent updates)
