@@ -385,26 +385,28 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--surfacePrimary);
-  padding: 8px 16px;
+  
+ 
   margin: 8px 0;
   border-radius: 8px;
-  border: 1px solid var(--dividerPrimary);
+  border-color: #ebebeb;
 }
 
 .period-score-label {
   font-size: 12px;
   font-weight: var(--semiBold-font-weight);
-  color: var(--textSecondary);
-  margin-right: 16px;
+  color: black;
+  margin-left: -200px;
+  margin-right: 30px;
 }
 
 .period-score-display {
   font-size: 14px;
   font-weight: var(--bold-font-weight);
-  color: var(--textPrimary);
+  color: black;
   text-align: center;
   min-width: 60px;
+  margin-left: 100px;
 }
 
 /* Commentary Events Section */
