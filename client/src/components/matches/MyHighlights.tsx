@@ -291,7 +291,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             }
 
             if (data.items && data.items.length > 0) {
-              // Filter out non-match content
+              // Filter out non-match content with stricter validation
               const validVideo = data.items.find((video: any) => {
                 const title = video.snippet.title.toLowerCase();
                 const description = video.snippet.description?.toLowerCase() || '';
@@ -317,7 +317,24 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   title.includes(keyword) || description.includes(keyword)
                 );
                 
-                return !hasExcluded && hasHighlights;
+                // Validate team names are present in title or description
+                const homeTeamLower = home.toLowerCase();
+                const awayTeamLower = away.toLowerCase();
+                const hasHomeTeam = title.includes(homeTeamLower) || description.includes(homeTeamLower);
+                const hasAwayTeam = title.includes(awayTeamLower) || description.includes(awayTeamLower);
+                
+                // Validate current year is present (2025 or current year)
+                const currentYear = new Date().getFullYear();
+                const hasCurrentYear = title.includes(currentYear.toString()) || 
+                                     description.includes(currentYear.toString()) ||
+                                     title.includes('2025') || description.includes('2025');
+                
+                // Additional validation for match year consistency
+                const publishedDate = new Date(video.snippet.publishedAt);
+                const publishedYear = publishedDate.getFullYear();
+                const isRecentYear = publishedYear >= currentYear - 1; // Allow videos from current year or previous year
+                
+                return !hasExcluded && hasHighlights && hasHomeTeam && hasAwayTeam && hasCurrentYear && isRecentYear;
               });
 
               if (validVideo) {
@@ -405,7 +422,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             }
 
             if (data.items && data.items.length > 0) {
-              // Apply same filtering as above
+              // Apply same strict filtering as above
               const validVideo = data.items.find((video: any) => {
                 const title = video.snippet.title.toLowerCase();
                 const description = video.snippet.description?.toLowerCase() || '';
@@ -429,7 +446,24 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   title.includes(keyword) || description.includes(keyword)
                 );
                 
-                return !hasExcluded && hasHighlights;
+                // Validate team names are present in title or description
+                const homeTeamLower = home.toLowerCase();
+                const awayTeamLower = away.toLowerCase();
+                const hasHomeTeam = title.includes(homeTeamLower) || description.includes(homeTeamLower);
+                const hasAwayTeam = title.includes(awayTeamLower) || description.includes(awayTeamLower);
+                
+                // Validate current year is present (2025 or current year)
+                const currentYear = new Date().getFullYear();
+                const hasCurrentYear = title.includes(currentYear.toString()) || 
+                                     description.includes(currentYear.toString()) ||
+                                     title.includes('2025') || description.includes('2025');
+                
+                // Additional validation for match year consistency
+                const publishedDate = new Date(video.snippet.publishedAt);
+                const publishedYear = publishedDate.getFullYear();
+                const isRecentYear = publishedYear >= currentYear - 1; // Allow videos from current year or previous year
+                
+                return !hasExcluded && hasHighlights && hasHomeTeam && hasAwayTeam && hasCurrentYear && isRecentYear;
               });
 
               if (validVideo) {
