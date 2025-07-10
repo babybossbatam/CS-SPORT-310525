@@ -501,9 +501,17 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                           {/* Elapsed time */}
                           {event.detail === "Full Time" ? (
-                            <div className="text-gray-800 text-sm font-medium leading-tight">
-                              {event.time.elapsed}'
-                            </div>
+                            <>
+                              {/* Show extra time above elapsed time if present */}
+                              {event.time.extra && event.time.extra > 0 && (
+                                <div className="text-xs font-medium text-red-500 leading-tight">
+                                  +{event.time.extra}'
+                                </div>
+                              )}
+                              <div className="text-gray-800 text-sm font-medium leading-tight">
+                                {event.time.elapsed}'
+                              </div>
+                            </>
                           ) : (
                             <div className="w-4 h-6  flex items-center justify-center ">
                               {event.type === "period_start" ? (
