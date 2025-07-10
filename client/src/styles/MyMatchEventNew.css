@@ -399,7 +399,7 @@
 /* Period score marker styling */
 .period-score-marker {
   display: grid;
-  grid-template-columns: 3fr auto 3fr;
+  grid-template-columns: 1fr auto 1fr;
   grid-template-areas: "label score spacer";
   align-items: center;
   width: 100%;

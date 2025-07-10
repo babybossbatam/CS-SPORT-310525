@@ -920,11 +920,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       className={`${className} ${isDarkTheme ? "bg-gray-800 text-white border-gray-700" : "bg-white border-gray-200"}`}
     >
       <CardHeader
-        className={`pb-3 ${isDarkTheme ? "bg-gray-700" : "bg-gray-50"} border-b`}
+        className={`pb-3 ${isDarkTheme ? "bg-gray-700" : "mb-2"} border-b`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold">Match Events</h3>
+            <h3 className="text-md font-semibold">Match Events</h3>
             {isLoading && (
               <RefreshCw className="h-4 w-4 animate-spin text-blue-500" />
             )}
@@ -936,43 +936,37 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             </div>
           )}
         </div>
-        {homeTeam && awayTeam && (
-          <div className="text-sm text-gray-600 flex justify-between">
-            <span>{homeTeam}</span>
-            <span>vs</span>
-            <span>{awayTeam}</span>
-          </div>
-        )}
+      
       </CardHeader>
 
       {/* Tab Navigation */}
-      <div className="flex border-b border-gray-200 bg-gray-50">
+      <div className="pl-16 pr-16 py-8 flex">
         <button
           onClick={() => setActiveTab('all')}
-          className={`flex-1 py-3 px-4 text-sm font-medium text-center transition-colors ${
+          className={`flex-1  text-sm font-medium  transition-colors ${
             activeTab === 'all'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white text-blue-600 hover:bg-gray-200'
+              ? 'bg-blue-500 text-white '
+              : 'bg-white text-blue-400 border border-blue-400 hover:bg-gray-200'
           }`}
         >
           All
         </button>
         <button
           onClick={() => setActiveTab('top')}
-          className={`flex-1 py-3 px-4 text-sm font-medium text-center transition-colors ${
+          className={`flex-1 py-3  text-sm font-medium text-center transition-colors ${
             activeTab === 'top'
               ? 'bg-blue-500 text-white'
-              : 'bg-white text-blue-600 hover:bg-gray-200'
+              : 'bg-white text-blue-400 border border-blue-400 hover:bg-gray-200'
           }`}
         >
           Top
         </button>
         <button
           onClick={() => setActiveTab('commentary')}
-          className={`flex-1 py-3 px-4 text-sm font-medium text-center transition-colors ${
+          className={`flex-1 py-3  text-sm font-medium text-center transition-colors ${
             activeTab === 'commentary'
               ? 'bg-blue-500 text-white'
-              : 'bg-white text-blue-600 hover:bg-gray-200'
+              : 'bg-white text-blue-400 border border-blue-400 hover:bg-gray-200'
           }`}
         >
           Commentary
