@@ -277,7 +277,7 @@ export const rapidApiService = {
 
       if (fetchAll) {
         console.log(
-          `🌍 [Timezone-inclusive fetching] Fetching fixtures with expanded date range for World competitions`,
+          `[Timezone-inclusive fetching] Fetching fixtures with expanded date range for World competitions`,
         );
 
         // Timezone-inclusive fetching: Queries ±1 day to catch all timezone variations
@@ -294,7 +294,7 @@ export const rapidApiService = {
         ];
 
         console.log(
-          `🌍 [Timezone-inclusive] Querying date range: ${dateRange.join(", ")} for World competitions`,
+          `[Timezone-inclusive] Querying date range: ${dateRange.join(", ")} for World competitions`,
         );
 
         // Fetch fixtures from all dates in range
@@ -412,7 +412,7 @@ export const rapidApiService = {
         }
 
         console.log(
-          `🌍 [Timezone-inclusive] Total fixtures collected: ${allFixtures.length} for date ${date}`,
+          `[Timezone-inclusive] Total fixtures collected: ${allFixtures.length} for date ${date}`,
         );
       } else {
         // Define popular leagues - matches core leagues
@@ -950,13 +950,12 @@ export const rapidApiService = {
       const cachedData = cached.data;
       if (Array.isArray(cachedData)) {
         const hasLiveMatches = cachedData.some((fixture: any) => 
-          ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(```text
-fixture.fixture?.status?.short)
+          ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture?.status?.short)
         );
 
         // Force refresh if cached data contains live matches (they need frequent updates)
         if (hasLiveMatches && now - cached.timestamp > LIVE_DATA_CACHE_DURATION) {
-          console.log(`🔄 [RapidAPI] Cache contains live matches, forcing refresh for league ${leagueId}`);
+          console.log(`[RapidAPI] Cache contains live matches, forcing refresh for league ${leagueId}`);
           forceRefresh = true;
         } else {
           return cached.data;
@@ -967,7 +966,7 @@ fixture.fixture?.status?.short)
     }
 
     if (forceRefresh) {
-      console.log(`🔄 [RapidAPI] Force refreshing fixtures for league ${leagueId} (bypassing cache)`);
+      console.log(`[RapidAPI] Force refreshing fixtures for league ${leagueId} (bypassing cache)`);
     }
 
     try {
@@ -1276,3 +1275,5 @@ fixture.fixture?.status?.short)
     }
   },
 };
+
+// Removing emoji characters from console logs to prevent build errors.
