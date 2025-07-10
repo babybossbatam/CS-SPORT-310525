@@ -1369,7 +1369,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           <img
                                             src="/assets/matchdetaillogo/penalty.svg"
                                             alt="Penalty Goal"
-                                            className="w-4 h-4 hover:scale-110 transition-transform duration-200 cursor-pointer"
+                                            className="w-4 h-4 "
                                           />
                                         );
                                       }
