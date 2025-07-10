@@ -958,11 +958,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     return { homeHalftimeScore, awayHalftimeScore };
                   };
 
-                  // Add "End of 90 Minutes" marker if there are events after minute 90
+                  // Add "End of 90 Minutes" marker for ended matches
+                  const matchStatus = matchData?.fixture?.status?.short;
+                  const isMatchEnded = ["FT", "AET", "PEN"].includes(matchStatus);
                   const fullTimeEvents = events.filter(
                     (e) => e.time?.elapsed >= 90,
                   );
-                  if (fullTimeEvents.length > 0) {
+                  
+                  if (isMatchEnded || fullTimeEvents.length > 0) {
                     markers.push({
                       time: { elapsed: 90 },
                       type: "period_score",
@@ -971,22 +974,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       team: { name: "", logo: "" },
                       player: { name: "" },
                       id: "period-90",
-                    });
-                  }
-
-                  // Add "Full Time" marker for ended matches
-                  const matchStatus = matchData?.fixture?.status?.short;
-                  const isMatchEnded = ["FT", "AET", "PEN"].includes(matchStatus);
-
-                  if (isMatchEnded) {
-                    markers.push({
-                      time: { elapsed: 120 }, // Put at the very end
-                      type: "period_score",
-                      detail: "Full Time",
-                      score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
-                      team: { name: "", logo: "" },
-                      player: { name: "" },
-                      id: "period-ft",
                     });
                   }
 
