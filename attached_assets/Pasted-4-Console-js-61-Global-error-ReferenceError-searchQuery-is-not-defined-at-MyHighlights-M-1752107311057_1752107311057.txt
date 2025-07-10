@@ -1,0 +1,18 @@
+4
+Console.js:61 🚨 Global error: ReferenceError: searchQuery is not defined
+    at MyHighlights (MyHighlights.tsx:131:32)
+
+Console.js:61 Error caught by boundary: ReferenceError: searchQuery is not defined
+    at MyHighlights (MyHighlights.tsx:131:32)
+ 
+Object
+Console.js:61 Error caught by boundary: ReferenceError: searchQuery is not defined
+    at MyHighlights (MyHighlights.tsx:131:32)
+ 
+Object
+componentStack
+: 
+"\n    at MyHighlights (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/src/components/matches/MyHighlights.tsx:22:3)\n    at MyMainLayoutRight (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/src/components/layout/MyMainLayoutRight.tsx:28:30)\n    at div\n    at div\n    at div\n    at MyMainLayout (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/src/components/layout/MyMainLayout.tsx:26:3)\n    at div\n    at div\n    at Home (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/src/pages/Home.tsx:28:49)\n    at Route (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9398a19d:265:16)\n    at Switch (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=9398a19d:321:17)\n    at Router\n    at AppContent\n    at Suspense\n    at Provider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=9398a19d:923:11)\n    at CentralDataProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/src/providers/CentralDataProvider.tsx:24:39)\n    at QueryClientProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9398a19d:2805:3)\n    at main\n    at Provider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-OXZDJRWN.js?v=9398a19d:38:15)\n    at TooltipProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=9398a19d:62:5)\n    at App (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/src/App.tsx?v=-gImGvJcNRx1IVqr7r9dZ:221:9)\n    at ErrorBoundary (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/src/components/common/ErrorBoundary.tsx?v=-gImGvJcNRx1IVqr7r9dZ:8:5)\n    at V (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js?v=9398a19d:44:25)\n    at J (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/next-themes.js?v=9398a19d:42:18)\n    at QueryClientProvider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=9398a19d:2805:3)\n    at Provider (https://482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/@fs/home/runner/workspace/node_modules/.vite/deps/react-redux.js?v=9398a19d:923:11)"
+[[Prototype]]
+: 
+Object
