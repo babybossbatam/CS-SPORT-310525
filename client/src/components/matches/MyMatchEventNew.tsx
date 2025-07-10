@@ -1068,14 +1068,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       key={event.id || `period-score-${index}`}
                       className="match-event-container"
                     >
-                      <div className="flex items-center  bg-gray-100 px-2 py-1  mb-1 ">
-                        <div className="text-xs font-semi-bold text-gray-700 ">
+                      <div className="period-score-marker">
+                        <div className="period-score-label">
                           {event.detail || "Period Marker"}
                         </div>
-                        <div className="text-sm font-bold text-gray-900 item-center justify-center">
-                         
-                        </div>
-                        <div className="text-sm font-bold text-gray-900  ml-36">
+                        <div className="period-score-display">
                           {event.score || "0 - 0"}
                         </div>
                       </div>

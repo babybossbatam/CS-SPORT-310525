@@ -286,9 +286,8 @@
   color: black;
   line-height: 1;
   white-space: nowrap;
-   margin-left: -20px;
   height: 40px;
-  width: 25px;
+  min-width: 72px;
 }
 
 /* Away team events (right side) */
@@ -381,6 +380,33 @@
 }
 
 /* Event text styling */
+/* Period score marker styling */
+.period-score-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--surfacePrimary);
+  padding: 8px 16px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid var(--dividerPrimary);
+}
+
+.period-score-label {
+  font-size: 12px;
+  font-weight: var(--semiBold-font-weight);
+  color: var(--textSecondary);
+  margin-right: 16px;
+}
+
+.period-score-display {
+  font-size: 14px;
+  font-weight: var(--bold-font-weight);
+  color: var(--textPrimary);
+  text-align: center;
+  min-width: 60px;
+}
+
 /* Commentary Events Section */
 .commentary-event-container {
   width: 100%;
@@ -543,7 +569,21 @@
   .match-event-time-display {
     font-size: 11px;
     height: 32px;
-    min-height: 25px;
+    min-width: 45px;
+  }
+
+  .period-score-marker {
+    padding: 6px 12px;
+  }
+
+  .period-score-label {
+    font-size: 11px;
+    margin-right: 12px;
+  }
+
+  .period-score-display {
+    font-size: 12px;
+    min-width: 45px;
   }
 
   .match-event-icon {
