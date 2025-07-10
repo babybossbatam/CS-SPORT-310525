@@ -395,7 +395,7 @@
   font-weight: var(--semiBold-font-weight);
   color: black;
   margin-left: 5px;
-  margin-right: 155px;
+  margin-right: 225px;
 }
 
 .period-score-display {
@@ -405,7 +405,7 @@
   text-align: center;
   min-width: 25px;
   margin-left: -5px;
-  margin-right: 180px;
+  margin-right: 200px;
 }
 
 /* Commentary Events Section */
