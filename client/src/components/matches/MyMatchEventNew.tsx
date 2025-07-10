@@ -870,7 +870,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               {penalty.event.player?.name}
                             </span>
                           </div>
-                          <MyPlayerProfilePicture
+                          <MyPlayerProfilePicture```text
                             playerId={penalty.event.player?.id}
                             playerName={penalty.event.player?.name}
                             size="md"
@@ -936,7 +936,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             </div>
           )}
         </div>
-      
+
       </CardHeader>
 
       {/* Tab Navigation */}
@@ -1335,7 +1335,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         {getEventIcon(event.type, event.detail)}
                                       </span>
                                     )}
-                                    
+
                                     {/* Tooltip */}
                                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs  opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 ">
                                       {getEventDescription(event)}
@@ -1446,7 +1446,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         {getEventIcon(event.type, event.detail)}
                                       </span>
                                     )}
-                                    
+
                                     {/* Tooltip */}
                                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 ">
                                       {getEventDescription(event)}
@@ -1550,7 +1550,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 />
               </>
             )}
-            
+
             {activeTab === 'top' && (
               <>
                 {/* Filter to show only Goal events */}
@@ -1782,7 +1782,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 />
               </>
             )}
-            
+
             {activeTab === 'commentary' && (
               <MyCommentary
                 events={events}
@@ -1797,7 +1797,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         )}
       </CardContent>
 
-      
+
     </Card>
   );
 };
