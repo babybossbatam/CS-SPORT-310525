@@ -1182,6 +1182,34 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           )}
 
+          {/* Corners display - always visible */}
+          <div className="absolute top-4 left-4 z-50">
+            <div className="bg-white rounded-lg shadow-lg px-4 py-2">
+              <div className="text-center mb-2">
+                <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Corners</span>
+              </div>
+              <div className="flex items-center justify-center gap-8">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+                  <span className="text-blue-500 text-xl font-bold">{teamStats.corners.home}</span>
+                </div>
+                <div className="w-16 h-1 bg-gray-200 rounded relative">
+                  <div 
+                    className="h-full bg-blue-500 rounded transition-all duration-1000"
+                    style={{ 
+                      width: `${teamStats.corners.home > 0 ? (teamStats.corners.home / (teamStats.corners.home + teamStats.corners.away)) * 100 : 50}%` 
+                    }}
+                  ></div>
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-blue-500 rounded-full"></div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-red-500 text-xl font-bold">{teamStats.corners.away}</span>
+                  <div className="w-4 h-4 bg-gray-300 rounded-sm"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Current event display - exact 365scores style */}
           {currentEvent && currentView === 'event' && currentStatus !== 'P' && (
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
