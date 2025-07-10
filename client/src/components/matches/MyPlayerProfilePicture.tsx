@@ -38,16 +38,13 @@ const MyPlayerProfilePicture: React.FC<MyPlayerProfilePictureProps> = ({
     xl: 'text-lg'
   };
 
-  // Generate player image URLs with multiple CDN sources
+  // Generate player image URLs with multiple BeSoccer CDN sources
   const getPlayerImageUrls = (id: number): string[] => {
     return [
-      `https://media.api-sports.io/football/players/${id}.png`,
       `https://cdn.resfu.com/img_data/players/medium/${id}.jpg?size=120x&lossy=1`,
       `https://cdn.resfu.com/img_data/players/medium/${id}.jpg`,
       `https://cdn.resfu.com/img_data/players/small/${id}.jpg?size=120x&lossy=1`,
-      `https://cdn.resfu.com/img_data/players/original/${id}.jpg`,
-      `https://www.thesportsdb.com/images/media/player/thumb/${id}.jpg`,
-      `/api/player-photo/${id}`, // Our backend endpoint
+      `https://media.api-sports.io/football/players/${id}.png`,
     ];
   };
 
@@ -65,8 +62,7 @@ const MyPlayerProfilePicture: React.FC<MyPlayerProfilePictureProps> = ({
   const getFallbackAvatarUrl = (name: string): string => {
     const initials = generateInitials(name);
     const bgColor = teamType === 'home' ? '4F46E5' : teamType === 'away' ? 'EF4444' : '6B7280';
-    console.log(`🎨 [MyPlayerProfilePicture] Generating fallback for ${name} (${initials}) with color ${bgColor}`);
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&size=120&background=${bgColor}&color=fff&bold=true&format=svg&font-size=0.6`;
+    return `https://ui-avatars.com/api/?name=${initials}&size=120&background=${bgColor}&color=fff&bold=true&format=svg`;
   };
 
   useEffect(() => {
@@ -82,7 +78,7 @@ const MyPlayerProfilePicture: React.FC<MyPlayerProfilePictureProps> = ({
 
           const tryNextUrl = () => {
             if (urlIndex >= imageUrls.length) {
-              console.warn(`⚠️ [MyPlayerProfilePicture] All ${imageUrls.length} CDN sources failed for player ${playerId} (${playerName}), using fallback`);
+              console.warn(`⚠️ [MyPlayerProfilePicture] All CDN sources failed for player ${playerId} (${playerName}), using fallback`);
               setImageUrl(getFallbackAvatarUrl(playerName));
               setHasError(true);
               setIsLoading(false);
@@ -90,50 +86,18 @@ const MyPlayerProfilePicture: React.FC<MyPlayerProfilePictureProps> = ({
             }
 
             const currentUrl = imageUrls[urlIndex];
-            console.log(`🔍 [MyPlayerProfilePicture] Trying source ${urlIndex + 1}/${imageUrls.length} for player ${playerId} (${playerName}): ${currentUrl}`);
-            
             const img = new Image();
-            img.crossOrigin = 'anonymous'; // Handle CORS issues
             
             img.onload = () => {
-              // Additional check to ensure image actually loaded with content
-              if (img.naturalWidth > 0 && img.naturalHeight > 0) {
-                setImageUrl(currentUrl);
-                setIsLoading(false);
-                setHasError(false);
-                console.log(`✅ [MyPlayerProfilePicture] Successfully loaded image for player ${playerId} (${playerName}) from source ${urlIndex + 1}: ${currentUrl}`);
-              } else {
-                console.log(`⚠️ [MyPlayerProfilePicture] Source ${urlIndex + 1} loaded but has no content for player ${playerId}, trying next...`);
-                urlIndex++;
-                tryNextUrl();
-              }
+              setImageUrl(currentUrl);
+              setIsLoading(false);
+              console.log(`✅ [MyPlayerProfilePicture] Successfully loaded image for player ${playerId} (${playerName}) from source ${urlIndex + 1}`);
             };
             
-            img.onerror = (error) => {
-              console.log(`⚠️ [MyPlayerProfilePicture] Source ${urlIndex + 1} failed for player ${playerId} (${playerName}): ${error}, trying next...`);
+            img.onerror = () => {
+              console.log(`⚠️ [MyPlayerProfilePicture] Source ${urlIndex + 1} failed for player ${playerId}, trying next...`);
               urlIndex++;
               tryNextUrl();
-            };
-            
-            // Set a timeout for slow loading images
-            const timeout = setTimeout(() => {
-              console.log(`⏰ [MyPlayerProfilePicture] Source ${urlIndex + 1} timed out for player ${playerId}, trying next...`);
-              urlIndex++;
-              tryNextUrl();
-            }, 3000);
-            
-            img.onload = () => {
-              clearTimeout(timeout);
-              if (img.naturalWidth > 0 && img.naturalHeight > 0) {
-                setImageUrl(currentUrl);
-                setIsLoading(false);
-                setHasError(false);
-                console.log(`✅ [MyPlayerProfilePicture] Successfully loaded image for player ${playerId} (${playerName}) from source ${urlIndex + 1}: ${currentUrl}`);
-              } else {
-                console.log(`⚠️ [MyPlayerProfilePicture] Source ${urlIndex + 1} loaded but has no content for player ${playerId}, trying next...`);
-                urlIndex++;
-                tryNextUrl();
-              }
             };
             
             img.src = currentUrl;
