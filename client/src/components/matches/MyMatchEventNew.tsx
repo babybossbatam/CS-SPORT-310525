@@ -417,7 +417,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     const loadPlayerImages = async () => {
       const { getPlayerImage } = await import('../../lib/playerImageCache');
       const imagePromises: Record<string, Promise<string>> = {};
-      
+
       events.forEach(event => {
         if (event.player?.id || event.player?.name) {
           const key = `${event.player.id}_${event.player.name}`;
@@ -425,7 +425,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             imagePromises[key] = getPlayerImage(event.player.id, event.player.name);
           }
         }
-        
+
         // Also load assist player images for substitutions
         if (event.assist?.id || event.assist?.name) {
           const assistKey = `${event.assist.id}_${event.assist.name}`;
@@ -434,7 +434,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           }
         }
       });
-      
+
       // Resolve all image promises
       const resolvedImages = await Promise.allSettled(
         Object.entries(imagePromises).map(async ([key, promise]) => {
@@ -447,7 +447,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           }
         })
       );
-      
+
       // Update state with resolved images
       const newImages: Record<string, string> = {};
       resolvedImages.forEach(result => {
@@ -455,12 +455,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           newImages[result.value.key] = result.value.url;
         }
       });
-      
+
       if (Object.keys(newImages).length > 0) {
         setPlayerImages(prev => ({ ...prev, ...newImages }));
       }
     };
-    
+
     if (events.length > 0) {
       loadPlayerImages();
     }
@@ -472,16 +472,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   ): string => {
     const key = `${playerId}_${playerName}`;
     const cachedImage = playerImages[key];
-    
+
     if (cachedImage) {
       return cachedImage;
     }
-    
+
     // Fallback while loading
     if (playerId) {
       return `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
     }
-    
+
     return "";
   }, [playerImages]);
 
@@ -961,12 +961,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           </div>
         ) : (
           <div className="space-y-2">
-            {/* Show penalty shootout if match ended with penalties */}
-            {(events.some((event) => 
-              event.type?.toLowerCase() === "penalty" || 
-              event.detail?.toLowerCase().includes("penalty")
-            ) || matchData?.fixture?.status?.short === "PEN") && (
-              <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
+            {/* Show penalty shootout only if match actually ended with penalties */}
+            {matchData?.fixture?.status?.short === "PEN" && 
+             matchData?.score?.penalty?.home !== null && 
+             matchData?.score?.penalty?.away !== null && (
+              <PenaltyShootoutDisplay 
+                homeScore={matchData.score.penalty.home} 
+                awayScore={matchData.score.penalty.away} 
+              />
             )}
 
             {/* All events in chronological order with period score markers */}
@@ -1042,11 +1044,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     });
                   }
 
-                  // Add penalty shootout marker if match ended with penalties
-                  if (events.some((event) => 
-                    event.type?.toLowerCase() === "penalty" || 
-                    event.detail?.toLowerCase().includes("penalty")
-                  ) || matchData?.fixture?.status?.short === "PEN") {
+                  // Add penalty shootout marker only if match actually ended with penalties
+                  if (matchData?.fixture?.status?.short === "PEN" && 
+                      matchData?.score?.penalty?.home !== null && 
+                      matchData?.score?.penalty?.away !== null) {
                     markers.push({
                       time: { elapsed: 121 }, // Put penalties after extra time
                       type: "penalty_shootout",
