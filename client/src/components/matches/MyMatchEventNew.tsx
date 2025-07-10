@@ -61,6 +61,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [playerImages, setPlayerImages] = useState<Record<string, string>>({});
+  const [activeTab, setActiveTab] = useState<'all' | 'top' | 'commentary'>('all');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchMatchEvents = useCallback(async () => {
@@ -944,6 +945,40 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         )}
       </CardHeader>
 
+      {/* Tab Navigation */}
+      <div className="flex border-b border-gray-200 bg-gray-50">
+        <button
+          onClick={() => setActiveTab('all')}
+          className={`flex-1 py-3 px-4 text-sm font-medium text-center transition-colors ${
+            activeTab === 'all'
+              ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+          }`}
+        >
+          All
+        </button>
+        <button
+          onClick={() => setActiveTab('top')}
+          className={`flex-1 py-3 px-4 text-sm font-medium text-center transition-colors ${
+            activeTab === 'top'
+              ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+          }`}
+        >
+          Top
+        </button>
+        <button
+          onClick={() => setActiveTab('commentary')}
+          className={`flex-1 py-3 px-4 text-sm font-medium text-center transition-colors ${
+            activeTab === 'commentary'
+              ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
+              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+          }`}
+        >
+          Commentary
+        </button>
+      </div>
+
       <CardContent className="p-6">
         {isLoading && events.length === 0 ? (
           <div className="flex items-center justify-center p-8">
@@ -961,15 +996,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           </div>
         ) : (
           <div className="space-y-2">
-            {/* Show penalty shootout only if match actually ended with penalties */}
-            {matchData?.fixture?.status?.short === "PEN" && 
-             matchData?.score?.penalty?.home !== null && 
-             matchData?.score?.penalty?.away !== null && (
-              <PenaltyShootoutDisplay 
-                homeScore={matchData.score.penalty.home} 
-                awayScore={matchData.score.penalty.away} 
-              />
-            )}
+            {/* Render content based on active tab */}
+            {activeTab === 'all' && (
+              <>
+                {/* Show penalty shootout only if match actually ended with penalties */}
+                {matchData?.fixture?.status?.short === "PEN" && 
+                 matchData?.score?.penalty?.home !== null && 
+                 matchData?.score?.penalty?.away !== null && (
+                  <PenaltyShootoutDisplay 
+                    homeScore={matchData.score.penalty.home} 
+                    awayScore={matchData.score.penalty.away} 
+                  />
+                )}
 
             {/* All events in chronological order with period score markers */}
             {(() => {
@@ -1506,6 +1544,24 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 );
               });
             })()}
+              </>
+            )}
+            
+            {activeTab === 'top' && (
+              <div className="p-8 text-center text-gray-500">
+                <div className="text-4xl mb-4">⭐</div>
+                <h3 className="text-lg font-medium mb-2">Top Events</h3>
+                <p className="text-sm">Key moments and highlights from the match</p>
+              </div>
+            )}
+            
+            {activeTab === 'commentary' && (
+              <div className="p-8 text-center text-gray-500">
+                <div className="text-4xl mb-4">🎤</div>
+                <h3 className="text-lg font-medium mb-2">Live Commentary</h3>
+                <p className="text-sm">Real-time match commentary and analysis</p>
+              </div>
+            )}
           </div>
         )}
       </CardContent>
