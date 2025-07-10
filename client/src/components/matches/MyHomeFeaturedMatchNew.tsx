@@ -642,13 +642,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [maxMatches],
   );
 
-  // Fetch rounds data for current match league
-  useEffect(() => {
-    if (currentMatch && !roundsCache[`${currentMatch.league.id}-2025`]) {
-      fetchRoundsForLeague(currentMatch.league.id, 2025);
-    }
-  }, [currentMatch, fetchRoundsForLeague, roundsCache]);
-
   useEffect(() => {
     // Initial fetch with force refresh
     fetchFeaturedMatches(true);
@@ -767,6 +760,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const currentMatch = useMemo(() => {
     return allMatches[currentMatchIndex];
   }, [allMatches, currentMatchIndex]);
+
+  // Fetch rounds data for current match league
+  useEffect(() => {
+    if (currentMatch && !roundsCache[`${currentMatch.league.id}-2025`]) {
+      fetchRoundsForLeague(currentMatch.league.id, 2025);
+    }
+  }, [currentMatch, fetchRoundsForLeague, roundsCache]);
 
   const handlePrevious = useCallback(() => {
     if (allMatches.length > 0) {
