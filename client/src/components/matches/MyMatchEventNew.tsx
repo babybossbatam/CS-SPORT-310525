@@ -951,8 +951,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           onClick={() => setActiveTab('all')}
           className={`flex-1 py-3 px-4 text-sm font-medium text-center transition-colors ${
             activeTab === 'all'
-              ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+              ? 'bg-blue-500 text-white'
+              : 'bg-white text-blue-600 hover:bg-gray-200'
           }`}
         >
           All
@@ -961,8 +961,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           onClick={() => setActiveTab('top')}
           className={`flex-1 py-3 px-4 text-sm font-medium text-center transition-colors ${
             activeTab === 'top'
-              ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+              ? 'bg-blue-500 text-white'
+              : 'bg-white text-blue-600 hover:bg-gray-200'
           }`}
         >
           Top
@@ -971,8 +971,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           onClick={() => setActiveTab('commentary')}
           className={`flex-1 py-3 px-4 text-sm font-medium text-center transition-colors ${
             activeTab === 'commentary'
-              ? 'text-blue-600 border-b-2 border-blue-600 bg-white'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+              ? 'bg-blue-500 text-white'
+              : 'bg-white text-blue-600 hover:bg-gray-200'
           }`}
         >
           Commentary
