@@ -152,6 +152,32 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
     return isNaN(num) ? '0%' : `${num}%`;
   };
 
+  // Calculate Expected Goals (xG) using available shot statistics
+  const calculateExpectedGoals = (stats: TeamStatistic[]): string => {
+    if (!stats || !Array.isArray(stats)) return '0.0';
+    
+    const shotsOnTarget = parseInt(getStatValue(stats, 'Shots on Goal', ['Shots on target'])) || 0;
+    const shotsInsideBox = parseInt(getStatValue(stats, 'Shots insidebox', ['Shots inside box'])) || 0;
+    const totalShots = parseInt(getStatValue(stats, 'Total Shots', ['Total shots'])) || 0;
+    const goals = parseInt(getStatValue(stats, 'Goals', ['Goal'])) || 0;
+    
+    // Simple xG calculation based on shot quality
+    // Shots on target: 0.25 xG each
+    // Shots inside box (not on target): 0.15 xG each
+    // Other shots: 0.05 xG each
+    
+    const shotsInsideBoxNotOnTarget = Math.max(0, shotsInsideBox - shotsOnTarget);
+    const shotsOutsideBox = Math.max(0, totalShots - shotsInsideBox);
+    
+    const xG = (shotsOnTarget * 0.25) + (shotsInsideBoxNotOnTarget * 0.15) + (shotsOutsideBox * 0.05);
+    
+    // Cap xG at a reasonable maximum based on actual goals + buffer
+    const maxXG = Math.max(goals + 1.5, 3.0);
+    const finalXG = Math.min(xG, maxXG);
+    
+    return finalXG.toFixed(1);
+  };
+
   // Debug function to log available statistics (remove in production)
   const logAvailableStats = (teamName: string, stats: TeamStatistic[]) => {
     if (stats && Array.isArray(stats)) {
@@ -282,8 +308,8 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
           
           <StatRowWithBars 
             label="Expected Goals (xG)" 
-            homeValue={getStatValue(homeStats.statistics, 'expected_goals', ['Expected Goals', 'xG', 'Expected goals']) || '0.0'}
-            awayValue={getStatValue(awayStats.statistics, 'expected_goals', ['Expected Goals', 'xG', 'Expected goals']) || '0.0'}
+            homeValue={calculateExpectedGoals(homeStats.statistics)}
+            awayValue={calculateExpectedGoals(awayStats.statistics)}
           />
           
           <StatRowWithBars 
