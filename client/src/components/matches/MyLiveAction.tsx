@@ -176,7 +176,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
   // Event-driven ball movement with purposeful patterns
   const [ballTrail, setBallTrail] = useState<Array<{x: number, y: number, timestamp: number}>>([]);
-  const [currentEvent, setCurrentBallEvent] = useState<string | null>(null);
+  const [currentBallEvent, setCurrentBallEvent] = useState<string | null>(null);
   const [ballMovementActive, setBallMovementActive] = useState(false);
 
   useEffect(() => {
@@ -210,9 +210,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         newY = Math.max(20, Math.min(80, newY));
 
         // Update possession based on ball position and event type
-        if (currentEvent === 'dangerous_attack') {
+        if (currentBallEvent === 'dangerous_attack') {
           setBallPossession(newX > 50 ? 'away' : 'home');
-        } else if (currentEvent === 'ball_safe') {
+        } else if (currentBallEvent === 'ball_safe') {
           setBallPossession(newX < 50 ? 'home' : 'away');
         } else {
           setBallPossession(newX < 35 ? 'home' : newX > 65 ? 'away' : (Math.random() > 0.5 ? 'home' : 'away'));
@@ -229,7 +229,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     }, 80); // Smooth movement interval
 
     return () => clearInterval(ballInterval);
-  }, [isLive, ballTarget, ballMovementActive, currentEvent]);
+  }, [isLive, ballTarget, ballMovementActive, currentBallEvent]);
 
   // Event-driven ball target setting
   const triggerBallMovement = (eventType: string, team: 'home' | 'away') => {
