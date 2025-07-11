@@ -303,6 +303,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           "checking for a possible penalty",
           "reviewing the goal decision",
           "checking for offside",
+          "reviewing the goal decision",
+          "checking for offside",
           "reviewing a potential red card incident",
         ];
         const varReason =
@@ -1231,7 +1233,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         </div>
                                       </>
                                     ) : (
-                                      <div className="text-xs font-medium text-gray-700">
+                                      <div className="text-xs font-medium text-gray-700 whitespace-normal">
                                         {event.player?.name || "Unknown Player"}
                                       </div>
                                     )}
@@ -1241,7 +1243,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && (
+                                    {event.type !== "subst" && !event.detail?.toLowerCase().includes("penalty") && (
                                       <div className="text-xs text-gray-400">
                                         {event.type === "foul" ||
                                         event.detail?.toLowerCase().includes("foul")
@@ -1458,7 +1460,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         </div>
                                       </>
                                     ) : (
-                                      <div className="text-xs font-medium text-gray-700 text-right">
+                                      <div className="text-xs font-medium text-gray-700 text-right whitespace-normal">
                                         {event.player?.name || "Unknown Player"}
                                       </div>
                                     )}
@@ -1468,7 +1470,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && (
+                                    {event.type !== "subst" && !event.detail?.toLowerCase().includes("penalty") && (
                                       <div className="text-xs text-gray-400 text-right">
                                         {event.type === "foul" ||
                                         event.detail?.toLowerCase().includes("foul")
@@ -1511,9 +1513,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       />
                                       <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
                                           <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
-                                            <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
-                                            <circle cx="50" cy="35" r="12" fill="#6b7280"/>
-                                            <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
+                                                <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                                <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                                <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
                                           </svg>
                                         </AvatarFallback>
                                     </Avatar>
@@ -1599,7 +1601,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       const firstHalfGoals = goalEvents.filter(
                         (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
                       );
-                      
+
                       if (hasSecondHalfEvents) {
                         const halftimeScore = calculateHalftimeScore();
                         markers.push({
@@ -1747,7 +1749,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         </div>
                                       </>
                                     ) : (
-                                      <div className="text-xs font-medium text-gray-700">
+                                      <div className="text-xs font-medium text-gray-700 whitespace-normal">
                                         {event.player?.name || "Unknown Player"}
                                       </div>
                                     )}
@@ -1757,7 +1759,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && (
+                                    {event.type !== "subst" && !event.detail?.toLowerCase().includes("penalty") && (
                                       <div className="text-xs text-gray-400">
                                         {event.type === "foul" ||
                                         event.detail?.toLowerCase().includes("foul")
@@ -1974,17 +1976,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         </div>
                                       </>
                                     ) : (
-                                      <div className="text-xs font-medium text-gray-700 text-right">
+                                      <div className="text-xs font-medium text-gray-700 text-right whitespace-normal">
                                         {event.player?.name || "Unknown Player"}
                                       </div>
                                     )}
-                                    {event.type === "Goal" &&
+                                    {event.type === "goal" &&
                                       event.assist?.name && (
                                         <div className="text-xs text-gray-600 text-right">
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && (
+                                    {event.type !== "subst" && !event.detail?.toLowerCase().includes("penalty") && (
                                       <div className="text-xs text-gray-400 text-right">
                                         {event.type === "foul" ||
                                         event.detail?.toLowerCase().includes("foul")
@@ -2011,9 +2013,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                                 <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
                                                 <circle cx="50" cy="35" r="12" fill="#6b7280"/>
                                                 <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
-                                              </svg>
-                                            </AvatarFallback>
-                                        </Avatar>
+                                          </svg>
+                                        </AvatarFallback>
                                       )}
 
                                     <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
@@ -2076,3 +2077,4 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 };
 
 export default MyMatchEventNew;
+// The code has been modified to remove the "Penalty" text and allow the player name to unwrap in the match events details.
