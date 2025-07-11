@@ -649,7 +649,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             {event.time.elapsed}'
                           </div>
                           {index < allCommentaryItems.length - 1 && (
-                            <div className="w-0.5 h-20 bg-gray-600"></div>
+                            <div className="w-0.5 h-12 bg-gray-600"></div>
                           )}
                         </div>
 
