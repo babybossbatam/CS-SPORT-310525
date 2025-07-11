@@ -1542,13 +1542,99 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
             {activeTab === 'top' && (
               <>
-                {/* Filter to show only Goal events */}
+                {/* Filter to show only Goal events with period markers */}
                 {(() => {
                   const goalEvents = events.filter(event => event.type === "Goal").sort(
                     (a, b) => b.time.elapsed - a.time.elapsed,
                   );
 
-                  if (goalEvents.length === 0) {
+                  // Create period markers for Top tab (same logic as All tab)
+                  const createTopTabPeriodMarkers = () => {
+                    const markers = [];
+
+                    try {
+                      const currentScores = getCurrentScores;
+
+                      // Calculate halftime score by counting goals scored up to 45 minutes
+                      const calculateHalftimeScore = () => {
+                        let homeHalftimeScore = 0;
+                        let awayHalftimeScore = 0;
+
+                        const firstHalfGoals = goalEvents.filter(
+                          (event) => event.time?.elapsed <= 45,
+                        );
+
+                        firstHalfGoals.forEach((goal) => {
+                          if (goal.team?.name === homeTeam) {
+                            homeHalftimeScore++;
+                          } else if (goal.team?.name === awayTeam) {
+                            awayHalftimeScore++;
+                          }
+                        });
+
+                        return { homeHalftimeScore, awayHalftimeScore };
+                      };
+
+                      // Add "End of 90 Minutes" marker for ended matches
+                      const matchStatus = matchData?.fixture?.status?.short;
+                      const isMatchEnded = ["FT", "AET", "PEN"].includes(matchStatus);
+                      const fullTimeGoals = goalEvents.filter(
+                        (e) => e.time?.elapsed >= 90,
+                      );
+
+                      if (isMatchEnded || fullTimeGoals.length > 0) {
+                        markers.push({
+                          time: { elapsed: 90 },
+                          type: "period_score",
+                          detail: "End of 90 Minutes",
+                          score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
+                          team: { name: "", logo: "" },
+                          player: { name: "" },
+                          id: "period-90-top",
+                        });
+                      }
+
+                      // Add "Halftime" marker if there are goals in both halves
+                      const firstHalfGoals = goalEvents.filter(
+                        (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
+                      );
+                      const secondHalfGoals = goalEvents.filter(
+                        (e) => e.time?.elapsed > 45,
+                      );
+                      if (firstHalfGoals.length > 0 && secondHalfGoals.length > 0) {
+                        const halftimeScore = calculateHalftimeScore();
+                        markers.push({
+                          time: { elapsed: 45 },
+                          type: "period_score",
+                          detail: "Halftime",
+                          score: `${halftimeScore.homeHalftimeScore} - ${halftimeScore.awayHalftimeScore}`,
+                          team: { name: "", logo: "" },
+                          player: { name: "" },
+                          id: "period-45-top",
+                        });
+                      }
+                    } catch (error) {
+                      console.error("Error creating Top tab period markers:", error);
+                    }
+
+                    return markers;
+                  };
+
+                  const periodMarkers = createTopTabPeriodMarkers();
+
+                  // Combine goal events and period markers
+                  const allTopItems = [...goalEvents, ...periodMarkers].sort(
+                    (a, b) => {
+                      // Calculate total time including extra time for proper sorting
+                      const aTotalTime = a.time.elapsed + (a.time.extra || 0);
+                      const bTotalTime = b.time.elapsed + (b.time.extra || 0);
+
+                      // Sort by total time in descending order (latest first)
+                      return bTotalTime - aTotalTime;
+                    },
+                  );
+
+                  if (goalEvents.length === 0 && periodMarkers.length === 0) {
                     return (
                       <div className="p-8 text-center text-gray-500">
                         <div className="text-4xl mb-4">⚽</div>
@@ -1558,7 +1644,26 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     );
                   }
 
-                  return goalEvents.map((event, index) => {
+                  return allTopItems.map((event, index) => {
+                    // Handle period score markers
+                    if (event.type === "period_score") {
+                      return (
+                        <div
+                          key={event.id || `period-score-top-${index}`}
+                          className="match-event-container "
+                        >
+                          <div className="period-score-marker">
+                            <div className="period-score-label">
+                              {event.detail || "Period Marker"}
+                            </div>
+                            <div className="period-score-display">
+                              {event.score || "0 - 0"}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+
                     const isHome = event.team?.name === homeTeam;
 
                     return (
