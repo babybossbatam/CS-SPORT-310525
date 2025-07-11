@@ -296,20 +296,35 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
             return allCommentaryItems
               .sort((a, b) => {
+                // Special handling for Half Time marker - always put it above all first half events
+                if (a.type === "half_time") {
+                  // Half Time marker goes above all events from first half (elapsed <= 45)
+                  if (b.time.elapsed <= 45) return -1;
+                  // But below second half events
+                  return 1;
+                }
+                if (b.type === "half_time") {
+                  // Half Time marker goes above all events from first half (elapsed <= 45)
+                  if (a.time.elapsed <= 45) return 1;
+                  // But below second half events
+                  return -1;
+                }
+
+                // Put Full Time marker at the top after Half Time
+                if (a.type === "period_end" && a.detail === "Full Time") return -1;
+                if (b.type === "period_end" && b.detail === "Full Time") return 1;
+
                 // First sort by elapsed time (descending)
                 if (a.time.elapsed !== b.time.elapsed) {
                   return b.time.elapsed - a.time.elapsed;
-
                 }
 
                 // If elapsed time is the same, sort by extra time (descending)
-                // Events with higher extra time should appear first
                 const aExtra = a.time.extra || 0;
                 const bExtra = b.time.extra || 0;
 
                 if (aExtra !== bExtra) {
                   return bExtra - aExtra;
-
                 }
 
                 // For events at the same time, prioritize period markers to appear first
@@ -421,7 +436,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                     };
 
                     const halftimeScore = calculateScoreAtTime(halftimeEndTime.elapsed + halftimeEndTime.extra);
-                    
+
                     return (
                       <div
                         key={`period-${index}`}
@@ -856,7 +871,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                             {/* Additional comments if any */}
                             {event.comments && (
-                              <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic mt-1">
+                              <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic mt-1">```text
                                 {event.comments}
                               </div>
                             )}
