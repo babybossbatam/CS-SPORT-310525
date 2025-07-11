@@ -903,7 +903,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       return {
         homeScore: matchData.goals.home || 0,
         awayScore: matchData.goals.away || 0
-      };
+            };
     }
     return { homeScore: 0, awayScore: 0 };
   }, [matchData?.goals]);
@@ -1470,9 +1470,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                                 <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
                                                 <circle cx="50" cy="35" r="12" fill="#6b7280"/>
                                                 <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
-                                          </svg>
+                                              </svg>
                                         </AvatarFallback>
-                                    </Avatar>
+                                      </Avatar>
                                       )}
 
                                     <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
@@ -1706,8 +1706,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                                 <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
                                               </svg>
                                         </AvatarFallback>
-                                    </Avatar>
-                                  )}
+                                      </Avatar>
+                                      )}
+                                  </div>
 
                                   <div className="text-left">
                                     {event.type === "subst" &&
@@ -1985,8 +1986,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                                 <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
                                                 <circle cx="50" cy="35" r="12" fill="#6b7280"/>
                                                 <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
-                                          </svg>
+                                              </svg>
                                         </AvatarFallback>
+                                      </Avatar>
                                       )}
 
                                     <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
@@ -2042,8 +2044,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           </div>
         )}
       </CardContent>
-
-
     </Card>
   );
 };
