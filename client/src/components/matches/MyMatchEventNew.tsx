@@ -899,8 +899,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   // Get current scores from API data
   const getCurrentScores = useMemo(() => {
-    if (matchData?.goals) {
-      return {
+    if (matchData?.goals) {      return {
         homeScore: matchData.goals.home || 0,
         awayScore: matchData.goals.away || 0,
       };
@@ -1442,7 +1441,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                                 {/* Column 2: Player Info */}
                                 <div className="match-event-away-player-info">
-                                  <div className="text-right w-24">
+                                  <div className="text-right w-36">
                                     {event.type === "subst" &&
                                     event.assist?.name ? (
                                       <>
@@ -1958,7 +1957,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                                 {/* Column 2: Player Info */}
                                 <div className="match-event-away-player-info">
-                                  <div className="text-right w-24">
+                                  <div className="text-right w-36">
                                     {event.type === "subst" &&
                                     event.assist?.name ? (
                                       <>
