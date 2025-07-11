@@ -294,7 +294,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               periodMarkers.push({
                 time: {  
                   elapsed: finalEvent.time.elapsed,
-                  extra: finalEvent.time.extra && finalEvent.time.extra > 0 ? finalEvent.time.extra : "",
+                  extra: finalEvent.time.extra && finalEvent.time.extra > 0 ? finalEvent.time.extra : undefined,
                 },
                 type: "period_score",
                 detail: "Full Time",
@@ -835,7 +835,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 Substitution
                               </span>
                             </div>
-                            
+
                             {/* Player coming in (assist = player in) */}
                             {event.assist?.name && (
                               <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200 ">
@@ -861,7 +861,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 </span>
                               </div>
                             )}
-                            
+
                             {/* Player going out (player = player out) */}
                             <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200 ">
                               <Avatar className="w-8 h-8 border-2 border-red-400 shadow-sm flex-shrink-0 ">
@@ -885,14 +885,14 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 {event.player?.name || "Unknown Player"}
                               </span>
                             </div>
-                            
+
                             {/* Additional comments if any */}
                             {event.comments && (
                               <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic mt-1">
                                 {event.comments}
                               </div>
                             )}
-                            
+
                             {/* Detailed substitution description */}
                             <div className="text-sm text-gray-700 leading-relaxed -ml-3  ">
                               {event.assist?.name && event.player?.name 
