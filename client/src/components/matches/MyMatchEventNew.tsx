@@ -1594,14 +1594,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         });
                       }
 
-                      // Add "Halftime" marker if there are goals in both halves
+                      // Always add "Halftime" marker if match has progressed beyond first half
+                      const hasSecondHalfEvents = events.some((e) => e.time?.elapsed > 45);
                       const firstHalfGoals = goalEvents.filter(
                         (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
                       );
-                      const secondHalfGoals = goalEvents.filter(
-                        (e) => e.time?.elapsed > 45,
-                      );
-                      if (firstHalfGoals.length > 0 && secondHalfGoals.length > 0) {
+                      
+                      if (hasSecondHalfEvents) {
                         const halftimeScore = calculateHalftimeScore();
                         markers.push({
                           time: { elapsed: 45 },
@@ -1611,6 +1610,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           team: { name: "", logo: "" },
                           player: { name: "" },
                           id: "period-45-top",
+                          hasFirstHalfGoals: firstHalfGoals.length > 0,
                         });
                       }
                     } catch (error) {
@@ -1659,6 +1659,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <div className="period-score-display">
                               {event.score || "0 - 0"}
                             </div>
+                            {/* Show "No Top Events" for halftime if no goals in first half */}
+                            {event.detail === "Halftime" && event.hasFirstHalfGoals === false && (
+                              <div className="text-center text-gray-500 text-sm mt-2 py-2 bg-gray-50 rounded">
+                                No Top Events
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
