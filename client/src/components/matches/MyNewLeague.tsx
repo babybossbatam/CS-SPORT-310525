@@ -563,6 +563,14 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
+  
+  // Add timezone debugging
+  console.log(`🕐 [TIMEZONE INFO] Current browser timezone:`, {
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    currentTime: new Date().toISOString(),
+    currentLocalTime: new Date().toString(),
+    selectedDate: selectedDate
+  });
 
   // Enhanced debugging for specific leagues
   const friendliesFixtures = fixtures.filter(f => f.league.id === 667);
@@ -1105,25 +1113,6 @@ b.fixture.status.elapsed) || 0;
                     }
                   }
 
-                  // Debug logging for time display verification
-                  const debugMatchTime = formatMatchTimeWithTimezone(match.fixture.date);
-                  const matchDateUTC = new Date(match.fixture.date);
-                  const matchDateString = matchDateUTC.toISOString().slice(0, 10);
-                  
-                  if (status !== "TBD") {
-                    console.log(`🕐 [TIME DEBUG] Match time display:`, {
-                      fixtureId: match.fixture.id,
-                      teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
-                      originalDate: match.fixture.date,
-                      displayTime: debugMatchTime,
-                      matchDateString,
-                      selectedDate,
-                      isCorrectDate: matchDateString === selectedDate,
-                      utcDate: matchDateUTC.toUTCString(),
-                      localDate: matchDateUTC.toString()
-                    });
-                  }
-
                   return (
                     <div
                       className="match-time-display"
@@ -1131,7 +1120,7 @@ b.fixture.status.elapsed) || 0;
                     >
                       {status === "TBD"
                         ? "TBD"
-                        : debugMatchTime}
+                        : formatMatchTimeWithTimezone(match.fixture.date)}
                     </div>
                   );
                 })()}
