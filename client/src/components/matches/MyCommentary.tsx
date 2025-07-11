@@ -819,9 +819,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 : `${event.player?.name || "Unknown Player"} (${event.team?.name || "Unknown Team"}) is shown the ${event.detail?.toLowerCase().includes("yellow") ? "yellow" : "red"} card${event.detail?.toLowerCase().includes("foul") ? " for a foul" : ""}.`}
                             </div>
                           </div>
-                        ) : event.type === "Subst" ? (
+                        ) : event.type === "subst" ? (
                           <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium">
+                            <div className="flex items-center gap-2 -ml-3  text-xs font-medium">
                               <img
                                 src="/assets/matchdetaillogo/substitution.svg"
                                 alt="Substitution"
