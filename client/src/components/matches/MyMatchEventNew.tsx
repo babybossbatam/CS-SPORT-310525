@@ -303,8 +303,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           "checking for a possible penalty",
           "reviewing the goal decision",
           "checking for offside",
-          "reviewing the goal decision",
-          "checking for offside",
           "reviewing a potential red card incident",
         ];
         const varReason =
@@ -1233,7 +1231,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         </div>
                                       </>
                                     ) : (
-                                      <div className="text-xs font-medium text-gray-700 whitespace-normal">
+                                      <div className="text-xs font-medium text-gray-700">
                                         {event.player?.name || "Unknown Player"}
                                       </div>
                                     )}
@@ -1243,7 +1241,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && !event.detail?.toLowerCase().includes("penalty") && (
+                                    {event.type !== "subst" && (
                                       <div className="text-xs text-gray-400">
                                         {event.type === "foul" ||
                                         event.detail?.toLowerCase().includes("foul")
@@ -1460,7 +1458,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         </div>
                                       </>
                                     ) : (
-                                      <div className="text-xs font-medium text-gray-700 text-right whitespace-normal">
+                                      <div className="text-xs font-medium text-gray-700 text-right">
                                         {event.player?.name || "Unknown Player"}
                                       </div>
                                     )}
@@ -1470,7 +1468,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && !event.detail?.toLowerCase().includes("penalty") && (
+                                    {event.type !== "subst" && (
                                       <div className="text-xs text-gray-400 text-right">
                                         {event.type === "foul" ||
                                         event.detail?.toLowerCase().includes("foul")
@@ -1513,9 +1511,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       />
                                       <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
                                           <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
-                                                <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
-                                                <circle cx="50" cy="35" r="12" fill="#6b7280"/>
-                                                <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
+                                            <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                            <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                            <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
                                           </svg>
                                         </AvatarFallback>
                                     </Avatar>
@@ -1601,7 +1599,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       const firstHalfGoals = goalEvents.filter(
                         (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
                       );
-
+                      
                       if (hasSecondHalfEvents) {
                         const halftimeScore = calculateHalftimeScore();
                         markers.push({
@@ -1697,7 +1695,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 {/* Column 1: Player Info */}
                                 <div className="match-event-home-player-info">
                                   <div className="flex items-center gap-1">
-                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                    <Avatar className="w-9 h-9 border-2 shadow-sm border-green-400">
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
@@ -1714,145 +1712,65 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           </svg>
                                         </AvatarFallback>
                                     </Avatar>
-
-                                    {event.type === "subst" &&
-                                      event.assist?.name && (
-                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20">
-                                          <AvatarImage
-                                            src={getPlayerImage(
-                                              event.assist?.id,
-                                              event.assist?.name,
-                                            )}
-                                            alt={event.assist?.name || "Player"}
-                                            className="object-cover"
-                                          />
-                                          <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
-                                              <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
-                                                <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
-                                                <circle cx="50" cy="35" r="12" fill="#6b7280"/>
-                                                <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
-                                              </svg>
-                                            </AvatarFallback>
-                                        </Avatar>
-                                      )}
                                   </div>
 
                                   <div className="text-left">
-                                    {event.type === "subst" &&
-                                    event.assist?.name ? (
-                                      <>
-                                        <div className="text-xs font-medium text-green-600">
-                                          {event.assist.name}
-                                        </div>
-                                        <div className="text-xs font-medium text-red-600">
-                                          {event.player?.name || "Unknown Player"}
-                                        </div>
-                                      </>
-                                    ) : (
-                                      <div className="text-xs font-medium text-gray-700 whitespace-normal">
-                                        {event.player?.name || "Unknown Player"}
+                                    <div className="text-xs font-medium text-gray-700">
+                                      {event.player?.name || "Unknown Player"}
+                                    </div>
+                                    {event.assist?.name && (
+                                      <div className="text-xs text-gray-600">
+                                        (Assist: {event.assist.name})
                                       </div>
                                     )}
-                                    {event.type === "Goal" &&
-                                      event.assist?.name && (
-                                        <div className="text-xs text-gray-600">
-                                          (Assist: {event.assist.name})
-                                        </div>
-                                      )}
-                                    {event.type !== "subst" && !event.detail?.toLowerCase().includes("penalty") && (
-                                      <div className="text-xs text-gray-400">
-                                        {event.type === "foul" ||
-                                        event.detail?.toLowerCase().includes("foul")
-                                          ? `Foul by ${event.player?.name || "Unknown Player"}`
-                                          : event.detail || event.type}
-                                      </div>
-                                    )}
+                                    <div className="text-xs text-gray-400">
+                                      {event.detail || "Goal"}
+                                    </div>
                                   </div>
                                 </div>
 
                                 {/* Column 2: Event Icon */}
                                 <div className="match-event-home-icon-column">
-                                  <div
-                                    className={`match-event-icon ${
-                                      event.type === "Goal"
-                                        ? "goal"
-                                        : event.type === "Card"
-                                          ? "card"
-                                          : "substitution"
-                                    } relative group`}
-                                    style={{ marginRight: '-8px' }}
-                                    title={getEventDescription(event)}
-                                  >
-                                    {event.type === "subst" ? (
-                                      <img
-                                        src="/assets/matchdetaillogo/substitution.svg"
-                                        alt="Substitution"
-                                        className="w-4 h-4   duration-200 "
-                                      />
-                                    ) : event.type === "Goal" ? (
-                                      (() => {
-                                        const detail = event.detail?.toLowerCase() || "";
-                                        if (detail.includes("penalty")) {
-                                          if (detail.includes("missed")) {
-                                            return (
-                                              <img
-                                                src="/assets/matchdetaillogo/missed-penalty.svg"
-                                                alt="Missed Penalty"
-                                                className="w-4 h-4  "
-                                              />
-                                            );
-                                          } else {
-                                            return (
-                                              <img
-                                                src="/assets/matchdetaillogo/penalty.svg"
-                                                alt="Penalty Goal"
-                                                className="w-4 h-4  "
-                                              />
-                                            );
-                                          }
-                                        } else if (detail.includes("own goal")) {
+                                  <div className="match-event-icon goal relative group" title={getEventDescription(event)}>
+                                    {(() => {
+                                      const detail = event.detail?.toLowerCase() || "";
+                                      if (detail.includes("penalty")) {
+                                        if (detail.includes("missed")) {
                                           return (
                                             <img
-                                              src="/assets/matchdetaillogo/soccer-logo.svg"
-                                              alt="Own Goal"
-                                              className="w-4 h-4 "
+                                              src="/assets/matchdetaillogo/missed-penalty.svg"
+                                              alt="Missed Penalty"
+                                              className="w-4 h-4"
                                             />
                                           );
                                         } else {
                                           return (
                                             <img
-                                              src="/assets/matchdetaillogo/soccer-ball.svg"
-                                              alt="Goal"
-                                              className="w-4 h-4 "
+                                              src="/assets/matchdetaillogo/penalty.svg"
+                                              alt="Penalty Goal"
+                                              className="w-4 h-4"
                                             />
                                           );
                                         }
-                                      })()
-                                    ) : event.type === "Card" ? (
-                                      <img
-                                        src={
-                                          event.detail
-                                            ?.toLowerCase()
-                                            .includes("yellow")
-                                            ? "/assets/matchdetaillogo/card-icon.svg"
-                                            : "/assets/matchdetaillogo/red-card-icon.svg"
-                                        }
-                                        alt={
-                                          event.detail
-                                            ?.toLowerCase()
-                                            .includes("yellow")
-                                            ? "Yellow Card"
-                                            : "Red Card"
-                                        }
-                                        className="w-4 h-8 "
-                                      />
-                                    ) : (
-                                      <span className="text-xs">
-                                        {getEventIcon(event.type, event.detail)}
-                                      </span>
-                                    )}
-
-                                    </div>
+                                      } else if (detail.includes("own goal")) {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/soccer-logo.svg"
+                                            alt="Own Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      } else {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/soccer-ball.svg"
+                                            alt="Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      }
+                                    })()}
+                                  </div>
                                 </div>
                               </>
                             )}
@@ -1860,7 +1778,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                           {/* Center Grid: Time display only */}
                           <div className="match-event-time-center-simple">
-                            {/* Middle: Time display - show elapsed time in black and extra time in red */}
                             <div className="match-event-time-display">
                               <span style={{ color: "black" }}>
                                 {event.time?.elapsed}'
@@ -1879,145 +1796,66 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               <>
                                 {/* Column 1: Event Icon */}
                                 <div className="match-event-away-icon-column">
-                                  <div
-                                    className={`match-event-icon ${
-                                      event.type === "Goal"
-                                        ? "Goal"
-                                        : event.type === "Card"
-                                          ? "Card"
-                                          : "Substitution"
-                                    }`}
-
-                                    style={{ marginRight: '-8px' }}
-                                    title={getEventDescription(event)}
-                                  >
-                                    {event.type === "subst" ? (
-                                      <img
-                                        src="/assets/matchdetaillogo/substitution.svg"
-                                        alt="Substitution"
-                                        className="w-4 h-4 "
-                                      />
-                                    ) : event.type === "Goal" ? (
-                                      (() => {
-                                        const detail = event.detail?.toLowerCase() || "";
-                                        if (detail.includes("penalty")) {
-                                          if (detail.includes("missed")) {
-                                            return (
-                                              <img
-                                                src="/assets/matchdetaillogo/missed-penalty.svg"
-                                                alt="Missed Penalty"
-                                                className="w-4 h-4 "
-                                              />
-                                            );
-                                          } else {
-                                            return (
-                                              <img
-                                                src="/assets/matchdetaillogo/penalty.svg"
-                                                alt="Penalty Goal"
-                                                className="w-4 h-4 "
-                                              />
-                                            );
-                                          }
-                                        } else if (detail.includes("own goal")) {
+                                  <div className="match-event-icon goal relative group" title={getEventDescription(event)}>
+                                    {(() => {
+                                      const detail = event.detail?.toLowerCase() || "";
+                                      if (detail.includes("penalty")) {
+                                        if (detail.includes("missed")) {
                                           return (
                                             <img
-                                              src="/assets/matchdetaillogo/soccer-logo.svg"
-                                              alt="Own Goal"
-                                              className="w-4 h-4 "
+                                              src="/assets/matchdetaillogo/missed-penalty.svg"
+                                              alt="Missed Penalty"
+                                              className="w-4 h-4"
                                             />
                                           );
                                         } else {
                                           return (
                                             <img
-                                              src="/assets/matchdetaillogo/soccer-ball.svg"
-                                              alt="Goal"
-                                              className="w-4 h-4 "
+                                              src="/assets/matchdetaillogo/penalty.svg"
+                                              alt="Penalty Goal"
+                                              className="w-4 h-4"
                                             />
                                           );
                                         }
-                                      })()
-                                    ) : event.type === "Card" ? (
-                                      <img
-                                        src={
-                                          event.detail
-                                            ?.toLowerCase()
-                                            .includes("yellow")
-                                            ? "/assets/matchdetaillogo/card-icon.svg"
-                                            : "/assets/matchdetaillogo/red-card-icon.svg"
-                                        }
-                                        alt={
-                                          event.detail
-                                            ?.toLowerCase()
-                                            .includes("yellow")
-                                            ? "Yellow Card"
-                                            : "Red Card"
-                                        }
-                                        className="w-4 h-4 "
-                                      />
-                                    ) : (
-                                      <span className="text-xs">
-                                        {getEventIcon(event.type, event.detail)}
-                                      </span>
-                                    )}
+                                      } else if (detail.includes("own goal")) {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/soccer-logo.svg"
+                                            alt="Own Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      } else {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/soccer-ball.svg"
+                                            alt="Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      }
+                                    })()}
                                   </div>
                                 </div>
 
                                 {/* Column 2: Player Info */}
                                 <div className="match-event-away-player-info">
                                   <div className="text-right w-24">
-                                    {event.type === "subst" &&
-                                    event.assist?.name ? (
-                                      <>
-                                        <div className="text-xs font-medium text-green-600 text-right">
-                                          {event.assist.name}
-                                        </div>
-                                        <div className="text-xs font-medium text-red-600 text-right">
-                                          {event.player?.name || "Unknown Player"}
-                                        </div>
-                                      </>
-                                    ) : (
-                                      <div className="text-xs font-medium text-gray-700 text-right whitespace-normal">
-                                        {event.player?.name || "Unknown Player"}
+                                    <div className="text-xs font-medium text-gray-700 text-right">
+                                      {event.player?.name || "Unknown Player"}
+                                    </div>
+                                    {event.assist?.name && (
+                                      <div className="text-xs text-gray-600 text-right">
+                                        (Assist: {event.assist.name})
                                       </div>
                                     )}
-                                    {event.type === "goal" &&
-                                      event.assist?.name && (
-                                        <div className="text-xs text-gray-600 text-right">
-                                          (Assist: {event.assist.name})
-                                        </div>
-                                      )}
-                                    {event.type !== "subst" && !event.detail?.toLowerCase().includes("penalty") && (
-                                      <div className="text-xs text-gray-400 text-right">
-                                        {event.type === "foul" ||
-                                        event.detail?.toLowerCase().includes("foul")
-                                          ? `Foul by ${event.player?.name || "Unknown Player"}`
-                                          : event.detail || event.type}
-                                      </div>
-                                    )}
+                                    <div className="text-xs text-gray-400 text-right">
+                                      {event.detail || "Goal"}
+                                    </div>
                                   </div>
 
                                   <div className="flex items-center gap-1">
-                                    {event.type === "subst" &&
-                                      event.assist?.name && (
-                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative-z20">
-                                          <AvatarImage
-                                            src={getPlayerImage(
-                                              event.assist?.id,
-                                              event.assist?.name,
-                                            )}
-                                            alt={event.assist?.name || "Player"}
-                                            className="object-cover"
-                                          />
-                                          <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
-                                              <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
-                                                <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
-                                                <circle cx="50" cy="35" r="12" fill="#6b7280"/>
-                                                <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
-                                          </svg>
-                                        </AvatarFallback>
-                                      )}
-
-                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                    <Avatar className="w-9 h-9 border-2 shadow-sm border-green-400">
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
@@ -2077,4 +1915,3 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 };
 
 export default MyMatchEventNew;
-// The code has been modified to remove the "Penalty" text and allow the player name to unwrap in the match events details.
