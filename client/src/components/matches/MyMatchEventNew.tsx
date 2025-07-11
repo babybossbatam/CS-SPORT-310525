@@ -902,8 +902,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     if (matchData?.goals) {
       return {
         homeScore: matchData.goals.home || 0,
-        away```text
-Score: matchData.goals.away || 0      };
+        awayScore: matchData.goals.away || 0
+      };
     }
     return { homeScore: 0, awayScore: 0 };
   }, [matchData?.goals]);
