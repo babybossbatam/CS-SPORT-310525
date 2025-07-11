@@ -160,22 +160,22 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const isPsgRealMadrid2025 = (home.toLowerCase().includes('paris saint germain') && away.toLowerCase().includes('real madrid')) ||
                              (home.toLowerCase().includes('real madrid') && away.toLowerCase().includes('paris saint germain'));
 
-  // Special case for specific match - use reliable video source
-  const isSpecificMatch2025 = (home.toLowerCase().includes('team1') && away.toLowerCase().includes('team2')) ||
-                             (home.toLowerCase().includes('team2') && away.toLowerCase().includes('team1'));
+  // Special case for CRB vs Coritiba match - use reliable video source
+  const isCRBCoritiba = (home.toLowerCase().includes('crb') && away.toLowerCase().includes('coritiba')) ||
+                       (home.toLowerCase().includes('coritiba') && away.toLowerCase().includes('crb'));
 
   const videoSources = [
-    // Specific reliable video source (highest priority)
-    ...(isSpecificMatch2025 ? [{
-      name: 'Reliable Source - Specific Match',
+    // Specific CRB vs Coritiba video (highest priority)
+    ...(isCRBCoritiba ? [{
+      name: 'CRB vs Coritiba - Official Highlights',
       type: 'youtube' as const,
       searchFn: async () => {
         return {
-          name: 'Reliable Source - Specific Match',
+          name: 'CRB vs Coritiba - Official Highlights',
           type: 'youtube' as const,
           url: 'https://youtu.be/b9NkFqfVibs',
           embedUrl: 'https://www.youtube.com/embed/b9NkFqfVibs?autoplay=0&rel=0',
-          title: 'Reliable Match Highlights'
+          title: 'CRB vs Coritiba - Match Highlights'
         };
       }
     }] : []),
