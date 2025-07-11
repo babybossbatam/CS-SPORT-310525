@@ -1500,7 +1500,7 @@ b.fixture.status.elapsed) || 0;
       {Object.values(matchesByLeague)
         .sort((a, b) => {
           // Define priority order
-          const priorityOrder = [38, 15, 2, 71, 22, 72, 73, 75, 128, 233, 667, 253]; // UEFA U21, FIFA Club World Cup, UEFA Champions League, Serie A, CONCACAF Gold Cup, Serie B, Serie C, Serie D, Copa Argentina, Iraqi League, Friendlies Clubs, MLS
+          const priorityOrder = [38, 15, 2, 71, 22, 72, 73, 75, 128, 233, 3, 667, 253]; // UEFA U21, FIFA Club World Cup, UEFA Champions League, Serie A, CONCACAF Gold Cup, Serie B, Serie C, Serie D, Copa Argentina, Iraqi League, UEFA Europa League, Friendlies Clubs, MLS
 
           const aIndex = priorityOrder.indexOf(a.league.id);
           const bIndex = priorityOrder.indexOf(b.league.id);
