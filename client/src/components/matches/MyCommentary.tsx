@@ -771,31 +771,212 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             </div>
                           </div>
                         ) : event.type === "Card" ? (
-                          <div className="flex items-start gap-1 -ml-3 ">
-                            <div className="text-sm text-gray-700 leading-relaxed">
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium">
+                              {event.detail?.toLowerCase().includes("yellow") ? (
+                                <img
+                                  src="/assets/matchdetaillogo/card-icon.svg"
+                                  alt="Yellow Card"
+                                  className="w-4 h-4 opacity-80 flex-shrink-0"
+                                />
+                              ) : (
+                                <img
+                                  src="/assets/matchdetaillogo/red-card-icon.svg"
+                                  alt="Red Card"
+                                  className="w-4 h-4 opacity-80 flex-shrink-0"
+                                />
+                              )}
+                              <span className="text-gray-700 font-medium">
+                                {event.detail || "Card"}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-gray-200">
+                              <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
+                                <AvatarImage
+                                  src={getPlayerImage(
+                                    event.player?.id,
+                                    event.player?.name,
+                                  )}
+                                  alt={event.player?.name || "Player"}
+                                  className="object-cover"
+                                />
+                                <AvatarFallback className="bg-yellow-500 text-white text-xs font-bold">
+                                  {event.player?.name
+                                    ?.split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .slice(0, 2) || "P"}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-gray-700 font-medium -ml-1">
+                                {event.player?.name || "Unknown Player"}
+                              </span>
+                            </div>
+                            {event.comments && (
+                              <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic">
+                                {event.comments}
+                              </div>
+                            )}
+                            <div className="text-sm text-gray-700 leading-relaxed -ml-3">
                               {eventDescription}
                             </div>
                           </div>
                         ) : event.type === "Subst" ? (
-                          <div className="text-sm text-gray-700 leading-relaxed -ml-18 ">
-                            {eventDescription}
-                          </div>
-                        ) : event.type === "Var" ? (
-                          <div className="flex items-start gap-1 -ml-3">
-                            <span className="text-xs mt-0.5">
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium">
                               <img
-                                src="/assets/matchdetaillogo/missed-penalty.svg"
-                                alt="Missed Penalty"
+                                src="/assets/matchdetaillogo/substitution.svg"
+                                alt="Substitution"
                                 className="w-4 h-4 opacity-80 flex-shrink-0"
                               />
-                            </span>
-                            <div className="text-xs text-gray-700 leading-relaxed">
+                              <span className="text-gray-700 font-medium">
+                                Substitution
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-gray-200">
+                              <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
+                                <AvatarImage
+                                  src={getPlayerImage(
+                                    event.player?.id,
+                                    event.player?.name,
+                                  )}
+                                  alt={event.player?.name || "Player"}
+                                  className="object-cover"
+                                />
+                                <AvatarFallback className="bg-green-500 text-white text-xs font-bold">
+                                  {event.player?.name
+                                    ?.split(" ")
+                                    .map((n) => n[0])
+                                    .join("")
+                                    .slice(0, 2) || "P"}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="text-gray-700 font-medium -ml-1">
+                                {event.player?.name || "Unknown Player"}
+                              </span>
+                            </div>
+                            {event.assist?.name && (
+                              <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-gray-100">
+                                <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
+                                  <AvatarImage
+                                    src={getPlayerImage(
+                                      event.assist?.id,
+                                      event.assist?.name,
+                                    )}
+                                    alt={event.assist?.name || "Player"}
+                                    className="object-cover"
+                                  />
+                                  <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
+                                    {event.assist?.name
+                                      ?.split(" ")
+                                      .map((n) => n[0])
+                                      .join("")
+                                      .slice(0, 2) || "P"}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="text-gray-700 font-medium -ml-1">
+                                  {event.assist?.name || "Unknown Player"}
+                                </span>
+                              </div>
+                            )}
+                            {event.comments && (
+                              <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic">
+                                {event.comments}
+                              </div>
+                            )}
+                            <div className="text-sm text-gray-700 leading-relaxed -ml-3">
+                              {eventDescription}
+                            </div>
+                          </div>
+                        ) : event.type === "Var" ? (
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium">
+                              <img
+                                src="/assets/matchdetaillogo/missed-penalty.svg"
+                                alt="VAR"
+                                className="w-4 h-4 opacity-80 flex-shrink-0"
+                              />
+                              <span className="text-gray-700 font-medium">
+                                VAR {event.detail || "Review"}
+                              </span>
+                            </div>
+                            {event.player?.name && (
+                              <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-gray-200">
+                                <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
+                                  <AvatarImage
+                                    src={getPlayerImage(
+                                      event.player?.id,
+                                      event.player?.name,
+                                    )}
+                                    alt={event.player?.name || "Player"}
+                                    className="object-cover"
+                                  />
+                                  <AvatarFallback className="bg-purple-500 text-white text-xs font-bold">
+                                    {event.player?.name
+                                      ?.split(" ")
+                                      .map((n) => n[0])
+                                      .join("")
+                                      .slice(0, 2) || "P"}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="text-gray-700 font-medium -ml-1">
+                                  {event.player?.name || "Unknown Player"}
+                                </span>
+                              </div>
+                            )}
+                            {event.comments && (
+                              <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic">
+                                {event.comments}
+                              </div>
+                            )}
+                            <div className="text-sm text-gray-700 leading-relaxed -ml-3">
                               {eventDescription}
                             </div>
                           </div>
                         ) : (
-                          <div className="text-sm text-gray-700 leading-relaxed -ml-2">
-                            {eventDescription}
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium">
+                              <img
+                                src="/assets/matchdetaillogo/soccer-ball.svg"
+                                alt="Event"
+                                className="w-4 h-4 opacity-80 flex-shrink-0"
+                              />
+                              <span className="text-gray-700 font-medium">
+                                {event.type} - {event.detail || "Match Event"}
+                              </span>
+                            </div>
+                            {event.player?.name && (
+                              <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-gray-200">
+                                <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
+                                  <AvatarImage
+                                    src={getPlayerImage(
+                                      event.player?.id,
+                                      event.player?.name,
+                                    )}
+                                    alt={event.player?.name || "Player"}
+                                    className="object-cover"
+                                  />
+                                  <AvatarFallback className="bg-gray-500 text-white text-xs font-bold">
+                                    {event.player?.name
+                                      ?.split(" ")
+                                      .map((n) => n[0])
+                                      .join("")
+                                      .slice(0, 2) || "P"}
+                                  </AvatarFallback>
+                                </Avatar>
+                                <span className="text-gray-700 font-medium -ml-1">
+                                  {event.player?.name || "Unknown Player"}
+                                </span>
+                              </div>
+                            )}
+                            {event.comments && (
+                              <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic">
+                                {event.comments}
+                              </div>
+                            )}
+                            <div className="text-sm text-gray-700 leading-relaxed -ml-3">
+                              {eventDescription}
+                            </div>
                           </div>
                         )}
                       </div>
