@@ -314,7 +314,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       className="commentary-event-container"
                     >
                       <div className="flex items-center    py-1  mb-1">
-                        <div className="text-sm font-semibold text-gray-700 ml-4">
+                        <div className="text-sm font-semibold text-gray-700 ">
                           +{event.time.extra}
                           {event.time.elapsed}'
                         </div>
