@@ -43,7 +43,7 @@ const StatRowWithBars: React.FC<{
           <span 
             className={`text-sm font-medium px-2 py-1 rounded-full ${
               homeIsHigher 
-                ? 'bg-red-500 text-white' 
+                ? 'bg-red-700 text-white' 
                 : 'text-gray-900'
             }`}
           >
@@ -51,13 +51,13 @@ const StatRowWithBars: React.FC<{
           </span>
         </div>
         
-        <span className="text-sm font-semibold text-gray-700 text-center flex-1 px-4">{label}</span>
+        <span className="text-sm font-reg text-gray-700 text-center flex-1 px-4">{label}</span>
         
         <div className="flex items-center justify-start w-12">
           <span 
             className={`text-sm font-medium px-2 py-1 rounded-full ${
               awayIsHigher 
-                ? 'bg-green-500 text-white' 
+                ? 'bg-green-700 text-white' 
                 : 'text-gray-900'
             }`}
           >
@@ -307,12 +307,18 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
             homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Ball Possession'))}
             awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Ball Possession'))}
           />
-          
           <StatRowWithBars 
-            label="Expected Goals (xG)" 
+            label="Expected Goals" 
             homeValue={calculateExpectedGoals(homeStats.statistics)}
             awayValue={calculateExpectedGoals(awayStats.statistics)}
           />
+          <StatRowWithBars 
+            label="Total Shots" 
+            homeValue={getStatValue(homeStats.statistics, 'Total Shots', ['Total shots'])}
+            awayValue={getStatValue(awayStats.statistics, 'Total Shots', ['Total shots'])}
+          />
+          
+       
           
           <StatRowWithBars 
             label="Shots on Goal" 
@@ -321,16 +327,12 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
           />
           
           <StatRowWithBars 
-            label="Shots off Goal" 
+            label="Shots On Target" 
             homeValue={getStatValue(homeStats.statistics, 'Shots off Goal', ['Shots off target'])}
             awayValue={getStatValue(awayStats.statistics, 'Shots off Goal', ['Shots off target'])}
           />
           
-          <StatRowWithBars 
-            label="Total Shots" 
-            homeValue={getStatValue(homeStats.statistics, 'Total Shots', ['Total shots'])}
-            awayValue={getStatValue(awayStats.statistics, 'Total Shots', ['Total shots'])}
-          />
+         
           
           <StatRowWithBars 
             label="Blocked Shots" 
