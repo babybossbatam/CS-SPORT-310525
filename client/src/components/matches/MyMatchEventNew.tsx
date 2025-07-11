@@ -179,41 +179,41 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const getEventDescription = (event: MatchEvent) => {
     const detail = event.detail || "";
 
-    if (!event.type) return "Unknown Event";
+    if (!event.type) return "";
 
     switch (event.type.toLowerCase()) {
       case "goal":
         if (detail.toLowerCase().includes("penalty")) {
           if (detail.toLowerCase().includes("missed")) {
-            return "Missed Penalty";
+            return "";
           }
-          return "Penalty";
+          return "";
         } else if (detail.toLowerCase().includes("own goal")) {
-          return "Own Goal";
+          return "";
         } else {
-          return "Goal";
+          return "";
         }
       case "card":
         return "";
       case "subst":
-        return "Substitution";
+        return "";
       case "var":
-        return "VAR";
+        return "";
       default:
         // Handle other event types
         if (
           event.type.toLowerCase() === "foul" ||
           detail.toLowerCase().includes("foul")
         ) {
-          return "Foul";
+          return "";
         } else if (detail.toLowerCase().includes("offside")) {
-          return "Offside";
+          return "";
         } else if (detail.toLowerCase().includes("corner")) {
-          return "Corner";
+          return "";
         } else if (detail.toLowerCase().includes("free kick")) {
-          return "Free Kick";
+          return "";
         } else {
-          return event.type || "Event";
+          return "";
         }
     }
   };
