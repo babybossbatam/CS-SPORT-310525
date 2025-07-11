@@ -560,7 +560,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Filter matches using proper timezone conversion for the selected date
+  // Filter matches using proper timezone conversion for the selected date - Updated for 365scores compatibility
   const selectedDateFixtures = fixtures.filter((f) => {
     const fixtureDate = f.fixture.date;
     if (!fixtureDate) return false;
@@ -591,71 +591,105 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       });
     }
 
-    // If basic date doesn't match, exclude immediately
-    if (!dateMatches) {
-      // Debug logging for Friendlies
-      if (f.league.id === 667) {
-        console.log(`🏆 [FRIENDLIES DATE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-          fixtureDate: f.fixture.date,
-          extractedDate: matchDateString,
-          selectedDate,
-          reason: 'Date mismatch'
-        });
-      }
-      // Debug logging for FIFA Club World Cup exclusions
-      if (f.league.id === 15) {
-        console.log(`🚨 [FIFA CLUB WORLD CUP DATE FILTER] EXCLUDED match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-          fixtureDate: f.fixture.date,
-          extractedDate: matchDateString,
-          selectedDate,
-          reason: 'Date mismatch - this might be the issue!'
-        });
-      }
-      return false;
+    // For live matches, always include them regardless of date (like 365scores)
+    if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(f.fixture.status.short)) {
+      console.log(`🔴 [LIVE MATCH ALWAYS INCLUDED] ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        status: f.fixture.status.short,
+        fixtureDate: f.fixture.date,
+        matchDateString,
+        selectedDate,
+        reason: 'Live matches shown regardless of date'
+      });
+      return true;
     }
 
-    // For matches on the selected date, use advanced time classifier to determine if they should be shown
-    const classification = MyAdvancedTimeClassifier.classifyFixture(
-      f.fixture.date,
-      f.fixture.status.short
-    );
+    // Primary date matching logic
+    if (dateMatches) {
+      // For matches on the selected date, use advanced time classifier
+      const classification = MyAdvancedTimeClassifier.classifyFixture(
+        f.fixture.date,
+        f.fixture.status.short
+      );
 
-    // Debug log for time classification
-    console.log(`🕐 [ADVANCED TIME CLASSIFICATION] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-      fixtureTime: classification.fixtureTime,
-      currentTime: classification.currentTime,
-      status: f.fixture.status.short,
-      category: classification.category,
-      reason: classification.reason,
-      shouldShow: classification.shouldShow,
-      selectedDate,
-      league: f.league.name,
-      leagueId: f.league.id
-    });
-
-    // Special attention to FIFA Club World Cup classification
-    if (f.league.id === 15) {
-      console.log(`🏆 [FIFA CLUB WORLD CUP ADVANCED TIME CLASSIFICATION] ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        fullFixtureDate: f.fixture.date,
-        extractedTime: classification.fixtureTime,
+      // Debug log for time classification
+      console.log(`🕐 [ADVANCED TIME CLASSIFICATION] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        fixtureTime: classification.fixtureTime,
         currentTime: classification.currentTime,
+        status: f.fixture.status.short,
         category: classification.category,
         reason: classification.reason,
-        status: f.fixture.status.short,
-        shouldShow: classification.shouldShow
+        shouldShow: classification.shouldShow,
+        selectedDate,
+        league: f.league.name,
+        leagueId: f.league.id
+      });
+
+      if (!classification.shouldShow) {
+        console.log(`❌ [ADVANCED TIME FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+          classification: classification.category,
+          reason: classification.reason,
+          status: f.fixture.status.short,
+          fixtureTime: classification.fixtureTime
+        });
+      }
+
+      return classification.shouldShow;
+    }
+
+    // For matches not on the selected date, check if they should still be included
+    // (like 365scores shows recent ended matches and nearby future matches)
+    const today = new Date().toISOString().slice(0, 10);
+    const selectedDateObj = new Date(selectedDate);
+    const todayObj = new Date(today);
+    const fixtureObj = new Date(matchDateString);
+    
+    // Calculate days difference
+    const daysDifference = (fixtureObj.getTime() - selectedDateObj.getTime()) / (1000 * 3600 * 24);
+    
+    // Include recent ended matches (like 365scores)
+    if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(f.fixture.status.short)) {
+      // Show ended matches from yesterday if viewing today
+      if (selectedDate === today && daysDifference >= -1 && daysDifference < 0) {
+        console.log(`📅 [RECENT ENDED MATCH INCLUDED] ${f.teams.home.name} vs ${f.teams.away.name}`, {
+          status: f.fixture.status.short,
+          fixtureDate: f.fixture.date,
+          matchDateString,
+          selectedDate,
+          daysDifference,
+          reason: 'Recent ended match from yesterday'
+        });
+        return true;
+      }
+    }
+
+    // Include upcoming matches from tomorrow if viewing today (limited cases)
+    if (['NS', 'TBD'].includes(f.fixture.status.short)) {
+      // Show early upcoming matches if viewing today and they're tomorrow
+      if (selectedDate === today && daysDifference > 0 && daysDifference <= 1) {
+        console.log(`📅 [UPCOMING MATCH INCLUDED] ${f.teams.home.name} vs ${f.teams.away.name}`, {
+          status: f.fixture.status.short,
+          fixtureDate: f.fixture.date,
+          matchDateString,
+          selectedDate,
+          daysDifference,
+          reason: 'Early upcoming match from tomorrow'
+        });
+        return true;
+      }
+    }
+
+    // Default exclusion for date mismatch
+    if (f.league.id === 667) {
+      console.log(`🏆 [FRIENDLIES DATE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        fixtureDate: f.fixture.date,
+        extractedDate: matchDateString,
+        selectedDate,
+        daysDifference,
+        reason: 'Date mismatch and not in allowed range'
       });
     }
 
-    if (!classification.shouldShow) {
-      console.log(`❌ [ADVANCED TIME FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        classification: classification.category,
-        reason: classification.reason,
-        status: f.fixture.status.short,
-        fixtureTime: classification.fixtureTime
-      });
-    }
-
-    return classification.shouldShow;
+    return false;
   });
 
   // Log filtering results for all target leagues
