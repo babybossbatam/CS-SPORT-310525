@@ -1174,7 +1174,60 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               <>
                                 {/* Column 1: Player Info */}
                                 <div className="match-event-home-player-info w-40">
+                                  <div className="text-left">
+                                    {event.type === "subst" &&
+                                    event.assist?.name ? (
+                                      <>
+                                        <div className="text-xs font-medium text-green-600 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+                                          {event.assist.name}
+                                        </div>
+                                        <div className="text-xs font-medium text-red-600 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+                                          {event.player?.name || "Unknown Player"}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <div className="text-xs font-medium text-gray-700 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+                                        {event.player?.name || "Unknown Player"}
+                                      </div>
+                                    )}
+                                    {event.type === "goal" &&
+                                      event.assist?.name && (
+                                        <div className="text-xs text-gray-600 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+                                          (Assist: {event.assist.name})
+                                        </div>
+                                      )}
+                                    {event.type !== "subst" && event.type !== "Card" && (
+                                      <div className="text-xs text-gray-400 text-left whitespace-nowrap overflow-hidden text-ellipsis">
+                                        {event.type === "foul" ||
+                                        event.detail?.toLowerCase().includes("foul")
+                                          ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                          : event.detail || event.type}
+                                      </div>
+                                    )}
+                                  </div>
+
                                   <div className="flex items-center gap-1">
+                                    {event.type === "subst" &&
+                                      event.assist?.name && (
+                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative-z20">
+                                          <AvatarImage
+                                            src={getPlayerImage(
+                                              event.assist?.id,
+                                              event.assist?.name,
+                                            )}
+                                            alt={event.assist?.name || "Player"}
+                                            className="object-cover"
+                                          />
+                                          <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
+                                              <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
+                                                <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                                <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                                <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
+                                              </svg>
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      )}
+
                                     <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
                                       <AvatarImage
                                         src={getPlayerImage(
@@ -1189,41 +1242,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
                                             <circle cx="50" cy="35" r="12" fill="#6b7280"/>
                                             <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
-                                          </svg>
+                                      </svg>
                                         </AvatarFallback>
                                     </Avatar>
-                                  </div>
-
-                                  <div className="text-left">
-                                    {event.type === "subst" &&
-                                    event.assist?.name ? (
-                                      <>
-                                        <div className="text-xs font-medium text-green-600">
-                                          {event.assist.name}
-                                        </div>
-                                        <div className="text-xs font-medium text-red-600">
-                                          {event.player?.name || "Unknown Player"}
-                                        </div>
-                                      </>
-                                    ) : (
-                                      <div className="text-xs font-medium text-gray-700">
-                                        {event.player?.name || "Unknown Player"}
-                                      </div>
-                                    )}
-                                    {event.type === "goal" &&
-                                      event.assist?.name && (
-                                        <div className="text-xs text-gray-600">
-                                          (Assist: {event.assist.name})
-                                        </div>
-                                      )}
-                                    {event.type !== "subst" && event.type !== "Card" && (
-                                      <div className="text-xs text-gray-400">
-                                        {event.type === "foul" ||
-                                        event.detail?.toLowerCase().includes("foul")
-                                          ? `Foul by ${event.player?.name || "Unknown Player"}`
-                                          : event.detail || event.type}
-                                      </div>
-                                    )}
                                   </div>
                                 </div>
 
