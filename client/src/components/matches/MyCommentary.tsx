@@ -813,10 +813,10 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 {event.player?.name || "Unknown Player"}
                               </span>
                             </div>
-                            <div className="text-sm text-gray-700 leading-relaxed -ml-3">
+                            <div className=" flex text-sm text-gray-700 leading-relaxed -ml-3">
                               {`${event.player?.name || "Unknown Player"} (${event.team?.name || "Unknown Team"}) is shown the ${event.detail?.toLowerCase().includes("yellow") ? "yellow" : "red"} card${event.detail?.toLowerCase().includes("foul") ? " for a foul" : ""}.`}
                               {event.comments && event.comments.trim().length > 0 && (
-                                <div className="text-xs text-gray-600 mt-1 italic">
+                                <div className="text-xs text-gray-600 italic ml-1">
                                   {event.comments}
                                 </div>
                               )}
