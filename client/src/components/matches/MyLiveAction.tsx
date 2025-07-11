@@ -252,7 +252,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     return () => clearInterval(targetInterval);
   }, [isLive]);
 
-  // Clean up old trail positions, goal kick events, and corner kick events
+  // Clean up old trail positions, goal kick events, corner kick events, and shot events
   useEffect(() => {
     const cleanup = setInterval(() => {
       setBallTrail(currentTrail => 
@@ -269,6 +269,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       
       setSubstitutionEvents(current => 
         current.filter(event => Date.now() - event.timestamp < 12000) // Keep substitutions for 12 seconds
+      );
+
+      // Clean up old shot events and their arrows
+      setShotEvents(current => 
+        current.filter(event => Date.now() - event.timestamp < 5000) // Keep shots for only 5 seconds
       );
     }, 1000);
 
@@ -1055,34 +1060,40 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             );
           })}
 
-          {/* Shot direction indicators */}
-          {shotEvents.slice(-3).map((shot) => (
-            <svg
-              key={`arrow-${shot.id}`}
-              className="absolute inset-0 w-full h-full z-44 pointer-events-none"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-            >
-              <defs>
-                <marker id={`arrowhead-${shot.team}`} markerWidth="10" markerHeight="7" 
-                        refX="10" refY="3.5" orient="auto">
-                  <polygon points="0 0, 10 3.5, 0 7" 
-                          fill={shot.team === 'home' ? '#3b82f6' : '#ef4444'} />
-                </marker>
-              </defs>
-              <line
-                x1={shot.x}
-                y1={shot.y}
-                x2={shot.team === 'home' ? '95' : '5'}
-                y2="50"
-                stroke={shot.team === 'home' ? '#3b82f6' : '#ef4444'}
-                strokeWidth="0.5"
-                markerEnd={`url(#arrowhead-${shot.team})`}
-                opacity="0.6"
-                strokeDasharray="2,1"
-              />
-            </svg>
-          ))}
+          {/* Shot direction indicators - only show most recent shot */}
+          {shotEvents.slice(-1).map((shot) => {
+            const age = Date.now() - shot.timestamp;
+            const maxAge = 5000; // 5 seconds
+            const opacity = Math.max(0, (maxAge - age) / maxAge * 0.8); // Fade out over time
+            
+            return (
+              <svg
+                key={`arrow-${shot.id}`}
+                className="absolute inset-0 w-full h-full z-44 pointer-events-none"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                style={{ opacity }}
+              >
+                <defs>
+                  <marker id={`arrowhead-${shot.team}`} markerWidth="10" markerHeight="7" 
+                          refX="10" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" 
+                            fill={shot.team === 'home' ? '#3b82f6' : '#ef4444'} />
+                  </marker>
+                </defs>
+                <line
+                  x1={shot.x}
+                  y1={shot.y}
+                  x2={shot.team === 'home' ? '95' : '5'}
+                  y2="50"
+                  stroke={shot.team === 'home' ? '#3b82f6' : '#ef4444'}
+                  strokeWidth="0.8"
+                  markerEnd={`url(#arrowhead-${shot.team})`}
+                  strokeDasharray="3,1"
+                />
+              </svg>
+            );
+          })}
 
           {/* Professional ball with possession indicator */}
           <div 
