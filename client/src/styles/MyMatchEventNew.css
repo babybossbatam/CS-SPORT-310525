@@ -222,8 +222,9 @@
   justify-content: flex-end;
   align-items: center;
   height: 40px;
-
+   width: 24px;
   min-height: 40px;
+  margin-right: -20px;
 }
 
 /* Time display (center) */
@@ -241,7 +242,7 @@
   border-radius: 20px;
   padding: 8px 4px;
   min-height: 40px;
-  min-width: 72px;
+  min-width: 25px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
 }
@@ -309,7 +310,7 @@
   height: 40px;
    width: 24px;
   min-height: 40px;
-  margin-left: -20px;
+  margin-right: -20px;
 }
 
 .match-event-away-player-info {

@@ -1265,6 +1265,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           ? "card"
                                           : "substitution"
                                     } relative group`}
+                                    style={{ marginRight: '-8px' }}
                                     title={getEventDescription(event)}
                                   >
                                     {event.type === "subst" ? (
@@ -1376,6 +1377,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           ? "Card"
                                           : "Substitution"
                                     } relative group`}
+
+                                    style={{ marginRight: '-8px' }}
                                     title={getEventDescription(event)}
                                   >
                                     {event.type === "subst" ? (
