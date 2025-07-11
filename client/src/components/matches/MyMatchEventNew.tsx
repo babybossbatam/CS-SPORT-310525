@@ -1625,6 +1625,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   // Combine goal events and period markers
                   const allTopItems = [...goalEvents, ...periodMarkers].sort(
                     (a, b) => {
+                      // Special priority for "End of 90 Minutes" - put it at the very top in Top tab
+                      if (
+                        a.type === "period_score" &&
+                        a.detail === "End of 90 Minutes"
+                      )
+                        return -1;
+                      if (
+                        b.type === "period_score" &&
+                        b.detail === "End of 90 Minutes"
+                      )
+                        return 1;
+
                       // Calculate total time including extra time for proper sorting
                       const aTotalTime = a.time.elapsed + (a.time.extra || 0);
                       const bTotalTime = b.time.elapsed + (b.time.extra || 0);
