@@ -287,10 +287,10 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 (latest, current) =>
                   current.totalTime > latest.totalTime ? current : latest,
               );
-        
+
 
               const finalScore = calculateScoreAtTime(finalEvent.totalTime);
-              
+
               periodMarkers.push({
                 time: {  
                   elapsed: finalEvent.time.elapsed,
@@ -314,7 +314,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 // First sort by elapsed time (descending)
                 if (a.time.elapsed !== b.time.elapsed) {
                   return b.time.elapsed - a.time.elapsed;
-                  
+
                 }
 
                 // If elapsed time is the same, sort by extra time (descending)
@@ -324,7 +324,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                 if (aExtra !== bExtra) {
                   return bExtra - aExtra;
-                  
+
                 }
 
                 // For events at the same time, prioritize period markers to appear first
@@ -350,7 +350,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           {event.time.elapsed}'
                         </div>
                         <div className="text-lg font-bold text-gray-900 ml-4">
-                          
+
                           <img
                             src="/assets/matchdetaillogo/clock.png"
                             alt="clock"
@@ -403,9 +403,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               />
                               <div>
                                 <div>Kick Off</div>
-                                
+
                               </div>
-                              
+
                             </div>
                             <div className="text-xs text-gray-600 mt-1">
                               First Half begins.
@@ -447,7 +447,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 {halftimeScore.homeScore} - {halftimeScore.awayScore}
                               </span>
                             </div>
-                        
+
                           </div>
                         </div>
                       </div>
@@ -813,11 +813,11 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 {event.player?.name || "Unknown Player"}
                               </span>
                             </div>
-                            {event.comments && (
-                              <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic">
-                                {event.comments}
-                              </div>
-                            )}
+                            <div className="text-sm text-gray-700 leading-relaxed -ml-3">
+                              {event.comments && event.comments.trim().length > 0 
+                                ? event.comments 
+                                : `${event.player?.name || "Unknown Player"} (${event.team?.name || "Unknown Team"}) is shown the ${event.detail?.toLowerCase().includes("yellow") ? "yellow" : "red"} card${event.detail?.toLowerCase().includes("foul") ? " for a foul" : ""}.`}
+                            </div>
                           </div>
                         ) : event.type === "Subst" ? (
                           <div className="flex flex-col gap-2">
