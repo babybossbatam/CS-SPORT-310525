@@ -1548,7 +1548,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     (a, b) => b.time.elapsed - a.time.elapsed,
                   );
 
-                  // Create period markers for Top tab
+                  // Create period markers for Top tab (same logic as All tab)
                   const createTopTabPeriodMarkers = () => {
                     const markers = [];
 
@@ -1591,7 +1591,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           team: { name: "", logo: "" },
                           player: { name: "" },
                           id: "period-90-top",
-                          hasGoals: fullTimeGoals.length > 0,
                         });
                       }
 
@@ -1651,105 +1650,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       return (
                         <div
                           key={event.id || `period-score-top-${index}`}
-                          className="w-full mb-4"
+                          className="match-event-container "
                         >
-                          {/* Period Header */}
-                          <div className="bg-gray-200 px-4 py-2 rounded-t-lg">
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-700">
-                                {event.detail || "Period Marker"}
-                              </span>
-                              <span className="text-sm font-bold text-gray-900">
-                                {event.score || "0 - 0"}
-                              </span>
+                          <div className="period-score-marker">
+                            <div className="period-score-label">
+                              {event.detail || "Period Marker"}
                             </div>
-                          </div>
-
-                          {/* Goals in this period or "No Top Events" */}
-                          <div className="bg-white border-x border-b border-gray-200 rounded-b-lg">
-                            {event.detail === "Halftime" && event.hasFirstHalfGoals === false ? (
-                              <div className="text-center text-gray-500 text-sm py-4">
+                            <div className="period-score-display">
+                              {event.score || "0 - 0"}
+                            </div>
+                            {/* Show "No Top Events" for halftime if no goals in first half */}
+                            {event.detail === "Halftime" && event.hasFirstHalfGoals === false && (
+                              <div className="text-center text-gray-500 text-sm mt-2 py-2 bg-gray-50 rounded">
                                 No Top Events
-                              </div>
-                            ) : event.detail === "End of 90 Minutes" && event.hasGoals === false ? (
-                              <div className="text-center text-gray-500 text-sm py-4">
-                                No Top Events
-                              </div>
-                            ) : (
-                              // Show goals for this period
-                              <div className="p-2">
-                                {(() => {
-                                  // Get goals for this specific period
-                                  let periodGoals = [];
-                                  if (event.detail === "Halftime") {
-                                    periodGoals = goalEvents.filter(goal => goal.time?.elapsed <= 45);
-                                  } else if (event.detail === "End of 90 Minutes") {
-                                    periodGoals = goalEvents.filter(goal => goal.time?.elapsed >= 90);
-                                  }
-
-                                  return periodGoals.map((goal, goalIndex) => {
-                                    const isHome = goal.team?.name === homeTeam;
-                                    return (
-                                      <div key={`period-goal-${goalIndex}`} className="flex items-center justify-between py-2">
-                                        {/* Time */}
-                                        <div className="text-xs font-medium text-gray-600 w-12">
-                                          {goal.time?.elapsed}'
-                                          {goal.time?.extra && (
-                                            <span className="text-red-500">+{goal.time.extra}</span>
-                                          )}
-                                        </div>
-                                        
-                                        {/* Goal Icon */}
-                                        <div className="flex-shrink-0 mx-2">
-                                          {(() => {
-                                            const detail = goal.detail?.toLowerCase() || "";
-                                            if (detail.includes("penalty")) {
-                                              return (
-                                                <img
-                                                  src="/assets/matchdetaillogo/penalty.svg"
-                                                  alt="Penalty Goal"
-                                                  className="w-4 h-4"
-                                                />
-                                              );
-                                            } else {
-                                              return (
-                                                <img
-                                                  src="/assets/matchdetaillogo/soccer-ball.svg"
-                                                  alt="Goal"
-                                                  className="w-4 h-4"
-                                                />
-                                              );
-                                            }
-                                          })()}
-                                        </div>
-
-                                        {/* Player Info */}
-                                        <div className="flex items-center gap-2 flex-1">
-                                          <div className="text-xs font-medium text-gray-700">
-                                            {goal.player?.name || "Unknown Player"}
-                                          </div>
-                                          <Avatar className="w-6 h-6 border border-gray-300">
-                                            <AvatarImage
-                                              src={getPlayerImage(
-                                                goal.player?.id,
-                                                goal.player?.name,
-                                              )}
-                                              alt={goal.player?.name || "Player"}
-                                              className="object-cover"
-                                            />
-                                            <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
-                                              <svg viewBox="0 0 100 100" className="w-4 h-4" fill="currentColor">
-                                                <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
-                                                <circle cx="50" cy="35" r="12" fill="#6b7280"/>
-                                                <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
-                                              </svg>
-                                            </AvatarFallback>
-                                          </Avatar>
-                                        </div>
-                                      </div>
-                                    );
-                                  });
-                                })()}
                               </div>
                             )}
                           </div>
@@ -1757,10 +1670,216 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       );
                     }
 
-                    // Regular goal events (shouldn't appear here since they're handled within periods)
-                    return null;
+                    const isHome = event.team?.name === homeTeam;
+
+                    return (
+                      <div key={`goal-event-${index}`} className="match-event-container">
+                        {/* Three-grid layout container */}
+                        <div className="match-event-three-grid-container">
+                          {/* Left Grid: Home Team Events */}
+                          <div className="match-event-home-side">
+                            {isHome && (
+                              <>
+                                {/* Column 1: Player Info */}
+                                <div className="match-event-home-player-info">
+                                  <div className="flex items-center gap-1">
+                                    <Avatar className="w-9 h-9 border-2 shadow-sm border-green-400">
+                                      <AvatarImage
+                                        src={getPlayerImage(
+                                          event.player?.id,
+                                          event.player?.name,
+                                        )}
+                                        alt={event.player?.name || "Player"}
+                                        className="object-cover"
+                                      />
+                                      <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
+                                          <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
+                                            <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                            <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                            <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
+                                          </svg>
+                                        </AvatarFallback>
+                                    </Avatar>
+                                  </div>
+
+                                  <div className="text-left">
+                                    <div className="text-xs font-medium text-gray-700">
+                                      {event.player?.name || "Unknown Player"}
+                                    </div>
+                                    {event.assist?.name && (
+                                      <div className="text-xs text-gray-600">
+                                        (Assist: {event.assist.name})
+                                      </div>
+                                    )}
+                                    <div className="text-xs text-gray-400">
+                                      {event.detail || "Goal"}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Column 2: Event Icon */}
+                                <div className="match-event-home-icon-column">
+                                  <div className="match-event-icon goal relative group" title={getEventDescription(event)}>
+                                    {(() => {
+                                      const detail = event.detail?.toLowerCase() || "";
+                                      if (detail.includes("penalty")) {
+                                        if (detail.includes("missed")) {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/missed-penalty.svg"
+                                              alt="Missed Penalty"
+                                              className="w-4 h-4"
+                                            />
+                                          );
+                                        } else {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/penalty.svg"
+                                              alt="Penalty Goal"
+                                              className="w-4 h-4"
+                                            />
+                                          );
+                                        }
+                                      } else if (detail.includes("own goal")) {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/soccer-logo.svg"
+                                            alt="Own Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      } else {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/soccer-ball.svg"
+                                            alt="Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      }
+                                    })()}
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
+
+                          {/* Center Grid: Time display only */}
+                          <div className="match-event-time-center-simple">
+                            <div className="match-event-time-display">
+                              <span style={{ color: "black" }}>
+                                {event.time?.elapsed}'
+                              </span>
+                              {event.time?.extra && (
+                                <span style={{ color: "red" }}>
+                                  +{event.time.extra}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Right Grid: Away Team Events */}
+                          <div className="match-event-away-side">
+                            {!isHome && (
+                              <>
+                                {/* Column 1: Event Icon */}
+                                <div className="match-event-away-icon-column">
+                                  <div className="match-event-icon goal relative group" title={getEventDescription(event)}>
+                                    {(() => {
+                                      const detail = event.detail?.toLowerCase() || "";
+                                      if (detail.includes("penalty")) {
+                                        if (detail.includes("missed")) {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/missed-penalty.svg"
+                                              alt="Missed Penalty"
+                                              className="w-4 h-4"
+                                            />
+                                          );
+                                        } else {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/penalty.svg"
+                                              alt="Penalty Goal"
+                                              className="w-4 h-4"
+                                            />
+                                          );
+                                        }
+                                      } else if (detail.includes("own goal")) {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/soccer-logo.svg"
+                                            alt="Own Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      } else {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/soccer-ball.svg"
+                                            alt="Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      }
+                                    })()}
+                                  </div>
+                                </div>
+
+                                {/* Column 2: Player Info */}
+                                <div className="match-event-away-player-info">
+                                  <div className="text-right w-24">
+                                    <div className="text-xs font-medium text-gray-700 text-right">
+                                      {event.player?.name || "Unknown Player"}
+                                    </div>
+                                    {event.assist?.name && (
+                                      <div className="text-xs text-gray-600 text-right">
+                                        (Assist: {event.assist.name})
+                                      </div>
+                                    )}
+                                    <div className="text-xs text-gray-400 text-right">
+                                      {event.detail || "Goal"}
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center gap-1">
+                                    <Avatar className="w-9 h-9 border-2 shadow-sm border-green-400">
+                                      <AvatarImage
+                                        src={getPlayerImage(
+                                          event.player?.id,
+                                          event.player?.name,
+                                        )}
+                                        alt={event.player?.name || "Player"}
+                                        className="object-cover"
+                                      />
+                                      <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
+                                          <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
+                                            <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                            <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                            <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
+                                          </svg>
+                                        </AvatarFallback>
+                                    </Avatar>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
                   });
                 })()}
+
+                {/* Show MyCommentary with filtered Goal events for Top tab */}
+                <MyCommentary
+                  events={events.filter(event => event.type === "Goal")}
+                  homeTeam={homeTeam}
+                  awayTeam={awayTeam}
+                  getPlayerImage={getPlayerImage}
+                  getEventDescription={getEventDescription}
+                  isHomeTeam={isHomeTeam}
+                />
               </>
             )}
 
