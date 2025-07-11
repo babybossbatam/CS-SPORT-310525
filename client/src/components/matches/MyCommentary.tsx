@@ -922,7 +922,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             )}
 
                             {/* Detailed substitution description */}
-                            <div className="text-sm text-gray-700 leading-relaxed -ml-3  ">
+                            <div className="text-sm text-gray-700 leading-relaxed -ml-3 mb-4">
                               {event.assist?.name && event.player?.name
                                 ? `Substitution, ${event.team?.name || "Team"}. ${event.assist.name} replaces ${event.player.name}.`
                                 : eventDescription}
