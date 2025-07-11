@@ -933,7 +933,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       </CardHeader>
 
       {/* Tab Navigation */}
-      <div className="pl-28 pr-28 py-4 flex">
+      <div className="pl-28 pr-28 flex">
         <button
           onClick={() => setActiveTab('all')}
           className={`flex-1  text-xs font-small  transition-colors ${
@@ -946,7 +946,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('top')}
-          className={`flex-1 py-3  text-xs font-small text-center transition-colors ${
+          className={`flex-1  text-xs font-small text-center transition-colors ${
             activeTab === 'top'
               ? 'bg-blue-500 text-white'
               : 'bg-white text-blue-400 border border-blue-400 hover:bg-gray-200'
@@ -956,7 +956,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         </button>
         <button
           onClick={() => setActiveTab('commentary')}
-          className={`flex-1 py-3  text-xs font-small text-center transition-colors ${
+          className={`flex-1  text-xs font-small text-center transition-colors ${
             activeTab === 'commentary'
               ? 'bg-blue-500 text-white'
               : 'bg-white text-blue-400 border border-blue-400 hover:bg-gray-200'
@@ -966,7 +966,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         </button>
       </div>
 
-      <CardContent className="py-6 px-0">
+      <CardContent className="px-0">
         {isLoading && events.length === 0 ? (
           <div className="flex items-center justify-center p-8">
             <div className="text-center">
