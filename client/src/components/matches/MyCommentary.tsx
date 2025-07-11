@@ -937,7 +937,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 className="w-4 h-4 opacity-80 flex-shrink-0"
                               />
                               <span className="text-gray-700 font-medium">
-                                VAR {event.detail || "Review"}
+                                {event.detail?.includes("Goal") ? "Goal Disallowed" : `VAR ${event.detail || "Review"}`}
                               </span>
                             </div>
                             {event.player?.name && (
@@ -964,14 +964,25 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 </span>
                               </div>
                             )}
+                            <div className="text-sm text-gray-700 leading-relaxed -ml-3">
+                              {(() => {
+                                // Enhanced VAR description based on event details
+                                if (event.detail?.toLowerCase().includes("goal") && event.detail?.toLowerCase().includes("overturned")) {
+                                  return `GOAL OVERTURNED BY VAR: ${event.player?.name || "Player"} (${event.team?.name || "Team"}) scores but the goal is ruled out after a VAR review.`;
+                                } else if (event.detail?.toLowerCase().includes("no goal")) {
+                                  return `VAR Decision: No Goal ${event.team?.name || "Team"}.`;
+                                } else if (event.detail?.toLowerCase().includes("penalty")) {
+                                  return `VAR Review: Penalty decision for ${event.team?.name || "Team"}.`;
+                                } else {
+                                  return eventDescription;
+                                }
+                              })()}
+                            </div>
                             {event.comments && (
-                              <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic">
+                              <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic mt-1">
                                 {event.comments}
                               </div>
                             )}
-                            <div className="text-sm text-gray-700 leading-relaxed -ml-3">
-                              {eventDescription}
-                            </div>
                           </div>
                         ) : (
                           <div className="flex flex-col gap-2">
