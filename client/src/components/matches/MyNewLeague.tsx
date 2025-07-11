@@ -563,14 +563,6 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
-  
-  // Add timezone debugging
-  console.log(`🕐 [TIMEZONE INFO] Current browser timezone:`, {
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    currentTime: new Date().toISOString(),
-    currentLocalTime: new Date().toString(),
-    selectedDate: selectedDate
-  });
 
   // Enhanced debugging for specific leagues
   const friendliesFixtures = fixtures.filter(f => f.league.id === 667);

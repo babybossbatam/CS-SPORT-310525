@@ -1,3 +1,4 @@
+
 import { detectUserTimezone, getTimezoneAwareAPIParams, createTimezoneAwareDateFilter } from './timezoneDetection';
 import { apiRequest } from './utils';
 
@@ -11,30 +12,30 @@ export async function fetchFixturesWithTimezone(
   try {
     const timezoneParams = getTimezoneAwareAPIParams();
     const dateFilter = createTimezoneAwareDateFilter(selectedDate);
-
+    
     console.log('🌍 [TIMEZONE API] Fetching fixtures with timezone:', {
       selectedDate,
       timezone: timezoneParams.timezone,
       offset: timezoneParams.offset,
       leagueId
     });
-
+    
     const params = {
       date: selectedDate,
       timezone: timezoneParams.timezone,
       ...(leagueId && { league: leagueId })
     };
-
+    
     const response = await apiRequest('GET', '/api/fixtures/date/' + selectedDate, {
       params
     });
-
+    
     if (!response.ok) {
       throw new Error(`Failed to fetch fixtures: ${response.status}`);
     }
-
+    
     const data = await response.json();
-
+    
     console.log('✅ [TIMEZONE API] Retrieved fixtures:', {
       count: data.length,
       timezone: timezoneParams.timezone,
@@ -44,7 +45,7 @@ export async function fetchFixturesWithTimezone(
         status: data[0].fixture?.status?.short
       } : null
     });
-
+    
     return data;
   } catch (error) {
     console.error('❌ [TIMEZONE API] Error fetching fixtures:', error);
@@ -58,29 +59,29 @@ export async function fetchFixturesWithTimezone(
 export async function fetchLiveMatchesWithTimezone(): Promise<any[]> {
   try {
     const timezoneParams = getTimezoneAwareAPIParams();
-
+    
     console.log('🔴 [TIMEZONE API] Fetching live matches with timezone:', timezoneParams);
-
+    
     const params = {
       timezone: timezoneParams.timezone,
       live: true
     };
-
+    
     const response = await apiRequest('GET', '/api/fixtures/live', {
       params
     });
-
+    
     if (!response.ok) {
       throw new Error(`Failed to fetch live matches: ${response.status}`);
     }
-
+    
     const data = await response.json();
-
+    
     console.log('✅ [TIMEZONE API] Retrieved live matches:', {
       count: data.length,
       timezone: timezoneParams.timezone
     });
-
+    
     return data;
   } catch (error) {
     console.error('❌ [TIMEZONE API] Error fetching live matches:', error);
@@ -97,30 +98,30 @@ export async function fetchLeagueFixturesWithTimezone(
 ): Promise<any[]> {
   try {
     const timezoneParams = getTimezoneAwareAPIParams();
-
+    
     console.log('🏆 [TIMEZONE API] Fetching league fixtures with timezone:', {
       leagueId,
       season,
       timezone: timezoneParams.timezone
     });
-
+    
     const params = {
       timezone: timezoneParams.timezone,
       ...(season && { season })
     };
-
+    
     const response = await apiRequest('GET', `/api/leagues/${leagueId}/fixtures`, {
       params,
       timeout: 30000 // 30 second timeout for league fixtures
     });
-
+    
     if (!response.ok) {
       console.error(`❌ [TIMEZONE API] League fixtures request failed:`, {
         leagueId,
         status: response.status,
         statusText: response.statusText
       });
-
+      
       // Try to get error details from response
       try {
         const errorData = await response.json();
@@ -128,30 +129,30 @@ export async function fetchLeagueFixturesWithTimezone(
       } catch (jsonError) {
         console.error(`❌ [TIMEZONE API] Could not parse error response`);
       }
-
+      
       // Return empty array for non-critical errors to prevent crashes
       if (response.status >= 400 && response.status < 500) {
         console.warn(`⚠️ [TIMEZONE API] Client error ${response.status} for league ${leagueId}, returning empty array`);
         return [];
       }
-
+      
       throw new Error(`Failed to fetch league fixtures for league ${leagueId}: ${response.status} ${response.statusText}`);
     }
-
+    
     const data = await response.json();
-
+    
     // Validate response data
     if (!Array.isArray(data)) {
       console.warn(`⚠️ [TIMEZONE API] Expected array but got:`, typeof data);
       return [];
     }
-
+    
     console.log('✅ [TIMEZONE API] Retrieved league fixtures:', {
       leagueId,
       count: data.length,
       timezone: timezoneParams.timezone
     });
-
+    
     return data;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -160,7 +161,7 @@ export async function fetchLeagueFixturesWithTimezone(
       error: errorMessage,
       season
     });
-
+    
     // Return empty array for network issues to prevent component crashes
     if (errorMessage.includes('Network connectivity failed') || 
         errorMessage.includes('Failed to fetch') ||
@@ -169,7 +170,7 @@ export async function fetchLeagueFixturesWithTimezone(
       console.warn(`🌐 [TIMEZONE API] Network/timeout issue for league ${leagueId}, returning empty array`);
       return [];
     }
-
+    
     // For other errors, still return empty array to maintain component stability
     console.warn(`⚠️ [TIMEZONE API] Returning empty array for league ${leagueId} due to error: ${errorMessage}`);
     return [];
@@ -179,29 +180,30 @@ export async function fetchLeagueFixturesWithTimezone(
 /**
  * Create timezone-aware match time display
  */
-export function formatMatchTimeWithTimezone(dateString: string): string {
-  if (!dateString || typeof dateString !== "string") return "--:--";
-
+export function formatMatchTimeWithTimezone(
+  matchDate: string,
+  formatString: string = 'HH:mm'
+): string {
   try {
-    // Parse UTC time and convert to user's local timezone automatically
-    const utcDate = parseISO(dateString);
-    if (!isValid(utcDate)) return "--:--";
-
-    // Convert UTC to local timezone and format
-    // parseISO already handles UTC, format() will convert to local timezone
-    const localTime = format(utcDate, "HH:mm");
-
-    console.log(`🕐 [TIMEZONE DEBUG] Converting time:`, {
-      originalUTC: dateString,
-      parsedUTC: utcDate.toISOString(),
-      localTime: localTime,
-      userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    });
-
-    return localTime;
+    const timezoneInfo = detectUserTimezone();
+    const date = new Date(matchDate);
+    
+    // Format time in user's timezone
+    const formattedTime = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezoneInfo.timezone,
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(date);
+    
+    return formattedTime;
   } catch (error) {
-    console.error("Error formatting match time:", error);
-    return "--:--";
+    console.error('Error formatting match time with timezone:', error);
+    return new Date(matchDate).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
   }
 }
 
@@ -214,7 +216,7 @@ export function getTimezoneAwareDateRange(date: string): {
   timezone: string;
 } {
   const timezoneInfo = detectUserTimezone();
-
+  
   return {
     from: `${date}T00:00:00`,
     to: `${date}T23:59:59`,
