@@ -375,7 +375,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 <div>Kick Off</div>
                               </div>
                             </div>
-                            <div className="text-xs text-gray-600 mt-1">
+                            <div className="text-xs text-gray-600 mt-1 -ml-3">
                               First Half begins.
                             </div>
                           </div>
