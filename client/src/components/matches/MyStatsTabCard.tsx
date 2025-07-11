@@ -163,71 +163,55 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
     const totalShots = parseInt(getStatValue(stats, 'Total Shots', ['Total shots'])) || 0;
     const goals = parseInt(getStatValue(stats, 'Goals', ['Goal'])) || 0;
     const cornerKicks = parseInt(getStatValue(stats, 'Corner Kicks', ['Corners'])) || 0;
-    const freeKicks = parseInt(getStatValue(stats, 'Free Kicks', ['Freekicks'])) || 0;
-    const blockedShots = parseInt(getStatValue(stats, 'Blocked Shots', ['Blocked shots'])) || 0;
     
-    // Professional xG model based on real conversion rates
-    
-    // 1. High-quality box chances (shots on target inside box)
-    const boxShotsOnTarget = Math.min(shotsOnTarget, shotsInsideBox);
-    const boxShotsOffTarget = Math.max(0, shotsInsideBox - shotsOnTarget);
-    
-    // 2. Medium-quality chances (shots on target from outside box)
-    const outsideBoxOnTarget = Math.max(0, shotsOnTarget - boxShotsOnTarget);
-    const outsideBoxOffTarget = Math.max(0, shotsOutsideBox - outsideBoxOnTarget);
-    
-    // 3. Professional xG values based on historical data
-    // These values are closer to actual conversion rates used by 365scores/Opta
+    // Professional xG model with realistic conversion rates
     let totalXG = 0;
     
-    // Box shots on target: ~40% conversion rate
-    totalXG += boxShotsOnTarget * 0.40;
+    // 1. Box shots (more conservative approach)
+    // Assume 60% of shots in box are on target, 40% off target
+    const estimatedBoxOnTarget = Math.min(shotsOnTarget, Math.round(shotsInsideBox * 0.6));
+    const estimatedBoxOffTarget = shotsInsideBox - estimatedBoxOnTarget;
     
-    // Box shots off target: ~15% conversion rate  
-    totalXG += boxShotsOffTarget * 0.15;
+    // 2. Outside box shots
+    const outsideBoxOnTarget = Math.max(0, shotsOnTarget - estimatedBoxOnTarget);
+    const outsideBoxOffTarget = Math.max(0, shotsOutsideBox - outsideBoxOnTarget);
     
-    // Outside box shots on target: ~8% conversion rate
-    totalXG += outsideBoxOnTarget * 0.08;
+    // 3. Professional xG values (matching industry standards)
+    // Box shots on target: 22% conversion rate (industry standard)
+    totalXG += estimatedBoxOnTarget * 0.22;
     
-    // Outside box shots off target: ~3% conversion rate
-    totalXG += outsideBoxOffTarget * 0.03;
+    // Box shots off target: 8% conversion rate
+    totalXG += estimatedBoxOffTarget * 0.08;
     
-    // 4. Set piece opportunities (more realistic values)
-    const cornerXG = cornerKicks * 0.035; // ~3.5% chance per corner
-    const freeKickXG = freeKicks * 0.025; // ~2.5% chance per free kick
+    // Outside box shots on target: 5% conversion rate
+    totalXG += outsideBoxOnTarget * 0.05;
     
-    totalXG += cornerXG + freeKickXG;
+    // Outside box shots off target: 2% conversion rate
+    totalXG += outsideBoxOffTarget * 0.02;
     
-    // 5. Shot difficulty adjustment
+    // 4. Set piece opportunities (conservative values)
+    totalXG += cornerKicks * 0.022; // ~2.2% chance per corner (Opta standard)
+    
+    // 5. Quality adjustment based on shot accuracy
     if (totalShots > 0) {
       const shotAccuracy = shotsOnTarget / totalShots;
-      const shotQuality = shotsInsideBox / totalShots;
       
-      // Teams with better shot selection get slight bonus
-      if (shotAccuracy > 0.4 && shotQuality > 0.5) {
-        totalXG *= 1.08; // 8% bonus for good shot selection
-      } else if (shotAccuracy < 0.25) {
-        totalXG *= 0.92; // 8% penalty for poor shot selection
+      // Only minor adjustments for exceptional shot selection
+      if (shotAccuracy > 0.5) {
+        totalXG *= 1.03; // 3% bonus for very good accuracy
+      } else if (shotAccuracy < 0.2) {
+        totalXG *= 0.95; // 5% penalty for poor accuracy
       }
     }
     
-    // 6. Defensive pressure adjustment (blocked shots indicate good defense)
-    if (blockedShots > 0) {
-      const blockingRate = blockedShots / Math.max(totalShots, 1);
-      if (blockingRate > 0.15) {
-        totalXG *= 0.95; // Reduce xG if shots were heavily blocked
-      }
-    }
+    // 6. Apply realistic constraints
+    // Professional matches typically range 0.3 - 2.8 xG
+    totalXG = Math.max(0.1, Math.min(totalXG, 2.8));
     
-    // 7. Game context - ensure minimum correlation with goals
-    if (goals > 0) {
-      const minXG = goals * 0.7; // At least 70% of goals scored
-      totalXG = Math.max(totalXG, minXG);
+    // 7. Ensure some correlation with actual goals (but less aggressive)
+    if (goals > 0 && totalXG < goals * 0.4) {
+      totalXG = Math.min(goals * 0.6, 2.8);
     }
-    
-    // 8. Realistic caps (professional matches rarely exceed 3.5 xG)
-    totalXG = Math.min(totalXG, 3.5);
-    totalXG = Math.max(totalXG, 0.0);
     
     return totalXG.toFixed(1);
   };
