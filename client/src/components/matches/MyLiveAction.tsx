@@ -644,105 +644,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
         </div>
 
-        {/* Professional Football Field with Realistic Grass */}
-        <div className="relative h-96 overflow-hidden" style={{
-          background: `
-            linear-gradient(90deg, 
-              rgba(76, 125, 45, 0.9) 0%, 
-              rgba(95, 145, 65, 0.95) 4.16%, 
-              rgba(76, 125, 45, 0.9) 8.33%, 
-              rgba(95, 145, 65, 0.95) 12.5%, 
-              rgba(76, 125, 45, 0.9) 16.66%, 
-              rgba(95, 145, 65, 0.95) 20.83%, 
-              rgba(76, 125, 45, 0.9) 25%, 
-              rgba(95, 145, 65, 0.95) 29.16%, 
-              rgba(76, 125, 45, 0.9) 33.33%, 
-              rgba(95, 145, 65, 0.95) 37.5%, 
-              rgba(76, 125, 45, 0.9) 41.66%, 
-              rgba(95, 145, 65, 0.95) 45.83%, 
-              rgba(76, 125, 45, 0.9) 50%, 
-              rgba(95, 145, 65, 0.95) 54.16%, 
-              rgba(76, 125, 45, 0.9) 58.33%, 
-              rgba(95, 145, 65, 0.95) 62.5%, 
-              rgba(76, 125, 45, 0.9) 66.66%, 
-              rgba(95, 145, 65, 0.95) 70.83%, 
-              rgba(76, 125, 45, 0.9) 75%, 
-              rgba(95, 145, 65, 0.95) 79.16%, 
-              rgba(76, 125, 45, 0.9) 83.33%, 
-              rgba(95, 145, 65, 0.95) 87.5%, 
-              rgba(76, 125, 45, 0.9) 91.66%, 
-              rgba(95, 145, 65, 0.95) 95.83%, 
-              rgba(76, 125, 45, 0.9) 100%
-            ),
-            radial-gradient(ellipse at center, rgba(100, 150, 70, 0.3) 0%, rgba(70, 120, 40, 0.6) 100%)
-          `,
-          backgroundColor: '#4c7d2d',
-          minHeight: '400px',
-          backgroundSize: '100% 100%, 100% 100%',
-          backgroundBlendMode: 'multiply'
-        }}>
-
-          {/* Grass texture overlay */}
-          <div className="absolute inset-0" style={{
-            background: `
-              repeating-linear-gradient(
-                0deg,
-                transparent 0px,
-                rgba(40, 80, 20, 0.1) 1px,
-                transparent 2px
-              ),
-              repeating-linear-gradient(
-                90deg,
-                transparent 0px,
-                rgba(60, 100, 40, 0.15) 1px,
-                transparent 3px
-              )
-            `,
-            opacity: 0.7
-          }} />
-
-          {/* Mowing pattern stripes - enhanced realism */}
-          <div className="absolute inset-0">
-            {Array.from({ length: 24 }).map((_, i) => (
-              <div
-                key={i}
-                className="absolute h-full transition-all duration-500"
-                style={{
-                  width: '4.16%',
-                  left: `${i * 4.16}%`,
-                  background: i % 2 === 0 
-                    ? 'linear-gradient(0deg, rgba(85, 135, 55, 0.4) 0%, rgba(95, 145, 65, 0.3) 50%, rgba(85, 135, 55, 0.4) 100%)'
-                    : 'linear-gradient(0deg, rgba(65, 115, 35, 0.5) 0%, rgba(75, 125, 45, 0.4) 50%, rgba(65, 115, 35, 0.5) 100%)',
-                  opacity: 0.8,
-                  boxShadow: i % 2 === 0 
-                    ? 'inset 1px 0 2px rgba(40, 80, 20, 0.3)'
-                    : 'inset -1px 0 2px rgba(40, 80, 20, 0.3)'
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Field wear patterns for authenticity */}
-          <div className="absolute inset-0 pointer-events-none">
-            {/* Goal area wear */}
-            <div className="absolute" style={{
-              left: '5%', top: '35%', width: '16%', height: '30%',
-              background: 'radial-gradient(ellipse, rgba(60, 100, 30, 0.3) 0%, transparent 70%)',
-              opacity: 0.6
-            }} />
-            <div className="absolute" style={{
-              right: '5%', top: '35%', width: '16%', height: '30%',
-              background: 'radial-gradient(ellipse, rgba(60, 100, 30, 0.3) 0%, transparent 70%)',
-              opacity: 0.6
-            }} />
-            
-            {/* Center circle wear */}
-            <div className="absolute" style={{
-              left: '38%', top: '38%', width: '24%', height: '24%',
-              background: 'radial-gradient(circle, rgba(70, 110, 40, 0.2) 0%, transparent 60%)',
-              opacity: 0.5
-            }} />
-          </div>
+        {/* Professional Football Field with Uploaded Background Image */}
+        <div 
+          className="relative h-96 overflow-hidden bg-cover bg-center bg-no-repeat" 
+          style={{
+            backgroundImage: `url('/attached_assets/46057c6c-2380-49df-887f-a36abe3fbb7e.png')`,
+            minHeight: '400px'
+          }}
+        >
 
           {/* Attack zones - 365scores style */}
           {attackZones.map((zone) => (
