@@ -150,6 +150,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
         {/* Statistics with bars - Sample data for demonstration */}
         <div className="space-y-3">
           <StatRowWithBars label="Ball Possession" homeValue="28%" awayValue="72%" />
+          <StatRowWithBars label="Expected Goals (xG)" homeValue="0.8" awayValue="2.3" />
           <StatRowWithBars label="Shots on Goal" homeValue={2} awayValue={10} />
           <StatRowWithBars label="Shots off Goal" homeValue={4} awayValue={8} />
           <StatRowWithBars label="Total Shots" homeValue={8} awayValue={28} />
