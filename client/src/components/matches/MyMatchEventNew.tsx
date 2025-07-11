@@ -1098,6 +1098,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   // Combine events and period markers safely
                   const allItems = [...sortedEvents, ...periodMarkers].sort(
                     (a, b) => {
+                      // Calculate total time including extra time for proper sorting
+                      const aTotalTime = a.time.elapsed + (a.time.extra || 0);
+                      const bTotalTime = b.time.elapsed + (b.time.extra || 0);
+
                       // Special priority for penalty shootout - put it at the very top
                       if (a.type === "penalty_shootout") return -1;
                       if (b.type === "penalty_shootout") return 1;
@@ -1114,18 +1118,41 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       )
                         return 1;
 
-                    
-                      // Special handling for "End of 90 Minutes" - put it at the very end (bottom)
+                      // Handle "End of 90 Minutes" period marker and 90-minute events
                       if (
                         a.type === "period_score" &&
                         a.detail === "End of 90 Minutes"
-                      )
-                        return -1;
+                      ) {
+                        // Period marker comes before any 90-minute events
+                        if (bTotalTime >= 90) return -1;
+                        return bTotalTime - aTotalTime;
+                      }
                       if (
                         b.type === "period_score" &&
                         b.detail === "End of 90 Minutes"
-                      )
-                        return 1;
+                      ) {
+                        // Period marker comes before any 90-minute events
+                        if (aTotalTime >= 90) return 1;
+                        return bTotalTime - aTotalTime;
+                      }
+
+                      // Handle "Halftime" period marker and 45-minute events
+                      if (
+                        a.type === "period_score" &&
+                        a.detail === "Halftime"
+                      ) {
+                        // Period marker comes before any 45-minute events
+                        if (bTotalTime === 45) return -1;
+                        return bTotalTime - aTotalTime;
+                      }
+                      if (
+                        b.type === "period_score" &&
+                        b.detail === "Halftime"
+                      ) {
+                        // Period marker comes before any 45-minute events
+                        if (aTotalTime === 45) return 1;
+                        return bTotalTime - aTotalTime;
+                      }
 
                       // Sort by total time in descending order (latest first)
                       return bTotalTime - aTotalTime;
