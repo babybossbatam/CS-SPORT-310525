@@ -151,6 +151,9 @@ export class MyAdvancedTimeClassifier {
       }
     }
     
+    // IMPORTANT: If a specific date is selected, do NOT show yesterday's matches
+    // Yesterday's matches should only appear in the default "today" view
+    
     // Handle live matches - only show on today's date
     if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
       const todayDate = now.toISOString().slice(0, 10);
