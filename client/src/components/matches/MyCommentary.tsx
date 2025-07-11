@@ -238,28 +238,23 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               latestEvent.time.elapsed > 70;
 
             if (shouldShow90Marker) {
-              // Find the highest extra time played in events at or after 90 minutes
-              const eventsAt90Plus = events.filter((e) => e.time.elapsed > 90);
-              const maxExtraTime =
-                eventsAt90Plus.length > 0
-                  ? Math.max(
-                      ...eventsAt90Plus
-                        .filter((e) => e.time.extra)
-                        .map((e) => e.time.extra || 0),
-                      0,
-                    )
-                  : 0;
+              // Find the actual end time of the match (latest event time)
+              const finalMatchEvent = events.reduce((latest, current) => {
+                const currentTotal = current.time.elapsed + (current.time.extra || 0);
+                const latestTotal = latest.time.elapsed + (latest.time.extra || 0);
+                return currentTotal > latestTotal ? current : latest;
+              });
 
-              const ninetyMinDetail =
-                maxExtraTime > 0 ? `Full Time` : "Full Time";
+              const finalElapsed = finalMatchEvent.time.elapsed;
+              const finalExtra = finalMatchEvent.time.extra || 0;
 
               allCommentaryItems.push({
                 time: {
-                  elapsed: 90,
-                  extra: maxExtraTime > 0 ? maxExtraTime : undefined,
+                  elapsed: finalElapsed,
+                  extra: finalExtra > 0 ? finalExtra : undefined,
                 },
                 type: "period_end",
-                detail: ninetyMinDetail,
+                detail: "Full Time",
                 team: { name: "", logo: "" },
                 player: { name: "" },
               } as any);
