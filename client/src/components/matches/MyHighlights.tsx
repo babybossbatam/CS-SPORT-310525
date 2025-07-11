@@ -136,6 +136,18 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const isFifaClubWorldCup = league.toLowerCase().includes('fifa') && 
                             league.toLowerCase().includes('club world cup');
 
+  // Check if this is a Brazilian league competition
+  const isBrazilianLeague = league.toLowerCase().includes('brazil') ||
+                           league.toLowerCase().includes('brasileiro') ||
+                           league.toLowerCase().includes('serie a') ||
+                           league.toLowerCase().includes('serie b') ||
+                           league.toLowerCase().includes('copa do brasil') ||
+                           league.toLowerCase().includes('paulista') ||
+                           league.toLowerCase().includes('carioca') ||
+                           league.toLowerCase().includes('mineiro') ||
+                           league.toLowerCase().includes('gaucho') ||
+                           primarySearchQuery.toLowerCase().includes('brazil');
+
   // Special case for Palmeiras vs Chelsea - use known video
   const isPalmeirasChelsea = (home.toLowerCase().includes('palmeiras') && away.toLowerCase().includes('chelsea')) ||
                             (home.toLowerCase().includes('chelsea') && away.toLowerCase().includes('palmeiras'));
@@ -230,6 +242,53 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           };
         }
         throw new Error('No CONCACAF official videos found');
+      }
+    }] : []),
+    // Desimpedidos Channel (priority for Brazilian leagues)
+    ...(isBrazilianLeague ? [{
+      name: 'Desimpedidos',
+      type: 'youtube' as const,
+      searchFn: async () => {
+        const desimpedidosChannelId = 'UCEhBLRlB7Xe00BHJiA2vxpQ'; // Desimpedidos channel ID
+        // Create Brazil-specific search queries
+        const brazilQueries = [
+          `${home} ${away} melhores momentos ${matchYear}`,
+          `${home} vs ${away} highlights ${matchYear}`,
+          `${home} x ${away} gols ${matchYear}`,
+          primarySearchQuery,
+          secondarySearchQuery
+        ];
+        let data;
+        
+        for (const query of brazilQueries) {
+          try {
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=1&channelId=${desimpedidosChannelId}&order=relevance`);
+            data = await response.json();
+            
+            if (data.items && data.items.length > 0) {
+              break;
+            }
+          } catch (error) {
+            console.warn(`🎬 [Highlights] Desimpedidos search failed for query: ${query}`, error);
+            continue;
+          }
+        }
+
+        if (data.error || data.quotaExceeded) {
+          throw new Error(data.error || 'Desimpedidos channel search failed');
+        }
+
+        if (data.items && data.items.length > 0) {
+          const video = data.items[0];
+          return {
+            name: 'Desimpedidos',
+            type: 'youtube' as const,
+            url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+            embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+            title: video.snippet.title
+          };
+        }
+        throw new Error('No Desimpedidos videos found');
       }
     }] : []),
     // FIFA Club World Cup Official Channel (priority)
@@ -496,12 +555,17 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                     Checking CONCACAF Official Channel first
                   </span>
                 )}
-                {sourceIndex === 0 && isFifaClubWorldCup && !isConcacafCompetition && (
+                {sourceIndex === 0 && isFifaClubWorldCup && !isConcacafCompetition && !isBrazilianLeague && (
                   <span className="block text-xs text-blue-500">
                     Checking FIFA Official Channel first
                   </span>
                 )}
-                {sourceIndex === 0 && !isFifaClubWorldCup && !isConcacafCompetition }
+                {sourceIndex === 0 && isBrazilianLeague && !isConcacafCompetition && !isFifaClubWorldCup && (
+                  <span className="block text-xs text-orange-500">
+                    Checking Desimpedidos Channel first
+                  </span>
+                )}
+                {sourceIndex === 0 && !isFifaClubWorldCup && !isConcacafCompetition && !isBrazilianLeague }
                 {sourceIndex > 0 && (
                   <span className="block text-xs text-gray-400">
                     Trying {videoSources[sourceIndex]?.name || 'alternative source'}
