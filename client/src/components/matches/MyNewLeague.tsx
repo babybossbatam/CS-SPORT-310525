@@ -282,7 +282,29 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               const day = String(matchDate.getDate()).padStart(2, "0");
               const matchDateString = `${year}-${month}-${day}`;
 
-              return matchDateString === selectedDate;
+              const dateMatches = matchDateString === selectedDate;
+
+              // If basic date doesn't match, check if it's a yesterday's ended match that should be shown today
+              if (!dateMatches) {
+                const status = fixture.fixture.status.short;
+                const isEndedMatch = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
+                
+                if (isEndedMatch) {
+                  // Check if it's yesterday's match
+                  const today = new Date(selectedDate);
+                  const yesterday = new Date(today);
+                  yesterday.setDate(yesterday.getDate() - 1);
+                  
+                  const yesterdayString = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
+                  
+                  if (matchDateString === yesterdayString) {
+                    return true; // Include yesterday's ended matches
+                  }
+                }
+                return false;
+              }
+
+              return true;
             });
 
             console.log(`🎯 [MyNewLeague] League ${leagueId}: ${freshFixtures.length} → ${filteredFixtures.length} fixtures after date filtering`);
