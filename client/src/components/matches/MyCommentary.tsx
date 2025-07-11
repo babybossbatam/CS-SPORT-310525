@@ -447,9 +447,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 {halftimeScore.homeScore} - {halftimeScore.awayScore}
                               </span>
                             </div>
-                            <div className="text-xs text-gray-600 mt-1 -ml-3">
-                              Half Time
-                            </div>
+                        
                           </div>
                         </div>
                       </div>
