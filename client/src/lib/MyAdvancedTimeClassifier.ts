@@ -92,6 +92,18 @@ export class MyAdvancedTimeClassifier {
       }
     }
     
+    // If match is not on the selected date, don't show it
+    if (selectedDate && !isWithinTimeRange) {
+      return {
+        category: 'other',
+        reason: `Match date ${fixtureDate_str} does not match selected date ${selectedDate}`,
+        fixtureTime: fixtureTimeString,
+        currentTime: currentTimeString,
+        status,
+        shouldShow: false
+      };
+    }
+    
     // Legacy logic for today/yesterday when no specific date is selected
     if (!selectedDate) {
       // Rule 1: If fixture time > CurrentTime but status "NS" and within time range 00:00 - 23:59 then its Today's Matches
