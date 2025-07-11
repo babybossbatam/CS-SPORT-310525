@@ -290,7 +290,23 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
               // Extract UTC date only for range filtering
               const utcDateString = fixtureDate.split('T')[0];
-              return utcDateString >= dayBeforeString && utcDateString <= dayAfterString;
+              const isInRange = utcDateString >= dayBeforeString && utcDateString <= dayAfterString;
+              
+              // Debug logging for specific leagues
+              if (leagueId === 38 || leagueId === 15 || leagueId === 2) {
+                console.log(`🔍 [DEBUG LEAGUE ${leagueId}] Fixture date check:`, {
+                  teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+                  fixtureDate: fixtureDate,
+                  utcDateString: utcDateString,
+                  selectedDate: selectedDate,
+                  dayBeforeString: dayBeforeString,
+                  dayAfterString: dayAfterString,
+                  isInRange: isInRange,
+                  status: fixture.fixture?.status?.short
+                });
+              }
+              
+              return isInRange;
             });
 
             console.log(`📅 [MyNewLeague] League ${leagueId}: ${nonLiveFixtures.length} → ${dateRangeFixtures.length} fixtures in ±1 day range`);
@@ -314,6 +330,27 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   utcDate: utcDateString,
                   selectedDate,
                   note: 'Will be filtered by advanced time classifier'
+                });
+              });
+            } else if (leagueId === 38 || leagueId === 15 || leagueId === 2) {
+              // Log first few fixtures from nonLiveFixtures to see what dates we have
+              console.log(`🚨 [DEBUG LEAGUE ${leagueId}] No fixtures in date range. Sample raw fixtures:`, {
+                leagueName: nonLiveFixtures[0]?.league?.name || 'Unknown',
+                totalFixtures: nonLiveFixtures.length,
+                selectedDate,
+                dayBeforeString,
+                dayAfterString
+              });
+              
+              nonLiveFixtures.slice(0, 5).forEach((fixture, index) => {
+                const utcDate = fixture.fixture.date;
+                const utcDateString = utcDate.split('T')[0];
+                
+                console.log(`🚨 [DEBUG SAMPLE ${index + 1}] ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}:`, {
+                  fixtureDate: utcDate,
+                  utcDateString: utcDateString,
+                  status: fixture.fixture?.status?.short,
+                  isInRange: utcDateString >= dayBeforeString && utcDateString <= dayAfterString
                 });
               });
             }
