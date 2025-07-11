@@ -120,13 +120,14 @@ export class MyAdvancedTimeClassifier {
         }
       }
       
-      // Rule 3: Check for yesterday's matches
+      // Rule 3: Check for yesterday's matches (only when no specific date selected)
       if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
         const yesterday = new Date(now);
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayDate = yesterday.toISOString().slice(0, 10);
         
-        if (fixtureDate_str === yesterdayDate) {
+        // Only show yesterday's matches when no specific date is selected
+        if (!selectedDate && fixtureDate_str === yesterdayDate) {
           return {
             category: 'yesterday',
             reason: `Yesterday's ended match with ${status} status`,
@@ -139,16 +140,42 @@ export class MyAdvancedTimeClassifier {
       }
     }
     
-    // Handle live matches - always show
+    // Handle live matches - only show on today's date
     if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
-      return {
-        category: 'today',
-        reason: `Live match with ${status} status`,
-        fixtureTime: fixtureTimeString,
-        currentTime: currentTimeString,
-        status,
-        shouldShow: true
-      };
+      const todayDate = now.toISOString().slice(0, 10);
+      
+      // If no specific date is selected, always show live matches (default today behavior)
+      if (!selectedDate) {
+        return {
+          category: 'today',
+          reason: `Live match with ${status} status`,
+          fixtureTime: fixtureTimeString,
+          currentTime: currentTimeString,
+          status,
+          shouldShow: true
+        };
+      }
+      
+      // If a specific date is selected, only show live matches if it's today's date
+      if (selectedDate === todayDate) {
+        return {
+          category: 'today',
+          reason: `Live match with ${status} status on today's date`,
+          fixtureTime: fixtureTimeString,
+          currentTime: currentTimeString,
+          status,
+          shouldShow: true
+        };
+      } else {
+        return {
+          category: 'other',
+          reason: `Live match with ${status} status but selected date ${selectedDate} is not today (${todayDate})`,
+          fixtureTime: fixtureTimeString,
+          currentTime: currentTimeString,
+          status,
+          shouldShow: false
+        };
+      }
     }
     
     // Default case
