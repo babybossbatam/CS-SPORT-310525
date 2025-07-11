@@ -1495,7 +1495,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   <div className="flex items-center gap-1">
                                     {event.type === "subst" &&
                                       event.assist?.name && (
-                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20">
+                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative-z20">
                                           <AvatarImage
                                             src={getPlayerImage(
                                               event.assist?.id,
