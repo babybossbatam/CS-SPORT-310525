@@ -1495,13 +1495,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   <div className="flex items-center gap-1">
                                     {event.type === "subst" &&
                                       event.assist?.name && (
-                                        <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20">
                                           <AvatarImage
                                             src={getPlayerImage(
-                                              event.player?.id,
-                                              event.player?.name,
+                                              event.assist?.id,
+                                              event.assist?.name,
                                             )}
-                                            alt={event.player?.name || "Player"}
+                                            alt={event.assist?.name || "Player"}
                                             className="object-cover"
                                           />
                                           <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
@@ -1514,7 +1514,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         </Avatar>
                                       )}
 
-                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-400" : "border-gray-400"}`}>
+                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
