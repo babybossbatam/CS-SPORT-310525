@@ -20,7 +20,7 @@ interface TeamStats {
   statistics: TeamStatistic[];
 }
 
-// Enhanced StatRow component with horizontal bars
+// Enhanced StatRow component with circular backgrounds
 const StatRowWithBars: React.FC<{
   label: string;
   homeValue: string | number;
@@ -28,41 +28,42 @@ const StatRowWithBars: React.FC<{
   homeColor?: string;
   awayColor?: string;
 }> = ({ label, homeValue, awayValue, homeColor = '#ef4444', awayColor = '#10b981' }) => {
-  // Convert values to numbers for bar calculation
+  // Convert values to numbers for comparison
   const homeNum = typeof homeValue === 'string' ? parseFloat(homeValue.replace('%', '')) || 0 : homeValue || 0;
   const awayNum = typeof awayValue === 'string' ? parseFloat(awayValue.replace('%', '')) || 0 : awayValue || 0;
   
-  // Calculate percentages for bar widths
-  const total = homeNum + awayNum;
-  const homePercentage = total > 0 ? (homeNum / total) * 100 : 0;
-  const awayPercentage = total > 0 ? (awayNum / total) * 100 : 0;
+  // Determine which team has higher value
+  const homeIsHigher = homeNum > awayNum;
+  const awayIsHigher = awayNum > homeNum;
 
   return (
     <div className="py-2 border-b border-gray-100 last:border-b-0">
-      <div className="flex items-center justify-between mb-1">
-        <span className="text-sm font-medium text-gray-900 w-12 text-right">{homeValue}</span>
-        <span className="text-sm font-semibold text-gray-700 text-center flex-1">{label}</span>
-        <span className="text-sm font-medium text-gray-900 w-12 text-left">{awayValue}</span>
-      </div>
-      
-      <div className="flex items-center h-3 bg-gray-200 rounded-full overflow-hidden">
-        {/* Home team bar (left side) */}
-        <div 
-          className="h-full transition-all duration-300 ease-in-out"
-          style={{ 
-            width: `${homePercentage}%`,
-            backgroundColor: homeColor
-          }}
-        />
+      <div className="flex items-center justify-between">
+        <div className="flex items-center justify-end w-12">
+          <span 
+            className={`text-sm font-medium px-2 py-1 rounded-full ${
+              homeIsHigher 
+                ? 'bg-red-500 text-white' 
+                : 'text-gray-900'
+            }`}
+          >
+            {homeValue}
+          </span>
+        </div>
         
-        {/* Away team bar (right side) */}
-        <div 
-          className="h-full transition-all duration-300 ease-in-out"
-          style={{ 
-            width: `${awayPercentage}%`,
-            backgroundColor: awayColor
-          }}
-        />
+        <span className="text-sm font-semibold text-gray-700 text-center flex-1 px-4">{label}</span>
+        
+        <div className="flex items-center justify-start w-12">
+          <span 
+            className={`text-sm font-medium px-2 py-1 rounded-full ${
+              awayIsHigher 
+                ? 'bg-green-500 text-white' 
+                : 'text-gray-900'
+            }`}
+          >
+            {awayValue}
+          </span>
+        </div>
       </div>
     </div>
   );
