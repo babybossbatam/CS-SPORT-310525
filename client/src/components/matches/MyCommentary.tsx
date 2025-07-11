@@ -196,27 +196,17 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 team: { name: "", logo: "" },
                 player: { name: "" },
               } as any);
+            }
 
-              // Add "45 minutes" period marker with score
-              const halftimeScore = calculateScoreAtTime(45);
+            // Add "Half Time" marker if there are events in both halves
+            if (hasEventsInFirstHalf && hasEventsInSecondHalf) {
               allCommentaryItems.push({
                 time: { elapsed: 45 },
-                type: "period_marker",
-                detail: `Second Half begins (${homeTeam || "Home"} ${halftimeScore.homeScore} - ${halftimeScore.awayScore} ${awayTeam || "Away"})`,
+                type: "half_time",
+                detail: "Half Time",
                 team: { name: "", logo: "" },
                 player: { name: "" },
               } as any);
-
-              // Add "Half Time" marker if there are events after minute 45
-              if (hasEventsInSecondHalf) {
-                allCommentaryItems.push({
-                  time: { elapsed: 45 },
-                  type: "half time",
-                  detail: "Half Time",
-                  team: { name: "", logo: "" },
-                  player: { name: "" },
-                } as any);
-              }
             }
 
             // Add "90 minutes" period marker if there are events in the second half and the latest event is close to or after 90 minutes
@@ -364,7 +354,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 if (
                   event.type === "period_start" ||
                   event.type === "period_end" ||
-                  event.type === "period_marker"
+                  event.type === "period_marker" ||
+                  event.type === "half_time"
                 ) {
                   // Handle "First Half begins" / "Kick Off"
                   if (event.detail === "First Half begins") {
@@ -411,7 +402,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                     );
                   }
 
-                  // Handle "Half Time" / "Second Half begins"
+                  // Handle "Half Time"
                   if (event.detail === "Half Time") {
                     const halftimeScore = calculateScoreAtTime(45);
                     return (
@@ -447,39 +438,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               <span className="text-lg font-bold text-gray-900">
                                 {halftimeScore.homeScore} - {halftimeScore.awayScore}
                               </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  // Handle "Second Half begins" with score display
-                  if (event.detail.includes("Second Half begins")) {
-                    return (
-                      <div
-                        key={`period-${index}`}
-                        className="commentary-event-container"
-                      >
-                        <div className="flex gap-3">
-                          {/* Time Column */}
-                          <div className="flex flex-col items-center min-w-[45px]">
-                            <div className="w-4 h-6 flex items-center justify-center">
-                              <img
-                                src="/assets/matchdetaillogo/i mark.svg"
-                                alt="Second Half"
-                                className="w-4 h-4"
-                              />
-                            </div>
-                            {index < allCommentaryItems.length - 1 && (
-                              <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
-                            )}
-                          </div>
-
-                          {/* Content Column */}
-                          <div className="flex-1">
-                            <div className="text-sm text-gray-700 leading-relaxed">
-                              {event.detail}
                             </div>
                           </div>
                         </div>
