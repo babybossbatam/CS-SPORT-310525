@@ -1105,6 +1105,25 @@ b.fixture.status.elapsed) || 0;
                     }
                   }
 
+                  // Debug logging for time display verification
+                  const debugMatchTime = formatMatchTimeWithTimezone(match.fixture.date);
+                  const matchDateUTC = new Date(match.fixture.date);
+                  const matchDateString = matchDateUTC.toISOString().slice(0, 10);
+                  
+                  if (status !== "TBD") {
+                    console.log(`🕐 [TIME DEBUG] Match time display:`, {
+                      fixtureId: match.fixture.id,
+                      teams: `${match.teams.home.name} vs ${match.teams.away.name}`,
+                      originalDate: match.fixture.date,
+                      displayTime: debugMatchTime,
+                      matchDateString,
+                      selectedDate,
+                      isCorrectDate: matchDateString === selectedDate,
+                      utcDate: matchDateUTC.toUTCString(),
+                      localDate: matchDateUTC.toString()
+                    });
+                  }
+
                   return (
                     <div
                       className="match-time-display"
@@ -1112,7 +1131,7 @@ b.fixture.status.elapsed) || 0;
                     >
                       {status === "TBD"
                         ? "TBD"
-                        : formatMatchTimeWithTimezone(match.fixture.date)}
+                        : debugMatchTime}
                     </div>
                   );
                 })()}
