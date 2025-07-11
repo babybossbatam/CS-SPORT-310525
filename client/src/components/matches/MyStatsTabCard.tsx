@@ -435,8 +435,30 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
             awayValue={calculateBigChancesCreated(awayStats.statistics)}
           />
           
-         
-          
+          <StatRowWithBars 
+            label="Corners" 
+            homeValue={getStatValue(homeStats.statistics, 'Corner Kicks', ['Corners'])}
+            awayValue={getStatValue(awayStats.statistics, 'Corner Kicks', ['Corners'])}
+          />
+          <StatRowWithBars 
+            label="Offsides" 
+            homeValue={getStatValue(homeStats.statistics, 'Offsides', ['Offside'])}
+            awayValue={getStatValue(awayStats.statistics, 'Offsides', ['Offside'])}
+          />
+
+          <StatRowWithBars 
+            label="Passes accurate" 
+            homeValue={getStatValue(homeStats.statistics, 'Passes accurate', ['Accurate passes'])}
+            awayValue={getStatValue(awayStats.statistics, 'Passes accurate', ['Accurate passes'])}
+          />
+
+
+          <StatRowWithBars 
+            label="Red Cards" 
+            homeValue={getStatValue(homeStats.statistics, 'Red Cards')}
+            awayValue={getStatValue(awayStats.statistics, 'Red Cards')}
+          />
+
           <StatRowWithBars 
             label="Blocked Shots" 
             homeValue={getStatValue(homeStats.statistics, 'Blocked Shots', ['Blocked shots'])}
@@ -461,30 +483,15 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
             awayValue={getStatValue(awayStats.statistics, 'Fouls')}
           />
           
-          <StatRowWithBars 
-            label="Corner Kicks" 
-            homeValue={getStatValue(homeStats.statistics, 'Corner Kicks', ['Corners'])}
-            awayValue={getStatValue(awayStats.statistics, 'Corner Kicks', ['Corners'])}
-          />
-          
-          <StatRowWithBars 
-            label="Offsides" 
-            homeValue={getStatValue(homeStats.statistics, 'Offsides', ['Offside'])}
-            awayValue={getStatValue(awayStats.statistics, 'Offsides', ['Offside'])}
-          />
+        
+      
           
           <StatRowWithBars 
             label="Yellow Cards" 
             homeValue={getStatValue(homeStats.statistics, 'Yellow Cards')}
             awayValue={getStatValue(awayStats.statistics, 'Yellow Cards')}
           />
-          
-          <StatRowWithBars 
-            label="Red Cards" 
-            homeValue={getStatValue(homeStats.statistics, 'Red Cards')}
-            awayValue={getStatValue(awayStats.statistics, 'Red Cards')}
-          />
-          
+     
           <StatRowWithBars 
             label="Goalkeeper Saves" 
             homeValue={getStatValue(homeStats.statistics, 'Goalkeeper Saves', ['Saves'])}
@@ -497,12 +504,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
             awayValue={getStatValue(awayStats.statistics, 'Total passes', ['Passes'])}
           />
           
-          <StatRowWithBars 
-            label="Passes accurate" 
-            homeValue={getStatValue(homeStats.statistics, 'Passes accurate', ['Accurate passes'])}
-            awayValue={getStatValue(awayStats.statistics, 'Passes accurate', ['Accurate passes'])}
-          />
-          
+        
           <StatRowWithBars 
             label="Passes %" 
             homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Passes %', ['Pass accuracy']))}
