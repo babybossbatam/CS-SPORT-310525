@@ -1137,7 +1137,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       return (
                         <div
                           key={event.id || `period-score-${index}`}
-                          className="match-event-container p-0"
+                          className="match-event-container "
                         >
                           <div className="period-score-marker">
                             <div className="period-score-label">
@@ -1155,7 +1155,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       return (
                         <div
                           key={event.id || `penalty-shootout-${index}`}
-                          className="match-event-container p-0"
+                          className="match-event-container"
                         >
                           <PenaltyShootoutDisplay homeScore={4} awayScore={3} />
                         </div>
@@ -1165,7 +1165,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     const isHome = event.team?.name === homeTeam;
 
                     return (
-                      <div key={`event-${index}`} className="match-event-container p-0">
+                      <div key={`event-${index}`} className="match-event-container">
                         {/* Three-grid layout container */}
                         <div className="match-event-three-grid-container">
                           {/* Left Grid: Home Team Events */}
@@ -1637,7 +1637,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       return (
                         <div
                           key={event.id || `period-score-top-${index}`}
-                          className="match-event-container p-0"
+                          className="match-event-container "
                         >
                           <div className="period-score-marker">
                             <div className="period-score-label">
@@ -1660,7 +1660,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     const isHome = event.team?.name === homeTeam;
 
                     return (
-                      <div key={`goal-event-${index}`} className="match-event-container p-0">
+                      <div key={`goal-event-${index}`} className="match-event-container">
                         {/* Three-grid layout container */}
                         <div className="match-event-three-grid-container">
                           {/* Left Grid: Home Team Events */}
