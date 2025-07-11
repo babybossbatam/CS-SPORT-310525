@@ -970,7 +970,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         </button>
       </div>
 
-      <CardContent className="p-6">
+      <CardContent className="py-6 px-0">
         {isLoading && events.length === 0 ? (
           <div className="flex items-center justify-center p-8">
             <div className="text-center">
