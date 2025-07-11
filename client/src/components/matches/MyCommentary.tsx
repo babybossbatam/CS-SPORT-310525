@@ -738,7 +738,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               </span>
                             </div>
                             <div className="flex flex-col gap-2">
-                              <div className="flex items-center gap-2 -ml-3 py-1  text-xs font-medium bg-gray-200">
+                              <div className="flex items-center gap-2 -ml-3   text-xs font-medium bg-stone-200">
                                 <Avatar className="w-8 h-8 border-2  shadow-sm flex-shrink-0 ">
                                   <AvatarImage
                                     src={getPlayerImage(
@@ -773,7 +773,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           </div>
                         ) : event.type === "Card" ? (
                           <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium">
+                            <div className="flex items-center gap-2 -ml-3  text-xs font-medium">
                               {event.detail?.toLowerCase().includes("yellow") ? (
                                 <img
                                   src="/assets/matchdetaillogo/card-icon.svg"
@@ -791,7 +791,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 {event.detail || "Card"}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-gray-200">
+                            <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200">
                               <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
                                 <AvatarImage
                                   src={getPlayerImage(
@@ -825,7 +825,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         ) : event.type === "subst" ? (
                           <div className="flex flex-col gap-1">
                             {/* Substitution Header */}
-                            <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium">
+                            <div className="flex items-center gap-2 -ml-3 text-xs font-medium">
                               <img
                                 src="/assets/matchdetaillogo/substitution.svg"
                                 alt="Substitution"
@@ -838,7 +838,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             
                             {/* Player coming in (assist = player in) */}
                             {event.assist?.name && (
-                              <div className="flex items-center gap-2 -ml-3 py-2 text-xs font-medium bg-gray-200 rounded">
+                              <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200 ">
                                 <Avatar className="w-8 h-8 border-2 border-green-400 shadow-sm flex-shrink-0">
                                   <AvatarImage
                                     src={getPlayerImage(
@@ -863,8 +863,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             )}
                             
                             {/* Player going out (player = player out) */}
-                            <div className="flex items-center gap-2 -ml-3 py-2 text-xs font-medium bg-gray-200 rounded">
-                              <Avatar className="w-8 h-8 border-2 border-red-400 shadow-sm flex-shrink-0">
+                            <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200 ">
+                              <Avatar className="w-8 h-8 border-2 border-red-400 shadow-sm flex-shrink-0 ">
                                 <AvatarImage
                                   src={getPlayerImage(
                                     event.player?.id,
@@ -894,7 +894,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             )}
                             
                             {/* Detailed substitution description */}
-                            <div className="text-sm text-gray-700 leading-relaxed -ml-3 mt-1 p-2 rounded border-l-2 border-blue-400">
+                            <div className="text-sm text-gray-700 leading-relaxed -ml-3  ">
                               {event.assist?.name && event.player?.name 
                                 ? `Substitution, ${event.team?.name || "Team"}. ${event.assist.name} replaces ${event.player.name}.`
                                 : eventDescription
@@ -914,7 +914,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               </span>
                             </div>
                             {event.player?.name && (
-                              <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-gray-200">
+                              <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-stone-200">
                                 <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
                                   <AvatarImage
                                     src={getPlayerImage(
