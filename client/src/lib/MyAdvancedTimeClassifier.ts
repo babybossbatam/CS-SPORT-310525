@@ -76,8 +76,25 @@ export class MyAdvancedTimeClassifier {
       }
     }
     
-    // Rule 3: If fixture time < CurrentTime but status "FT" and within time range 00:00 - 23:59 then its Yesterday's Ended Matches
+    // Rule 3: Handle ended matches based on their actual date
     if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
+      // Check if it's yesterday's match
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayDate = yesterday.toISOString().slice(0, 10);
+      
+      if (fixtureDate_str === yesterdayDate) {
+        return {
+          category: 'yesterday',
+          reason: `Yesterday's ended match with ${status} status`,
+          fixtureTime: fixtureTimeString,
+          currentTime: currentTimeString,
+          status,
+          shouldShow: false  // Don't show yesterday's matches on today's date
+        };
+      }
+      
+      // Only show today's ended matches
       if (isWithinTimeRange) {
         const fixtureTimeMinutes = fixtureHour * 60 + fixtureMinute;
         const currentTimeMinutes = currentHour * 60 + currentMinute;
@@ -85,23 +102,7 @@ export class MyAdvancedTimeClassifier {
         if (fixtureTimeMinutes < currentTimeMinutes) {
           return {
             category: 'today',
-            reason: `Ended match - Fixture time ${fixtureTimeString} < Current time ${currentTimeString} with ${status} status`,
-            fixtureTime: fixtureTimeString,
-            currentTime: currentTimeString,
-            status,
-            shouldShow: true
-          };
-        }
-      } else {
-        // Check if it's yesterday's match
-        const yesterday = new Date(now);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayDate = yesterday.toISOString().slice(0, 10);
-        
-        if (fixtureDate_str === yesterdayDate) {
-          return {
-            category: 'yesterday',
-            reason: `Yesterday's ended match with ${status} status`,
+            reason: `Today's ended match - Fixture time ${fixtureTimeString} < Current time ${currentTimeString} with ${status} status`,
             fixtureTime: fixtureTimeString,
             currentTime: currentTimeString,
             status,
