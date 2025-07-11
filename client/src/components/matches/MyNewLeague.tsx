@@ -117,9 +117,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     return hoursAgo > 24;
   }, []);
 
-  // Cache key for ended matches
+  // Cache key for ended matches - include timezone info for better cache invalidation
   const getCacheKey = useCallback((date: string, leagueId: number) => {
-    return `ended_matches_${date}_${leagueId}`;
+    const timezoneOffset = new Date().getTimezoneOffset();
+    return `ended_matches_${date}_${leagueId}_tz${timezoneOffset}`;
   }, []);
 
   // Get cached ended matches with strict date validation
@@ -270,8 +271,32 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               return !isAlreadyLive;
             });
 
-            // Filter to only include matches for the selected date using proper timezone conversion
-            const filteredFixtures = nonLiveFixtures.filter(fixture => {
+            // Create date range: selected date ±1 day to account for timezone conversions
+            const selectedDateObj = new Date(selectedDate + 'T12:00:00Z');
+            const dayBefore = new Date(selectedDateObj);
+            dayBefore.setDate(dayBefore.getDate() - 1);
+            const dayAfter = new Date(selectedDateObj);
+            dayAfter.setDate(dayAfter.getDate() + 1);
+
+            const dayBeforeString = `${dayBefore.getFullYear()}-${String(dayBefore.getMonth() + 1).padStart(2, '0')}-${String(dayBefore.getDate()).padStart(2, '0')}`;
+            const dayAfterString = `${dayAfter.getFullYear()}-${String(dayAfter.getMonth() + 1).padStart(2, '0')}-${String(dayAfter.getDate()).padStart(2, '0')}`;
+
+            console.log(`📅 [MyNewLeague] Date range for league ${leagueId}: ${dayBeforeString} to ${dayAfterString} (target: ${selectedDate})`);
+
+            // First filter: Get fixtures in the ±1 day range (UTC dates)
+            const dateRangeFixtures = nonLiveFixtures.filter(fixture => {
+              const fixtureDate = fixture.fixture?.date;
+              if (!fixtureDate) return false;
+
+              // Extract UTC date only for range filtering
+              const utcDateString = fixtureDate.split('T')[0];
+              return utcDateString >= dayBeforeString && utcDateString <= dayAfterString;
+            });
+
+            console.log(`📅 [MyNewLeague] League ${leagueId}: ${nonLiveFixtures.length} → ${dateRangeFixtures.length} fixtures in ±1 day range`);
+
+            // Second filter: Apply timezone conversion and check if it falls on selected date
+            const filteredFixtures = dateRangeFixtures.filter(fixture => {
               const fixtureDate = fixture.fixture?.date;
               if (!fixtureDate) return false;
 
@@ -282,20 +307,52 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               const day = String(matchDate.getDate()).padStart(2, "0");
               const matchDateString = `${year}-${month}-${day}`;
 
-              return matchDateString === selectedDate;
+              const dateMatches = matchDateString === selectedDate;
+
+              // If basic date doesn't match, check if it's a yesterday's ended match that should be shown today
+              if (!dateMatches) {
+                const status = fixture.fixture.status.short;
+                const isEndedMatch = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
+                
+                if (isEndedMatch) {
+                  // Check if it's yesterday's match
+                  const today = new Date(selectedDate);
+                  const yesterday = new Date(today);
+                  yesterday.setDate(yesterday.getDate() - 1);
+                  
+                  const yesterdayString = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
+                  
+                  if (matchDateString === yesterdayString) {
+                    console.log(`🕐 [MyNewLeague] Including yesterday's ended match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${matchDateString} → shown on ${selectedDate})`);
+                    return true; // Include yesterday's ended matches
+                  }
+                }
+                return false;
+              }
+
+              return true;
             });
 
-            console.log(`🎯 [MyNewLeague] League ${leagueId}: ${freshFixtures.length} → ${filteredFixtures.length} fixtures after date filtering`);
+            console.log(`🎯 [MyNewLeague] League ${leagueId}: ${dateRangeFixtures.length} → ${filteredFixtures.length} fixtures after timezone conversion filtering`);
 
-            // Log sample fixtures for debugging
+            // Log sample fixtures for debugging with timezone conversion details
             if (filteredFixtures.length > 0) {
               filteredFixtures.slice(0, 3).forEach(fixture => {
-                console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
+                const utcDate = fixture.fixture.date;
+                const localDate = new Date(utcDate);
+                const utcDateString = utcDate.split('T')[0];
+                const localDateString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
+                
+                console.log(`🌍 [MyNewLeague TIMEZONE] Fixture ${fixture.fixture.id}:`, {
                   teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                   league: fixture.league.name,
                   status: fixture.fixture.status.short,
-                  date: fixture.fixture.date,
-                  source: "api"
+                  utcDateTime: utcDate,
+                  utcDate: utcDateString,
+                  localDate: localDateString,
+                  selectedDate,
+                  timezoneOffset: localDate.getTimezoneOffset(),
+                  dateMatch: localDateString === selectedDate
                 });
               });
             }
@@ -1179,25 +1236,41 @@ b.fixture.status.elapsed) || 0;
       const day = String(matchDate.getDate()).padStart(2, "0");
       const dateString = `${year}-${month}-${day}`;
 
-      // Clear cache for all leagues for this specific date
-      leagueIds.forEach(leagueId => {
-        const cacheKey = getCacheKey(dateString, leagueId);
+      // Also clear cache for ±1 day to account for timezone conversions
+      const dayBefore = new Date(matchDate);
+      dayBefore.setDate(dayBefore.getDate() - 1);
+      const dayAfter = new Date(matchDate);
+      dayAfter.setDate(dayAfter.getDate() + 1);
 
-        try {
-          const cached = localStorage.getItem(cacheKey);
-          if (cached) {
-            const { fixtures } = JSON.parse(cached);
-            // Check if this match exists in the cache
-            const hasMatch = fixtures.some((f: any) => f.fixture.id === matchId);
+      const datesToClear = [
+        `${dayBefore.getFullYear()}-${String(dayBefore.getMonth() + 1).padStart(2, '0')}-${String(dayBefore.getDate()).padStart(2, '0')}`,
+        dateString,
+        `${dayAfter.getFullYear()}-${String(dayAfter.getMonth() + 1).padStart(2, '0')}-${String(dayAfter.getDate()).padStart(2, '0')}`
+      ];
 
-            if (hasMatch) {
-              localStorage.removeItem(cacheKey);
-              console.log(`🗑️ [Cache Clear] Cleared cache for league ${leagueId} on ${dateString} due to match ${matchId} ${transition}`);
+      console.log(`🗑️ [Cache Clear] Clearing cache for match ${matchId} ${transition} across date range:`, datesToClear);
+
+      // Clear cache for all leagues for this specific date range
+      datesToClear.forEach(dateStr => {
+        leagueIds.forEach(leagueId => {
+          const cacheKey = getCacheKey(dateStr, leagueId);
+
+          try {
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+              const { fixtures } = JSON.parse(cached);
+              // Check if this match exists in the cache
+              const hasMatch = fixtures.some((f: any) => f.fixture.id === matchId);
+
+              if (hasMatch) {
+                localStorage.removeItem(cacheKey);
+                console.log(`🗑️ [Cache Clear] Cleared cache for league ${leagueId} on ${dateStr} due to match ${matchId} ${transition}`);
+              }
             }
+          } catch (error) {
+            console.warn(`Failed to clear cache for league ${leagueId} on ${dateStr}:`, error);
           }
-        } catch (error) {
-          console.warn(`Failed to clear cache for league ${leagueId}:`, error);
-        }
+        });
       });
 
       // Also clear any related fixture cache entries
