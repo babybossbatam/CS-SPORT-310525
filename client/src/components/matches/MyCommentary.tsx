@@ -122,56 +122,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
       <div className="p-2 border-t flex justify-center items-center text-xs">
         <span>Commentary</span>
       </div>
-      {/* End of Match Indicator */}
-      {(() => {
-        // Check if match has ended based on events
-        const hasEndedEvents = events.some(
-          (event) =>
-            event.time.elapsed >= 90 &&
-            event.time.extra &&
-            event.time.extra > 0,
-        );
-
-        if (hasEndedEvents) {
-          // Find the event with the highest total time (elapsed + extra)
-          const eventsWithTotalTime = events.map((e) => ({
-            ...e,
-            totalTime: e.time.elapsed + (e.time.extra || 0),
-          }));
-
-          const finalEvent = eventsWithTotalTime.reduce((latest, current) =>
-            current.totalTime > latest.totalTime ? current : latest,
-          );
-
-          const finalScore = calculateScoreAtTime(finalEvent.totalTime);
-          console.log("Final score calculation:", finalScore);
-
-          return (
-            <div className="border-t flex items-center ">
-              <div className="text-center">
-                <div className="text-sm font-semibold text-gray-800 mb-1"></div>
-                <div className="ml-8 text-xs text-red-500 text-center">
-                  {finalEvent.time.extra && finalEvent.time.extra > 0
-                    ? ` +${finalEvent.time.extra}'`
-                    : ""}
-                </div>
-                <div className="ml-8 text-xs text-gray-600">
-                  {finalEvent.time.elapsed}'
-                </div>
-              </div>
-              <img
-                src="/assets/matchdetaillogo/clock.png"
-                alt="Goal"
-                className="ml-4 w-4 h-4 opacity-80 flex-shrink-0"
-              />
-              <div className="ml-2 text-sm font-bold text-black-800 ">
-                {finalScore.homeScore}-{finalScore.awayScore}
-              </div>
-            </div>
-          );
-        }
-        return null;
-      })()}
+      
 
       {/* Commentary Events Section */}
       <div className=" ">
