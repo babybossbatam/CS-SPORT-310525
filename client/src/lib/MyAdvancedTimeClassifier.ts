@@ -21,9 +21,12 @@ export class MyAdvancedTimeClassifier {
   /**
    * Classify a fixture based on advanced time rules
    */
-  static classifyFixture(fixtureDate: string, status: string): TimeClassificationResult {
+  static classifyFixture(fixtureDate: string, status: string, selectedDate?: string): TimeClassificationResult {
     const now = new Date();
     const fixture = new Date(fixtureDate);
+    
+    // Use selected date if provided, otherwise use today
+    const referenceDate = selectedDate ? selectedDate : now.toISOString().slice(0, 10);
     
     // Extract time components
     const currentHour = now.getHours();
@@ -34,10 +37,10 @@ export class MyAdvancedTimeClassifier {
     const fixtureMinute = fixture.getMinutes();
     const fixtureTimeString = `${fixtureHour.toString().padStart(2, '0')}:${fixtureMinute.toString().padStart(2, '0')}`;
     
-    // Check if fixture is within the same date as today
+    // Check if fixture is within the same date as reference date (selected date or today)
     const todayDate = now.toISOString().slice(0, 10);
     const fixtureDate_str = fixture.toISOString().slice(0, 10);
-    const isWithinTimeRange = fixtureDate_str === todayDate;
+    const isWithinTimeRange = fixtureDate_str === referenceDate;
     
     console.log(`🕐 [AdvancedTimeClassifier] Analyzing fixture:`, {
       fixtureDate,
@@ -46,54 +49,79 @@ export class MyAdvancedTimeClassifier {
       status,
       isWithinTimeRange,
       fixtureDate_str,
+      selectedDate: referenceDate,
       todayDate
     });
     
-    // Rule 1: If fixture time > CurrentTime but status "NS" and within time range 00:00 - 23:59 then its Today's Matches
-    if (status === 'NS' && isWithinTimeRange) {
-      const fixtureTimeMinutes = fixtureHour * 60 + fixtureMinute;
-      const currentTimeMinutes = currentHour * 60 + currentMinute;
-      
-      if (fixtureTimeMinutes > currentTimeMinutes) {
+    // For any selected date, show matches that fall on that date
+    if (isWithinTimeRange) {
+      // If it's a future date (NS status), show it
+      if (status === 'NS') {
         return {
           category: 'today',
-          reason: `Fixture time ${fixtureTimeString} > Current time ${currentTimeString} with NS status`,
+          reason: `Upcoming match on selected date ${referenceDate} with NS status`,
           fixtureTime: fixtureTimeString,
           currentTime: currentTimeString,
           status,
           shouldShow: true
         };
-      } else {
-        // Rule 2: If fixture time < CurrentTime but status "NS" and within time range 00:00 - 23:59 then its Tomorrow's Matches
+      }
+      
+      // If it's an ended match on the selected date, show it
+      if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
         return {
-          category: 'tomorrow',
-          reason: `Fixture time ${fixtureTimeString} < Current time ${currentTimeString} with NS status`,
+          category: 'today',
+          reason: `Ended match on selected date ${referenceDate} with ${status} status`,
           fixtureTime: fixtureTimeString,
           currentTime: currentTimeString,
           status,
-          shouldShow: false
+          shouldShow: true
+        };
+      }
+      
+      // If it's a live match on the selected date, show it
+      if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+        return {
+          category: 'today',
+          reason: `Live match on selected date ${referenceDate} with ${status} status`,
+          fixtureTime: fixtureTimeString,
+          currentTime: currentTimeString,
+          status,
+          shouldShow: true
         };
       }
     }
     
-    // Rule 3: If fixture time < CurrentTime but status "FT" and within time range 00:00 - 23:59 then its Yesterday's Ended Matches
-    if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
-      if (isWithinTimeRange) {
+    // Legacy logic for today/yesterday when no specific date is selected
+    if (!selectedDate) {
+      // Rule 1: If fixture time > CurrentTime but status "NS" and within time range 00:00 - 23:59 then its Today's Matches
+      if (status === 'NS' && fixtureDate_str === todayDate) {
         const fixtureTimeMinutes = fixtureHour * 60 + fixtureMinute;
         const currentTimeMinutes = currentHour * 60 + currentMinute;
         
-        if (fixtureTimeMinutes < currentTimeMinutes) {
+        if (fixtureTimeMinutes > currentTimeMinutes) {
           return {
             category: 'today',
-            reason: `Ended match - Fixture time ${fixtureTimeString} < Current time ${currentTimeString} with ${status} status`,
+            reason: `Fixture time ${fixtureTimeString} > Current time ${currentTimeString} with NS status`,
             fixtureTime: fixtureTimeString,
             currentTime: currentTimeString,
             status,
             shouldShow: true
           };
+        } else {
+          return {
+            category: 'tomorrow',
+            reason: `Fixture time ${fixtureTimeString} < Current time ${currentTimeString} with NS status`,
+            fixtureTime: fixtureTimeString,
+            currentTime: currentTimeString,
+            status,
+            shouldShow: false
+          };
         }
-      } else {
-        // Check if it's yesterday's match
+      }
+      
+      // Rule 3: Check for yesterday's matches
+      if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
         const yesterday = new Date(now);
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayDate = yesterday.toISOString().slice(0, 10);
@@ -145,7 +173,8 @@ export class MyAdvancedTimeClassifier {
       
       const classification = this.classifyFixture(
         fixture.fixture.date,
-        fixture.fixture.status.short
+        fixture.fixture.status.short,
+        selectedDate  // Pass the selected date
       );
       
       console.log(`🔍 [AdvancedTimeClassifier] Match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
