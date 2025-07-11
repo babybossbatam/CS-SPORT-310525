@@ -1,0 +1,159 @@
+
+/* 365scores-inspired Live Action Styling */
+
+.professional-live-action {
+  font-family: 'Roboto', 'Noto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+}
+
+.text-shadow-lg {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Enhanced attack zone animations */
+.attack-zone {
+  animation: attackPulse 2s ease-in-out infinite;
+}
+
+@keyframes attackPulse {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Ball movement enhancements */
+.ball-glow {
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+}
+
+/* Field intensity indicators */
+.intensity-high {
+  animation: intensityPulse 1s ease-in-out infinite;
+}
+
+.intensity-medium {
+  animation: intensityPulse 2s ease-in-out infinite;
+}
+
+.intensity-low {
+  animation: intensityPulse 3s ease-in-out infinite;
+}
+
+@keyframes intensityPulse {
+  0%, 100% {
+    border-opacity: 0.5;
+  }
+  50% {
+    border-opacity: 1;
+  }
+}
+
+/* Enhanced commentary scrolling */
+.commentary-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+.commentary-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.commentary-scroll::-webkit-scrollbar-track {
+  background: #f7fafc;
+}
+
+.commentary-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 2px;
+}
+
+.commentary-scroll::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Shot map enhancements */
+.shot-marker {
+  animation: shotMarkerPulse 2s ease-in-out infinite;
+}
+
+@keyframes shotMarkerPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* 365scores-style transitions */
+.view-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced grass pattern */
+.grass-pattern {
+  background-image: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.03) 2px,
+      rgba(255, 255, 255, 0.03) 4px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(255, 255, 255, 0.02) 1px,
+      rgba(255, 255, 255, 0.02) 2px
+    );
+}
+
+/* Professional field lighting */
+.field-lighting {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+}
+
+/* Stadium atmosphere */
+.stadium-atmosphere {
+  box-shadow: 
+    inset 0 0 100px rgba(0, 0, 0, 0.3),
+    inset 0 0 50px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive enhancements */
+@media (max-width: 768px) {
+  .professional-live-action .text-3xl {
+    font-size: 1.5rem;
+  }
+  
+  .professional-live-action .text-2xl {
+    font-size: 1.25rem;
+  }
+  
+  .commentary-scroll {
+    max-height: 120px;
+  }
+}
