@@ -174,11 +174,13 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     };
   }, [matchId]);
 
-  // Fast and precise ball movement with straight lines
+  // Event-driven ball movement with purposeful patterns
   const [ballTrail, setBallTrail] = useState<Array<{x: number, y: number, timestamp: number}>>([]);
+  const [currentEvent, setCurrentBallEvent] = useState<string | null>(null);
+  const [ballMovementActive, setBallMovementActive] = useState(false);
 
   useEffect(() => {
-    if (!isLive) return;
+    if (!isLive || !ballMovementActive) return;
 
     const ballInterval = setInterval(() => {
       setBallPosition(prev => {
@@ -187,12 +189,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         const deltaY = ballTarget.y - prev.y;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         
-        // If close to target, snap to it
+        // If close to target, snap to it and stop movement
         if (distance < 2) {
+          setBallMovementActive(false);
+          setCurrentBallEvent(null);
           return { x: ballTarget.x, y: ballTarget.y };
         }
         
-        const moveSpeed = 1.2; // Much faster movement speed
+        const moveSpeed = 1.5; // Fast movement speed for event-driven actions
         
         // Calculate precise direction vector (no randomness)
         const directionX = deltaX / distance;
@@ -205,52 +209,80 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         newX = Math.max(10, Math.min(90, newX));
         newY = Math.max(20, Math.min(80, newY));
 
-        // Update possession based on ball position
-        if (newX < 35) {
-          setBallPossession('home');
-        } else if (newX > 65) {
-          setBallPossession('away');
+        // Update possession based on ball position and event type
+        if (currentEvent === 'dangerous_attack') {
+          setBallPossession(newX > 50 ? 'away' : 'home');
+        } else if (currentEvent === 'ball_safe') {
+          setBallPossession(newX < 50 ? 'home' : 'away');
         } else {
-          setBallPossession(Math.random() > 0.5 ? 'home' : 'away');
+          setBallPossession(newX < 35 ? 'home' : newX > 65 ? 'away' : (Math.random() > 0.5 ? 'home' : 'away'));
         }
 
         // Add to trail for straight line visualization
         setBallTrail(currentTrail => {
           const newTrail = [...currentTrail, { x: prev.x, y: prev.y, timestamp: Date.now() }];
-          return newTrail.slice(-6); // Shorter trail for cleaner straight lines
+          return newTrail.slice(-8); // Longer trail for event movements
         });
 
         return { x: newX, y: newY };
       });
-    }, 100); // Much faster update interval for smoother, faster movement
+    }, 80); // Smooth movement interval
 
     return () => clearInterval(ballInterval);
-  }, [isLive, ballTarget]);
+  }, [isLive, ballTarget, ballMovementActive, currentEvent]);
 
-  // Set new ball targets for fast, direct movement patterns
-  useEffect(() => {
-    if (!isLive) return;
-
-    const targetInterval = setInterval(() => {
-      const directPatterns = [
-        // Direct attack patterns - precise coordinates
-        { x: 85, y: 50 }, // Right goal area
-        { x: 15, y: 50 }, // Left goal area
-        { x: 80, y: 30 }, // Right wing high
-        { x: 80, y: 70 }, // Right wing low
-        { x: 20, y: 30 }, // Left wing high
-        { x: 20, y: 70 }, // Left wing low
-        { x: 50, y: 50 }, // Center field
-        { x: 65, y: 40 }, // Right attacking third
-        { x: 35, y: 60 }, // Left attacking third
-      ];
-      
-      const randomPattern = directPatterns[Math.floor(Math.random() * directPatterns.length)];
-      setBallTarget(randomPattern);
-    }, 1500); // Change target more frequently for dynamic movement
-
-    return () => clearInterval(targetInterval);
-  }, [isLive]);
+  // Event-driven ball target setting
+  const triggerBallMovement = (eventType: string, team: 'home' | 'away') => {
+    let targetPosition;
+    
+    switch (eventType) {
+      case 'dangerous_attack':
+        // Move toward opponent's goal area
+        targetPosition = team === 'home' 
+          ? { x: 85, y: 45 + Math.random() * 10 } // Attack right goal
+          : { x: 15, y: 45 + Math.random() * 10 }; // Attack left goal
+        break;
+        
+      case 'shot':
+        // Move directly toward goal
+        targetPosition = team === 'home'
+          ? { x: 92, y: 48 + Math.random() * 4 } // Shot at right goal
+          : { x: 8, y: 48 + Math.random() * 4 };  // Shot at left goal
+        break;
+        
+      case 'corner':
+        // Move to corner areas
+        const corners = team === 'home' 
+          ? [{ x: 95, y: 15 }, { x: 95, y: 85 }] // Right corners
+          : [{ x: 5, y: 15 }, { x: 5, y: 85 }];   // Left corners
+        targetPosition = corners[Math.floor(Math.random() * corners.length)];
+        break;
+        
+      case 'goalkick':
+        // Move to goal area
+        targetPosition = team === 'home'
+          ? { x: 8, y: 50 } // Home goal
+          : { x: 92, y: 50 }; // Away goal
+        break;
+        
+      case 'ball_safe':
+        // Move to midfield or defensive areas
+        targetPosition = team === 'home'
+          ? { x: 25 + Math.random() * 20, y: 35 + Math.random() * 30 } // Home half
+          : { x: 55 + Math.random() * 20, y: 35 + Math.random() * 30 }; // Away half
+        break;
+        
+      default:
+        // Default attacking movement
+        targetPosition = team === 'home'
+          ? { x: 70 + Math.random() * 15, y: 35 + Math.random() * 30 } // Forward movement
+          : { x: 15 + Math.random() * 15, y: 35 + Math.random() * 30 }; // Forward movement
+    }
+    
+    setCurrentBallEvent(eventType);
+    setBallTarget(targetPosition);
+    setBallMovementActive(true);
+  };
 
   // Clean up old trail positions, goal kick events, corner kick events, and shot events
   useEffect(() => {
@@ -294,101 +326,26 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     const teams = ['home', 'away'];
     const randomTeam = teams[Math.floor(Math.random() * teams.length)] as 'home' | 'away';
     
-    // Determine event type based on ball position and actual penalty area boundaries
+    // Determine event type based on current game flow (not just ball position)
     let randomType: 'attacking' | 'ball_safe' | 'dangerous_attack';
     let eventType: 'attack' | 'shot' | 'goal' | 'goalkick' | 'corner' | 'substitution' = 'attack';
     
-    // Check if ball is actually INSIDE penalty areas for dangerous attack
-    const isInHomePenalty = ballPosition.x < 21 && ballPosition.y > 30 && ballPosition.y < 70;
-    const isInAwayPenalty = ballPosition.x > 79 && ballPosition.y > 30 && ballPosition.y < 70;
+    // Generate events based on probability and game situation
+    const eventProbability = Math.random();
     
-    // Check if ball is in goal area for goal kick
-    const isInHomeGoalArea = ballPosition.x < 11 && ballPosition.y > 40 && ballPosition.y < 60;
-    const isInAwayGoalArea = ballPosition.x > 89 && ballPosition.y > 40 && ballPosition.y < 60;
-    
-    // Check if ball is in corner areas for corner kick
-    const isInTopLeftCorner = ballPosition.x < 10 && ballPosition.y < 20;
-    const isInTopRightCorner = ballPosition.x > 90 && ballPosition.y < 20;
-    const isInBottomLeftCorner = ballPosition.x < 10 && ballPosition.y > 80;
-    const isInBottomRightCorner = ballPosition.x > 90 && ballPosition.y > 80;
-    
-    if (isInTopLeftCorner || isInTopRightCorner || isInBottomLeftCorner || isInBottomRightCorner) {
-      eventType = 'corner';
-      randomType = 'attacking';
-      
-      // Determine corner position
-      let corner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
-      if (isInTopLeftCorner) corner = 'top-left';
-      else if (isInTopRightCorner) corner = 'top-right';
-      else if (isInBottomLeftCorner) corner = 'bottom-left';
-      else corner = 'bottom-right';
-      
-      // Create corner kick event
-      const cornerKickEvent = {
-        id: `corner_${Date.now()}`,
-        x: ballPosition.x,
-        y: ballPosition.y,
-        team: randomTeam,
-        corner,
-        timestamp: Date.now()
-      };
-      
-      setCornerKickEvents(prev => [...prev.slice(-4), cornerKickEvent]); // Keep last 5 corner kicks
-      
-    } else if (isInHomeGoalArea || isInAwayGoalArea) {
-      eventType = 'goalkick';
-      randomType = 'ball_safe';
-      
-      // Create goal kick event
-      const goalKickEvent = {
-        id: `goalkick_${Date.now()}`,
-        x: ballPosition.x,
-        y: ballPosition.y,
-        team: randomTeam,
-        timestamp: Date.now()
-      };
-      
-      setGoalKickEvents(prev => [...prev.slice(-4), goalKickEvent]); // Keep last 5 goal kicks
-      
-    } else if ((randomTeam === 'away' && isInHomePenalty) || (randomTeam === 'home' && isInAwayPenalty)) {
+    if (eventProbability > 0.85) {
+      // Dangerous attack (15% chance)
+      eventType = Math.random() > 0.7 ? 'shot' : 'attack';
       randomType = 'dangerous_attack';
-      // High chance of shot in penalty area
-      if (Math.random() > 0.4) {
-        eventType = Math.random() > 0.8 ? 'goal' : 'shot';
-        
+      
+      if (eventType === 'shot') {
         // Create shot event
         const shotEvent = {
           id: `shot_${Date.now()}`,
-          x: ballPosition.x,
-          y: ballPosition.y,
+          x: randomTeam === 'home' ? 80 + Math.random() * 10 : 10 + Math.random() * 10,
+          y: 40 + Math.random() * 20,
           team: randomTeam,
-          isGoal: eventType === 'goal',
-          timestamp: Date.now()
-        };
-        
-        setShotEvents(prev => [...prev.slice(-9), shotEvent]); // Keep last 10 shots
-        
-        // Update team stats
-        setTeamStats(prev => ({
-          ...prev,
-          shots: {
-            ...prev.shots,
-            [randomTeam]: prev.shots[randomTeam] + 1
-          }
-        }));
-      }
-    } else if ((ballPosition.x < 40 && randomTeam === 'home') || (ballPosition.x > 60 && randomTeam === 'away')) {
-      randomType = 'attacking';
-      // Medium chance of shot in attacking third
-      if (Math.random() > 0.7) {
-        eventType = 'shot';
-        
-        const shotEvent = {
-          id: `shot_${Date.now()}`,
-          x: ballPosition.x,
-          y: ballPosition.y,
-          team: randomTeam,
-          isGoal: false,
+          isGoal: Math.random() > 0.85, // 15% chance of goal
           timestamp: Date.now()
         };
         
@@ -402,14 +359,78 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           }
         }));
       }
-    } else {
+      
+      // Trigger ball movement for dangerous attack
+      triggerBallMovement('dangerous_attack', randomTeam);
+      
+    } else if (eventProbability > 0.75) {
+      // Corner kick (10% chance)
+      eventType = 'corner';
+      randomType = 'attacking';
+      
+      const cornerPositions = [
+        { corner: 'top-left' as const, x: 5, y: 15 },
+        { corner: 'top-right' as const, x: 95, y: 15 },
+        { corner: 'bottom-left' as const, x: 5, y: 85 },
+        { corner: 'bottom-right' as const, x: 95, y: 85 }
+      ];
+      
+      const selectedCorner = cornerPositions[Math.floor(Math.random() * cornerPositions.length)];
+      
+      const cornerKickEvent = {
+        id: `corner_${Date.now()}`,
+        x: selectedCorner.x,
+        y: selectedCorner.y,
+        team: randomTeam,
+        corner: selectedCorner.corner,
+        timestamp: Date.now()
+      };
+      
+      setCornerKickEvents(prev => [...prev.slice(-4), cornerKickEvent]);
+      
+      // Trigger ball movement for corner
+      triggerBallMovement('corner', randomTeam);
+      
+    } else if (eventProbability > 0.65) {
+      // Goal kick (10% chance)
+      eventType = 'goalkick';
       randomType = 'ball_safe';
       
-      // Random chance for substitution (about 10% chance)
+      const goalKickEvent = {
+        id: `goalkick_${Date.now()}`,
+        x: randomTeam === 'home' ? 8 : 92,
+        y: 50,
+        team: randomTeam,
+        timestamp: Date.now()
+      };
+      
+      setGoalKickEvents(prev => [...prev.slice(-4), goalKickEvent]);
+      
+      // Trigger ball movement for goal kick
+      triggerBallMovement('goalkick', randomTeam);
+      
+    } else if (eventProbability > 0.55) {
+      // Regular attack (10% chance)
+      eventType = 'attack';
+      randomType = 'attacking';
+      
+      // Trigger ball movement for attack
+      triggerBallMovement('attack', randomTeam);
+      
+    } else if (eventProbability > 0.50) {
+      // Ball safe / possession (5% chance)
+      eventType = 'attack';
+      randomType = 'ball_safe';
+      
+      // Trigger ball movement for safe play
+      triggerBallMovement('ball_safe', randomTeam);
+      
+    } else {
+      // No ball movement event (50% chance) - substitution or no event
       if (Math.random() > 0.9) {
         eventType = 'substitution';
+        randomType = 'ball_safe';
         
-        // Generate player names for substitution
         const playerNames = [
           'Rodriguez', 'Silva', 'Martinez', 'Garcia', 'Lopez', 'Gonzalez', 
           'Fernandez', 'Sanchez', 'Perez', 'Morales', 'Johnson', 'Smith',
@@ -419,7 +440,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         const playerOut = playerNames[Math.floor(Math.random() * playerNames.length)];
         const playerIn = playerNames[Math.floor(Math.random() * playerNames.length)];
         
-        // Create substitution event
         const substitutionEvent = {
           id: `substitution_${Date.now()}`,
           team: randomTeam,
@@ -429,6 +449,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         };
         
         setSubstitutionEvents(prev => [...prev.slice(-4), substitutionEvent]);
+      } else {
+        // No event generated - ball stays in current position
+        return;
       }
     }
 
