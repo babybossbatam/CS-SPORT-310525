@@ -1114,21 +1114,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       )
                         return 1;
 
-                      // Calculate total time including extra time for proper sorting
-                      const aTotalTime = a.time.elapsed + (a.time.extra || 0);
-                      const bTotalTime = b.time.elapsed + (b.time.extra || 0);
-
+                    
                       // Special handling for "End of 90 Minutes" - put it at the very end (bottom)
                       if (
                         a.type === "period_score" &&
                         a.detail === "End of 90 Minutes"
                       )
-                        return 1;
+                        return -1;
                       if (
                         b.type === "period_score" &&
                         b.detail === "End of 90 Minutes"
                       )
-                        return -1;
+                        return 1;
 
                       // Sort by total time in descending order (latest first)
                       return bTotalTime - aTotalTime;
