@@ -1374,6 +1374,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     }`}
 
                                     style={{ marginRight: '-8px' }}
+                                    title={getEventDescription(event)}
                                   >
                                     {event.type === "subst" ? (
                                       <img
@@ -1610,7 +1611,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                                 {/* Column 2: Event Icon */}
                                 <div className="match-event-home-icon-column">
-                                  <div className="match-event-icon goal relative group">
+                                  <div className="match-event-icon goal relative group" title={getEventDescription(event)}>
                                     {(() => {
                                       const detail = event.detail?.toLowerCase() || "";
                                       if (detail.includes("penalty")) {
@@ -1675,7 +1676,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               <>
                                 {/* Column 1: Event Icon */}
                                 <div className="match-event-away-icon-column">
-                                  <div className="match-event-icon goal relative group">
+                                  <div className="match-event-icon goal relative group" title={getEventDescription(event)}>
                                     {(() => {
                                       const detail = event.detail?.toLowerCase() || "";
                                       if (detail.includes("penalty")) {
