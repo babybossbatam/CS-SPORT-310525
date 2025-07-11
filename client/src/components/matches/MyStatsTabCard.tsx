@@ -149,6 +149,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
 
         {/* Statistics with bars - Sample data for demonstration */}
         <div className="space-y-3">
+          <StatRowWithBars label="Ball Possession" homeValue="28%" awayValue="72%" />
           <StatRowWithBars label="Shots on Goal" homeValue={2} awayValue={10} />
           <StatRowWithBars label="Shots off Goal" homeValue={4} awayValue={8} />
           <StatRowWithBars label="Total Shots" homeValue={8} awayValue={28} />
@@ -158,7 +159,6 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
           <StatRowWithBars label="Fouls" homeValue={15} awayValue={14} />
           <StatRowWithBars label="Corner Kicks" homeValue={9} awayValue={13} />
           <StatRowWithBars label="Offsides" homeValue={4} awayValue={2} />
-          <StatRowWithBars label="Ball Possession" homeValue="28%" awayValue="72%" />
           <StatRowWithBars label="Yellow Cards" homeValue={2} awayValue={1} />
           <StatRowWithBars label="Red Cards" homeValue={1} awayValue={0} />
           <StatRowWithBars label="Goalkeeper Saves" homeValue={10} awayValue={1} />
