@@ -1124,7 +1124,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         a.detail === "End of 90 Minutes"
                       ) {
                         // Period marker comes before any 90-minute events
-                        if (bTotalTime >= 90) return -1;
+                        if (b.type !== "period_score" && bTotalTime >= 90) return -1;
                         return bTotalTime - aTotalTime;
                       }
                       if (
@@ -1132,7 +1132,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         b.detail === "End of 90 Minutes"
                       ) {
                         // Period marker comes before any 90-minute events
-                        if (aTotalTime >= 90) return 1;
+                        if (a.type !== "period_score" && aTotalTime >= 90) return 1;
                         return bTotalTime - aTotalTime;
                       }
 
@@ -1142,7 +1142,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         a.detail === "Halftime"
                       ) {
                         // Period marker comes before any 45-minute events
-                        if (bTotalTime === 45) return -1;
+                        if (b.type !== "period_score" && bTotalTime === 45) return -1;
                         return bTotalTime - aTotalTime;
                       }
                       if (
@@ -1150,7 +1150,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         b.detail === "Halftime"
                       ) {
                         // Period marker comes before any 45-minute events
-                        if (aTotalTime === 45) return 1;
+                        if (a.type !== "period_score" && aTotalTime === 45) return 1;
                         return bTotalTime - aTotalTime;
                       }
 
