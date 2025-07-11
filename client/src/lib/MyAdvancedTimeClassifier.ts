@@ -126,8 +126,7 @@ export class MyAdvancedTimeClassifier {
         yesterday.setDate(yesterday.getDate() - 1);
         const yesterdayDate = yesterday.toISOString().slice(0, 10);
         
-        // Only show yesterday's matches when no specific date is selected
-        if (!selectedDate && fixtureDate_str === yesterdayDate) {
+        if (fixtureDate_str === yesterdayDate) {
           return {
             category: 'yesterday',
             reason: `Yesterday's ended match with ${status} status`,
