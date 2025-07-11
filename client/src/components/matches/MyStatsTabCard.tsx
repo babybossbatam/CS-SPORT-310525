@@ -179,6 +179,31 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
     return finalXG.toFixed(1);
   };
 
+  // Calculate Big Chances Created using available statistics
+  const calculateBigChancesCreated = (stats: TeamStatistic[]): string => {
+    if (!stats || !Array.isArray(stats)) return '0';
+    
+    const shotsOnTarget = parseInt(getStatValue(stats, 'Shots on Goal', ['Shots on target'])) || 0;
+    const shotsInsideBox = parseInt(getStatValue(stats, 'Shots insidebox', ['Shots inside box'])) || 0;
+    const cornerKicks = parseInt(getStatValue(stats, 'Corner Kicks', ['Corners'])) || 0;
+    const passes = parseInt(getStatValue(stats, 'Total passes', ['Passes'])) || 0;
+    const passAccuracy = parseFloat(getStatValue(stats, 'Passes %', ['Pass accuracy']).replace('%', '')) || 0;
+    
+    // Calculate big chances based on:
+    // - Quality shots (shots on target + shots inside box)
+    // - Corner kicks (potential scoring opportunities)
+    // - Good passing play (high pass accuracy with decent volume)
+    
+    const qualityShots = Math.floor((shotsOnTarget * 0.6) + (shotsInsideBox * 0.4));
+    const cornerOpportunities = Math.floor(cornerKicks * 0.15); // ~15% of corners create big chances
+    const passingOpportunities = passes > 200 && passAccuracy > 75 ? Math.floor((passes * passAccuracy) / 10000) : 0;
+    
+    const bigChances = qualityShots + cornerOpportunities + passingOpportunities;
+    
+    // Cap at reasonable maximum (usually 0-8 big chances per match)
+    return Math.min(bigChances, 8).toString();
+  };
+
   // Debug function to log available statistics (remove in production)
   const logAvailableStats = (teamName: string, stats: TeamStatistic[]) => {
     if (stats && Array.isArray(stats)) {
@@ -330,6 +355,12 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
             label="Shots On Target" 
             homeValue={getStatValue(homeStats.statistics, 'Shots off Goal', ['Shots off target'])}
             awayValue={getStatValue(awayStats.statistics, 'Shots off Goal', ['Shots off target'])}
+          />
+          
+          <StatRowWithBars 
+            label="Big Chances Created" 
+            homeValue={calculateBigChancesCreated(homeStats.statistics)}
+            awayValue={calculateBigChancesCreated(awayStats.statistics)}
           />
           
          
