@@ -1,0 +1,30 @@
+@use "../../../scss/varialbles/colors" as *;
+@use "../../../scss/varialbles/fonts" as *;
+
+.app-module-router-container {
+  background-color: $surfacePrimary;
+  color: $textPrimary;
+  font-family: $font;
+  height: inherit;
+  width: 100%;
+  position: relative;
+}
+
+.scores365-widgets.app-module-router-container {
+  border: solid 1px transparent;
+  box-sizing: border-box;
+}
+
+.direction-rtl {
+  direction: rtl;
+}
+
+.direction-ltr {
+  direction: ltr;
+}
+
+.device-small-view {
+}
+
+.device-large-view {
+}
