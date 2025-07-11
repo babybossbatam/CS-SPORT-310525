@@ -419,30 +419,25 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         key={`period-${index}`}
                         className="commentary-event-container"
                       >
-                        <div className="flex gap-3">
-                          {/* Time Column */}
-                          <div className="flex flex-col items-center min-w-[50px]">
-                            <div className="text-gray-800 text-sm font-medium leading-tight">
-                              45'
+                        <div className="border-t flex items-center ">
+                          <div className="text-center">
+                            <div className="text-sm font-semibold text-gray-800 mb-1"></div>
+                            <div className="ml-8 text-xs text-red-500 text-center">
+                              {event.time.extra && event.time.extra > 0
+                                ? ` +${event.time.extra}'`
+                                : ""}
                             </div>
-                            {index < allCommentaryItems.length - 1 && (
-                              <div className="w-0.5 h-12 bg-gray-600"></div>
-                            )}
+                            <div className="ml-8 text-xs text-gray-600">
+                              {event.time.elapsed}'
+                            </div>
                           </div>
-
-                          {/* Content Column */}
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 -ml-3 -mt-1.5 text-xs font-medium">
-                              <img
-                                src="/assets/matchdetaillogo/clock.png"
-                                alt="Half Time"
-                                className="w-4 h-4 opacity-80 flex-shrink-0"
-                              />
-                              <span className="text-lg font-bold text-gray-900">
-                                {halftimeScore.homeScore} - {halftimeScore.awayScore}
-                              </span>
-                            </div>
-
+                          <img
+                            src="/assets/matchdetaillogo/clock.png"
+                            alt="Half Time"
+                            className="ml-4 w-4 h-4 opacity-80 flex-shrink-0"
+                          />
+                          <div className="ml-2 text-sm font-bold text-black-800 ">
+                            {halftimeScore.homeScore}-{halftimeScore.awayScore}
                           </div>
                         </div>
                       </div>
