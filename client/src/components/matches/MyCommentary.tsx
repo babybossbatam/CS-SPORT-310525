@@ -122,7 +122,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
       <div className="p-2 border-t flex justify-center items-center text-xs">
         <span>Commentary</span>
       </div>
-      
+
 
       {/* Commentary Events Section */}
       <div className=" ">
@@ -359,7 +359,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               />
                             </div>
                             {index < allCommentaryItems.length - 1 && (
-                              <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
+                              <div className="w-0.5 h-16 bg-gray-800 ml-1"></div>
                             )}
                           </div>
 
@@ -426,7 +426,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               />
                             </div>
                             {index < allCommentaryItems.length - 1 && (
-                              <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
+                              <div className="w-0.5 h-16 bg-gray-800 ml-1"></div>
                             )}
                           </div>
 
@@ -495,7 +495,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               {halftimeEndTime.elapsed}'
                             </div>
                             {index < allCommentaryItems.length - 1 && (
-                              <div className="w-0.5 h-20 bg-gray-600"></div>
+                              <div className="w-0.5 h-16 bg-gray-600"></div>
                             )}
                           </div>
 
@@ -560,7 +560,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           )}
 
                           {index < allCommentaryItems.length - 1 && (
-                            <div className="w-0.5 h-5 bg-gray-800 ml-1 "></div>
+                            <div className="w-0.5 h-16 bg-gray-800 ml-1 "></div>
                           )}
                         </div>
 
@@ -610,7 +610,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           </div>
 
                           {index < allCommentaryItems.length - 1 && (
-                            <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
+                            <div className="w-0.5 h-16 bg-gray-800 ml-1"></div>
                           )}
                         </div>
 
@@ -649,7 +649,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             {event.time.elapsed}'
                           </div>
                           {index < allCommentaryItems.length - 1 && (
-                            <div className="w-0.5 h-20 bg-gray-600"></div>
+                            <div className="w-0.5 h-16 bg-gray-600"></div>
                           )}
                         </div>
 
@@ -701,7 +701,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         </div>
 
                         {index < allCommentaryItems.length - 1 && (
-                          <div className="w-0.5 h-20 bg-gray-600  "></div>
+                          <div className="w-0.5 h-16 bg-gray-600  "></div>
                         )}
                       </div>
 
@@ -891,7 +891,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                             {/* Player going out (player = player out) */}
                             <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200 ">
-                              <Avatar className="w-8 h-8 border-2 border-red-400 shadow-sm flex-shrink-0 ">
+                              <Avatar className="w-8 h-8 border-2 border-red-400 shadow-sm flex-shrink-0">
                                 <AvatarImage
                                   src={getPlayerImage(
                                     event.player?.id,
