@@ -1179,7 +1179,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 {/* Column 1: Player Info */}
                                 <div className="match-event-home-player-info">
                                   <div className="flex items-center gap-1">
-                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                    <Avatar className="w-9 h-9 border-2 shadow-sm border-gray-400">
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
@@ -1500,7 +1500,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         </Avatar>
                                       )}
 
-                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                    <Avatar className="w-9 h-9 border-2 shadow-sm border-gray-400">
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
@@ -1599,7 +1599,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       const firstHalfGoals = goalEvents.filter(
                         (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
                       );
-                      
+
                       if (hasSecondHalfEvents) {
                         const halftimeScore = calculateHalftimeScore();
                         markers.push({
@@ -1695,7 +1695,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 {/* Column 1: Player Info */}
                                 <div className="match-event-home-player-info">
                                   <div className="flex items-center gap-1">
-                                    <Avatar className="w-9 h-9 border-2 shadow-sm border-green-400">
+                                    <Avatar className="w-9 h-9 border-2 shadow-sm border-gray-400">
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
@@ -1708,7 +1708,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
                                             <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
                                             <circle cx="50" cy="35" r="12" fill="#6b7280"/>
-                                            <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
+                                            <path d="M50 52c-12 0-228-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
                                           </svg>
                                         </AvatarFallback>
                                     </Avatar>
@@ -1855,7 +1855,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   </div>
 
                                   <div className="flex items-center gap-1">
-                                    <Avatar className="w-9 h-9 border-2 shadow-sm border-green-400">
+                                    <Avatar className="w-9 h-9 border-2 shadow-sm border-gray-400">
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
