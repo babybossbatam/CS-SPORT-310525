@@ -117,10 +117,9 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     return hoursAgo > 24;
   }, []);
 
-  // Cache key for ended matches - include timezone info for better cache invalidation
+  // Cache key for ended matches
   const getCacheKey = useCallback((date: string, leagueId: number) => {
-    const timezoneOffset = new Date().getTimezoneOffset();
-    return `ended_matches_${date}_${leagueId}_tz${timezoneOffset}`;
+    return `ended_matches_${date}_${leagueId}`;
   }, []);
 
   // Get cached ended matches with strict date validation
@@ -271,27 +270,32 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               return !isAlreadyLive;
             });
 
-            console.log(`📅 [MyNewLeague] League ${leagueId}: Skipping basic date filtering, Advanced Time Classification will handle all filtering for ${selectedDate}`);
+            // Filter to only include matches for the selected date using proper timezone conversion
+            const filteredFixtures = nonLiveFixtures.filter(fixture => {
+              const fixtureDate = fixture.fixture?.date;
+              if (!fixtureDate) return false;
 
-            // Skip basic date filtering - let Advanced Time Classification handle all filtering
-            const filteredFixtures = nonLiveFixtures;
+              // Convert UTC time to local timezone for proper date comparison
+              const matchDate = new Date(fixtureDate);
+              const year = matchDate.getFullYear();
+              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+              const day = String(matchDate.getDate()).padStart(2, "0");
+              const matchDateString = `${year}-${month}-${day}`;
 
-            console.log(`🎯 [MyNewLeague] League ${leagueId}: ${nonLiveFixtures.length} fixtures passed to Advanced Time Classification (no basic date filtering)`);
+              return matchDateString === selectedDate;
+            });
 
-            // Log sample fixtures for debugging (advanced time classifier will handle all filtering)
+            console.log(`🎯 [MyNewLeague] League ${leagueId}: ${freshFixtures.length} → ${filteredFixtures.length} fixtures after date filtering`);
+
+            // Log sample fixtures for debugging
             if (filteredFixtures.length > 0) {
               filteredFixtures.slice(0, 3).forEach(fixture => {
-                const utcDate = fixture.fixture.date;
-                const utcDateString = utcDate.split('T')[0];
-                
-                console.log(`🌍 [MyNewLeague NO DATE FILTER] Fixture ${fixture.fixture.id}:`, {
+                console.log(`MyNewLeague - Fixture ${fixture.fixture.id}:`, {
                   teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                   league: fixture.league.name,
                   status: fixture.fixture.status.short,
-                  utcDateTime: utcDate,
-                  utcDate: utcDateString,
-                  selectedDate,
-                  note: 'All fixtures passed to advanced time classifier'
+                  date: fixture.fixture.date,
+                  source: "api"
                 });
               });
             }
@@ -556,8 +560,103 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Use timezone-aware Advanced Time Classification to filter matches for the selected date
-  const selectedDateFixtures = MyAdvancedTimeClassifier.filterFixturesForDate(fixtures, selectedDate);
+  // Filter matches using proper timezone conversion for the selected date
+  const selectedDateFixtures = fixtures.filter((f) => {
+    const fixtureDate = f.fixture.date;
+    if (!fixtureDate) return false;
+
+    // Convert UTC fixture time to local timezone for proper date comparison
+    const matchDate = new Date(fixtureDate);
+    const year = matchDate.getFullYear();
+    const month = String(matchDate.getMonth() + 1).padStart(2, "0");
+    const day = String(matchDate.getDate()).padStart(2, "0");
+    const matchDateString = `${year}-${month}-${day}`;
+
+    const dateMatches = matchDateString === selectedDate;
+
+    // Special debugging for FIFA Club World Cup
+    if (f.league.id === 15) {
+      const matchDate = new Date(f.fixture.date);
+      const utcDateString = `${matchDate.getUTCFullYear()}-${String(matchDate.getUTCMonth() + 1).padStart(2, "0")}-${String(matchDate.getUTCDate()).padStart(2, "0")}`;
+
+      console.log(`🏆 [FIFA CLUB WORLD CUP DATE FILTER] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        fixtureDate: f.fixture.date,
+        utcDate: utcDateString,
+        localDate: matchDateString,
+        selectedDate,
+        dateMatches,
+        status: f.fixture.status.short,
+        league: f.league.name,
+        timezoneOffset: matchDate.getTimezoneOffset()
+      });
+    }
+
+    // If basic date doesn't match, exclude immediately
+    if (!dateMatches) {
+      // Debug logging for Friendlies
+      if (f.league.id === 667) {
+        console.log(`🏆 [FRIENDLIES DATE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+          fixtureDate: f.fixture.date,
+          extractedDate: matchDateString,
+          selectedDate,
+          reason: 'Date mismatch'
+        });
+      }
+      // Debug logging for FIFA Club World Cup exclusions
+      if (f.league.id === 15) {
+        console.log(`🚨 [FIFA CLUB WORLD CUP DATE FILTER] EXCLUDED match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+          fixtureDate: f.fixture.date,
+          extractedDate: matchDateString,
+          selectedDate,
+          reason: 'Date mismatch - this might be the issue!'
+        });
+      }
+      return false;
+    }
+
+    // For matches on the selected date, use advanced time classifier to determine if they should be shown
+    const classification = MyAdvancedTimeClassifier.classifyFixture(
+      f.fixture.date,
+      f.fixture.status.short
+    );
+
+    // Debug log for time classification
+    console.log(`🕐 [ADVANCED TIME CLASSIFICATION] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+      fixtureTime: classification.fixtureTime,
+      currentTime: classification.currentTime,
+      status: f.fixture.status.short,
+      category: classification.category,
+      reason: classification.reason,
+      shouldShow: classification.shouldShow,
+      selectedDate,
+      league: f.league.name,
+      leagueId: f.league.id
+    });
+
+    // Special attention to FIFA Club World Cup classification
+    if (f.league.id === 15) {
+      console.log(`🏆 [FIFA CLUB WORLD CUP ADVANCED TIME CLASSIFICATION] ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        fullFixtureDate: f.fixture.date,
+        extractedTime: classification.fixtureTime,
+        currentTime: classification.currentTime,
+        category: classification.category,
+        reason: classification.reason,
+        status: f.fixture.status.short,
+        shouldShow: classification.shouldShow
+      });
+    }
+
+    if (!classification.shouldShow) {
+      console.log(`❌ [ADVANCED TIME FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        classification: classification.category,
+        reason: classification.reason,
+        status: f.fixture.status.short,
+        fixtureTime: classification.fixtureTime
+      });
+    }
+
+    return classification.shouldShow;
+  });
 
   // Log filtering results for all target leagues
   const friendliesFiltered = selectedDateFixtures.filter(f => f.league.id === 667);
@@ -1080,41 +1179,25 @@ b.fixture.status.elapsed) || 0;
       const day = String(matchDate.getDate()).padStart(2, "0");
       const dateString = `${year}-${month}-${day}`;
 
-      // Also clear cache for ±1 day to account for timezone conversions
-      const dayBefore = new Date(matchDate);
-      dayBefore.setDate(dayBefore.getDate() - 1);
-      const dayAfter = new Date(matchDate);
-      dayAfter.setDate(dayAfter.getDate() + 1);
+      // Clear cache for all leagues for this specific date
+      leagueIds.forEach(leagueId => {
+        const cacheKey = getCacheKey(dateString, leagueId);
 
-      const datesToClear = [
-        `${dayBefore.getFullYear()}-${String(dayBefore.getMonth() + 1).padStart(2, '0')}-${String(dayBefore.getDate()).padStart(2, '0')}`,
-        dateString,
-        `${dayAfter.getFullYear()}-${String(dayAfter.getMonth() + 1).padStart(2, '0')}-${String(dayAfter.getDate()).padStart(2, '0')}`
-      ];
+        try {
+          const cached = localStorage.getItem(cacheKey);
+          if (cached) {
+            const { fixtures } = JSON.parse(cached);
+            // Check if this match exists in the cache
+            const hasMatch = fixtures.some((f: any) => f.fixture.id === matchId);
 
-      console.log(`🗑️ [Cache Clear] Clearing cache for match ${matchId} ${transition} across date range:`, datesToClear);
-
-      // Clear cache for all leagues for this specific date range
-      datesToClear.forEach(dateStr => {
-        leagueIds.forEach(leagueId => {
-          const cacheKey = getCacheKey(dateStr, leagueId);
-
-          try {
-            const cached = localStorage.getItem(cacheKey);
-            if (cached) {
-              const { fixtures } = JSON.parse(cached);
-              // Check if this match exists in the cache
-              const hasMatch = fixtures.some((f: any) => f.fixture.id === matchId);
-
-              if (hasMatch) {
-                localStorage.removeItem(cacheKey);
-                console.log(`🗑️ [Cache Clear] Cleared cache for league ${leagueId} on ${dateStr} due to match ${matchId} ${transition}`);
-              }
+            if (hasMatch) {
+              localStorage.removeItem(cacheKey);
+              console.log(`🗑️ [Cache Clear] Cleared cache for league ${leagueId} on ${dateString} due to match ${matchId} ${transition}`);
             }
-          } catch (error) {
-            console.warn(`Failed to clear cache for league ${leagueId} on ${dateStr}:`, error);
           }
-        });
+        } catch (error) {
+          console.warn(`Failed to clear cache for league ${leagueId}:`, error);
+        }
       });
 
       // Also clear any related fixture cache entries
@@ -1417,7 +1500,7 @@ b.fixture.status.elapsed) || 0;
       {Object.values(matchesByLeague)
         .sort((a, b) => {
           // Define priority order
-          const priorityOrder = [38, 15, 2, 71, 22, 72, 73, 75, 128, 233, 3, 667, 253]; // UEFA U21, FIFA Club World Cup, UEFA Champions League, Serie A, CONCACAF Gold Cup, Serie B, Serie C, Serie D, Copa Argentina, Iraqi League, UEFA Europa League, Friendlies Clubs, MLS
+          const priorityOrder = [38, 15, 2, 71, 22, 72, 73, 75, 128, 233, 667, 253]; // UEFA U21, FIFA Club World Cup, UEFA Champions League, Serie A, CONCACAF Gold Cup, Serie B, Serie C, Serie D, Copa Argentina, Iraqi League, Friendlies Clubs, MLS
 
           const aIndex = priorityOrder.indexOf(a.league.id);
           const bIndex = priorityOrder.indexOf(b.league.id);
