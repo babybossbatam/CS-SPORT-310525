@@ -174,7 +174,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     };
   }, [matchId]);
 
-  // Intelligent ball movement with football patterns
+  // Fast and precise ball movement with straight lines
   const [ballTrail, setBallTrail] = useState<Array<{x: number, y: number, timestamp: number}>>([]);
 
   useEffect(() => {
@@ -182,21 +182,30 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
     const ballInterval = setInterval(() => {
       setBallPosition(prev => {
-        // Move towards target with some randomness for realistic play
+        // Move towards target in straight line with fast, precise movement
         const deltaX = ballTarget.x - prev.x;
         const deltaY = ballTarget.y - prev.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         
-        const moveSpeed = 0.3; // Smooth movement speed
-        const randomFactor = 3; // Reduced randomness for more purposeful movement
+        // If close to target, snap to it
+        if (distance < 2) {
+          return { x: ballTarget.x, y: ballTarget.y };
+        }
         
-        let newX = prev.x + (deltaX * moveSpeed) + (Math.random() - 0.5) * randomFactor;
-        let newY = prev.y + (deltaY * moveSpeed) + (Math.random() - 0.5) * randomFactor;
+        const moveSpeed = 1.2; // Much faster movement speed
+        
+        // Calculate precise direction vector (no randomness)
+        const directionX = deltaX / distance;
+        const directionY = deltaY / distance;
+        
+        let newX = prev.x + (directionX * moveSpeed);
+        let newY = prev.y + (directionY * moveSpeed);
         
         // Keep ball within field bounds
         newX = Math.max(10, Math.min(90, newX));
         newY = Math.max(20, Math.min(80, newY));
 
-        // Update possession based on ball position with more realistic zones
+        // Update possession based on ball position
         if (newX < 35) {
           setBallPossession('home');
         } else if (newX > 65) {
@@ -205,36 +214,40 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           setBallPossession(Math.random() > 0.5 ? 'home' : 'away');
         }
 
-        // Add to trail - reduced trail length to avoid double lines
+        // Add to trail for straight line visualization
         setBallTrail(currentTrail => {
           const newTrail = [...currentTrail, { x: prev.x, y: prev.y, timestamp: Date.now() }];
-          return newTrail.slice(-8); // Shorter trail for cleaner look
+          return newTrail.slice(-6); // Shorter trail for cleaner straight lines
         });
 
         return { x: newX, y: newY };
       });
-    }, 300); // Smoother movement interval
+    }, 100); // Much faster update interval for smoother, faster movement
 
     return () => clearInterval(ballInterval);
   }, [isLive, ballTarget]);
 
-  // Set new ball targets for realistic football movement patterns
+  // Set new ball targets for fast, direct movement patterns
   useEffect(() => {
     if (!isLive) return;
 
     const targetInterval = setInterval(() => {
-      const patterns = [
-        // Attack patterns
-        { x: Math.random() > 0.5 ? 85 : 15, y: 45 + (Math.random() - 0.5) * 20 }, // Goal area attacks
-        { x: Math.random() > 0.5 ? 75 : 25, y: 30 + Math.random() * 40 }, // Wing attacks
+      const directPatterns = [
+        // Direct attack patterns - precise coordinates
+        { x: 85, y: 50 }, // Right goal area
+        { x: 15, y: 50 }, // Left goal area
+        { x: 80, y: 30 }, // Right wing high
+        { x: 80, y: 70 }, // Right wing low
+        { x: 20, y: 30 }, // Left wing high
+        { x: 20, y: 70 }, // Left wing low
         { x: 50, y: 50 }, // Center field
-        // Defensive patterns
-        { x: Math.random() > 0.5 ? 30 : 70, y: 35 + Math.random() * 30 }, // Defensive thirds
+        { x: 65, y: 40 }, // Right attacking third
+        { x: 35, y: 60 }, // Left attacking third
       ];
       
-      const randomPattern = patterns[Math.floor(Math.random() * patterns.length)];
+      const randomPattern = directPatterns[Math.floor(Math.random() * directPatterns.length)];
       setBallTarget(randomPattern);
-    }, 2000); // Change target every 2 seconds
+    }, 1500); // Change target more frequently for dynamic movement
 
     return () => clearInterval(targetInterval);
   }, [isLive]);
