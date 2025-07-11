@@ -153,7 +153,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
     return isNaN(num) ? '0%' : `${num}%`;
   };
 
-  // Calculate Expected Goals (xG) using available shot statistics
+  // Enhanced Expected Goals (xG) calculation using more sophisticated algorithm
   const calculateExpectedGoals = (stats: TeamStatistic[]): string => {
     if (!stats || !Array.isArray(stats)) return '0.0';
     
@@ -161,47 +161,97 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
     const shotsInsideBox = parseInt(getStatValue(stats, 'Shots insidebox', ['Shots inside box'])) || 0;
     const totalShots = parseInt(getStatValue(stats, 'Total Shots', ['Total shots'])) || 0;
     const goals = parseInt(getStatValue(stats, 'Goals', ['Goal'])) || 0;
+    const cornerKicks = parseInt(getStatValue(stats, 'Corner Kicks', ['Corners'])) || 0;
+    const freeKicks = parseInt(getStatValue(stats, 'Free Kicks', ['Freekicks'])) || 0;
     
-    // Simple xG calculation based on shot quality
-    // Shots on target: 0.25 xG each
-    // Shots inside box (not on target): 0.15 xG each
-    // Other shots: 0.05 xG each
+    // More sophisticated xG calculation based on shot quality and context
+    // High-quality chances (shots on target inside box): 0.32 xG each
+    const highQualityShots = Math.min(shotsOnTarget, shotsInsideBox);
     
-    const shotsInsideBoxNotOnTarget = Math.max(0, shotsInsideBox - shotsOnTarget);
-    const shotsOutsideBox = Math.max(0, totalShots - shotsInsideBox);
+    // Medium-quality chances (shots on target outside box): 0.18 xG each
+    const mediumQualityShots = Math.max(0, shotsOnTarget - highQualityShots);
     
-    const xG = (shotsOnTarget * 0.25) + (shotsInsideBoxNotOnTarget * 0.15) + (shotsOutsideBox * 0.05);
+    // Low-quality chances (shots inside box not on target): 0.12 xG each
+    const lowQualityShots = Math.max(0, shotsInsideBox - shotsOnTarget);
     
-    // Cap xG at a reasonable maximum based on actual goals + buffer
-    const maxXG = Math.max(goals + 1.5, 3.0);
+    // Very low-quality chances (shots outside box not on target): 0.04 xG each
+    const veryLowQualityShots = Math.max(0, totalShots - shotsInsideBox - mediumQualityShots);
+    
+    // Set piece bonuses
+    const setPieceBonus = (cornerKicks * 0.08) + (freeKicks * 0.06);
+    
+    // Calculate base xG
+    let xG = (highQualityShots * 0.32) + 
+             (mediumQualityShots * 0.18) + 
+             (lowQualityShots * 0.12) + 
+             (veryLowQualityShots * 0.04) + 
+             setPieceBonus;
+    
+    // Apply team performance modifier based on possession and pass accuracy
+    const possession = parseFloat(getStatValue(stats, 'Ball Possession', ['Possession']).replace('%', '')) || 50;
+    const passAccuracy = parseFloat(getStatValue(stats, 'Passes %', ['Pass accuracy']).replace('%', '')) || 70;
+    
+    // Performance modifier (0.85 to 1.15 range)
+    const performanceModifier = 0.85 + ((possession / 100) * 0.15) + ((passAccuracy / 100) * 0.15);
+    xG *= Math.min(1.15, Math.max(0.85, performanceModifier));
+    
+    // Realistic capping based on game context
+    const maxXG = Math.max(goals + 2.0, 4.0);
     const finalXG = Math.min(xG, maxXG);
     
     return finalXG.toFixed(1);
   };
 
-  // Calculate Big Chances Created using available statistics
+  // Enhanced Big Chances Created calculation using more accurate methodology
   const calculateBigChancesCreated = (stats: TeamStatistic[]): string => {
     if (!stats || !Array.isArray(stats)) return '0';
     
     const shotsOnTarget = parseInt(getStatValue(stats, 'Shots on Goal', ['Shots on target'])) || 0;
     const shotsInsideBox = parseInt(getStatValue(stats, 'Shots insidebox', ['Shots inside box'])) || 0;
+    const totalShots = parseInt(getStatValue(stats, 'Total Shots', ['Total shots'])) || 0;
     const cornerKicks = parseInt(getStatValue(stats, 'Corner Kicks', ['Corners'])) || 0;
     const passes = parseInt(getStatValue(stats, 'Total passes', ['Passes'])) || 0;
     const passAccuracy = parseFloat(getStatValue(stats, 'Passes %', ['Pass accuracy']).replace('%', '')) || 0;
+    const possession = parseFloat(getStatValue(stats, 'Ball Possession', ['Possession']).replace('%', '')) || 50;
+    const goals = parseInt(getStatValue(stats, 'Goals', ['Goal'])) || 0;
     
-    // Calculate big chances based on:
-    // - Quality shots (shots on target + shots inside box)
-    // - Corner kicks (potential scoring opportunities)
-    // - Good passing play (high pass accuracy with decent volume)
+    // Big chances are high-quality scoring opportunities (typically >0.35 xG)
     
-    const qualityShots = Math.floor((shotsOnTarget * 0.6) + (shotsInsideBox * 0.4));
-    const cornerOpportunities = Math.floor(cornerKicks * 0.15); // ~15% of corners create big chances
-    const passingOpportunities = passes > 200 && passAccuracy > 75 ? Math.floor((passes * passAccuracy) / 10000) : 0;
+    // 1. Clear-cut chances from shots on target inside the box
+    const clearCutChances = Math.min(shotsOnTarget, shotsInsideBox);
     
-    const bigChances = qualityShots + cornerOpportunities + passingOpportunities;
+    // 2. High-quality shots on target (assume 70% of shots on target are big chances)
+    const qualityChancesFromShots = Math.floor(shotsOnTarget * 0.7);
     
-    // Cap at reasonable maximum (usually 0-8 big chances per match)
-    return Math.min(bigChances, 8).toString();
+    // 3. Set piece opportunities
+    const setPlayChances = Math.floor(cornerKicks * 0.20); // 20% of corners create big chances
+    
+    // 4. Creative passing opportunities (based on team dominance)
+    let creativePassing = 0;
+    if (passes > 300 && passAccuracy > 80 && possession > 55) {
+      creativePassing = Math.floor((passes * passAccuracy * possession) / 100000);
+    }
+    
+    // 5. Counter-attack estimation (based on shot efficiency)
+    const shotEfficiency = totalShots > 0 ? (shotsOnTarget / totalShots) : 0;
+    const counterAttackChances = shotEfficiency > 0.4 ? Math.floor(totalShots * 0.1) : 0;
+    
+    // Combine all big chance sources
+    let bigChances = Math.max(
+      clearCutChances,
+      qualityChancesFromShots
+    ) + setPlayChances + creativePassing + counterAttackChances;
+    
+    // Apply team performance factor
+    const performanceFactor = (possession / 50) * (passAccuracy / 80);
+    bigChances = Math.floor(bigChances * Math.min(1.2, Math.max(0.8, performanceFactor)));
+    
+    // Ensure minimum correlation with goals scored
+    const minBigChances = goals > 0 ? Math.max(1, goals) : 0;
+    bigChances = Math.max(bigChances, minBigChances);
+    
+    // Cap at realistic maximum (professional matches rarely exceed 10 big chances)
+    return Math.min(bigChances, 10).toString();
   };
 
   // Debug function to log available statistics (remove in production)
