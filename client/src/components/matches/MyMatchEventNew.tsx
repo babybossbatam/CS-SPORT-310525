@@ -1659,13 +1659,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             <div className="period-score-display">
                               {event.score || "0 - 0"}
                             </div>
-                            {/* Show "No Top Events" for halftime if no goals in first half */}
-                            {event.detail === "Halftime" && event.hasFirstHalfGoals === false && (
-                              <div className="text-center text-gray-500 text-sm mt-2 py-2 bg-gray-50 rounded">
-                                No Top Events
-                              </div>
-                            )}
                           </div>
+                          {/* Show "No Top Events" for halftime if no goals in first half */}
+                          {event.detail === "Halftime" && event.hasFirstHalfGoals === false && (
+                            <div className="text-center text-gray-500 text-sm mt-2 py-2 bg-gray-50 rounded">
+                              No Top Events
+                            </div>
+                          )}
                         </div>
                       );
                     }
