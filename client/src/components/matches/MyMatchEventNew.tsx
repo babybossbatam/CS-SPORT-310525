@@ -1098,10 +1098,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   // Combine events and period markers safely
                   const allItems = [...sortedEvents, ...periodMarkers].sort(
                     (a, b) => {
-                      // Calculate total time including extra time for proper sorting
-                      const aTotalTime = a.time.elapsed + (a.time.extra || 0);
-                      const bTotalTime = b.time.elapsed + (b.time.extra || 0);
-
                       // Special priority for penalty shootout - put it at the very top
                       if (a.type === "penalty_shootout") return -1;
                       if (b.type === "penalty_shootout") return 1;
@@ -1118,61 +1114,21 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       )
                         return 1;
 
-                      // Handle period markers vs regular events at same time
-                      if (aTotalTime === bTotalTime) {
-                        // If times are equal, period markers come first (negative value means 'a' comes before 'b')
-                        if (a.type === "period_score" && b.type !== "period_score") return -1;
-                        if (b.type === "period_score" && a.type !== "period_score") return 1;
-                        
-                        // If both are period markers or both are regular events, maintain current order
-                        return 0;
-                      }
-
-                      // Special handling for period markers to ensure they appear above events
-                      if (a.type === "period_score" && b.type !== "period_score") {
-                        // Period marker should come before regular events at same or close time
-                        if (Math.abs(aTotalTime - bTotalTime) <= 1) return -1;
-                      }
-                      if (b.type === "period_score" && a.type !== "period_score") {
-                        // Period marker should come before regular events at same or close time
-                        if (Math.abs(aTotalTime - bTotalTime) <= 1) return 1;
-                      }
-
-                      // Handle "End of 90 Minutes" period marker and 90-minute events
+                      // Special priority for "End of 90 Minutes" - put it third
                       if (
                         a.type === "period_score" &&
                         a.detail === "End of 90 Minutes"
-                      ) {
-                        // Period marker comes before any 90-minute events
-                        if (b.type !== "period_score" && bTotalTime >= 90) return -1;
-                        return bTotalTime - aTotalTime;
-                      }
+                      )
+                        return -1;
                       if (
                         b.type === "period_score" &&
                         b.detail === "End of 90 Minutes"
-                      ) {
-                        // Period marker comes before any 90-minute events
-                        if (a.type !== "period_score" && aTotalTime >= 90) return 1;
-                        return bTotalTime - aTotalTime;
-                      }
+                      )
+                        return 1;
 
-                      // Handle "Halftime" period marker and 45-minute events
-                      if (
-                        a.type === "period_score" &&
-                        a.detail === "Halftime"
-                      ) {
-                        // Period marker comes before any 45-minute events
-                        if (b.type !== "period_score" && bTotalTime === 45) return -1;
-                        return bTotalTime - aTotalTime;
-                      }
-                      if (
-                        b.type === "period_score" &&
-                        b.detail === "Halftime"
-                      ) {
-                        // Period marker comes before any 45-minute events
-                        if (a.type !== "period_score" && aTotalTime === 45) return 1;
-                        return bTotalTime - aTotalTime;
-                      }
+                      // Calculate total time including extra time for proper sorting
+                      const aTotalTime = a.time.elapsed + (a.time.extra || 0);
+                      const bTotalTime = b.time.elapsed + (b.time.extra || 0);
 
                       // Sort by total time in descending order (latest first)
                       return bTotalTime - aTotalTime;
@@ -1706,7 +1662,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           </div>
                           {/* Show "No Top Events" for halftime if no goals in first half */}
                           {event.detail === "Halftime" && event.hasFirstHalfGoals === false && (
-                            <div className="text-center text-black text-sm mt-2 py-2  rounded">
+                            <div className="text-center text-gray-500 text-sm mt-2 py-2 bg-gray-50 rounded">
                               No Top Events
                             </div>
                           )}
