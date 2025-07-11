@@ -818,9 +818,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 {event.comments}
                               </div>
                             )}
-                            <div className="text-sm text-gray-700 leading-relaxed -ml-3">
-                              {eventDescription}
-                            </div>
                           </div>
                         ) : event.type === "Subst" ? (
                           <div className="flex flex-col gap-2">
