@@ -395,19 +395,18 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                           {/* Content Column */}
                           <div className="flex-1"> 
-                            <div className="text-sm text-gray-700 leading-relaxed mt-1">
+                            <div className="flex items-center gap-2 -ml-3 text-sm text-gray-700 leading-relaxed mt-1">
                               <img
                                 src="/assets/matchdetaillogo/clock.png"
                                 alt="Kick Off"
-                                className="w-4 h-4 "
-                              /> 
+                                className="w-4 h-4"
+                              />
                               <div>
-                                
-                                Kick Off</div>
-                              <div className="text-xs text-gray-600 mt-1">
-                                First Half begins.
+                                <div>Kick Off</div>
+                                <div className="text-xs text-gray-600 mt-1">
+                                  First Half begins.
+                                </div>
                               </div>
-                              
                             </div>
                           </div>
                         </div>
