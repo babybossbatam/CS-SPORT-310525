@@ -296,10 +296,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
             return allCommentaryItems
               .sort((a, b) => {
+                // Special handling for Half Time marker - always put it at the top
+                if (a.type === "half_time") return -1;
+                if (b.type === "half_time") return 1;
+
                 // First sort by elapsed time (descending)
                 if (a.time.elapsed !== b.time.elapsed) {
                   return b.time.elapsed - a.time.elapsed;
-
                 }
 
                 // If elapsed time is the same, sort by extra time (descending)
@@ -309,7 +312,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                 if (aExtra !== bExtra) {
                   return bExtra - aExtra;
-
                 }
 
                 // For events at the same time, prioritize period markers to appear first
