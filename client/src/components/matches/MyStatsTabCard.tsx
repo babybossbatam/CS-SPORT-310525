@@ -297,6 +297,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
         {/* Statistics with bars - Real API data */}
         <div className="space-y-3">
           {/* Debug logging - remove in production */}
+          {console.log('📊 [Home Team] Statistics:', homeStats.statistics)}
           {homeStats && logAvailableStats(homeTeam?.name || 'Home', homeStats.statistics)}
           {awayStats && logAvailableStats(awayTeam?.name || 'Away', awayStats.statistics)}
           
