@@ -617,8 +617,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     // For matches on the selected date, use advanced time classifier to determine if they should be shown
     const classification = MyAdvancedTimeClassifier.classifyFixture(
       f.fixture.date,
-      f.fixture.status.short,
-      selectedDate  // Pass the selected date
+      f.fixture.status.short
     );
 
     // Debug log for time classification
