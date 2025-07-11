@@ -3,9 +3,9 @@
  * Advanced Time Classifier for Match Filtering
  * 
  * Rules:
- * 1. If fixture time > CurrentTime but status "NS" and within time range 00:00 - 23:59 then its Today's Matches
- * 2. If fixture time < CurrentTime but status "NS" and within time range 00:00 - 23:59 then its Tomorrow's Matches
- * 3. If fixture time < CurrentTime but status "FT" and within time range 00:00 - 23:59 then its Yesterday's Ended Matches
+ * 1. Past dates: Only show ended matches (FT, AET, PEN, etc.)
+ * 2. Current date: Show all match types (live, upcoming, ended)
+ * 3. Future dates: Only show upcoming matches (NS, TBD)
  */
 
 export interface TimeClassificationResult {
@@ -21,7 +21,7 @@ export class MyAdvancedTimeClassifier {
   /**
    * Classify a fixture based on advanced time rules - Updated to match 365scores.com behavior
    */
-  static classifyFixture(fixtureDate: string, status: string): TimeClassificationResult {
+  static classifyFixture(fixtureDate: string, status: string, selectedDate?: string): TimeClassificationResult {
     const now = new Date();
     const fixture = new Date(fixtureDate);
     
@@ -34,36 +34,134 @@ export class MyAdvancedTimeClassifier {
     const fixtureMinute = fixture.getMinutes();
     const fixtureTimeString = `${fixtureHour.toString().padStart(2, '0')}:${fixtureMinute.toString().padStart(2, '0')}`;
     
-    // Check if fixture is within the same date as today
+    // Get date strings for comparison
     const todayDate = now.toISOString().slice(0, 10);
     const fixtureDate_str = fixture.toISOString().slice(0, 10);
-    const isWithinTimeRange = fixtureDate_str === todayDate;
+    const requestedDate = selectedDate || todayDate;
     
     console.log(`🕐 [AdvancedTimeClassifier] Analyzing fixture:`, {
       fixtureDate,
       fixtureTime: fixtureTimeString,
       currentTime: currentTimeString,
       status,
-      isWithinTimeRange,
       fixtureDate_str,
-      todayDate
+      todayDate,
+      requestedDate,
+      isPastDate: requestedDate < todayDate,
+      isToday: requestedDate === todayDate,
+      isFutureDate: requestedDate > todayDate
     });
     
-    // Handle live matches - always show regardless of date/time
-    if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+    // Determine if requested date is past, present, or future
+    const isPastDate = requestedDate < todayDate;
+    const isToday = requestedDate === todayDate;
+    const isFutureDate = requestedDate > todayDate;
+    
+    // Check if fixture date matches the requested date
+    const fixtureMatchesRequestedDate = fixtureDate_str === requestedDate;
+    
+    // If fixture doesn't match the requested date, exclude it
+    if (!fixtureMatchesRequestedDate) {
       return {
-        category: 'today',
-        reason: `Live match with ${status} status`,
+        category: 'other',
+        reason: `Fixture date ${fixtureDate_str} doesn't match requested date ${requestedDate}`,
         fixtureTime: fixtureTimeString,
         currentTime: currentTimeString,
         status,
-        shouldShow: true
+        shouldShow: false
       };
     }
     
-    // Handle upcoming matches (NS, TBD)
-    if (['NS', 'TBD'].includes(status)) {
-      if (isWithinTimeRange) {
+    // FOR PAST DATES: Only show ended matches
+    if (isPastDate) {
+      if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
+        return {
+          category: 'yesterday',
+          reason: `Historical ended match from ${requestedDate} with ${status} status`,
+          fixtureTime: fixtureTimeString,
+          currentTime: currentTimeString,
+          status,
+          shouldShow: true
+        };
+      }
+      
+      // Past dates should never have live or upcoming matches
+      if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+        return {
+          category: 'other',
+          reason: `Invalid live match on past date ${requestedDate} - excluding`,
+          fixtureTime: fixtureTimeString,
+          currentTime: currentTimeString,
+          status,
+          shouldShow: false
+        };
+      }
+      
+      if (['NS', 'TBD'].includes(status)) {
+        return {
+          category: 'other',
+          reason: `Invalid upcoming match on past date ${requestedDate} - excluding`,
+          fixtureTime: fixtureTimeString,
+          currentTime: currentTimeString,
+          status,
+          shouldShow: false
+        };
+      }
+    }
+    
+    // FOR FUTURE DATES: Only show upcoming matches
+    if (isFutureDate) {
+      if (['NS', 'TBD'].includes(status)) {
+        return {
+          category: 'tomorrow',
+          reason: `Future upcoming match on ${requestedDate} with ${status} status`,
+          fixtureTime: fixtureTimeString,
+          currentTime: currentTimeString,
+          status,
+          shouldShow: true
+        };
+      }
+      
+      // Future dates should never have live or ended matches
+      if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+        return {
+          category: 'other',
+          reason: `Invalid live match on future date ${requestedDate} - excluding`,
+          fixtureTime: fixtureTimeString,
+          currentTime: currentTimeString,
+          status,
+          shouldShow: false
+        };
+      }
+      
+      if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
+        return {
+          category: 'other',
+          reason: `Invalid ended match on future date ${requestedDate} - excluding`,
+          fixtureTime: fixtureTimeString,
+          currentTime: currentTimeString,
+          status,
+          shouldShow: false
+        };
+      }
+    }
+    
+    // FOR TODAY (CURRENT DATE): Show all match types
+    if (isToday) {
+      // Handle live matches - always show
+      if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+        return {
+          category: 'today',
+          reason: `Live match today with ${status} status`,
+          fixtureTime: fixtureTimeString,
+          currentTime: currentTimeString,
+          status,
+          shouldShow: true
+        };
+      }
+      
+      // Handle upcoming matches
+      if (['NS', 'TBD'].includes(status)) {
         const fixtureTimeMinutes = fixtureHour * 60 + fixtureMinute;
         const currentTimeMinutes = currentHour * 60 + currentMinute;
         
@@ -87,39 +185,10 @@ export class MyAdvancedTimeClassifier {
             shouldShow: true
           };
         }
-      } else {
-        // Check if it's a future date (tomorrow or later)
-        const tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        const tomorrowDate = tomorrow.toISOString().slice(0, 10);
-        
-        if (fixtureDate_str >= tomorrowDate) {
-          return {
-            category: 'tomorrow',
-            reason: `Future match on ${fixtureDate_str} with ${status} status`,
-            fixtureTime: fixtureTimeString,
-            currentTime: currentTimeString,
-            status,
-            shouldShow: false
-          };
-        }
-        
-        // For past dates with NS/TBD status, still show them (might be rescheduled)
-        return {
-          category: 'today',
-          reason: `Rescheduled or delayed match from ${fixtureDate_str} with ${status} status`,
-          fixtureTime: fixtureTimeString,
-          currentTime: currentTimeString,
-          status,
-          shouldShow: true
-        };
       }
-    }
-    
-    // Handle ended matches (FT, AET, PEN, etc.) - More permissive approach like 365scores
-    if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
-      // Show ended matches if they're on today's date
-      if (isWithinTimeRange) {
+      
+      // Handle ended matches
+      if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
         return {
           category: 'today',
           reason: `Ended match today with ${status} status`,
@@ -129,44 +198,12 @@ export class MyAdvancedTimeClassifier {
           shouldShow: true
         };
       }
-      
-      // Check if it's yesterday's match
-      const yesterday = new Date(now);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayDate = yesterday.toISOString().slice(0, 10);
-      
-      if (fixtureDate_str === yesterdayDate) {
-        return {
-          category: 'yesterday',
-          reason: `Yesterday's ended match with ${status} status`,
-          fixtureTime: fixtureTimeString,
-          currentTime: currentTimeString,
-          status,
-          shouldShow: true
-        };
-      }
-      
-      // For matches from other dates, check if they should be shown
-      // 365scores typically shows recent matches (within 2-3 days)
-      const matchDate = new Date(fixtureDate_str);
-      const daysDifference = Math.abs((now.getTime() - matchDate.getTime()) / (1000 * 3600 * 24));
-      
-      if (daysDifference <= 3) {
-        return {
-          category: 'recent',
-          reason: `Recent ended match from ${fixtureDate_str} with ${status} status (${daysDifference.toFixed(1)} days ago)`,
-          fixtureTime: fixtureTimeString,
-          currentTime: currentTimeString,
-          status,
-          shouldShow: true
-        };
-      }
     }
     
-    // Default case - for very old matches or unknown statuses
+    // Default case - for unknown statuses
     return {
       category: 'other',
-      reason: `Old or unknown match - status: ${status}, date: ${fixtureDate_str}`,
+      reason: `Unknown status: ${status} on date: ${requestedDate}`,
       fixtureTime: fixtureTimeString,
       currentTime: currentTimeString,
       status,
@@ -185,14 +222,17 @@ export class MyAdvancedTimeClassifier {
       
       const classification = this.classifyFixture(
         fixture.fixture.date,
-        fixture.fixture.status.short
+        fixture.fixture.status.short,
+        selectedDate
       );
       
       console.log(`🔍 [AdvancedTimeClassifier] Match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+        fixtureDate: fixture.fixture.date,
+        selectedDate,
+        status: fixture.fixture.status.short,
         classification: classification.category,
         reason: classification.reason,
-        shouldShow: classification.shouldShow,
-        selectedDate
+        shouldShow: classification.shouldShow
       });
       
       return classification.shouldShow;
