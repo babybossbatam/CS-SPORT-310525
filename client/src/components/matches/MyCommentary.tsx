@@ -404,7 +404,24 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                   // Handle "Half Time"
                   if (event.detail === "Half Time") {
-                    const halftimeScore = calculateScoreAtTime(45);
+                    // Calculate Half Time period end (45 minutes + any extra time)
+                    const halftimeEvents = events.filter((e) => e.time.elapsed <= 45);
+                    const lastFirstHalfEvent = halftimeEvents.length > 0 
+                      ? halftimeEvents.reduce((latest, current) => {
+                          const currentTotal = current.time.elapsed + (current.time.extra || 0);
+                          const latestTotal = latest.time.elapsed + (latest.time.extra || 0);
+                          return currentTotal > latestTotal ? current : latest;
+                        })
+                      : { time: { elapsed: 45, extra: 0 } };
+
+                    // Use the time from the last event in first half or default to 45 minutes
+                    const halftimeEndTime = {
+                      elapsed: Math.max(lastFirstHalfEvent.time.elapsed, 45),
+                      extra: lastFirstHalfEvent.time.elapsed >= 45 ? (lastFirstHalfEvent.time.extra || 0) : 0
+                    };
+
+                    const halftimeScore = calculateScoreAtTime(halftimeEndTime.elapsed + halftimeEndTime.extra);
+                    
                     return (
                       <div
                         key={`period-${index}`}
@@ -414,13 +431,13 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           {/* Time Column */}
                           <div className="flex flex-col items-center min-w-[50px]">
                             {/* Extra time display at top if present */}
-                            {event.time.extra && (
+                            {halftimeEndTime.extra > 0 && (
                               <div className="text-xs font-medium text-red-500 leading-tight">
-                                +{event.time.extra}'
+                                +{halftimeEndTime.extra}'
                               </div>
                             )}
                             <div className="text-gray-800 text-sm font-medium leading-tight">
-                              {event.time.elapsed}'
+                              {halftimeEndTime.elapsed}'
                             </div>
                             {index < allCommentaryItems.length - 1 && (
                               <div className="w-0.5 h-20 bg-gray-600"></div>
