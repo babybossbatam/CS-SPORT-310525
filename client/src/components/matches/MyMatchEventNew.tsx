@@ -902,8 +902,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     if (matchData?.goals) {
       return {
         homeScore: matchData.goals.home || 0,
-        awayScore: matchData.goals.away || 0,
-      };
+        awayScore: matchData.goals.away || 0      };
     }
     return { homeScore: 0, awayScore: 0 };
   }, [matchData?.goals]);
@@ -1173,7 +1172,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             {isHome && (
                               <>
                                 {/* Column 1: Player Info */}
-                                <div className="match-event-home-player-info">
+                                <div className="match-event-home-player-info w-32">
                                   <div className="flex items-center gap-1">
                                     <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
                                       <AvatarImage
@@ -1442,7 +1441,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                                 {/* Column 2: Player Info */}
                                 <div className="match-event-away-player-info">
-                                  <div className="text-right w-24">
+                                  <div className="text-right w-32">
                                     {event.type === "subst" &&
                                     event.assist?.name ? (
                                       <>
@@ -1689,7 +1688,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             {isHome && (
                               <>
                                 {/* Column 1: Player Info */}
-                                <div className="match-event-home-player-info">
+                                <div className="match-event-home-player-info w-32">
                                   <div className="flex items-center gap-1">
                                     <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
                                       <AvatarImage
@@ -1958,7 +1957,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                                 {/* Column 2: Player Info */}
                                 <div className="match-event-away-player-info">
-                                  <div className="text-right w-24">
+                                  <div className="text-right w-32">
                                     {event.type === "subst" &&
                                     event.assist?.name ? (
                                       <>
