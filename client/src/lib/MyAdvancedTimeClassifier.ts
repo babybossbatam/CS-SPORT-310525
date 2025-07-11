@@ -40,6 +40,41 @@ export class MyAdvancedTimeClassifier {
     const fixtureDate_str = fixtureDate.substring(0, 10); // Extract YYYY-MM-DD directly from UTC string
     const requestedDate = selectedDate || todayDate;
     
+    // CRITICAL VALIDATION: Log suspicious combinations that shouldn't exist
+    const isLiveMatch = ['LIVE', 'LIV', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status);
+    const isUpcomingMatch = ['NS', 'TBD'].includes(status);
+    const isEndedMatch = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
+    
+    if (isLiveMatch && requestedDate < todayDate) {
+      console.error(`🚨 [DATA VALIDATION ERROR] Live match on past date:`, {
+        fixtureDate,
+        status,
+        requestedDate,
+        todayDate,
+        severity: 'CRITICAL - Live matches cannot exist on past dates'
+      });
+    }
+    
+    if (isUpcomingMatch && requestedDate < todayDate) {
+      console.error(`🚨 [DATA VALIDATION ERROR] Upcoming match on past date:`, {
+        fixtureDate,
+        status,
+        requestedDate,
+        todayDate,
+        severity: 'CRITICAL - Upcoming matches cannot exist on past dates'
+      });
+    }
+    
+    if ((isLiveMatch || isEndedMatch) && requestedDate > todayDate) {
+      console.error(`🚨 [DATA VALIDATION ERROR] Live/Ended match on future date:`, {
+        fixtureDate,
+        status,
+        requestedDate,
+        todayDate,
+        severity: 'CRITICAL - Live/Ended matches cannot exist on future dates'
+      });
+    }
+    
     console.log(`🕐 [AdvancedTimeClassifier] Analyzing fixture:`, {
       fixtureDate,
       fixtureTime: fixtureTimeString,
@@ -86,11 +121,18 @@ export class MyAdvancedTimeClassifier {
         };
       }
       
-      // Past dates should never have live or upcoming matches
-      if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+      // CRITICAL: Past dates should NEVER have live matches
+      if (['LIVE', 'LIV', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+        console.warn(`🚨 [CRITICAL DATA ERROR] Live match found on past date ${requestedDate}:`, {
+          status,
+          fixtureDate,
+          requestedDate,
+          reason: 'Live matches cannot exist on past dates - this indicates data inconsistency'
+        });
+        
         return {
           category: 'other',
-          reason: `Invalid live match on past date ${requestedDate} - excluding`,
+          reason: `CRITICAL: Invalid live match on past date ${requestedDate} with ${status} status - data error`,
           fixtureTime: fixtureTimeString,
           currentTime: currentTimeString,
           status,
@@ -98,36 +140,73 @@ export class MyAdvancedTimeClassifier {
         };
       }
       
+      // CRITICAL: Past dates should NEVER have upcoming matches
       if (['NS', 'TBD'].includes(status)) {
+        console.warn(`🚨 [CRITICAL DATA ERROR] Upcoming match found on past date ${requestedDate}:`, {
+          status,
+          fixtureDate,
+          requestedDate,
+          reason: 'Upcoming matches cannot exist on past dates - this indicates data inconsistency'
+        });
+        
         return {
           category: 'other',
-          reason: `Invalid upcoming match on past date ${requestedDate} - excluding`,
+          reason: `CRITICAL: Invalid upcoming match on past date ${requestedDate} with ${status} status - data error`,
           fixtureTime: fixtureTimeString,
           currentTime: currentTimeString,
           status,
           shouldShow: false
         };
       }
+      
+      // For any other status on past dates, exclude it
+      return {
+        category: 'other',
+        reason: `Unknown status ${status} on past date ${requestedDate} - excluding for safety`,
+        fixtureTime: fixtureTimeString,
+        currentTime: currentTimeString,
+        status,
+        shouldShow: false
+      };
     }
     
     // FOR FUTURE DATES: Only show upcoming matches
     if (isFutureDate) {
       if (['NS', 'TBD'].includes(status)) {
-        return {
-          category: 'tomorrow',
-          reason: `Future upcoming match on ${requestedDate} with ${status} status`,
-          fixtureTime: fixtureTimeString,
-          currentTime: currentTimeString,
-          status,
-          shouldShow: true
-        };
+        // Validate that fixture date matches requested date
+        if (fixtureDate_str === requestedDate) {
+          return {
+            category: 'tomorrow',
+            reason: `Future upcoming match on ${requestedDate} with ${status} status (validated: ${fixtureDate_str} = ${requestedDate})`,
+            fixtureTime: fixtureTimeString,
+            currentTime: currentTimeString,
+            status,
+            shouldShow: true
+          };
+        } else {
+          return {
+            category: 'other',
+            reason: `Upcoming match date mismatch: fixture=${fixtureDate_str}, requested=${requestedDate} - excluding`,
+            fixtureTime: fixtureTimeString,
+            currentTime: currentTimeString,
+            status,
+            shouldShow: false
+          };
+        }
       }
       
-      // Future dates should never have live or ended matches
-      if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+      // CRITICAL: Future dates should NEVER have live matches
+      if (['LIVE', 'LIV', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+        console.error(`🚨 [CRITICAL DATA ERROR] Live match found on future date ${requestedDate}:`, {
+          status,
+          fixtureDate,
+          requestedDate,
+          reason: 'Live matches cannot exist on future dates - this indicates serious data corruption'
+        });
+        
         return {
           category: 'other',
-          reason: `Invalid live match on future date ${requestedDate} - excluding`,
+          reason: `CRITICAL: Invalid live match on future date ${requestedDate} with ${status} status - data corruption`,
           fixtureTime: fixtureTimeString,
           currentTime: currentTimeString,
           status,
@@ -135,34 +214,92 @@ export class MyAdvancedTimeClassifier {
         };
       }
       
+      // CRITICAL: Future dates should NEVER have ended matches
       if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
+        console.error(`🚨 [CRITICAL DATA ERROR] Ended match found on future date ${requestedDate}:`, {
+          status,
+          fixtureDate,
+          requestedDate,
+          reason: 'Ended matches cannot exist on future dates - this indicates serious data corruption'
+        });
+        
         return {
           category: 'other',
-          reason: `Invalid ended match on future date ${requestedDate} - excluding`,
+          reason: `CRITICAL: Invalid ended match on future date ${requestedDate} with ${status} status - data corruption`,
           fixtureTime: fixtureTimeString,
           currentTime: currentTimeString,
           status,
           shouldShow: false
         };
       }
+      
+      // For any other status on future dates, exclude it
+      return {
+        category: 'other',
+        reason: `Unknown status ${status} on future date ${requestedDate} - excluding for safety`,
+        fixtureTime: fixtureTimeString,
+        currentTime: currentTimeString,
+        status,
+        shouldShow: false
+      };
     }
     
     // FOR TODAY (CURRENT DATE): Show all match types
     if (isToday) {
-      // Handle live matches - always show
-      if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
-        return {
-          category: 'today',
-          reason: `Live match today with ${status} status`,
-          fixtureTime: fixtureTimeString,
-          currentTime: currentTimeString,
-          status,
-          shouldShow: true
-        };
+      // Handle live matches - but double-check they're actually happening today
+      if (['LIVE', 'LIV', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+        // Additional validation: ensure the fixture date is actually today
+        if (fixtureDate_str === todayDate) {
+          return {
+            category: 'today',
+            reason: `Live match today with ${status} status (validated: ${fixtureDate_str} = ${todayDate})`,
+            fixtureTime: fixtureTimeString,
+            currentTime: currentTimeString,
+            status,
+            shouldShow: true
+          };
+        } else {
+          console.warn(`🚨 [LIVE MATCH VALIDATION] Live match has mismatched date:`, {
+            status,
+            fixtureDate_str,
+            todayDate,
+            requestedDate,
+            reason: 'Live match date does not match today - excluding'
+          });
+          
+          return {
+            category: 'other',
+            reason: `Live match date mismatch: fixture=${fixtureDate_str}, today=${todayDate} - excluding`,
+            fixtureTime: fixtureTimeString,
+            currentTime: currentTimeString,
+            status,
+            shouldShow: false
+          };
+        }
       }
       
       // Handle upcoming matches
       if (['NS', 'TBD'].includes(status)) {
+        // First validate the date matches
+        if (fixtureDate_str !== todayDate) {
+          console.warn(`🚨 [UPCOMING MATCH VALIDATION] Upcoming match has wrong date:`, {
+            status,
+            fixtureDate_str,
+            todayDate,
+            requestedDate,
+            reason: 'Upcoming match date does not match requested date'
+          });
+          
+          return {
+            category: 'other',
+            reason: `Upcoming match date mismatch: fixture=${fixtureDate_str}, today=${todayDate} - excluding`,
+            fixtureTime: fixtureTimeString,
+            currentTime: currentTimeString,
+            status,
+            shouldShow: false
+          };
+        }
+        
         const fixtureTimeMinutes = fixtureHour * 60 + fixtureMinute;
         const currentTimeMinutes = currentHour * 60 + currentMinute;
         
@@ -176,7 +313,14 @@ export class MyAdvancedTimeClassifier {
             shouldShow: true
           };
         } else {
-          // For matches that were scheduled today but time has passed, still show them (they might be delayed)
+          // For matches that were scheduled today but time has passed, show warning but allow (might be delayed)
+          console.log(`⚠️ [DELAYED MATCH] Match scheduled for past time but still NS/TBD:`, {
+            status,
+            fixtureTime: fixtureTimeString,
+            currentTime: currentTimeString,
+            reason: 'Match time has passed but still showing as upcoming - possibly delayed'
+          });
+          
           return {
             category: 'today',
             reason: `Scheduled match today (possibly delayed) - Fixture time ${fixtureTimeString} <= Current time ${currentTimeString} with ${status} status`,
