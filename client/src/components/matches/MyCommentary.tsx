@@ -81,7 +81,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
             awayScore,
             player: event.player?.name,
           });
-          // Away team own goal gives home team a point
+        } else {
+          homeScore++; // Away team own goal gives home team a point
           console.log("Own goal by away team player, homeScore++", {
             homeScore,
             player: event.player?.name,
@@ -95,7 +96,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
             homeScore,
             player: event.player?.name,
           });
-
+        } else {
+          awayScore++;
           console.log("Regular goal by away team, awayScore++", {
             awayScore,
             player: event.player?.name,
