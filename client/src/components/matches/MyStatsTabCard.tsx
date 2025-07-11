@@ -126,17 +126,37 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
     fetchMatchStats();
   }, [fixtureId, homeTeam?.id, awayTeam?.id, isUpcoming]);
 
-  // Helper function to get stat value
-  const getStatValue = (stats: TeamStatistic[], type: string): string => {
-    const stat = stats?.find(s => s.type === type);
-    return stat ? String(stat.value) : '0';
+  // Helper function to get stat value with multiple possible field names
+  const getStatValue = (stats: TeamStatistic[], type: string, alternativeTypes: string[] = []): string => {
+    if (!stats || !Array.isArray(stats)) return '0';
+    
+    // Try primary type first
+    let stat = stats.find(s => s.type === type);
+    
+    // If not found, try alternative types
+    if (!stat && alternativeTypes.length > 0) {
+      for (const altType of alternativeTypes) {
+        stat = stats.find(s => s.type === altType);
+        if (stat) break;
+      }
+    }
+    
+    return stat && stat.value !== null && stat.value !== undefined ? String(stat.value) : '0';
   };
 
   // Helper function to format percentage
   const formatPercentage = (value: string): string => {
+    if (!value || value === '0' || value === 'null') return '0%';
     if (value.includes('%')) return value;
     const num = parseFloat(value);
     return isNaN(num) ? '0%' : `${num}%`;
+  };
+
+  // Debug function to log available statistics (remove in production)
+  const logAvailableStats = (teamName: string, stats: TeamStatistic[]) => {
+    if (stats && Array.isArray(stats)) {
+      console.log(`📊 [${teamName}] Available statistics:`, stats.map(s => s.type));
+    }
   };
 
   // If it's an upcoming match, show the preview
@@ -250,6 +270,10 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
 
         {/* Statistics with bars - Real API data */}
         <div className="space-y-3">
+          {/* Debug logging - remove in production */}
+          {homeStats && logAvailableStats(homeTeam?.name || 'Home', homeStats.statistics)}
+          {awayStats && logAvailableStats(awayTeam?.name || 'Away', awayStats.statistics)}
+          
           <StatRowWithBars 
             label="Ball Possession" 
             homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Ball Possession'))}
@@ -258,44 +282,44 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
           
           <StatRowWithBars 
             label="Expected Goals (xG)" 
-            homeValue={getStatValue(homeStats.statistics, 'expected_goals') || '0.0'}
-            awayValue={getStatValue(awayStats.statistics, 'expected_goals') || '0.0'}
+            homeValue={getStatValue(homeStats.statistics, 'expected_goals', ['Expected Goals', 'xG', 'Expected goals']) || '0.0'}
+            awayValue={getStatValue(awayStats.statistics, 'expected_goals', ['Expected Goals', 'xG', 'Expected goals']) || '0.0'}
           />
           
           <StatRowWithBars 
             label="Shots on Goal" 
-            homeValue={getStatValue(homeStats.statistics, 'Shots on Goal')}
-            awayValue={getStatValue(awayStats.statistics, 'Shots on Goal')}
+            homeValue={getStatValue(homeStats.statistics, 'Shots on Goal', ['Shots on target'])}
+            awayValue={getStatValue(awayStats.statistics, 'Shots on Goal', ['Shots on target'])}
           />
           
           <StatRowWithBars 
             label="Shots off Goal" 
-            homeValue={getStatValue(homeStats.statistics, 'Shots off Goal')}
-            awayValue={getStatValue(awayStats.statistics, 'Shots off Goal')}
+            homeValue={getStatValue(homeStats.statistics, 'Shots off Goal', ['Shots off target'])}
+            awayValue={getStatValue(awayStats.statistics, 'Shots off Goal', ['Shots off target'])}
           />
           
           <StatRowWithBars 
             label="Total Shots" 
-            homeValue={getStatValue(homeStats.statistics, 'Total Shots')}
-            awayValue={getStatValue(awayStats.statistics, 'Total Shots')}
+            homeValue={getStatValue(homeStats.statistics, 'Total Shots', ['Total shots'])}
+            awayValue={getStatValue(awayStats.statistics, 'Total Shots', ['Total shots'])}
           />
           
           <StatRowWithBars 
             label="Blocked Shots" 
-            homeValue={getStatValue(homeStats.statistics, 'Blocked Shots')}
-            awayValue={getStatValue(awayStats.statistics, 'Blocked Shots')}
+            homeValue={getStatValue(homeStats.statistics, 'Blocked Shots', ['Blocked shots'])}
+            awayValue={getStatValue(awayStats.statistics, 'Blocked Shots', ['Blocked shots'])}
           />
           
           <StatRowWithBars 
             label="Shots insidebox" 
-            homeValue={getStatValue(homeStats.statistics, 'Shots insidebox')}
-            awayValue={getStatValue(awayStats.statistics, 'Shots insidebox')}
+            homeValue={getStatValue(homeStats.statistics, 'Shots insidebox', ['Shots inside box'])}
+            awayValue={getStatValue(awayStats.statistics, 'Shots insidebox', ['Shots inside box'])}
           />
           
           <StatRowWithBars 
             label="Shots outsidebox" 
-            homeValue={getStatValue(homeStats.statistics, 'Shots outsidebox')}
-            awayValue={getStatValue(awayStats.statistics, 'Shots outsidebox')}
+            homeValue={getStatValue(homeStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
+            awayValue={getStatValue(awayStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
           />
           
           <StatRowWithBars 
@@ -306,14 +330,14 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
           
           <StatRowWithBars 
             label="Corner Kicks" 
-            homeValue={getStatValue(homeStats.statistics, 'Corner Kicks')}
-            awayValue={getStatValue(awayStats.statistics, 'Corner Kicks')}
+            homeValue={getStatValue(homeStats.statistics, 'Corner Kicks', ['Corners'])}
+            awayValue={getStatValue(awayStats.statistics, 'Corner Kicks', ['Corners'])}
           />
           
           <StatRowWithBars 
             label="Offsides" 
-            homeValue={getStatValue(homeStats.statistics, 'Offsides')}
-            awayValue={getStatValue(awayStats.statistics, 'Offsides')}
+            homeValue={getStatValue(homeStats.statistics, 'Offsides', ['Offside'])}
+            awayValue={getStatValue(awayStats.statistics, 'Offsides', ['Offside'])}
           />
           
           <StatRowWithBars 
@@ -330,26 +354,26 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
           
           <StatRowWithBars 
             label="Goalkeeper Saves" 
-            homeValue={getStatValue(homeStats.statistics, 'Goalkeeper Saves')}
-            awayValue={getStatValue(awayStats.statistics, 'Goalkeeper Saves')}
+            homeValue={getStatValue(homeStats.statistics, 'Goalkeeper Saves', ['Saves'])}
+            awayValue={getStatValue(awayStats.statistics, 'Goalkeeper Saves', ['Saves'])}
           />
           
           <StatRowWithBars 
             label="Total passes" 
-            homeValue={getStatValue(homeStats.statistics, 'Total passes')}
-            awayValue={getStatValue(awayStats.statistics, 'Total passes')}
+            homeValue={getStatValue(homeStats.statistics, 'Total passes', ['Passes'])}
+            awayValue={getStatValue(awayStats.statistics, 'Total passes', ['Passes'])}
           />
           
           <StatRowWithBars 
             label="Passes accurate" 
-            homeValue={getStatValue(homeStats.statistics, 'Passes accurate')}
-            awayValue={getStatValue(awayStats.statistics, 'Passes accurate')}
+            homeValue={getStatValue(homeStats.statistics, 'Passes accurate', ['Accurate passes'])}
+            awayValue={getStatValue(awayStats.statistics, 'Passes accurate', ['Accurate passes'])}
           />
           
           <StatRowWithBars 
             label="Passes %" 
-            homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Passes %'))}
-            awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Passes %'))}
+            homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Passes %', ['Pass accuracy']))}
+            awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Passes %', ['Pass accuracy']))}
           />
         </div>
 
