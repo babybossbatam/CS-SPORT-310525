@@ -270,19 +270,15 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               return !isAlreadyLive;
             });
 
-            // Filter to only include matches for the selected date using proper timezone conversion
+            // Filter to only include matches for the selected date using raw UTC date (no timezone conversion)
             const filteredFixtures = nonLiveFixtures.filter(fixture => {
               const fixtureDate = fixture.fixture?.date;
               if (!fixtureDate) return false;
 
-              // Convert UTC time to local timezone for proper date comparison
-              const matchDate = new Date(fixtureDate);
-              const year = matchDate.getFullYear();
-              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-              const day = String(matchDate.getDate()).padStart(2, "0");
-              const matchDateString = `${year}-${month}-${day}`;
+              // Extract date from UTC string directly without timezone conversion
+              const utcDateString = fixtureDate.substring(0, 10); // Extract YYYY-MM-DD from ISO string
 
-              return matchDateString === selectedDate;
+              return utcDateString === selectedDate;
             });
 
             console.log(`🎯 [MyNewLeague] League ${leagueId}: ${freshFixtures.length} → ${filteredFixtures.length} fixtures after date filtering`);

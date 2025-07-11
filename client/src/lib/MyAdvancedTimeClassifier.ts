@@ -25,18 +25,19 @@ export class MyAdvancedTimeClassifier {
     const now = new Date();
     const fixture = new Date(fixtureDate);
     
-    // Extract time components
+    // Extract time components for current time (local)
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
     const currentTimeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
     
-    const fixtureHour = fixture.getHours();
-    const fixtureMinute = fixture.getMinutes();
+    // Extract time components from UTC fixture time
+    const fixtureHour = fixture.getUTCHours();
+    const fixtureMinute = fixture.getUTCMinutes();
     const fixtureTimeString = `${fixtureHour.toString().padStart(2, '0')}:${fixtureMinute.toString().padStart(2, '0')}`;
     
-    // Get date strings for comparison
+    // Get date strings for comparison - using raw UTC dates
     const todayDate = now.toISOString().slice(0, 10);
-    const fixtureDate_str = fixture.toISOString().slice(0, 10);
+    const fixtureDate_str = fixtureDate.substring(0, 10); // Extract YYYY-MM-DD directly from UTC string
     const requestedDate = selectedDate || todayDate;
     
     console.log(`🕐 [AdvancedTimeClassifier] Analyzing fixture:`, {
