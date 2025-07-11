@@ -1,10 +1,23 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import MyMatchStats from './MyMatchStats';
 
 interface MyStatsTabCardProps {
   match?: any;
+}
+
+interface TeamStatistic {
+  type: string;
+  value: number | string;
+}
+
+interface TeamStats {
+  team: {
+    id: number;
+    name: string;
+    logo: string;
+  };
+  statistics: TeamStatistic[];
 }
 
 // Enhanced StatRow component with horizontal bars
@@ -56,6 +69,11 @@ const StatRowWithBars: React.FC<{
 };
 
 const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
+  const [homeStats, setHomeStats] = useState<TeamStats | null>(null);
+  const [awayStats, setAwayStats] = useState<TeamStats | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   if (!match) {
     return (
       <Card>
@@ -71,6 +89,55 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
   const isUpcoming = match.fixture?.status?.short === "NS";
   const homeTeam = match.teams?.home;
   const awayTeam = match.teams?.away;
+  const fixtureId = match.fixture?.id;
+
+  // Fetch match statistics
+  useEffect(() => {
+    if (!fixtureId || isUpcoming) return;
+
+    const fetchMatchStats = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Fetch stats for both teams
+        const [homeResponse, awayResponse] = await Promise.all([
+          fetch(`/api/fixtures/${fixtureId}/statistics?team=${homeTeam.id}`),
+          fetch(`/api/fixtures/${fixtureId}/statistics?team=${awayTeam.id}`)
+        ]);
+
+        if (!homeResponse.ok || !awayResponse.ok) {
+          throw new Error('Failed to fetch match statistics');
+        }
+
+        const homeData = await homeResponse.json();
+        const awayData = await awayResponse.json();
+
+        setHomeStats(homeData[0] || null);
+        setAwayStats(awayData[0] || null);
+      } catch (err) {
+        console.error('Error fetching match statistics:', err);
+        setError('Failed to load match statistics');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMatchStats();
+  }, [fixtureId, homeTeam?.id, awayTeam?.id, isUpcoming]);
+
+  // Helper function to get stat value
+  const getStatValue = (stats: TeamStatistic[], type: string): string => {
+    const stat = stats?.find(s => s.type === type);
+    return stat ? String(stat.value) : '0';
+  };
+
+  // Helper function to format percentage
+  const formatPercentage = (value: string): string => {
+    if (value.includes('%')) return value;
+    const num = parseFloat(value);
+    return isNaN(num) ? '0%' : `${num}%`;
+  };
 
   // If it's an upcoming match, show the preview
   if (isUpcoming) {
@@ -120,7 +187,41 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
     );
   }
 
-  // For live/finished matches, we'll create a custom stats component with bars
+  // Show loading state
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-center">Match Statistics</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="text-center text-gray-500 py-8">
+            <div className="text-2xl mb-2">⏳</div>
+            <p>Loading match statistics...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show error state
+  if (error || !homeStats || !awayStats) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-center">Match Statistics</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="text-center text-gray-500 py-8">
+            <div className="text-2xl mb-2">❌</div>
+            <p>{error || 'No statistics available for this match'}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // For live/finished matches, show real statistics with bars
   return (
     <Card>
       <CardHeader>
@@ -147,30 +248,114 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
           </div>
         </div>
 
-        {/* Statistics with bars - Sample data for demonstration */}
+        {/* Statistics with bars - Real API data */}
         <div className="space-y-3">
-          <StatRowWithBars label="Ball Possession" homeValue="28%" awayValue="72%" />
-          <StatRowWithBars label="Expected Goals (xG)" homeValue="0.8" awayValue="2.3" />
-          <StatRowWithBars label="Shots on Goal" homeValue={2} awayValue={10} />
-          <StatRowWithBars label="Shots off Goal" homeValue={4} awayValue={8} />
-          <StatRowWithBars label="Total Shots" homeValue={8} awayValue={28} />
-          <StatRowWithBars label="Blocked Shots" homeValue={2} awayValue={10} />
-          <StatRowWithBars label="Shots insidebox" homeValue={6} awayValue={22} />
-          <StatRowWithBars label="Shots outsidebox" homeValue={2} awayValue={6} />
-          <StatRowWithBars label="Fouls" homeValue={15} awayValue={14} />
-          <StatRowWithBars label="Corner Kicks" homeValue={9} awayValue={13} />
-          <StatRowWithBars label="Offsides" homeValue={4} awayValue={2} />
-          <StatRowWithBars label="Yellow Cards" homeValue={2} awayValue={1} />
-          <StatRowWithBars label="Red Cards" homeValue={1} awayValue={0} />
-          <StatRowWithBars label="Goalkeeper Saves" homeValue={10} awayValue={1} />
-          <StatRowWithBars label="Total passes" homeValue={369} awayValue={970} />
-          <StatRowWithBars label="Passes accurate" homeValue={261} awayValue={881} />
-          <StatRowWithBars label="Passes %" homeValue="71%" awayValue="91%" />
+          <StatRowWithBars 
+            label="Ball Possession" 
+            homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Ball Possession'))}
+            awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Ball Possession'))}
+          />
+          
+          <StatRowWithBars 
+            label="Expected Goals (xG)" 
+            homeValue={getStatValue(homeStats.statistics, 'expected_goals') || '0.0'}
+            awayValue={getStatValue(awayStats.statistics, 'expected_goals') || '0.0'}
+          />
+          
+          <StatRowWithBars 
+            label="Shots on Goal" 
+            homeValue={getStatValue(homeStats.statistics, 'Shots on Goal')}
+            awayValue={getStatValue(awayStats.statistics, 'Shots on Goal')}
+          />
+          
+          <StatRowWithBars 
+            label="Shots off Goal" 
+            homeValue={getStatValue(homeStats.statistics, 'Shots off Goal')}
+            awayValue={getStatValue(awayStats.statistics, 'Shots off Goal')}
+          />
+          
+          <StatRowWithBars 
+            label="Total Shots" 
+            homeValue={getStatValue(homeStats.statistics, 'Total Shots')}
+            awayValue={getStatValue(awayStats.statistics, 'Total Shots')}
+          />
+          
+          <StatRowWithBars 
+            label="Blocked Shots" 
+            homeValue={getStatValue(homeStats.statistics, 'Blocked Shots')}
+            awayValue={getStatValue(awayStats.statistics, 'Blocked Shots')}
+          />
+          
+          <StatRowWithBars 
+            label="Shots insidebox" 
+            homeValue={getStatValue(homeStats.statistics, 'Shots insidebox')}
+            awayValue={getStatValue(awayStats.statistics, 'Shots insidebox')}
+          />
+          
+          <StatRowWithBars 
+            label="Shots outsidebox" 
+            homeValue={getStatValue(homeStats.statistics, 'Shots outsidebox')}
+            awayValue={getStatValue(awayStats.statistics, 'Shots outsidebox')}
+          />
+          
+          <StatRowWithBars 
+            label="Fouls" 
+            homeValue={getStatValue(homeStats.statistics, 'Fouls')}
+            awayValue={getStatValue(awayStats.statistics, 'Fouls')}
+          />
+          
+          <StatRowWithBars 
+            label="Corner Kicks" 
+            homeValue={getStatValue(homeStats.statistics, 'Corner Kicks')}
+            awayValue={getStatValue(awayStats.statistics, 'Corner Kicks')}
+          />
+          
+          <StatRowWithBars 
+            label="Offsides" 
+            homeValue={getStatValue(homeStats.statistics, 'Offsides')}
+            awayValue={getStatValue(awayStats.statistics, 'Offsides')}
+          />
+          
+          <StatRowWithBars 
+            label="Yellow Cards" 
+            homeValue={getStatValue(homeStats.statistics, 'Yellow Cards')}
+            awayValue={getStatValue(awayStats.statistics, 'Yellow Cards')}
+          />
+          
+          <StatRowWithBars 
+            label="Red Cards" 
+            homeValue={getStatValue(homeStats.statistics, 'Red Cards')}
+            awayValue={getStatValue(awayStats.statistics, 'Red Cards')}
+          />
+          
+          <StatRowWithBars 
+            label="Goalkeeper Saves" 
+            homeValue={getStatValue(homeStats.statistics, 'Goalkeeper Saves')}
+            awayValue={getStatValue(awayStats.statistics, 'Goalkeeper Saves')}
+          />
+          
+          <StatRowWithBars 
+            label="Total passes" 
+            homeValue={getStatValue(homeStats.statistics, 'Total passes')}
+            awayValue={getStatValue(awayStats.statistics, 'Total passes')}
+          />
+          
+          <StatRowWithBars 
+            label="Passes accurate" 
+            homeValue={getStatValue(homeStats.statistics, 'Passes accurate')}
+            awayValue={getStatValue(awayStats.statistics, 'Passes accurate')}
+          />
+          
+          <StatRowWithBars 
+            label="Passes %" 
+            homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Passes %'))}
+            awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Passes %'))}
+          />
         </div>
 
-        {/* Note about integrating with real data */}
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
-          <p>Note: This is using sample data. To integrate with real statistics, replace the sample data with actual values from the MyMatchStats component API calls.</p>
+        {/* Success message */}
+        <div className="mt-4 p-3 bg-green-50 rounded-lg text-xs text-green-700">
+          <p>✅ Now using real-time match statistics from the API!</p>
         </div>
       </CardContent>
     </Card>
