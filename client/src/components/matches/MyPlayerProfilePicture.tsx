@@ -38,9 +38,11 @@ const MyPlayerProfilePicture: React.FC<MyPlayerProfilePictureProps> = ({
     xl: 'text-lg'
   };
 
-  // Generate player image URLs with multiple BeSoccer CDN sources
+  // Generate player image URLs with multiple CDN sources including 365scores
   const getPlayerImageUrls = (id: number): string[] => {
     return [
+      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v10/Athletes/${id}`,
+      `https://imagecache.365scores.com/image/upload/f_png,w_35,h_35,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v10/Athletes/${id}`,
       `https://cdn.resfu.com/img_data/players/medium/${id}.jpg?size=120x&lossy=1`,
       `https://cdn.resfu.com/img_data/players/medium/${id}.jpg`,
       `https://cdn.resfu.com/img_data/players/small/${id}.jpg?size=120x&lossy=1`,
