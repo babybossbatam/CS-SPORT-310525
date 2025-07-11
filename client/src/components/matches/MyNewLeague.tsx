@@ -295,64 +295,25 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
             console.log(`📅 [MyNewLeague] League ${leagueId}: ${nonLiveFixtures.length} → ${dateRangeFixtures.length} fixtures in ±1 day range`);
 
-            // Second filter: Apply timezone conversion and check if it falls on selected date
-            const filteredFixtures = dateRangeFixtures.filter(fixture => {
-              const fixtureDate = fixture.fixture?.date;
-              if (!fixtureDate) return false;
+            // Second filter: Pass all date range fixtures to advanced time classifier
+            const filteredFixtures = dateRangeFixtures;
 
-              // Convert UTC time to local timezone for proper date comparison
-              const matchDate = new Date(fixtureDate);
-              const year = matchDate.getFullYear();
-              const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-              const day = String(matchDate.getDate()).padStart(2, "0");
-              const matchDateString = `${year}-${month}-${day}`;
+            console.log(`🎯 [MyNewLeague] League ${leagueId}: ${dateRangeFixtures.length} fixtures in ±1 day range (skipping basic date filter)`);
 
-              const dateMatches = matchDateString === selectedDate;
-
-              // If basic date doesn't match, check if it's a yesterday's ended match that should be shown today
-              if (!dateMatches) {
-                const status = fixture.fixture.status.short;
-                const isEndedMatch = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
-                
-                if (isEndedMatch) {
-                  // Check if it's yesterday's match
-                  const today = new Date(selectedDate);
-                  const yesterday = new Date(today);
-                  yesterday.setDate(yesterday.getDate() - 1);
-                  
-                  const yesterdayString = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, "0")}-${String(yesterday.getDate()).padStart(2, "0")}`;
-                  
-                  if (matchDateString === yesterdayString) {
-                    console.log(`🕐 [MyNewLeague] Including yesterday's ended match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${matchDateString} → shown on ${selectedDate})`);
-                    return true; // Include yesterday's ended matches
-                  }
-                }
-                return false;
-              }
-
-              return true;
-            });
-
-            console.log(`🎯 [MyNewLeague] League ${leagueId}: ${dateRangeFixtures.length} → ${filteredFixtures.length} fixtures after timezone conversion filtering`);
-
-            // Log sample fixtures for debugging with timezone conversion details
+            // Log sample fixtures for debugging (advanced time classifier will handle filtering)
             if (filteredFixtures.length > 0) {
               filteredFixtures.slice(0, 3).forEach(fixture => {
                 const utcDate = fixture.fixture.date;
-                const localDate = new Date(utcDate);
                 const utcDateString = utcDate.split('T')[0];
-                const localDateString = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
                 
-                console.log(`🌍 [MyNewLeague TIMEZONE] Fixture ${fixture.fixture.id}:`, {
+                console.log(`🌍 [MyNewLeague DATE RANGE] Fixture ${fixture.fixture.id}:`, {
                   teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                   league: fixture.league.name,
                   status: fixture.fixture.status.short,
                   utcDateTime: utcDate,
                   utcDate: utcDateString,
-                  localDate: localDateString,
                   selectedDate,
-                  timezoneOffset: localDate.getTimezoneOffset(),
-                  dateMatch: localDateString === selectedDate
+                  note: 'Will be filtered by advanced time classifier'
                 });
               });
             }
