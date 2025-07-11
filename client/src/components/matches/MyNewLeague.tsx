@@ -271,86 +271,27 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               return !isAlreadyLive;
             });
 
-            // Create date range: selected date ±1 day to account for timezone conversions
-            const selectedDateObj = new Date(selectedDate + 'T12:00:00Z');
-            const dayBefore = new Date(selectedDateObj);
-            dayBefore.setDate(dayBefore.getDate() - 1);
-            const dayAfter = new Date(selectedDateObj);
-            dayAfter.setDate(dayAfter.getDate() + 1);
+            console.log(`📅 [MyNewLeague] League ${leagueId}: Skipping basic date filtering, Advanced Time Classification will handle all filtering for ${selectedDate}`);
 
-            const dayBeforeString = `${dayBefore.getFullYear()}-${String(dayBefore.getMonth() + 1).padStart(2, '0')}-${String(dayBefore.getDate()).padStart(2, '0')}`;
-            const dayAfterString = `${dayAfter.getFullYear()}-${String(dayAfter.getMonth() + 1).padStart(2, '0')}-${String(dayAfter.getDate()).padStart(2, '0')}`;
+            // Skip basic date filtering - let Advanced Time Classification handle all filtering
+            const filteredFixtures = nonLiveFixtures;
 
-            console.log(`📅 [MyNewLeague] Date range for league ${leagueId}: ${dayBeforeString} to ${dayAfterString} (target: ${selectedDate})`);
+            console.log(`🎯 [MyNewLeague] League ${leagueId}: ${nonLiveFixtures.length} fixtures passed to Advanced Time Classification (no basic date filtering)`);
 
-            // First filter: Get fixtures in the ±1 day range (UTC dates)
-            const dateRangeFixtures = nonLiveFixtures.filter(fixture => {
-              const fixtureDate = fixture.fixture?.date;
-              if (!fixtureDate) return false;
-
-              // Extract UTC date only for range filtering
-              const utcDateString = fixtureDate.split('T')[0];
-              const isInRange = utcDateString >= dayBeforeString && utcDateString <= dayAfterString;
-              
-              // Debug logging for specific leagues
-              if (leagueId === 38 || leagueId === 15 || leagueId === 2) {
-                console.log(`🔍 [DEBUG LEAGUE ${leagueId}] Fixture date check:`, {
-                  teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-                  fixtureDate: fixtureDate,
-                  utcDateString: utcDateString,
-                  selectedDate: selectedDate,
-                  dayBeforeString: dayBeforeString,
-                  dayAfterString: dayAfterString,
-                  isInRange: isInRange,
-                  status: fixture.fixture?.status?.short
-                });
-              }
-              
-              return isInRange;
-            });
-
-            console.log(`📅 [MyNewLeague] League ${leagueId}: ${nonLiveFixtures.length} → ${dateRangeFixtures.length} fixtures in ±1 day range`);
-
-            // Second filter: Pass all date range fixtures to advanced time classifier
-            const filteredFixtures = dateRangeFixtures;
-
-            console.log(`🎯 [MyNewLeague] League ${leagueId}: ${dateRangeFixtures.length} fixtures in ±1 day range (skipping basic date filter)`);
-
-            // Log sample fixtures for debugging (advanced time classifier will handle filtering)
+            // Log sample fixtures for debugging (advanced time classifier will handle all filtering)
             if (filteredFixtures.length > 0) {
               filteredFixtures.slice(0, 3).forEach(fixture => {
                 const utcDate = fixture.fixture.date;
                 const utcDateString = utcDate.split('T')[0];
                 
-                console.log(`🌍 [MyNewLeague DATE RANGE] Fixture ${fixture.fixture.id}:`, {
+                console.log(`🌍 [MyNewLeague NO DATE FILTER] Fixture ${fixture.fixture.id}:`, {
                   teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                   league: fixture.league.name,
                   status: fixture.fixture.status.short,
                   utcDateTime: utcDate,
                   utcDate: utcDateString,
                   selectedDate,
-                  note: 'Will be filtered by advanced time classifier'
-                });
-              });
-            } else if (leagueId === 38 || leagueId === 15 || leagueId === 2) {
-              // Log first few fixtures from nonLiveFixtures to see what dates we have
-              console.log(`🚨 [DEBUG LEAGUE ${leagueId}] No fixtures in date range. Sample raw fixtures:`, {
-                leagueName: nonLiveFixtures[0]?.league?.name || 'Unknown',
-                totalFixtures: nonLiveFixtures.length,
-                selectedDate,
-                dayBeforeString,
-                dayAfterString
-              });
-              
-              nonLiveFixtures.slice(0, 5).forEach((fixture, index) => {
-                const utcDate = fixture.fixture.date;
-                const utcDateString = utcDate.split('T')[0];
-                
-                console.log(`🚨 [DEBUG SAMPLE ${index + 1}] ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}:`, {
-                  fixtureDate: utcDate,
-                  utcDateString: utcDateString,
-                  status: fixture.fixture?.status?.short,
-                  isInRange: utcDateString >= dayBeforeString && utcDateString <= dayAfterString
+                  note: 'All fixtures passed to advanced time classifier'
                 });
               });
             }
