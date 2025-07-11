@@ -1120,12 +1120,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       // Handle period markers vs regular events at same time
                       if (aTotalTime === bTotalTime) {
-                        // If times are equal, period markers come first
+                        // If times are equal, period markers come first (negative value means 'a' comes before 'b')
                         if (a.type === "period_score" && b.type !== "period_score") return -1;
                         if (b.type === "period_score" && a.type !== "period_score") return 1;
                         
                         // If both are period markers or both are regular events, maintain current order
                         return 0;
+                      }
+
+                      // Special handling for period markers to ensure they appear above events
+                      if (a.type === "period_score" && b.type !== "period_score") {
+                        // Period marker should come before regular events at same or close time
+                        if (Math.abs(aTotalTime - bTotalTime) <= 1) return -1;
+                      }
+                      if (b.type === "period_score" && a.type !== "period_score") {
+                        // Period marker should come before regular events at same or close time
+                        if (Math.abs(aTotalTime - bTotalTime) <= 1) return 1;
                       }
 
                       // Handle "End of 90 Minutes" period marker and 90-minute events
