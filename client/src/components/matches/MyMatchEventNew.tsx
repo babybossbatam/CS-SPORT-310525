@@ -1495,22 +1495,42 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   <div className="flex items-center gap-1">
                                     {event.type === "subst" &&
                                       event.assist?.name && (
-                                        <MyPlayerProfilePicture
-                                          playerId={event.player?.id}
-                                          playerName={event.player?.name}
-                                          size="md"
-                                          teamType="away"
-                                          className="border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20"
-                                        />
+                                        <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                          <AvatarImage
+                                            src={getPlayerImage(
+                                              event.player?.id,
+                                              event.player?.name,
+                                            )}
+                                            alt={event.player?.name || "Player"}
+                                            className="object-cover"
+                                          />
+                                          <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
+                                              <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
+                                                <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                                <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                                <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
+                                              </svg>
+                                            </AvatarFallback>
+                                        </Avatar>
                                       )}
 
-                                    <MyPlayerProfilePicture
-                                      playerId={event.player?.id}
-                                      playerName={event.player?.name}
-                                      size="md"
-                                      teamType="away"
-                                      className={`${event.type === "subst" ? "border-2 border-green-300 shadow-sm" : "border-2 border-gray-400 shadow-sm"}`}
-                                    />
+                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-400" : "border-gray-400"}`}>
+                                      <AvatarImage
+                                        src={getPlayerImage(
+                                          event.player?.id,
+                                          event.player?.name,
+                                        )}
+                                        alt={event.player?.name || "Player"}
+                                        className="object-cover"
+                                      />
+                                      <AvatarFallback className="bg-gray-400 text-white text-xs font-bold flex items-center justify-center">
+                                          <svg viewBox="0 0 100 100" className="w-8 h-8" fill="currentColor">
+                                            <circle cx="50" cy="50" r="50" fill="#e5e7eb"/>
+                                            <circle cx="50" cy="35" r="12" fill="#6b7280"/>
+                                            <path d="M50 52c-12 0-22 8-22 18v20c0 5.5 4.5 10 10 10h24c5.5 0 10-4.5 10-10V70c0-10-10-18-22-18z" fill="#6b7280"/>
+                                          </svg>
+                                        </AvatarFallback>
+                                    </Avatar>
                                   </div>
                                 </div>
                               </>
