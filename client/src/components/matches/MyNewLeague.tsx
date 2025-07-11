@@ -100,6 +100,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   // Status and score tracking for flash effects
   const [previousMatchStatuses, setPreviousMatchStatuses] = useState<Map<number, string>>(new Map());
   const [previousMatchScores, setPreviousMatchScores] = useState<Map<number, {home: number, away: number}>>(new Map());
+  const [leagueFixtures, setLeagueFixtures] = useState<Map<number, FixtureData[]>>(new Map());
+  const [isLoading, setIsLoading] = useState(false);
 
   // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
   const leagueIds = [38, 15, 2, 71, 3, 848,  22, 72, 73, 75, 128, 233,  667, 253, 850, 893,  531, 921, 886, 493]; // Added UEFA Champions League (2), Brazilian Serie A (71), CONCACAF Gold Cup (22), Serie B (72), Serie C (73), Serie D (75), Copa Argentina (128), Iraqi League (233), UEFA Europa Conference League (848), Friendlies Clubs (667), MLS (253), and additional leagues (850, 893, 3, 531, 921, 886, 493)
@@ -356,6 +358,94 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       }
     }
   }, [selectedDate, getCachedEndedMatches, cacheEndedMatches]);
+
+  useEffect(() => {
+    const fetchAllLeagueFixtures = async () => {
+      if (!selectedDate) return;
+
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Smart fetching: Use date-based API for efficiency
+        console.log(`🎯 [MyNewLeague] Smart fetching for date: ${selectedDate}`);
+
+        const response = await fetch(`/api/fixtures/date/${selectedDate}?all=true`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch fixtures for ${selectedDate}`);
+        }
+
+        const allDateFixtures = await response.json();
+        console.log(`📊 [MyNewLeague] Got ${allDateFixtures.length} total fixtures for ${selectedDate}`);
+
+        // Group fixtures by league and filter for our target leagues
+        const leagueFixturesMap = new Map();
+
+        allDateFixtures.forEach(fixture => {
+          const leagueId = fixture.league?.id;
+          if (leagueIds.includes(leagueId)) {
+            if (!leagueFixturesMap.has(leagueId)) {
+              leagueFixturesMap.set(leagueId, []);
+            }
+            leagueFixturesMap.get(leagueId).push(fixture);
+          }
+        });
+
+        // Convert to the expected format
+        const promises = leagueIds.map(async (leagueId) => {
+          const fixtures = leagueFixturesMap.get(leagueId) || [];
+          console.log(`✅ [MyNewLeague] League ${leagueId}: Found ${fixtures.length} fixtures for ${selectedDate}`);
+          return { leagueId, fixtures };
+        });
+
+        const results = await Promise.all(promises);
+
+        const newLeagueFixtures = new Map();
+        results.forEach(({ leagueId, fixtures }) => {
+          newLeagueFixtures.set(leagueId, fixtures);
+        });
+
+        setLeagueFixtures(newLeagueFixtures);
+
+        // Cache the results to avoid refetching
+        sessionStorage.setItem(`league-fixtures-${selectedDate}`, JSON.stringify({
+          data: Array.from(newLeagueFixtures.entries()),
+          timestamp: Date.now()
+        }));
+
+      } catch (error) {
+        console.error('❌ [MyNewLeague] Error fetching league fixtures:', error);
+        setError('Failed to load matches');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Check cache first for non-live data
+    const cacheKey = `league-fixtures-${selectedDate}`;
+    const cached = sessionStorage.getItem(cacheKey);
+
+    if (cached && !liveFilterActive) {
+      try {
+        const { data, timestamp } = JSON.parse(cached);
+        const age = Date.now() - timestamp;
+
+        // Use cache if less than 5 minutes old for historical data, 1 minute for today
+        const maxAge = selectedDate === new Date().toISOString().split('T')[0] ? 60000 : 300000;
+
+        if (age < maxAge) {
+          console.log(`💾 [MyNewLeague] Using cached data for ${selectedDate} (age: ${Math.round(age/1000)}s)`);
+          setLeagueFixtures(new Map(data));
+          setIsLoading(false);
+          return;
+        }
+      } catch (error) {
+        console.warn('Failed to parse cache:', error);
+      }
+    }
+
+    fetchAllLeagueFixtures();
+  }, [selectedDate, showTop10, liveFilterActive]);
 
   // Comprehensive cache cleanup on date change and component mount
   useEffect(() => {
@@ -704,8 +794,7 @@ b.fixture.status.elapsed) || 0;
 
   // Memoize the match click handler to prevent infinite re-renders
   const handleMatchCardClick = useCallback((match: any) => {
-    console.log('🎯 [MyNewLeague] Match card clicked:', {
-      fixtureId: match.fixture?.id,
+    console.log('🎯 [MyNewLeague] Match card clicked:', {      fixtureId: match.fixture?.id,
       teams: `${match.teams?.home?.name} vs ${match.teams?.away?.name}`,
       league: match.league?.name,
       status: match.fixture?.status?.short,
