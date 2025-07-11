@@ -209,6 +209,17 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
               } as any);
             }
 
+            // Add "Second Half begins" marker if there are events in both halves
+            if (hasEventsInFirstHalf && hasEventsInSecondHalf) {
+              allCommentaryItems.push({
+                time: { elapsed: 46 },
+                type: "period_start",
+                detail: "Second Half begins",
+                team: { name: "", logo: "" },
+                player: { name: "" },
+              } as any);
+            }
+
             // Add "90 minutes" period marker if there are events in the second half and the latest event is close to or after 90 minutes
             const secondHalfEvents = events.filter((e) => e.time.elapsed > 45);
 
@@ -404,12 +415,69 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               />
                               <div>
                                 <div>Kick Off</div>
-
                               </div>
-
                             </div>
                             <div className="text-xs text-gray-600 mt-1">
                               First Half begins.
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Handle "Second Half begins"
+                  if (event.detail === "Second Half begins") {
+                    // Calculate halftime score (45 minutes + any extra time from first half)
+                    const halftimeEvents = events.filter((e) => e.time.elapsed <= 45);
+                    const lastFirstHalfEvent = halftimeEvents.length > 0 
+                      ? halftimeEvents.reduce((latest, current) => {
+                          const currentTotal = current.time.elapsed + (current.time.extra || 0);
+                          const latestTotal = latest.time.elapsed + (latest.time.extra || 0);
+                          return currentTotal > latestTotal ? current : latest;
+                        })
+                      : { time: { elapsed: 45, extra: 0 } };
+
+                    const halftimeEndTime = Math.max(lastFirstHalfEvent.time.elapsed, 45) + (lastFirstHalfEvent.time.elapsed >= 45 ? (lastFirstHalfEvent.time.extra || 0) : 0);
+                    const halftimeScore = calculateScoreAtTime(halftimeEndTime);
+
+                    return (
+                      <div
+                        key={`period-${index}`}
+                        className="commentary-event-container"
+                      >
+                        <div className="flex gap-3">
+                          {/* Time Column */}
+                          <div className="flex flex-col items-center min-w-[45px]">
+                            <div className="w-4 h-6 flex items-center justify-center">
+                              <img
+                                src="/assets/matchdetaillogo/i mark.svg"
+                                alt="Second Half"
+                                className="w-4 h-4"
+                              />
+                            </div>
+                            {index < allCommentaryItems.length - 1 && (
+                              <div className="w-0.5 h-5 bg-gray-800 ml-1"></div>
+                            )}
+                          </div>
+
+                          {/* Content Column */}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 -ml-3 text-sm text-gray-700 leading-relaxed mt-0.5">
+                              <img
+                                src="/assets/matchdetaillogo/clock.png"
+                                alt="Second Half"
+                                className="w-4 h-4"
+                              />
+                              <div>
+                                <div>Second Half begins</div>
+                              </div>
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1">
+                              <div className="flex items-center gap-4">
+                                <span>{homeTeam}: {halftimeScore.homeScore}</span>
+                                <span>{awayTeam}: {halftimeScore.awayScore}</span>
+                              </div>
                             </div>
                           </div>
                         </div>
