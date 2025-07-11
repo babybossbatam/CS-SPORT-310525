@@ -556,61 +556,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Filter matches using proper timezone conversion for the selected date
+  // Filter matches using Advanced Time Classification only - no basic date filtering
   const selectedDateFixtures = fixtures.filter((f) => {
     const fixtureDate = f.fixture.date;
     if (!fixtureDate) return false;
 
-    // Convert UTC fixture time to local timezone for proper date comparison
-    const matchDate = new Date(fixtureDate);
-    const year = matchDate.getFullYear();
-    const month = String(matchDate.getMonth() + 1).padStart(2, "0");
-    const day = String(matchDate.getDate()).padStart(2, "0");
-    const matchDateString = `${year}-${month}-${day}`;
-
-    const dateMatches = matchDateString === selectedDate;
-
-    // Special debugging for FIFA Club World Cup
-    if (f.league.id === 15) {
-      const matchDate = new Date(f.fixture.date);
-      const utcDateString = `${matchDate.getUTCFullYear()}-${String(matchDate.getUTCMonth() + 1).padStart(2, "0")}-${String(matchDate.getUTCDate()).padStart(2, "0")}`;
-
-      console.log(`🏆 [FIFA CLUB WORLD CUP DATE FILTER] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        fixtureDate: f.fixture.date,
-        utcDate: utcDateString,
-        localDate: matchDateString,
-        selectedDate,
-        dateMatches,
-        status: f.fixture.status.short,
-        league: f.league.name,
-        timezoneOffset: matchDate.getTimezoneOffset()
-      });
-    }
-
-    // If basic date doesn't match, exclude immediately
-    if (!dateMatches) {
-      // Debug logging for Friendlies
-      if (f.league.id === 667) {
-        console.log(`🏆 [FRIENDLIES DATE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-          fixtureDate: f.fixture.date,
-          extractedDate: matchDateString,
-          selectedDate,
-          reason: 'Date mismatch'
-        });
-      }
-      // Debug logging for FIFA Club World Cup exclusions
-      if (f.league.id === 15) {
-        console.log(`🚨 [FIFA CLUB WORLD CUP DATE FILTER] EXCLUDED match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-          fixtureDate: f.fixture.date,
-          extractedDate: matchDateString,
-          selectedDate,
-          reason: 'Date mismatch - this might be the issue!'
-        });
-      }
-      return false;
-    }
-
-    // For matches on the selected date, use advanced time classifier to determine if they should be shown
+    // Use Advanced Time Classification to determine if matches should be shown
     const classification = MyAdvancedTimeClassifier.classifyFixture(
       f.fixture.date,
       f.fixture.status.short
