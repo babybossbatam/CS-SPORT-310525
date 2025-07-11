@@ -1,4 +1,3 @@
-
 /**
  * Advanced Time Classifier for Match Filtering
  * 
@@ -15,148 +14,160 @@ export interface TimeClassificationResult {
   currentTime: string;
   status: string;
   shouldShow: boolean;
+  fixtureLocalDate?: string; // add this
 }
 
 export class MyAdvancedTimeClassifier {
+
+   /**
+   * Get fixture's local date in user's timezone
+   */
+  static getFixtureLocalDate(fixtureDate: string, timezone: string = 'UTC'): string {
+      try {
+          // Use toLocaleDateString with the IANA timezone
+          const date = new Date(fixtureDate);
+          const localDateString = date.toLocaleDateString('en-CA', {
+              timeZone: timezone,
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+          });
+
+          // Convert the en-CA format (YYYY-MM-DD) to ISO format
+          const [year, month, day] = localDateString.split('/');
+          return `${year}-${month}-${day}`;
+      } catch (error) {
+          console.error("Error converting date to timezone:", error);
+          return fixtureDate.slice(0, 10); // Fallback to original date if timezone conversion fails
+      }
+  }
+
+
   /**
    * Classify a fixture based on advanced time rules
    */
   static classifyFixture(fixtureDate: string, status: string): TimeClassificationResult {
     const now = new Date();
     const fixture = new Date(fixtureDate);
-    
+
     // Extract time components
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
     const currentTimeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
-    
+
     const fixtureHour = fixture.getHours();
     const fixtureMinute = fixture.getMinutes();
     const fixtureTimeString = `${fixtureHour.toString().padStart(2, '0')}:${fixtureMinute.toString().padStart(2, '0')}`;
-    
-    // Check if fixture is within the same date as today
-    const todayDate = now.toISOString().slice(0, 10);
-    const fixtureDate_str = fixture.toISOString().slice(0, 10);
-    const isWithinTimeRange = fixtureDate_str === todayDate;
-    
+
+    // Get user's timezone
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Convert fixture date to user's local date
+    const fixtureLocalDate = this.getFixtureLocalDate(fixtureDate, userTimezone);
+
+    // Get today, yesterday, and tomorrow dates in user's timezone
+    const today = this.getFixtureLocalDate(now.toISOString(), userTimezone);
+    const yesterday = this.getFixtureLocalDate(new Date(now.setDate(now.getDate() - 1)).toISOString(), userTimezone);
+    const tomorrow = this.getFixtureLocalDate(new Date(now.setDate(now.getDate() + 2)).toISOString(), userTimezone);
+
     console.log(`🕐 [AdvancedTimeClassifier] Analyzing fixture:`, {
       fixtureDate,
       fixtureTime: fixtureTimeString,
       currentTime: currentTimeString,
       status,
-      isWithinTimeRange,
-      fixtureDate_str,
-      todayDate
+      fixtureLocalDate,
+      userTimezone,
+      today,
+      yesterday,
+      tomorrow
     });
-    
-    // Rule 1: If fixture time > CurrentTime but status "NS" and within time range 00:00 - 23:59 then its Today's Matches
-    if (status === 'NS' && isWithinTimeRange) {
-      const fixtureTimeMinutes = fixtureHour * 60 + fixtureMinute;
-      const currentTimeMinutes = currentHour * 60 + currentMinute;
-      
-      if (fixtureTimeMinutes > currentTimeMinutes) {
-        return {
-          category: 'today',
-          reason: `Fixture time ${fixtureTimeString} > Current time ${currentTimeString} with NS status`,
-          fixtureTime: fixtureTimeString,
-          currentTime: currentTimeString,
-          status,
-          shouldShow: true
-        };
-      } else {
-        // Rule 2: If fixture time < CurrentTime but status "NS" and within time range 00:00 - 23:59 then its Tomorrow's Matches
-        return {
-          category: 'tomorrow',
-          reason: `Fixture time ${fixtureTimeString} < Current time ${currentTimeString} with NS status`,
-          fixtureTime: fixtureTimeString,
-          currentTime: currentTimeString,
-          status,
-          shouldShow: false
-        };
+
+    // Determine which date category this fixture belongs to in user's timezone
+    let category: 'today' | 'tomorrow' | 'yesterday' | 'other' = 'other';
+    let shouldShow = false;
+    let reason = '';
+
+    if (fixtureLocalDate === today) {
+      category = 'today';
+
+      // Handle live matches - always show
+      if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
+        shouldShow = true;
+        reason = `Today's live match with ${status} status`;
+      }
+      // Handle ended matches from today
+      else if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
+        shouldShow = true;
+        reason = `Today's ended match with ${status} status`;
+      }
+      // Handle upcoming matches for today
+      else if (status === 'NS') {
+        shouldShow = true;
+        reason = `Today's upcoming match with ${status} status`;
+      }
+      else {
+        reason = `Today's match with unknown status: ${status}`;
       }
     }
-    
-    // Rule 3: Handle ended matches based on their actual date
-    if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
-      // Check if it's yesterday's match
-      const yesterday = new Date(now);
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayDate = yesterday.toISOString().slice(0, 10);
-      
-      if (fixtureDate_str === yesterdayDate) {
-        return {
-          category: 'yesterday',
-          reason: `Yesterday's ended match with ${status} status`,
-          fixtureTime: fixtureTimeString,
-          currentTime: currentTimeString,
-          status,
-          shouldShow: false  // Don't show yesterday's matches on today's date
-        };
-      }
-      
-      // Only show today's ended matches
-      if (isWithinTimeRange) {
-        const fixtureTimeMinutes = fixtureHour * 60 + fixtureMinute;
-        const currentTimeMinutes = currentHour * 60 + currentMinute;
-        
-        if (fixtureTimeMinutes < currentTimeMinutes) {
-          return {
-            category: 'today',
-            reason: `Today's ended match - Fixture time ${fixtureTimeString} < Current time ${currentTimeString} with ${status} status`,
-            fixtureTime: fixtureTimeString,
-            currentTime: currentTimeString,
-            status,
-            shouldShow: true
-          };
-        }
-      }
+    else if (fixtureLocalDate === yesterday) {
+      category = 'yesterday';
+      shouldShow = false; // Don't show yesterday's matches unless specifically requested
+      reason = `Yesterday's match with ${status} status - not shown on today's date`;
     }
-    
-    // Handle live matches - always show
-    if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
-      return {
-        category: 'today',
-        reason: `Live match with ${status} status`,
-        fixtureTime: fixtureTimeString,
-        currentTime: currentTimeString,
-        status,
-        shouldShow: true
-      };
+    else if (fixtureLocalDate === tomorrow) {
+      category = 'tomorrow';
+      shouldShow = false; // Don't show tomorrow's matches unless specifically requested
+      reason = `Tomorrow's match with ${status} status - not shown on today's date`;
     }
-    
-    // Default case
+    else {
+      category = 'other';
+      shouldShow = false;
+      reason = `Match from ${fixtureLocalDate} - not today/yesterday/tomorrow`;
+    }
+
     return {
-      category: 'other',
-      reason: `Does not match any specific rule - status: ${status}`,
+      category,
+      reason,
       fixtureTime: fixtureTimeString,
       currentTime: currentTimeString,
       status,
-      shouldShow: false
+      shouldShow,
+      fixtureLocalDate
     };
   }
-  
+
   /**
-   * Filter fixtures for a specific selected date using advanced time rules
+   * Filter fixtures for a specific selected date using timezone-aware date matching
    */
   static filterFixturesForDate(fixtures: any[], selectedDate: string): any[] {
     return fixtures.filter(fixture => {
       if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
         return false;
       }
-      
+
       const classification = this.classifyFixture(
         fixture.fixture.date,
         fixture.fixture.status.short
       );
-      
+
+      // Get the fixture's local date in user's timezone
+      const fixtureLocalDate = this.getFixtureLocalDate(fixture.fixture.date);
+
+      // Check if the fixture's local date matches the selected date
+      const shouldShowOnSelectedDate = fixtureLocalDate === selectedDate;
+
       console.log(`🔍 [AdvancedTimeClassifier] Match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
         classification: classification.category,
         reason: classification.reason,
         shouldShow: classification.shouldShow,
-        selectedDate
+        selectedDate,
+        fixtureLocalDate,
+        fixtureUTCDate: fixture.fixture.date.slice(0, 10),
+        shouldShowOnSelectedDate,
+        timezoneConversion: fixtureLocalDate !== fixture.fixture.date.slice(0, 10) ? 'YES' : 'NO'
       });
-      
-      return classification.shouldShow;
+
+      return shouldShowOnSelectedDate;
     });
   }
 }

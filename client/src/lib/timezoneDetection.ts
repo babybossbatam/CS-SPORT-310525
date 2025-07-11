@@ -11,8 +11,9 @@ export interface TimezoneInfo {
 
 /**
  * Detect the user's local timezone and return comprehensive timezone information
+ * Optionally validate with server endpoint
  */
-export function detectUserTimezone(): TimezoneInfo {
+export function detectUserTimezone(validateWithServer: boolean = false): TimezoneInfo {
   try {
     // Get the user's timezone using Intl.DateTimeFormat
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -35,12 +36,27 @@ export function detectUserTimezone(): TimezoneInfo {
       timeZone: timezone
     }).formatToParts(now).find(part => part.type === 'timeZoneName')?.value || 'UTC';
     
-    return {
+    const timezoneInfo = {
       timezone,
       offset,
       abbreviation,
       offsetMinutes
     };
+    
+    // Log timezone detection for debugging
+    console.log('🌍 [TIMEZONE DETECTION]', {
+      detected: timezoneInfo,
+      browserOffset: now.getTimezoneOffset(),
+      sample: formatToUserTimezone(now.toISOString(), 'yyyy-MM-dd HH:mm:ss zzz', timezone)
+    });
+    
+    // TODO: Optionally validate with server endpoint in the future
+    if (validateWithServer) {
+      // This could be implemented to call an API endpoint to validate timezone
+      // For now, we trust the browser detection
+    }
+    
+    return timezoneInfo;
   } catch (error) {
     console.error('Error detecting timezone:', error);
     

@@ -556,54 +556,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Filter matches using Advanced Time Classification only - no basic date filtering
-  const selectedDateFixtures = fixtures.filter((f) => {
-    const fixtureDate = f.fixture.date;
-    if (!fixtureDate) return false;
-
-    // Use Advanced Time Classification to determine if matches should be shown
-    const classification = MyAdvancedTimeClassifier.classifyFixture(
-      f.fixture.date,
-      f.fixture.status.short
-    );
-
-    // Debug log for time classification
-    console.log(`🕐 [ADVANCED TIME CLASSIFICATION] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-      fixtureTime: classification.fixtureTime,
-      currentTime: classification.currentTime,
-      status: f.fixture.status.short,
-      category: classification.category,
-      reason: classification.reason,
-      shouldShow: classification.shouldShow,
-      selectedDate,
-      league: f.league.name,
-      leagueId: f.league.id
-    });
-
-    // Special attention to FIFA Club World Cup classification
-    if (f.league.id === 15) {
-      console.log(`🏆 [FIFA CLUB WORLD CUP ADVANCED TIME CLASSIFICATION] ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        fullFixtureDate: f.fixture.date,
-        extractedTime: classification.fixtureTime,
-        currentTime: classification.currentTime,
-        category: classification.category,
-        reason: classification.reason,
-        status: f.fixture.status.short,
-        shouldShow: classification.shouldShow
-      });
-    }
-
-    if (!classification.shouldShow) {
-      console.log(`❌ [ADVANCED TIME FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        classification: classification.category,
-        reason: classification.reason,
-        status: f.fixture.status.short,
-        fixtureTime: classification.fixtureTime
-      });
-    }
-
-    return classification.shouldShow;
-  });
+  // Use timezone-aware Advanced Time Classification to filter matches for the selected date
+  const selectedDateFixtures = MyAdvancedTimeClassifier.filterFixturesForDate(fixtures, selectedDate);
 
   // Log filtering results for all target leagues
   const friendliesFiltered = selectedDateFixtures.filter(f => f.league.id === 667);
