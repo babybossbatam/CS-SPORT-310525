@@ -226,41 +226,51 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
     const goals = parseInt(getStatValue(stats, 'Goals', ['Goal'])) || 0;
     const cornerKicks = parseInt(getStatValue(stats, 'Corner Kicks', ['Corners'])) || 0;
     
-    // Professional definition: Big Chances are clear-cut scoring opportunities
-    // Usually defined as chances with xG > 0.35-0.4
+    // 365scores Big Chances definition: Clear scoring opportunities (xG > 0.35)
+    // This is much more conservative than our previous calculation
     
-    // 1. High-quality shots (shots on target from inside the box)
-    const highQualityShots = Math.min(shotsOnTarget, shotsInsideBox);
+    // Method 1: High-quality box shots only
+    const boxShotsOnTarget = Math.min(shotsOnTarget, shotsInsideBox);
     
-    // 2. Very conservative estimation - only count the clearest opportunities
-    // About 20-30% of shots on target are typically "big chances"
-    const estimatedBigChances = Math.floor(shotsOnTarget * 0.25);
+    // Method 2: Very strict calculation - 365scores is conservative
+    // Only count the absolute clearest chances
+    let bigChances = 0;
     
-    // 3. Set piece big chances (very conservative - only 10% of corners)
-    const setPieceBigChances = Math.floor(cornerKicks * 0.10);
-    
-    // 4. Base calculation - take the higher of the two main methods
-    let bigChances = Math.max(
-      Math.floor(highQualityShots * 0.4), // 40% of high-quality shots
-      estimatedBigChances
-    );
-    
-    // 5. Add set piece chances
-    bigChances += setPieceBigChances;
-    
-    // 6. Ensure at least some correlation with goals
-    if (goals > 0) {
-      bigChances = Math.max(bigChances, Math.min(goals, 2));
+    // Only 15-20% of shots on target are considered "big chances" by 365scores
+    if (shotsOnTarget > 0) {
+      bigChances = Math.floor(shotsOnTarget * 0.18); // 18% conversion rate
     }
     
-    // 7. Apply realistic constraints
-    // - Minimum: 0
-    // - Maximum: Usually 5-6 in professional matches
-    bigChances = Math.max(0, Math.min(bigChances, 6));
+    // Alternative method: Box shots approach
+    const alternativeBigChances = Math.floor(boxShotsOnTarget * 0.25); // 25% of box shots on target
     
-    // 8. Special case: if very few shots but goals scored, ensure minimum
-    if (totalShots < 5 && goals > 0) {
-      bigChances = Math.min(goals + 1, 3);
+    // Take the lower of the two methods (365scores is very conservative)
+    bigChances = Math.min(bigChances, alternativeBigChances);
+    
+    // Set piece big chances (very rare - only exceptional corners)
+    if (cornerKicks >= 8) {
+      bigChances += 1; // Only add 1 for many corners
+    }
+    
+    // Ensure minimum correlation with goals but be very conservative
+    if (goals > 0) {
+      // If goals were scored, there should be at least some big chances
+      bigChances = Math.max(bigChances, Math.min(goals, 1));
+    }
+    
+    // 365scores realistic constraints
+    // - Minimum: 0
+    // - Maximum: Usually 3-4 in most professional matches
+    bigChances = Math.max(0, Math.min(bigChances, 4));
+    
+    // Special handling for very attacking games
+    if (totalShots >= 15 && shotsOnTarget >= 6) {
+      bigChances = Math.max(bigChances, 2); // Minimum 2 for very attacking games
+    }
+    
+    // Special handling for low-shot games with goals
+    if (totalShots <= 8 && goals > 0) {
+      bigChances = Math.max(bigChances, 1); // At least 1 if goals scored with few shots
     }
     
     return bigChances.toString();
