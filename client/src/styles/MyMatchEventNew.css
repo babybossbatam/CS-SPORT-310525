@@ -48,7 +48,7 @@
   grid-template-rows: auto;
   align-items: center;
   width: 100%;
-  gap: 8px;
+  gap: 3px;
   padding: 12px 8px;
   min-height: 60px;
 }

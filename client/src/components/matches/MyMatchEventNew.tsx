@@ -1141,7 +1141,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       return (
                         <div
                           key={event.id || `period-score-${index}`}
-                          className="match-event-container"
+                          className="match-event-container "
                         >
                           <div className="period-score-marker">
                             <div className="period-score-label">
