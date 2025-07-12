@@ -898,7 +898,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   // Get current scores from API data
-  const getCurrentScores = useMemo(() => {
+  const getCurrentScores = useMemo(() => {```text
     if (matchData?.goals) {      return {
         homeScore: matchData.goals.home || 0,
         awayScore: matchData.goals.away || 0,
@@ -1183,10 +1183,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
                                         onError={(e) => {
-                                          // Try fallback sources if primary fails
+                                          // Enhanced fallback chain for better player image accuracy
                                           const img = e.target as HTMLImageElement;
-                                          if (event.player?.id && !img.src.includes('resfu')) {
-                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          if (event.player?.id) {
+                                            if (!img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                            } else if (!img.src.includes('media.api-sports.io')) {
+                                              img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                            } else if (!img.src.includes('apifootball.com')) {
+                                              img.src = `https://apifootball.com/api/players/${event.player.id}.jpg`;
+                                            }
                                           }
                                         }}
                                       />
@@ -1727,10 +1733,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
                                         onError={(e) => {
-                                          // Try fallback sources if primary fails
+                                          // Enhanced fallback chain for better player image accuracy
                                           const img = e.target as HTMLImageElement;
-                                          if (event.player?.id && !img.src.includes('resfu')) {
-                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          if (event.player?.id) {
+                                            if (!img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                            } else if (!img.src.includes('media.api-sports.io')) {
+                                              img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                            } else if (!img.src.includes('apifootball.com')) {
+                                              img.src = `https://apifootball.com/api/players/${event.player.id}.jpg`;
+                                            }
                                           }
                                         }}
                                       />
