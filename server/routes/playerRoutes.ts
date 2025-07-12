@@ -35,7 +35,7 @@ router.get('/teams/:teamId/players/images', async (req, res) => {
     const playersData = await playersResponse.json();
     const players = playersData.response || [];
 
-    console.log(`📊 [BatchPlayerImages] Found ${players.length} players for team ${teamId} in season ${season}`);on}`);
+    console.log(`📊 [BatchPlayerImages] Found ${players.length} players for team ${teamId} in season ${season}`);
 
     // Build image URLs for all players with multiple CDN fallbacks
     const playerImages: Record<string, string> = {};
@@ -188,6 +188,10 @@ router.get('/player-statistics/:playerId', async (req, res) => {
   }
 });
 
+} catch (error) {
+    console.error(`❌ [Player Stats] Error fetching statistics for player ${playerId}:`, error);
+    res.status(500).json({ error: 'Failed to fetch player statistics' });
+  }
 });
 
 export default router;
