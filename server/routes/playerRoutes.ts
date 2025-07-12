@@ -1,3 +1,4 @@
+
 import express from 'express';
 
 const router = express.Router();
@@ -183,12 +184,6 @@ router.get('/player-statistics/:playerId', async (req, res) => {
       res.status(404).json({ error: 'Player statistics not found' });
     }
   } catch (error) {
-    console.error(`❌ [Player Stats] Error fetching statistics for player ${playerId}:`, error);
-    res.status(500).json({ error: 'Failed to fetch player statistics' });
-  }
-});
-
-} catch (error) {
     console.error(`❌ [Player Stats] Error fetching statistics for player ${playerId}:`, error);
     res.status(500).json({ error: 'Failed to fetch player statistics' });
   }
