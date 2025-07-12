@@ -13,6 +13,102 @@ interface CachedPlayerData {
   source: 'rapidapi' | 'fallback';
 }
 
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+const playerCache = new Map<string, CachedPlayerData>();
+
+/**
+ * Get player image with team context for better API results
+ */
+export async function getPlayerImage(
+  playerId?: number,
+  playerName?: string,
+  teamId?: number
+): Promise<string> {
+  const cacheKey = `${playerId || 'no-id'}_${playerName || 'no-name'}_${teamId || 'no-team'}`;
+  
+  console.log(`🔍 [Player Image Cache] Fetching image for: ${playerName} (ID: ${playerId}, Team: ${teamId})`);
+  
+  // Check cache first
+  const cached = playerCache.get(cacheKey);
+  if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+    console.log(`✅ [Player Image Cache] Found cached image for ${playerName}: ${cached.photo}`);
+    return cached.photo || generateFallbackSVG(playerName);
+  }
+
+  // Try to fetch from RapidAPI if we have player ID and team ID
+  if (playerId && teamId) {
+    try {
+      console.log(`📡 [Player Image Cache] Fetching from API: player ${playerId} from team ${teamId}`);
+      const response = await fetch(`/api/team-players`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          teamId, 
+          playerId,
+          playerName 
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`📡 [Player Image Cache] API response for ${playerName}:`, data);
+        
+        if (data.photo) {
+          const playerData: CachedPlayerData = {
+            playerId,
+            playerName: playerName || '',
+            photo: data.photo,
+            timestamp: Date.now(),
+            teamId,
+            source: 'rapidapi'
+          };
+          playerCache.set(cacheKey, playerData);
+          console.log(`✅ [Player Image Cache] Cached API image for ${playerName}: ${data.photo}`);
+          return data.photo;
+        }
+      } else {
+        console.warn(`⚠️ [Player Image Cache] API request failed for ${playerName}:`, response.status);
+      }
+    } catch (error) {
+      console.error(`❌ [Player Image Cache] Error fetching from API for ${playerName}:`, error);
+    }
+  }
+
+  // Fallback to SVG avatar
+  const fallbackSVG = generateFallbackSVG(playerName);
+  const fallbackData: CachedPlayerData = {
+    playerId,
+    playerName: playerName || '',
+    photo: fallbackSVG,
+    timestamp: Date.now(),
+    teamId,
+    source: 'fallback'
+  };
+  playerCache.set(cacheKey, fallbackData);
+  console.log(`🎨 [Player Image Cache] Using fallback SVG for ${playerName}: ${fallbackSVG}`);
+  return fallbackSVG;
+}
+
+/**
+ * Generate SVG fallback avatar with player initials
+ */
+function generateFallbackSVG(playerName?: string): string {
+  const initials = playerName
+    ?.split(' ')
+    .map(name => name[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'P';
+
+  const colors = ['4F46E5', 'EF4444', '10B981', 'F59E0B', '8B5CF6', 'EC4899'];
+  const colorIndex = playerName ? playerName.length % colors.length : 0;
+  const bgColor = colors[colorIndex];
+
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&size=128&background=${bgColor}&color=fff&bold=true&format=svg`;
+}
+
 interface PlayerAPIResponse {
   response: Array<{
     player: {

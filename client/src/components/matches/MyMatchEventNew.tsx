@@ -5,7 +5,7 @@ import { Clock, RefreshCw, AlertCircle } from "lucide-react";
 
 import "@/styles/MyPlayer.css";
 import "@/styles/MyMatchEventNew.css";
-import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarImage } from "../ui/avatar";
 import MyCommentary from "./MyCommentary";
 import MyPlayerProfilePicture from "./MyPlayerProfilePicture";
 import PlayerProfileModal from "../modals/PlayerProfileModal";
@@ -475,6 +475,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const getPlayerImage = useCallback((
     playerId: number | undefined,
     playerName: string | undefined,
+    teamId: number | undefined,
   ): string => {
     const key = `${playerId}_${playerName}`;
     const cachedImage = playerImages[key];
@@ -1205,17 +1206,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         src={getPlayerImage(
                                           event.player?.id,
                                           event.player?.name,
+                                          event.team?.id
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
                                       />
-                                      <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                                        {event.player?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .slice(0, 2) || "P"}
-                                      </AvatarFallback>
                                     </Avatar>
 
                                     {event.type === "subst" && event.assist?.name && (
@@ -1223,21 +1218,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
+```jsx
                                         <AvatarImage
                                           src={getPlayerImage(
                                             event.assist?.id,
                                             event.assist?.name,
+                                            event.team?.id
                                           )}
                                           alt={event.assist?.name || "Player"}
                                           className="object-cover"
                                         />
-                                        <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                                          {event.assist?.name
-                                            ?.split(" ")
-                                            .map((n) => n[0])
-                                            .join("")
-                                            .slice(0, 2) || "P"}
-                                        </AvatarFallback>
                                       </Avatar>
                                     )}
                                   </div>
@@ -1511,17 +1501,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           src={getPlayerImage(
                                             event.assist?.id,
                                             event.assist?.name,
+                                            event.team?.id
                                           )}
                                           alt={event.assist?.name || "Player"}
                                           className="object-cover"
                                         />
-                                        <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                                          {event.player?.name
-                                            ?.split(" ")
-                                            .map((n) => n[0])
-                                            .join("")
-                                            .slice(0, 2) || "P"}
-                                      </AvatarFallback>
                                         </Avatar>
                                     )}
 
@@ -1533,17 +1517,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         src={getPlayerImage(
                                           event.player?.id,
                                           event.player?.name,
+                                          event.team?.id
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
                                       />
-                                      <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                                        {event.player?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .slice(0, 2) || "P"}
-                                      </AvatarFallback>
                                     </Avatar>
                                   </div>
                                 </div>
@@ -1731,40 +1709,27 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         src={getPlayerImage(
                                           event.player?.id,
                                           event.player?.name,
+                                          event.team?.id
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
                                       />
-                                      <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                                        {event.player?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .slice(0, 2) || "P"}
-                                      </AvatarFallback>
                                     </Avatar>
 
                                     {event.type === "subst" && event.assist?.name && (
                                       <Avatar 
                                         className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
-                                      >
-```jsx
+                                      >```jsx
                                         <AvatarImage
                                           src={getPlayerImage(
                                             event.assist?.id,
                                             event.assist?.name,
+                                            event.team?.id
                                           )}
                                           alt={event.assist?.name || "Player"}
                                           className="object-cover"
                                         />
-                                        <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                                          {event.assist?.name
-                                            ?.split(" ")
-                                            .map((n) => n[0])
-                                            .join("")
-                                            .slice(0, 2) || "P"}
-                                        </AvatarFallback>
                                       </Avatar>
                                     )}
                                   </div>
@@ -2038,17 +2003,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           src={getPlayerImage(
                                             event.assist?.id,
                                             event.assist?.name,
+                                            event.team?.id
                                           )}
                                           alt={event.assist?.name || "Player"}
                                           className="object-cover"
                                         />
-                                        <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                                          {event.player?.name
-                                            ?.split(" ")
-                                            .map((n) => n[0])
-                                            .join("")
-                                            .slice(0, 2) || "P"}
-                                      </AvatarFallback>
                                         </Avatar>
                                     )}
 
@@ -2060,17 +2019,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         src={getPlayerImage(
                                           event.player?.id,
                                           event.player?.name,
+                                          event.team?.id
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
                                       />
-                                      <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                                        {event.player?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .slice(0, 2) || "P"}
-                                      </AvatarFallback>
                                     </Avatar>
                                   </div>
                                 </div>
