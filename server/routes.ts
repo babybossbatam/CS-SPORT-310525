@@ -24,7 +24,7 @@ import featuredMatchRoutes from "./routes/featuredMatchRoutes";
 import youtubeRoutes from "./routes/youtubeRoutes";
 import vimeoRoutes from "./routes/vimeoRoutes";
 import dailymotionRoutes from "./routes/dailymotionRoutes";
-import twitchRoutes from "./routes/twitchRoutes";
+import twitchRoutes from "./twitchRoutes";
 import highlightsRoutes from './routes/highlightsRoutes';
 import playerRoutes from './routes/playerRoutes';
 import axios from "axios";
@@ -548,6 +548,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `✅ [Routes] Returning ${uniqueFixtures.length} multi-timezone fixtures for ${date}`,
       );
       return res.json(uniqueFixtures);
+    } catch (error) {
       // Fallback to cached fixtures if API fails
       if (cachedFixtures && cachedFixtures.length > 0) {
         console.log(
@@ -560,11 +561,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `📭 [Routes] No fixtures found for multi-timezone request: ${date}`,
       );
       return res.json([]);
-    } catch (error) {
-      console.error("Error fetching multi-timezone fixtures:", error);
-      return res.json([]);
     }
-  });
+  },
+);
 
   apiRouter.get("/fixtures/:id", async (req: Request, res: Response) => {
     try {
@@ -825,7 +824,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               name: "UEFA Champions League",
               type:```text
 "Cup",
-              logo: "https://media.api-sports.io/football/leagues/2.png",
+              logo: "https://```text
+media.api-sports.io/football/leagues/2.png",
               country: "World",
             },
             country: {
@@ -1719,8 +1719,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.get(
     "/team-logo/square/:teamId",
     async (req: Request, res: Response) => {
-      try {
-        const { teamId } = req.params;
+      try {        const { teamId } = req.params;
         const size = parseInt(req.query.size as string) || 72; // Default 72x72 pixels
 
         console.log(
