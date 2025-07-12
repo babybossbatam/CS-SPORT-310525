@@ -34,11 +34,12 @@ export class MyAdvancedTimeClassifier {
     const fixtureMinute = fixture.getUTCMinutes();
     const fixtureTimeString = `${fixtureHour.toString().padStart(2, '0')}:${fixtureMinute.toString().padStart(2, '0')}`;
 
-    // STEP 1: Get current date info in local timezone
-    const todayDate = now.toLocaleDateString('en-CA'); // YYYY-MM-DD format in user's timezone
+    // STEP 1: Get current date info in user's actual timezone
+    const todayDate = now.toLocaleDateString('sv-SE'); // YYYY-MM-DD format in user's timezone (using Swedish locale for ISO format)
     
-    // STEP 2: Extract UTC date directly from fixture string (no timezone conversion)
-    const fixtureDate_str = fixtureDate.substring(0, 10); // Extract YYYY-MM-DD from UTC string directly
+    // STEP 2: Convert fixture UTC time to user's local timezone date
+    const fixtureInUserTimezone = new Date(fixtureDate);
+    const fixtureDate_str = fixtureInUserTimezone.toLocaleDateString('sv-SE'); // YYYY-MM-DD in user's timezone
 
     const requestedDate = selectedDate || todayDate;
 
@@ -50,22 +51,28 @@ export class MyAdvancedTimeClassifier {
     // STEP 5: Check if fixture date matches the requested date
     const fixtureMatchesRequestedDate = fixtureDate_str === requestedDate;
 
-    // SIMPLE DEBUGGING - Show UTC date extraction
-    console.log(`🔍 [DATE FILTERING DEBUG] UTC date extraction for: ${fixtureDate}`, {
+    // ENHANCED DEBUGGING - Show timezone-aware date conversion
+    const fixtureUTCDate = fixtureDate.substring(0, 10); // Original UTC date
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    
+    console.log(`🔍 [TIMEZONE-AWARE DATE FILTERING] Processing: ${fixtureDate}`, {
+      userTimezone,
       currentDate: {
         nowLocal: now.toLocaleString(),
         todayDateLocal: todayDate
       },
       fixtureDate: {
         originalUTC: fixtureDate,
-        extractedUTCDate: fixtureDate_str
+        utcDateOnly: fixtureUTCDate,
+        convertedToUserTZ: fixtureDate_str,
+        timezoneEffect: fixtureUTCDate !== fixtureDate_str ? `UTC ${fixtureUTCDate} → Local ${fixtureDate_str}` : 'No timezone shift'
       },
       comparison: {
         selectedDate: requestedDate,
-        fixtureUTCDate: fixtureDate_str,
+        fixtureLocalDate: fixtureDate_str,
         datesMatch: fixtureMatchesRequestedDate,
         willInclude: fixtureMatchesRequestedDate,
-        reason: fixtureMatchesRequestedDate ? 'UTC date match - INCLUDED' : 'UTC date mismatch - EXCLUDED'
+        reason: fixtureMatchesRequestedDate ? 'Local timezone date match - INCLUDED' : 'Local timezone date mismatch - EXCLUDED'
       }
     });
 
