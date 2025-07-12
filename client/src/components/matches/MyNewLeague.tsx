@@ -272,15 +272,27 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               return !isAlreadyLive;
             });
 
-            // Filter to only include matches for the selected date using raw UTC date (no timezone conversion)
+            // Filter to only include matches for the selected date using timezone-aware conversion
             const filteredFixtures = nonLiveFixtures.filter(fixture => {
               const fixtureDate = fixture.fixture?.date;
               if (!fixtureDate) return false;
 
-              // Extract date from UTC string directly without timezone conversion
-              const utcDateString = fixtureDate.substring(0, 10); // Extract YYYY-MM-DD from ISO string
+              // Convert fixture UTC time to user's local timezone
+              const fixtureUTCDate = new Date(fixtureDate);
+              const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+              
+              const matches = fixtureLocalDate === selectedDate;
+              
+              if (matches) {
+                console.log(`🎯 [TIMEZONE AWARE FETCH] Including match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                  fixtureUTCTime: fixtureDate,
+                  fixtureLocalDate,
+                  selectedDate,
+                  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                });
+              }
 
-              return utcDateString === selectedDate;
+              return matches;
             });
 
             console.log(`🎯 [MyNewLeague] League ${leagueId}: ${freshFixtures.length} → ${filteredFixtures.length} fixtures after date filtering`);
@@ -378,16 +390,33 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         const allDateFixtures = await response.json();
         console.log(`📊 [MyNewLeague] Got ${allDateFixtures.length} total fixtures for ${selectedDate}`);
 
-        // Group fixtures by league and filter for our target leagues
+        // Group fixtures by league and filter for our target leagues with timezone awareness
         const leagueFixturesMap = new Map();
 
         allDateFixtures.forEach(fixture => {
           const leagueId = fixture.league?.id;
           if (leagueIds.includes(leagueId)) {
-            if (!leagueFixturesMap.has(leagueId)) {
-              leagueFixturesMap.set(leagueId, []);
+            // Apply timezone-aware date filtering
+            const fixtureDate = fixture.fixture?.date;
+            if (fixtureDate) {
+              const fixtureUTCDate = new Date(fixtureDate);
+              const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+              
+              // Only include fixtures that match the selected date in local timezone
+              if (fixtureLocalDate === selectedDate) {
+                if (!leagueFixturesMap.has(leagueId)) {
+                  leagueFixturesMap.set(leagueId, []);
+                }
+                leagueFixturesMap.get(leagueId).push(fixture);
+                
+                console.log(`🌍 [SMART FETCH TIMEZONE] Including: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                  fixtureUTCTime: fixtureDate,
+                  fixtureLocalDate,
+                  selectedDate,
+                  league: fixture.league?.name
+                });
+              }
             }
-            leagueFixturesMap.get(leagueId).push(fixture);
           }
         });
 
@@ -646,40 +675,54 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     });
   });
 
-  // Filter matches using improved date-aware time classification
+  // Filter matches using timezone-aware date filtering
   const selectedDateFixtures = fixtures.filter((f) => {
     const fixtureDate = f.fixture.date;
     if (!fixtureDate) return false;
 
-    // Use the improved advanced time classifier with date awareness
+    // Convert fixture UTC time to user's local timezone first
+    const fixtureUTCDate = new Date(fixtureDate);
+    const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+    
+    // Debug timezone conversion
+    console.log(`🌍 [TIMEZONE CONVERSION] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+      fixtureUTCTime: fixtureDate,
+      fixtureUTCDate: fixtureUTCDate.toISOString().split('T')[0],
+      fixtureLocalDate: fixtureLocalDate,
+      selectedDate,
+      userTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      dateMatches: fixtureLocalDate === selectedDate
+    });
+
+    // Primary filter: match the local date with selected date
+    const dateMatches = fixtureLocalDate === selectedDate;
+    
+    if (!dateMatches) {
+      console.log(`❌ [TIMEZONE DATE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+        reason: 'Date mismatch after timezone conversion',
+        fixtureLocalDate,
+        selectedDate,
+        status: f.fixture.status.short
+      });
+      return false;
+    }
+
+    // Secondary filter: Use time classification for additional filtering
     const classification = MyAdvancedTimeClassifier.classifyFixture(
       f.fixture.date,
       f.fixture.status.short,
       selectedDate
     );
 
-    // Debug log for time classification
-    console.log(`🕐 [DATE-AWARE TIME CLASSIFICATION] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-      fixtureDate: f.fixture.date,
+    console.log(`✅ [TIMEZONE DATE FILTER] Included match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
+      reason: 'Date matches after timezone conversion',
+      fixtureLocalDate,
       selectedDate,
       status: f.fixture.status.short,
-      category: classification.category,
-      reason: classification.reason,
-      shouldShow: classification.shouldShow,
-      league: f.league.name,
-      leagueId: f.league.id
+      classification: classification.category
     });
 
-    if (!classification.shouldShow) {
-      console.log(`❌ [DATE-AWARE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
-        classification: classification.category,
-        reason: classification.reason,
-        status: f.fixture.status.short,
-        selectedDate
-      });
-    }
-
-    return classification.shouldShow;
+    return true; // Include all matches that match the local date
   });
 
   // Log filtering results for all target leagues
