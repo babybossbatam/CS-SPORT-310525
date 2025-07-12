@@ -10,6 +10,10 @@ interface CachedPlayerImage {
   playerId: number;
   playerName: string;
   source: 'api' | 'fallback' | 'initials';
+  headers?: {
+    lastModified?: string;
+    etag?: string;
+  };
 }
 
 class PlayerImageCache {
@@ -44,12 +48,13 @@ class PlayerImageCache {
     return cached;
   }
 
-  // Set cached player image
+  // Set cached player image with optional headers
   setCachedImage(
     playerId: number | undefined,
     playerName: string | undefined,
     url: string,
-    source: CachedPlayerImage['source'] = 'api'
+    source: CachedPlayerImage['source'] = 'api',
+    headers?: { lastModified?: string; etag?: string }
   ): void {
     const key = this.getCacheKey(playerId, playerName);
 
@@ -64,18 +69,95 @@ class PlayerImageCache {
       verified: true,
       playerId: playerId || 0,
       playerName: playerName || 'Unknown Player',
-      source
+      source,
+      headers
     });
 
-    console.log(`💾 [PlayerImageCache] Cached image for player: ${playerName} (${playerId}) | Source: ${source}`);
+    console.log(`💾 [PlayerImageCache] Cached image for player: ${playerName} (${playerId}) | Source: ${source}${headers ? ' | With headers' : ''}`);
   }
 
-  // Simplified player image with team-based batch loading
-  async getPlayerImageWithFallback(playerId?: number, playerName?: string, teamId?: number): Promise<string> {
+  // Check if cached image is still fresh/valid
+  private async isImageFresh(cachedItem: CachedPlayerImage): Promise<boolean> {
+    try {
+      // For external URLs, check if the image is still accessible and fresh
+      if (cachedItem.url.startsWith('https://')) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 2000);
+
+        try {
+          const response = await fetch(cachedItem.url, { 
+            method: 'HEAD',
+            signal: controller.signal,
+            cache: 'no-cache' // Force fresh check
+          });
+          clearTimeout(timeoutId);
+          
+          // Check if image is still accessible
+          if (!response.ok) {
+            console.log(`🔍 [PlayerImageCache] Cached image no longer accessible: ${cachedItem.url}`);
+            return false;
+          }
+
+          // Check last-modified or etag if available
+          const lastModified = response.headers.get('last-modified');
+          const etag = response.headers.get('etag');
+          
+          if (lastModified || etag) {
+            // If we have cached headers, compare them
+            const cachedHeaders = cachedItem.headers;
+            if (cachedHeaders) {
+              const isModified = (lastModified && cachedHeaders.lastModified !== lastModified) ||
+                               (etag && cachedHeaders.etag !== etag);
+              
+              if (isModified) {
+                console.log(`🔄 [PlayerImageCache] Image modified since cache: ${cachedItem.playerName}`);
+                return false;
+              }
+            }
+          }
+
+          console.log(`✅ [PlayerImageCache] Cached image is fresh: ${cachedItem.playerName}`);
+          return true;
+        } catch (error) {
+          clearTimeout(timeoutId);
+          console.log(`⚠️ [PlayerImageCache] Could not verify image freshness: ${cachedItem.url}`);
+          // If we can't verify, assume it's stale after 24 hours
+          const age = Date.now() - cachedItem.timestamp;
+          return age < (24 * 60 * 60 * 1000); // 24 hours
+        }
+      }
+
+      // For other URLs (like generated avatars), consider them fresh
+      return true;
+    } catch (error) {
+      console.warn(`⚠️ [PlayerImageCache] Error checking image freshness:`, error);
+      return false;
+    }
+  }
+
+  // Simplified player image with team-based batch loading and intelligent refresh
+  async getPlayerImageWithFallback(playerId?: number, playerName?: string, teamId?: number, forceRefresh?: boolean): Promise<string> {
     // Check cache first
     const cached = this.getCachedImage(playerId, playerName);
-    if (cached && cached.verified) {
-      return cached.url;
+    
+    if (cached && cached.verified && !forceRefresh) {
+      // Check if the cached image is still fresh
+      const isFresh = await this.isImageFresh(cached);
+      
+      if (isFresh) {
+        console.log(`✅ [PlayerImageCache] Using fresh cached image: ${playerName}`);
+        return cached.url;
+      } else {
+        // Image is stale, clear this specific cache entry
+        console.log(`🔄 [PlayerImageCache] Clearing stale cache for: ${playerName}`);
+        this.forceRefresh(playerId, playerName);
+      }
+    }
+
+    // If force refresh is requested, clear the cache first
+    if (forceRefresh) {
+      console.log(`🔄 [PlayerImageCache] Force refresh requested for: ${playerName}`);
+      this.forceRefresh(playerId, playerName);
     }
 
     // If we have team ID, try batch loading first as it's more reliable
@@ -95,9 +177,9 @@ class PlayerImageCache {
     if (playerId) {
       const apiSportsUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
       try {
-        const isValidApiSports = await this.validateImageUrl(apiSportsUrl);
-        if (isValidApiSports) {
-          this.setCachedImage(playerId, playerName, apiSportsUrl, 'api');
+        const validationResult = await this.validateImageUrl(apiSportsUrl);
+        if (validationResult.isValid) {
+          this.setCachedImage(playerId, playerName, apiSportsUrl, 'api', validationResult.headers);
           return apiSportsUrl;
         }
       } catch (error) {
@@ -112,9 +194,9 @@ class PlayerImageCache {
     if (playerId) {
       const resfuUrl = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
       try {
-        const isValidResfu = await this.validateImageUrl(resfuUrl);
-        if (isValidResfu) {
-          this.setCachedImage(playerId, playerName, resfuUrl, 'api');
+        const validationResult = await this.validateImageUrl(resfuUrl);
+        if (validationResult.isValid) {
+          this.setCachedImage(playerId, playerName, resfuUrl, 'api', validationResult.headers);
           return resfuUrl;
         }
       } catch (error) {
@@ -126,9 +208,9 @@ class PlayerImageCache {
     if (playerId) {
       const scores365Url = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
       try {
-        const isValid365Scores = await this.validateImageUrl(scores365Url);
-        if (isValid365Scores) {
-          this.setCachedImage(playerId, playerName, scores365Url, 'api');
+        const validationResult = await this.validateImageUrl(scores365Url);
+        if (validationResult.isValid) {
+          this.setCachedImage(playerId, playerName, scores365Url, 'api', validationResult.headers);
           return scores365Url;
         }
       } catch (error) {
@@ -157,8 +239,8 @@ class PlayerImageCache {
       .slice(0, 2) || 'P';
   }
 
-  // Validate image URL
-  private async validateImageUrl(url: string): Promise<boolean> {
+  // Validate image URL and return validation result with headers
+  private async validateImageUrl(url: string): Promise<{ isValid: boolean; headers?: { lastModified?: string; etag?: string } }> {
     try {
       // For local API endpoints, do a proper validation
       if (url.startsWith('/api/')) {
@@ -171,11 +253,18 @@ class PlayerImageCache {
             signal: controller.signal
           });
           clearTimeout(timeoutId);
-          return response.ok && response.headers.get('content-type')?.startsWith('image/');
+          
+          const isValid = response.ok && response.headers.get('content-type')?.startsWith('image/');
+          const headers = {
+            lastModified: response.headers.get('last-modified') || undefined,
+            etag: response.headers.get('etag') || undefined,
+          };
+          
+          return { isValid, headers };
         } catch (error) {
           clearTimeout(timeoutId);
           console.warn(`⚠️ [PlayerImageCache] Local API validation failed for ${url}:`, error);
-          return false;
+          return { isValid: false };
         }
       }
 
@@ -192,24 +281,23 @@ class PlayerImageCache {
       
       if (isTrustedDomain) {
         console.log(`✅ [PlayerImageCache] Trusted domain for ${url}, skipping validation`);
-        return true;
+        return { isValid: true };
       }
 
       // For untrusted domains, try validation with better error handling
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000); // Reduced timeout
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
 
       try {
         const response = await fetch(url, { 
           method: 'HEAD',
           signal: controller.signal,
-          mode: 'no-cors' // Use no-cors to avoid CORS issues
+          mode: 'no-cors'
         });
         clearTimeout(timeoutId);
 
-        // With no-cors, we can't read response details, so assume success if no error
         console.log(`🔍 [PlayerImageCache] No-CORS validation passed for ${url}`);
-        return true;
+        return { isValid: true };
       } catch (error) {
         clearTimeout(timeoutId);
         
@@ -219,19 +307,19 @@ class PlayerImageCache {
           const imageTimeout = setTimeout(() => {
             img.onload = null;
             img.onerror = null;
-            resolve(false);
+            resolve({ isValid: false });
           }, 3000);
 
           img.onload = () => {
             clearTimeout(imageTimeout);
             console.log(`✅ [PlayerImageCache] Image element validation passed for ${url}`);
-            resolve(true);
+            resolve({ isValid: true });
           };
 
           img.onerror = () => {
             clearTimeout(imageTimeout);
             console.warn(`⚠️ [PlayerImageCache] Image element validation failed for ${url}`);
-            resolve(false);
+            resolve({ isValid: false });
           };
 
           img.src = url;
@@ -239,7 +327,7 @@ class PlayerImageCache {
       }
     } catch (error) {
       console.warn(`⚠️ [PlayerImageCache] URL validation failed for ${url}:`, error);
-      return false;
+      return { isValid: false };
     }
   }
 
@@ -416,6 +504,10 @@ export const clearPlayerImageCacheFunc = (): void => {
 
 export const forceRefreshPlayerFunc = (playerId?: number, playerName?: string): void => {
   return playerImageCache.forceRefresh(playerId, playerName);
+};
+
+export const refreshPlayerImageFunc = async (playerId?: number, playerName?: string, teamId?: number): Promise<string> => {
+  return playerImageCache.getPlayerImageWithFallback(playerId, playerName, teamId, true);
 };
 
 export const batchLoadPlayerImagesFunc = async (teamId?: number, leagueId?: number): Promise<void> => {
