@@ -410,7 +410,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  // Load player images asynchronously with actual photos
+  // Load player images asynchronously
   useEffect(() => {
     const loadPlayerImages = async () => {
       const { getPlayerImage } = await import('../../lib/playerImageCache');
@@ -420,8 +420,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         if (event.player?.id || event.player?.name) {
           const key = `${event.player.id}_${event.player.name}`;
           if (!playerImages[key]) {
-            // Pass teamId for better photo accuracy
-            imagePromises[key] = getPlayerImage(event.player.id, event.player.name, event.team?.id);
+            imagePromises[key] = getPlayerImage(event.player.id, event.player.name);
           }
         }
 
@@ -429,8 +428,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         if (event.assist?.id || event.assist?.name) {
           const assistKey = `${event.assist.id}_${event.assist.name}`;
           if (!playerImages[assistKey]) {
-            // Pass teamId for better photo accuracy
-            imagePromises[assistKey] = getPlayerImage(event.assist.id, event.assist.name, event.team?.id);
+            imagePromises[assistKey] = getPlayerImage(event.assist.id, event.assist.name);
           }
         }
       });
@@ -442,7 +440,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             const url = await promise;
             return { key, url };
           } catch (error) {
-            console.warn(`Failed to load actual photo for ${key}:`, error);
+            console.warn(`Failed to load image for ${key}:`, error);
             return { key, url: '' };
           }
         })
@@ -478,20 +476,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       return cachedImage;
     }
 
-    // PRIORITY 1: Use RapidAPI endpoint for actual player photos (first source)
+    // Fallback while loading
     if (playerId) {
-      return `/api/player-photo/${playerId}${teamId ? `?teamId=${teamId}` : ''}`;
-    }
-
-    // FINAL FALLBACK: Generate initials if no player ID
-    if (playerName) {
-      const initials = playerName
-        .split(' ')
-        .map(n => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2) || 'P';
-      return `https://ui-avatars.com/api/?name=${initials}&size=64&background=4F46E5&color=fff&bold=true&format=svg`;
+      return `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
     }
 
     return "";
