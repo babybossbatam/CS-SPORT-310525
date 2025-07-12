@@ -35,9 +35,9 @@ export class MyAdvancedTimeClassifier {
     const fixtureMinute = fixture.getUTCMinutes();
     const fixtureTimeString = `${fixtureHour.toString().padStart(2, '0')}:${fixtureMinute.toString().padStart(2, '0')}`;
     
-    // Get date strings for comparison - using raw UTC dates
+    // Get date strings for comparison - using proper Date objects for consistent formatting
     const todayDate = now.toISOString().slice(0, 10);
-    const fixtureDate_str = fixtureDate.substring(0, 10); // Extract YYYY-MM-DD directly from UTC string
+    const fixtureDate_str = new Date(fixtureDate).toISOString().slice(0, 10); // Use new Date() for proper parsing
     const requestedDate = selectedDate || todayDate;
     
     console.log(`🕐 [AdvancedTimeClassifier] Analyzing fixture:`, {
