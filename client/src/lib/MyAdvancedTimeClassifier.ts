@@ -45,6 +45,26 @@ export class MyAdvancedTimeClassifier {
     const fixtureUTCString = parsedFixtureDate.toUTCString();
     const fixtureLocalString = parsedFixtureDate.toLocaleString();
 
+    // Special debugging for New England Revolution vs Inter Miami match
+    const isNewEnglandMatch = fixtureDate === "2025-07-09T23:30:00+00:00";
+    
+    if (isNewEnglandMatch) {
+      console.log(`🔍 [SPECIAL DEBUG - New England vs Inter Miami]:`, {
+        originalFixtureDate,
+        parsedFixtureDate: parsedFixtureDate.toISOString(),
+        fixtureUTCString,
+        fixtureLocalString,
+        extractedDateWithNewDate: new Date(fixtureDate).toISOString().slice(0, 10),
+        extractedDateDirect: fixtureDate.substring(0, 10),
+        fixtureYear: parsedFixtureDate.getUTCFullYear(),
+        fixtureMonth: parsedFixtureDate.getUTCMonth() + 1,
+        fixtureDay: parsedFixtureDate.getUTCDate(),
+        constructedDateString: `${parsedFixtureDate.getUTCFullYear()}-${String(parsedFixtureDate.getUTCMonth() + 1).padStart(2, '0')}-${String(parsedFixtureDate.getUTCDate()).padStart(2, '0')}`,
+        currentNewDate: new Date().toISOString(),
+        currentNewDateSliced: new Date().toISOString().slice(0, 10)
+      });
+    }
+
     console.log(`🕐 [AdvancedTimeClassifier] Analyzing fixture:`, {
       fixtureDate,
       fixtureTime: fixtureTimeString,
