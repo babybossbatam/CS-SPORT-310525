@@ -2618,7 +2618,8 @@ logoUrl, {
       } catch (error) {
         console.error("❌ [SoccersAPI] Error fetching match details:", error);
         res.status(500).json({
-          success: false,        error: "Failed to fetch SoccersAPI match details",
+          success: false,
+          error: "Failed to fetch SoccersAPI match details",
         });
       }
     },
@@ -2684,8 +2685,9 @@ logoUrl, {
         const lineups = await soccersApi.getMatchLineups(id);
         res.json({
           success: true,
-          lineups: lineups,        });
-      } catch (error) {
+          lineups: lineups,
+        });
+      } catch (error){
         console.error("❌ [SoccersAPI] Error fetching match lineups:", error);
         res.status(500).json({
           success: false,
