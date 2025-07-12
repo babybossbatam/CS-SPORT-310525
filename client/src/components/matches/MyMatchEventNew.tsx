@@ -413,71 +413,62 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   // Load player images asynchronously with enhanced batch loading
   useEffect(() => {
     const loadPlayerImages = async () => {
-      const { playerImageCache } = await import('../../lib/playerImageCache');
-      
-      // Extract unique team IDs from events
-      const teamIds = new Set<number>();
-      events.forEach(event => {
-        if (event.team?.id) {
-          teamIds.add(event.team.id);
-        }
-      });
+    console.log('🔍 [PlayerImages] Loading player images for events');
 
-      console.log(`🔄 [PlayerImageCache] Batch loading players for teams: ${Array.from(teamIds).join(', ')}`);
-
-      // Try batch loading for each team using current season
-      for (const teamId of teamIds) {
-        try {
-          await playerImageCache.batchLoadPlayerImages(teamId);
-        } catch (error) {
-          console.warn(`Failed to batch load team ${teamId} players:`, error);
-        }
+    // Group events by team ID for efficient batch loading
+    const teamIds = new Set<number>();
+    events.forEach(event => {
+      if (event.team?.id) {
+        teamIds.add(event.team.id);
       }
+    });
 
-      // Get images for all players in events
-      const newImages: Record<string, string> = {};
+    // Define the functions to load player images and batch load player images
+    const { getPlayerImage: getPlayerImageFunc, batchLoadPlayerImages: batchLoadPlayerImagesFunc } = await import('../../lib/playerImageCache');
 
-      // Process all event players
-      for (const event of events) {
-        // Main player
-        if (event.player?.id || event.player?.name) {
-          const key = `${event.player.id}_${event.player.name}`;
-          try {
-            const imageUrl = await playerImageCache.getPlayerImageWithFallback(
-              event.player.id, 
-              event.player.name
-            );
-            if (imageUrl) {
-              newImages[key] = imageUrl;
-            }
-          } catch (error) {
-            console.warn(`Failed to load image for player ${event.player.name}:`, error);
-          }
-        }
+    // Batch load all team players first
+    const batchPromises = Array.from(teamIds).map(teamId => 
+      batchLoadPlayerImagesFunc(teamId).catch(error => {
+        console.warn(`Failed to batch load team ${teamId}:`, error);
+      })
+    );
 
-        // Assist player (for substitutions)
-        if (event.assist?.id || event.assist?.name) {
-          const assistKey = `${event.assist.id}_${event.assist.name}`;
-          try {
-            const imageUrl = await playerImageCache.getPlayerImageWithFallback(
-              event.assist.id, 
-              event.assist.name
-            );
-            if (imageUrl) {
-              newImages[assistKey] = imageUrl;
-            }
-          } catch (error) {
-            console.warn(`Failed to load image for assist player ${event.assist.name}:`, error);
-          }
-        }
+    await Promise.allSettled(batchPromises);
+
+    // Now load individual player images (will use cache from batch loading)
+    const imagePromises: Promise<void>[] = [];
+
+    events.forEach(event => {
+      if (event.player?.name) {
+        const promise = getPlayerImageFunc(
+          event.player.id, 
+          event.player.name,
+          event.team?.id
+        ).then(imageUrl => {
+          setPlayerImages(prev => ({
+            ...prev,
+            [event.player.name]: imageUrl
+          }));
+        }).catch(error => {
+          console.warn(`Failed to load image for ${event.player.name}:`, error);
+          // Set fallback image
+          setPlayerImages(prev => ({
+            ...prev,
+            [event.player.name]: `https://ui-avatars.com/api/?name=${event.player.name?.split(' ').map(n => n[0]).join('').toUpperCase()}&size=128&background=4F46E5&color=fff&bold=true&format=svg`
+          }));
+        });
+
+        imagePromises.push(promise);
       }
+    });
 
-      // Update state with all loaded images
-      if (Object.keys(newImages).length > 0) {
-        setPlayerImages(prev => ({ ...prev, ...newImages }));
-        console.log(`✅ [PlayerImages] Loaded ${Object.keys(newImages).length} player images`);
-      }
-    };
+    try {
+      await Promise.allSettled(imagePromises);
+      console.log(`✅ [PlayerImages] Loaded ${Object.keys(playerImages).length} player images`);
+    } catch (error) {
+      console.error('❌ [PlayerImages] Error loading player images:', error);
+    }
+  };
 
     if (events.length > 0) {
       loadPlayerImages();

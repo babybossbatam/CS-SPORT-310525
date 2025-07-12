@@ -70,67 +70,42 @@ class PlayerImageCache {
     console.log(`💾 [PlayerImageCache] Cached image for player: ${playerName} (${playerId}) | Source: ${source}`);
   }
 
-  // Get player image with fallback logic
-  async getPlayerImageWithFallback(playerId?: number, playerName?: string): Promise<string> {
+  // Simplified player image with team-based batch loading
+  async getPlayerImageWithFallback(playerId?: number, playerName?: string, teamId?: number): Promise<string> {
     // Check cache first
     const cached = this.getCachedImage(playerId, playerName);
     if (cached && cached.verified) {
       return cached.url;
     }
 
-    // Try multiple CDN sources if we have a player ID
-    if (playerId) {
+    // If we have team ID, try batch loading first (most efficient)
+    if (teamId) {
       try {
-        const cdnSources = [
-          // 365Scores CDN (primary - likely to work)
-          `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
-          // API-Sports CDN
-          `https://media.api-sports.io/football/players/${playerId}.png`,
-          // BeSoccer CDN
-          `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`,
-          // Alternative BeSoccer formats
-          `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg`,
-          `https://cdn.resfu.com/img_data/players/small/${playerId}.jpg?size=120x&lossy=1`,
-          // SportMonks CDN
-          `https://cdn.sportmonks.com/images/soccer/players/${playerId}.png`,
-        ];
-
-        console.log(`🔍 [PlayerImageCache] Trying ${cdnSources.length} CDN sources for player ${playerId} (${playerName})`);
-
-        // Try each CDN source
-        for (const cdnUrl of cdnSources) {
-          try {
-            const isValid = await this.validateImageUrl(cdnUrl);
-            if (isValid) {
-              console.log(`✅ [PlayerImageCache] Success with CDN: ${cdnUrl}`);
-              this.setCachedImage(playerId, playerName, cdnUrl, 'api');
-              return cdnUrl;
-            }
-          } catch (error) {
-            console.log(`⚠️ [PlayerImageCache] CDN failed: ${cdnUrl}`);
-          }
-        }
-
-        // Fallback to API endpoint
-        const apiUrl = `/api/player-photo/${playerId}`;
-        console.log(`🔍 [PlayerImageCache] All CDNs failed, trying API endpoint: ${apiUrl}`);
-
-        // Test if API endpoint works
-        try {
-          const isValidApi = await this.validateImageUrl(apiUrl);
-          if (isValidApi) {
-            this.setCachedImage(playerId, playerName, apiUrl, 'api');
-            return apiUrl;
-          }
-        } catch (error) {
-          console.log(`⚠️ [PlayerImageCache] API endpoint also failed: ${apiUrl}`);
+        await this.batchLoadPlayerImages(teamId);
+        const cachedAfterBatch = this.getCachedImage(playerId, playerName);
+        if (cachedAfterBatch && cachedAfterBatch.url) {
+          return cachedAfterBatch.url;
         }
       } catch (error) {
-        console.warn(`⚠️ [PlayerImageCache] All sources failed for player ${playerId}:`, error);
+        console.warn(`⚠️ [PlayerImageCache] Batch loading failed for team ${teamId}:`, error);
       }
     }
 
-    // Generate initials fallback only if no player ID or all sources failed
+    // If batch loading didn't work and we have a player ID, try the RapidAPI endpoint
+    if (playerId) {
+      try {
+        const apiUrl = `/api/player-photo/${playerId}`;
+        const isValidApi = await this.validateImageUrl(apiUrl);
+        if (isValidApi) {
+          this.setCachedImage(playerId, playerName, apiUrl, 'api');
+          return apiUrl;
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] API endpoint failed for player ${playerId}:`, error);
+      }
+    }
+
+    // Generate initials fallback
     const initials = this.generateInitials(playerName);
     const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
 
@@ -317,40 +292,12 @@ class PlayerImageCache {
 // Export singleton instance
 export const playerImageCache = new PlayerImageCache();
 
-export async function getPlayerImage(playerId: number | undefined, playerName: string | undefined): Promise<string> {
+export async function getPlayerImage(playerId: number | undefined, playerName: string | undefined, teamId?: number): Promise<string> {
   if (!playerId && !playerName) {
     return "";
   }
 
-  // Use the correct method from PlayerImageCache
-  const cached = playerImageCache.getCachedImage(playerId, playerName);
-  if (cached && cached.url) {
-    return cached.url;
-  }
-
-  if (playerId) {
-    // Try multiple CDN sources for better reliability
-    const cdnSources = [
-      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
-      `https://media.api-sports.io/football/players/${playerId}.png`,
-      `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`
-    ];
-
-    for (const url of cdnSources) {
-      try {
-        const response = await fetch(url, { method: 'HEAD' });
-        if (response.ok) {
-          playerImageCache.setCachedImage(playerId, playerName, url, 'api');
-          return url;
-        }
-      } catch (error) {
-        console.warn(`Failed to load player image from ${url}:`, error);
-      }
-    }
-  }
-
-  // Return empty string if no image found
-  return "";
+  return playerImageCache.getPlayerImageWithFallback(playerId, playerName, teamId);
 }
 
 // Enhanced function to get player image with team-based batch loading priority
@@ -387,8 +334,8 @@ export async function getEnhancedPlayerImage(
 }
 
 // Export helper functions
-export const getPlayerImageFunc = async (playerId?: number, playerName?: string): Promise<string> => {
-  return playerImageCache.getPlayerImageWithFallback(playerId, playerName);
+export const getPlayerImageFunc = async (playerId?: number, playerName?: string, teamId?: number): Promise<string> => {
+  return playerImageCache.getPlayerImageWithFallback(playerId, playerName, teamId);
 };
 
 export const preloadPlayerImagesFunc = async (players: Array<{ id?: number; name?: string }>): Promise<void> => {

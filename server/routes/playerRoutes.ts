@@ -14,7 +14,7 @@ router.get('/teams/:teamId/players/images', async (req, res) => {
 
   try {
     console.log(`🔍 [BatchPlayerImages] Fetching players for team: ${teamId}, season: ${season}`);
-    
+
     // Use RapidAPI players endpoint with team ID and current season
     const playersResponse = await fetch(
       `https://api-football-v1.p.rapidapi.com/v3/players?team=${teamId}&season=${season}`,
@@ -34,27 +34,27 @@ router.get('/teams/:teamId/players/images', async (req, res) => {
 
     const playersData = await playersResponse.json();
     const players = playersData.response || [];
-    
+
     console.log(`📊 [BatchPlayerImages] Found ${players.length} players for team ${teamId} in season ${season}`);on}`);
 
     // Build image URLs for all players with multiple CDN fallbacks
     const playerImages: Record<string, string> = {};
-    
+
     for (const playerData of players) {
       const playerId = playerData.player?.id;
       const playerName = playerData.player?.name;
-      
+
       if (playerId) {
         // Create cache key for the player
         const cacheKey = `${playerId}_${playerName || 'unknown'}`;
-        
+
         // Primary CDN source (365Scores) - Updated URL format
         const imageUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
         playerImages[cacheKey] = imageUrl;
-        
+
         // Store individual player ID mapping for backward compatibility
         playerImages[playerId.toString()] = imageUrl;
-        
+
         // Store additional metadata
         playerImages[`${playerId}_name`] = playerName || 'Unknown Player';
         playerImages[`${playerId}_team`] = teamId;
@@ -81,7 +81,7 @@ router.get('/leagues/:leagueId/players/images', async (req, res) => {
 
   try {
     console.log(`🔍 [BatchPlayerImages] Fetching top players for league: ${leagueId}`);
-    
+
     // Get top scorers for the league
     const topScorersResponse = await fetch(
       `https://api-football-v1.p.rapidapi.com/v3/players/topscorers?league=${leagueId}&season=${season}`,
@@ -99,12 +99,12 @@ router.get('/leagues/:leagueId/players/images', async (req, res) => {
 
     const topScorersData = await topScorersResponse.json();
     const players = topScorersData.response || [];
-    
+
     console.log(`📊 [BatchPlayerImages] Found ${players.length} top players for league ${leagueId}`);
 
     // Build image URLs for all players
     const playerImages: Record<string, string> = {};
-    
+
     for (const playerData of players.slice(0, 50)) { // Limit to top 50
       const playerId = playerData.player?.id;
       if (playerId) {
@@ -122,7 +122,7 @@ router.get('/leagues/:leagueId/players/images', async (req, res) => {
   }
 });
 
-// Player photo endpoint with multiple CDN fallbacks
+// Simplified player photo endpoint using RapidAPI
 router.get('/player-photo/:playerId', async (req, res) => {
   const { playerId } = req.params;
 
@@ -130,39 +130,31 @@ router.get('/player-photo/:playerId', async (req, res) => {
     return res.status(400).json({ error: 'Invalid player ID' });
   }
 
-  const cdnSources = [
-    // 365Scores CDN (primary)
-    `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
-    // API-Sports CDN
-    `https://media.api-sports.io/football/players/${playerId}.png`,
-    // BeSoccer CDN
-    `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`,
-    // SportMonks CDN
-    `https://cdn.sportmonks.com/images/soccer/players/${playerId}.png`,
-  ];
+  console.log(`🔍 [PlayerPhoto] Fetching photo for player ${playerId} using RapidAPI`);
 
-  console.log(`🔍 [PlayerPhoto] Trying to fetch photo for player ${playerId}`);
+  try {
+    // Use 365Scores CDN format (primary source used in team batch endpoint)
+    const imageUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
 
-  for (const url of cdnSources) {
-    try {
-      const response = await fetch(url, {
-        method: 'HEAD',
-        timeout: 5000,
-      });
+    const response = await fetch(imageUrl, {
+      method: 'HEAD',
+      timeout: 5000,
+    });
 
-      if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
-        console.log(`✅ [PlayerPhoto] Found image for player ${playerId} at: ${url}`);
-        return res.redirect(url);
-      }
-    } catch (error) {
-      console.log(`⚠️ [PlayerPhoto] Failed to fetch from ${url}:`, error.message);
+    if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
+      console.log(`✅ [PlayerPhoto] Found image for player ${playerId}`);
+      return res.redirect(imageUrl);
     }
+
+    // If 365Scores fails, return 404 (client will use initials fallback)
+    console.log(`❌ [PlayerPhoto] No image found for player ${playerId}`);
+    res.status(404).json({ error: 'Player photo not found' });
+
+  } catch (error) {
+    console.error(`❌ [PlayerPhoto] Error fetching player ${playerId}:`, error);
+    res.status(500).json({ error: 'Failed to fetch player photo' });
   }
-
-  // If no image found, return a 404
-  console.log(`❌ [PlayerPhoto] No image found for player ${playerId}`);
-  res.status(404).json({ error: 'Player photo not found' });
-
+});
 
 // Player statistics endpoint
 router.get('/player-statistics/:playerId', async (req, res) => {
@@ -175,7 +167,7 @@ router.get('/player-statistics/:playerId', async (req, res) => {
 
   try {
     console.log(`🏃‍♂️ [Player Stats] Fetching statistics for player ${playerId}, team ${team}, season ${season}`);
-    
+
     const { rapidApiService } = await import('../services/rapidApi');
     const playerStats = await rapidApiService.getPlayerStatistics(
       Number(playerId), 
