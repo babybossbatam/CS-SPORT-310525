@@ -79,29 +79,32 @@ class PlayerImageCache {
       return cached.url;
     }
 
-    // Try RapidAPI player photo endpoint first (most accurate for actual photos)
+    // PRIORITY 1: Try RapidAPI player photo endpoint first (most accurate for actual photos)
     if (playerId) {
       try {
         const apiUrl = `/api/player-photo/${playerId}${teamId ? `?teamId=${teamId}` : ''}`;
-        console.log(`🔍 [PlayerImageCache] Trying RapidAPI player photo endpoint: ${apiUrl}`);
+        console.log(`🔍 [PlayerImageCache] PRIORITY 1: Trying RapidAPI player photo endpoint: ${apiUrl}`);
         
-        // Test if API endpoint works and returns actual photo
+        // Test if RapidAPI endpoint works and returns actual photo
         try {
-          const response = await fetch(apiUrl, { method: 'HEAD' });
+          const response = await fetch(apiUrl);
           if (response.ok) {
-            // Check if it's a redirect to an actual photo URL
-            const finalUrl = response.url;
-            if (finalUrl && finalUrl !== apiUrl && !finalUrl.includes('default') && !finalUrl.includes('placeholder')) {
-              console.log(`✅ [PlayerImageCache] Success with actual RapidAPI photo: ${finalUrl}`);
+            // Check content type to ensure it's an image
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.startsWith('image/')) {
+              console.log(`✅ [PlayerImageCache] SUCCESS with RapidAPI photo: ${apiUrl}`);
               this.setCachedImage(playerId, playerName, apiUrl, 'api');
               return apiUrl;
             }
           }
+          console.log(`⚠️ [PlayerImageCache] RapidAPI returned non-image response: ${response.status}`);
         } catch (error) {
-          console.log(`⚠️ [PlayerImageCache] RapidAPI endpoint failed: ${apiUrl}`);
+          console.log(`⚠️ [PlayerImageCache] RapidAPI endpoint failed: ${apiUrl}`, error);
         }
 
-        // Fallback to direct CDN sources for actual photos
+        // PRIORITY 2: Only if RapidAPI fails, try direct CDN sources
+        console.log(`🔍 [PlayerImageCache] PRIORITY 2: RapidAPI failed, trying direct CDN sources for player ${playerId} (${playerName})`);
+        
         const directPhotoSources = [
           // API-Sports CDN (most reliable for actual photos)
           `https://media.api-sports.io/football/players/${playerId}.png`,
@@ -112,24 +115,24 @@ class PlayerImageCache {
           `https://cdn.sportmonks.com/images/soccer/players/${playerId}.png`,
           `https://img.a.transfermarkt.technology/portrait/small/${playerId}-${Date.now()}.jpg`,
         ];
-
-        console.log(`🔍 [PlayerImageCache] Trying ${directPhotoSources.length} direct photo sources for player ${playerId} (${playerName})`);
         
         // Try each direct photo source
         for (const photoUrl of directPhotoSources) {
           try {
             const isValid = await this.validateImageUrl(photoUrl);
             if (isValid) {
-              console.log(`✅ [PlayerImageCache] Success with direct photo source: ${photoUrl}`);
+              console.log(`✅ [PlayerImageCache] Success with direct CDN source: ${photoUrl}`);
               this.setCachedImage(playerId, playerName, photoUrl, 'fallback');
               return photoUrl;
             }
           } catch (error) {
-            console.log(`⚠️ [PlayerImageCache] Direct photo source failed: ${photoUrl}`);
+            console.log(`⚠️ [PlayerImageCache] Direct CDN source failed: ${photoUrl}`);
           }
         }
 
-        // Last resort: generic CDN sources (may include default images)
+        // PRIORITY 3: Last resort generic CDN sources (may include default images)
+        console.log(`🔍 [PlayerImageCache] PRIORITY 3: Direct CDN failed, trying generic sources for player ${playerId}`);
+        
         const genericSources = [
           `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
         ];
@@ -151,11 +154,11 @@ class PlayerImageCache {
       }
     }
 
-    // Generate initials fallback only if no player ID or all sources failed
+    // FINAL FALLBACK: Generate initials fallback only if no player ID or all sources failed
     const initials = this.generateInitials(playerName);
     const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=64&background=4F46E5&color=fff&bold=true&format=svg`;
     
-    console.log(`🎨 [PlayerImageCache] Using initials fallback for ${playerName}: ${fallbackUrl}`);
+    console.log(`🎨 [PlayerImageCache] FINAL FALLBACK: Using initials for ${playerName}: ${fallbackUrl}`);
     this.setCachedImage(playerId, playerName, fallbackUrl, 'initials');
     return fallbackUrl;
   }

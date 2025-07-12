@@ -478,12 +478,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       return cachedImage;
     }
 
-    // Use RapidAPI endpoint for actual player photos
+    // PRIORITY 1: Use RapidAPI endpoint for actual player photos (first source)
     if (playerId) {
       return `/api/player-photo/${playerId}${teamId ? `?teamId=${teamId}` : ''}`;
     }
 
-    // Generate initials if no player ID
+    // FINAL FALLBACK: Generate initials if no player ID
     if (playerName) {
       const initials = playerName
         .split(' ')
