@@ -878,6 +878,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             playerName={penalty.event.player?.name}
                             size="md"
                             teamType="away"
+```text
                             className="flex-shrink-0"
                           />
                         </div>
@@ -1552,10 +1553,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
                                         onError={(e) => {
-                                          // Try fallback sources if primary fails
+                                          // Enhanced fallback chain for better player image accuracy
                                           const img = e.target as HTMLImageElement;
-                                          if (event.player?.id && !img.src.includes('resfu')) {
-                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          if (event.player?.id) {
+                                            if (!img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                            } else if (!img.src.includes('media.api-sports.io')) {
+                                              img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                            } else if (!img.src.includes('365scores')) {
+                                              img.src = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${event.player.id}`;
+                                            } else if (!img.src.includes('apifootball.com')) {
+                                              img.src = `https://apifootball.com/api/players/${event.player.id}.jpg`;
+                                            } else if (!img.src.includes('footballapi.pulselive.com')) {
+                                              img.src = `https://footballapi.pulselive.com/photo-resources/2024/07/30/players/${event.player.id}.png?width=64&height=64`;
+                                            }
                                           }
                                         }}
                                       />
@@ -2112,10 +2123,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
                                         onError={(e) => {
-                                          // Try fallback sources if primary fails
+                                          // Enhanced fallback chain for better player image accuracy
                                           const img = e.target as HTMLImageElement;
-                                          if (event.player?.id && !img.src.includes('resfu')) {
-                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          if (event.player?.id) {
+                                            if (!img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                            } else if (!img.src.includes('media.api-sports.io')) {
+                                              img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                            } else if (!img.src.includes('365scores')) {
+                                              img.src = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${event.player.id}`;
+                                            } else if (!img.src.includes('apifootball.com')) {
+                                              img.src = `https://apifootball.com/api/players/${event.player.id}.jpg`;
+                                            } else if (!img.src.includes('footballapi.pulselive.com')) {
+                                              img.src = `https://footballapi.pulselive.com/photo-resources/2024/07/30/players/${event.player.id}.png?width=64&height=64`;
+                                            }
                                           }
                                         }}
                                       />
