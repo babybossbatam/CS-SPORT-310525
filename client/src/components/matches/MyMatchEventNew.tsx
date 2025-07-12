@@ -187,7 +187,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           if (detail.toLowerCase().includes("missed")) {
             return "Missed Penalty";
           }
-          return "Penalty";
+          return ""; // Remove "Penalty" text
         } else if (detail.toLowerCase().includes("own goal")) {
           return "Own Goal";
         } else {
