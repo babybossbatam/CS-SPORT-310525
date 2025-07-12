@@ -5,7 +5,7 @@ import { Clock, RefreshCw, AlertCircle } from "lucide-react";
 
 import "@/styles/MyPlayer.css";
 import "@/styles/MyMatchEventNew.css";
-import { Avatar, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import MyCommentary from "./MyCommentary";
 import MyPlayerProfilePicture from "./MyPlayerProfilePicture";
 import PlayerProfileModal from "../modals/PlayerProfileModal";
@@ -410,7 +410,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  // Load player images asynchronously using new system
+  // Load player images asynchronously
   useEffect(() => {
     const loadPlayerImages = async () => {
       const { getPlayerImage } = await import('../../lib/playerImageCache');
@@ -420,11 +420,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         if (event.player?.id || event.player?.name) {
           const key = `${event.player.id}_${event.player.name}`;
           if (!playerImages[key]) {
-            imagePromises[key] = getPlayerImage(
-              event.player.id, 
-              event.player.name,
-              event.team?.id // Pass team ID for better player lookup
-            );
+            imagePromises[key] = getPlayerImage(event.player.id, event.player.name);
           }
         }
 
@@ -432,11 +428,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         if (event.assist?.id || event.assist?.name) {
           const assistKey = `${event.assist.id}_${event.assist.name}`;
           if (!playerImages[assistKey]) {
-            imagePromises[assistKey] = getPlayerImage(
-              event.assist.id, 
-              event.assist.name,
-              event.team?.id // Pass team ID for better player lookup
-            );
+            imagePromises[assistKey] = getPlayerImage(event.assist.id, event.assist.name);
           }
         }
       });
@@ -475,7 +467,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const getPlayerImage = useCallback((
     playerId: number | undefined,
     playerName: string | undefined,
-    teamId: number | undefined,
   ): string => {
     const key = `${playerId}_${playerName}`;
     const cachedImage = playerImages[key];
@@ -484,15 +475,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       return cachedImage;
     }
 
-    // Fallback to SVG avatar while loading
-    const initials = playerName
-      ?.split(' ')
-      .map(name => name[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2) || 'P';
+    // Fallback while loading
+    if (playerId) {
+      return `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
+    }
 
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(initials)}&size=64&background=4F46E5&color=fff&bold=true&format=svg`;
+    return "";
   }, [playerImages]);
 
   const handlePlayerClick = (playerId: number | undefined, teamId: number | undefined, playerName: string | undefined) => {
@@ -890,7 +878,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             playerName={penalty.event.player?.name}
                             size="md"
                             teamType="away"
-
                             className="flex-shrink-0"
                           />
                         </div>
@@ -1197,42 +1184,68 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               <>
                                 {/* Column 1: Player Info */}
                                 <div className="match-event-home-player-info">
-                                  <div className={`flex items-center ${event.type === "subst" && event.assist?.name ? "substitution-players" : "gap-1"}`}>
+                                  <div className="flex items-center gap-1">
                                     <Avatar 
-                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${
-                                        event.type === "subst" && event.assist?.name 
-                                          ? "substitution-player-in" 
-                                          : event.type === "subst" 
-                                            ? "border-green-300" 
-                                            : "border-gray-400"
-                                      }`}
+                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
                                           event.player?.name,
-                                          event.team?.id
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
+                                        onError={(e) => {
+                                          // Enhanced fallback chain for better player image accuracy
+                                          const img = e.target as HTMLImageElement;
+                                          if (event.player?.id) {
+                                            if (!img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                            } else if (!img.src.includes('media.api-sports.io')) {
+                                              img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                            } else if (!img.src.includes('apifootball.com')) {
+                                              img.src = `https://apifootball.com/api/players/${event.player.id}.jpg`;
+                                            }
+                                          }
+                                        }}
                                       />
+                                      <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
                                     </Avatar>
 
                                     {event.type === "subst" && event.assist?.name && (
                                       <Avatar 
-                                        className="w-9 h-9 border-2 shadow-sm substitution-player-out cursor-pointer hover:border-red-500 transition-colors"
+                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
                                         <AvatarImage
                                           src={getPlayerImage(
                                             event.assist?.id,
                                             event.assist?.name,
-                                            event.team?.id
                                           )}
                                           alt={event.assist?.name || "Player"}
                                           className="object-cover"
+                                          onError={(e) => {
+                                            // Try fallback sources if primary fails
+                                            const img = e.target as HTMLImageElement;
+                                            if (event.assist?.id && !img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                            }
+                                          }}
                                         />
+                                        <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                          {event.assist?.name
+                                            ?.split(" ")
+                                            .map((n) => n[0])
+                                            .join("")
+                                            .slice(0, 2) || "P"}
+                                        </AvatarFallback>
                                       </Avatar>
                                     )}
                                   </div>
@@ -1496,43 +1509,63 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     )}
                                   </div>
 
-                                  <div className={`flex items-center ${event.type === "subst" && event.assist?.name ? "substitution-players-away" : "gap-1"}`}>
+                                  <div className="flex items-center gap-1">
                                     {event.type === "subst" && event.assist?.name && (
                                       <Avatar 
-                                        className="w-9 h-9 border-2 shadow-sm substitution-player-out cursor-pointer hover:border-red-500 transition-colors"
+                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative z-20 cursor-pointer hover:border-red-500 transition-colors"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
                                         <AvatarImage
                                           src={getPlayerImage(
                                             event.assist?.id,
                                             event.assist?.name,
-                                            event.team?.id
                                           )}
                                           alt={event.assist?.name || "Player"}
                                           className="object-cover"
+                                          onError={(e) => {
+                                            // Try fallback sources if primary fails
+                                            const img = e.target as HTMLImageElement;
+                                            if (event.assist?.id && !img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                            }
+                                          }}
                                         />
+                                        <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                          {event.player?.name
+                                            ?.split(" ")
+                                            .map((n) => n[0])
+                                            .join("")
+                                            .slice(0, 2) || "P"}
+                                      </AvatarFallback>
                                         </Avatar>
                                     )}
 
                                     <Avatar 
-                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${
-                                        event.type === "subst" && event.assist?.name 
-                                          ? "substitution-player-in" 
-                                          : event.type === "subst" 
-                                            ? "border-green-300" 
-                                            : "border-gray-400"
-                                      }`}
+                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
                                           event.player?.name,
-                                          event.team?.id
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
+                                        onError={(e) => {
+                                          // Try fallback sources if primary fails
+                                          const img = e.target as HTMLImageElement;
+                                          if (event.player?.id && !img.src.includes('resfu')) {
+                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          }
+                                        }}
                                       />
+                                      <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
                                     </Avatar>
                                   </div>
                                 </div>
@@ -1711,42 +1744,68 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               <>
                                 {/* Column 1: Player Info */}
                                 <div className="match-event-home-player-info">
-                                  <div className={`flex items-center ${event.type === "subst" && event.assist?.name ? "substitution-players" : "gap-1"}`}>
+                                  <div className="flex items-center gap-1">
                                     <Avatar 
-                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${
-                                        event.type === "subst" && event.assist?.name 
-                                          ? "substitution-player-in" 
-                                          : event.type === "subst" 
-                                            ? "border-green-300" 
-                                            : "border-gray-400"
-                                      }`}
+                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
                                           event.player?.name,
-                                          event.team?.id
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
+                                        onError={(e) => {
+                                          // Enhanced fallback chain for better player image accuracy
+                                          const img = e.target as HTMLImageElement;
+                                          if (event.player?.id) {
+                                            if (!img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                            } else if (!img.src.includes('media.api-sports.io')){
+                                              img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                            } else if (!img.src.includes('apifootball.com')) {
+                                              img.src = `https://apifootball.com/api/players/${event.player.id}.jpg`;
+                                            }
+                                          }
+                                        }}
                                       />
+                                      <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
                                     </Avatar>
 
                                     {event.type === "subst" && event.assist?.name && (
                                       <Avatar 
-                                        className="w-9 h-9 border-2 shadow-sm substitution-player-out cursor-pointer hover:border-red-500 transition-colors"
+                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
-                                      >```jsx
+                                      >
                                         <AvatarImage
                                           src={getPlayerImage(
                                             event.assist?.id,
                                             event.assist?.name,
-                                            event.team?.id
                                           )}
                                           alt={event.assist?.name || "Player"}
                                           className="object-cover"
+                                          onError={(e) => {
+                                            // Try fallback sources if primary fails
+                                            const img = e.target as HTMLImageElement;
+                                            if (event.assist?.id && !img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                            }
+                                          }}
                                         />
+                                        <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                          {event.assist?.name
+                                            ?.split(" ")
+                                            .map((n) => n[0])
+                                            .join("")
+                                            .slice(0, 2) || "P"}
+                                        </AvatarFallback>
                                       </Avatar>
                                     )}
                                   </div>
@@ -2010,43 +2069,63 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     )}
                                   </div>
 
-                                  <div className={`flex items-center ${event.type === "subst" && event.assist?.name ? "substitution-players-away" : "gap-1"}`}>
+                                  <div className="flex items-center gap-1">
                                     {event.type === "subst" && event.assist?.name && (
                                       <Avatar 
-                                        className="w-9 h-9 border-2 shadow-sm substitution-player-out cursor-pointer hover:border-red-500 transition-colors"
+                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative z-20 cursor-pointer hover:border-red-500 transition-colors"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
                                         <AvatarImage
                                           src={getPlayerImage(
                                             event.assist?.id,
                                             event.assist?.name,
-                                            event.team?.id
                                           )}
                                           alt={event.assist?.name || "Player"}
                                           className="object-cover"
+                                          onError={(e) => {
+                                            // Try fallback sources if primary fails
+                                            const img = e.target as HTMLImageElement;
+                                            if (event.assist?.id && !img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                            }
+                                          }}
                                         />
+                                        <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                          {event.player?.name
+                                            ?.split(" ")
+                                            .map((n) => n[0])
+                                            .join("")
+                                            .slice(0, 2) || "P"}
+                                      </AvatarFallback>
                                         </Avatar>
                                     )}
 
                                     <Avatar 
-                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${
-                                        event.type === "subst" && event.assist?.name 
-                                          ? "substitution-player-in" 
-                                          : event.type === "subst" 
-                                            ? "border-green-300" 
-                                            : "border-gray-400"
-                                      }`}
+                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
                                           event.player?.name,
-                                          event.team?.id
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
+                                        onError={(e) => {
+                                          // Try fallback sources if primary fails
+                                          const img = e.target as HTMLImageElement;
+                                          if (event.player?.id && !img.src.includes('resfu')) {
+                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          }
+                                        }}
                                       />
+                                      <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
                                     </Avatar>
                                   </div>
                                 </div>
