@@ -1183,7 +1183,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 {/* Column 1: Player Info */}
                                 <div className="match-event-home-player-info">
                                   <div className="flex items-center gap-1">
-                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                    <Avatar 
+                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
+                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id)}
+                                    >
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
@@ -1214,64 +1217,35 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       </AvatarFallback>
                                     </Avatar>
 
-                                    
-                                        <Avatar 
-                                          className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20 cursor-pointer hover:border-red-500 transition-colors"
-                                          onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
-                                        >
-                                          <AvatarImage
-                                            src={getPlayerImage(
-                                              event.assist?.id,
-                                              event.assist?.name,
-                                            )}
-                                            alt={event.assist?.name || "Player"}
-                                            className="object-cover"
-                                            onError={(e) => {
-                                              // Try fallback sources if primary fails
-                                              const img = e.target as HTMLImageElement;
-                                              if (event.assist?.id && !img.src.includes('resfu')) {
-                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
-                                              }
-                                            }}
-                                          />
-                                          <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                                        {event.player?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .slice(0, 2) || "P"}
-                                      </AvatarFallback>
-                                        </Avatar>
-                                      
-
-                                      
-                                        <Avatar 
-                                          className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20 cursor-pointer hover:border-red-500 transition-colors"
-                                          onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
-                                        >
-                                          <AvatarImage
-                                            src={getPlayerImage(
-                                              event.assist?.id,
-                                              event.assist?.name,
-                                            )}
-                                            alt={event.assist?.name || "Player"}
-                                            className="object-cover"
-                                            onError={(e) => {
-                                              // Try fallback sources if primary fails
-                                              const img = e.target as HTMLImageElement;
-                                              if (event.assist?.id && !img.src.includes('resfu')) {
-                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
-                                              }
-                                            }}
-                                          />
-                                          <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
-                                        {event.player?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .slice(0, 2) || "P"}
-                                      </AvatarFallback>
-                                        </Avatar>
+                                    {event.type === "subst" && event.assist?.name && (
+                                      <Avatar 
+                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors"
+                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
+                                      >
+                                        <AvatarImage
+                                          src={getPlayerImage(
+                                            event.assist?.id,
+                                            event.assist?.name,
+                                          )}
+                                          alt={event.assist?.name || "Player"}
+                                          className="object-cover"
+                                          onError={(e) => {
+                                            // Try fallback sources if primary fails
+                                            const img = e.target as HTMLImageElement;
+                                            if (event.assist?.id && !img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                            }
+                                          }}
+                                        />
+                                        <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                          {event.assist?.name
+                                            ?.split(" ")
+                                            .map((n) => n[0])
+                                            .join("")
+                                            .slice(0, 2) || "P"}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                    )}
                                       
                                   </div>
 
