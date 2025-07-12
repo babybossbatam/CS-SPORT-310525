@@ -898,9 +898,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   // Get current scores from API data
-```javascript
   const getCurrentScores = useMemo(() => {
-    if (matchData?.goals) {      return {
+    if (matchData?.goals) {
+      return {
         homeScore: matchData.goals.home || 0,
         awayScore: matchData.goals.away || 0,
       };
