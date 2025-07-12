@@ -79,64 +79,76 @@ class PlayerImageCache {
   // Check if cached image is still fresh/valid
   private async isImageFresh(cachedItem: CachedPlayerImage): Promise<boolean> {
     try {
-      // For external URLs, check if the image is still accessible and fresh
+      // For generated avatars (UI avatars), consider them always fresh
+      if (cachedItem.url.includes('ui-avatars.com') || cachedItem.source === 'initials') {
+        return true;
+      }
+
+      // For external URLs, implement smarter freshness logic
       if (cachedItem.url.startsWith('https://')) {
+        // Check cache age first - if older than 6 hours, consider stale
+        const age = Date.now() - cachedItem.timestamp;
+        const sixHours = 6 * 60 * 60 * 1000; // 6 hours
+        
+        if (age > sixHours) {
+          console.log(`🔄 [PlayerImageCache] Cache older than 6 hours for: ${cachedItem.playerName} (age: ${Math.round(age / 1000 / 60)} min)`);
+          return false;
+        }
+
+        // For newer cache entries, do a quick accessibility check
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        const timeoutId = setTimeout(() => controller.abort(), 1500); // Reduced timeout
 
         try {
           const response = await fetch(cachedItem.url, { 
             method: 'HEAD',
             signal: controller.signal,
-            cache: 'no-cache' // Force fresh check
+            cache: 'no-cache',
+            mode: 'no-cors' // Avoid CORS issues
           });
           clearTimeout(timeoutId);
           
-          // Check if image is still accessible
-          if (!response.ok) {
-            console.log(`🔍 [PlayerImageCache] Cached image no longer accessible: ${cachedItem.url}`);
-            return false;
-          }
-
-          // Check last-modified or etag if available
-          const lastModified = response.headers.get('last-modified');
-          const etag = response.headers.get('etag');
-          
-          if (lastModified || etag) {
-            // If we have cached headers, compare them
-            const cachedHeaders = cachedItem.headers;
-            if (cachedHeaders) {
-              const isModified = (lastModified && cachedHeaders.lastModified !== lastModified) ||
-                               (etag && cachedHeaders.etag !== etag);
-              
-              if (isModified) {
-                console.log(`🔄 [PlayerImageCache] Image modified since cache: ${cachedItem.playerName}`);
-                return false;
-              }
-            }
-          }
-
-          console.log(`✅ [PlayerImageCache] Cached image is fresh: ${cachedItem.playerName}`);
+          console.log(`✅ [PlayerImageCache] Cached image accessible: ${cachedItem.playerName}`);
           return true;
         } catch (error) {
           clearTimeout(timeoutId);
-          console.log(`⚠️ [PlayerImageCache] Could not verify image freshness: ${cachedItem.url}`);
-          // If we can't verify, assume it's stale after 24 hours
-          const age = Date.now() - cachedItem.timestamp;
-          return age < (24 * 60 * 60 * 1000); // 24 hours
+          console.log(`⚠️ [PlayerImageCache] Cached image may be stale: ${cachedItem.url}`);
+          
+          // If cache is less than 1 hour old and we can't verify, assume it's still good
+          const oneHour = 60 * 60 * 1000;
+          if (age < oneHour) {
+            console.log(`✅ [PlayerImageCache] Assuming recent cache is fresh: ${cachedItem.playerName}`);
+            return true;
+          }
+          
+          return false;
         }
       }
 
-      // For other URLs (like generated avatars), consider them fresh
+      // For other URLs, consider them fresh
       return true;
     } catch (error) {
       console.warn(`⚠️ [PlayerImageCache] Error checking image freshness:`, error);
-      return false;
+      
+      // If there's an error checking freshness, use age-based logic
+      const age = Date.now() - cachedItem.timestamp;
+      const maxAge = 2 * 60 * 60 * 1000; // 2 hours
+      return age < maxAge;
     }
   }
 
   // Simplified player image with team-based batch loading and intelligent refresh
   async getPlayerImageWithFallback(playerId?: number, playerName?: string, teamId?: number, forceRefresh?: boolean): Promise<string> {
+    // Implement periodic auto-refresh (every 30 minutes)
+    const now = Date.now();
+    const periodicRefreshInterval = 30 * 60 * 1000; // 30 minutes
+    const shouldPeriodicRefresh = now % periodicRefreshInterval < 60000; // 1-minute window every 30 minutes
+    
+    if (shouldPeriodicRefresh && !forceRefresh) {
+      console.log(`🔄 [PlayerImageCache] Periodic refresh triggered for: ${playerName}`);
+      forceRefresh = true;
+    }
+
     // Check cache first
     const cached = this.getCachedImage(playerId, playerName);
     
@@ -442,6 +454,42 @@ class PlayerImageCache {
     const key = this.getCacheKey(playerId, playerName);
     this.cache.delete(key);
     console.log(`🔄 [PlayerImageCache] Force refreshed cache for player: ${playerName} (${playerId})`);
+  }
+
+  // Invalidate all cached images older than specified age
+  invalidateOldCache(maxAgeMs: number = 2 * 60 * 60 * 1000): number {
+    const now = Date.now();
+    let invalidatedCount = 0;
+    
+    for (const [key, item] of this.cache.entries()) {
+      if (now - item.timestamp > maxAgeMs) {
+        this.cache.delete(key);
+        invalidatedCount++;
+      }
+    }
+    
+    console.log(`🗑️ [PlayerImageCache] Invalidated ${invalidatedCount} old cache entries`);
+    return invalidatedCount;
+  }
+
+  // Get cache status for debugging
+  getCacheStatus(): { total: number; bySource: Record<string, number>; averageAge: number } {
+    const entries = Array.from(this.cache.values());
+    const now = Date.now();
+    
+    const bySource: Record<string, number> = {};
+    let totalAge = 0;
+    
+    entries.forEach(item => {
+      bySource[item.source] = (bySource[item.source] || 0) + 1;
+      totalAge += (now - item.timestamp);
+    });
+    
+    return {
+      total: entries.length,
+      bySource,
+      averageAge: entries.length > 0 ? Math.round(totalAge / entries.length / 1000 / 60) : 0 // in minutes
+    };
   }
 }
 

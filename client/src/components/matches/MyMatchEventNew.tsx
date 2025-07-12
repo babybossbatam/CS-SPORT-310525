@@ -942,6 +942,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             {isLoading && (
               <RefreshCw className="h-4 w-4 animate-spin text-blue-500" />
             )}
+            <button
+              onClick={async () => {
+                const { playerImageCache } = await import('../../lib/playerImageCache');
+                const invalidated = playerImageCache.invalidateOldCache(0); // Invalidate all cache
+                console.log(`🔄 Manual cache refresh: ${invalidated} entries cleared`);
+                
+                // Trigger re-render by updating a state
+                setLastUpdated(new Date());
+              }}
+              className="text-xs bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600 ml-2"
+              title="Clear all player image cache"
+            >
+              🔄 Refresh Images
+            </button>
           </div>
           {lastUpdated && (
             <div className="flex items-center gap-1 text-sm text-gray-500">
