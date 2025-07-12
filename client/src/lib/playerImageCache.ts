@@ -1,4 +1,3 @@
-
 /**
  * Player Image Cache System
  * Handles caching and fallback for player images in match events
@@ -97,7 +96,7 @@ class PlayerImageCache {
         ];
 
         console.log(`🔍 [PlayerImageCache] Trying ${cdnSources.length} CDN sources for player ${playerId} (${playerName})`);
-        
+
         // Try each CDN source
         for (const cdnUrl of cdnSources) {
           try {
@@ -111,11 +110,11 @@ class PlayerImageCache {
             console.log(`⚠️ [PlayerImageCache] CDN failed: ${cdnUrl}`);
           }
         }
-        
+
         // Fallback to API endpoint
         const apiUrl = `/api/player-photo/${playerId}`;
         console.log(`🔍 [PlayerImageCache] All CDNs failed, trying API endpoint: ${apiUrl}`);
-        
+
         // Test if API endpoint works
         try {
           const isValidApi = await this.validateImageUrl(apiUrl);
@@ -134,7 +133,7 @@ class PlayerImageCache {
     // Generate initials fallback only if no player ID or all sources failed
     const initials = this.generateInitials(playerName);
     const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
-    
+
     console.log(`🎨 [PlayerImageCache] Using SVG initials fallback for ${playerName}: ${fallbackUrl}`);
     this.setCachedImage(playerId, playerName, fallbackUrl, 'initials');
     return fallbackUrl;
@@ -143,7 +142,7 @@ class PlayerImageCache {
   // Generate initials from player name
   private generateInitials(playerName?: string): string {
     if (!playerName) return 'P';
-    
+
     return playerName
       .split(' ')
       .map(name => name[0])
@@ -159,7 +158,7 @@ class PlayerImageCache {
       if (url.startsWith('/api/')) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 2000);
-        
+
         try {
           const response = await fetch(url, { 
             method: 'HEAD',
@@ -176,7 +175,7 @@ class PlayerImageCache {
       // For external URLs, do a quick validation
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
-      
+
       try {
         const response = await fetch(url, { 
           method: 'HEAD',
@@ -184,11 +183,11 @@ class PlayerImageCache {
           mode: 'cors'
         });
         clearTimeout(timeoutId);
-        
+
         const isOk = response.ok;
         const contentType = response.headers.get('content-type');
         const isImage = contentType?.startsWith('image/') || url.includes('.jpg') || url.includes('.png') || url.includes('.svg');
-        
+
         console.log(`🔍 [PlayerImageCache] URL validation for ${url}: status=${response.status}, ok=${isOk}, contentType=${contentType}`);
         return isOk && isImage;
       } catch (error) {
@@ -214,7 +213,7 @@ class PlayerImageCache {
     if (this.cache.size > this.MAX_SIZE * 0.8) {
       const remaining = Array.from(this.cache.entries())
         .sort((a, b) => a[1].timestamp - b[1].timestamp);
-      
+
       const toRemove = remaining.slice(0, this.cache.size - Math.floor(this.MAX_SIZE * 0.8));
       toRemove.forEach(([key]) => this.cache.delete(key));
     }
@@ -237,35 +236,33 @@ class PlayerImageCache {
   }
 
   // Batch load player images by team or league
-  async batchLoadPlayerImages(teamId?: number, leagueId?: number): Promise<Record<string, string>> {
+  async batchLoadPlayerImages(teamId?: number, leagueId?: number): Promise<void> {
     try {
       console.log(`🔄 [PlayerImageCache] Batch loading players for team: ${teamId}, league: ${leagueId}`);
-      
-      // Call our new batch endpoint
-      const endpoint = teamId 
-        ? `/api/teams/${teamId}/players/images`
-        : `/api/leagues/${leagueId}/players/images`;
-      
+
+      // Use current season dynamically
+      const currentSeason = new Date().getFullYear().toString();
+      const endpoint = `/api/teams/${teamId}/players/images?season=${currentSeason}`;
       const response = await fetch(endpoint);
+
       if (!response.ok) {
-        throw new Error(`Batch load failed: ${response.status}`);
+        throw new Error(`Failed to batch load players: ${response.status}`);
       }
-      
-      const playerImages = await response.json();
-      
-      // Cache all the received images
+
+      const playerImages: Record<string, string> = await response.json();
+
+      // Store all player images in cache
       Object.entries(playerImages).forEach(([playerId, imageUrl]) => {
-        const playerIdNum = parseInt(playerId);
-        if (imageUrl && typeof imageUrl === 'string') {
-          this.setCachedImage(playerIdNum, undefined, imageUrl, 'api');
+        // Only cache the main player IDs, not the fallback entries
+        if (!playerId.includes('_fallback')) {
+          this.cache.set(playerId, imageUrl);
         }
       });
-      
-      console.log(`✅ [PlayerImageCache] Batch loaded ${Object.keys(playerImages).length} player images`);
-      return playerImages;
+
+      console.log(`✅ [PlayerImageCache] Cached ${Object.keys(playerImages).length / 3} player images for team ${teamId} (season ${currentSeason})`);
+
     } catch (error) {
-      console.warn('⚠️ [PlayerImageCache] Batch load failed:', error);
-      return {};
+      console.error(`❌ [PlayerImageCache] Failed to batch load team ${teamId} players:`, error);
     }
   }
 
@@ -297,24 +294,92 @@ class PlayerImageCache {
 // Export singleton instance
 export const playerImageCache = new PlayerImageCache();
 
+export async function getPlayerImage(playerId: number | undefined, playerName: string | undefined): Promise<string> {
+  if (!playerId && !playerName) {
+    return "";
+  }
+
+  const cached = playerImageCache.getCached(playerId?.toString() || playerName || "");
+  if (cached) {
+    return cached;
+  }
+
+  if (playerId) {
+    // Try multiple CDN sources for better reliability
+    const cdnSources = [
+      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
+      `https://media.api-sports.io/football/players/${playerId}.png`,
+      `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`
+    ];
+
+    for (const url of cdnSources) {
+      try {
+        const response = await fetch(url, { method: 'HEAD' });
+        if (response.ok) {
+          playerImageCache.cache.set(playerId.toString(), url);
+          return url;
+        }
+      } catch (error) {
+        console.warn(`Failed to load player image from ${url}:`, error);
+      }
+    }
+  }
+
+  // Return empty string if no image found
+  return "";
+}
+
+// Enhanced function to get player image with team-based batch loading priority
+export async function getEnhancedPlayerImage(
+  playerId: number | undefined, 
+  playerName: string | undefined,
+  teamId: number | undefined
+): Promise<string> {
+  if (!playerId && !playerName) {
+    return "";
+  }
+
+  // Check cache first
+  const cached = playerImageCache.getCached(playerId?.toString() || playerName || "");
+  if (cached) {
+    return cached;
+  }
+
+  // If we have team ID, try batch loading for the team first
+  if (teamId && playerId) {
+    try {
+      await playerImageCache.batchLoadPlayerImages(teamId);
+      const cachedAfterBatch = playerImageCache.getCached(playerId.toString());
+      if (cachedAfterBatch) {
+        return cachedAfterBatch;
+      }
+    } catch (error) {
+      console.warn(`Batch loading failed for team ${teamId}, falling back to individual loading`);
+    }
+  }
+
+  // Fall back to individual loading
+  return getPlayerImage(playerId, playerName);
+}
+
 // Export helper functions
-export const getPlayerImage = async (playerId?: number, playerName?: string): Promise<string> => {
+export const getPlayerImageFunc = async (playerId?: number, playerName?: string): Promise<string> => {
   return playerImageCache.getPlayerImageWithFallback(playerId, playerName);
 };
 
-export const preloadPlayerImages = async (players: Array<{ id?: number; name?: string }>): Promise<void> => {
+export const preloadPlayerImagesFunc = async (players: Array<{ id?: number; name?: string }>): Promise<void> => {
   return playerImageCache.preloadPlayerImages(players);
 };
 
-export const clearPlayerImageCache = (): void => {
+export const clearPlayerImageCacheFunc = (): void => {
   return playerImageCache.clear();
 };
 
-export const forceRefreshPlayer = (playerId?: number, playerName?: string): void => {
+export const forceRefreshPlayerFunc = (playerId?: number, playerName?: string): void => {
   return playerImageCache.forceRefresh(playerId, playerName);
 };
 
-export const batchLoadPlayerImages = async (teamId?: number, leagueId?: number): Promise<Record<string, string>> => {
+export const batchLoadPlayerImagesFunc = async (teamId?: number, leagueId?: number): Promise<Record<string, string>> => {
   return playerImageCache.batchLoadPlayerImages(teamId, leagueId);
 };
 

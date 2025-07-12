@@ -410,10 +410,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  // Load player images asynchronously with batch loading
+  // Load player images asynchronously with enhanced batch loading
   useEffect(() => {
     const loadPlayerImages = async () => {
-      const { getPlayerImage, playerImageCache } = await import('../../lib/playerImageCache');
+      const { getEnhancedPlayerImage, playerImageCache } = await import('../../lib/playerImageCache');
       
       // Extract unique team IDs from events
       const teamIds = new Set<number>();
@@ -423,7 +423,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         }
       });
 
-      // Try batch loading for each team first
+      console.log(`🔄 [PlayerImageCache] Batch loading players for teams: ${Array.from(teamIds).join(', ')}`);
+
+      // Try batch loading for each team using current season
       for (const teamId of teamIds) {
         try {
           await playerImageCache.batchLoadPlayerImages(teamId);
@@ -432,14 +434,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         }
       }
 
-      // Individual loading for any remaining players
+      // Enhanced loading for any remaining players with team context
       const imagePromises: Record<string, Promise<string>> = {};
 
       events.forEach(event => {
         if (event.player?.id || event.player?.name) {
           const key = `${event.player.id}_${event.player.name}`;
           if (!playerImages[key]) {
-            imagePromises[key] = getPlayerImage(event.player.id, event.player.name);
+            imagePromises[key] = getEnhancedPlayerImage(
+              event.player.id, 
+              event.player.name, 
+              event.team?.id
+            );
           }
         }
 
@@ -447,7 +453,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         if (event.assist?.id || event.assist?.name) {
           const assistKey = `${event.assist.id}_${event.assist.name}`;
           if (!playerImages[assistKey]) {
-            imagePromises[assistKey] = getPlayerImage(event.assist.id, event.assist.name);
+            imagePromises[assistKey] = getEnhancedPlayerImage(
+              event.assist.id, 
+              event.assist.name, 
+              event.team?.id
+            );
           }
         }
       });

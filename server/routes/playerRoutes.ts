@@ -2,20 +2,21 @@ import express from 'express';
 
 const router = express.Router();
 
-// Batch player images by team ID
+// Batch player images by team ID using RapidAPI players endpoint
 router.get('/teams/:teamId/players/images', async (req, res) => {
   const { teamId } = req.params;
+  const season = req.query.season || new Date().getFullYear().toString();
 
   if (!teamId || isNaN(Number(teamId))) {
     return res.status(400).json({ error: 'Invalid team ID' });
   }
 
   try {
-    console.log(`🔍 [BatchPlayerImages] Fetching players for team: ${teamId}`);
+    console.log(`🔍 [BatchPlayerImages] Fetching players for team: ${teamId}, season: ${season}`);
     
-    // First get team squad/players
+    // Use RapidAPI players endpoint with team ID and current season
     const playersResponse = await fetch(
-      `https://api-football-v1.p.rapidapi.com/v3/players/squads?team=${teamId}`,
+      `https://api-football-v1.p.rapidapi.com/v3/players?team=${teamId}&season=${season}`,
       {
         headers: {
           'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com',
@@ -29,19 +30,23 @@ router.get('/teams/:teamId/players/images', async (req, res) => {
     }
 
     const playersData = await playersResponse.json();
-    const players = playersData.response?.[0]?.players || [];
+    const players = playersData.response || [];
     
-    console.log(`📊 [BatchPlayerImages] Found ${players.length} players for team ${teamId}`);
+    console.log(`📊 [BatchPlayerImages] Found ${players.length} players for team ${teamId} in season ${season}`);
 
-    // Build image URLs for all players
+    // Build image URLs for all players with multiple CDN fallbacks
     const playerImages: Record<string, string> = {};
     
-    for (const player of players) {
-      const playerId = player.id;
+    for (const playerData of players) {
+      const playerId = playerData.player?.id;
       if (playerId) {
-        // Use the same CDN sources as individual loading
+        // Primary CDN source (365Scores)
         const imageUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
         playerImages[playerId] = imageUrl;
+        
+        // Also store fallback URLs for better reliability
+        playerImages[`${playerId}_fallback1`] = `https://media.api-sports.io/football/players/${playerId}.png`;
+        playerImages[`${playerId}_fallback2`] = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
       }
     }
 
