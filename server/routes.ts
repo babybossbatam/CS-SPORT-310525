@@ -822,10 +822,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             league: {
               id: 2,
               name: "UEFA Champions League",
-              type:```text
-"Cup",
-              logo: "https://```text
-media.api-sports.io/football/leagues/2.png",
+              type: "Cup",
+              logo: "https://media.api-sports.io/football/leagues/2.png",
               country: "World",
             },
             country: {
@@ -1719,7 +1717,8 @@ media.api-sports.io/football/leagues/2.png",
   apiRouter.get(
     "/team-logo/square/:teamId",
     async (req: Request, res: Response) => {
-      try {        const { teamId } = req.params;
+      try {
+        const { teamId } = req.params;
         const size = parseInt(req.query.size as string) || 72; // Default 72x72 pixels
 
         console.log(
@@ -1744,13 +1743,11 @@ media.api-sports.io/football/leagues/2.png",
                 // Try each logo source
         for (const logoUrl of logoUrls) {
           try {
-                        const response = await fetch(
-logoUrl, {
-              headers:{
+            const response = await fetch(logoUrl, {
+              headers: {
                 accept: "image/png,image/jpeg,image/svg+xml,image/*",
-                "user-agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                },
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+              },
               });
 
               if (response.ok) {
