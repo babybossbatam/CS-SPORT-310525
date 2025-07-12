@@ -85,7 +85,7 @@ import { rapidApiService } from '../services/rapidApi';
 const router = Router();
 
 /**
- * Get player photo from RapidAPI players endpoint
+ * Get player photo from RapidAPI players endpoint with team ID priority
  */
 router.get('/player-photo/:playerId', async (req, res) => {
   try {
@@ -94,31 +94,112 @@ router.get('/player-photo/:playerId', async (req, res) => {
 
     console.log(`📷 [Player Photo API] Fetching photo for player ${playerId}, team ${teamId}, season ${season}`);
 
-    // Get player data from RapidAPI
-    const playerData = await rapidApiService.getPlayerStatistics(
-      parseInt(playerId), 
-      teamId ? parseInt(teamId as string) : undefined, 
-      parseInt(season as string)
-    );
+    // Priority 1: Try with team ID if provided
+    if (teamId) {
+      try {
+        const playerDataWithTeam = await rapidApiService.getPlayerStatistics(
+          parseInt(playerId), 
+          parseInt(teamId as string), 
+          parseInt(season as string)
+        );
 
-    if (playerData && playerData.length > 0) {
-      const player = playerData[0];
-      const photoUrl = player.player?.photo;
+        if (playerDataWithTeam && playerDataWithTeam.length > 0) {
+          const player = playerDataWithTeam[0];
+          const photoUrl = player.player?.photo;
 
-      if (photoUrl) {
-        console.log(`✅ [Player Photo API] Found photo URL for player ${playerId}: ${photoUrl}`);
-        
-        // Redirect to the actual photo URL
-        return res.redirect(photoUrl);
+          if (photoUrl && photoUrl !== '') {
+            console.log(`✅ [Player Photo API] Found photo URL with team ${teamId} for player ${playerId}: ${photoUrl}`);
+            
+            // Validate the photo URL before redirecting
+            try {
+              const response = await fetch(photoUrl, { method: 'HEAD', timeout: 5000 });
+              if (response.ok) {
+                return res.redirect(photoUrl);
+              }
+            } catch (validateError) {
+              console.log(`⚠️ [Player Photo API] Photo URL validation failed: ${validateError}`);
+            }
+          }
+        }
+      } catch (teamError) {
+        console.log(`⚠️ [Player Photo API] Team-specific request failed: ${teamError}`);
       }
     }
 
-    console.log(`❌ [Player Photo API] No photo found for player ${playerId}`);
+    // Priority 2: Try without team ID
+    try {
+      const playerData = await rapidApiService.getPlayerStatistics(
+        parseInt(playerId), 
+        undefined, 
+        parseInt(season as string)
+      );
+
+      if (playerData && playerData.length > 0) {
+        const player = playerData[0];
+        const photoUrl = player.player?.photo;
+
+        if (photoUrl && photoUrl !== '') {
+          console.log(`✅ [Player Photo API] Found photo URL for player ${playerId}: ${photoUrl}`);
+          
+          // Validate the photo URL before redirecting
+          try {
+            const response = await fetch(photoUrl, { method: 'HEAD', timeout: 5000 });
+            if (response.ok) {
+              return res.redirect(photoUrl);
+            }
+          } catch (validateError) {
+            console.log(`⚠️ [Player Photo API] Photo URL validation failed: ${validateError}`);
+          }
+        }
+      }
+    } catch (generalError) {
+      console.log(`⚠️ [Player Photo API] General request failed: ${generalError}`);
+    }
+
+    // Priority 3: Try multiple seasons if current season fails
+    const fallbackSeasons = ['2023', '2022', '2021'];
+    
+    for (const fallbackSeason of fallbackSeasons) {
+      try {
+        console.log(`📷 [Player Photo API] Trying fallback season ${fallbackSeason} for player ${playerId}`);
+        
+        const playerDataFallback = await rapidApiService.getPlayerStatistics(
+          parseInt(playerId), 
+          teamId ? parseInt(teamId as string) : undefined, 
+          parseInt(fallbackSeason)
+        );
+
+        if (playerDataFallback && playerDataFallback.length > 0) {
+          const player = playerDataFallback[0];
+          const photoUrl = player.player?.photo;
+
+          if (photoUrl && photoUrl !== '') {
+            console.log(`✅ [Player Photo API] Found photo URL with season ${fallbackSeason} for player ${playerId}: ${photoUrl}`);
+            
+            try {
+              const response = await fetch(photoUrl, { method: 'HEAD', timeout: 5000 });
+              if (response.ok) {
+                return res.redirect(photoUrl);
+              }
+            } catch (validateError) {
+              console.log(`⚠️ [Player Photo API] Fallback photo URL validation failed: ${validateError}`);
+            }
+          }
+        }
+      } catch (fallbackError) {
+        console.log(`⚠️ [Player Photo API] Fallback season ${fallbackSeason} failed: ${fallbackError}`);
+        continue;
+      }
+    }
+
+    console.log(`❌ [Player Photo API] No photo found for player ${playerId} after all attempts`);
     
     // Return 404 if no photo found
     res.status(404).json({ 
       error: 'Player photo not found',
-      playerId: playerId 
+      playerId: playerId,
+      teamId: teamId,
+      season: season
     });
 
   } catch (error) {

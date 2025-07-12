@@ -410,7 +410,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  // Load player images asynchronously
+  // Load player images asynchronously with team ID support
   useEffect(() => {
     const loadPlayerImages = async () => {
       const { getPlayerImage } = await import('../../lib/playerImageCache');
@@ -420,7 +420,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         if (event.player?.id || event.player?.name) {
           const key = `${event.player.id}_${event.player.name}`;
           if (!playerImages[key]) {
-            imagePromises[key] = getPlayerImage(event.player.id, event.player.name);
+            // Pass team ID to improve image accuracy
+            imagePromises[key] = getPlayerImage(event.player.id, event.player.name, event.team?.id);
           }
         }
 
@@ -428,7 +429,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         if (event.assist?.id || event.assist?.name) {
           const assistKey = `${event.assist.id}_${event.assist.name}`;
           if (!playerImages[assistKey]) {
-            imagePromises[assistKey] = getPlayerImage(event.assist.id, event.assist.name);
+            // Pass team ID for assist player as well
+            imagePromises[assistKey] = getPlayerImage(event.assist.id, event.assist.name, event.team?.id);
           }
         }
       });
@@ -476,7 +478,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       return cachedImage;
     }
 
-    // Fallback while loading
+    // Priority 1: RapidAPI with team ID
+    if (playerId && teamId) {
+      return `/api/player-photo/${playerId}?teamId=${teamId}&season=2024`;
+    }
+
+    // Priority 2: RapidAPI without team ID
+    if (playerId) {
+      return `/api/player-photo/${playerId}?season=2024`;
+    }
+
+    // Priority 3: Fallback to 365Scores CDN
     if (playerId) {
       return `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
     }
