@@ -8,6 +8,7 @@ import "@/styles/MyMatchEventNew.css";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import MyCommentary from "./MyCommentary";
 import MyPlayerProfilePicture from "./MyPlayerProfilePicture";
+import PlayerProfileModal from "../modals/PlayerProfileModal";
 
 interface MyMatchEventNewProps {
   fixtureId: string | number;
@@ -2162,6 +2163,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           </div>
         )}
       </CardContent>
+
+      {/* Player Profile Modal */}
+      <PlayerProfileModal
+        isOpen={isPlayerModalOpen}
+        onClose={() => setIsPlayerModalOpen(false)}
+        playerId={selectedPlayer.playerId}
+        teamId={selectedPlayer.teamId}
+      />
     </Card>
   );
 };
