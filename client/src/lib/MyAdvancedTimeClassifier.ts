@@ -1,4 +1,3 @@
-
 /**
  * Advanced Time Classifier for Match Filtering
  * 
@@ -24,22 +23,28 @@ export class MyAdvancedTimeClassifier {
   static classifyFixture(fixtureDate: string, status: string, selectedDate?: string): TimeClassificationResult {
     const now = new Date();
     const fixture = new Date(fixtureDate);
-    
+
     // Extract time components for current time (local)
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
     const currentTimeString = `${currentHour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
-    
+
     // Extract time components from UTC fixture time
     const fixtureHour = fixture.getUTCHours();
     const fixtureMinute = fixture.getUTCMinutes();
     const fixtureTimeString = `${fixtureHour.toString().padStart(2, '0')}:${fixtureMinute.toString().padStart(2, '0')}`;
-    
+
     // Get date strings for comparison - using proper Date objects for consistent formatting
     const todayDate = now.toISOString().slice(0, 10);
     const fixtureDate_str = new Date(fixtureDate).toISOString().slice(0, 10); // Use new Date() for proper parsing
     const requestedDate = selectedDate || todayDate;
-    
+
+        // DETAILED DATE DEBUGGING
+    const originalFixtureDate = fixtureDate;
+    const parsedFixtureDate = new Date(fixtureDate);
+    const fixtureUTCString = parsedFixtureDate.toUTCString();
+    const fixtureLocalString = parsedFixtureDate.toLocaleString();
+
     console.log(`🕐 [AdvancedTimeClassifier] Analyzing fixture:`, {
       fixtureDate,
       fixtureTime: fixtureTimeString,
@@ -52,15 +57,15 @@ export class MyAdvancedTimeClassifier {
       isToday: requestedDate === todayDate,
       isFutureDate: requestedDate > todayDate
     });
-    
+
     // Determine if requested date is past, present, or future
     const isPastDate = requestedDate < todayDate;
     const isToday = requestedDate === todayDate;
     const isFutureDate = requestedDate > todayDate;
-    
+
     // Check if fixture date matches the requested date
     const fixtureMatchesRequestedDate = fixtureDate_str === requestedDate;
-    
+
     // If fixture doesn't match the requested date, exclude it
     if (!fixtureMatchesRequestedDate) {
       return {
@@ -72,7 +77,7 @@ export class MyAdvancedTimeClassifier {
         shouldShow: false
       };
     }
-    
+
     // FOR PAST DATES: Only show ended matches
     if (isPastDate) {
       if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
@@ -85,7 +90,7 @@ export class MyAdvancedTimeClassifier {
           shouldShow: true
         };
       }
-      
+
       // Past dates should never have live or upcoming matches
       if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
         return {
@@ -97,7 +102,7 @@ export class MyAdvancedTimeClassifier {
           shouldShow: false
         };
       }
-      
+
       if (['NS', 'TBD'].includes(status)) {
         return {
           category: 'other',
@@ -109,7 +114,7 @@ export class MyAdvancedTimeClassifier {
         };
       }
     }
-    
+
     // FOR FUTURE DATES: Only show upcoming matches
     if (isFutureDate) {
       if (['NS', 'TBD'].includes(status)) {
@@ -122,7 +127,7 @@ export class MyAdvancedTimeClassifier {
           shouldShow: true
         };
       }
-      
+
       // Future dates should never have live or ended matches
       if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(status)) {
         return {
@@ -134,7 +139,7 @@ export class MyAdvancedTimeClassifier {
           shouldShow: false
         };
       }
-      
+
       if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
         return {
           category: 'other',
@@ -146,7 +151,7 @@ export class MyAdvancedTimeClassifier {
         };
       }
     }
-    
+
     // FOR TODAY (CURRENT DATE): Show all match types
     if (isToday) {
       // Handle live matches - always show
@@ -160,12 +165,12 @@ export class MyAdvancedTimeClassifier {
           shouldShow: true
         };
       }
-      
+
       // Handle upcoming matches
       if (['NS', 'TBD'].includes(status)) {
         const fixtureTimeMinutes = fixtureHour * 60 + fixtureMinute;
         const currentTimeMinutes = currentHour * 60 + currentMinute;
-        
+
         if (fixtureTimeMinutes > currentTimeMinutes) {
           return {
             category: 'today',
@@ -187,7 +192,7 @@ export class MyAdvancedTimeClassifier {
           };
         }
       }
-      
+
       // Handle ended matches
       if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
         return {
@@ -200,7 +205,7 @@ export class MyAdvancedTimeClassifier {
         };
       }
     }
-    
+
     // Default case - for unknown statuses
     return {
       category: 'other',
@@ -211,7 +216,7 @@ export class MyAdvancedTimeClassifier {
       shouldShow: false
     };
   }
-  
+
   /**
    * Filter fixtures for a specific selected date using advanced time rules
    */
@@ -220,13 +225,13 @@ export class MyAdvancedTimeClassifier {
       if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
         return false;
       }
-      
+
       const classification = this.classifyFixture(
         fixture.fixture.date,
         fixture.fixture.status.short,
         selectedDate
       );
-      
+
       console.log(`🔍 [AdvancedTimeClassifier] Match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
         fixtureDate: fixture.fixture.date,
         selectedDate,
@@ -235,7 +240,7 @@ export class MyAdvancedTimeClassifier {
         reason: classification.reason,
         shouldShow: classification.shouldShow
       });
-      
+
       return classification.shouldShow;
     });
   }
