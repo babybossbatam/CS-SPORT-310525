@@ -34,17 +34,11 @@ export class MyAdvancedTimeClassifier {
     const fixtureMinute = fixture.getUTCMinutes();
     const fixtureTimeString = `${fixtureHour.toString().padStart(2, '0')}:${fixtureMinute.toString().padStart(2, '0')}`;
 
-    // STEP 1: Get current date info
+    // STEP 1: Get current date info in local timezone
     const todayDate = now.toLocaleDateString('en-CA'); // YYYY-MM-DD format in user's timezone
-    const currentTimezoneOffset = now.getTimezoneOffset();
     
-    // STEP 2: Parse and convert fixture UTC time to local timezone
-    const fixtureLocalDate = new Date(fixtureDate);
-    const fixtureDate_str = fixtureLocalDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in user's timezone
-    const fixtureTimezoneOffset = fixtureLocalDate.getTimezoneOffset();
-
-    // STEP 3: Extract UTC date for comparison
-    const fixtureUTCDate = fixtureDate.substring(0, 10); // Extract YYYY-MM-DD from UTC string
+    // STEP 2: Extract UTC date directly from fixture string (no timezone conversion)
+    const fixtureDate_str = fixtureDate.substring(0, 10); // Extract YYYY-MM-DD from UTC string directly
 
     const requestedDate = selectedDate || todayDate;
 
@@ -56,37 +50,22 @@ export class MyAdvancedTimeClassifier {
     // STEP 5: Check if fixture date matches the requested date
     const fixtureMatchesRequestedDate = fixtureDate_str === requestedDate;
 
-    // COMPREHENSIVE DEBUGGING - Show complete data flow
-    console.log(`🔍 [DATE FILTERING DEBUG] Complete analysis for: ${fixtureDate}`, {
-      step1_currentDateTime: {
-        nowUTC: now.toISOString(),
+    // SIMPLE DEBUGGING - Show UTC date extraction
+    console.log(`🔍 [DATE FILTERING DEBUG] UTC date extraction for: ${fixtureDate}`, {
+      currentDate: {
         nowLocal: now.toLocaleString(),
-        todayDateLocal: todayDate,
-        currentTimezoneOffset: currentTimezoneOffset
+        todayDateLocal: todayDate
       },
-      step2_fixtureConversion: {
+      fixtureDate: {
         originalUTC: fixtureDate,
-        parsedAsLocalDate: fixtureLocalDate.toISOString(),
-        extractedLocalDate: fixtureDate_str,
-        fixtureTimezoneOffset: fixtureTimezoneOffset,
-        utcVsLocalDateDifference: fixtureUTCDate !== fixtureDate_str
+        extractedUTCDate: fixtureDate_str
       },
-      step3_utcExtraction: {
-        fixtureUTCDate: fixtureUTCDate,
-        directUTCExtraction: fixtureDate.split('T')[0]
-      },
-      step4_dateRelationships: {
+      comparison: {
         selectedDate: requestedDate,
-        isPastDate,
-        isToday,
-        isFutureDate
-      },
-      step5_finalDecision: {
-        fixtureLocalDate: fixtureDate_str,
-        selectedDate: requestedDate,
+        fixtureUTCDate: fixtureDate_str,
         datesMatch: fixtureMatchesRequestedDate,
         willInclude: fixtureMatchesRequestedDate,
-        reason: fixtureMatchesRequestedDate ? 'Date match - INCLUDED' : 'Date mismatch - EXCLUDED'
+        reason: fixtureMatchesRequestedDate ? 'UTC date match - INCLUDED' : 'UTC date mismatch - EXCLUDED'
       }
     });
 
