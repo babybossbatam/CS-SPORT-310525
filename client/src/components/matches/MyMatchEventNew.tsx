@@ -878,7 +878,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             playerName={penalty.event.player?.name}
                             size="md"
                             teamType="away"
-```text
+
                             className="flex-shrink-0"
                           />
                         </div>
