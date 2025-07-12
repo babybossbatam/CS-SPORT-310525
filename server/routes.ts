@@ -823,7 +823,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             league: {
               id: 2,
               name: "UEFA Champions League",
-              type: "Cup",
+              type:```text
+"Cup",
               logo: "https://media.api-sports.io/football/leagues/2.png",
               country: "World",
             },

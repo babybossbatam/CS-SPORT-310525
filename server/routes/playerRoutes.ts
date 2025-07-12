@@ -79,3 +79,91 @@ router.get('/player-statistics/:playerId', async (req, res) => {
 });
 
 export default router;
+import { Router } from 'express';
+import { rapidApiService } from '../services/rapidApi';
+
+const router = Router();
+
+/**
+ * Get player photo from RapidAPI players endpoint
+ */
+router.get('/player-photo/:playerId', async (req, res) => {
+  try {
+    const { playerId } = req.params;
+    const { teamId, season = '2024' } = req.query;
+
+    console.log(`📷 [Player Photo API] Fetching photo for player ${playerId}, team ${teamId}, season ${season}`);
+
+    // Get player data from RapidAPI
+    const playerData = await rapidApiService.getPlayerStatistics(
+      parseInt(playerId), 
+      teamId ? parseInt(teamId as string) : undefined, 
+      parseInt(season as string)
+    );
+
+    if (playerData && playerData.length > 0) {
+      const player = playerData[0];
+      const photoUrl = player.player?.photo;
+
+      if (photoUrl) {
+        console.log(`✅ [Player Photo API] Found photo URL for player ${playerId}: ${photoUrl}`);
+        
+        // Redirect to the actual photo URL
+        return res.redirect(photoUrl);
+      }
+    }
+
+    console.log(`❌ [Player Photo API] No photo found for player ${playerId}`);
+    
+    // Return 404 if no photo found
+    res.status(404).json({ 
+      error: 'Player photo not found',
+      playerId: playerId 
+    });
+
+  } catch (error) {
+    console.error(`❌ [Player Photo API] Error fetching player photo:`, error);
+    res.status(500).json({ 
+      error: 'Failed to fetch player photo',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * Get comprehensive player data including photo
+ */
+router.get('/:playerId/stats', async (req, res) => {
+  try {
+    const { playerId } = req.params;
+    const { teamId, season = '2024' } = req.query;
+
+    console.log(`📊 [Player Stats API] Fetching stats for player ${playerId}, team ${teamId}, season ${season}`);
+
+    const playerData = await rapidApiService.getPlayerStatistics(
+      parseInt(playerId), 
+      teamId ? parseInt(teamId as string) : undefined, 
+      parseInt(season as string)
+    );
+
+    if (playerData && playerData.length > 0) {
+      console.log(`✅ [Player Stats API] Found data for player ${playerId}`);
+      res.json(playerData);
+    } else {
+      console.log(`❌ [Player Stats API] No data found for player ${playerId}`);
+      res.status(404).json({ 
+        error: 'Player data not found',
+        playerId: playerId 
+      });
+    }
+
+  } catch (error) {
+    console.error(`❌ [Player Stats API] Error fetching player stats:`, error);
+    res.status(500).json({ 
+      error: 'Failed to fetch player stats',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+export default router;

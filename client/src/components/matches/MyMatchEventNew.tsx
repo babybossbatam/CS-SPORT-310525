@@ -467,6 +467,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const getPlayerImage = useCallback((
     playerId: number | undefined,
     playerName: string | undefined,
+    teamId: number | undefined,
   ): string => {
     const key = `${playerId}_${playerName}`;
     const cachedImage = playerImages[key];
@@ -1193,6 +1194,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         src={getPlayerImage(
                                           event.player?.id,
                                           event.player?.name,
+                                          event.team?.id,
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
@@ -1228,6 +1230,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           src={getPlayerImage(
                                             event.assist?.id,
                                             event.assist?.name,
+                                            event.team?.id,
                                           )}
                                           alt={event.assist?.name || "Player"}
                                           className="object-cover"
@@ -1519,6 +1522,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           src={getPlayerImage(
                                             event.assist?.id,
                                             event.assist?.name,
+                                            event.team?.id,
                                           )}
                                           alt={event.assist?.name || "Player"}
                                           className="object-cover"
@@ -1548,6 +1552,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         src={getPlayerImage(
                                           event.player?.id,
                                           event.player?.name,
+                                          event.team?.id,
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
@@ -1753,6 +1758,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         src={getPlayerImage(
                                           event.player?.id,
                                           event.player?.name,
+                                          event.team?.id,
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
@@ -1788,6 +1794,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           src={getPlayerImage(
                                             event.assist?.id,
                                             event.assist?.name,
+                                            event.team?.id,
                                           )}
                                           alt={event.assist?.name || "Player"}
                                           className="object-cover"
@@ -2079,6 +2086,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           src={getPlayerImage(
                                             event.assist?.id,
                                             event.assist?.name,
+                                            event.team?.id,
                                           )}
                                           alt={event.assist?.name || "Player"}
                                           className="object-cover"
@@ -2108,6 +2116,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         src={getPlayerImage(
                                           event.player?.id,
                                           event.player?.name,
+                                          event.team?.id,
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"

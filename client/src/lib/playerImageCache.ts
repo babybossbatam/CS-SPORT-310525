@@ -79,11 +79,27 @@ class PlayerImageCache {
       return cached.url;
     }
 
-    // Try multiple CDN sources if we have a player ID
+    // Try RapidAPI player photo endpoint first (most accurate)
     if (playerId) {
       try {
+        const apiUrl = `/api/player-photo/${playerId}`;
+        console.log(`🔍 [PlayerImageCache] Trying RapidAPI player photo endpoint: ${apiUrl}`);
+        
+        // Test if API endpoint works
+        try {
+          const isValidApi = await this.validateImageUrl(apiUrl);
+          if (isValidApi) {
+            console.log(`✅ [PlayerImageCache] Success with RapidAPI endpoint: ${apiUrl}`);
+            this.setCachedImage(playerId, playerName, apiUrl, 'api');
+            return apiUrl;
+          }
+        } catch (error) {
+          console.log(`⚠️ [PlayerImageCache] RapidAPI endpoint failed: ${apiUrl}, trying CDNs...`);
+        }
+
+        // Fallback to CDN sources if API fails
         const cdnSources = [
-          // 365Scores CDN (primary - likely to work)
+          // 365Scores CDN (primary fallback)
           `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
           // API-Sports CDN
           `https://media.api-sports.io/football/players/${playerId}.png`,
@@ -96,35 +112,20 @@ class PlayerImageCache {
           `https://cdn.sportmonks.com/images/soccer/players/${playerId}.png`,
         ];
 
-        console.log(`🔍 [PlayerImageCache] Trying ${cdnSources.length} CDN sources for player ${playerId} (${playerName})`);
+        console.log(`🔍 [PlayerImageCache] Trying ${cdnSources.length} CDN fallbacks for player ${playerId} (${playerName})`);
         
         // Try each CDN source
         for (const cdnUrl of cdnSources) {
           try {
             const isValid = await this.validateImageUrl(cdnUrl);
             if (isValid) {
-              console.log(`✅ [PlayerImageCache] Success with CDN: ${cdnUrl}`);
-              this.setCachedImage(playerId, playerName, cdnUrl, 'api');
+              console.log(`✅ [PlayerImageCache] Success with CDN fallback: ${cdnUrl}`);
+              this.setCachedImage(playerId, playerName, cdnUrl, 'fallback');
               return cdnUrl;
             }
           } catch (error) {
             console.log(`⚠️ [PlayerImageCache] CDN failed: ${cdnUrl}`);
           }
-        }
-        
-        // Fallback to API endpoint
-        const apiUrl = `/api/player-photo/${playerId}`;
-        console.log(`🔍 [PlayerImageCache] All CDNs failed, trying API endpoint: ${apiUrl}`);
-        
-        // Test if API endpoint works
-        try {
-          const isValidApi = await this.validateImageUrl(apiUrl);
-          if (isValidApi) {
-            this.setCachedImage(playerId, playerName, apiUrl, 'api');
-            return apiUrl;
-          }
-        } catch (error) {
-          console.log(`⚠️ [PlayerImageCache] API endpoint also failed: ${apiUrl}`);
         }
       } catch (error) {
         console.warn(`⚠️ [PlayerImageCache] All sources failed for player ${playerId}:`, error);
