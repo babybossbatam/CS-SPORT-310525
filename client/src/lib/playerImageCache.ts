@@ -78,7 +78,49 @@ class PlayerImageCache {
       return cached.url;
     }
 
-    // If we have team ID, try batch loading first (most efficient)
+    // Primary: API-Sports.io player images
+    if (playerId) {
+      try {
+        const apiSportsUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
+        const isValidApiSports = await this.validateImageUrl(apiSportsUrl);
+        if (isValidApiSports) {
+          this.setCachedImage(playerId, playerName, apiSportsUrl, 'api');
+          return apiSportsUrl;
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] API-Sports.io failed for player ${playerId}:`, error);
+      }
+    }
+
+    // Secondary: Resfu.com player database
+    if (playerId) {
+      try {
+        const resfuUrl = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
+        const isValidResfu = await this.validateImageUrl(resfuUrl);
+        if (isValidResfu) {
+          this.setCachedImage(playerId, playerName, resfuUrl, 'api');
+          return resfuUrl;
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] Resfu.com failed for player ${playerId}:`, error);
+      }
+    }
+
+    // Tertiary: 365scores.com image cache using player ID
+    if (playerId) {
+      try {
+        const scores365Url = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
+        const isValid365Scores = await this.validateImageUrl(scores365Url);
+        if (isValid365Scores) {
+          this.setCachedImage(playerId, playerName, scores365Url, 'api');
+          return scores365Url;
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] 365scores.com failed for player ${playerId}:`, error);
+      }
+    }
+
+    // If we have team ID, try batch loading as backup
     if (teamId) {
       try {
         await this.batchLoadPlayerImages(teamId);
@@ -91,21 +133,7 @@ class PlayerImageCache {
       }
     }
 
-    // If batch loading didn't work and we have a player ID, try the RapidAPI endpoint
-    if (playerId) {
-      try {
-        const apiUrl = `/api/player-photo/${playerId}`;
-        const isValidApi = await this.validateImageUrl(apiUrl);
-        if (isValidApi) {
-          this.setCachedImage(playerId, playerName, apiUrl, 'api');
-          return apiUrl;
-        }
-      } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] API endpoint failed for player ${playerId}:`, error);
-      }
-    }
-
-    // Generate initials fallback
+    // Final: Generated initials with colored background
     const initials = this.generateInitials(playerName);
     const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
 

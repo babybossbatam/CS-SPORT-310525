@@ -879,7 +879,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           })()}
                         </div>
                         <div className="penalty-player-info penalty-player-info-away">
-                          <div className="flex flex-col min-w-0 mr-2">
+                          <div className="flex flex-col minw-0 mr-2">
                             <span className="penalty-player-name text-xs font-medium text-right truncate">
                               {penalty.event.player?.name}
                             </span>
@@ -1211,10 +1211,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           // Enhanced fallback chain for better player image accuracy
                                           const img = e.target as HTMLImageElement;
                                           if (event.player?.id) {
-                                            if (!img.src.includes('resfu')) {
-                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
-                                            } else if (!img.src.includes('media.api-sports.io')) {
+                                            if (!img.src.includes('media.api-sports.io')) {
                                               img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                            } else if (!img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
                                             } else if (!img.src.includes('apifootball.com')) {
                                               img.src = `https://apifootball.com/api/players/${event.player.id}.jpg`;
                                             }
@@ -1245,8 +1245,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           onError={(e) => {
                                             // Try fallback sources if primary fails
                                             const img = e.target as HTMLImageElement;
-                                            if (event.assist?.id && !img.src.includes('resfu')) {
-                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                            if (event.assist?.id) {
+                                              if (!img.src.includes('media.api-sports.io')) {
+                                                img.src = `https://media.api-sports.io/football/players/${event.assist.id}.png`;
+                                              } else if (!img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
                                             }
                                           }}
                                         />
@@ -1536,8 +1540,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           onError={(e) => {
                                             // Try fallback sources if primary fails
                                             const img = e.target as HTMLImageElement;
-                                            if (event.assist?.id && !img.src.includes('resfu')) {
-                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                            if (event.assist?.id) {
+                                              if (!img.src.includes('media.api-sports.io')) {
+                                                img.src = `https://media.api-sports.io/football/players/${event.assist.id}.png`;
+                                              } else if (!img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
                                             }
                                           }}
                                         />
@@ -1565,8 +1573,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         onError={(e) => {
                                           // Try fallback sources if primary fails
                                           const img = e.target as HTMLImageElement;
-                                          if (event.player?.id && !img.src.includes('resfu')) {
-                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          if (event.player?.id) {
+                                            if (!img.src.includes('media.api-sports.io')) {
+                                              img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                            } else if (!img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                            }
                                           }
                                         }}
                                       />
@@ -1711,8 +1723,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     return (
                       <div className="p-8 text-center text-gray-500">
                         <div className="text-4xl mb-4">⚽</div>
-                        <h3 className="text-lg font-medium mb-2">No Goals Yet</h3>
-                        <p className="text-sm">Goal events will appear here when they happen</p>
+                        <h3 className="text-lg font-medium mb-2">No Goals Yet</h3><p className="text-sm">Goal events will appear here when they happen</p>
                       </div>
                     );
                   }
@@ -1771,10 +1782,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           // Enhanced fallback chain for better player image accuracy
                                           const img = e.target as HTMLImageElement;
                                           if (event.player?.id) {
-                                            if (!img.src.includes('resfu')) {
-                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
-                                            } else if (!img.src.includes('media.api-sports.io')){
+                                            if (!img.src.includes('media.api-sports.io')) {
                                               img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                            } else if (!img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
                                             } else if (!img.src.includes('apifootball.com')) {
                                               img.src = `https://apifootball.com/api/players/${event.player.id}.jpg`;
                                             }
@@ -1805,8 +1816,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           onError={(e) => {
                                             // Try fallback sources if primary fails
                                             const img = e.target as HTMLImageElement;
-                                            if (event.assist?.id && !img.src.includes('resfu')) {
-                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                            if (event.assist?.id) {
+                                              if (!img.src.includes('media.api-sports.io')) {
+                                                img.src = `https://media.api-sports.io/football/players/${event.assist.id}.png`;
+                                              } else if (!img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
                                             }
                                           }}
                                         />
@@ -2096,8 +2111,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           onError={(e) => {
                                             // Try fallback sources if primary fails
                                             const img = e.target as HTMLImageElement;
-                                            if (event.assist?.id && !img.src.includes('resfu')) {
-                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                            if (event.assist?.id) {
+                                              if (!img.src.includes('media.api-sports.io')) {
+                                                img.src = `https://media.api-sports.io/football/players/${event.assist.id}.png`;
+                                              } else if (!img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
                                             }
                                           }}
                                         />
@@ -2107,7 +2126,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             .map((n) => n[0])
                                             .join("")
                                             .slice(0, 2) || "P"}
-                                      </AvatarFallback>
+                                        </AvatarFallback>
                                         </Avatar>
                                     )}
 
@@ -2125,8 +2144,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         onError={(e) => {
                                           // Try fallback sources if primary fails
                                           const img = e.target as HTMLImageElement;
-                                          if (event.player?.id && !img.src.includes('resfu')) {
-                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          if (event.player?.id) {
+                                            if (!img.src.includes('media.api-sports.io')) {
+                                              img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                            } else if (!img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                            }
                                           }
                                         }}
                                       />
