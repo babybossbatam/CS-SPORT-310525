@@ -251,15 +251,38 @@ class PlayerImageCache {
 
       const playerImages: Record<string, string> = await response.json();
 
-      // Store all player images in cache
-      Object.entries(playerImages).forEach(([playerId, imageUrl]) => {
-        // Only cache the main player IDs, not the fallback entries
-        if (!playerId.includes('_fallback')) {
-          this.cache.set(playerId, imageUrl);
+      // Store all player images in cache with proper structure
+      Object.entries(playerImages).forEach(([key, imageUrl]) => {
+        // Skip metadata entries
+        if (key.includes('_name') || key.includes('_team')) {
+          return;
+        }
+
+        // Extract player ID and name from cache key
+        let playerId: number | undefined;
+        let playerName: string | undefined;
+
+        if (key.includes('_') && !key.includes('_fallback')) {
+          // This is a composite key: playerId_playerName
+          const parts = key.split('_');
+          playerId = parseInt(parts[0]);
+          playerName = parts.slice(1).join('_');
+        } else if (!isNaN(parseInt(key))) {
+          // This is just a player ID
+          playerId = parseInt(key);
+          playerName = playerImages[`${playerId}_name`] || undefined;
+        }
+
+        if (playerId && imageUrl) {
+          this.setCachedImage(playerId, playerName, imageUrl, 'api');
         }
       });
 
-      console.log(`✅ [PlayerImageCache] Cached ${Object.keys(playerImages).length / 3} player images for team ${teamId} (season ${currentSeason})`);
+      const cachedPlayerCount = Object.keys(playerImages).filter(key => 
+        !key.includes('_name') && !key.includes('_team') && !key.includes('_fallback')
+      ).length;
+
+      console.log(`✅ [PlayerImageCache] Cached ${cachedPlayerCount} player images for team ${teamId} (season ${currentSeason})`);
 
     } catch (error) {
       console.error(`❌ [PlayerImageCache] Failed to batch load team ${teamId} players:`, error);

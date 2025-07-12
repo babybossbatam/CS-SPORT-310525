@@ -413,7 +413,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   // Load player images asynchronously with enhanced batch loading
   useEffect(() => {
     const loadPlayerImages = async () => {
-      const { getEnhancedPlayerImage, playerImageCache } = await import('../../lib/playerImageCache');
+      const { playerImageCache } = await import('../../lib/playerImageCache');
       
       // Extract unique team IDs from events
       const teamIds = new Set<number>();
@@ -434,57 +434,48 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         }
       }
 
-      // Enhanced loading for any remaining players with team context
-      const imagePromises: Record<string, Promise<string>> = {};
+      // Get images for all players in events
+      const newImages: Record<string, string> = {};
 
-      events.forEach(event => {
+      // Process all event players
+      for (const event of events) {
+        // Main player
         if (event.player?.id || event.player?.name) {
           const key = `${event.player.id}_${event.player.name}`;
-          if (!playerImages[key]) {
-            imagePromises[key] = getEnhancedPlayerImage(
+          try {
+            const imageUrl = await playerImageCache.getPlayerImageWithFallback(
               event.player.id, 
-              event.player.name, 
-              event.team?.id
+              event.player.name
             );
+            if (imageUrl) {
+              newImages[key] = imageUrl;
+            }
+          } catch (error) {
+            console.warn(`Failed to load image for player ${event.player.name}:`, error);
           }
         }
 
-        // Also load assist player images for substitutions
+        // Assist player (for substitutions)
         if (event.assist?.id || event.assist?.name) {
           const assistKey = `${event.assist.id}_${event.assist.name}`;
-          if (!playerImages[assistKey]) {
-            imagePromises[assistKey] = getEnhancedPlayerImage(
-              event.assist.id, 
-              event.assist.name, 
-              event.team?.id
-            );
-          }
-        }
-      });
-
-      // Resolve all image promises
-      const resolvedImages = await Promise.allSettled(
-        Object.entries(imagePromises).map(async ([key, promise]) => {
           try {
-            const url = await promise;
-            return { key, url };
+            const imageUrl = await playerImageCache.getPlayerImageWithFallback(
+              event.assist.id, 
+              event.assist.name
+            );
+            if (imageUrl) {
+              newImages[assistKey] = imageUrl;
+            }
           } catch (error) {
-            console.warn(`Failed to load image for ${key}:`, error);
-            return { key, url: '' };
+            console.warn(`Failed to load image for assist player ${event.assist.name}:`, error);
           }
-        })
-      );
-
-      // Update state with resolved images
-      const newImages: Record<string, string> = {};
-      resolvedImages.forEach(result => {
-        if (result.status === 'fulfilled') {
-          newImages[result.value.key] = result.value.url;
         }
-      });
+      }
 
+      // Update state with all loaded images
       if (Object.keys(newImages).length > 0) {
         setPlayerImages(prev => ({ ...prev, ...newImages }));
+        console.log(`✅ [PlayerImages] Loaded ${Object.keys(newImages).length} player images`);
       }
     };
 
