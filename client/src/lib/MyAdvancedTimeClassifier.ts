@@ -34,49 +34,14 @@ export class MyAdvancedTimeClassifier {
     const fixtureMinute = fixture.getUTCMinutes();
     const fixtureTimeString = `${fixtureHour.toString().padStart(2, '0')}:${fixtureMinute.toString().padStart(2, '0')}`;
 
-    // Get date strings for comparison - using proper Date objects for consistent formatting
-    const todayDate = now.toISOString().slice(0, 10);
-    const fixtureDate_str = new Date(fixtureDate).toISOString().slice(0, 10); // Use new Date() for proper parsing
+    // Get today's date in user's local timezone
+    const todayDate = now.toLocaleDateString('en-CA'); // YYYY-MM-DD format in user's timezone
+
+    // Convert fixture UTC time to user's local timezone and extract date
+    const fixtureLocalDate = new Date(fixtureDate);
+    const fixtureDate_str = fixtureLocalDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in user's timezone
+
     const requestedDate = selectedDate || todayDate;
-
-        // DETAILED DATE DEBUGGING
-    const originalFixtureDate = fixtureDate;
-    const parsedFixtureDate = new Date(fixtureDate);
-    const fixtureUTCString = parsedFixtureDate.toUTCString();
-    const fixtureLocalString = parsedFixtureDate.toLocaleString();
-
-    // Special debugging for New England Revolution vs Inter Miami match
-    const isNewEnglandMatch = fixtureDate === "2025-07-09T23:30:00+00:00";
-    
-    if (isNewEnglandMatch) {
-      console.log(`🔍 [SPECIAL DEBUG - New England vs Inter Miami]:`, {
-        originalFixtureDate,
-        parsedFixtureDate: parsedFixtureDate.toISOString(),
-        fixtureUTCString,
-        fixtureLocalString,
-        extractedDateWithNewDate: new Date(fixtureDate).toISOString().slice(0, 10),
-        extractedDateDirect: fixtureDate.substring(0, 10),
-        fixtureYear: parsedFixtureDate.getUTCFullYear(),
-        fixtureMonth: parsedFixtureDate.getUTCMonth() + 1,
-        fixtureDay: parsedFixtureDate.getUTCDate(),
-        constructedDateString: `${parsedFixtureDate.getUTCFullYear()}-${String(parsedFixtureDate.getUTCMonth() + 1).padStart(2, '0')}-${String(parsedFixtureDate.getUTCDate()).padStart(2, '0')}`,
-        currentNewDate: new Date().toISOString(),
-        currentNewDateSliced: new Date().toISOString().slice(0, 10)
-      });
-    }
-
-    console.log(`🕐 [AdvancedTimeClassifier] Analyzing fixture:`, {
-      fixtureDate,
-      fixtureTime: fixtureTimeString,
-      currentTime: currentTimeString,
-      status,
-      fixtureDate_str,
-      todayDate,
-      requestedDate,
-      isPastDate: requestedDate < todayDate,
-      isToday: requestedDate === todayDate,
-      isFutureDate: requestedDate > todayDate
-    });
 
     // Determine if requested date is past, present, or future
     const isPastDate = requestedDate < todayDate;
@@ -85,6 +50,9 @@ export class MyAdvancedTimeClassifier {
 
     // Check if fixture date matches the requested date
     const fixtureMatchesRequestedDate = fixtureDate_str === requestedDate;
+
+    // Simple timezone-aware date matching log
+    console.log(`📅 [TIMEZONE DATE MATCH] ${fixtureDate} → Local: ${fixtureDate_str} vs Selected: ${requestedDate} = ${fixtureMatchesRequestedDate}`);
 
     // If fixture doesn't match the requested date, exclude it
     if (!fixtureMatchesRequestedDate) {
