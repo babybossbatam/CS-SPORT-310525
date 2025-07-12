@@ -898,6 +898,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   // Get current scores from API data
+```javascript
   const getCurrentScores = useMemo(() => {
     if (matchData?.goals) {      return {
         homeScore: matchData.goals.home || 0,
@@ -1256,7 +1257,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && event.type !== "Card" && (
+                                    {event.type !== "subst" && event.type !== "Card" && event.type !== "Goal" && (
                                       <div className="text-xs text-gray-400">
                                         {event.type === "foul" ||
                                         event.detail?.toLowerCase().includes("foul")
@@ -1483,7 +1484,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && event.type !== "Card" && (
+                                    {event.type !== "subst" && event.type !== "Card" && event.type !== "Goal" && (
                                       <div className="text-xs text-gray-400 text-right">
                                         {event.type === "foul" ||
                                         event.detail?.toLowerCase().includes("foul")
@@ -1738,7 +1739,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           if (event.player?.id) {
                                             if (!img.src.includes('resfu')) {
                                               img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
-                                            } else if (!img.src.includes('media.api-sports.io')) {
+                                            } else if (!img.src.includes('media.api-sports.io')){
                                               img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
                                             } else if (!img.src.includes('apifootball.com')) {
                                               img.src = `https://apifootball.com/api/players/${event.player.id}.jpg`;
@@ -1800,13 +1801,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         {event.player?.name || "Unknown Player"}
                                       </div>
                                     )}
-                                    {event.type === "Goal" &&
+                                    {event.type === "goal" &&
                                       event.assist?.name && (
                                         <div className="text-xs text-gray-600">
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && event.type !== "Card" && (
+                                    {event.type !== "subst" && event.type !== "Card" && event.type !== "Goal" && (
                                       <div className="text-xs text-gray-400">
                                         {event.type === "foul" ||
                                         event.detail?.toLowerCase().includes("foul")
@@ -2033,7 +2034,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && event.type !== "Card" && (
+                                    {event.type !== "subst" && event.type !== "Card" && event.type !== "Goal" && (
                                       <div className="text-xs text-gray-400 text-right">
                                         {event.type === "foul" ||
                                         event.detail?.toLowerCase().includes("foul")
