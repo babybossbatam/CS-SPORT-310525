@@ -24,7 +24,7 @@ import featuredMatchRoutes from "./routes/featuredMatchRoutes";
 import youtubeRoutes from "./routes/youtubeRoutes";
 import vimeoRoutes from "./routes/vimeoRoutes";
 import dailymotionRoutes from "./routes/dailymotionRoutes";
-import twitchRoutes from "./twitchRoutes";
+import twitchRoutes from "./routes/twitchRoutes";
 import highlightsRoutes from './routes/highlightsRoutes';
 import playerRoutes from './routes/playerRoutes';
 import axios from "axios";
