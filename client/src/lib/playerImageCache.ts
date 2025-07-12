@@ -340,14 +340,7 @@ class PlayerDataCache {
 // Export singleton instance
 export const playerDataCache = new PlayerDataCache();
 
-// Export helper functions
-export const getPlayerImage = async (
-  playerId?: number, 
-  playerName?: string, 
-  teamId?: number
-): Promise<string> => {
-  return playerDataCache.getPlayerAvatar(playerId, playerName, teamId);
-};
+// Export helper functions - using the existing getPlayerImage function defined above
 
 export const preloadTeamPlayers = async (teamId: number, season?: number): Promise<void> => {
   return playerDataCache.preloadTeamPlayers(teamId, season);
