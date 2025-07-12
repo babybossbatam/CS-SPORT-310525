@@ -2,47 +2,87 @@ import express from 'express';
 
 const router = express.Router();
 
-// Player photo endpoint with multiple CDN fallbacks
+// Player photo endpoint using RapidAPI for actual player photos
 router.get('/player-photo/:playerId', async (req, res) => {
   const { playerId } = req.params;
+  const { teamId, season = '2024' } = req.query;
 
   if (!playerId || isNaN(Number(playerId))) {
     return res.status(400).json({ error: 'Invalid player ID' });
   }
 
-  const cdnSources = [
-    // 365Scores CDN (primary)
-    `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
-    // API-Sports CDN
-    `https://media.api-sports.io/football/players/${playerId}.png`,
-    // BeSoccer CDN
-    `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`,
-    // SportMonks CDN
-    `https://cdn.sportmonks.com/images/soccer/players/${playerId}.png`,
-  ];
+  try {
+    console.log(`📷 [PlayerPhoto] Fetching actual photo for player ${playerId}, team ${teamId}, season ${season}`);
+    
+    const { rapidApiService } = await import('../services/rapidApi');
+    
+    // First try to get player data from RapidAPI to get the actual photo
+    const playerStats = await rapidApiService.getPlayerStatistics(
+      Number(playerId), 
+      teamId ? Number(teamId) : undefined, 
+      Number(season)
+    );
 
-  console.log(`🔍 [PlayerPhoto] Trying to fetch photo for player ${playerId}`);
-
-  for (const url of cdnSources) {
-    try {
-      const response = await fetch(url, {
-        method: 'HEAD',
-        timeout: 5000,
-      });
-
-      if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
-        console.log(`✅ [PlayerPhoto] Found image for player ${playerId} at: ${url}`);
-        return res.redirect(url);
+    if (playerStats && playerStats.length > 0) {
+      const playerPhoto = playerStats[0]?.player?.photo;
+      
+      if (playerPhoto && playerPhoto !== '' && !playerPhoto.includes('default')) {
+        console.log(`✅ [PlayerPhoto] Found actual player photo from RapidAPI: ${playerPhoto}`);
+        
+        // Validate the photo URL
+        try {
+          const photoResponse = await fetch(playerPhoto, { method: 'HEAD', timeout: 3000 });
+          if (photoResponse.ok && photoResponse.headers.get('content-type')?.startsWith('image/')) {
+            return res.redirect(playerPhoto);
+          }
+        } catch (photoError) {
+          console.log(`⚠️ [PlayerPhoto] RapidAPI photo URL validation failed: ${photoError.message}`);
+        }
       }
-    } catch (error) {
-      console.log(`⚠️ [PlayerPhoto] Failed to fetch from ${url}:`, error.message);
     }
+
+    // Fallback to CDN sources if no actual photo from API
+    console.log(`🔄 [PlayerPhoto] No actual photo from RapidAPI, trying CDN fallbacks for player ${playerId}`);
+    
+    const cdnSources = [
+      // API-Sports CDN (most reliable for actual photos)
+      `https://media.api-sports.io/football/players/${playerId}.png`,
+      // BeSoccer CDN (good for European players)
+      `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`,
+      // Alternative BeSoccer format
+      `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg`,
+      // 365Scores CDN (last resort)
+      `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
+    ];
+
+    for (const url of cdnSources) {
+      try {
+        const response = await fetch(url, {
+          method: 'HEAD',
+          timeout: 3000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+
+        if (response.ok && response.headers.get('content-type')?.startsWith('image/')) {
+          console.log(`✅ [PlayerPhoto] Found CDN image for player ${playerId} at: ${url}`);
+          return res.redirect(url);
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerPhoto] CDN source failed ${url}:`, error.message);
+      }
+    }
+
+    // If no image found, return a 404
+    console.log(`❌ [PlayerPhoto] No actual photo found for player ${playerId}`);
+    res.status(404).json({ error: 'Player photo not found' });
+
+  } catch (error) {
+    console.error(`❌ [PlayerPhoto] Error fetching player photo:`, error);
+    res.status(500).json({ error: 'Failed to fetch player photo' });
   }
-
-  // If no image found, return a 404
-  console.log(`❌ [PlayerPhoto] No image found for player ${playerId}`);
-  res.status(404).json({ error: 'Player photo not found' });
-
+});
 
 // Player statistics endpoint
 router.get('/player-statistics/:playerId', async (req, res) => {
@@ -76,7 +116,7 @@ router.get('/player-statistics/:playerId', async (req, res) => {
   }
 });
 
-});
+export default router;
 
 export default router;
 import { Router } from 'express';

@@ -72,63 +72,82 @@ class PlayerImageCache {
   }
 
   // Get player image with fallback logic
-  async getPlayerImageWithFallback(playerId?: number, playerName?: string): Promise<string> {
+  async getPlayerImageWithFallback(playerId?: number, playerName?: string, teamId?: number): Promise<string> {
     // Check cache first
     const cached = this.getCachedImage(playerId, playerName);
     if (cached && cached.verified) {
       return cached.url;
     }
 
-    // Try RapidAPI player photo endpoint first (most accurate)
+    // Try RapidAPI player photo endpoint first (most accurate for actual photos)
     if (playerId) {
       try {
-        const apiUrl = `/api/player-photo/${playerId}`;
+        const apiUrl = `/api/player-photo/${playerId}${teamId ? `?teamId=${teamId}` : ''}`;
         console.log(`🔍 [PlayerImageCache] Trying RapidAPI player photo endpoint: ${apiUrl}`);
         
-        // Test if API endpoint works
+        // Test if API endpoint works and returns actual photo
         try {
-          const isValidApi = await this.validateImageUrl(apiUrl);
-          if (isValidApi) {
-            console.log(`✅ [PlayerImageCache] Success with RapidAPI endpoint: ${apiUrl}`);
-            this.setCachedImage(playerId, playerName, apiUrl, 'api');
-            return apiUrl;
+          const response = await fetch(apiUrl, { method: 'HEAD' });
+          if (response.ok) {
+            // Check if it's a redirect to an actual photo URL
+            const finalUrl = response.url;
+            if (finalUrl && finalUrl !== apiUrl && !finalUrl.includes('default') && !finalUrl.includes('placeholder')) {
+              console.log(`✅ [PlayerImageCache] Success with actual RapidAPI photo: ${finalUrl}`);
+              this.setCachedImage(playerId, playerName, apiUrl, 'api');
+              return apiUrl;
+            }
           }
         } catch (error) {
-          console.log(`⚠️ [PlayerImageCache] RapidAPI endpoint failed: ${apiUrl}, trying CDNs...`);
+          console.log(`⚠️ [PlayerImageCache] RapidAPI endpoint failed: ${apiUrl}`);
         }
 
-        // Fallback to CDN sources if API fails
-        const cdnSources = [
-          // 365Scores CDN (primary fallback)
-          `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
-          // API-Sports CDN
+        // Fallback to direct CDN sources for actual photos
+        const directPhotoSources = [
+          // API-Sports CDN (most reliable for actual photos)
           `https://media.api-sports.io/football/players/${playerId}.png`,
-          // BeSoccer CDN
+          // BeSoccer CDN (good quality actual photos)
           `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`,
-          // Alternative BeSoccer formats
           `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg`,
-          `https://cdn.resfu.com/img_data/players/small/${playerId}.jpg?size=120x&lossy=1`,
-          // SportMonks CDN
+          // Alternative sources
           `https://cdn.sportmonks.com/images/soccer/players/${playerId}.png`,
+          `https://img.a.transfermarkt.technology/portrait/small/${playerId}-${Date.now()}.jpg`,
         ];
 
-        console.log(`🔍 [PlayerImageCache] Trying ${cdnSources.length} CDN fallbacks for player ${playerId} (${playerName})`);
+        console.log(`🔍 [PlayerImageCache] Trying ${directPhotoSources.length} direct photo sources for player ${playerId} (${playerName})`);
         
-        // Try each CDN source
-        for (const cdnUrl of cdnSources) {
+        // Try each direct photo source
+        for (const photoUrl of directPhotoSources) {
           try {
-            const isValid = await this.validateImageUrl(cdnUrl);
+            const isValid = await this.validateImageUrl(photoUrl);
             if (isValid) {
-              console.log(`✅ [PlayerImageCache] Success with CDN fallback: ${cdnUrl}`);
-              this.setCachedImage(playerId, playerName, cdnUrl, 'fallback');
-              return cdnUrl;
+              console.log(`✅ [PlayerImageCache] Success with direct photo source: ${photoUrl}`);
+              this.setCachedImage(playerId, playerName, photoUrl, 'fallback');
+              return photoUrl;
             }
           } catch (error) {
-            console.log(`⚠️ [PlayerImageCache] CDN failed: ${cdnUrl}`);
+            console.log(`⚠️ [PlayerImageCache] Direct photo source failed: ${photoUrl}`);
+          }
+        }
+
+        // Last resort: generic CDN sources (may include default images)
+        const genericSources = [
+          `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`,
+        ];
+
+        for (const genericUrl of genericSources) {
+          try {
+            const isValid = await this.validateImageUrl(genericUrl);
+            if (isValid) {
+              console.log(`⚠️ [PlayerImageCache] Using generic fallback: ${genericUrl}`);
+              this.setCachedImage(playerId, playerName, genericUrl, 'fallback');
+              return genericUrl;
+            }
+          } catch (error) {
+            console.log(`⚠️ [PlayerImageCache] Generic source failed: ${genericUrl}`);
           }
         }
       } catch (error) {
-        console.warn(`⚠️ [PlayerImageCache] All sources failed for player ${playerId}:`, error);
+        console.warn(`⚠️ [PlayerImageCache] All photo sources failed for player ${playerId}:`, error);
       }
     }
 
