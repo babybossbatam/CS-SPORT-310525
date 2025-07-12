@@ -78,49 +78,7 @@ class PlayerImageCache {
       return cached.url;
     }
 
-    // Primary: API-Sports.io player images
-    if (playerId) {
-      try {
-        const apiSportsUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
-        const isValidApiSports = await this.validateImageUrl(apiSportsUrl);
-        if (isValidApiSports) {
-          this.setCachedImage(playerId, playerName, apiSportsUrl, 'api');
-          return apiSportsUrl;
-        }
-      } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] API-Sports.io failed for player ${playerId}:`, error);
-      }
-    }
-
-    // Secondary: Resfu.com player database
-    if (playerId) {
-      try {
-        const resfuUrl = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
-        const isValidResfu = await this.validateImageUrl(resfuUrl);
-        if (isValidResfu) {
-          this.setCachedImage(playerId, playerName, resfuUrl, 'api');
-          return resfuUrl;
-        }
-      } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] Resfu.com failed for player ${playerId}:`, error);
-      }
-    }
-
-    // Tertiary: 365scores.com image cache using player ID
-    if (playerId) {
-      try {
-        const scores365Url = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
-        const isValid365Scores = await this.validateImageUrl(scores365Url);
-        if (isValid365Scores) {
-          this.setCachedImage(playerId, playerName, scores365Url, 'api');
-          return scores365Url;
-        }
-      } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] 365scores.com failed for player ${playerId}:`, error);
-      }
-    }
-
-    // If we have team ID, try batch loading as backup
+    // If we have team ID, try batch loading first as it's more reliable
     if (teamId) {
       try {
         await this.batchLoadPlayerImages(teamId);
@@ -133,7 +91,52 @@ class PlayerImageCache {
       }
     }
 
-    // Final: Generated initials with colored background
+    // Primary: API-Sports.io player images (try with minimal validation)
+    if (playerId) {
+      const apiSportsUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
+      try {
+        const isValidApiSports = await this.validateImageUrl(apiSportsUrl);
+        if (isValidApiSports) {
+          this.setCachedImage(playerId, playerName, apiSportsUrl, 'api');
+          return apiSportsUrl;
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] API-Sports.io validation failed for player ${playerId}, but still trying URL`);
+        // Even if validation fails, try to use the URL as it might still work
+        this.setCachedImage(playerId, playerName, apiSportsUrl, 'api');
+        return apiSportsUrl;
+      }
+    }
+
+    // Secondary: Resfu.com player database
+    if (playerId) {
+      const resfuUrl = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
+      try {
+        const isValidResfu = await this.validateImageUrl(resfuUrl);
+        if (isValidResfu) {
+          this.setCachedImage(playerId, playerName, resfuUrl, 'api');
+          return resfuUrl;
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] Resfu.com validation failed for player ${playerId}`);
+      }
+    }
+
+    // Tertiary: 365scores.com image cache using player ID
+    if (playerId) {
+      const scores365Url = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
+      try {
+        const isValid365Scores = await this.validateImageUrl(scores365Url);
+        if (isValid365Scores) {
+          this.setCachedImage(playerId, playerName, scores365Url, 'api');
+          return scores365Url;
+        }
+      } catch (error) {
+        console.log(`⚠️ [PlayerImageCache] 365scores.com validation failed for player ${playerId}`);
+      }
+    }
+
+    // Final: Generated initials with colored background (always works)
     const initials = this.generateInitials(playerName);
     const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
 
@@ -171,31 +174,68 @@ class PlayerImageCache {
           return response.ok && response.headers.get('content-type')?.startsWith('image/');
         } catch (error) {
           clearTimeout(timeoutId);
-          throw error;
+          console.warn(`⚠️ [PlayerImageCache] Local API validation failed for ${url}:`, error);
+          return false;
         }
       }
 
-      // For external URLs, do a quick validation
+      // For external URLs, use a more lenient approach
+      // Skip validation for known reliable sources to avoid CORS issues
+      const trustedDomains = [
+        'media.api-sports.io',
+        'cdn.resfu.com', 
+        'imagecache.365scores.com',
+        'ui-avatars.com'
+      ];
+
+      const isTrustedDomain = trustedDomains.some(domain => url.includes(domain));
+      
+      if (isTrustedDomain) {
+        console.log(`✅ [PlayerImageCache] Trusted domain for ${url}, skipping validation`);
+        return true;
+      }
+
+      // For untrusted domains, try validation with better error handling
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // Reduced timeout
 
       try {
         const response = await fetch(url, { 
           method: 'HEAD',
           signal: controller.signal,
-          mode: 'cors'
+          mode: 'no-cors' // Use no-cors to avoid CORS issues
         });
         clearTimeout(timeoutId);
 
-        const isOk = response.ok;
-        const contentType = response.headers.get('content-type');
-        const isImage = contentType?.startsWith('image/') || url.includes('.jpg') || url.includes('.png') || url.includes('.svg');
-
-        console.log(`🔍 [PlayerImageCache] URL validation for ${url}: status=${response.status}, ok=${isOk}, contentType=${contentType}`);
-        return isOk && isImage;
+        // With no-cors, we can't read response details, so assume success if no error
+        console.log(`🔍 [PlayerImageCache] No-CORS validation passed for ${url}`);
+        return true;
       } catch (error) {
         clearTimeout(timeoutId);
-        throw error;
+        
+        // If fetch fails, try a different approach - create an Image element
+        return new Promise((resolve) => {
+          const img = new Image();
+          const imageTimeout = setTimeout(() => {
+            img.onload = null;
+            img.onerror = null;
+            resolve(false);
+          }, 3000);
+
+          img.onload = () => {
+            clearTimeout(imageTimeout);
+            console.log(`✅ [PlayerImageCache] Image element validation passed for ${url}`);
+            resolve(true);
+          };
+
+          img.onerror = () => {
+            clearTimeout(imageTimeout);
+            console.warn(`⚠️ [PlayerImageCache] Image element validation failed for ${url}`);
+            resolve(false);
+          };
+
+          img.src = url;
+        });
       }
     } catch (error) {
       console.warn(`⚠️ [PlayerImageCache] URL validation failed for ${url}:`, error);
