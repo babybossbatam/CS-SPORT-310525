@@ -1246,7 +1246,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         </AvatarFallback>
                                       </Avatar>
                                     )}
-                                      
                                   </div>
 
                                   <div className="text-left">
