@@ -1182,6 +1182,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
+                                        onError={(e) => {
+                                          // Try fallback sources if primary fails
+                                          const img = e.target as HTMLImageElement;
+                                          if (event.player?.id && !img.src.includes('resfu')) {
+                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          }
+                                        }}
                                       />
                                       <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
                                         {event.player?.name
@@ -1202,6 +1209,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             )}
                                             alt={event.assist?.name || "Player"}
                                             className="object-cover"
+                                            onError={(e) => {
+                                              // Try fallback sources if primary fails
+                                              const img = e.target as HTMLImageElement;
+                                              if (event.assist?.id && !img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
+                                            }}
                                           />
                                           <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
                                         {event.player?.name
@@ -1484,6 +1498,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             )}
                                             alt={event.assist?.name || "Player"}
                                             className="object-cover"
+                                            onError={(e) => {
+                                              // Try fallback sources if primary fails
+                                              const img = e.target as HTMLImageElement;
+                                              if (event.assist?.id && !img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
+                                            }}
                                           />
                                           <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
                                         {event.player?.name
@@ -1503,6 +1524,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
+                                        onError={(e) => {
+                                          // Try fallback sources if primary fails
+                                          const img = e.target as HTMLImageElement;
+                                          if (event.player?.id && !img.src.includes('resfu')) {
+                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          }
+                                        }}
                                       />
                                       <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
                                         {event.player?.name
@@ -1698,6 +1726,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
+                                        onError={(e) => {
+                                          // Try fallback sources if primary fails
+                                          const img = e.target as HTMLImageElement;
+                                          if (event.player?.id && !img.src.includes('resfu')) {
+                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          }
+                                        }}
                                       />
                                       <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
                                         {event.player?.name
@@ -1718,6 +1753,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             )}
                                             alt={event.assist?.name || "Player"}
                                             className="object-cover"
+                                            onError={(e) => {
+                                              // Try fallback sources if primary fails
+                                              const img = e.target as HTMLImageElement;
+                                              if (event.assist?.id && !img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
+                                            }}
                                           />
                                           <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
                                         {event.player?.name
@@ -1765,7 +1807,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                                 {/* Column 2: Event Icon */}
                                 <div className="match-event-home-icon-column">
-```text
                                   <div
                                     className={`match-event-icon ${
                                       event.type === "Goal"
@@ -2001,6 +2042,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             )}
                                             alt={event.assist?.name || "Player"}
                                             className="object-cover"
+                                            onError={(e) => {
+                                              // Try fallback sources if primary fails
+                                              const img = e.target as HTMLImageElement;
+                                              if (event.assist?.id && !img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
+                                            }}
                                           />
                                           <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
                                         {event.player?.name
@@ -2020,6 +2068,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         )}
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
+                                        onError={(e) => {
+                                          // Try fallback sources if primary fails
+                                          const img = e.target as HTMLImageElement;
+                                          if (event.player?.id && !img.src.includes('resfu')) {
+                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          }
+                                        }}
                                       />
                                       <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
                                         {event.player?.name
