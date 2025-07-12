@@ -478,21 +478,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       return cachedImage;
     }
 
-    // Priority 1: RapidAPI with team ID
-    if (playerId && teamId) {
-      return `/api/player-photo/${playerId}?teamId=${teamId}&season=2024`;
-    }
-
-    // Priority 2: RapidAPI without team ID
+    // Always prioritize RapidAPI source first
     if (playerId) {
-      return `/api/player-photo/${playerId}?season=2024`;
+      // Priority 1: RapidAPI with team ID and season
+      if (teamId) {
+        return `/api/player-photo/${playerId}?teamId=${teamId}&season=2025`;
+      }
+      // Priority 2: RapidAPI without team ID but with current season
+      return `/api/player-photo/${playerId}?season=2025`;
     }
 
-    // Priority 3: Fallback to 365Scores CDN
+    // Only fallback to external CDN if no playerId available
     if (playerId) {
       return `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
     }
 
+    // Return empty string to force fallback avatar
     return "";
   }, [playerImages]);
 
@@ -1211,13 +1212,19 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         alt={event.player?.name || "Player"}
                                         className="object-cover"
                                         onError={(e) => {
-                                          // Enhanced fallback chain for better player image accuracy
                                           const img = e.target as HTMLImageElement;
                                           if (event.player?.id) {
-                                            if (!img.src.includes('resfu')) {
+                                            // Try different RapidAPI endpoints first
+                                            if (img.src.includes('/api/player-photo/')) {
+                                              // If RapidAPI failed, try without team ID
+                                              if (img.src.includes('teamId=')) {
+                                                img.src = `/api/player-photo/${event.player.id}?season=2025`;
+                                              } else {
+                                                // Try alternative RapidAPI sources
+                                                img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                              }
+                                            } else if (!img.src.includes('resfu')) {
                                               img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
-                                            } else if (!img.src.includes('media.api-sports.io')) {
-                                              img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
                                             } else if (!img.src.includes('apifootball.com')) {
                                               img.src = `https://apifootball.com/api/players/${event.player.id}.jpg`;
                                             }
