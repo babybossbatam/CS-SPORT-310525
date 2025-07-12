@@ -899,7 +899,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   // Get current scores from API data
   const getCurrentScores = useMemo(() => {
-    if (matchData?.goals) {      return {
+    if (```text
+matchData?.goals) {      return {
         homeScore: matchData.goals.home || 0,
         awayScore: matchData.goals.away || 0,
       };
@@ -1461,6 +1462,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                                 {/* Column 2: Player Info */}
                                 <div className="match-event-away-player-info">
+                                  
                                   <div className="text-right w-36">
                                     {event.type === "subst" &&
                                     event.assist?.name ? (
@@ -1483,15 +1485,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && event.type !== "Card" && (
-                                      <div className="text-xs text-gray-400 text-right">
-                                        {event.type === "foul" ||
-                                        event.detail?.toLowerCase().includes("foul")
-                                          ? `Foul by ${event.player?.name || "Unknown Player"}`
-                                          : event.detail || event.type}
-                                      </div>
-                                    )}
                                   </div>
+                                  
 
                                   <div className="flex items-center gap-1">
                                     {event.type === "subst" &&
@@ -2011,6 +2006,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                                 {/* Column 2: Player Info */}
                                 <div className="match-event-away-player-info">
+                                  
                                   <div className="text-right w-36">
                                     {event.type === "subst" &&
                                     event.assist?.name ? (
@@ -2033,8 +2029,324 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
+                                  </div>
+                                  
+
+                                  <div className="flex items-center gap-1">
+                                    {event.type === "subst" &&
+                                      event.assist?.name && (
+                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative-z20">
+                                          <AvatarImage
+                                            src={getPlayerImage(
+                                              event.assist?.id,
+                                              event.assist?.name,
+                                            )}
+                                            alt={event.assist?.name || "Player"}
+                                            className="object-cover"
+                                            onError={(e) => {
+                                              // Try fallback sources if primary fails
+                                              const img = e.target as HTMLImageElement;
+                                              if (event.assist?.id && !img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
+                                            }}
+                                          />
+                                          <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
+                                        </Avatar>
+                                      )}
+
+                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                      <AvatarImage
+                                        src={getPlayerImage(
+                                          event.player?.id,
+                                          event.player?.name,
+                                        )}
+                                        alt={event.player?.name || "Player"}
+                                        className="object-cover"
+                                        onError={(e) => {
+                                          // Try fallback sources if primary fails
+                                          const img = e.target as HTMLImageElement;
+                                          if (event.player?.id && !img.src.includes('resfu')) {
+                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          }
+                                        }}
+                                      />
+                                      <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+
+                {/* Show MyCommentary for All tab */}
+                <MyCommentary
+                  events={events}
+                  homeTeam={homeTeam}
+                  awayTeam={awayTeam}
+                  getPlayerImage={getPlayerImage}
+                  getEventDescription={getEventDescription}
+                  isHomeTeam={isHomeTeam}
+                />
+              </>
+            )}
+
+            {activeTab === 'top' && (
+              <>
+                {/* Filter to show only Goal events with period markers */}
+                {(() => {
+                  const goalEvents = events.filter(event => event.type === "Goal").sort(
+                    (a, b) => b.time.elapsed - a.time.elapsed,
+                  );
+
+                  // Create period markers for Top tab (same logic as All tab)
+                  const createTopTabPeriodMarkers = () => {
+                    const markers = [];
+
+                    try {
+                      const currentScores = getCurrentScores;
+
+                      // Calculate halftime score by counting goals scored up to 45 minutes
+                      const calculateHalftimeScore = () => {
+                        let homeHalftimeScore = 0;
+                        let awayHalftimeScore = 0;
+
+                        const firstHalfGoals = goalEvents.filter(
+                          (event) => event.time?.elapsed <= 45,
+                        );
+
+                        firstHalfGoals.forEach((goal) => {
+                          if (goal.team?.name === homeTeam) {
+                            homeHalftimeScore++;
+                          } else if (goal.team?.name === awayTeam) {
+                            awayHalftimeScore++;
+                          }
+                        });
+
+                        return { homeHalftimeScore, awayHalftimeScore };
+                      };
+
+                      // Add "End of 90 Minutes" marker for ended matches
+                      const matchStatus = matchData?.fixture?.status?.short;
+                      const isMatchEnded = ["FT", "AET", "PEN"].includes(matchStatus);
+                      const fullTimeGoals = goalEvents.filter(
+                        (e) => e.time?.elapsed >= 90,
+                      );
+
+                      if (isMatchEnded || fullTimeGoals.length > 0) {
+                        markers.push({
+                          time: { elapsed: 90 },
+                          type: "period_score",
+                          detail: "End of 90 Minutes",
+                          score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
+                          team: { name: "", logo: "" },
+                          player: { name: "" },
+                          id: "period-90-top",
+                        });
+                      }
+
+                      // Always add "Halftime" marker if match has progressed beyond first half
+                      const hasSecondHalfEvents = events.some((e) => e.time?.elapsed > 45);
+                      const firstHalfGoals = goalEvents.filter(
+                        (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
+                      );
+
+                      if (hasSecondHalfEvents) {
+                        const halftimeScore = calculateHalftimeScore();
+                        markers.push({
+                          time: { elapsed: 45 },
+                          type: "period_score",
+                          detail: "Halftime",
+                          score: `${halftimeScore.homeHalftimeScore} - ${halftimeScore.awayHalftimeScore}`,
+                          team: { name: "", logo: "" },
+                          player: { name: "" },
+                          id: "period-45-top",
+                          hasFirstHalfGoals: firstHalfGoals.length > 0,
+                        });
+                      }
+                    } catch (error) {
+                      console.error("Error creating Top tab period markers:", error);
+                    }
+
+                    return markers;
+                  };
+
+                  const periodMarkers = createTopTabPeriodMarkers();
+
+                  // Combine goal events and period markers
+                  const allTopItems = [...goalEvents, ...periodMarkers].sort(
+                    (a, b) => {
+                      // Special priority for "End of 90 Minutes" - put it at the very top in Top tab
+                      if (
+                        a.type === "period_score" &&
+                        a.detail === "End of 90 Minutes"
+                      )
+                        return -1;
+                      if (
+                        b.type === "period_score" &&
+                        b.detail === "End of 90 Minutes"
+                      )
+                        return 1;
+
+                      // Calculate total time including extra time for proper sorting
+                      const aTotalTime = a.time.elapsed + (a.time.extra || 0);
+                      const bTotalTime = b.time.elapsed + (b.time.extra || 0);
+
+                      // Sort by total time in descending order (latest first)
+                      return bTotalTime - aTotalTime;
+                    },
+                  );
+
+                  if (goalEvents.length === 0 && periodMarkers.length === 0) {
+                    return (
+                      <div className="p-8 text-center text-gray-500">
+                        <div className="text-4xl mb-4">⚽</div>
+                        <h3 className="text-lg font-medium mb-2">No Goals Yet</h3>
+                        <p className="text-sm">Goal events will appear here when they happen</p>
+                      </div>
+                    );
+                  }
+
+                  return allTopItems.map((event, index) => {
+                    // Handle period score markers
+                    if (event.type === "period_score") {
+                      return (
+                        <div
+                          key={event.id || `period-score-top-${index}`}
+                          className="match-event-container "
+                        >
+                          <div className="period-score-marker">
+                            <div className="period-score-label">
+                              {event.detail || "Period Marker"}
+                            </div>
+                            <div className="period-score-display">
+                              {event.score || "0 - 0"}
+                            </div>
+                          </div>
+                          {/* Show "No Top Events" for halftime if no goals in first half */}
+                          {event.detail === "Halftime" && event.hasFirstHalfGoals === false && (
+                            <div className="text-center text-gray-500 text-sm mt-2 py-2 bg-gray-50 rounded">
+                              No Top Events
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    const isHome = event.team?.name === homeTeam;
+
+                    return (
+                      <div key={`goal-event-${index}`} className="match-event-container">
+                        {/* Three-grid layout container */}
+                        <div className="match-event-three-grid-container">
+                          {/* Left Grid: Home Team Events */}
+                          <div className="match-event-home-side">
+                            {isHome && (
+                              <>
+                                {/* Column 1: Player Info */}
+                                <div className="match-event-home-player-info">
+                                  <div className="flex items-center gap-1">
+                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                      <AvatarImage
+                                        src={getPlayerImage(
+                                          event.player?.id,
+                                          event.player?.name,
+                                        )}
+                                        alt={event.player?.name || "Player"}
+                                        className="object-cover"
+                                        onError={(e) => {
+                                          // Enhanced fallback chain for better player image accuracy
+                                          const img = e.target as HTMLImageElement;
+                                          if (event.player?.id) {
+                                            if (!img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                            } else if (!img.src.includes('media.api-sports.io')) {
+                                              img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                            } else if (!img.src.includes('apifootball.com')) {
+                                              img.src = `https://apifootball.com/api/players/${event.player.id}.jpg`;
+                                            }
+                                          }
+                                        }}
+                                      />
+                                      <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
+                                    </Avatar>
+
+                                    {event.type === "subst" &&
+                                      event.assist?.name && (
+                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20">
+                                          <AvatarImage
+                                            src={getPlayerImage(
+                                              event.assist?.id,
+                                              event.assist?.name,
+                                            )}
+                                            alt={event.assist?.name || "Player"}
+                                            className="object-cover"
+                                            onError={(e) => {
+                                              // Try fallback sources if primary fails
+                                              const img = e.target as HTMLImageElement;
+                                              if (event.assist?.id && !img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
+                                            }}
+                                          />
+                                          <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
+                                        </Avatar>
+                                      )}
+                                  </div>
+
+                                  <div className="text-left">
+                                    {event.type === "subst" &&
+                                    event.assist?.name ? (
+                                      <>
+                                        <div className="text-xs font-medium text-green-600">
+                                          {event.assist.name}
+                                        </div>
+                                        <div className="text-xs font-medium text-red-600">
+                                          {event.player?.name || "Unknown Player"}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <div className="text-xs font-medium text-gray-700">
+                                        {event.player?.name || "Unknown Player"}
+                                      </div>
+                                    )}
+                                    {event.type === "Goal" &&
+                                      event.assist?.name && (
+                                        <div className="text-xs text-gray-600">
+                                          (Assist: {event.assist.name})
+                                        </div>
+                                      )}
                                     {event.type !== "subst" && event.type !== "Card" && (
-                                      <div className="text-xs text-gray-400 text-right">
+                                      <div className="text-xs text-gray-400">
                                         {event.type === "foul" ||
                                         event.detail?.toLowerCase().includes("foul")
                                           ? `Foul by ${event.player?.name || "Unknown Player"}`
@@ -2042,6 +2354,722 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       </div>
                                     )}
                                   </div>
+                                </div>
+
+                                {/* Column 2: Event Icon */}
+                                <div className="match-event-home-icon-column">
+                                  <div
+                                    className={`match-event-icon ${
+                                      event.type === "Goal"
+                                        ? "goal"
+                                        : event.type === "card"
+                                          ? "card"
+                                          : "substitution"
+                                    } relative group`}
+                                    style={{ marginRight: '-8px' }}
+                                    title={getEventDescription(event)}
+                                  >
+                                    {event.type === "subst" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/substitution.svg"
+                                        alt="Substitution"
+                                        className="w-4 h-4   duration-200 "
+                                      />
+                                    ) : event.type === "Goal" ? (
+                                      (() => {
+                                        const detail = event.detail?.toLowerCase() || "";
+                                        if (detail.includes("penalty")) {
+                                          if (detail.includes("missed")) {
+                                            return (
+                                              <img
+                                                src="/assets/matchdetaillogo/missed-penalty.svg"
+                                                alt="Missed Penalty"
+                                                className="w-4 h-4  "
+                                              />
+                                            );
+                                          } else {
+                                            return (
+                                              <img
+                                                src="/assets/matchdetaillogo/penalty.svg"
+                                                alt="Penalty Goal"
+                                                className="w-4 h-4  "
+                                              />
+                                            );
+                                          }
+                                        } else if (detail.includes("own goal")) {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/soccer-logo.svg"
+                                              alt="Own Goal"
+                                              className="w-4 h-4 "
+                                            />
+                                          );
+                                        } else {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/soccer-ball.svg"
+                                              alt="Goal"
+                                              className="w-4 h-4 "
+                                            />
+                                          );
+                                        }
+                                      })()
+                                    ) : event.type === "Card" ? (
+                                      <img
+                                        src={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "/assets/matchdetaillogo/card-icon.svg"
+                                            : "/assets/matchdetaillogo/red-card-icon.svg"
+                                        }
+                                        alt={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "Yellow Card"
+                                            : "Red Card"
+                                        }
+                                        className="w-4 h-8 "
+                                      />
+                                    ) : (
+                                      <span className="text-xs">
+                                        {getEventIcon(event.type, event.detail)}
+                                      </span>
+                                    )}
+
+                                    </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
+
+                          {/* Center Grid: Time display only */}
+                          <div className="match-event-time-center-simple">
+                            {/* Middle: Time display - show elapsed time in black and extra time in red */}
+                            <div className="match-event-time-display">
+                              <span style={{ color: "black" }}>
+                                {event.time?.elapsed}'
+                              </span>
+                              {event.time?.extra && (
+                                <span style={{ color: "red" }}>
+                                  +{event.time.extra}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Right Grid: Away Team Events */}
+                          <div className="match-event-away-side">
+                            {!isHome && (
+                              <>
+                                {/* Column 1: Event Icon */}
+                                <div className="match-event-away-icon-column">
+                                  <div
+                                    className={`match-event-icon ${
+                                      event.type === "Goal"
+                                        ? "Goal"
+                                        : event.type === "Card"
+                                          ? "Card"
+                                          : "Substitution"
+                                    }`}
+
+                                    style={{ marginRight: '-8px' }}
+                                    title={getEventDescription(event)}
+                                  >
+                                    {event.type === "subst" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/substitution.svg"
+                                        alt="Substitution"
+                                        className="w-4 h-4 "
+                                      />
+                                    ) : event.type === "Goal" ? (
+                                      (() => {
+                                        const detail = event.detail?.toLowerCase() || "";
+                                        if (detail.includes("penalty")) {
+                                          if (detail.includes("missed")) {
+                                            return (
+                                              <img
+                                                src="/assets/matchdetaillogo/missed-penalty.svg"
+                                                alt="Missed Penalty"
+                                                className="w-4 h-4 "
+                                              />
+                                            );
+                                          } else {
+                                            return (
+                                              <img
+                                                src="/assets/matchdetaillogo/penalty.svg"
+                                                alt="Penalty Goal"
+                                                className="w-4 h-4 "
+                                              />
+                                            );
+                                          }
+                                        } else if (detail.includes("own goal")) {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/soccer-logo.svg"
+                                              alt="Own Goal"
+                                              className="w-4 h-4 "
+                                            />
+                                          );
+                                        } else {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/soccer-ball.svg"
+                                              alt="Goal"
+                                              className="w-4 h-4 "
+                                            />
+                                          );
+                                        }
+                                      })()
+                                    ) : event.type === "Card" ? (
+                                      <img
+                                        src={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "/assets/matchdetaillogo/card-icon.svg"
+                                            : "/assets/matchdetaillogo/red-card-icon.svg"
+                                        }
+                                        alt={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "Yellow Card"
+                                            : "Red Card"
+                                        }
+                                        className="w-4 h-4 "
+                                      />
+                                    ) : (
+                                      <span className="text-xs">
+                                        {getEventIcon(event.type, event.detail)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Column 2: Player Info */}
+                                <div className="match-event-away-player-info">
+                                  
+                                  
+                                  
+
+                                  <div className="flex items-center gap-1">
+                                    {event.type === "subst" &&
+                                      event.assist?.name && (
+                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative-z20">
+                                          <AvatarImage
+                                            src={getPlayerImage(
+                                              event.assist?.id,
+                                              event.assist?.name,
+                                            )}
+                                            alt={event.assist?.name || "Player"}
+                                            className="object-cover"
+                                            onError={(e) => {
+                                              // Try fallback sources if primary fails
+                                              const img = e.target as HTMLImageElement;
+                                              if (event.assist?.id && !img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
+                                            }}
+                                          />
+                                          <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
+                                        </Avatar>
+                                      )}
+
+                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                      <AvatarImage
+                                        src={getPlayerImage(
+                                          event.player?.id,
+                                          event.player?.name,
+                                        )}
+                                        alt={event.player?.name || "Player"}
+                                        className="object-cover"
+                                        onError={(e) => {
+                                          // Try fallback sources if primary fails
+                                          const img = e.target as HTMLImageElement;
+                                          if (event.player?.id && !img.src.includes('resfu')) {
+                                            img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                          }
+                                        }}
+                                      />
+                                      <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+
+                {/* Show MyCommentary for All tab */}
+                <MyCommentary
+                  events={events}
+                  homeTeam={homeTeam}
+                  awayTeam={awayTeam}
+                  getPlayerImage={getPlayerImage}
+                  getEventDescription={getEventDescription}
+                  isHomeTeam={isHomeTeam}
+                />
+              </>
+            )}
+
+            {activeTab === 'top' && (
+              <>
+                {/* Filter to show only Goal events with period markers */}
+                {(() => {
+                  const goalEvents = events.filter(event => event.type === "Goal").sort(
+                    (a, b) => b.time.elapsed - a.time.elapsed,
+                  );
+
+                  // Create period markers for Top tab (same logic as All tab)
+                  const createTopTabPeriodMarkers = () => {
+                    const markers = [];
+
+                    try {
+                      const currentScores = getCurrentScores;
+
+                      // Calculate halftime score by counting goals scored up to 45 minutes
+                      const calculateHalftimeScore = () => {
+                        let homeHalftimeScore = 0;
+                        let awayHalftimeScore = 0;
+
+                        const firstHalfGoals = goalEvents.filter(
+                          (event) => event.time?.elapsed <= 45,
+                        );
+
+                        firstHalfGoals.forEach((goal) => {
+                          if (goal.team?.name === homeTeam) {
+                            homeHalftimeScore++;
+                          } else if (goal.team?.name === awayTeam) {
+                            awayHalftimeScore++;
+                          }
+                        });
+
+                        return { homeHalftimeScore, awayHalftimeScore };
+                      };
+
+                      // Add "End of 90 Minutes" marker for ended matches
+                      const matchStatus = matchData?.fixture?.status?.short;
+                      const isMatchEnded = ["FT", "AET", "PEN"].includes(matchStatus);
+                      const fullTimeGoals = goalEvents.filter(
+                        (e) => e.time?.elapsed >= 90,
+                      );
+
+                      if (isMatchEnded || fullTimeGoals.length > 0) {
+                        markers.push({
+                          time: { elapsed: 90 },
+                          type: "period_score",
+                          detail: "End of 90 Minutes",
+                          score: `${currentScores.homeScore} - ${currentScores.awayScore}`,
+                          team: { name: "", logo: "" },
+                          player: { name: "" },
+                          id: "period-90-top",
+                        });
+                      }
+
+                      // Always add "Halftime" marker if match has progressed beyond first half
+                      const hasSecondHalfEvents = events.some((e) => e.time?.elapsed > 45);
+                      const firstHalfGoals = goalEvents.filter(
+                        (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
+                      );
+
+                      if (hasSecondHalfEvents) {
+                        const halftimeScore = calculateHalftimeScore();
+                        markers.push({
+                          time: { elapsed: 45 },
+                          type: "period_score",
+                          detail: "Halftime",
+                          score: `${halftimeScore.homeHalftimeScore} - ${halftimeScore.awayHalftimeScore}`,
+                          team: { name: "", logo: "" },
+                          player: { name: "" },
+                          id: "period-45-top",
+                          hasFirstHalfGoals: firstHalfGoals.length > 0,
+                        });
+                      }
+                    } catch (error) {
+                      console.error("Error creating Top tab period markers:", error);
+                    }
+
+                    return markers;
+                  };
+
+                  const periodMarkers = createTopTabPeriodMarkers();
+
+                  // Combine goal events and period markers
+                  const allTopItems = [...goalEvents, ...periodMarkers].sort(
+                    (a, b) => {
+                      // Special priority for "End of 90 Minutes" - put it at the very top in Top tab
+                      if (
+                        a.type === "period_score" &&
+                        a.detail === "End of 90 Minutes"
+                      )
+                        return -1;
+                      if (
+                        b.type === "period_score" &&
+                        b.detail === "End of 90 Minutes"
+                      )
+                        return 1;
+
+                      // Calculate total time including extra time for proper sorting
+                      const aTotalTime = a.time.elapsed + (a.time.extra || 0);
+                      const bTotalTime = b.time.elapsed + (b.time.extra || 0);
+
+                      // Sort by total time in descending order (latest first)
+                      return bTotalTime - aTotalTime;
+                    },
+                  );
+
+                  if (goalEvents.length === 0 && periodMarkers.length === 0) {
+                    return (
+                      <div className="p-8 text-center text-gray-500">
+                        <div className="text-4xl mb-4">⚽</div>
+                        <h3 className="text-lg font-medium mb-2">No Goals Yet</h3>
+                        <p className="text-sm">Goal events will appear here when they happen</p>
+                      </div>
+                    );
+                  }
+
+                  return allTopItems.map((event, index) => {
+                    // Handle period score markers
+                    if (event.type === "period_score") {
+                      return (
+                        <div
+                          key={event.id || `period-score-top-${index}`}
+                          className="match-event-container "
+                        >
+                          <div className="period-score-marker">
+                            <div className="period-score-label">
+                              {event.detail || "Period Marker"}
+                            </div>
+                            <div className="period-score-display">
+                              {event.score || "0 - 0"}
+                            </div>
+                          </div>
+                          {/* Show "No Top Events" for halftime if no goals in first half */}
+                          {event.detail === "Halftime" && event.hasFirstHalfGoals === false && (
+                            <div className="text-center text-gray-500 text-sm mt-2 py-2 bg-gray-50 rounded">
+                              No Top Events
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+
+                    const isHome = event.team?.name === homeTeam;
+
+                    return (
+                      <div key={`goal-event-${index}`} className="match-event-container">
+                        {/* Three-grid layout container */}
+                        <div className="match-event-three-grid-container">
+                          {/* Left Grid: Home Team Events */}
+                          <div className="match-event-home-side">
+                            {isHome && (
+                              <>
+                                {/* Column 1: Player Info */}
+                                <div className="match-event-home-player-info">
+                                  <div className="flex items-center gap-1">
+                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                      <AvatarImage
+                                        src={getPlayerImage(
+                                          event.player?.id,
+                                          event.player?.name,
+                                        )}
+                                        alt={event.player?.name || "Player"}
+                                        className="object-cover"
+                                        onError={(e) => {
+                                          // Enhanced fallback chain for better player image accuracy
+                                          const img = e.target as HTMLImageElement;
+                                          if (event.player?.id) {
+                                            if (!img.src.includes('resfu')) {
+                                              img.src = `https://cdn.resfu.com/img_data/players/medium/${event.player.id}.jpg?size=120x&lossy=1`;
+                                            } else if (!img.src.includes('media.api-sports.io')) {
+                                              img.src = `https://media.api-sports.io/football/players/${event.player.id}.png`;
+                                            } else if (!img.src.includes('apifootball.com')) {
+                                              img.src = `https://apifootball.com/api/players/${event.player.id}.jpg`;
+                                            }
+                                          }
+                                        }}
+                                      />
+                                      <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
+                                    </Avatar>
+
+                                    {event.type === "subst" &&
+                                      event.assist?.name && (
+                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20">
+                                          <AvatarImage
+                                            src={getPlayerImage(
+                                              event.assist?.id,
+                                              event.assist?.name,
+                                            )}
+                                            alt={event.assist?.name || "Player"}
+                                            className="object-cover"
+                                            onError={(e) => {
+                                              // Try fallback sources if primary fails
+                                              const img = e.target as HTMLImageElement;
+                                              if (event.assist?.id && !img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
+                                            }}
+                                          />
+                                          <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
+                                        </Avatar>
+                                      )}
+                                  </div>
+
+                                  <div className="text-left">
+                                    {event.type === "subst" &&
+                                    event.assist?.name ? (
+                                      <>
+                                        <div className="text-xs font-medium text-green-600">
+                                          {event.assist.name}
+                                        </div>
+                                        <div className="text-xs font-medium text-red-600">
+                                          {event.player?.name || "Unknown Player"}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <div className="text-xs font-medium text-gray-700">
+                                        {event.player?.name || "Unknown Player"}
+                                      </div>
+                                    )}
+                                    {event.type === "Goal" &&
+                                      event.assist?.name && (
+                                        <div className="text-xs text-gray-600">
+                                          (Assist: {event.assist.name})
+                                        </div>
+                                      )}
+                                    {event.type !== "subst" && event.type !== "Card" && (
+                                      
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Column 2: Event Icon */}
+                                <div className="match-event-home-icon-column">
+                                  <div
+                                    className={`match-event-icon ${
+                                      event.type === "Goal"
+                                        ? "goal"
+                                        : event.type === "card"
+                                          ? "card"
+                                          : "substitution"
+                                    } relative group`}
+                                    style={{ marginRight: '-8px' }}
+                                    title={getEventDescription(event)}
+                                  >
+                                    {event.type === "subst" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/substitution.svg"
+                                        alt="Substitution"
+                                        className="w-4 h-4   duration-200 "
+                                      />
+                                    ) : event.type === "Goal" ? (
+                                      (() => {
+                                        const detail = event.detail?.toLowerCase() || "";
+                                        if (detail.includes("penalty")) {
+                                          if (detail.includes("missed")) {
+                                            return (
+                                              <img
+                                                src="/assets/matchdetaillogo/missed-penalty.svg"
+                                                alt="Missed Penalty"
+                                                className="w-4 h-4  "
+                                              />
+                                            );
+                                          } else {
+                                            return (
+                                              <img
+                                                src="/assets/matchdetaillogo/penalty.svg"
+                                                alt="Penalty Goal"
+                                                className="w-4 h-4  "
+                                              />
+                                            );
+                                          }
+                                        } else if (detail.includes("own goal")) {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/soccer-logo.svg"
+                                              alt="Own Goal"
+                                              className="w-4 h-4 "
+                                            />
+                                          );
+                                        } else {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/soccer-ball.svg"
+                                              alt="Goal"
+                                              className="w-4 h-4 "
+                                            />
+                                          );
+                                        }
+                                      })()
+                                    ) : event.type === "Card" ? (
+                                      <img
+                                        src={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "/assets/matchdetaillogo/card-icon.svg"
+                                            : "/assets/matchdetaillogo/red-card-icon.svg"
+                                        }
+                                        alt={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "Yellow Card"
+                                            : "Red Card"
+                                        }
+                                        className="w-4 h-8 "
+                                      />
+                                    ) : (
+                                      <span className="text-xs">
+                                        {getEventIcon(event.type, event.detail)}
+                                      </span>
+                                    )}
+
+                                    </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
+
+                          {/* Center Grid: Time display only */}
+                          <div className="match-event-time-center-simple">
+                            {/* Middle: Time display - show elapsed time in black and extra time in red */}
+                            <div className="match-event-time-display">
+                              <span style={{ color: "black" }}>
+                                {event.time?.elapsed}'
+                              </span>
+                              {event.time?.extra && (
+                                <span style={{ color: "red" }}>
+                                  +{event.time.extra}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Right Grid: Away Team Events */}
+                          <div className="match-event-away-side">
+                            {!isHome && (
+                              <>
+                                {/* Column 1: Event Icon */}
+                                <div className="match-event-away-icon-column">
+                                  <div
+                                    className={`match-event-icon ${
+                                      event.type === "Goal"
+                                        ? "Goal"
+                                        : event.type === "Card"
+                                          ? "Card"
+                                          : "Substitution"
+                                    }`}
+
+                                    style={{ marginRight: '-8px' }}
+                                    title={getEventDescription(event)}
+                                  >
+                                    {event.type === "subst" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/substitution.svg"
+                                        alt="Substitution"
+                                        className="w-4 h-4 "
+                                      />
+                                    ) : event.type === "Goal" ? (
+                                      (() => {
+                                        const detail = event.detail?.toLowerCase() || "";
+                                        if (detail.includes("penalty")) {
+                                          if (detail.includes("missed")) {
+                                            return (
+                                              <img
+                                                src="/assets/matchdetaillogo/missed-penalty.svg"
+                                                alt="Missed Penalty"
+                                                className="w-4 h-4 "
+                                              />
+                                            );
+                                          } else {
+                                            return (
+                                              <img
+                                                src="/assets/matchdetaillogo/penalty.svg"
+                                                alt="Penalty Goal"
+                                                className="w-4 h-4 "
+                                              />
+                                            );
+                                          }
+                                        } else if (detail.includes("own goal")) {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/soccer-logo.svg"
+                                              alt="Own Goal"
+                                              className="w-4 h-4 "
+                                            />
+                                          );
+                                        } else {
+                                          return (
+                                            <img
+                                              src="/assets/matchdetaillogo/soccer-ball.svg"
+                                              alt="Goal"
+                                              className="w-4 h-4 "
+                                            />
+                                          );
+                                        }
+                                      })()
+                                    ) : event.type === "Card" ? (
+                                      <img
+                                        src={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "/assets/matchdetaillogo/card-icon.svg"
+                                            : "/assets/matchdetaillogo/red-card-icon.svg"
+                                        }
+                                        alt={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "Yellow Card"
+                                            : "Red Card"
+                                        }
+                                        className="w-4 h-4 "
+                                      />
+                                    ) : (
+                                      <span className="text-xs">
+                                        {getEventIcon(event.type, event.detail)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Column 2: Player Info */}
+                                <div className="match-event-away-player-info">
+                                  
+                                  
+                                  
 
                                   <div className="flex items-center gap-1">
                                     {event.type === "subst" &&
