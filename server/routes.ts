@@ -2684,15 +2684,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           success: true,
           lineups: lineups,
         });
-      } catch (error){
-        console.error("❌ [SoccersAPI] Error fetching match lineups:", error);
+      } catch (error){        console.error("❌ [SoccersAPI] Error fetching match lineups:", error);
         res.status(500).json({
           success: false,
           error: "Failed to fetch SoccersAPI match lineups",
           lineups: null,
         });
       }
-    },
+    }
   );
 
   // Get live fixtures (with B365API fallback)
