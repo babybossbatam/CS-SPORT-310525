@@ -299,9 +299,10 @@ export async function getPlayerImage(playerId: number | undefined, playerName: s
     return "";
   }
 
-  const cached = playerImageCache.getCached(playerId?.toString() || playerName || "");
-  if (cached) {
-    return cached;
+  // Use the correct method from PlayerImageCache
+  const cached = playerImageCache.getCachedImage(playerId, playerName);
+  if (cached && cached.url) {
+    return cached.url;
   }
 
   if (playerId) {
@@ -316,7 +317,7 @@ export async function getPlayerImage(playerId: number | undefined, playerName: s
       try {
         const response = await fetch(url, { method: 'HEAD' });
         if (response.ok) {
-          playerImageCache.cache.set(playerId.toString(), url);
+          playerImageCache.setCachedImage(playerId, playerName, url, 'api');
           return url;
         }
       } catch (error) {
@@ -340,18 +341,18 @@ export async function getEnhancedPlayerImage(
   }
 
   // Check cache first
-  const cached = playerImageCache.getCached(playerId?.toString() || playerName || "");
-  if (cached) {
-    return cached;
+  const cached = playerImageCache.getCachedImage(playerId, playerName);
+  if (cached && cached.url) {
+    return cached.url;
   }
 
   // If we have team ID, try batch loading for the team first
   if (teamId && playerId) {
     try {
       await playerImageCache.batchLoadPlayerImages(teamId);
-      const cachedAfterBatch = playerImageCache.getCached(playerId.toString());
-      if (cachedAfterBatch) {
-        return cachedAfterBatch;
+      const cachedAfterBatch = playerImageCache.getCachedImage(playerId, playerName);
+      if (cachedAfterBatch && cachedAfterBatch.url) {
+        return cachedAfterBatch.url;
       }
     } catch (error) {
       console.warn(`Batch loading failed for team ${teamId}, falling back to individual loading`);
@@ -379,7 +380,7 @@ export const forceRefreshPlayerFunc = (playerId?: number, playerName?: string): 
   return playerImageCache.forceRefresh(playerId, playerName);
 };
 
-export const batchLoadPlayerImagesFunc = async (teamId?: number, leagueId?: number): Promise<Record<string, string>> => {
+export const batchLoadPlayerImagesFunc = async (teamId?: number, leagueId?: number): Promise<void> => {
   return playerImageCache.batchLoadPlayerImages(teamId, leagueId);
 };
 
