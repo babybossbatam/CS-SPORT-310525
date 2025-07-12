@@ -73,11 +73,11 @@ export class MyAdvancedTimeClassifier {
     if (!fixtureMatchesRequestedDate) {
       console.log(`❌ [DATE EXCLUSION] Fixture excluded due to date mismatch:`, {
         originalUTC: fixtureDate,
-        convertedLocal: fixtureDate_str,
+        extractedUTCDate: fixtureDate_str,
         selectedDate: requestedDate,
-        timezoneEffect: `UTC ${fixtureUTCDate} → Local ${fixtureDate_str}`,
+        comparison: `UTC date ${fixtureDate_str} ≠ selected ${requestedDate}`,
         status: status,
-        exclusionReason: 'Date after timezone conversion does not match selected date'
+        exclusionReason: 'UTC date does not match selected date'
       });
       
       return {
