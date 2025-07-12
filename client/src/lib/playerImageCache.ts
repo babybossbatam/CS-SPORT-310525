@@ -133,9 +133,9 @@ class PlayerImageCache {
 
     // Generate initials fallback only if no player ID or all sources failed
     const initials = this.generateInitials(playerName);
-    const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=64&background=4F46E5&color=fff&bold=true&format=svg`;
+    const fallbackUrl = `https://ui-avatars.com/api/?name=${initials}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
     
-    console.log(`🎨 [PlayerImageCache] Using initials fallback for ${playerName}: ${fallbackUrl}`);
+    console.log(`🎨 [PlayerImageCache] Using SVG initials fallback for ${playerName}: ${fallbackUrl}`);
     this.setCachedImage(playerId, playerName, fallbackUrl, 'initials');
     return fallbackUrl;
   }
@@ -236,6 +236,39 @@ class PlayerImageCache {
     }
   }
 
+  // Batch load player images by team or league
+  async batchLoadPlayerImages(teamId?: number, leagueId?: number): Promise<Record<string, string>> {
+    try {
+      console.log(`🔄 [PlayerImageCache] Batch loading players for team: ${teamId}, league: ${leagueId}`);
+      
+      // Call our new batch endpoint
+      const endpoint = teamId 
+        ? `/api/teams/${teamId}/players/images`
+        : `/api/leagues/${leagueId}/players/images`;
+      
+      const response = await fetch(endpoint);
+      if (!response.ok) {
+        throw new Error(`Batch load failed: ${response.status}`);
+      }
+      
+      const playerImages = await response.json();
+      
+      // Cache all the received images
+      Object.entries(playerImages).forEach(([playerId, imageUrl]) => {
+        const playerIdNum = parseInt(playerId);
+        if (imageUrl && typeof imageUrl === 'string') {
+          this.setCachedImage(playerIdNum, undefined, imageUrl, 'api');
+        }
+      });
+      
+      console.log(`✅ [PlayerImageCache] Batch loaded ${Object.keys(playerImages).length} player images`);
+      return playerImages;
+    } catch (error) {
+      console.warn('⚠️ [PlayerImageCache] Batch load failed:', error);
+      return {};
+    }
+  }
+
   // Get cache statistics
   getStats() {
     const entries = Array.from(this.cache.values());
@@ -279,6 +312,10 @@ export const clearPlayerImageCache = (): void => {
 
 export const forceRefreshPlayer = (playerId?: number, playerName?: string): void => {
   return playerImageCache.forceRefresh(playerId, playerName);
+};
+
+export const batchLoadPlayerImages = async (teamId?: number, leagueId?: number): Promise<Record<string, string>> => {
+  return playerImageCache.batchLoadPlayerImages(teamId, leagueId);
 };
 
 export default playerImageCache;

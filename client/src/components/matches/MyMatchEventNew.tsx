@@ -410,10 +410,29 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  // Load player images asynchronously
+  // Load player images asynchronously with batch loading
   useEffect(() => {
     const loadPlayerImages = async () => {
-      const { getPlayerImage } = await import('../../lib/playerImageCache');
+      const { getPlayerImage, playerImageCache } = await import('../../lib/playerImageCache');
+      
+      // Extract unique team IDs from events
+      const teamIds = new Set<number>();
+      events.forEach(event => {
+        if (event.team?.id) {
+          teamIds.add(event.team.id);
+        }
+      });
+
+      // Try batch loading for each team first
+      for (const teamId of teamIds) {
+        try {
+          await playerImageCache.batchLoadPlayerImages(teamId);
+        } catch (error) {
+          console.warn(`Failed to batch load team ${teamId} players:`, error);
+        }
+      }
+
+      // Individual loading for any remaining players
       const imagePromises: Record<string, Promise<string>> = {};
 
       events.forEach(event => {

@@ -64,7 +64,7 @@ const MyPlayerProfilePicture: React.FC<MyPlayerProfilePictureProps> = ({
   const getFallbackAvatarUrl = (name: string): string => {
     const initials = generateInitials(name);
     const bgColor = teamType === 'home' ? '4F46E5' : teamType === 'away' ? 'EF4444' : '6B7280';
-    return `https://ui-avatars.com/api/?name=${initials}&size=120&background=${bgColor}&color=fff&bold=true&format=svg`;
+    return `https://ui-avatars.com/api/?name=${initials}&size=128&background=${bgColor}&color=fff&bold=true&format=svg`;
   };
 
   useEffect(() => {
