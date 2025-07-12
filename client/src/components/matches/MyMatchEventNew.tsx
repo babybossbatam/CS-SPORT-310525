@@ -1218,7 +1218,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
-```jsx
+
                                         <AvatarImage
                                           src={getPlayerImage(
                                             event.assist?.id,
