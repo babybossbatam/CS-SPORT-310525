@@ -1,3 +1,4 @@
+
 import express from 'express';
 
 const router = express.Router();
@@ -42,7 +43,7 @@ router.get('/player-photo/:playerId', async (req, res) => {
   // If no image found, return a 404
   console.log(`❌ [PlayerPhoto] No image found for player ${playerId}`);
   res.status(404).json({ error: 'Player photo not found' });
-
+});
 
 // Player statistics endpoint
 router.get('/player-statistics/:playerId', async (req, res) => {
@@ -75,13 +76,6 @@ router.get('/player-statistics/:playerId', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch player statistics' });
   }
 });
-
-});
-
-export default router;
-import express from 'express';
-
-const router = express.Router();
 
 // Team players endpoint using RapidAPI
 router.post('/team-players', async (req, res) => {
