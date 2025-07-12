@@ -424,7 +424,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     });
 
     // Define the functions to load player images and batch load player images
-    const { getPlayerImage: getPlayerImageFunc, batchLoadPlayerImages: batchLoadPlayerImagesFunc } = await import('../../lib/playerImageCache');
+    const { getPlayerImage: getPlayerImageFunc, batchLoadPlayerImagesFunc } = await import('../../lib/playerImageCache');
 
     // Batch load all team players first
     const batchPromises = Array.from(teamIds).map(teamId => 
