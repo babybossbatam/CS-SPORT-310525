@@ -76,8 +76,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
 
   const getPlayerImage = (playerId?: number, playerName?: string) => {
     if (playerId) {
-      // Use the new RapidAPI player photo endpoint for better accuracy
-      return `/api/player-photo/${playerId}`;
+      return `https://imagecache.365scores.com/image/upload/f_png,w_128,h_128,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
     }
     return '';
   };

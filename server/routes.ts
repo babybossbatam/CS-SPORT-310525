@@ -548,7 +548,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `✅ [Routes] Returning ${uniqueFixtures.length} multi-timezone fixtures for ${date}`,
       );
       return res.json(uniqueFixtures);
-    } catch (error) {
       // Fallback to cached fixtures if API fails
       if (cachedFixtures && cachedFixtures.length > 0) {
         console.log(
@@ -561,9 +560,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `📭 [Routes] No fixtures found for multi-timezone request: ${date}`,
       );
       return res.json([]);
+    } catch (error) {
+      console.error("Error fetching multi-timezone fixtures:", error);
+      return res.json([]);
     }
-  },
-);
+  });
 
   apiRouter.get("/fixtures/:id", async (req: Request, res: Response) => {
     try {
@@ -1743,11 +1744,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 // Try each logo source
         for (const logoUrl of logoUrls) {
           try {
-            const response = await fetch(logoUrl, {
-              headers: {
+                        const response = await fetch(
+logoUrl, {
+              headers:{
                 accept: "image/png,image/jpeg,image/svg+xml,image/*",
-                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-              },
+                "user-agent":
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                },
               });
 
               if (response.ok) {
@@ -2615,8 +2618,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         console.error("❌ [SoccersAPI] Error fetching match details:", error);
         res.status(500).json({
-          success: false,
-          error: "Failed to fetch SoccersAPI match details",
+          success: false,        error: "Failed to fetch SoccersAPI match details",
         });
       }
     },
@@ -2682,16 +2684,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const lineups = await soccersApi.getMatchLineups(id);
         res.json({
           success: true,
-          lineups: lineups,
-        });
-      } catch (error){        console.error("❌ [SoccersAPI] Error fetching match lineups:", error);
+          lineups: lineups,        });
+      } catch (error) {
+        console.error("❌ [SoccersAPI] Error fetching match lineups:", error);
         res.status(500).json({
           success: false,
           error: "Failed to fetch SoccersAPI match lineups",
           lineups: null,
         });
       }
-    }
+    },
   );
 
   // Get live fixtures (with B365API fallback)
