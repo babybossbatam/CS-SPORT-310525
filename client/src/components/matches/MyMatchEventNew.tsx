@@ -331,6 +331,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
             `Corner for ${teamName}! ${playerName} has a chance to create something from the set piece ${timingContext}.`,
             `${teamName} earns a corner kick. ${playerName} prepares to swing it in ${timingContext}.`,
             `Corner to ${teamName}. ${playerName} will look to find a teammate in the box ${timingContext}.`,
+            `${teamName} earns a corner kick. ${playerName} prepares to swing it in ${timingContext}.`,
           ];
           return cornerVariations[
             Math.floor(Math.random() * cornerVariations.length)
@@ -481,7 +482,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     return "";
   }, [playerImages]);
 
-  const handlePlayerClick = (playerId: number | undefined, teamId: number | undefined) => {
+  const handlePlayerClick = (playerId: number | undefined, teamId: number | undefined, playerName: string | undefined) => {
     setSelectedPlayer({ playerId: playerId, teamId: teamId });
     setIsPlayerModalOpen(true);
     console.log(`Player clicked - ID: ${playerId}, Team ID: ${teamId}`);
@@ -880,7 +881,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           />
                         </div>
                       </>
-                    ) : (
+                                        ) : (
                       <div className="flex-1"></div>
                     )}
                   </div>
@@ -1185,7 +1186,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   <div className="flex items-center gap-1">
                                     <Avatar 
                                       className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
-                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id)}
+                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
                                       <AvatarImage
                                         src={getPlayerImage(
@@ -1220,7 +1221,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     {event.type === "subst" && event.assist?.name && (
                                       <Avatar 
                                         className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors"
-                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
+                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
                                         <AvatarImage
                                           src={getPlayerImage(
@@ -1511,7 +1512,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     {event.type === "subst" && event.assist?.name && (
                                       <Avatar 
                                         className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative z-20 cursor-pointer hover:border-red-500 transition-colors"
-                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
+                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
                                         <AvatarImage
                                           src={getPlayerImage(
@@ -1540,7 +1541,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                                     <Avatar 
                                       className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
-                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id)}
+                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
                                       <AvatarImage
                                         src={getPlayerImage(
@@ -1745,7 +1746,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   <div className="flex items-center gap-1">
                                     <Avatar 
                                       className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
-                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id)}
+                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
                                       <AvatarImage
                                         src={getPlayerImage(
@@ -1780,7 +1781,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     {event.type === "subst" && event.assist?.name && (
                                       <Avatar 
                                         className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors"
-                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
+                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
                                         <AvatarImage
                                           src={getPlayerImage(
@@ -2071,7 +2072,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     {event.type === "subst" && event.assist?.name && (
                                       <Avatar 
                                         className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative z-20 cursor-pointer hover:border-red-500 transition-colors"
-                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
+                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
                                         <AvatarImage
                                           src={getPlayerImage(
@@ -2100,7 +2101,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                                     <Avatar 
                                       className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
-                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id)}
+                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
                                       <AvatarImage
                                         src={getPlayerImage(
