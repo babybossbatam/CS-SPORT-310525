@@ -523,7 +523,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         return (
                                           <img
                                             src="/assets/matchdetaillogo/missed-penalty.svg"
-                                            alt="Missed Penalty"
+                                            alt=""
                                             className="w-4 h-4"
                                           />
                                         );
@@ -531,7 +531,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         return (
                                           <img
                                             src="/assets/matchdetaillogo/penalty.svg"
-                                            alt="Penalty Goal"
+                                            alt=""
                                             className="w-4 h-4"
                                           />
                                         );
@@ -608,7 +608,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         return (
                                           <img
                                             src="/assets/matchdetaillogo/missed-penalty.svg"
-                                            alt="Missed Penalty"
+                                            alt=""
                                             className="w-4 h-4"
                                           />
                                         );
@@ -616,7 +616,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         return (
                                           <img
                                             src="/assets/matchdetaillogo/penalty.svg"
-                                            alt="Penalty Goal"
+                                            alt=""
                                             className="w-4 h-4"
                                           />
                                         );
@@ -1294,7 +1294,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             return (
                                               <img
                                                 src="/assets/matchdetaillogo/missed-penalty.svg"
-                                                alt="Missed Penalty"
+                                                alt=""
                                                 className="w-4 h-4  "
                                               />
                                             );
@@ -1302,7 +1302,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             return (
                                               <img
                                                 src="/assets/matchdetaillogo/penalty.svg"
-                                                alt="Penalty Goal"
+                                                alt=""
                                                 className="w-4 h-4  "
                                               />
                                             );
@@ -1402,7 +1402,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             return (
                                               <img
                                                 src="/assets/matchdetaillogo/missed-penalty.svg"
-                                                alt="Missed Penalty"
+                                                alt=""
                                                 className="w-4 h-4 "
                                               />
                                             );
@@ -1410,7 +1410,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             return (
                                               <img
                                                 src="/assets/matchdetaillogo/penalty.svg"
-                                                alt="Penalty Goal"
+                                                alt=""
                                                 className="w-4 h-4 "
                                               />
                                             );
@@ -1844,7 +1844,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             return (
                                               <img
                                                 src="/assets/matchdetaillogo/missed-penalty.svg"
-                                                alt="Missed Penalty"
+                                                alt=""
                                                 className="w-4 h-4  "
                                               />
                                             );
@@ -1852,7 +1852,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             return (
                                               <img
                                                 src="/assets/matchdetaillogo/penalty.svg"
-                                                alt="Penalty Goal"
+                                                alt=""
                                                 className="w-4 h-4  "
                                               />
                                             );
@@ -1952,7 +1952,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             return (
                                               <img
                                                 src="/assets/matchdetaillogo/missed-penalty.svg"
-                                                alt="Missed Penalty"
+                                                alt=""
                                                 className="w-4 h-4 "
                                               />
                                             );
@@ -1960,7 +1960,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             return (
                                               <img
                                                 src="/assets/matchdetaillogo/penalty.svg"
-                                                alt="Penalty Goal"
+                                                alt=""
                                                 className="w-4 h-4 "
                                               />
                                             );
