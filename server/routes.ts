@@ -3080,6 +3080,12 @@ logoUrl, {
         }
     });
 
+  // Player photo endpoint
+  app.get('/api/players/:playerId/photo', playerRoutes);
+
+  // Player statistics endpoint
+  app.get('/api/players/:playerId/statistics', playerRoutes);
+
   return httpServer;
 }
 

@@ -63,6 +63,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const [playerImages, setPlayerImages] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState<'all' | 'top' | 'commentary'>('all');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [selectedPlayer, setSelectedPlayer] = useState<{ playerId: number | undefined; teamId: number | undefined }>({ playerId: undefined, teamId: undefined });
+  const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
 
   const fetchMatchEvents = useCallback(async () => {
     if (!fixtureId) {
@@ -479,6 +481,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     return "";
   }, [playerImages]);
 
+  const handlePlayerClick = (playerId: number | undefined, teamId: number | undefined) => {
+    setSelectedPlayer({ playerId: playerId, teamId: teamId });
+    setIsPlayerModalOpen(true);
+    console.log(`Player clicked - ID: ${playerId}, Team ID: ${teamId}`);
+  };
+
   const EventItem = ({
     event,
     isLast,
@@ -879,7 +887,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 </div>
 
                 {/* Connecting line */}
-                {index < penaltySequence.length - 1 && (
+                {index < penaltySequence.length - 1 &&(
                   <div className="penalty-connecting-line"></div>
                 )}
               </div>
@@ -1206,9 +1214,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       </AvatarFallback>
                                     </Avatar>
 
-                                    {event.type === "subst" &&
-                                      event.assist?.name && (
-                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20">
+                                    
+                                        <Avatar 
+                                          className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20 cursor-pointer hover:border-red-500 transition-colors"
+                                          onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
+                                        >
                                           <AvatarImage
                                             src={getPlayerImage(
                                               event.assist?.id,
@@ -1232,7 +1242,37 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           .slice(0, 2) || "P"}
                                       </AvatarFallback>
                                         </Avatar>
-                                      )}
+                                      
+
+                                      
+                                        <Avatar 
+                                          className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20 cursor-pointer hover:border-red-500 transition-colors"
+                                          onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
+                                        >
+                                          <AvatarImage
+                                            src={getPlayerImage(
+                                              event.assist?.id,
+                                              event.assist?.name,
+                                            )}
+                                            alt={event.assist?.name || "Player"}
+                                            className="object-cover"
+                                            onError={(e) => {
+                                              // Try fallback sources if primary fails
+                                              const img = e.target as HTMLImageElement;
+                                              if (event.assist?.id && !img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
+                                            }}
+                                          />
+                                          <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
+                                        </Avatar>
+                                      
                                   </div>
 
                                   <div className="text-left">
@@ -1494,10 +1534,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     )}
                                   </div>
 
-                                  <div className="flex items-center gap-1">
-                                    {event.type === "subst" &&
-                                      event.assist?.name && (
-                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative-z20">
+                                  
+                                      
+                                        <Avatar 
+                                          className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative-z20 cursor-pointer hover:border-red-500 transition-colors"
+                                          onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
+                                        >
                                           <AvatarImage
                                             src={getPlayerImage(
                                               event.assist?.id,
@@ -1521,9 +1563,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           .slice(0, 2) || "P"}
                                       </AvatarFallback>
                                         </Avatar>
-                                      )}
+                                      
 
-                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                    <Avatar 
+                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
+                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id)}
+                                    >
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
@@ -1756,9 +1801,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       </AvatarFallback>
                                     </Avatar>
 
-                                    {event.type === "subst" &&
-                                      event.assist?.name && (
-                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20">
+                                    
+                                        <Avatar 
+                                          className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20 cursor-pointer hover:border-red-500 transition-colors"
+                                          onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
+                                        >
                                           <AvatarImage
                                             src={getPlayerImage(
                                               event.assist?.id,
@@ -1782,7 +1829,37 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           .slice(0, 2) || "P"}
                                       </AvatarFallback>
                                         </Avatar>
-                                      )}
+                                      
+
+                                      
+                                        <Avatar 
+                                          className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative-z20 cursor-pointer hover:border-red-500 transition-colors"
+                                          onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
+                                        >
+                                          <AvatarImage
+                                            src={getPlayerImage(
+                                              event.assist?.id,
+                                              event.assist?.name,
+                                            )}
+                                            alt={event.assist?.name || "Player"}
+                                            className="object-cover"
+                                            onError={(e) => {
+                                              // Try fallback sources if primary fails
+                                              const img = e.target as HTMLImageElement;
+                                              if (event.assist?.id && !img.src.includes('resfu')) {
+                                                img.src = `https://cdn.resfu.com/img_data/players/medium/${event.assist.id}.jpg?size=120x&lossy=1`;
+                                              }
+                                            }}
+                                          />
+                                          <AvatarFallback className="bg-blue-500 text-white text-xs font-bold flex items-center justify-center">
+                                        {event.player?.name
+                                          ?.split(" ")
+                                          .map((n) => n[0])
+                                          .join("")
+                                          .slice(0, 2) || "P"}
+                                      </AvatarFallback>
+                                        </Avatar>
+                                      
                                   </div>
 
                                   <div className="text-left">
@@ -2044,10 +2121,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                     )}
                                   </div>
 
-                                  <div className="flex items-center gap-1">
-                                    {event.type === "subst" &&
-                                      event.assist?.name && (
-                                        <Avatar className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative-z20">
+                                  
+                                      
+                                        <Avatar 
+                                          className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative-z20 cursor-pointer hover:border-red-500 transition-colors"
+                                          onClick={() => handlePlayerClick(event.assist?.id, event.team.id)}
+                                        >
                                           <AvatarImage
                                             src={getPlayerImage(
                                               event.assist?.id,
@@ -2071,9 +2150,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           .slice(0, 2) || "P"}
                                       </AvatarFallback>
                                         </Avatar>
-                                      )}
+                                      
 
-                                    <Avatar className={`w-9 h-9 border-2 shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}>
+                                    <Avatar 
+                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
+                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id)}
+                                    >
                                       <AvatarImage
                                         src={getPlayerImage(
                                           event.player?.id,
@@ -2133,8 +2215,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           </div>
         )}
       </CardContent>
-
-
     </Card>
   );
 };

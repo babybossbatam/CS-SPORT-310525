@@ -42,6 +42,40 @@ router.get('/player-photo/:playerId', async (req, res) => {
   // If no image found, return a 404
   console.log(`❌ [PlayerPhoto] No image found for player ${playerId}`);
   res.status(404).json({ error: 'Player photo not found' });
+
+
+// Player statistics endpoint
+router.get('/player-statistics/:playerId', async (req, res) => {
+  const { playerId } = req.params;
+  const { team, season } = req.query;
+
+  if (!playerId || isNaN(Number(playerId))) {
+    return res.status(400).json({ error: 'Invalid player ID' });
+  }
+
+  try {
+    console.log(`🏃‍♂️ [Player Stats] Fetching statistics for player ${playerId}, team ${team}, season ${season}`);
+    
+    const { rapidApiService } = await import('../services/rapidApi');
+    const playerStats = await rapidApiService.getPlayerStatistics(
+      Number(playerId), 
+      team ? Number(team) : undefined, 
+      season ? Number(season) : 2024
+    );
+
+    if (playerStats && playerStats.length > 0) {
+      console.log(`✅ [Player Stats] Found statistics for player ${playerId}`);
+      res.json(playerStats);
+    } else {
+      console.log(`❌ [Player Stats] No statistics found for player ${playerId}`);
+      res.status(404).json({ error: 'Player statistics not found' });
+    }
+  } catch (error) {
+    console.error(`❌ [Player Stats] Error fetching statistics for player ${playerId}:`, error);
+    res.status(500).json({ error: 'Failed to fetch player statistics' });
+  }
+});
+
 });
 
 export default router;

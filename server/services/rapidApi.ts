@@ -162,6 +162,61 @@ export const rapidApiService = {
   },
 
   /**
+   * Get player statistics for a specific player, team, and season
+   */
+  async getPlayerStatistics(playerId: number, teamId?: number, season: number = 2024): Promise<any> {
+    const cacheKey = `player-stats-${playerId}-${teamId || 'all'}-${season}`;
+    const cached = playersCache.get(cacheKey);
+
+    const now = Date.now();
+    // Use longer cache duration for player stats (4 hours)
+    if (cached && now - cached.timestamp < 4 * 60 * 60 * 1000) {
+      console.log(`📦 [RapidAPI] Using cached player statistics for player ${playerId}`);
+      return cached.data;
+    }
+
+    try {
+      console.log(`📊 [RapidAPI] Fetching player statistics for player ${playerId}, team ${teamId}, season ${season}`);
+
+      const params: any = {
+        id: playerId,
+        season: season
+      };
+      
+      if (teamId) {
+        params.team = teamId;
+      }
+
+      const response = await apiClient.get("/players", {
+        params,
+      });
+
+      console.log(`📊 [RapidAPI] Player stats API response status: ${response.status}, results count: ${response.data?.results || 0}`);
+
+      if (response.data && response.data.response && response.data.response.length > 0) {
+        const playerData = response.data.response;
+        playersCache.set(cacheKey, {
+          data: playerData,
+          timestamp: now,
+        });
+        console.log(`✅ [RapidAPI] Successfully cached player statistics for player ${playerId}`);
+        return playerData;
+      }
+
+      console.log(`❌ [RapidAPI] No statistics data for player ${playerId}, team ${teamId}, season ${season}`);
+      return null;
+    } catch (error) {
+      console.error(`❌ [RapidAPI] Error fetching player statistics for player ${playerId}:`, error);
+      if (cached?.data) {
+        console.log("Using cached data due to API error");
+        return cached.data;
+      }
+      console.error("API request failed and no cache available");
+      return null;
+    }
+  },
+
+  /**
    * Get team statistics for a specific league and season
    */
   async getTeamStatistics(teamId: number, leagueId: number, season: number): Promise<any> {
