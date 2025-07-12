@@ -79,3 +79,57 @@ router.get('/player-statistics/:playerId', async (req, res) => {
 });
 
 export default router;
+import express from 'express';
+
+const router = express.Router();
+
+// Team players endpoint using RapidAPI
+router.post('/team-players', async (req, res) => {
+  try {
+    const { teamId, season = 2024 } = req.body;
+    
+    if (!teamId) {
+      return res.status(400).json({ error: 'Team ID is required' });
+    }
+
+    console.log(`🔍 [PlayerAPI] Fetching players for team ${teamId}, season ${season}`);
+
+    const axios = require('axios');
+    
+    const options = {
+      method: 'GET',
+      url: 'https://api-football-v1.p.rapidapi.com/v3/players',
+      params: {
+        team: teamId.toString(),
+        season: season.toString()
+      },
+      headers: {
+        'x-rapidapi-key': process.env.RAPIDAPI_KEY || '18df86e6b3msha3430096f8da518p1ffd93jsnc21a6cf7f527',
+        'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+      }
+    };
+
+    const response = await axios.request(options);
+    
+    if (response.data && response.data.response) {
+      console.log(`✅ [PlayerAPI] Found ${response.data.response.length} players for team ${teamId}`);
+      res.json(response.data);
+    } else {
+      console.log(`⚠️ [PlayerAPI] No players found for team ${teamId}`);
+      res.json({ response: [] });
+    }
+
+  } catch (error) {
+    console.error(`❌ [PlayerAPI] Error fetching team players:`, error);
+    
+    if (error.response?.status === 429) {
+      res.status(429).json({ error: 'Rate limit exceeded' });
+    } else if (error.response?.status === 404) {
+      res.status(404).json({ error: 'Team not found' });
+    } else {
+      res.status(500).json({ error: 'Failed to fetch team players' });
+    }
+  }
+});
+
+export default router;
