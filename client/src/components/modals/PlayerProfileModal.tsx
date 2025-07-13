@@ -220,43 +220,95 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
 
     // Transform SofaScore heatmap data to our expected format
     const transformedHeatmapData = React.useMemo(() => {
-      if (!heatmapData) return null;
+      console.log(`🔥 [Heatmap] Processing raw data:`, heatmapData);
+      
+      if (!heatmapData) {
+        console.log(`🔥 [Heatmap] No heatmap data available`);
+        return null;
+      }
 
-      // SofaScore might return data in different formats, handle common structures
+      // SofaScore heatmap data structures - handle multiple possible formats
       let points: Array<{ x: number; y: number; intensity: number }> = [];
       
+      // Check if data is directly an array of points
       if (Array.isArray(heatmapData)) {
-        // If it's an array of coordinate points
+        console.log(`🔥 [Heatmap] Data is array with ${heatmapData.length} items`);
         points = heatmapData.map((item: any, index: number) => {
-          // Handle different possible data structures from SofaScore
           if (typeof item === 'object' && item !== null) {
-            const x = item.x ?? item.X ?? item.coordinateX ?? item.position?.x ?? (index % 10) / 10;
-            const y = item.y ?? item.Y ?? item.coordinateY ?? item.position?.y ?? Math.random();
-            const intensity = item.intensity ?? item.value ?? item.count ?? item.weight ?? Math.random() * 0.8 + 0.2;
+            // Handle SofaScore coordinate formats
+            const x = item.x ?? item.X ?? item.coordinateX ?? item.position?.x ?? item.xCoordinate ?? (index % 10) / 10;
+            const y = item.y ?? item.Y ?? item.coordinateY ?? item.position?.y ?? item.yCoordinate ?? Math.random();
+            const intensity = item.intensity ?? item.value ?? item.count ?? item.weight ?? item.density ?? Math.random() * 0.8 + 0.2;
+            
+            // Normalize coordinates to 0-1 range if they're in different scales
+            let normalizedX = typeof x === 'number' ? x : parseFloat(x) || 0;
+            let normalizedY = typeof y === 'number' ? y : parseFloat(y) || 0;
+            
+            // If coordinates seem to be in pitch coordinates (0-100), normalize them
+            if (normalizedX > 1) normalizedX = normalizedX / 100;
+            if (normalizedY > 1) normalizedY = normalizedY / 100;
             
             return {
-              x: Math.max(0, Math.min(1, typeof x === 'number' ? x : parseFloat(x) || 0)),
-              y: Math.max(0, Math.min(1, typeof y === 'number' ? y : parseFloat(y) || 0)),
+              x: Math.max(0, Math.min(1, normalizedX)),
+              y: Math.max(0, Math.min(1, normalizedY)),
               intensity: Math.max(0.1, Math.min(1, typeof intensity === 'number' ? intensity : parseFloat(intensity) || 0.5))
             };
           }
           
-          // Fallback for primitive values
+          // Fallback for primitive values or unexpected formats
           return {
             x: (index % 10) / 10,
             y: Math.random(),
             intensity: 0.5
           };
         });
-      } else if (heatmapData.points) {
-        // If it has a points property
-        points = heatmapData.points;
-      } else if (heatmapData.heatmap) {
-        // If it has a heatmap property
-        points = Array.isArray(heatmapData.heatmap) ? heatmapData.heatmap : [];
-      } else if (heatmapData.data) {
-        // If it has a data property
-        points = Array.isArray(heatmapData.data) ? heatmapData.data : [];
+      } 
+      // Check for nested data structures
+      else if (typeof heatmapData === 'object') {
+        const possibleArrays = [
+          heatmapData.points,
+          heatmapData.heatmap,
+          heatmapData.data,
+          heatmapData.coordinates,
+          heatmapData.positions,
+          heatmapData.heatmapData
+        ];
+        
+        for (const arr of possibleArrays) {
+          if (Array.isArray(arr) && arr.length > 0) {
+            console.log(`🔥 [Heatmap] Found nested array with ${arr.length} items`);
+            points = arr.map((item: any, index: number) => {
+              if (typeof item === 'object' && item !== null) {
+                const x = item.x ?? item.X ?? item.coordinateX ?? item.position?.x ?? (index % 10) / 10;
+                const y = item.y ?? item.Y ?? item.coordinateY ?? item.position?.y ?? Math.random();
+                const intensity = item.intensity ?? item.value ?? item.count ?? item.weight ?? Math.random() * 0.8 + 0.2;
+                
+                let normalizedX = typeof x === 'number' ? x : parseFloat(x) || 0;
+                let normalizedY = typeof y === 'number' ? y : parseFloat(y) || 0;
+                
+                if (normalizedX > 1) normalizedX = normalizedX / 100;
+                if (normalizedY > 1) normalizedY = normalizedY / 100;
+                
+                return {
+                  x: Math.max(0, Math.min(1, normalizedX)),
+                  y: Math.max(0, Math.min(1, normalizedY)),
+                  intensity: Math.max(0.1, Math.min(1, typeof intensity === 'number' ? intensity : parseFloat(intensity) || 0.5))
+                };
+              }
+              return {
+                x: (index % 10) / 10,
+                y: Math.random(),
+                intensity: 0.5
+              };
+            });
+            break;
+          }
+        }
+      }
+
+      console.log(`🔥 [Heatmap] Processed ${points.length} points`);
+      if (points.length > 0) {
+        console.log(`🔥 [Heatmap] Sample point:`, points[0]);
       }
 
       return points.length > 0 ? { points } : null;
@@ -324,7 +376,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             )}
           </defs>
           
-          {/* Heat spots - use real data if available, otherwise fallback */}
+          {/* Heat spots - use real data if available, otherwise show status */}
           {transformedHeatmapData?.points?.length > 0 ? (
             transformedHeatmapData.points.map((point, index) => {
               // Convert normalized coordinates (0-1) to SVG coordinates
@@ -345,11 +397,14 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               );
             })
           ) : (
-            // Show message when no data is available
+            // Show appropriate message based on data availability
             <g>
-              <rect x="200" y="180" width="240" height="40" fill="rgba(0,0,0,0.7)" rx="5" />
-              <text x="320" y="205" textAnchor="middle" fill="white" fontSize="14">
-                No heatmap data available
+              <rect x="180" y="170" width="280" height="60" fill="rgba(0,0,0,0.7)" rx="5" />
+              <text x="320" y="195" textAnchor="middle" fill="white" fontSize="14">
+                {heatmapData ? 'Unable to parse heatmap data' : `No heatmap data for match ${matchId}`}
+              </text>
+              <text x="320" y="215" textAnchor="middle" fill="white" fontSize="12" opacity="0.7">
+                {heatmapData ? 'Check console for raw data structure' : `Player ID: ${playerId}`}
               </text>
             </g>
           )}
@@ -371,8 +426,14 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
         </svg>
         
         {/* Data source indicator */}
-        <div className="absolute bottom-4 left-4 text-xs text-white bg-black bg-opacity-50 px-2 py-1 rounded">
-          {transformedHeatmapData?.points?.length > 0 ? `SofaScore Data (${transformedHeatmapData.points.length} points)` : 'No Data Available'}
+        <div className="absolute bottom-4 left-4 text-xs text-white bg-black bg-opacity-50 px-2 py-1 rounded max-w-xs">
+          {transformedHeatmapData?.points?.length > 0 ? (
+            `SofaScore API (${transformedHeatmapData.points.length} points)`
+          ) : heatmapData ? (
+            'Data received but incompatible format'
+          ) : (
+            `Match ${matchId} - Player ${playerId} - No data`
+          )}
         </div>
         
         {/* Debug info for development */}
