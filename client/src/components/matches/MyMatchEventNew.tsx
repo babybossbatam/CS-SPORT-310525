@@ -410,93 +410,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  // Load player images asynchronously with enhanced batch loading
-  useEffect(() => {
-    const loadPlayerImages = async () => {
-    console.log('🔍 [PlayerImages] Loading player images for events');
-
-    // Group events by team ID for efficient batch loading
-    const teamIds = new Set<number>();
-    events.forEach(event => {
-      if (event.team?.id) {
-        teamIds.add(event.team.id);
-      }
-    });
-
-    // Define the functions to load player images and batch load player images
-    //const { getPlayerImage: getPlayerImageFunc, batchLoadPlayerImagesFunc } = await import('../../lib/playerImageCache');
-
-    // Batch load all team players first
-    //const batchPromises = Array.from(teamIds).map(teamId => 
-      //batchLoadPlayerImagesFunc(teamId).catch(error => {
-        //console.warn(`Failed to batch load team ${teamId}:`, error);
-      //})
-    //);
-
-    //await Promise.allSettled(batchPromises);
-
-    // Now load individual player images (will use cache from batch loading)
-    //const imagePromises: Promise<void>[] = [];
-
-    //events.forEach(event => {
-      //if (event.player?.name) {
-        //const promise = getPlayerImageFunc(
-          //event.player.id, 
-          //event.player.name,
-          //event.team?.id
-        //).then(imageUrl => {
-          //setPlayerImages(prev => ({
-            //...prev,
-            //[event.player.name]: imageUrl
-          //}));
-        //}).catch(error => {
-          //console.warn(`Failed to load image for ${event.player.name}:`, error);
-          //// Set fallback image
-          //setPlayerImages(prev => ({
-            //...prev,
-            //[event.player.name]: `https://ui-avatars.com/api/?name=${event.player.name?.split(' ').map(n => n[0]).join('').toUpperCase()}&size=128&background=4F46E5&color=fff&bold=true&format=svg`
-          //}));
-        //});
-
-        //imagePromises.push(promise);
-      //}
-    //});
-
-    try {
-      //await Promise.allSettled(imagePromises);
-      console.log(`✅ [PlayerImages] Loaded ${Object.keys(playerImages).length} player images`);
-    } catch (error) {
-      console.error('❌ [PlayerImages] Error loading player images:', error);
-    }
-  };
-
-    if (events.length > 0) {
-      loadPlayerImages();
-    }
-  }, [events]);
+  // No need for complex player image loading - using fallback only
 
   const getPlayerImage = useCallback((
     playerId: number | undefined,
     playerName: string | undefined,
     teamId: number | undefined,
   ): string => {
-    //const key = `${playerId}_${playerName}`;
-    //const cachedImage = playerImages[key];
-
-    //if (cachedImage) {
-      //return cachedImage;
-    //}
-
-    //// Fallback while loading
-    //if (playerId) {
-      //return `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
-    //}
-
-    //return "";
-    if (playerId) {
-        return `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
-      }
-      return `https://ui-avatars.com/api/?name=${playerName?.split(' ').map(n => n[0]).join('').toUpperCase()}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
+    // Always return the same fallback image
+    return "/assets/fallback-logo.png";
   }, []);
 
   const handlePlayerClick = (playerId: number | undefined, teamId: number | undefined, playerName: string | undefined) => {
