@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -40,15 +39,14 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
 
   useEffect(() => {
     if (isOpen && playerId) {
-      fetchPlayerStats();
-      loadPlayerImage();
       fetchHeatmapData();
+      loadPlayerImage();
     }
   }, [isOpen, playerId, playerImage]);
 
   const fetchHeatmapData = async () => {
     if (!playerId) return;
-    
+
     setLoadingHeatmap(true);
     try {
       // Build URL with all available parameters for better SofaScore matching
@@ -56,19 +54,19 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
       params.append('eventId', (teamId || 1326523).toString());
       if (playerName) params.append('playerName', playerName);
       if (teamId) params.append('teamName', `Team_${teamId}`);
-      
+
       // Add additional context that might help SofaScore API matching
       // These would typically come from the match data
       // params.append('homeTeam', 'Home Team Name');
       // params.append('awayTeam', 'Away Team Name');
       // params.append('matchDate', '2025-01-15T10:00:00Z');
-      
+
       const response = await fetch(`/api/players/${playerId}/heatmap?${params}`);
-      
+
       if (response.ok) {
         const data = await response.json();
         setHeatmapData(data);
-        
+
         if (data.source === 'sofascore') {
           console.log('✅ [PlayerProfileModal] Loaded REAL SofaScore heatmap data:', data);
         } else {
@@ -83,40 +81,6 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
       setHeatmapData(null);
     } finally {
       setLoadingHeatmap(false);
-    }
-  };
-
-  const fetchPlayerStats = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/players/${playerId}/stats?team=${teamId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setPlayerStats(data);
-      } else {
-        // Fallback with mock data
-        setPlayerStats({
-          goals: Math.floor(Math.random() * 15) + 1,
-          assists: Math.floor(Math.random() * 10),
-          minutes: Math.floor(Math.random() * 2000) + 500,
-          position: 'Right Forward',
-          rating: Math.floor(Math.random() * 30) + 70,
-          team: 'Team',
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching player stats:', error);
-      // Fallback with mock data
-      setPlayerStats({
-        goals: Math.floor(Math.random() * 15) + 1,
-        assists: Math.floor(Math.random() * 10),
-        minutes: Math.floor(Math.random() * 2000) + 500,
-        position: 'Right Forward',
-        rating: Math.floor(Math.random() * 30) + 70,
-        team: 'Team',
-      });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -170,12 +134,12 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
     // Try multiple CDN sources
     if (playerId) {
       const imageUrls = getPlayerImageUrls(playerId);
-      
+
       for (const url of imageUrls) {
         try {
           const img = new Image();
           img.crossOrigin = 'anonymous';
-          
+
           const imageLoaded = await new Promise((resolve) => {
             img.onload = () => resolve(true);
             img.onerror = () => resolve(false);
@@ -208,39 +172,39 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
     }
 
     const realHeatmapData = heatmapData?.heatmap || [];
-    
+
     return (
       <div className="relative w-full bg-green-600 rounded-lg overflow-hidden" style={{ aspectRatio: '16/10' }}>
         {/* Football field background */}
         <svg viewBox="0 0 640 400" className="w-full h-full">
           {/* Field background */}
           <rect width="640" height="400" fill="#2d5016" />
-          
+
           {/* Field lines */}
           <g stroke="white" strokeWidth="2" fill="none">
             {/* Outer boundary */}
             <rect x="20" y="20" width="600" height="360" />
-            
+
             {/* Center line */}
             <line x1="320" y1="20" x2="320" y2="380" />
-            
+
             {/* Center circle */}
             <circle cx="320" cy="200" r="50" />
             <circle cx="320" cy="200" r="2" fill="white" />
-            
+
             {/* Left penalty area */}
             <rect x="20" y="120" width="80" height="160" />
             <rect x="20" y="160" width="40" height="80" />
-            
+
             {/* Right penalty area */}
             <rect x="540" y="120" width="80" height="160" />
             <rect x="580" y="160" width="40" height="80" />
-            
+
             {/* Goals */}
             <rect x="20" y="180" width="8" height="40" />
             <rect x="612" y="180" width="8" height="40" />
           </g>
-          
+
           {/* Dynamic heatmap based on real data */}
           <defs>
             {realHeatmapData.map((_, index) => (
@@ -250,7 +214,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
                 <stop offset="100%" stopColor={`rgba(255, 255, 0, ${(realHeatmapData[index]?.value || 0.1) * 0.3})`} />
               </radialGradient>
             ))}
-            
+
             {/* Fallback gradients if no real data */}
             <radialGradient id="fallback1" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="rgba(255, 0, 0, 0.8)" />
@@ -263,7 +227,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               <stop offset="100%" stopColor="rgba(173, 255, 47, 0.2)" />
             </radialGradient>
           </defs>
-          
+
           {/* Real heatmap data visualization */}
           {realHeatmapData.length > 0 ? (
             realHeatmapData.map((point, index) => {
@@ -272,7 +236,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               const y = 20 + (point.y / 100) * 360;
               const intensity = point.value;
               const radius = Math.max(20, intensity * 80);
-              
+
               return (
                 <ellipse
                   key={`heatmap-${index}`}
@@ -292,7 +256,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               <ellipse cx="500" cy="250" rx="70" ry="50" fill="url(#fallback1)" />
             </>
           )}
-          
+
           {/* Player position dots from real data */}
           {realHeatmapData.map((point, index) => {
             const x = 20 + (point.x / 100) * 600;
@@ -309,7 +273,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             );
           })}
         </svg>
-        
+
         {/* Data source indicator */}
         <div className="absolute bottom-2 left-2 text-xs text-white bg-black bg-opacity-50 px-2 py-1 rounded">
           {heatmapData?.source === 'sofascore' ? (
@@ -320,7 +284,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             <span className="text-red-300">✗ Demo Data</span>
           )}
         </div>
-        
+
         {/* Back button */}
         <button 
           className="absolute top-4 right-4 w-8 h-8 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white hover:bg-opacity-70"
@@ -342,7 +306,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
     }
 
     const realShotsData = heatmapData?.shots || [];
-    
+
     const getShotColor = (type: string) => {
       switch (type.toLowerCase()) {
         case 'goal': return '#00ff00';
@@ -362,40 +326,40 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
         default: return 4;
       }
     };
-    
+
     return (
       <div className="relative w-full bg-green-600 rounded-lg overflow-hidden" style={{ aspectRatio: '16/10' }}>
         {/* Football field background */}
         <svg viewBox="0 0 640 400" className="w-full h-full">
           {/* Field background */}
           <rect width="640" height="400" fill="#2d5016" />
-          
+
           {/* Field lines */}
           <g stroke="white" strokeWidth="2" fill="none">
             {/* Show only attacking half */}
             <rect x="320" y="20" width="300" height="360" />
-            
+
             {/* Center line */}
             <line x1="320" y1="20" x2="320" y2="380" />
-            
+
             {/* Center circle (half) */}
             <path d="M 320 150 A 50 50 0 0 1 320 250" />
-            
+
             {/* Right penalty area */}
             <rect x="540" y="120" width="80" height="160" />
             <rect x="580" y="160" width="40" height="80" />
-            
+
             {/* Goal */}
             <rect x="612" y="180" width="8" height="40" />
           </g>
-          
+
           {/* Real shot markers */}
           {realShotsData.length > 0 ? (
             realShotsData.map((shot, index) => {
               // Convert percentage coordinates to SVG coordinates (attacking half only)
               const x = 320 + (shot.x / 100) * 300;
               const y = 20 + (shot.y / 100) * 360;
-              
+
               return (
                 <g key={`shot-${index}`}>
                   <circle
@@ -434,7 +398,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             </>
           )}
         </svg>
-        
+
         {/* Legend */}
         <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded">
           <div className="flex items-center gap-4">
@@ -491,17 +455,12 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
                 />
               )}
             </div>
-            
+
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <h2 className="text-xl font-bold text-gray-900">{playerName || 'Unknown Player'}</h2>
-                {playerStats && (
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                    {playerStats.rating}
-                  </Badge>
-                )}
               </div>
-              <p className="text-gray-600">{playerStats?.position || 'Unknown Position'}</p>
+              <p className="text-gray-600">Player</p>
             </div>
           </div>
         </DialogHeader>
@@ -512,11 +471,11 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               <TabsTrigger value="heatmap">Heatmap</TabsTrigger>
               <TabsTrigger value="shotmap">Shot map</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="heatmap" className="space-y-4">
               <HeatmapVisualization />
             </TabsContent>
-            
+
             <TabsContent value="shotmap" className="space-y-4">
               <ShotMapVisualization />
             </TabsContent>
@@ -526,38 +485,35 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
         {/* Top Stats Section */}
         <div className="px-6 pb-4">
           <h3 className="font-semibold text-lg mb-3 text-gray-900">Top Stats</h3>
-          
+
           <div className="grid grid-cols-3 gap-4 mb-6">
             <Card className="text-center p-4">
               <CardContent className="p-0">
                 <div className="flex flex-col items-center">
                   <Clock className="w-8 h-8 text-red-500 mb-2" />
                   <div className="text-2xl font-bold text-gray-900">
-                    {playerStats?.minutes || '90'}'
                   </div>
                   <div className="text-sm text-gray-600">Min</div>
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card className="text-center p-4">
               <CardContent className="p-0">
                 <div className="flex flex-col items-center">
                   <Target className="w-8 h-8 text-gray-700 mb-2" />
                   <div className="text-2xl font-bold text-gray-900">
-                    {playerStats?.goals || '2'}
                   </div>
                   <div className="text-sm text-gray-600">Goals</div>
                 </div>
               </CardContent>
             </Card>
-            
+
             <Card className="text-center p-4">
               <CardContent className="p-0">
                 <div className="flex flex-col items-center">
                   <Users className="w-8 h-8 text-blue-500 mb-2" />
                   <div className="text-2xl font-bold text-gray-900">
-                    {playerStats?.assists || '0'}
                   </div>
                   <div className="text-sm text-gray-600">Assists</div>
                 </div>
