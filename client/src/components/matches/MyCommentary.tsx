@@ -780,7 +780,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       alt="Assist"
                                       className="w-4 h-4 opacity-80 flex-shrink-0"
                                     />
-                                    <span className="text-blue-700 font-medium">Assist</span>
+                                    <span className="text-black-400 font-medium">Assist</span>
                                   </div>
 
                                   <div className="flex items-center gap-2 -ml-3 text-xs font-medium bg-stone-200">
