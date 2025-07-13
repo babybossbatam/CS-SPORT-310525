@@ -230,14 +230,14 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full overflow-hidden relative ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''} ${className}`}
       onClick={handleClick}
     >
-      <img
-        src={imageUrl}
-        alt={playerName || 'Player'}
-        className="w-full h-full object-cover"
-        onError={handleImageError}
-        style={{ display: imageUrl === FALLBACK_PLAYER_IMAGE ? 'none' : 'block' }}
-      />
-      {imageUrl === FALLBACK_PLAYER_IMAGE && (
+      {imageUrl !== FALLBACK_PLAYER_IMAGE ? (
+        <img
+          src={imageUrl}
+          alt={playerName || 'Player'}
+          className="w-full h-full object-cover"
+          onError={handleImageError}
+        />
+      ) : (
         <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold">
           {generateInitials(playerName)}
         </div>
