@@ -37,9 +37,9 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const sizeClasses = {
-    sm: 'w-6 h-6',
-    md: 'w-9 h-9',
-    lg: 'w-12 h-12'
+    sm: 'w-1 h-1',
+    md: 'w-4 h-4',
+    lg: 'w-7 h-7'
   };
 
   const fetchPlayerData = async (playerIdToFetch: number, isMounted = true) => {
