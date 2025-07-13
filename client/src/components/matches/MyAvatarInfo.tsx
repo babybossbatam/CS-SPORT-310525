@@ -31,7 +31,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     [playerId, playerName]
   );
   const [playerData, setPlayerData] = useState<Player | null>(null);
-  const [imageUrl, setImageUrl] = useState<string>('/assets/matchdetaillogo/fallback_player.png');
+  const [imageUrl, setImageUrl] = useState<string>('client/public/assets/matchdetaillogo/fallback_player.png');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -110,13 +110,13 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       // Final fallback - no error, just use initials
       if (isMounted) {
         console.log(`📝 [MyAvatarInfo] Using initials for player ${playerIdToFetch} (${playerName})`);
-        setImageUrl('/assets/matchdetaillogo/fallback_player.png');
+        setImageUrl('client/public/assets/matchdetaillogo/fallback_player.png');
       }
     } catch (error) {
       console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching player data:`, error);
       if (isMounted) {
         // Don't set error for image loading issues, just use fallback
-        setImageUrl('/assets/matchdetaillogo/fallback_player.png');
+        setImageUrl('client/public/assets/matchdetaillogo/fallback_player.png');
       }
     } finally {
       if (isMounted) {
@@ -157,13 +157,13 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       if (playerId && isMounted) {
         await fetchPlayerData(playerId, isMounted);
       } else if (isMounted) {
-        setImageUrl('/assets/matchdetaillogo/fallback_player.png');
+        setImageUrl('client/public/assets/matchdetaillogo/fallback_player.png');
       }
     } catch (error) {
       console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching match lineups:`, error);
       if (isMounted) {
         setError('Failed to load player from match');
-        setImageUrl('/assets/matchdetaillogo/fallback_player.png');
+        setImageUrl('client/public/assets/matchdetaillogo/fallback_player.png');
       }
     }
   };
@@ -180,7 +180,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         await fetchPlayerFromMatch(matchId, isMounted);
       } else {
         if (isMounted) {
-          setImageUrl('/assets/matchdetaillogo/fallback_player.png');
+          setImageUrl('client/public/assets/matchdetaillogo/fallback_player.png');
         }
       }
     };
@@ -194,7 +194,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
   const handleImageError = () => {
     console.log(`⚠️ [MyAvatarInfo] Image failed to load, using initials fallback`);
-    setImageUrl('/assets/matchdetaillogo/fallback_player.png');
+    setImageUrl('client/public/assets/matchdetaillogo/fallback_player.png');
   };
 
   const generateInitials = (name?: string): string => {
@@ -216,7 +216,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   const handleClick = () => {
     if (onClick) {
       // Pass the actual image URL that's being displayed
-      const actualImageUrl = imageUrl !== '/assets/matchdetaillogo/fallback_player.png' ? imageUrl : undefined;
+      const actualImageUrl = imageUrl !== 'client/public/assets/matchdetaillogo/fallback_player.png' ? imageUrl : undefined;
       onClick(playerId, teamId, playerName, actualImageUrl);
     }
   };
@@ -232,9 +232,9 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         alt={playerName || 'Player'}
         className="w-full h-full object-cover"
         onError={handleImageError}
-        style={{ display: imageUrl === '/assets/matchdetaillogo/fallback_player.png' ? 'none' : 'block' }}
+        style={{ display: imageUrl === 'client/public/assets/matchdetaillogo/fallback_player.png' ? 'none' : 'block' }}
       />
-      {imageUrl === '/assets/matchdetaillogo/fallback_player.png' && (
+      {imageUrl === 'client/public/assets/matchdetaillogo/fallback_player.png' && (
         <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold">
           {generateInitials(playerName)}
         </div>
