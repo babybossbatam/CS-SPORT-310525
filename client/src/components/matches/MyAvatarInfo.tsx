@@ -196,8 +196,15 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   }, [playerId, matchId, playerName]);
 
   const handleImageError = () => {
-    console.log(`⚠️ [MyAvatarInfo] Image failed to load, using initials fallback`);
-    setImageUrl(FALLBACK_PLAYER_IMAGE);
+    if (imageUrl === FALLBACK_PLAYER_IMAGE) {
+      // If fallback image fails, we need to show initials
+      console.log(`⚠️ [MyAvatarInfo] Fallback image failed to load, using initials`);
+      // We'll handle this case by updating the render logic
+      setImageUrl('INITIALS_FALLBACK');
+    } else {
+      console.log(`⚠️ [MyAvatarInfo] Image failed to load, using fallback image`);
+      setImageUrl(FALLBACK_PLAYER_IMAGE);
+    }
   };
 
   const generateInitials = (name?: string): string => {
@@ -219,7 +226,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   const handleClick = () => {
     if (onClick) {
       // Pass the actual image URL that's being displayed
-      const actualImageUrl = imageUrl !== FALLBACK_PLAYER_IMAGE ? imageUrl : undefined;
+      const actualImageUrl = imageUrl !== FALLBACK_PLAYER_IMAGE && imageUrl !== 'INITIALS_FALLBACK' ? imageUrl : undefined;
       onClick(playerId, teamId, playerName, actualImageUrl);
     }
   };
@@ -230,20 +237,18 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full overflow-hidden relative ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''} ${className}`}
       onClick={handleClick}
     >
-      {imageUrl !== FALLBACK_PLAYER_IMAGE ? (
+      {imageUrl === 'INITIALS_FALLBACK' ? (
+        <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold">
+          {generateInitials(playerName)}
+        </div>
+      ) : (
         <img
           src={imageUrl}
           alt={playerName || 'Player'}
           className="w-full h-full object-cover"
           onError={handleImageError}
         />
-      ) : (
-        <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold">
-          {generateInitials(playerName)}
-        </div>
       )}
-
-
     </div>
   );
 };
