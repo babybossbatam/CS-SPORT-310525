@@ -1746,39 +1746,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let imageBuffer = null;
         let sourceUrl = "";
 
-                // Try each logo source
+        // Try each logo source
         for (const logoUrl of logoUrls) {
           try {
-                        const response = await fetch(
-logoUrl, {
-              headers:{
+            const response = await fetch(logoUrl, {
+              headers: {
                 accept: "image/png,image/jpeg,image/svg+xml,image/*",
                 "user-agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                },
-              });
+                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+              },
+            });
 
-              if (response.ok) {
-                const arrayBuffer = await response.arrayBuffer();
-                imageBuffer = Buffer.from(arrayBuffer);
-                sourceUrl = logoUrl;
-                console.log(`Successfully fetched logo from: ${logoUrl}`);
-                break;
-              }
-            } catch (error) {
-              console.warn(
-                `Failed to fetch from ${logoUrl}:`,
-                error instanceof Error ? error.message : "Unknown error",
-              );
-              continue;
+            if (response.ok) {
+              const arrayBuffer = await response.arrayBuffer();
+              imageBuffer = Buffer.from(arrayBuffer);
+              sourceUrl = logoUrl;
+              console.log(`Successfully fetched logo from: ${logoUrl}`);
+              break;
             }
+          } catch (error) {
+            console.warn(
+              `Failed to fetch from ${logoUrl}:`,
+              error instanceof Error ? error.message : "Unknown error",
+            );
+            continue;
           }
+        }
 
-          // If no image found, return fallback
-          if (!imageBuffer) {
-            return res
-              .status(404)
-              .json({ error: "Logo not found from any source" });
+        // If no image found, return fallback
+        if (!imageBuffer) {
+          return res
+            .status(404)
+            .json({ error: "Logo not found from any source" });
         }
 
         // Resize image to square dimensions using Sharp
