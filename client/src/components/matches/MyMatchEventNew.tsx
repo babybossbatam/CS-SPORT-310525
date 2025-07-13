@@ -9,6 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import MyCommentary from "./MyCommentary";
 import MyPlayerProfilePicture from "./MyPlayerProfilePicture";
 import PlayerProfileModal from "../modals/PlayerProfileModal";
+import MyAvatarInfo from "./MyAvatarInfo";
 
 interface MyMatchEventNewProps {
   fixtureId: string | number;
@@ -739,13 +740,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     {penalty.event && isHome ? (
                       <>
                         <div className="penalty-player-info penalty-player-info-home">
-                          <MyPlayerProfilePicture
+                          {/* <MyPlayerProfilePicture
                             playerId={penalty.event.player?.id}
                             playerName={penalty.event.player?.name}
                             size="md"
                             teamType="home"
                             className="flex-shrink-0"
-                          />
+                          /> */}
                           <div className="flex flex-col min-w-0 ml-2">
                             <span className="penalty-player-name text-xs font-medium text-left truncate">
                               {penalty.event.player?.name}
@@ -811,13 +812,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                               {penalty.event.player?.name}
                             </span>
                           </div>
-                          <MyPlayerProfilePicture
+                          {/* <MyPlayerProfilePicture
                             playerId={penalty.event.player?.id}
                             playerName={penalty.event.player?.name}
                             size="md"
                             teamType="away"
                             className="flex-shrink-0"
-                          />
+                          /> */}
                         </div>
                       </>
                                         ) : (
@@ -881,7 +882,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               className="text-xs bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600 ml-2"
               title="Clear all player image cache"
             >
-              🔄 Refresh Images
+              ```typescript
+🔄 Refresh Images
             </button>
           </div>
           {lastUpdated && (
@@ -1138,58 +1140,31 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 <div className="match-event-home-player-info">
                                   <div className="flex items-center gap-1">
                                     <div 
-                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"} rounded-full overflow-hidden`}
+                                      className="cursor-pointer hover:scale-105 transition-transform"
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
-                                      <img
-                                        src={getPlayerImage(event.player?.id, event.player?.name, event.team?.id)}
-                                        alt={event.player?.name || "Player"}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          // Fallback to initials if image fails
-                                          const target = e.currentTarget;
-                                          const initials = event.player?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
-                                          target.style.display = 'none';
-                                          const parent = target.parentElement;
-                                          if (parent) {
-                                            parent.style.backgroundColor = '#4F46E5';
-                                            parent.style.color = 'white';
-                                            parent.style.display = 'flex';
-                                            parent.style.alignItems = 'center';
-                                            parent.style.justifyContent = 'center';
-                                            parent.style.fontSize = '12px';
-                                            parent.style.fontWeight = 'bold';
-                                            parent.textContent = initials;
-                                          }
-                                        }}
+                                      <MyAvatarInfo
+                                        playerId={event.player?.id}
+                                        playerName={event.player?.name}
+                                        matchId={fixtureId}
+                                        teamId={event.team?.id}
+                                        size="md"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
                                     </div>
 
                                     {event.type === "subst" && event.assist?.name && (
                                       <div 
-                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors rounded-full overflow-hidden"
+                                        className="-ml-4 -mr-2 relative z-20 cursor-pointer hover:scale-105 transition-transform"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
-                                        <img
-                                          src={getPlayerImage(event.assist?.id, event.assist?.name, event.team?.id)}
-                                          alt={event.assist?.name || "Player"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.currentTarget;
-                                            const initials = event.assist?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              parent.style.backgroundColor = '#4F46E5';
-                                              parent.style.color = 'white';
-                                              parent.style.display = 'flex';
-                                              parent.style.alignItems = 'center';
-                                              parent.style.justifyContent = 'center';
-                                              parent.style.fontSize = '12px';
-                                              parent.style.fontWeight = 'bold';
-                                              parent.textContent = initials;
-                                            }
-                                          }}
+                                        <MyAvatarInfo
+                                          playerId={event.assist?.id}
+                                          playerName={event.assist?.name}
+                                          matchId={fixtureId}
+                                          teamId={event.team?.id}
+                                          size="md"
+                                          className="shadow-sm border-red-300"
                                         />
                                       </div>
                                     )}
@@ -1457,57 +1432,31 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   <div className="flex items-center gap-1">
                                     {event.type === "subst" && event.assist?.name && (
                                       <div 
-                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative z-20 cursor-pointer hover:border-red-500 transition-colors rounded-full overflow-hidden"
+                                        className="-ml-4 -mr-3 relative z-20 cursor-pointer hover:scale-105 transition-transform"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
-                                        <img
-                                          src={getPlayerImage(event.assist?.id, event.assist?.name, event.team?.id)}
-                                          alt={event.assist?.name || "Player"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.currentTarget;
-                                            const initials = event.assist?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              parent.style.backgroundColor = '#4F46E5';
-                                              parent.style.color = 'white';
-                                              parent.style.display = 'flex';
-                                              parent.style.alignItems = 'center';
-                                              parent.style.justifyContent = 'center';
-                                              parent.style.fontSize = '12px';
-                                              parent.style.fontWeight = 'bold';
-                                              parent.textContent = initials;
-                                            }
-                                          }}
+                                        <MyAvatarInfo
+                                          playerId={event.assist?.id}
+                                          playerName={event.assist?.name}
+                                          matchId={fixtureId}
+                                          teamId={event.team?.id}
+                                          size="md"
+                                          className="shadow-sm border-red-300"
                                         />
                                       </div>
                                     )}
 
                                     <div 
-                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"} rounded-full overflow-hidden`}
+                                      className="cursor-pointer hover:scale-105 transition-transform"
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
-                                      <img
-                                        src={getPlayerImage(event.player?.id, event.player?.name, event.team?.id)}
-                                        alt={event.player?.name || "Player"}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          const target = e.currentTarget;
-                                          const initials = event.player?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
-                                          target.style.display = 'none';
-                                          const parent = target.parentElement;
-                                          if (parent) {
-                                            parent.style.backgroundColor = '#4F46E5';
-                                            parent.style.color = 'white';
-                                            parent.style.display = 'flex';
-                                            parent.style.alignItems = 'center';
-                                            parent.style.justifyContent = 'center';
-                                            parent.style.fontSize = '12px';
-                                            parent.style.fontWeight = 'bold';
-                                            parent.textContent = initials;
-                                          }
-                                        }}
+                                      <MyAvatarInfo
+                                        playerId={event.player?.id}
+                                        playerName={event.player?.name}
+                                        matchId={fixtureId}
+                                        teamId={event.team?.id}
+                                        size="md"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
                                     </div>
                                   </div>
@@ -1687,58 +1636,31 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 <div className="match-event-home-player-info">
                                   <div className="flex items-center gap-1">
                                     <div 
-                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"} rounded-full overflow-hidden`}
+                                      className="cursor-pointer hover:scale-105 transition-transform"
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
-                                      <img
-                                        src={getPlayerImage(event.player?.id, event.player?.name, event.team?.id)}
-                                        alt={event.player?.name || "Player"}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          // Fallback to initials if image fails
-                                          const target = e.currentTarget;
-                                          const initials = event.player?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
-                                          target.style.display = 'none';
-                                          const parent = target.parentElement;
-                                          if (parent) {
-                                            parent.style.backgroundColor = '#4F46E5';
-                                            parent.style.color = 'white';
-                                            parent.style.display = 'flex';
-                                            parent.style.alignItems = 'center';
-                                            parent.style.justifyContent = 'center';
-                                            parent.style.fontSize = '12px';
-                                            parent.style.fontWeight = 'bold';
-                                            parent.textContent = initials;
-                                          }
-                                        }}
+                                      <MyAvatarInfo
+                                        playerId={event.player?.id}
+                                        playerName={event.player?.name}
+                                        matchId={fixtureId}
+                                        teamId={event.team?.id}
+                                        size="md"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
                                     </div>
 
                                     {event.type === "subst" && event.assist?.name && (
                                       <div 
-                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors rounded-full overflow-hidden"
+                                        className="-ml-4 -mr-2 relative z-20 cursor-pointer hover:scale-105 transition-transform"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
-                                        <img
-                                          src={getPlayerImage(event.assist?.id, event.assist?.name, event.team?.id)}
-                                          alt={event.assist?.name || "Player"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.currentTarget;
-                                            const initials = event.assist?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              parent.style.backgroundColor = '#4F46E5';
-                                              parent.style.color = 'white';
-                                              parent.style.display = 'flex';
-                                              parent.style.alignItems = 'center';
-                                              parent.style.justifyContent = 'center';
-                                              parent.style.fontSize = '12px';
-                                              parent.style.fontWeight = 'bold';
-                                              parent.textContent = initials;
-                                            }
-                                          }}
+                                        <MyAvatarInfo
+                                          playerId={event.assist?.id}
+                                          playerName={event.assist?.name}
+                                          matchId={fixtureId}
+                                          teamId={event.team?.id}
+                                          size="md"
+                                          className="shadow-sm border-red-300"
                                         />
                                       </div>
                                     )}
@@ -1839,8 +1761,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       <img
                                         src={
                                           event.detail
-                                            ?.toLowerCase()
-                                            .includes("yellow")
+                                            ?.toLowerCase().includes("yellow")
                                             ? "/assets/matchdetaillogo/card-icon.svg"
                                             : "/assets/matchdetaillogo/red-card-icon.svg"
                                         }
@@ -2006,57 +1927,31 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   <div className="flex items-center gap-1">
                                     {event.type === "subst" && event.assist?.name && (
                                       <div 
-                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative z-20 cursor-pointer hover:border-red-500 transition-colors rounded-full overflow-hidden"
+                                        className="-ml-4 -mr-3 relative z-20 cursor-pointer hover:scale-105 transition-transform"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
-                                        <img
-                                          src={getPlayerImage(event.assist?.id, event.assist?.name, event.team?.id)}
-                                          alt={event.assist?.name || "Player"}
-                                          className="w-full h-full object-cover"
-                                          onError={(e) => {
-                                            const target = e.currentTarget;
-                                            const initials = event.assist?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
-                                            target.style.display = 'none';
-                                            const parent = target.parentElement;
-                                            if (parent) {
-                                              parent.style.backgroundColor = '#4F46E5';
-                                              parent.style.color = 'white';
-                                              parent.style.display = 'flex';
-                                              parent.style.alignItems = 'center';
-                                              parent.style.justifyContent = 'center';
-                                              parent.style.fontSize = '12px';
-                                              parent.style.fontWeight = 'bold';
-                                              parent.textContent = initials;
-                                            }
-                                          }}
+                                        <MyAvatarInfo
+                                          playerId={event.assist?.id}
+                                          playerName={event.assist?.name}
+                                          matchId={fixtureId}
+                                          teamId={event.team?.id}
+                                          size="md"
+                                          className="shadow-sm border-red-300"
                                         />
                                       </div>
                                     )}
 
                                     <div 
-                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"} rounded-full overflow-hidden`}
+                                      className="cursor-pointer hover:scale-105 transition-transform"
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
-                                      <img
-                                        src={getPlayerImage(event.player?.id, event.player?.name, event.team?.id)}
-                                        alt={event.player?.name || "Player"}
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                          const target = e.currentTarget;
-                                          const initials = event.player?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
-                                          target.style.display = 'none';
-                                          const parent = target.parentElement;
-                                          if (parent) {
-                                            parent.style.backgroundColor = '#4F46E5';
-                                            parent.style.color = 'white';
-                                            parent.style.display = 'flex';
-                                            parent.style.alignItems = 'center';
-                                            parent.style.justifyContent = 'center';
-                                            parent.style.fontSize = '12px';
-                                            parent.style.fontWeight = 'bold';
-                                            parent.textContent = initials;
-                                          }
-                                        }}
+                                      <MyAvatarInfo
+                                        playerId={event.player?.id}
+                                        playerName={event.player?.name}
+                                        matchId={fixtureId}
+                                        teamId={event.team?.id}
+                                        size="md"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
                                     </div>
                                   </div>

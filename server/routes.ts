@@ -20,13 +20,14 @@ import { z } from "zod";
 import { format, addDays, subDays } from "date-fns";
 // Removing uefaU21Routes import as requested
 import cors from "cors";
+import playerRoutes from './routes/playerRoutes';
+import playerDataRoutes from './routes/playerDataRoutes';
 import featuredMatchRoutes from "./routes/featuredMatchRoutes";
 import youtubeRoutes from "./routes/youtubeRoutes";
 import vimeoRoutes from "./routes/vimeoRoutes";
 import dailymotionRoutes from "./routes/dailymotionRoutes";
 import twitchRoutes from "./routes/twitchRoutes";
 import highlightsRoutes from './routes/highlightsRoutes';
-import playerRoutes from './routes/playerRoutes';
 import axios from "axios";
 import { simpleRapidApi } from "./services/simpleRapidApi";
 
@@ -44,6 +45,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/twitch", twitchRoutes);
   app.use("/api/highlights", highlightsRoutes);
   apiRouter.use('/api', playerRoutes);
+  apiRouter.use('/api', playerDataRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
