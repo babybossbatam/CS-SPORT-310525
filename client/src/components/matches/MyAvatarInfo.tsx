@@ -24,6 +24,11 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   size = 'md',
   className = ''
 }) => {
+  // Create a unique component ID to prevent duplicate rendering issues
+  const componentId = React.useMemo(() => 
+    `avatar-${playerId || 'unknown'}-${playerName || 'unnamed'}-${Date.now()}`, 
+    [playerId, playerName]
+  );
   const [playerData, setPlayerData] = useState<Player | null>(null);
   const [imageUrl, setImageUrl] = useState<string>('/assets/matchdetaillogo/fallback_player.png');
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +40,9 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     lg: 'w-12 h-12'
   };
 
-  const fetchPlayerData = async (playerIdToFetch: number) => {
+  const fetchPlayerData = async (playerIdToFetch: number, isMounted = true) => {
+    if (!isMounted) return;
+    
     try {
       setIsLoading(true);
       setError(null);
@@ -72,17 +79,23 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         }
       }
     } catch (error) {
-      console.error('❌ [MyAvatarInfo] Error fetching player data:', error);
-      setError('Failed to load player data');
-      setImageUrl('/assets/matchdetaillogo/fallback_player.png');
+      console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching player data:`, error);
+      if (isMounted) {
+        setError('Failed to load player data');
+        setImageUrl('/assets/matchdetaillogo/fallback_player.png');
+      }
     } finally {
-      setIsLoading(false);
+      if (isMounted) {
+        setIsLoading(false);
+      }
     }
   };
 
-  const fetchPlayerFromMatch = async (matchIdToFetch: string | number) => {
+  const fetchPlayerFromMatch = async (matchIdToFetch: string | number, isMounted = true) => {
+    if (!isMounted) return;
+    
     try {
-      console.log(`🔍 [MyAvatarInfo] Fetching players from match: ${matchIdToFetch}`);
+      console.log(`🔍 [MyAvatarInfo-${componentId}] Fetching players from match: ${matchIdToFetch}`);
       
       const response = await fetch(`/api/fixtures/${matchIdToFetch}/lineups`);
       
@@ -98,8 +111,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
               p.player?.name?.toLowerCase().includes(playerName.toLowerCase())
             );
             
-            if (foundPlayer?.player?.id) {
-              await fetchPlayerData(foundPlayer.player.id);
+            if (foundPlayer?.player?.id && isMounted) {
+              await fetchPlayerData(foundPlayer.player.id, isMounted);
               return;
             }
           }
@@ -107,14 +120,16 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       }
       
       // Fallback: use provided playerId or show fallback image
-      if (playerId) {
-        await fetchPlayerData(playerId);
-      } else {
+      if (playerId && isMounted) {
+        await fetchPlayerData(playerId, isMounted);
+      } else if (isMounted) {
         setImageUrl('/assets/matchdetaillogo/fallback_player.png');
       }
     } catch (error) {
-      console.error('❌ [MyAvatarInfo] Error fetching match lineups:', error);
-      setImageUrl('/assets/matchdetaillogo/fallback_player.png');
+      console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching match lineups:`, error);
+      if (isMounted) {
+        setImageUrl('/assets/matchdetaillogo/fallback_player.png');
+      }
     }
   };
 
@@ -125,9 +140,9 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       if (!isMounted) return;
 
       if (playerId) {
-        await fetchPlayerData(playerId);
+        await fetchPlayerData(playerId, isMounted);
       } else if (matchId && playerName) {
-        await fetchPlayerFromMatch(matchId);
+        await fetchPlayerFromMatch(matchId, isMounted);
       } else {
         if (isMounted) {
           setImageUrl('/assets/matchdetaillogo/fallback_player.png');
@@ -164,7 +179,10 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   }
 
   return (
-    <div className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full overflow-hidden relative ${className}`}>
+    <div 
+      key={componentId}
+      className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full overflow-hidden relative ${className}`}
+    >
       {imageUrl !== '/assets/matchdetaillogo/fallback_player.png' ? (
         <img
           src={imageUrl}
@@ -179,7 +197,10 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       )}
       
       {error && (
-        <div className="absolute inset-0 bg-red-500 bg-opacity-75 flex items-center justify-center">
+        <div 
+          key={`error-${componentId}`}
+          className="absolute inset-0 bg-red-500 bg-opacity-75 flex items-center justify-center"
+        >
           <span className="text-white text-xs">!</span>
         </div>
       )}
