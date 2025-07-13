@@ -100,11 +100,12 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
     
     setHeatmapLoading(true);
     try {
-      console.log(`🔥 [PlayerModal] Fetching heatmap for player ${playerId} in match ${matchId}`);
+      console.log(`🔥 [PlayerModal] Fetching heatmap for API-Football player ${playerId} (${playerName}) in match ${matchId}`);
       
       // Get match details to extract team names and match info
       const matchResponse = await fetch(`/api/fixtures/${matchId}`);
       let queryParams = `playerName=${encodeURIComponent(playerName || '')}&teamId=${teamId}`;
+      let matchInfo = { homeTeam: '', awayTeam: '', matchDate: '', playerTeam: '' };
       
       if (matchResponse.ok) {
         const matchData = await matchResponse.json();
@@ -127,12 +128,17 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             }
           }
           
+          matchInfo = { homeTeam, awayTeam, matchDate, playerTeam };
+          
           queryParams += `&teamName=${encodeURIComponent(playerTeam || '')}`;
           queryParams += `&homeTeam=${encodeURIComponent(homeTeam || '')}`;
           queryParams += `&awayTeam=${encodeURIComponent(awayTeam || '')}`;
           queryParams += `&matchDate=${encodeURIComponent(matchDate || '')}`;
           
-          console.log(`🔄 [PlayerModal] Match mapping data:`, {
+          console.log(`🔄 [PlayerModal] Mapping API-Football → SofaScore:`, {
+            apiFootballPlayerId: playerId,
+            apiFootballMatchId: matchId,
+            playerName,
             homeTeam,
             awayTeam,
             playerTeam,
@@ -148,28 +154,35 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
       
       if (response.ok) {
         const data = await response.json();
-        console.log(`✅ [PlayerModal] Received heatmap data:`, data);
+        console.log(`✅ [PlayerModal] Received SofaScore heatmap data:`, data);
         
         // Enhanced logging for debugging
         if (data && typeof data === 'object') {
-          console.log(`📊 [PlayerModal] Data structure:`, {
+          console.log(`📊 [PlayerModal] SofaScore data structure:`, {
             type: typeof data,
             isArray: Array.isArray(data),
             keys: Object.keys(data),
             pointsCount: data.points?.length || 0,
             hasHeatmapData: !!data.heatmap,
-            hasCoordinates: !!data.coordinates
+            hasCoordinates: !!data.coordinates,
+            mappingInfo: `${playerName} (API-Football ${playerId}) in ${matchInfo.homeTeam} vs ${matchInfo.awayTeam}`
           });
         }
         
         setHeatmapData(data);
       } else {
         const errorText = await response.text();
-        console.log(`⚠️ [PlayerModal] No heatmap data available for player ${playerId}. Status: ${response.status}, Response: ${errorText}`);
+        console.log(`⚠️ [PlayerModal] SofaScore mapping failed for ${playerName}:`, {
+          apiFootballPlayerId: playerId,
+          apiFootballMatchId: matchId,
+          status: response.status,
+          error: errorText,
+          matchInfo
+        });
         setHeatmapData(null);
       }
     } catch (error) {
-      console.error('❌ [PlayerModal] Error fetching heatmap data:', error);
+      console.error('❌ [PlayerModal] Error fetching SofaScore heatmap data:', error);
       setHeatmapData(null);
     } finally {
       setHeatmapLoading(false);
@@ -444,12 +457,12 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
           ) : (
             // Show appropriate message based on data availability
             <g>
-              <rect x="180" y="170" width="280" height="60" fill="rgba(0,0,0,0.7)" rx="5" />
+              <rect x="160" y="170" width="320" height="60" fill="rgba(0,0,0,0.7)" rx="5" />
               <text x="320" y="195" textAnchor="middle" fill="white" fontSize="14">
-                {heatmapData ? 'Unable to parse heatmap data' : `No heatmap data for match ${matchId}`}
+                {heatmapData ? 'Unable to parse SofaScore data' : `SofaScore mapping failed`}
               </text>
               <text x="320" y="215" textAnchor="middle" fill="white" fontSize="12" opacity="0.7">
-                {heatmapData ? 'Check console for raw data structure' : `Player ID: ${playerId}`}
+                {heatmapData ? 'Check console for raw data structure' : `${playerName} (API-Football ID: ${playerId})`}
               </text>
             </g>
           )}
@@ -475,9 +488,9 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
           {transformedHeatmapData?.points?.length > 0 ? (
             `SofaScore API (${transformedHeatmapData.points.length} points)`
           ) : heatmapData ? (
-            'Data received but incompatible format'
+            'SofaScore data received but incompatible format'
           ) : (
-            `Match ${matchId} - Player ${playerId} - No data`
+            `API-Football → SofaScore mapping failed`
           )}
         </div>
         
