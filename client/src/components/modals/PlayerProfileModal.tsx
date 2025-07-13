@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -13,7 +14,6 @@ interface PlayerProfileModalProps {
   playerName?: string;
   teamId?: number;
   playerImage?: string;
-  matchId?: number;
 }
 
 interface PlayerStats {
@@ -25,14 +25,6 @@ interface PlayerStats {
   team: string;
 }
 
-interface HeatmapData {
-  points: Array<{
-    x: number;
-    y: number;
-    intensity: number;
-  }>;
-}
-
 const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   isOpen,
   onClose,
@@ -40,23 +32,16 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   playerName,
   teamId,
   playerImage,
-  matchId,
 }) => {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [heatmapData, setHeatmapData] = useState<HeatmapData | null>(null);
-  const [heatmapLoading, setHeatmapLoading] = useState(false);
-  const [mappedSofaScorePlayerId, setMappedSofaScorePlayerId] = useState<number | null>(null); // new state
 
   useEffect(() => {
     if (isOpen && playerId) {
       fetchPlayerStats();
       loadPlayerImage();
-      if (matchId) {
-        fetchHeatmapData();
-      }
     }
-  }, [isOpen, playerId, playerImage, matchId]);
+  }, [isOpen, playerId, playerImage]);
 
   const fetchPlayerStats = async () => {
     setIsLoading(true);
@@ -89,123 +74,6 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
       });
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const fetchHeatmapData = async () => {
-    if (!playerId || !matchId || !playerName) {
-      console.log(`🔥 [PlayerModal] Missing required data - playerId: ${playerId}, matchId: ${matchId}, playerName: ${playerName}`);
-      return;
-    }
-
-    setHeatmapLoading(true);
-    try {
-      console.log(`🔥 [PlayerModal] Fetching SofaScore heatmap for ${playerName} in match ${matchId}`);
-
-      // Get match details to extract team names and match info
-      const matchResponse = await fetch(`/api/fixtures/${matchId}`);
-      let matchInfo = { homeTeam: '', awayTeam: '', matchDate: '', playerTeam: '' };
-
-      if (!matchResponse.ok) {
-        console.error(`❌ [PlayerModal] Failed to fetch match details for ${matchId}`);
-        setHeatmapData(null);
-        setMappedSofaScorePlayerId(null);
-        return;
-      }
-
-      const matchData = await matchResponse.json();
-      if (!matchData) {
-        console.error(`❌ [PlayerModal] No match data received for ${matchId}`);
-        setHeatmapData(null);
-        setMappedSofaScorePlayerId(null);
-        return;
-      }
-
-      const homeTeam = matchData.teams?.home?.name;
-      const awayTeam = matchData.teams?.away?.name;
-      const matchDate = matchData.fixture?.date;
-
-      if (!homeTeam || !awayTeam || !matchDate) {
-        console.error(`❌ [PlayerModal] Incomplete match data:`, { homeTeam, awayTeam, matchDate });
-        setHeatmapData(null);
-        setMappedSofaScorePlayerId(null);
-        return;
-      }
-
-      // Determine which team the player belongs to
-      let playerTeam = '';
-      if (teamId === matchData.teams?.home?.id) {
-        playerTeam = homeTeam;
-      } else if (teamId === matchData.teams?.away?.id) {
-        playerTeam = awayTeam;
-      } else {
-        // Fallback: try to determine from lineups
-        if (matchData.lineups && matchData.lineups.length > 0) {
-          const isHomeTeam = matchData.lineups[0]?.team?.id === teamId;
-          playerTeam = isHomeTeam ? homeTeam : awayTeam;
-        }
-      }
-
-      matchInfo = { homeTeam, awayTeam, matchDate, playerTeam };
-
-      console.log(`🔍 [PlayerModal] Direct SofaScore search:`, {
-        playerName,
-        homeTeam,
-        awayTeam,
-        playerTeam,
-        matchDate,
-        teamId
-      });
-
-      // Use direct SofaScore search with all required parameters
-      const queryParams = new URLSearchParams({
-        playerName: playerName,
-        teamName: playerTeam || playerTeam,
-        homeTeam: homeTeam,
-        awayTeam: awayTeam,
-        matchDate: matchDate
-      }).toString();
-
-      const response = await fetch(`/api/sofascore/player-heatmap/${matchId}/${playerId}?${queryParams}`);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`✅ [PlayerModal] Received SofaScore heatmap data:`, data);
-
-        // Enhanced logging for debugging
-        if (data && typeof data === 'object') {
-          console.log(`📊 [PlayerModal] SofaScore data structure:`, {
-            type: typeof data,
-            isArray: Array.isArray(data),
-            keys: Object.keys(data),
-            pointsCount: data.points?.length || 0,
-            hasHeatmapData: !!data.heatmap,
-            hasCoordinates: !!data.coordinates,
-            hasMappingInfo: !!data.mappingInfo,
-            sofaScorePlayerId: data.mappingInfo?.sofaScorePlayerId,
-            sofaScoreMatchId: data.mappingInfo?.sofaScoreMatchId
-          });
-        }
-
-        setHeatmapData(data);
-        setMappedSofaScorePlayerId(data?.mappingInfo?.sofaScorePlayerId || data?.playerId);
-
-      } else {
-        const errorText = await response.text();
-        console.log(`⚠️ [PlayerModal] SofaScore search failed for ${playerName}:`, {
-          status: response.status,
-          error: errorText,
-          matchInfo
-        });
-        setHeatmapData(null);
-        setMappedSofaScorePlayerId(null);
-      }
-    } catch (error) {
-      console.error('❌ [PlayerModal] Error fetching SofaScore heatmap data:', error);
-      setHeatmapData(null);
-      setMappedSofaScorePlayerId(null);
-    } finally {
-      setHeatmapLoading(false);
     }
   };
 
@@ -259,12 +127,12 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
     // Try multiple CDN sources
     if (playerId) {
       const imageUrls = getPlayerImageUrls(playerId);
-
+      
       for (const url of imageUrls) {
         try {
           const img = new Image();
           img.crossOrigin = 'anonymous';
-
+          
           const imageLoaded = await new Promise((resolve) => {
             img.onload = () => resolve(true);
             img.onerror = () => resolve(false);
@@ -288,244 +156,77 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   };
 
   const HeatmapVisualization = () => {
-    if (heatmapLoading) {
-      return (
-        <div className="relative w-full bg-green-600 rounded-lg overflow-hidden flex items-center justify-center" style={{ aspectRatio: '16/10', minHeight: '300px' }}>
-          <div className="text-white">Loading heatmap data...</div>
-        </div>
-      );
-    }
-
-    // Transform SofaScore heatmap data to our expected format
-    const transformedHeatmapData = React.useMemo(() => {
-      console.log(`🔥 [Heatmap] Processing raw data:`, heatmapData);
-
-      if (!heatmapData) {
-        console.log(`🔥 [Heatmap] No heatmap data available`);
-        return null;
-      }
-
-      // SofaScore heatmap data structures - handle multiple possible formats
-      let points: Array<{ x: number; y: number; intensity: number }> = [];
-
-      // Check if data is directly an array of points
-      if (Array.isArray(heatmapData)) {
-        console.log(`🔥 [Heatmap] Data is array with ${heatmapData.length} items`);
-        points = heatmapData.map((item: any, index: number) => {
-          if (typeof item === 'object' && item !== null) {
-            // Handle SofaScore coordinate formats
-            const x = item.x ?? item.X ?? item.coordinateX ?? item.position?.x ?? item.xCoordinate ?? (index % 10) / 10;
-            const y = item.y ?? item.Y ?? item.coordinateY ?? item.position?.y ?? item.yCoordinate ?? Math.random();
-            const intensity = item.intensity ?? item.value ?? item.count ?? item.weight ?? item.density ?? Math.random() * 0.8 + 0.2;
-
-            // Normalize coordinates to 0-1 range if they're in different scales
-            let normalizedX = typeof x === 'number' ? x : parseFloat(x) || 0;
-            let normalizedY = typeof y === 'number' ? y : parseFloat(y) || 0;
-
-            // If coordinates seem to be in pitch coordinates (0-100), normalize them
-            if (normalizedX > 1) normalizedX = normalizedX / 100;
-            if (normalizedY > 1) normalizedY = normalizedY / 100;
-
-            return {
-              x: Math.max(0, Math.min(1, normalizedX)),
-              y: Math.max(0, Math.min(1, normalizedY)),
-              intensity: Math.max(0.1, Math.min(1, typeof intensity === 'number' ? intensity : parseFloat(intensity) || 0.5))
-            };
-          }
-
-          // Fallback for primitive values or unexpected formats
-          return {
-            x: (index % 10) / 10,
-            y: Math.random(),
-            intensity: 0.5
-          };
-        });
-      } 
-      // Check for nested data structures
-      else if (typeof heatmapData === 'object') {
-        const possibleArrays = [
-          heatmapData.points,
-          heatmapData.heatmap,
-          heatmapData.data,
-          heatmapData.coordinates,
-          heatmapData.positions,
-          heatmapData.heatmapData
-        ];
-
-        for (const arr of possibleArrays) {
-          if (Array.isArray(arr) && arr.length > 0) {
-            console.log(`🔥 [Heatmap] Found nested array with ${arr.length} items`);
-            points = arr.map((item: any, index: number) => {
-              if (typeof item === 'object' && item !== null) {
-                const x = item.x ?? item.X ?? item.coordinateX ?? item.position?.x ?? (index % 10) / 10;
-                const y = item.y ?? item.Y ?? item.coordinateY ?? item.position?.y ?? Math.random();
-                const intensity = item.intensity ?? item.value ?? item.count ?? item.weight ?? Math.random() * 0.8 + 0.2;
-
-                let normalizedX = typeof x === 'number' ? x : parseFloat(x) || 0;
-                let normalizedY = typeof y === 'number' ? y : parseFloat(y) || 0;
-
-                if (normalizedX > 1) normalizedX = normalizedX / 100;
-                if (normalizedY > 1) normalizedY = normalizedY / 100;
-
-                return {
-                  x: Math.max(0, Math.min(1, normalizedX)),
-                  y: Math.max(0, Math.min(1, normalizedY)),
-                  intensity: Math.max(0.1, Math.min(1, typeof intensity === 'number' ? intensity : parseFloat(intensity) || 0.5))
-                };
-              }
-              return {
-                x: (index % 10) / 10,
-                y: Math.random(),
-                intensity: 0.5
-              };
-            });
-            break;
-          }
-        }
-      }
-
-      console.log(`🔥 [Heatmap] Processed ${points.length} points`);
-      if (points.length > 0) {
-        console.log(`🔥 [Heatmap] Sample point:`, points[0]);
-      }
-
-      return points.length > 0 ? { points } : null;
-    }, [heatmapData]);
-
     return (
       <div className="relative w-full bg-green-600 rounded-lg overflow-hidden" style={{ aspectRatio: '16/10' }}>
         {/* Football field background */}
         <svg viewBox="0 0 640 400" className="w-full h-full">
           {/* Field background */}
           <rect width="640" height="400" fill="#2d5016" />
-
+          
           {/* Field lines */}
           <g stroke="white" strokeWidth="2" fill="none">
             {/* Outer boundary */}
             <rect x="20" y="20" width="600" height="360" />
-
+            
             {/* Center line */}
             <line x1="320" y1="20" x2="320" y2="380" />
-
+            
             {/* Center circle */}
             <circle cx="320" cy="200" r="50" />
             <circle cx="320" cy="200" r="2" fill="white" />
-
+            
             {/* Left penalty area */}
             <rect x="20" y="120" width="80" height="160" />
             <rect x="20" y="160" width="40" height="80" />
-
+            
             {/* Right penalty area */}
             <rect x="540" y="120" width="80" height="160" />
             <rect x="580" y="160" width="40" height="80" />
-
+            
             {/* Goals */}
             <rect x="20" y="180" width="8" height="40" />
             <rect x="612" y="180" width="8" height="40" />
           </g>
-
+          
           {/* Heatmap overlay using gradients */}
           <defs>
-            {transformedHeatmapData?.points?.map((_, index) => (
-              <radialGradient key={`heatspot-${index}`} id={`heatspot-${index}`} cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor={`rgba(255, ${255 - Math.floor(transformedHeatmapData.points[index].intensity * 255)}, 0, 0.8)`} />
-                <stop offset="50%" stopColor={`rgba(255, ${165 - Math.floor(transformedHeatmapData.points[index].intensity * 90)}, 0, 0.6)`} />
-                <stop offset="100%" stopColor={`rgba(255, 255, 0, ${0.3 * transformedHeatmapData.points[index].intensity})`} />
-              </radialGradient>
-            )) || (
-              // Fallback gradients if no real data
-              <>
-                <radialGradient id="heatspot1" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="rgba(255, 0, 0, 0.8)" />
-                  <stop offset="50%" stopColor="rgba(255, 165, 0, 0.6)" />
-                  <stop offset="100%" stopColor="rgba(255, 255, 0, 0.3)" />
-                </radialGradient>
-                <radialGradient id="heatspot2" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="rgba(255, 165, 0, 0.7)" />
-                  <stop offset="50%" stopColor="rgba(255, 255, 0, 0.5)" />
-                  <stop offset="100%" stopColor="rgba(173, 255, 47, 0.2)" />
-                </radialGradient>
-                <radialGradient id="heatspot3" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="rgba(255, 255, 0, 0.6)" />
-                  <stop offset="50%" stopColor="rgba(173, 255, 47, 0.4)" />
-                  <stop offset="100%" stopColor="rgba(0, 255, 0, 0.1)" />
-                </radialGradient>
-              </>
-            )}
+            <radialGradient id="heatspot1" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(255, 0, 0, 0.8)" />
+              <stop offset="50%" stopColor="rgba(255, 165, 0, 0.6)" />
+              <stop offset="100%" stopColor="rgba(255, 255, 0, 0.3)" />
+            </radialGradient>
+            <radialGradient id="heatspot2" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(255, 165, 0, 0.7)" />
+              <stop offset="50%" stopColor="rgba(255, 255, 0, 0.5)" />
+              <stop offset="100%" stopColor="rgba(173, 255, 47, 0.2)" />
+            </radialGradient>
+            <radialGradient id="heatspot3" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="rgba(255, 255, 0, 0.6)" />
+              <stop offset="50%" stopColor="rgba(173, 255, 47, 0.4)" />
+              <stop offset="100%" stopColor="rgba(0, 255, 0, 0.1)" />
+            </radialGradient>
           </defs>
-
-          {/* Heat spots - use real data if available, otherwise show status */}
-          {transformedHeatmapData?.points?.length > 0 ? (
-            transformedHeatmapData.points.map((point, index) => {
-              // Convert normalized coordinates (0-1) to SVG coordinates
-              const svgX = 20 + (point.x * 600); // Field is from x=20 to x=620
-              const svgY = 20 + (point.y * 360); // Field is from y=20 to y=380
-              const radius = Math.max(15, point.intensity * 60); // Scale radius based on intensity
-
-              return (
-                <ellipse
-                  key={index}
-                  cx={svgX}
-                  cy={svgY}
-                  rx={radius}
-                  ry={radius * 0.8}
-                  fill={`url(#heatspot-${index})`}
-                  opacity={0.7 + (point.intensity * 0.3)}
-                />
-              );
-            })
-          ) : (
-            /* Show appropriate message based on data availability */
-            <g>
-              <rect x="120" y="160" width="400" height="80" fill="rgba(0,0,0,0.8)" rx="8" />
-              <text x="320" y="185" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">
-                {heatmapData ? 'Data Format Issue' : heatmapLoading ? 'Mapping Player...' : `Mapping Failed`}
-              </text>
-              <text x="320" y="205" textAnchor="middle" fill="white" fontSize="13">
-                {heatmapData ? 'SofaScore data received but incompatible format' : 
-                 heatmapLoading ? 'Converting API-Football → SofaScore IDs' :
-                 `Could not map ${playerName || 'player'} to SofaScore`}
-              </text>
-              <text x="320" y="225" textAnchor="middle" fill="white" fontSize="11" opacity="0.8">
-                {mappedSofaScorePlayerId ? `✓ Mapped to SofaScore ID: ${mappedSofaScorePlayerId}` :
-                 `API-Football ID: ${playerId} | Team ID: ${teamId}`}
-              </text>
-            </g>
-          )}
-
-          {/* Player position dots for actual data */}
-          {transformedHeatmapData?.points?.length > 0 && (
-            transformedHeatmapData.points.slice(0, 5).map((point, index) => (
-              <circle
-                key={`dot-${index}`}
-                cx={20 + (point.x * 600)}
-                cy={20 + (point.y * 360)}
-                r="2"
-                fill="white"
-                stroke="black"
-                strokeWidth="1"
-              />
-            ))
-          )}
+          
+          {/* Heat spots */}
+          <ellipse cx="450" cy="150" rx="80" ry="60" fill="url(#heatspot1)" />
+          <ellipse cx="380" cy="200" rx="90" ry="70" fill="url(#heatspot2)" />
+          <ellipse cx="500" cy="250" rx="70" ry="50" fill="url(#heatspot3)" />
+          <ellipse cx="420" cy="120" rx="60" ry="40" fill="url(#heatspot3)" />
+          <ellipse cx="460" cy="300" rx="50" ry="35" fill="url(#heatspot3)" />
+          
+          {/* Player position dots */}
+          <circle cx="450" cy="150" r="3" fill="white" />
+          <circle cx="380" cy="200" r="2" fill="white" />
+          <circle cx="500" cy="250" r="2" fill="white" />
         </svg>
-
-        {/* Data source indicator */}
-        <div className="absolute bottom-4 left-4 text-xs text-white bg-black bg-opacity-50 px-2 py-1 rounded max-w-xs">
-          {transformedHeatmapData?.points?.length > 0 ? (
-            `SofaScore API (${transformedHeatmapData.points.length} points)`
-          ) : heatmapData ? (
-            'SofaScore data received but incompatible format'
-          ) : (
-            `API-Football → SofaScore mapping failed`
-          )}
-        </div>
-
-        {/* Debug info for development */}
-        {process.env.NODE_ENV === 'development' && heatmapData && (
-          <div className="absolute top-4 left-4 text-xs text-white bg-red-600 bg-opacity-75 px-2 py-1 rounded max-w-xs">
-            Raw data: {JSON.stringify(heatmapData).substring(0, 100)}...
-          </div>
-        )}
+        
+        {/* Back button */}
+        <button 
+          className="absolute top-4 right-4 w-8 h-8 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white hover:bg-opacity-70"
+          onClick={onClose}
+        >
+          ←
+        </button>
       </div>
     );
   };
@@ -537,35 +238,35 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
         <svg viewBox="0 0 640 400" className="w-full h-full">
           {/* Field background */}
           <rect width="640" height="400" fill="#2d5016" />
-
+          
           {/* Field lines */}
           <g stroke="white" strokeWidth="2" fill="none">
             {/* Show only attacking half */}
             <rect x="320" y="20" width="300" height="360" />
-
+            
             {/* Center line */}
             <line x1="320" y1="20" x2="320" y2="380" />
-
+            
             {/* Center circle (half) */}
             <path d="M 320 150 A 50 50 0 0 1 320 250" />
-
+            
             {/* Right penalty area */}
             <rect x="540" y="120" width="80" height="160" />
             <rect x="580" y="160" width="40" height="80" />
-
+            
             {/* Goal */}
             <rect x="612" y="180" width="8" height="40" />
           </g>
-
+          
           {/* Shot markers */}
           {/* Goals */}
           <circle cx="580" cy="190" r="8" fill="#00ff00" stroke="white" strokeWidth="2" />
           <circle cx="560" cy="210" r="8" fill="#00ff00" stroke="white" strokeWidth="2" />
-
+          
           {/* Shots on target */}
           <circle cx="570" cy="170" r="6" fill="#ffff00" stroke="white" strokeWidth="1" />
           <circle cx="590" cy="200" r="6" fill="#ffff00" stroke="white" strokeWidth="1" />
-
+          
           {/* Shots off target */}
           <circle cx="550" cy="160" r="4" fill="#ff6666" stroke="white" strokeWidth="1" />
           <circle cx="580" cy="240" r="4" fill="#ff6666" stroke="white" strokeWidth="1" />
@@ -601,7 +302,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
                 />
               )}
             </div>
-
+            
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <h2 className="text-xl font-bold text-gray-900">{playerName || 'Unknown Player'}</h2>
@@ -622,11 +323,11 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               <TabsTrigger value="heatmap">Heatmap</TabsTrigger>
               <TabsTrigger value="shotmap">Shot map</TabsTrigger>
             </TabsList>
-
+            
             <TabsContent value="heatmap" className="space-y-4">
               <HeatmapVisualization />
             </TabsContent>
-
+            
             <TabsContent value="shotmap" className="space-y-4">
               <ShotMapVisualization />
             </TabsContent>
@@ -636,7 +337,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
         {/* Top Stats Section */}
         <div className="px-6 pb-4">
           <h3 className="font-semibold text-lg mb-3 text-gray-900">Top Stats</h3>
-
+          
           <div className="grid grid-cols-3 gap-4 mb-6">
             <Card className="text-center p-4">
               <CardContent className="p-0">
@@ -649,7 +350,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
                 </div>
               </CardContent>
             </Card>
-
+            
             <Card className="text-center p-4">
               <CardContent className="p-0">
                 <div className="flex flex-col items-center">
@@ -661,7 +362,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
                 </div>
               </CardContent>
             </Card>
-
+            
             <Card className="text-center p-4">
               <CardContent className="p-0">
                 <div className="flex flex-col items-center">
