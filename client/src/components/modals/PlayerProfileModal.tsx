@@ -51,19 +51,31 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
     
     setLoadingHeatmap(true);
     try {
-      // You'll need to pass the match/event ID somehow - could be added as a prop
-      const eventId = teamId || 1326523; // Fallback to a sample event ID
+      // Build URL with all available parameters for better SofaScore matching
+      const params = new URLSearchParams();
+      params.append('eventId', (teamId || 1326523).toString());
+      if (playerName) params.append('playerName', playerName);
+      if (teamId) params.append('teamName', `Team_${teamId}`);
       
-      const response = await fetch(
-        `/api/players/${playerId}/heatmap?eventId=${eventId}&playerName=${encodeURIComponent(playerName || '')}&teamName=${encodeURIComponent('Team')}`
-      );
+      // Add additional context that might help SofaScore API matching
+      // These would typically come from the match data
+      // params.append('homeTeam', 'Home Team Name');
+      // params.append('awayTeam', 'Away Team Name');
+      // params.append('matchDate', '2025-01-15T10:00:00Z');
+      
+      const response = await fetch(`/api/players/${playerId}/heatmap?${params}`);
       
       if (response.ok) {
         const data = await response.json();
         setHeatmapData(data);
-        console.log('✅ [PlayerProfileModal] Loaded heatmap data:', data);
+        
+        if (data.source === 'sofascore') {
+          console.log('✅ [PlayerProfileModal] Loaded REAL SofaScore heatmap data:', data);
+        } else {
+          console.log('⚠️ [PlayerProfileModal] Using fallback heatmap data:', data);
+        }
       } else {
-        console.log('⚠️ [PlayerProfileModal] Using fallback heatmap data');
+        console.log('❌ [PlayerProfileModal] API request failed, using null data');
         setHeatmapData(null);
       }
     } catch (error) {
@@ -300,7 +312,13 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
         
         {/* Data source indicator */}
         <div className="absolute bottom-2 left-2 text-xs text-white bg-black bg-opacity-50 px-2 py-1 rounded">
-          {heatmapData ? 'SofaScore Data' : 'Demo Data'}
+          {heatmapData?.source === 'sofascore' ? (
+            <span className="text-green-300">✓ Real SofaScore Data</span>
+          ) : heatmapData?.source === 'fallback' ? (
+            <span className="text-yellow-300">⚠ Fallback Data</span>
+          ) : (
+            <span className="text-red-300">✗ Demo Data</span>
+          )}
         </div>
         
         {/* Back button */}
@@ -434,7 +452,13 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             </div>
           </div>
           <div className="mt-1 text-xs opacity-75">
-            {heatmapData ? 'SofaScore Data' : 'Demo Data'}
+            {heatmapData?.source === 'sofascore' ? (
+              <span className="text-green-300">✓ Real SofaScore Data</span>
+            ) : heatmapData?.source === 'fallback' ? (
+              <span className="text-yellow-300">⚠ Fallback Data</span>
+            ) : (
+              <span className="text-red-300">✗ Demo Data</span>
+            )}
           </div>
         </div>
       </div>

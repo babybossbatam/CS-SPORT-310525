@@ -3094,11 +3094,21 @@ logoUrl, {
   app.get('/api/players/:playerId/heatmap', async (req, res) => {
     try {
       const { playerId } = req.params;
-      const { eventId, playerName, teamName } = req.query;
+      const { eventId, playerName, teamName, homeTeam, awayTeam, matchDate } = req.query;
 
       let sofaScorePlayerId = parseInt(playerId);
+      let sofaScoreEventId = eventId ? parseInt(eventId as string) : null;
 
-      // If we don't have a direct SofaScore ID, try to find the player
+      // If we don't have a direct SofaScore event ID, try to find it
+      if (!sofaScoreEventId && homeTeam && awayTeam && matchDate) {
+        sofaScoreEventId = await sofaScoreAPI.findEventBySimilarity(
+          homeTeam as string,
+          awayTeam as string,
+          matchDate as string
+        );
+      }
+
+      // If we don't have a direct SofaScore player ID, try to find the player
       if (playerName && teamName) {
         const foundId = await sofaScoreAPI.findPlayerBySimilarity(
           playerName as string, 
@@ -3107,34 +3117,55 @@ logoUrl, {
         if (foundId) sofaScorePlayerId = foundId;
       }
 
-      if (!eventId) {
-        return res.status(400).json({ error: 'eventId is required' });
+      if (!sofaScoreEventId) {
+        console.log(`⚠️ [SofaScore] No valid event ID found for heatmap request`);
+        return res.status(400).json({ 
+          error: 'Could not find valid SofaScore event ID',
+          suggestion: 'Please provide eventId, or homeTeam + awayTeam + matchDate'
+        });
       }
+
+      console.log(`🔍 [SofaScore] Fetching heatmap - Player: ${sofaScorePlayerId}, Event: ${sofaScoreEventId}`);
 
       const heatmapData = await sofaScoreAPI.getPlayerHeatmap(
         sofaScorePlayerId, 
-        parseInt(eventId as string)
+        sofaScoreEventId
       );
 
-      if (heatmapData) {
-        res.json(heatmapData);
+      if (heatmapData && heatmapData.heatmap.length > 0) {
+        console.log(`✅ [SofaScore] Successfully retrieved real heatmap data with ${heatmapData.heatmap.length} points`);
+        res.json({
+          ...heatmapData,
+          source: 'sofascore',
+          playerId: sofaScorePlayerId,
+          eventId: sofaScoreEventId
+        });
       } else {
-        // Return mock data as fallback
+        console.log(`⚠️ [SofaScore] No real data available, returning fallback`);
+        // Return enhanced fallback data with better indication
         res.json({
           heatmap: [
+            { x: 65, y: 35, value: 0.9 },
             { x: 70, y: 30, value: 0.8 },
             { x: 60, y: 40, value: 0.7 },
-            { x: 80, y: 50, value: 0.6 }
+            { x: 80, y: 50, value: 0.6 },
+            { x: 75, y: 45, value: 0.5 }
           ],
           shots: [
             { x: 85, y: 45, type: 'goal', minute: 27 },
-            { x: 82, y: 52, type: 'on_target', minute: 38 }
-          ]
+            { x: 82, y: 52, type: 'on_target', minute: 38 },
+            { x: 78, y: 48, type: 'off_target', minute: 55 }
+          ],
+          source: 'fallback',
+          message: 'Real SofaScore data not available'
         });
       }
     } catch (error) {
-      console.error('Error fetching player heatmap:', error);
-      res.status(500).json({ error: 'Failed to fetch heatmap data' });
+      console.error('❌ [SofaScore] Error fetching player heatmap:', error);
+      res.status(500).json({ 
+        error: 'Failed to fetch heatmap data',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      });
     }
   });
 
