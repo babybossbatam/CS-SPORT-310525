@@ -14,6 +14,7 @@ interface PlayerProfileModalProps {
   playerName?: string;
   teamId?: number;
   playerImage?: string;
+  matchId?: number;
 }
 
 interface PlayerStats {
@@ -25,6 +26,14 @@ interface PlayerStats {
   team: string;
 }
 
+interface HeatmapData {
+  points: Array<{
+    x: number;
+    y: number;
+    intensity: number;
+  }>;
+}
+
 const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   isOpen,
   onClose,
@@ -32,16 +41,22 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   playerName,
   teamId,
   playerImage,
+  matchId,
 }) => {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [heatmapData, setHeatmapData] = useState<HeatmapData | null>(null);
+  const [heatmapLoading, setHeatmapLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen && playerId) {
       fetchPlayerStats();
       loadPlayerImage();
+      if (matchId) {
+        fetchHeatmapData();
+      }
     }
-  }, [isOpen, playerId, playerImage]);
+  }, [isOpen, playerId, playerImage, matchId]);
 
   const fetchPlayerStats = async () => {
     setIsLoading(true);
@@ -74,6 +89,31 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchHeatmapData = async () => {
+    if (!playerId || !matchId) return;
+    
+    setHeatmapLoading(true);
+    try {
+      console.log(`🔥 [PlayerModal] Fetching heatmap for player ${playerId} in match ${matchId}`);
+      
+      const response = await fetch(`/api/sofascore/player-heatmap/${matchId}/${playerId}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`✅ [PlayerModal] Received heatmap data:`, data);
+        setHeatmapData(data);
+      } else {
+        console.log(`⚠️ [PlayerModal] No heatmap data available for player ${playerId}`);
+        setHeatmapData(null);
+      }
+    } catch (error) {
+      console.error('❌ [PlayerModal] Error fetching heatmap data:', error);
+      setHeatmapData(null);
+    } finally {
+      setHeatmapLoading(false);
     }
   };
 
@@ -156,6 +196,14 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   };
 
   const HeatmapVisualization = () => {
+    if (heatmapLoading) {
+      return (
+        <div className="relative w-full bg-green-600 rounded-lg overflow-hidden flex items-center justify-center" style={{ aspectRatio: '16/10', minHeight: '300px' }}>
+          <div className="text-white">Loading heatmap data...</div>
+        </div>
+      );
+    }
+
     return (
       <div className="relative w-full bg-green-600 rounded-lg overflow-hidden" style={{ aspectRatio: '16/10' }}>
         {/* Football field background */}
@@ -190,43 +238,88 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
           
           {/* Heatmap overlay using gradients */}
           <defs>
-            <radialGradient id="heatspot1" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="rgba(255, 0, 0, 0.8)" />
-              <stop offset="50%" stopColor="rgba(255, 165, 0, 0.6)" />
-              <stop offset="100%" stopColor="rgba(255, 255, 0, 0.3)" />
-            </radialGradient>
-            <radialGradient id="heatspot2" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="rgba(255, 165, 0, 0.7)" />
-              <stop offset="50%" stopColor="rgba(255, 255, 0, 0.5)" />
-              <stop offset="100%" stopColor="rgba(173, 255, 47, 0.2)" />
-            </radialGradient>
-            <radialGradient id="heatspot3" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="rgba(255, 255, 0, 0.6)" />
-              <stop offset="50%" stopColor="rgba(173, 255, 47, 0.4)" />
-              <stop offset="100%" stopColor="rgba(0, 255, 0, 0.1)" />
-            </radialGradient>
+            {heatmapData?.points?.map((_, index) => (
+              <radialGradient key={`heatspot-${index}`} id={`heatspot-${index}`} cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor={`rgba(255, ${255 - Math.floor(heatmapData.points[index].intensity * 255)}, 0, 0.8)`} />
+                <stop offset="50%" stopColor={`rgba(255, ${165 - Math.floor(heatmapData.points[index].intensity * 90)}, 0, 0.6)`} />
+                <stop offset="100%" stopColor={`rgba(255, 255, 0, ${0.3 * heatmapData.points[index].intensity})`} />
+              </radialGradient>
+            )) || (
+              // Fallback gradients if no real data
+              <>
+                <radialGradient id="heatspot1" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="rgba(255, 0, 0, 0.8)" />
+                  <stop offset="50%" stopColor="rgba(255, 165, 0, 0.6)" />
+                  <stop offset="100%" stopColor="rgba(255, 255, 0, 0.3)" />
+                </radialGradient>
+                <radialGradient id="heatspot2" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="rgba(255, 165, 0, 0.7)" />
+                  <stop offset="50%" stopColor="rgba(255, 255, 0, 0.5)" />
+                  <stop offset="100%" stopColor="rgba(173, 255, 47, 0.2)" />
+                </radialGradient>
+                <radialGradient id="heatspot3" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="rgba(255, 255, 0, 0.6)" />
+                  <stop offset="50%" stopColor="rgba(173, 255, 47, 0.4)" />
+                  <stop offset="100%" stopColor="rgba(0, 255, 0, 0.1)" />
+                </radialGradient>
+              </>
+            )}
           </defs>
           
-          {/* Heat spots */}
-          <ellipse cx="450" cy="150" rx="80" ry="60" fill="url(#heatspot1)" />
-          <ellipse cx="380" cy="200" rx="90" ry="70" fill="url(#heatspot2)" />
-          <ellipse cx="500" cy="250" rx="70" ry="50" fill="url(#heatspot3)" />
-          <ellipse cx="420" cy="120" rx="60" ry="40" fill="url(#heatspot3)" />
-          <ellipse cx="460" cy="300" rx="50" ry="35" fill="url(#heatspot3)" />
+          {/* Heat spots - use real data if available, otherwise fallback */}
+          {heatmapData?.points?.length > 0 ? (
+            heatmapData.points.map((point, index) => {
+              // Convert normalized coordinates (0-1) to SVG coordinates
+              const svgX = 20 + (point.x * 600); // Field is from x=20 to x=620
+              const svgY = 20 + (point.y * 360); // Field is from y=20 to y=380
+              const radius = Math.max(20, point.intensity * 80); // Scale radius based on intensity
+              
+              return (
+                <ellipse
+                  key={index}
+                  cx={svgX}
+                  cy={svgY}
+                  rx={radius}
+                  ry={radius * 0.7}
+                  fill={`url(#heatspot-${index})`}
+                />
+              );
+            })
+          ) : (
+            // Fallback heat spots
+            <>
+              <ellipse cx="450" cy="150" rx="80" ry="60" fill="url(#heatspot1)" />
+              <ellipse cx="380" cy="200" rx="90" ry="70" fill="url(#heatspot2)" />
+              <ellipse cx="500" cy="250" rx="70" ry="50" fill="url(#heatspot3)" />
+              <ellipse cx="420" cy="120" rx="60" ry="40" fill="url(#heatspot3)" />
+              <ellipse cx="460" cy="300" rx="50" ry="35" fill="url(#heatspot3)" />
+            </>
+          )}
           
           {/* Player position dots */}
-          <circle cx="450" cy="150" r="3" fill="white" />
-          <circle cx="380" cy="200" r="2" fill="white" />
-          <circle cx="500" cy="250" r="2" fill="white" />
+          {heatmapData?.points?.length > 0 ? (
+            heatmapData.points.slice(0, 3).map((point, index) => (
+              <circle
+                key={`dot-${index}`}
+                cx={20 + (point.x * 600)}
+                cy={20 + (point.y * 360)}
+                r="3"
+                fill="white"
+              />
+            ))
+          ) : (
+            <>
+              <circle cx="450" cy="150" r="3" fill="white" />
+              <circle cx="380" cy="200" r="2" fill="white" />
+              <circle cx="500" cy="250" r="2" fill="white" />
+            </>
+          )}
         </svg>
         
-        {/* Back button */}
-        <button 
-          className="absolute top-4 right-4 w-8 h-8 bg-black bg-opacity-50 rounded-full flex items-center justify-center text-white hover:bg-opacity-70"
-          onClick={onClose}
-        >
-          ←
-        </button>
+        {/* Data source indicator */}
+        <div className="absolute bottom-4 left-4 text-xs text-white bg-black bg-opacity-50 px-2 py-1 rounded">
+          {heatmapData ? 'Live Data' : 'Demo Data'}
+        </div>
       </div>
     );
   };

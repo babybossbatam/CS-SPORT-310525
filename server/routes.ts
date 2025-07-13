@@ -23,10 +23,11 @@ import cors from "cors";
 import playerRoutes from './routes/playerRoutes';
 import playerDataRoutes from './routes/playerDataRoutes';
 import featuredMatchRoutes from "./routes/featuredMatchRoutes";
-import youtubeRoutes from "./routes/youtubeRoutes";
-import vimeoRoutes from "./routes/vimeoRoutes";
-import dailymotionRoutes from "./routes/dailymotionRoutes";
-import twitchRoutes from "./routes/twitchRoutes";
+import youtubeRoutes from './routes/youtubeRoutes';
+import vimeoRoutes from './routes/vimeoRoutes';
+import dailymotionRoutes from './routes/dailymotionRoutes';
+import twitchRoutes from './routes/twitchRoutes';
+import sofascoreRoutes from './routes/sofascoreRoutes';
 import highlightsRoutes from './routes/highlightsRoutes';
 import axios from "axios";
 import { simpleRapidApi } from "./services/simpleRapidApi";
@@ -820,7 +821,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               code: "DE",
               flag: "https://media.api-sports.ioflags/de.svg",
             },
-          },
+          ```text
           {
             league: {
               id: 2,
@@ -1716,7 +1717,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
-  // New endpoint for square team logos
+  // New endpoint for square team logos```text
   apiRouter.get(
     "/team-logo/square/:teamId",
     async (req: Request, res: Response) => {
@@ -3087,6 +3088,8 @@ logoUrl, {
 
   // Player statistics endpoint
   app.get('/api/players/:playerId/statistics', playerRoutes);
+
+  apiRouter.use('/sofascore', sofascoreRoutes);
 
   return httpServer;
 }
