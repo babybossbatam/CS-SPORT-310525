@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Clock, Target, Users } from 'lucide-react';
+import PlayerHeatMap from '@/components/analytics/PlayerHeatMap';
 
 interface PlayerProfileModalProps {
   isOpen: boolean;
@@ -514,7 +515,16 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             </TabsList>
             
             <TabsContent value="heatmap" className="space-y-4">
-              <HeatmapVisualization />
+              {playerId && teamId ? (
+                <PlayerHeatMap 
+                  playerId={playerId}
+                  matchId={teamId} 
+                  playerName={playerName}
+                  teamName={`Team_${teamId}`}
+                />
+              ) : (
+                <HeatmapVisualization />
+              )}
             </TabsContent>
             
             <TabsContent value="shotmap" className="space-y-4">
