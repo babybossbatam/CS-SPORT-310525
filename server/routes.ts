@@ -23,11 +23,10 @@ import cors from "cors";
 import playerRoutes from './routes/playerRoutes';
 import playerDataRoutes from './routes/playerDataRoutes';
 import featuredMatchRoutes from "./routes/featuredMatchRoutes";
-import youtubeRoutes from './routes/youtubeRoutes';
-import twitchRoutes from './routes/twitchRoutes';
-import vimeoRoutes from './routes/vimeoRoutes';
-import dailymotionRoutes from './routes/dailymotionRoutes';
-import sofascoreRoutes from './routes/sofascoreRoutes';
+import youtubeRoutes from "./routes/youtubeRoutes";
+import vimeoRoutes from "./routes/vimeoRoutes";
+import dailymotionRoutes from "./routes/dailymotionRoutes";
+import twitchRoutes from "./routes/twitchRoutes";
 import highlightsRoutes from './routes/highlightsRoutes';
 import axios from "axios";
 import { simpleRapidApi } from "./services/simpleRapidApi";
@@ -44,7 +43,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/vimeo", vimeoRoutes);
   app.use("/api/dailymotion", dailymotionRoutes);
   app.use("/api/twitch", twitchRoutes);
-  app.use("/api/sofascore", sofascoreRoutes);
   app.use("/api/highlights", highlightsRoutes);
   apiRouter.use('/api', playerRoutes);
   apiRouter.use('/api', playerDataRoutes);
@@ -1714,7 +1712,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           error,
         );
         res.status(500).json({ error: "Failed to fetch league logo" });
-      }```text
       }
     },
   );
@@ -1746,38 +1743,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         let imageBuffer = null;
         let sourceUrl = "";
 
-        // Try each logo source
+                // Try each logo source
         for (const logoUrl of logoUrls) {
           try {
-            const response = await fetch(logoUrl, {
-              headers: {
+                        const response = await fetch(
+logoUrl, {
+              headers:{
                 accept: "image/png,image/jpeg,image/svg+xml,image/*",
                 "user-agent":
-                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-              },
-            });
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                },
+              });
 
-            if (response.ok) {
-              const arrayBuffer = await response.arrayBuffer();
-              imageBuffer = Buffer.from(arrayBuffer);
-              sourceUrl = logoUrl;
-              console.log(`Successfully fetched logo from: ${logoUrl}`);
-              break;
+              if (response.ok) {
+                const arrayBuffer = await response.arrayBuffer();
+                imageBuffer = Buffer.from(arrayBuffer);
+                sourceUrl = logoUrl;
+                console.log(`Successfully fetched logo from: ${logoUrl}`);
+                break;
+              }
+            } catch (error) {
+              console.warn(
+                `Failed to fetch from ${logoUrl}:`,
+                error instanceof Error ? error.message : "Unknown error",
+              );
+              continue;
             }
-          } catch (error) {
-            console.warn(
-              `Failed to fetch from ${logoUrl}:`,
-              error instanceof Error ? error.message : "Unknown error",
-            );
-            continue;
           }
-        }
 
-        // If no image found, return fallback
-        if (!imageBuffer) {
-          return res
-            .status(404)
-            .json({ error: "Logo not found from any source" });
+          // If no image found, return fallback
+          if (!imageBuffer) {
+            return res
+              .status(404)
+              .json({ error: "Logo not found from any source" });
         }
 
         // Resize image to square dimensions using Sharp
