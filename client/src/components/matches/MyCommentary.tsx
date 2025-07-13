@@ -777,8 +777,14 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     alt="Assist"
                                     className="w-4 h-4 opacity-80 flex-shrink-0"
                                   />
-                                  <span className="text-blue-700 font-medium">
-                                    Assist: {event.assist.name}
+                                  <MyAvatarInfo
+                                    playerId={event.assist?.id}
+                                    playerName={event.assist?.name}
+                                    size="md-commentary"
+                                    className="border-2 border-blue-400 shadow-sm flex-shrink-0"
+                                  />
+                                  <span className="text-blue-700 font-medium -ml-1">
+                                    {event.assist.name}
                                   </span>
                                 </div>
                               )}
