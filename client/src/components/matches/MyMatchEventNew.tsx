@@ -433,7 +433,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const handlePlayerClick = (playerId?: number, teamId?: number, playerName?: string, playerImage?: string) => {
     if (playerId && playerName) {
-      setSelectedPlayer({ id: playerId, name: playerName, teamId, image: playerImage });
+      // Get the actual image URL from MyAvatarInfo component
+      const imageUrl = playerImage || getPlayerImage(playerId, playerName, teamId);
+      setSelectedPlayer({ id: playerId, name: playerName, teamId, image: imageUrl });
       setShowPlayerModal(true);
     }
   };

@@ -216,10 +216,14 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
                 className="object-cover"
                 onError={(e) => {
                   const img = e.target as HTMLImageElement;
-                  if (playerImage && !img.src.includes('fallback')) {
-                    img.src = getPlayerImage(playerId, playerName);
-                  } else if (playerId && !img.src.includes('resfu')) {
+                  // Try multiple fallback sources
+                  if (!img.src.includes('resfu')) {
                     img.src = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
+                  } else if (!img.src.includes('365scores')) {
+                    img.src = getPlayerImage(playerId, playerName);
+                  } else {
+                    // Final fallback - use initials
+                    img.style.display = 'none';
                   }
                 }}
               />

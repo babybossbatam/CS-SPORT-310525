@@ -215,7 +215,9 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
   const handleClick = () => {
     if (onClick) {
-      onClick(playerId, teamId, playerName, imageUrl);
+      // Pass the actual image URL that's being displayed
+      const actualImageUrl = imageUrl !== '/assets/matchdetaillogo/fallback_player.png' ? imageUrl : undefined;
+      onClick(playerId, teamId, playerName, actualImageUrl);
     }
   };
 
