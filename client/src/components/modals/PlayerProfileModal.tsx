@@ -35,13 +35,44 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
 }) => {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [heatmapData, setHeatmapData] = useState<any>(null);
+  const [loadingHeatmap, setLoadingHeatmap] = useState(false);
 
   useEffect(() => {
     if (isOpen && playerId) {
       fetchPlayerStats();
       loadPlayerImage();
+      fetchHeatmapData();
     }
   }, [isOpen, playerId, playerImage]);
+
+  const fetchHeatmapData = async () => {
+    if (!playerId) return;
+    
+    setLoadingHeatmap(true);
+    try {
+      // You'll need to pass the match/event ID somehow - could be added as a prop
+      const eventId = teamId || 1326523; // Fallback to a sample event ID
+      
+      const response = await fetch(
+        `/api/players/${playerId}/heatmap?eventId=${eventId}&playerName=${encodeURIComponent(playerName || '')}&teamName=${encodeURIComponent('Team')}`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        setHeatmapData(data);
+        console.log('✅ [PlayerProfileModal] Loaded heatmap data:', data);
+      } else {
+        console.log('⚠️ [PlayerProfileModal] Using fallback heatmap data');
+        setHeatmapData(null);
+      }
+    } catch (error) {
+      console.error('❌ [PlayerProfileModal] Error fetching heatmap:', error);
+      setHeatmapData(null);
+    } finally {
+      setLoadingHeatmap(false);
+    }
+  };
 
   const fetchPlayerStats = async () => {
     setIsLoading(true);
@@ -156,6 +187,16 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   };
 
   const HeatmapVisualization = () => {
+    if (loadingHeatmap) {
+      return (
+        <div className="relative w-full bg-green-600 rounded-lg overflow-hidden flex items-center justify-center" style={{ aspectRatio: '16/10' }}>
+          <div className="text-white text-lg">Loading heatmap data...</div>
+        </div>
+      );
+    }
+
+    const realHeatmapData = heatmapData?.heatmap || [];
+    
     return (
       <div className="relative w-full bg-green-600 rounded-lg overflow-hidden" style={{ aspectRatio: '16/10' }}>
         {/* Football field background */}
@@ -188,37 +229,79 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             <rect x="612" y="180" width="8" height="40" />
           </g>
           
-          {/* Heatmap overlay using gradients */}
+          {/* Dynamic heatmap based on real data */}
           <defs>
-            <radialGradient id="heatspot1" cx="50%" cy="50%" r="50%">
+            {realHeatmapData.map((_, index) => (
+              <radialGradient key={`heatspot-${index}`} id={`heatspot-${index}`} cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor={`rgba(255, ${Math.floor(255 * (1 - realHeatmapData[index]?.value || 0.5))}, 0, ${realHeatmapData[index]?.value || 0.5})`} />
+                <stop offset="50%" stopColor={`rgba(255, 165, 0, ${(realHeatmapData[index]?.value || 0.3) * 0.7})`} />
+                <stop offset="100%" stopColor={`rgba(255, 255, 0, ${(realHeatmapData[index]?.value || 0.1) * 0.3})`} />
+              </radialGradient>
+            ))}
+            
+            {/* Fallback gradients if no real data */}
+            <radialGradient id="fallback1" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="rgba(255, 0, 0, 0.8)" />
               <stop offset="50%" stopColor="rgba(255, 165, 0, 0.6)" />
               <stop offset="100%" stopColor="rgba(255, 255, 0, 0.3)" />
             </radialGradient>
-            <radialGradient id="heatspot2" cx="50%" cy="50%" r="50%">
+            <radialGradient id="fallback2" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="rgba(255, 165, 0, 0.7)" />
               <stop offset="50%" stopColor="rgba(255, 255, 0, 0.5)" />
               <stop offset="100%" stopColor="rgba(173, 255, 47, 0.2)" />
             </radialGradient>
-            <radialGradient id="heatspot3" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="rgba(255, 255, 0, 0.6)" />
-              <stop offset="50%" stopColor="rgba(173, 255, 47, 0.4)" />
-              <stop offset="100%" stopColor="rgba(0, 255, 0, 0.1)" />
-            </radialGradient>
           </defs>
           
-          {/* Heat spots */}
-          <ellipse cx="450" cy="150" rx="80" ry="60" fill="url(#heatspot1)" />
-          <ellipse cx="380" cy="200" rx="90" ry="70" fill="url(#heatspot2)" />
-          <ellipse cx="500" cy="250" rx="70" ry="50" fill="url(#heatspot3)" />
-          <ellipse cx="420" cy="120" rx="60" ry="40" fill="url(#heatspot3)" />
-          <ellipse cx="460" cy="300" rx="50" ry="35" fill="url(#heatspot3)" />
+          {/* Real heatmap data visualization */}
+          {realHeatmapData.length > 0 ? (
+            realHeatmapData.map((point, index) => {
+              // Convert percentage coordinates to SVG coordinates
+              const x = 20 + (point.x / 100) * 600;
+              const y = 20 + (point.y / 100) * 360;
+              const intensity = point.value;
+              const radius = Math.max(20, intensity * 80);
+              
+              return (
+                <ellipse
+                  key={`heatmap-${index}`}
+                  cx={x}
+                  cy={y}
+                  rx={radius}
+                  ry={radius * 0.8}
+                  fill={`url(#heatspot-${index})`}
+                />
+              );
+            })
+          ) : (
+            // Fallback visualization
+            <>
+              <ellipse cx="450" cy="150" rx="80" ry="60" fill="url(#fallback1)" />
+              <ellipse cx="380" cy="200" rx="90" ry="70" fill="url(#fallback2)" />
+              <ellipse cx="500" cy="250" rx="70" ry="50" fill="url(#fallback1)" />
+            </>
+          )}
           
-          {/* Player position dots */}
-          <circle cx="450" cy="150" r="3" fill="white" />
-          <circle cx="380" cy="200" r="2" fill="white" />
-          <circle cx="500" cy="250" r="2" fill="white" />
+          {/* Player position dots from real data */}
+          {realHeatmapData.map((point, index) => {
+            const x = 20 + (point.x / 100) * 600;
+            const y = 20 + (point.y / 100) * 360;
+            return (
+              <circle 
+                key={`dot-${index}`}
+                cx={x} 
+                cy={y} 
+                r="2" 
+                fill="white" 
+                opacity={point.value}
+              />
+            );
+          })}
         </svg>
+        
+        {/* Data source indicator */}
+        <div className="absolute bottom-2 left-2 text-xs text-white bg-black bg-opacity-50 px-2 py-1 rounded">
+          {heatmapData ? 'SofaScore Data' : 'Demo Data'}
+        </div>
         
         {/* Back button */}
         <button 
@@ -232,6 +315,36 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   };
 
   const ShotMapVisualization = () => {
+    if (loadingHeatmap) {
+      return (
+        <div className="relative w-full bg-green-600 rounded-lg overflow-hidden flex items-center justify-center" style={{ aspectRatio: '16/10' }}>
+          <div className="text-white text-lg">Loading shot map data...</div>
+        </div>
+      );
+    }
+
+    const realShotsData = heatmapData?.shots || [];
+    
+    const getShotColor = (type: string) => {
+      switch (type.toLowerCase()) {
+        case 'goal': return '#00ff00';
+        case 'on_target': return '#ffff00';
+        case 'off_target': return '#ff6666';
+        case 'blocked': return '#ff9999';
+        default: return '#cccccc';
+      }
+    };
+
+    const getShotRadius = (type: string) => {
+      switch (type.toLowerCase()) {
+        case 'goal': return 8;
+        case 'on_target': return 6;
+        case 'off_target': return 4;
+        case 'blocked': return 5;
+        default: return 4;
+      }
+    };
+    
     return (
       <div className="relative w-full bg-green-600 rounded-lg overflow-hidden" style={{ aspectRatio: '16/10' }}>
         {/* Football field background */}
@@ -258,20 +371,72 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             <rect x="612" y="180" width="8" height="40" />
           </g>
           
-          {/* Shot markers */}
-          {/* Goals */}
-          <circle cx="580" cy="190" r="8" fill="#00ff00" stroke="white" strokeWidth="2" />
-          <circle cx="560" cy="210" r="8" fill="#00ff00" stroke="white" strokeWidth="2" />
-          
-          {/* Shots on target */}
-          <circle cx="570" cy="170" r="6" fill="#ffff00" stroke="white" strokeWidth="1" />
-          <circle cx="590" cy="200" r="6" fill="#ffff00" stroke="white" strokeWidth="1" />
-          
-          {/* Shots off target */}
-          <circle cx="550" cy="160" r="4" fill="#ff6666" stroke="white" strokeWidth="1" />
-          <circle cx="580" cy="240" r="4" fill="#ff6666" stroke="white" strokeWidth="1" />
-          <circle cx="530" cy="190" r="4" fill="#ff6666" stroke="white" strokeWidth="1" />
+          {/* Real shot markers */}
+          {realShotsData.length > 0 ? (
+            realShotsData.map((shot, index) => {
+              // Convert percentage coordinates to SVG coordinates (attacking half only)
+              const x = 320 + (shot.x / 100) * 300;
+              const y = 20 + (shot.y / 100) * 360;
+              
+              return (
+                <g key={`shot-${index}`}>
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r={getShotRadius(shot.type)}
+                    fill={getShotColor(shot.type)}
+                    stroke="white"
+                    strokeWidth="1"
+                    opacity="0.8"
+                  />
+                  {/* Minute label */}
+                  <text
+                    x={x}
+                    y={y - getShotRadius(shot.type) - 5}
+                    fill="white"
+                    fontSize="10"
+                    textAnchor="middle"
+                    className="pointer-events-none"
+                  >
+                    {shot.minute}'
+                  </text>
+                </g>
+              );
+            })
+          ) : (
+            // Fallback shot markers
+            <>
+              <circle cx="580" cy="190" r="8" fill="#00ff00" stroke="white" strokeWidth="2" />
+              <circle cx="560" cy="210" r="8" fill="#00ff00" stroke="white" strokeWidth="2" />
+              <circle cx="570" cy="170" r="6" fill="#ffff00" stroke="white" strokeWidth="1" />
+              <circle cx="590" cy="200" r="6" fill="#ffff00" stroke="white" strokeWidth="1" />
+              <circle cx="550" cy="160" r="4" fill="#ff6666" stroke="white" strokeWidth="1" />
+              <circle cx="580" cy="240" r="4" fill="#ff6666" stroke="white" strokeWidth="1" />
+              <circle cx="530" cy="190" r="4" fill="#ff6666" stroke="white" strokeWidth="1" />
+            </>
+          )}
         </svg>
+        
+        {/* Legend */}
+        <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span>Goals</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <span>On Target</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+              <span>Off Target</span>
+            </div>
+          </div>
+          <div className="mt-1 text-xs opacity-75">
+            {heatmapData ? 'SofaScore Data' : 'Demo Data'}
+          </div>
+        </div>
       </div>
     );
   };

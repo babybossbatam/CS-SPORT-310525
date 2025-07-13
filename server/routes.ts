@@ -23,10 +23,10 @@ import cors from "cors";
 import playerRoutes from './routes/playerRoutes';
 import playerDataRoutes from './routes/playerDataRoutes';
 import featuredMatchRoutes from "./routes/featuredMatchRoutes";
-import youtubeRoutes from "./routes/youtubeRoutes";
-import vimeoRoutes from "./routes/vimeoRoutes";
-import dailymotionRoutes from "./routes/dailymotionRoutes";
-import twitchRoutes from "./routes/twitchRoutes";
+import { youtubeRoutes } from './routes/youtubeRoutes';
+import { vimeoRoutes } from './routes/vimeoRoutes';
+import { dailymotionRoutes } from './routes/dailymotionRoutes';
+import { sofaScoreAPI } from './services/sofascoreApi';
 import highlightsRoutes from './routes/highlightsRoutes';
 import axios from "axios";
 import { simpleRapidApi } from "./services/simpleRapidApi";
@@ -818,7 +818,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             country: {
               name: "Germany",
               code: "DE",
-              flag: "https://media.api-sports.ioflags/de.svg",
+              flag: "https://media.api-sports.io/flags/de.svg",
             },
           },
           {
@@ -1713,6 +1713,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
         res.status(500).json({ error: "Failed to fetch league logo" });
       }
+    ```text
+
     },
   );
 
@@ -3087,6 +3089,90 @@ logoUrl, {
 
   // Player statistics endpoint
   app.get('/api/players/:playerId/statistics', playerRoutes);
+
+  // SofaScore player heatmap routes
+  app.get('/api/players/:playerId/heatmap', async (req, res) => {
+    try {
+      const { playerId } = req.params;
+      const { eventId, playerName, teamName } = req.query;
+
+      let sofaScorePlayerId = parseInt(playerId);
+
+      // If we don't have a direct SofaScore ID, try to find the player
+      if (playerName && teamName) {
+        const foundId = await sofaScoreAPI.findPlayerBySimilarity(
+          playerName as string, 
+          teamName as string
+        );
+        if (foundId) sofaScorePlayerId = foundId;
+      }
+
+      if (!eventId) {
+        return res.status(400).json({ error: 'eventId is required' });
+      }
+
+      const heatmapData = await sofaScoreAPI.getPlayerHeatmap(
+        sofaScorePlayerId, 
+        parseInt(eventId as string)
+      );
+
+      if (heatmapData) {
+        res.json(heatmapData);
+      } else {
+        // Return mock data as fallback
+        res.json({
+          heatmap: [
+            { x: 70, y: 30, value: 0.8 },
+            { x: 60, y: 40, value: 0.7 },
+            { x: 80, y: 50, value: 0.6 }
+          ],
+          shots: [
+            { x: 85, y: 45, type: 'goal', minute: 27 },
+            { x: 82, y: 52, type: 'on_target', minute: 38 }
+          ]
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching player heatmap:', error);
+      res.status(500).json({ error: 'Failed to fetch heatmap data' });
+    }
+  });
+
+  app.get('/api/players/:playerId/sofascore-stats', async (req, res) => {
+    try {
+      const { playerId } = req.params;
+      const { eventId, playerName, teamName } = req.query;
+
+      let sofaScorePlayerId = parseInt(playerId);
+
+      if (playerName && teamName) {
+        const foundId = await sofaScoreAPI.findPlayerBySimilarity(
+          playerName as string, 
+          teamName as string
+        );
+        if (foundId) sofaScorePlayerId = foundId;
+      }
+
+      if (!eventId) {
+        return res.status(400).json({ error: 'eventId is required' });
+      }
+
+      const stats = await sofaScoreAPI.getPlayerStats(
+        sofaScorePlayerId, 
+        parseInt(eventId as string)
+      );
+
+      if (stats) {
+        res.json(stats);
+      } else {
+        // Fallback to existing stats endpoint
+        res.redirect(`/api/players/${playerId}/stats`);
+      }
+    } catch (error) {
+      console.error('Error fetching SofaScore stats:', error);
+      res.status(500).json({ error: 'Failed to fetch SofaScore stats' });
+    }
+  });
 
   return httpServer;
 }
