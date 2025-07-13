@@ -34,20 +34,27 @@ const PlayerHeatMap: React.FC<PlayerHeatMapProps> = ({
     try {
       const response = await fetch(`/api/players/${playerId}/heatmap?eventId=${matchId}&playerName=${playerName}&teamName=${teamName}`);
       
-      if (!response.ok) {
-        throw new Error('Failed to fetch heatmap data');
+      // Check if response is actually JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        throw new Error('Server returned non-JSON response');
       }
 
       const data = await response.json();
       
       if (data.error) {
         setError(data.error);
+        // Still show fallback data if available
+        setHeatmapData(data.heatmap || []);
         return;
       }
 
       setHeatmapData(data.heatmap || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      console.error('❌ [PlayerHeatMap] Fetch error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load heatmap data');
+      // Set empty array as fallback
+      setHeatmapData([]);
     } finally {
       setIsLoading(false);
     }

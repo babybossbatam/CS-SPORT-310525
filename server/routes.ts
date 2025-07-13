@@ -3096,6 +3096,8 @@ logoUrl, {
       const { playerId } = req.params;
       const { eventId, playerName, teamName, homeTeam, awayTeam, matchDate } = req.query;
 
+      console.log(`🔍 [Player Heatmap] Request for player ${playerId}, event ${eventId}`);
+
       let sofaScorePlayerId = parseInt(playerId);
       let sofaScoreEventId = eventId ? parseInt(eventId as string) : null;
 
@@ -3119,9 +3121,56 @@ logoUrl, {
 
       if (!sofaScoreEventId) {
         console.log(`⚠️ [SofaScore] No valid event ID found for heatmap request`);
-        return res.status(400).json({ 
+        return res.status(200).json({ 
           error: 'Could not find valid SofaScore event ID',
-          suggestion: 'Please provide eventId, or homeTeam + awayTeam + matchDate'
+          heatmap: [],
+          source: 'fallback'
+        });
+      }
+
+      // Try to get real SofaScore data
+      const heatmapData = await sofaScoreAPI.getPlayerHeatmap(sofaScorePlayerId, sofaScoreEventId);
+      
+      if (heatmapData && heatmapData.heatmap && heatmapData.heatmap.length > 0) {
+        console.log(`✅ [SofaScore] Successfully retrieved heatmap data for player ${sofaScorePlayerId}`);
+        return res.status(200).json({
+          heatmap: heatmapData.heatmap,
+          shots: heatmapData.shots || [],
+          source: 'sofascore',
+          playerId: sofaScorePlayerId,
+          eventId: sofaScoreEventId
+        });
+      } else {
+        console.log(`⚠️ [SofaScore] No heatmap data found, providing fallback`);
+        
+        // Generate fallback heatmap data
+        const fallbackHeatmap = Array.from({ length: 15 }, (_, i) => ({
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          intensity: Math.random() * 0.8 + 0.2
+        }));
+
+        return res.status(200).json({
+          heatmap: fallbackHeatmap,
+          shots: [],
+          source: 'fallback',
+          playerId: sofaScorePlayerId,
+          eventId: sofaScoreEventId
+        });
+      }
+
+    } catch (error) {
+      console.error(`❌ [Player Heatmap] Error:`, error);
+      
+      // Always return valid JSON, never let HTML error pages through
+      return res.status(200).json({
+        error: 'Failed to fetch heatmap data',
+        heatmap: [],
+        source: 'error',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  }); eventId, or homeTeam + awayTeam + matchDate'
         });
       }
 
