@@ -1713,8 +1713,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
         res.status(500).json({ error: "Failed to fetch league logo" });
       }
-    ```text
-
     },
   );
 
@@ -3052,7 +3050,7 @@ logoUrl, {
                 return res.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
             }
 
-            console.log(`📅 [SimpleAPI] Fetching fixtures for date: ${date}`);
+            console.log(`🔍 [SimpleAPI] Fetching fixtures for date: ${date}`);
             const fixtures = await simpleRapidApi.getFixturesByDate(date);
             res.json(fixtures);
 
