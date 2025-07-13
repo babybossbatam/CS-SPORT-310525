@@ -167,10 +167,6 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
       );
     }
 
-    // Use the actual PlayerHeatMap component instead of demo visualization
-    const React = require('react');
-    const { lazy, Suspense } = React;
-    
     // Lazy load the PlayerHeatMap component
     const PlayerHeatMap = lazy(() => import('../analytics/PlayerHeatMap'));
     
