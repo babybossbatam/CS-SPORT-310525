@@ -478,6 +478,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const getPlayerImage = useCallback((
     playerId: number | undefined,
     playerName: string | undefined,
+    teamId: number | undefined,
   ): string => {
     //const key = `${playerId}_${playerName}`;
     //const cachedImage = playerImages[key];
@@ -1219,7 +1220,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
                                       <img
-                                        src={getPlayerImage(event.player?.id, event.player?.name)}
+                                        src={getPlayerImage(event.player?.id, event.player?.name, event.team?.id)}
                                         alt={event.player?.name || "Player"}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
@@ -1248,7 +1249,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
                                         <img
-                                          src={getPlayerImage(event.assist?.id, event.assist?.name)}
+                                          src={getPlayerImage(event.assist?.id, event.assist?.name, event.team?.id)}
                                           alt={event.assist?.name || "Player"}
                                           className="w-full h-full object-cover"
                                           onError={(e) => {
@@ -1538,7 +1539,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
                                         <img
-                                          src={getPlayerImage(event.assist?.id, event.assist?.name)}
+                                          src={getPlayerImage(event.assist?.id, event.assist?.name, event.team?.id)}
                                           alt={event.assist?.name || "Player"}
                                           className="w-full h-full object-cover"
                                           onError={(e) => {
@@ -1566,7 +1567,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
                                       <img
-                                        src={getPlayerImage(event.player?.id, event.player?.name)}
+                                        src={getPlayerImage(event.player?.id, event.player?.name, event.team?.id)}
                                         alt={event.player?.name || "Player"}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
@@ -1715,7 +1716,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     },
                   );
 
-                  if (goalEvents.length === 0 && periodMarkers.length === 0){
+                  if (goalEvents.length== 0 && periodMarkers.length === 0){
                     return (
                       <div className="p-8 text-center text-gray-500">
                         <div className="text-4xl mb-4">⚽</div>
@@ -1768,7 +1769,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
                                       <img
-                                        src={getPlayerImage(event.player?.id, event.player?.name)}
+                                        src={getPlayerImage(event.player?.id, event.player?.name, event.team?.id)}
                                         alt={event.player?.name || "Player"}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
@@ -1797,7 +1798,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
                                         <img
-                                          src={getPlayerImage(event.assist?.id, event.assist?.name)}
+                                          src={getPlayerImage(event.assist?.id, event.assist?.name, event.team?.id)}
                                           alt={event.assist?.name || "Player"}
                                           className="w-full h-full object-cover"
                                           onError={(e) => {
@@ -2087,7 +2088,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
                                         <img
-                                          src={getPlayerImage(event.assist?.id, event.assist?.name)}
+                                          src={getPlayerImage(event.assist?.id, event.assist?.name, event.team?.id)}
                                           alt={event.assist?.name || "Player"}
                                           className="w-full h-full object-cover"
                                           onError={(e) => {
@@ -2115,7 +2116,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
                                       <img
-                                        src={getPlayerImage(event.player?.id, event.player?.name)}
+                                        src={getPlayerImage(event.player?.id, event.player?.name, event.team?.id)}
                                         alt={event.player?.name || "Player"}
                                         className="w-full h-full object-cover"
                                         onError={(e) => {
