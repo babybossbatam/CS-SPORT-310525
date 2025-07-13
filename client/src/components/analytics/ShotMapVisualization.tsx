@@ -1,4 +1,5 @@
-import React, { useState, useEffect, memo, useMemo } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
@@ -144,7 +145,7 @@ const ShotMapVisualization: React.FC<ShotMapProps> = ({
                   height: `${getShotSize(shot.type)}px`
                 }}
               />
-
+              
               {/* Tooltip */}
               <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
                 {shot.player} - {shot.minute}' ({shot.type})

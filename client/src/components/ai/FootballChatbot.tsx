@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect, memo } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+
+import React, { useState, useRef, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, Bot, User, Wifi, WifiOff } from 'lucide-react';
+import { Send, Bot, User } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -34,8 +35,6 @@ const FootballChatbot: React.FC<FootballChatbotProps> = ({
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const wsRef = useRef<WebSocket | null>(null);
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -50,30 +49,30 @@ const FootballChatbot: React.FC<FootballChatbotProps> = ({
   const generateResponse = async (userMessage: string): Promise<string> => {
     // Simulate AI analysis based on user input and available data
     const lowerMessage = userMessage.toLowerCase();
-
+    
     if (lowerMessage.includes('goal') || lowerMessage.includes('score')) {
       return `Based on the match data, I can see the goals scored. ${matchData ? `The current score shows interesting attacking patterns.` : 'Please provide match data for detailed goal analysis.'}`;
     }
-
+    
     if (lowerMessage.includes('player') || lowerMessage.includes('performance')) {
       return `Player performance analysis shows ${playerData ? 'various key metrics including passing accuracy, shots taken, and defensive actions.' : 'that detailed player statistics would help provide better insights.'}`;
     }
-
+    
     if (lowerMessage.includes('tactics') || lowerMessage.includes('formation')) {
       return `Tactical analysis suggests ${teamData ? 'the teams are employing specific formations that affect their playing style.' : 'that team formation data would enhance the tactical breakdown.'}`;
     }
-
+    
     if (lowerMessage.includes('prediction') || lowerMessage.includes('predict')) {
       return 'Based on historical data and current match statistics, I can provide insights into potential match outcomes, though football is beautifully unpredictable!';
     }
-
+    
     // Default responses for general queries
     const responses = [
       'That\'s an interesting question about football analytics. Could you be more specific about what aspect you\'d like me to analyze?',
       'I can help analyze various aspects of football data including player statistics, team performance, and match insights.',
       'Feel free to ask about specific players, matches, or tactical elements you\'d like me to examine.',
     ];
-
+    
     return responses[Math.floor(Math.random() * responses.length)];
   };
 
@@ -94,7 +93,7 @@ const FootballChatbot: React.FC<FootballChatbotProps> = ({
     // Simulate AI thinking time
     setTimeout(async () => {
       const response = await generateResponse(inputText);
-
+      
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: response,
@@ -120,14 +119,9 @@ const FootballChatbot: React.FC<FootballChatbotProps> = ({
         <CardTitle className="flex items-center gap-2">
           <Bot className="h-5 w-5 text-blue-600" />
           Football Analysis Assistant
-          {isConnected ? (
-            <Wifi className="h-4 w-4 text-green-500" />
-          ) : (
-            <WifiOff className="h-4 w-4 text-red-500" />
-          )}
         </CardTitle>
       </CardHeader>
-
+      
       <CardContent className="flex-1 flex flex-col p-0">
         <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
           <div className="space-y-4 pb-4">
@@ -141,7 +135,7 @@ const FootballChatbot: React.FC<FootballChatbotProps> = ({
                     <Bot className="h-4 w-4 text-blue-600" />
                   </div>
                 )}
-
+                
                 <div
                   className={`max-w-[80%] rounded-lg px-4 py-2 ${
                     message.sender === 'user'
@@ -154,7 +148,7 @@ const FootballChatbot: React.FC<FootballChatbotProps> = ({
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
-
+                
                 {message.sender === 'user' && (
                   <div className="flex-shrink-0 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                     <User className="h-4 w-4 text-white" />
@@ -162,7 +156,7 @@ const FootballChatbot: React.FC<FootballChatbotProps> = ({
                 )}
               </div>
             ))}
-
+            
             {isTyping && (
               <div className="flex gap-3 justify-start">
                 <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
@@ -179,7 +173,7 @@ const FootballChatbot: React.FC<FootballChatbotProps> = ({
             )}
           </div>
         </ScrollArea>
-
+        
         <div className="border-t p-4">
           <div className="flex gap-2">
             <Input
