@@ -43,7 +43,13 @@ export default class ErrorBoundary extends Component<Props, State> {
       'unknown runtime error',
       'runtime-error-plugin',
       'sendError',
-      'riker.replit.dev'
+      'riker.replit.dev',
+      'Failed to execute \'removeChild\' on \'Node\'',
+      'NotFoundError',
+      'The node to be removed is not a child of this node',
+      'commitDeletionEffectsOnFiber',
+      'recursivelyTraverseMutationEffects',
+      'commitMutationEffectsOnFiber'
     ];
 
     const shouldSuppress = suppressPatterns.some(pattern => 
@@ -53,7 +59,13 @@ export default class ErrorBoundary extends Component<Props, State> {
       errorInfo.componentStack?.includes(pattern)
     );
 
-    // Temporarily log all errors to debug the blank screen issue
+    if (shouldSuppress) {
+      // Log but don't crash the app for these common React DOM manipulation errors
+      console.warn('Suppressed DOM manipulation error:', error.message);
+      return;
+    }
+
+    // Log other errors for debugging
     console.error('Error caught by boundary:', error, errorInfo);
     
     this.setState({

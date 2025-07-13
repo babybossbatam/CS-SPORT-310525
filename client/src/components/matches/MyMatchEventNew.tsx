@@ -114,7 +114,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   }, [fixtureId]);
 
   useEffect(() => {
-    fetchMatchEvents();
+    // Add small delay to prevent rapid mounting/unmounting issues
+    const timeoutId = setTimeout(() => {
+      fetchMatchEvents();
+    }, 100);
 
     // Set up refresh interval
     if (refreshInterval > 0) {
@@ -125,6 +128,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     }
 
     return () => {
+      clearTimeout(timeoutId);
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }

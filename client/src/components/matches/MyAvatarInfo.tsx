@@ -36,10 +36,10 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   };
 
   const fetchPlayerData = async (playerIdToFetch: number) => {
-    setIsLoading(true);
-    setError(null);
-
     try {
+      setIsLoading(true);
+      setError(null);
+
       console.log(`🔍 [MyAvatarInfo] Fetching player data for ID: ${playerIdToFetch}`);
 
       const response = await fetch('/api/player-data', {
@@ -119,13 +119,27 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   };
 
   useEffect(() => {
-    if (playerId) {
-      fetchPlayerData(playerId);
-    } else if (matchId && playerName) {
-      fetchPlayerFromMatch(matchId);
-    } else {
-      setImageUrl('/assets/matchdetaillogo/fallback_player.png');
-    }
+    let isMounted = true;
+
+    const loadPlayerData = async () => {
+      if (!isMounted) return;
+
+      if (playerId) {
+        await fetchPlayerData(playerId);
+      } else if (matchId && playerName) {
+        await fetchPlayerFromMatch(matchId);
+      } else {
+        if (isMounted) {
+          setImageUrl('/assets/matchdetaillogo/fallback_player.png');
+        }
+      }
+    };
+
+    loadPlayerData();
+
+    return () => {
+      isMounted = false;
+    };
   }, [playerId, matchId, playerName]);
 
   const handleImageError = () => {
