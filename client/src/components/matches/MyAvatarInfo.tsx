@@ -14,6 +14,7 @@ interface MyAvatarInfoProps {
   teamId?: number;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  onClick?: (playerId?: number, teamId?: number, playerName?: string, playerImage?: string) => void;
 }
 
 const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
@@ -22,7 +23,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   matchId,
   teamId,
   size = 'md',
-  className = ''
+  className = '',
+  onClick
 }) => {
   // Create a unique component ID to prevent duplicate rendering issues
   const componentId = React.useMemo(() => 
@@ -211,10 +213,17 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     );
   }
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick(playerId, teamId, playerName, imageUrl);
+    }
+  };
+
   return (
     <div 
       key={componentId}
-      className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full overflow-hidden relative ${className}`}
+      className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full overflow-hidden relative ${onClick ? 'cursor-pointer hover:scale-105 transition-transform' : ''} ${className}`}
+      onClick={handleClick}
     >
       <img
         src={imageUrl}

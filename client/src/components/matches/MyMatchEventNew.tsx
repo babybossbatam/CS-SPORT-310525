@@ -65,8 +65,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const [playerImages, setPlayerImages] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState<'all' | 'top' | 'commentary'>('all');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [selectedPlayer, setSelectedPlayer] = useState<{ playerId: number | undefined; teamId: number | undefined }>({ playerId: undefined, teamId: undefined });
-  const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<{
+    id: number;
+    name: string;
+    teamId?: number;
+    image?: string;
+  } | null>(null);
+  const [showPlayerModal, setShowPlayerModal] = useState(false);
 
   const fetchMatchEvents = useCallback(async () => {
     if (!fixtureId) {
@@ -426,10 +431,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     return "/assets/fallback-logo.png";
   }, []);
 
-  const handlePlayerClick = (playerId: number | undefined, teamId: number | undefined, playerName: string | undefined) => {
-    setSelectedPlayer({ playerId: playerId, teamId: teamId });
-    setIsPlayerModalOpen(true);
-    console.log(`Player clicked - ID: ${playerId}, Team ID: ${teamId}`);
+  const handlePlayerClick = (playerId?: number, teamId?: number, playerName?: string, playerImage?: string) => {
+    if (playerId && playerName) {
+      setSelectedPlayer({ id: playerId, name: playerName, teamId, image: playerImage });
+      setShowPlayerModal(true);
+    }
   };
 
   const EventItem = ({
@@ -881,8 +887,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 console.log(`🔄 Manual cache refresh: ${invalidated} entries cleared`);
 
                 // Trigger re-render by updating a state
-                setLastUpdated(new Date());
-              }}
+                setLastUpdated(new Date());              }}
               className="text-xs bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600 ml-2"
               title="Clear all player image cache"
             >
@@ -1995,11 +2000,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
       {/* Player Profile Modal */}
       <PlayerProfileModal
-        isOpen={isPlayerModalOpen}
-        onClose={() => setIsPlayerModalOpen(false)}
-        playerId={selectedPlayer.playerId}
-        teamId={selectedPlayer.teamId}
-      />
+          isOpen={showPlayerModal}
+          onClose={() => setShowPlayerModal(false)}
+          playerId={selectedPlayer?.id}
+          playerName={selectedPlayer?.name}
+          teamId={selectedPlayer?.teamId}
+          playerImage={selectedPlayer?.image}
+        />
     </Card>
   );
 };

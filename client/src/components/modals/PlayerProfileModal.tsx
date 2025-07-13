@@ -13,6 +13,7 @@ interface PlayerProfileModalProps {
   playerId?: number;
   playerName?: string;
   teamId?: number;
+  playerImage?: string;
 }
 
 interface PlayerStats {
@@ -30,6 +31,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   playerId,
   playerName,
   teamId,
+  playerImage,
 }) => {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -209,12 +211,14 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
           <div className="flex items-center gap-4">
             <Avatar className="w-20 h-20 border-4 border-gray-200">
               <AvatarImage
-                src={getPlayerImage(playerId, playerName)}
+                src={playerImage || getPlayerImage(playerId, playerName)}
                 alt={playerName || 'Player'}
                 className="object-cover"
                 onError={(e) => {
                   const img = e.target as HTMLImageElement;
-                  if (playerId && !img.src.includes('resfu')) {
+                  if (playerImage && !img.src.includes('fallback')) {
+                    img.src = getPlayerImage(playerId, playerName);
+                  } else if (playerId && !img.src.includes('resfu')) {
                     img.src = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
                   }
                 }}
