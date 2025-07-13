@@ -3170,9 +3170,7 @@ logoUrl, {
         message: error instanceof Error ? error.message : 'Unknown error'
       });
     }
-  }); eventId, or homeTeam + awayTeam + matchDate'
-        });
-      }
+  });
 
       console.log(`🔍 [SofaScore] Fetching heatmap - Player: ${sofaScorePlayerId}, Event: ${sofaScoreEventId}`);
 
