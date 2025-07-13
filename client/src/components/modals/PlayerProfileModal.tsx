@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Clock, Target, Users } from 'lucide-react';
+import LazyAnalytics from '@/components/analytics/LazyAnalytics';
 
 interface PlayerProfileModalProps {
   isOpen: boolean;
@@ -473,11 +474,30 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             </TabsList>
 
             <TabsContent value="heatmap" className="space-y-4">
-              <HeatmapVisualization />
+              {playerId && teamId ? (
+                <LazyAnalytics 
+                  component="heatmap"
+                  props={{
+                    playerId,
+                    matchId: teamId,
+                    playerName,
+                    teamName: `Team_${teamId}`
+                  }}
+                />
+              ) : (
+                <HeatmapVisualization />
+              )}
             </TabsContent>
 
             <TabsContent value="shotmap" className="space-y-4">
-              <ShotMapVisualization />
+              <LazyAnalytics 
+                component="shotmap"
+                props={{
+                  matchId: teamId,
+                  homeTeam: playerName || 'Home',
+                  awayTeam: 'Away'
+                }}
+              />
             </TabsContent>
           </Tabs>
         </div>

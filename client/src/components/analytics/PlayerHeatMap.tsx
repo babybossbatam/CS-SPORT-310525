@@ -1,6 +1,5 @@
-
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect, memo, useMemo } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
@@ -17,7 +16,7 @@ interface PlayerHeatMapProps {
   teamName?: string;
 }
 
-const PlayerHeatMap: React.FC<PlayerHeatMapProps> = ({
+const PlayerHeatMap: React.FC<PlayerHeatMapProps> = memo(({
   playerId,
   matchId,
   playerName,
@@ -27,25 +26,47 @@ const PlayerHeatMap: React.FC<PlayerHeatMapProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Cache key for localStorage
+  const cacheKey = useMemo(() => `heatmap_${playerId}_${matchId}`, [playerId, matchId]);
+
   const fetchHeatmapData = async () => {
+    if (!playerId || !matchId) return;
+
+    // Check cache first
+    const cachedData = localStorage.getItem(cacheKey);
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (Date.now() - parsed.timestamp < 300000) { // 5 minutes cache
+          setHeatmapData(parsed.data);
+          setIsLoading(false);
+          return;
+        }
+      } catch (e) {
+        localStorage.removeItem(cacheKey);
+      }
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
       const response = await fetch(`/api/players/${playerId}/heatmap?eventId=${matchId}&playerName=${playerName}&teamName=${teamName}`);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch heatmap data');
       }
 
       const data = await response.json();
-      
-      if (data.error) {
-        setError(data.error);
-        return;
-      }
+      const heatmapPoints = data.heatmap || [];
+      setHeatmapData(heatmapPoints);
 
-      setHeatmapData(data.heatmap || []);
+      // Cache the response
+      localStorage.setItem(cacheKey, JSON.stringify({
+        data: heatmapPoints,
+        timestamp: Date.now()
+      }));
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
@@ -63,7 +84,7 @@ const PlayerHeatMap: React.FC<PlayerHeatMapProps> = ({
     if (!heatmapData.length) return null;
 
     const maxIntensity = Math.max(...heatmapData.map(point => point.intensity));
-    
+
     return (
       <div className="relative w-full h-64 bg-green-100 border-2 border-white overflow-hidden">
         {/* Football pitch background */}
@@ -137,6 +158,6 @@ const PlayerHeatMap: React.FC<PlayerHeatMapProps> = ({
       </CardContent>
     </Card>
   );
-};
+});
 
 export default PlayerHeatMap;
