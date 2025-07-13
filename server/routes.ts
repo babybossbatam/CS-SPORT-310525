@@ -23,10 +23,11 @@ import cors from "cors";
 import playerRoutes from './routes/playerRoutes';
 import playerDataRoutes from './routes/playerDataRoutes';
 import featuredMatchRoutes from "./routes/featuredMatchRoutes";
-import youtubeRoutes from "./routes/youtubeRoutes";
-import vimeoRoutes from "./routes/vimeoRoutes";
-import dailymotionRoutes from "./routes/dailymotionRoutes";
-import twitchRoutes from "./routes/twitchRoutes";
+import youtubeRoutes from './routes/youtubeRoutes';
+import twitchRoutes from './routes/twitchRoutes';
+import vimeoRoutes from './routes/vimeoRoutes';
+import dailymotionRoutes from './routes/dailymotionRoutes';
+import sofascoreRoutes from './routes/sofascoreRoutes';
 import highlightsRoutes from './routes/highlightsRoutes';
 import axios from "axios";
 import { simpleRapidApi } from "./services/simpleRapidApi";
@@ -43,6 +44,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/vimeo", vimeoRoutes);
   app.use("/api/dailymotion", dailymotionRoutes);
   app.use("/api/twitch", twitchRoutes);
+  app.use("/api/sofascore", sofascoreRoutes);
   app.use("/api/highlights", highlightsRoutes);
   apiRouter.use('/api', playerRoutes);
   apiRouter.use('/api', playerDataRoutes);
@@ -1712,6 +1714,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           error,
         );
         res.status(500).json({ error: "Failed to fetch league logo" });
+      }```text
       }
     },
   );

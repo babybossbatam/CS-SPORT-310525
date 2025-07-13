@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import MyAvatarInfo from "./MyAvatarInfo";
+import PlayerProfileModal from "./PlayerProfileModal"; // Import PlayerProfileModal
 
 interface MatchEvent {
   time: {
@@ -31,6 +32,7 @@ interface MyCommentaryProps {
   awayTeam?: string;
   getEventDescription: (event: MatchEvent) => string;
   isHomeTeam: (event: MatchEvent) => boolean;
+  fixtureId?: string | number; // Optional fixtureId prop
 }
 
 const MyCommentary: React.FC<MyCommentaryProps> = ({
@@ -39,7 +41,19 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
   awayTeam,
   getEventDescription,
   isHomeTeam,
+  fixtureId,
 }) => {
+  // Define the state for selectedPlayer, including matchId
+  const [selectedPlayer, setSelectedPlayer] = useState<{
+    id?: number;
+    name?: string;
+    teamId?: number;
+    image?: string;
+    matchId?: string | number;
+  } | null>(null);
+
+  const [showPlayerModal, setShowPlayerModal] = useState(false);
+
   // Function to calculate the score at a given time
   const calculateScoreAtTime = (time: number) => {
     let homeScore = 0;
@@ -107,6 +121,17 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
   return (
     <>
+       {/* Player Profile Modal */}
+       <PlayerProfileModal
+        isOpen={showPlayerModal}
+        onClose={() => setShowPlayerModal(false)}
+        playerId={selectedPlayer?.id}
+        playerName={selectedPlayer?.name}
+        teamId={selectedPlayer?.teamId}
+        playerImage={selectedPlayer?.image}
+        matchId={selectedPlayer?.matchId}
+      />
+
       <div className="p-2 border-t flex justify-center items-center">
         <img
           src="/assets/matchdetaillogo/clock.png"
@@ -761,8 +786,19 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 <MyAvatarInfo
                                   playerId={event.player?.id}
                                   playerName={event.player?.name}
+                                  matchId={fixtureId}
                                   size="md-commentary"
                                   className="border-2 shadow-sm flex-shrink-0"
+                                  onClick={(playerId, teamId, playerName, playerImage, matchId) => {
+                                    setSelectedPlayer({
+                                      id: playerId,
+                                      name: playerName,
+                                      teamId: teamId,
+                                      image: playerImage,
+                                      matchId: matchId,
+                                    });
+                                    setShowPlayerModal(true);
+                                  }}
                                 />
                                 <span className="text-gray-700 font-medium -ml-1">
                                   {event.player?.name || "Unknown Player"}
@@ -792,7 +828,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     />
                                     <span className="text-blue-700 font-medium -ml-1">
                                       {event.assist.name}
-                                    </span>  
+                                    </span>
                                   </div>
                                 </>
                               )}
@@ -830,8 +866,19 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               <MyAvatarInfo
                                 playerId={event.player?.id}
                                 playerName={event.player?.name}
+                                matchId={fixtureId}
                                 size="md-commentary"
                                 className="border-2 shadow-sm flex-shrink-0"
+                                onClick={(playerId, teamId, playerName, playerImage, matchId) => {
+                                  setSelectedPlayer({
+                                    id: playerId,
+                                    name: playerName,
+                                    teamId: teamId,
+                                    image: playerImage,
+                                    matchId: matchId,
+                                  });
+                                  setShowPlayerModal(true);
+                                }}
                               />
                               <span className="text-gray-700 font-medium -ml-1">
                                 {event.player?.name || "Unknown Player"}

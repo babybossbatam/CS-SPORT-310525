@@ -13,7 +13,7 @@ interface MyAvatarInfoProps {
   teamId?: number;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
-  onClick?: (playerId?: number, teamId?: number, playerName?: string, playerImage?: string) => void;
+  onClick?: (playerId?: number, teamId?: number, playerName?: string, playerImage?: string, matchId?: string | number) => void;
 }
 
 const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
@@ -217,7 +217,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     if (onClick) {
       // Pass the actual image URL that's being displayed
       const actualImageUrl = imageUrl !== '/assets/matchdetaillogo/fallback_player.png' ? imageUrl : undefined;
-      onClick(playerId, teamId, playerName, actualImageUrl);
+      onClick(playerId, teamId, playerName, actualImageUrl, matchId);
     }
   };
 

@@ -14,6 +14,7 @@ interface PlayerProfileModalProps {
   playerName?: string;
   teamId?: number;
   playerImage?: string;
+  matchId?: string | number;
 }
 
 interface PlayerStats {
@@ -32,16 +33,54 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   playerName,
   teamId,
   playerImage,
+  matchId,
 }) => {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [heatmapData, setHeatmapData] = useState<any>(null);
+  const [heatmapLoading, setHeatmapLoading] = useState(false);
+  const [heatmapError, setHeatmapError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && playerId) {
       fetchPlayerStats();
       loadPlayerImage();
+      if (matchId) {
+        fetchHeatmapData();
+      }
     }
-  }, [isOpen, playerId, playerImage]);
+  }, [isOpen, playerId, playerImage, matchId]);
+
+  const fetchHeatmapData = async () => {
+    if (!playerId || !matchId) return;
+
+    setHeatmapLoading(true);
+    setHeatmapError(null);
+
+    try {
+      console.log(`🔥 [PlayerModal] Fetching heatmap for player ${playerId} in match ${matchId}`);
+      
+      const response = await fetch(`/api/sofascore/matches/${matchId}/players/${playerId}/heatmap`);
+      
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setHeatmapData(result.data);
+          console.log(`✅ [PlayerModal] Heatmap data loaded for player ${playerId}`);
+        } else {
+          setHeatmapError('Failed to load heatmap data');
+        }
+      } else {
+        setHeatmapError('Heatmap data not available for this match');
+        console.warn(`⚠️ [PlayerModal] Heatmap API returned ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error fetching heatmap data:', error);
+      setHeatmapError('Failed to load heatmap data');
+    } finally {
+      setHeatmapLoading(false);
+    }
+  };
 
   const fetchPlayerStats = async () => {
     setIsLoading(true);
@@ -156,6 +195,34 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   };
 
   const HeatmapVisualization = () => {
+    if (heatmapLoading) {
+      return (
+        <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center" style={{ aspectRatio: '16/10', minHeight: '200px' }}>
+          <div className="flex flex-col items-center">
+            <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-2 text-gray-600">Loading heatmap data...</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (heatmapError || !heatmapData) {
+      return (
+        <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center" style={{ aspectRatio: '16/10', minHeight: '200px' }}>
+          <div className="text-center p-4">
+            <p className="text-gray-600 mb-2">
+              {heatmapError || 'No heatmap data available for this match'}
+            </p>
+            {matchId && (
+              <p className="text-sm text-gray-500">
+                Match ID: {matchId} | Player ID: {playerId}
+              </p>
+            )}
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="relative w-full bg-green-600 rounded-lg overflow-hidden" style={{ aspectRatio: '16/10' }}>
         {/* Football field background */}
@@ -188,37 +255,62 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             <rect x="612" y="180" width="8" height="40" />
           </g>
           
-          {/* Heatmap overlay using gradients */}
+          {/* Heatmap data visualization */}
           <defs>
-            <radialGradient id="heatspot1" cx="50%" cy="50%" r="50%">
+            <radialGradient id="realHeatspot1" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="rgba(255, 0, 0, 0.8)" />
               <stop offset="50%" stopColor="rgba(255, 165, 0, 0.6)" />
               <stop offset="100%" stopColor="rgba(255, 255, 0, 0.3)" />
             </radialGradient>
-            <radialGradient id="heatspot2" cx="50%" cy="50%" r="50%">
+            <radialGradient id="realHeatspot2" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="rgba(255, 165, 0, 0.7)" />
               <stop offset="50%" stopColor="rgba(255, 255, 0, 0.5)" />
               <stop offset="100%" stopColor="rgba(173, 255, 47, 0.2)" />
             </radialGradient>
-            <radialGradient id="heatspot3" cx="50%" cy="50%" r="50%">
+            <radialGradient id="realHeatspot3" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="rgba(255, 255, 0, 0.6)" />
               <stop offset="50%" stopColor="rgba(173, 255, 47, 0.4)" />
               <stop offset="100%" stopColor="rgba(0, 255, 0, 0.1)" />
             </radialGradient>
           </defs>
           
-          {/* Heat spots */}
-          <ellipse cx="450" cy="150" rx="80" ry="60" fill="url(#heatspot1)" />
-          <ellipse cx="380" cy="200" rx="90" ry="70" fill="url(#heatspot2)" />
-          <ellipse cx="500" cy="250" rx="70" ry="50" fill="url(#heatspot3)" />
-          <ellipse cx="420" cy="120" rx="60" ry="40" fill="url(#heatspot3)" />
-          <ellipse cx="460" cy="300" rx="50" ry="35" fill="url(#heatspot3)" />
-          
-          {/* Player position dots */}
-          <circle cx="450" cy="150" r="3" fill="white" />
-          <circle cx="380" cy="200" r="2" fill="white" />
-          <circle cx="500" cy="250" r="2" fill="white" />
+          {/* Render real heatmap data points */}
+          {heatmapData && heatmapData.coordinates && heatmapData.coordinates.map((point: any, index: number) => {
+            // Convert SofaScore coordinates to SVG coordinates
+            // SofaScore typically uses percentage coordinates (0-100)
+            const x = (point.x / 100) * 600 + 20; // Scale to field width
+            const y = (point.y / 100) * 360 + 20; // Scale to field height
+            const intensity = point.intensity || 0.5;
+            const radius = Math.max(10, intensity * 40);
+            
+            return (
+              <ellipse
+                key={index}
+                cx={x}
+                cy={y}
+                rx={radius}
+                ry={radius * 0.8}
+                fill={`rgba(255, ${255 - intensity * 255}, 0, ${intensity * 0.6})`}
+                opacity={intensity}
+              />
+            );
+          })}
+
+          {/* If no coordinate data, show message */}
+          {(!heatmapData.coordinates || heatmapData.coordinates.length === 0) && (
+            <text x="320" y="200" textAnchor="middle" fill="white" fontSize="16">
+              Heatmap data received but no position coordinates available
+            </text>
+          )}
         </svg>
+        
+        {/* Data info overlay */}
+        <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-2 rounded text-sm">
+          <p>Real SofaScore Data</p>
+          {heatmapData.coordinates && (
+            <p>{heatmapData.coordinates.length} position points</p>
+          )}
+        </div>
         
         {/* Back button */}
         <button 
