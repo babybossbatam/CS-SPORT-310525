@@ -39,8 +39,9 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   useEffect(() => {
     if (isOpen && playerId) {
       fetchPlayerStats();
+      loadPlayerImage();
     }
-  }, [isOpen, playerId]);
+  }, [isOpen, playerId, playerImage]);
 
   const fetchPlayerStats = async () => {
     setIsLoading(true);
@@ -76,11 +77,82 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
     }
   };
 
-  const getPlayerImage = (playerId?: number, playerName?: string) => {
-    if (playerId) {
-      return `https://imagecache.365scores.com/image/upload/f_png,w_128,h_128,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
+  const [modalImageUrl, setModalImageUrl] = useState<string>('');
+  const [imageLoading, setImageLoading] = useState(true);
+  const [imageError, setImageError] = useState(false);
+
+  const getPlayerImageUrls = (playerId?: number): string[] => {
+    if (!playerId) return [];
+    return [
+      `https://media.api-sports.io/football/players/${playerId}.png`,
+      `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`,
+      `https://imagecache.365scores.com/image/upload/f_png,w_128,h_128,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`
+    ];
+  };
+
+  const generateInitials = (name?: string): string => {
+    if (!name) return 'P';
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+  };
+
+  const loadPlayerImage = async () => {
+    setImageLoading(true);
+    setImageError(false);
+
+    // First try the passed playerImage
+    if (playerImage) {
+      try {
+        const img = new Image();
+        const imageLoaded = await new Promise((resolve) => {
+          img.onload = () => resolve(true);
+          img.onerror = () => resolve(false);
+          img.src = playerImage;
+        });
+
+        if (imageLoaded) {
+          setModalImageUrl(playerImage);
+          setImageLoading(false);
+          return;
+        }
+      } catch (err) {
+        console.log('Failed to load passed player image');
+      }
     }
-    return '';
+
+    // Try multiple CDN sources
+    if (playerId) {
+      const imageUrls = getPlayerImageUrls(playerId);
+      
+      for (const url of imageUrls) {
+        try {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          
+          const imageLoaded = await new Promise((resolve) => {
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = url;
+          });
+
+          if (imageLoaded) {
+            setModalImageUrl(url);
+            setImageLoading(false);
+            return;
+          }
+        } catch (err) {
+          continue;
+        }
+      }
+    }
+
+    // All failed, use fallback
+    setImageError(true);
+    setImageLoading(false);
   };
 
   const HeatmapVisualization = () => {
@@ -209,28 +281,27 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 bg-gray-50">
         <DialogHeader className="p-6 pb-4 bg-white">
           <div className="flex items-center gap-4">
-            <Avatar className="w-20 h-20 border-4 border-gray-200">
-              <AvatarImage
-                src={playerImage || getPlayerImage(playerId, playerName)}
-                alt={playerName || 'Player'}
-                className="object-cover"
-                onError={(e) => {
-                  const img = e.target as HTMLImageElement;
-                  // Try multiple fallback sources
-                  if (!img.src.includes('resfu')) {
-                    img.src = `https://cdn.resfu.com/img_data/players/medium/${playerId}.jpg?size=120x&lossy=1`;
-                  } else if (!img.src.includes('365scores')) {
-                    img.src = getPlayerImage(playerId, playerName);
-                  } else {
-                    // Final fallback - use initials
-                    img.style.display = 'none';
-                  }
-                }}
-              />
-              <AvatarFallback className="bg-blue-500 text-white text-lg font-bold">
-                {playerName?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P'}
-              </AvatarFallback>
-            </Avatar>
+            <div className="w-20 h-20 border-4 border-gray-200 rounded-full overflow-hidden relative">
+              {imageLoading ? (
+                <div className="w-full h-full bg-gray-200 animate-pulse flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gray-400 rounded-full animate-pulse"></div>
+                </div>
+              ) : imageError || !modalImageUrl ? (
+                <div className="w-full h-full bg-blue-500 flex items-center justify-center text-white text-lg font-bold">
+                  {generateInitials(playerName)}
+                </div>
+              ) : (
+                <img
+                  src={modalImageUrl}
+                  alt={playerName || 'Player'}
+                  className="w-full h-full object-cover"
+                  onError={() => {
+                    setImageError(true);
+                    setModalImageUrl('');
+                  }}
+                />
+              )}
+            </div>
             
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
