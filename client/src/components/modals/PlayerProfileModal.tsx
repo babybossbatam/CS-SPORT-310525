@@ -93,7 +93,10 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   };
 
   const fetchHeatmapData = async () => {
-    if (!playerId || !matchId) return;
+    if (!playerId || !matchId) {
+      console.log(`🔥 [PlayerModal] Missing required data - playerId: ${playerId}, matchId: ${matchId}`);
+      return;
+    }
     
     setHeatmapLoading(true);
     try {
@@ -104,9 +107,20 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
       if (response.ok) {
         const data = await response.json();
         console.log(`✅ [PlayerModal] Received heatmap data:`, data);
+        console.log(`🔍 [PlayerModal] Data type: ${typeof data}, isArray: ${Array.isArray(data)}`);
+        
+        // Log the structure for debugging
+        if (data && typeof data === 'object') {
+          console.log(`📊 [PlayerModal] Data keys:`, Object.keys(data));
+          if (data.points) {
+            console.log(`📍 [PlayerModal] Points array length:`, data.points.length);
+          }
+        }
+        
         setHeatmapData(data);
       } else {
-        console.log(`⚠️ [PlayerModal] No heatmap data available for player ${playerId}`);
+        const errorText = await response.text();
+        console.log(`⚠️ [PlayerModal] No heatmap data available for player ${playerId}. Status: ${response.status}, Response: ${errorText}`);
         setHeatmapData(null);
       }
     } catch (error) {
@@ -204,6 +218,50 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
       );
     }
 
+    // Transform SofaScore heatmap data to our expected format
+    const transformedHeatmapData = React.useMemo(() => {
+      if (!heatmapData) return null;
+
+      // SofaScore might return data in different formats, handle common structures
+      let points: Array<{ x: number; y: number; intensity: number }> = [];
+      
+      if (Array.isArray(heatmapData)) {
+        // If it's an array of coordinate points
+        points = heatmapData.map((item: any, index: number) => {
+          // Handle different possible data structures from SofaScore
+          if (typeof item === 'object' && item !== null) {
+            const x = item.x ?? item.X ?? item.coordinateX ?? item.position?.x ?? (index % 10) / 10;
+            const y = item.y ?? item.Y ?? item.coordinateY ?? item.position?.y ?? Math.random();
+            const intensity = item.intensity ?? item.value ?? item.count ?? item.weight ?? Math.random() * 0.8 + 0.2;
+            
+            return {
+              x: Math.max(0, Math.min(1, typeof x === 'number' ? x : parseFloat(x) || 0)),
+              y: Math.max(0, Math.min(1, typeof y === 'number' ? y : parseFloat(y) || 0)),
+              intensity: Math.max(0.1, Math.min(1, typeof intensity === 'number' ? intensity : parseFloat(intensity) || 0.5))
+            };
+          }
+          
+          // Fallback for primitive values
+          return {
+            x: (index % 10) / 10,
+            y: Math.random(),
+            intensity: 0.5
+          };
+        });
+      } else if (heatmapData.points) {
+        // If it has a points property
+        points = heatmapData.points;
+      } else if (heatmapData.heatmap) {
+        // If it has a heatmap property
+        points = Array.isArray(heatmapData.heatmap) ? heatmapData.heatmap : [];
+      } else if (heatmapData.data) {
+        // If it has a data property
+        points = Array.isArray(heatmapData.data) ? heatmapData.data : [];
+      }
+
+      return points.length > 0 ? { points } : null;
+    }, [heatmapData]);
+
     return (
       <div className="relative w-full bg-green-600 rounded-lg overflow-hidden" style={{ aspectRatio: '16/10' }}>
         {/* Football field background */}
@@ -238,11 +296,11 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
           
           {/* Heatmap overlay using gradients */}
           <defs>
-            {heatmapData?.points?.map((_, index) => (
+            {transformedHeatmapData?.points?.map((_, index) => (
               <radialGradient key={`heatspot-${index}`} id={`heatspot-${index}`} cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor={`rgba(255, ${255 - Math.floor(heatmapData.points[index].intensity * 255)}, 0, 0.8)`} />
-                <stop offset="50%" stopColor={`rgba(255, ${165 - Math.floor(heatmapData.points[index].intensity * 90)}, 0, 0.6)`} />
-                <stop offset="100%" stopColor={`rgba(255, 255, 0, ${0.3 * heatmapData.points[index].intensity})`} />
+                <stop offset="0%" stopColor={`rgba(255, ${255 - Math.floor(transformedHeatmapData.points[index].intensity * 255)}, 0, 0.8)`} />
+                <stop offset="50%" stopColor={`rgba(255, ${165 - Math.floor(transformedHeatmapData.points[index].intensity * 90)}, 0, 0.6)`} />
+                <stop offset="100%" stopColor={`rgba(255, 255, 0, ${0.3 * transformedHeatmapData.points[index].intensity})`} />
               </radialGradient>
             )) || (
               // Fallback gradients if no real data
@@ -267,12 +325,12 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
           </defs>
           
           {/* Heat spots - use real data if available, otherwise fallback */}
-          {heatmapData?.points?.length > 0 ? (
-            heatmapData.points.map((point, index) => {
+          {transformedHeatmapData?.points?.length > 0 ? (
+            transformedHeatmapData.points.map((point, index) => {
               // Convert normalized coordinates (0-1) to SVG coordinates
               const svgX = 20 + (point.x * 600); // Field is from x=20 to x=620
               const svgY = 20 + (point.y * 360); // Field is from y=20 to y=380
-              const radius = Math.max(20, point.intensity * 80); // Scale radius based on intensity
+              const radius = Math.max(15, point.intensity * 60); // Scale radius based on intensity
               
               return (
                 <ellipse
@@ -280,46 +338,49 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
                   cx={svgX}
                   cy={svgY}
                   rx={radius}
-                  ry={radius * 0.7}
+                  ry={radius * 0.8}
                   fill={`url(#heatspot-${index})`}
+                  opacity={0.7 + (point.intensity * 0.3)}
                 />
               );
             })
           ) : (
-            // Fallback heat spots
-            <>
-              <ellipse cx="450" cy="150" rx="80" ry="60" fill="url(#heatspot1)" />
-              <ellipse cx="380" cy="200" rx="90" ry="70" fill="url(#heatspot2)" />
-              <ellipse cx="500" cy="250" rx="70" ry="50" fill="url(#heatspot3)" />
-              <ellipse cx="420" cy="120" rx="60" ry="40" fill="url(#heatspot3)" />
-              <ellipse cx="460" cy="300" rx="50" ry="35" fill="url(#heatspot3)" />
-            </>
+            // Show message when no data is available
+            <g>
+              <rect x="200" y="180" width="240" height="40" fill="rgba(0,0,0,0.7)" rx="5" />
+              <text x="320" y="205" textAnchor="middle" fill="white" fontSize="14">
+                No heatmap data available
+              </text>
+            </g>
           )}
           
-          {/* Player position dots */}
-          {heatmapData?.points?.length > 0 ? (
-            heatmapData.points.slice(0, 3).map((point, index) => (
+          {/* Player position dots for actual data */}
+          {transformedHeatmapData?.points?.length > 0 && (
+            transformedHeatmapData.points.slice(0, 5).map((point, index) => (
               <circle
                 key={`dot-${index}`}
                 cx={20 + (point.x * 600)}
                 cy={20 + (point.y * 360)}
-                r="3"
+                r="2"
                 fill="white"
+                stroke="black"
+                strokeWidth="1"
               />
             ))
-          ) : (
-            <>
-              <circle cx="450" cy="150" r="3" fill="white" />
-              <circle cx="380" cy="200" r="2" fill="white" />
-              <circle cx="500" cy="250" r="2" fill="white" />
-            </>
           )}
         </svg>
         
         {/* Data source indicator */}
         <div className="absolute bottom-4 left-4 text-xs text-white bg-black bg-opacity-50 px-2 py-1 rounded">
-          {heatmapData ? 'Live Data' : 'Demo Data'}
+          {transformedHeatmapData?.points?.length > 0 ? `SofaScore Data (${transformedHeatmapData.points.length} points)` : 'No Data Available'}
         </div>
+        
+        {/* Debug info for development */}
+        {process.env.NODE_ENV === 'development' && heatmapData && (
+          <div className="absolute top-4 left-4 text-xs text-white bg-red-600 bg-opacity-75 px-2 py-1 rounded max-w-xs">
+            Raw data: {JSON.stringify(heatmapData).substring(0, 100)}...
+          </div>
+        )}
       </div>
     );
   };
