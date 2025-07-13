@@ -771,38 +771,38 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               <div className="text-xs  text-gray-900 leading-relaxed -ml-3">
                                 {eventDescription}
                               </div>
-                              {/* Assist comment section */}
+                              {/* Assist section - only show if assist data exists */}
                               {event.assist?.name && (
-                                <div className="flex items-center gap-2 -ml-3 text-xs font-medium  ">
-                                  <img
-                                    src="/assets/matchdetaillogo/assist.svg"
-                                    alt="Assist"
-                                    className="w-4 h-4 opacity-80 flex-shrink-0"
-                                  /> Assist
-                                  
-                                    
-                                
-                                </div>
+                                <>
+                                  <div className="flex items-center gap-2 -ml-3 text-xs font-medium">
+                                    <img
+                                      src="/assets/matchdetaillogo/assist.svg"
+                                      alt="Assist"
+                                      className="w-4 h-4 opacity-80 flex-shrink-0"
+                                    />
+                                    <span className="text-blue-700 font-medium">Assist</span>
+                                  </div>
+
+                                  <div className="flex items-center gap-2 -ml-3 text-xs font-medium bg-stone-200">
+                                    <MyAvatarInfo
+                                      playerId={event.assist?.id}
+                                      playerName={event.assist?.name}
+                                      size="md-commentary"
+                                      className="border-2 border-blue-400 shadow-sm flex-shrink-0"
+                                    />
+                                    <span className="text-blue-700 font-medium -ml-1">
+                                      {event.assist.name}
+                                    </span>  
+                                  </div>
+                                </>
                               )}
                             </div>
-                           
-                              <div className="flex items-center gap-2 -ml-3   text-xs font-medium bg-stone-200">
-                            <MyAvatarInfo
-                            playerId={event.assist?.id}
-                            playerName={event.assist?.name}
-                            size="md-commentary"
-                            className="border-2 border-blue-400 shadow-sm flex-shrink-0"
-                            />
-                            <span className="text-black-400 font-medium -ml-1">
-                            {event.assist.name}
-                            </span>  
-                              </div>
-                           
+
                             <div className="flex items-start gap-2 -ml-3">
                               <div className="goal-event-wrapper ">
                               </div>
                             </div>
-                            
+
                           </div>
                         ) : event.type === "Card" ? (
                           <div className="flex flex-col gap-2">
