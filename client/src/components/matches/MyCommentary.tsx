@@ -1,5 +1,6 @@
 import React from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
+import MyAvatarInfo from "./MyAvatarInfo";
 
 interface MatchEvent {
   time: {
@@ -757,15 +758,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             </div>
                             <div className="flex flex-col gap-2">
                               <div className="flex items-center gap-2 -ml-3   text-xs font-medium bg-stone-200">
-                                <Avatar className="w-8 h-8 border-2  shadow-sm flex-shrink-0 ">
-                                  <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
-                                    {event.player?.name
-                                      ?.split(" ")
-                                      .map((n) => n[0])
-                                      .join("")
-                                      .slice(0, 2) || "P"}
-                                  </AvatarFallback>
-                                </Avatar>
+                                <MyAvatarInfo
+                                  playerId={event.player?.id}
+                                  playerName={event.player?.name}
+                                  size="md"
+                                  className="border-2 shadow-sm flex-shrink-0"
+                                />
                                 <span className="text-gray-700 font-medium -ml-1">
                                   {event.player?.name || "Unknown Player"}
                                 </span>
@@ -803,15 +801,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               </span>
                             </div>
                             <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200">
-                              <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
-                                <AvatarFallback className="bg-yellow-500 text-white text-xs font-bold">
-                                  {event.player?.name
-                                    ?.split(" ")
-                                    .map((n) => n[0])
-                                    .join("")
-                                    .slice(0, 2) || "P"}
-                                </AvatarFallback>
-                              </Avatar>
+                              <MyAvatarInfo
+                                playerId={event.player?.id}
+                                playerName={event.player?.name}
+                                size="md"
+                                className="border-2 shadow-sm flex-shrink-0"
+                              />
                               <span className="text-gray-700 font-medium -ml-1">
                                 {event.player?.name || "Unknown Player"}
                               </span>
@@ -843,15 +838,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             {/* Player coming in (assist = player in) */}
                             {event.assist?.name && (
                               <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200 ">
-                                <Avatar className="w-8 h-8 border-2 border-green-400 shadow-sm flex-shrink-0">
-                                  <AvatarFallback className="bg-green-500 text-white text-xs font-bold">
-                                    {event.assist?.name
-                                      ?.split(" ")
-                                      .map((n) => n[0])
-                                      .join("")
-                                      .slice(0, 2) || "P"}
-                                  </AvatarFallback>
-                                </Avatar>
+                                <MyAvatarInfo
+                                  playerId={event.assist?.id}
+                                  playerName={event.assist?.name}
+                                  size="md"
+                                  className="border-2 border-green-400 shadow-sm flex-shrink-0"
+                                />
                                 <span className="text-gray-700 font-medium -ml-1">
                                   {event.assist?.name || "Unknown Player"}
                                 </span>
@@ -860,15 +852,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                             {/* Player going out (player = player out) */}
                             <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200 ">
-                              <Avatar className="w-8 h-8 border-2 border-red-400 shadow-sm flex-shrink-0">
-                                <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
-                                  {event.player?.name
-                                    ?.split(" ")
-                                    .map((n) => n[0])
-                                    .join("")
-                                    .slice(0, 2) || "P"}
-                                </AvatarFallback>
-                              </Avatar>
+                              <MyAvatarInfo
+                                playerId={event.player?.id}
+                                playerName={event.player?.name}
+                                size="md"
+                                className="border-2 border-red-400 shadow-sm flex-shrink-0"
+                              />
                               <span className="text-gray-700 font-medium -ml-1">
                                 {event.player?.name || "Unknown Player"}
                               </span>
@@ -905,15 +894,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             </div>
                             {event.player?.name && (
                               <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-stone-200">
-                                <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
-                                  <AvatarFallback className="bg-purple-500 text-white text-xs font-bold">
-                                    {event.player?.name
-                                      ?.split(" ")
-                                      .map((n) => n[0])
-                                      .join("")
-                                      .slice(0, 2) || "P"}
-                                  </AvatarFallback>
-                                </Avatar>
+                                <MyAvatarInfo
+                                  playerId={event.player?.id}
+                                  playerName={event.player?.name}
+                                  size="md"
+                                  className="border-2 shadow-sm flex-shrink-0"
+                                />
                                 <span className="text-gray-700 font-medium -ml-1">
                                   {event.player?.name || "Unknown Player"}
                                 </span>
@@ -968,15 +954,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             </div>
                             {event.player?.name && (
                               <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-gray-200">
-                                <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
-                                  <AvatarFallback className="bg-gray-500 text-white text-xs font-bold">
-                                    {event.player?.name
-                                      ?.split(" ")
-                                      .map((n) => n[0])
-                                      .join("")
-                                      .slice(0, 2) || "P"}
-                                  </AvatarFallback>
-                                </Avatar>
+                                <MyAvatarInfo
+                                  playerId={event.player?.id}
+                                  playerName={event.player?.name}
+                                  size="md"
+                                  className="border-2 shadow-sm flex-shrink-0"
+                                />
                                 <span className="text-gray-700 font-medium -ml-1">
                                   {event.player?.name || "Unknown Player"}
                                 </span>
