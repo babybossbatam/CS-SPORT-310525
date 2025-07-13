@@ -63,23 +63,23 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
       // params.append('awayTeam', 'Away Team Name');
       // params.append('matchDate', '2025-01-15T10:00:00Z');
       
+      console.log('🔍 [PlayerProfileModal] Fetching SofaScore-only heatmap data...');
+      
       const response = await fetch(`/api/players/${playerId}/heatmap?${params}`);
       
       if (response.ok) {
         const data = await response.json();
         setHeatmapData(data);
-        
-        if (data.source === 'sofascore') {
-          console.log('✅ [PlayerProfileModal] Loaded REAL SofaScore heatmap data:', data);
-        } else {
-          console.log('⚠️ [PlayerProfileModal] Using fallback heatmap data:', data);
-        }
+        console.log('✅ [PlayerProfileModal] Successfully loaded SofaScore heatmap data:', data);
       } else {
-        console.log('❌ [PlayerProfileModal] API request failed, using null data');
+        const errorData = await response.json().catch(() => ({}));
+        console.log('❌ [PlayerProfileModal] SofaScore API request failed:', errorData);
+        
+        // Set null data when SofaScore fails (no fallback)
         setHeatmapData(null);
       }
     } catch (error) {
-      console.error('❌ [PlayerProfileModal] Error fetching heatmap:', error);
+      console.error('❌ [PlayerProfileModal] Error fetching SofaScore heatmap:', error);
       setHeatmapData(null);
     } finally {
       setLoadingHeatmap(false);
@@ -453,11 +453,11 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
           </div>
           <div className="mt-1 text-xs opacity-75">
             {heatmapData?.source === 'sofascore' ? (
-              <span className="text-green-300">✓ Real SofaScore Data</span>
-            ) : heatmapData?.source === 'fallback' ? (
-              <span className="text-yellow-300">⚠ Fallback Data</span>
+              <span className="text-green-300">✓ SofaScore Data</span>
+            ) : heatmapData === null ? (
+              <span className="text-red-300">✗ No SofaScore Data</span>
             ) : (
-              <span className="text-red-300">✗ Demo Data</span>
+              <span className="text-orange-300">⚠ SofaScore Error</span>
             )}
           </div>
         </div>
