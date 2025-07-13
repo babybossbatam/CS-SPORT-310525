@@ -93,62 +93,78 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   };
 
   const fetchHeatmapData = async () => {
-    if (!playerId || !matchId) {
-      console.log(`🔥 [PlayerModal] Missing required data - playerId: ${playerId}, matchId: ${matchId}`);
+    if (!playerId || !matchId || !playerName) {
+      console.log(`🔥 [PlayerModal] Missing required data - playerId: ${playerId}, matchId: ${matchId}, playerName: ${playerName}`);
       return;
     }
 
     setHeatmapLoading(true);
     try {
-      console.log(`🔥 [PlayerModal] Fetching heatmap for API-Football player ${playerId} (${playerName}) in match ${matchId}`);
+      console.log(`🔥 [PlayerModal] Fetching SofaScore heatmap for ${playerName} in match ${matchId}`);
 
       // Get match details to extract team names and match info
       const matchResponse = await fetch(`/api/fixtures/${matchId}`);
-      let queryParams = `playerName=${encodeURIComponent(playerName || '')}&teamId=${teamId}`;
       let matchInfo = { homeTeam: '', awayTeam: '', matchDate: '', playerTeam: '' };
 
-      if (matchResponse.ok) {
-        const matchData = await matchResponse.json();
-        if (matchData) {
-          const homeTeam = matchData.teams?.home?.name;
-          const awayTeam = matchData.teams?.away?.name;
-          const matchDate = matchData.fixture?.date;
+      if (!matchResponse.ok) {
+        console.error(`❌ [PlayerModal] Failed to fetch match details for ${matchId}`);
+        setHeatmapData(null);
+        setMappedSofaScorePlayerId(null);
+        return;
+      }
 
-          // Determine which team the player belongs to by checking teamId
-          let playerTeam = '';
-          if (teamId === matchData.teams?.home?.id) {
-            playerTeam = homeTeam;
-          } else if (teamId === matchData.teams?.away?.id) {
-            playerTeam = awayTeam;
-          } else {
-            // Fallback: try to determine from lineups
-            if (matchData.lineups && matchData.lineups.length > 0) {
-              const isHomeTeam = matchData.lineups[0]?.team?.id === teamId;
-              playerTeam = isHomeTeam ? homeTeam : awayTeam;
-            }
-          }
+      const matchData = await matchResponse.json();
+      if (!matchData) {
+        console.error(`❌ [PlayerModal] No match data received for ${matchId}`);
+        setHeatmapData(null);
+        setMappedSofaScorePlayerId(null);
+        return;
+      }
 
-          matchInfo = { homeTeam, awayTeam, matchDate, playerTeam };
+      const homeTeam = matchData.teams?.home?.name;
+      const awayTeam = matchData.teams?.away?.name;
+      const matchDate = matchData.fixture?.date;
 
-          queryParams += `&teamName=${encodeURIComponent(playerTeam || '')}`;
-          queryParams += `&homeTeam=${encodeURIComponent(homeTeam || '')}`;
-          queryParams += `&awayTeam=${encodeURIComponent(awayTeam || '')}`;
-          queryParams += `&matchDate=${encodeURIComponent(matchDate || '')}`;
+      if (!homeTeam || !awayTeam || !matchDate) {
+        console.error(`❌ [PlayerModal] Incomplete match data:`, { homeTeam, awayTeam, matchDate });
+        setHeatmapData(null);
+        setMappedSofaScorePlayerId(null);
+        return;
+      }
 
-          console.log(`🔄 [PlayerModal] Mapping API-Football → SofaScore:`, {
-            apiFootballPlayerId: playerId,
-            apiFootballMatchId: matchId,
-            playerName,
-            homeTeam,
-            awayTeam,
-            playerTeam,
-            matchDate,
-            teamId,
-            homeTeamId: matchData.teams?.home?.id,
-            awayTeamId: matchData.teams?.away?.id
-          });
+      // Determine which team the player belongs to
+      let playerTeam = '';
+      if (teamId === matchData.teams?.home?.id) {
+        playerTeam = homeTeam;
+      } else if (teamId === matchData.teams?.away?.id) {
+        playerTeam = awayTeam;
+      } else {
+        // Fallback: try to determine from lineups
+        if (matchData.lineups && matchData.lineups.length > 0) {
+          const isHomeTeam = matchData.lineups[0]?.team?.id === teamId;
+          playerTeam = isHomeTeam ? homeTeam : awayTeam;
         }
       }
+
+      matchInfo = { homeTeam, awayTeam, matchDate, playerTeam };
+
+      console.log(`🔍 [PlayerModal] Direct SofaScore search:`, {
+        playerName,
+        homeTeam,
+        awayTeam,
+        playerTeam,
+        matchDate,
+        teamId
+      });
+
+      // Use direct SofaScore search with all required parameters
+      const queryParams = new URLSearchParams({
+        playerName: playerName,
+        teamName: playerTeam || playerTeam,
+        homeTeam: homeTeam,
+        awayTeam: awayTeam,
+        matchDate: matchDate
+      }).toString();
 
       const response = await fetch(`/api/sofascore/player-heatmap/${matchId}/${playerId}?${queryParams}`);
 
@@ -165,29 +181,29 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             pointsCount: data.points?.length || 0,
             hasHeatmapData: !!data.heatmap,
             hasCoordinates: !!data.coordinates,
-            mappingInfo: `${playerName} (API-Football ${playerId}) in ${matchInfo.homeTeam} vs ${matchInfo.awayTeam}`
+            hasMappingInfo: !!data.mappingInfo,
+            sofaScorePlayerId: data.mappingInfo?.sofaScorePlayerId,
+            sofaScoreMatchId: data.mappingInfo?.sofaScoreMatchId
           });
         }
 
         setHeatmapData(data);
-        setMappedSofaScorePlayerId(data?.playerId); // Store mapped ID
+        setMappedSofaScorePlayerId(data?.mappingInfo?.sofaScorePlayerId || data?.playerId);
 
       } else {
         const errorText = await response.text();
-        console.log(`⚠️ [PlayerModal] SofaScore mapping failed for ${playerName}:`, {
-          apiFootballPlayerId: playerId,
-          apiFootballMatchId: matchId,
+        console.log(`⚠️ [PlayerModal] SofaScore search failed for ${playerName}:`, {
           status: response.status,
           error: errorText,
           matchInfo
         });
         setHeatmapData(null);
-        setMappedSofaScorePlayerId(null); // Clear ID on failure
+        setMappedSofaScorePlayerId(null);
       }
     } catch (error) {
       console.error('❌ [PlayerModal] Error fetching SofaScore heatmap data:', error);
       setHeatmapData(null);
-      setMappedSofaScorePlayerId(null); // Ensure ID is cleared on error
+      setMappedSofaScorePlayerId(null);
     } finally {
       setHeatmapLoading(false);
     }

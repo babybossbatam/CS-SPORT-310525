@@ -17,16 +17,40 @@ interface SofaScoreMatch {
   homeTeam: {
     id: number;
     name: string;
+    slug: string;
   };
   awayTeam: {
     id: number;
     name: string;
+    slug: string;
   };
   tournament: {
     id: number;
     name: string;
+    slug: string;
   };
   startTimestamp: number;
+  status: {
+    code: number;
+    description: string;
+    type: string;
+  };
+}
+
+interface SofaScoreTeam {
+  id: number;
+  name: string;
+  slug: string;
+  shortName: string;
+  sport: {
+    id: number;
+    name: string;
+    slug: string;
+  };
+  country: {
+    alpha2: string;
+    name: string;
+  };
 }
 
 class SofaScoreMappingService {
@@ -34,26 +58,102 @@ class SofaScoreMappingService {
   private matchCache = new Map<string, number>();
   private teamCache = new Map<string, number>();
 
-  // Find SofaScore player ID by name and team name
-  async findSofaScorePlayerId(playerName: string, teamName: string): Promise<number | null> {
-    const cacheKey = `${playerName.toLowerCase()}_${teamName.toLowerCase()}`;
+  // Search for SofaScore matches directly by team names and date
+  async searchSofaScoreMatches(homeTeam: string, awayTeam: string, matchDate: string): Promise<SofaScoreMatch | null> {
+    const cacheKey = `${homeTeam.toLowerCase()}_${awayTeam.toLowerCase()}_${matchDate}`;
     
-    if (this.playerCache.has(cacheKey)) {
-      return this.playerCache.get(cacheKey)!;
+    if (this.matchCache.has(cacheKey)) {
+      const matchId = this.matchCache.get(cacheKey)!;
+      return await this.getSofaScoreMatch(matchId);
     }
 
     try {
-      // First, try to find the team in SofaScore
-      const teamId = await this.findSofaScoreTeamId(teamName);
-      if (!teamId) {
-        console.log(`❌ [SofaScore Mapping] Team not found: ${teamName}`);
-        return null;
+      console.log(`🔍 [SofaScore Direct] Searching for match: ${homeTeam} vs ${awayTeam} on ${matchDate}`);
+      
+      // Get the date in YYYY-MM-DD format
+      const date = new Date(matchDate);
+      const dateStr = date.toISOString().split('T')[0];
+
+      // Search for matches on that date
+      const response = await axios.get('https://sofascore.p.rapidapi.com/matches/list-by-date', {
+        params: {
+          date: dateStr
+        },
+        headers: {
+          'x-rapidapi-key': RAPIDAPI_KEY,
+          'x-rapidapi-host': 'sofascore.p.rapidapi.com'
+        },
+        timeout: 15000
+      });
+
+      if (response.data && response.data.events) {
+        const matches: SofaScoreMatch[] = response.data.events;
+        
+        // Find match by team names (more flexible matching)
+        const foundMatch = matches.find(match => {
+          const homeMatches = this.teamNamesMatch(match.homeTeam.name, homeTeam);
+          const awayMatches = this.teamNamesMatch(match.awayTeam.name, awayTeam);
+          
+          return homeMatches && awayMatches;
+        });
+
+        if (foundMatch) {
+          console.log(`✅ [SofaScore Direct] Found match: ${foundMatch.homeTeam.name} vs ${foundMatch.awayTeam.name} (ID: ${foundMatch.id})`);
+          this.matchCache.set(cacheKey, foundMatch.id);
+          return foundMatch;
+        }
       }
 
-      // Search for player by name in that team
-      const response = await axios.get('https://sofascore.p.rapidapi.com/teams/get-players', {
+      console.log(`❌ [SofaScore Direct] Match not found: ${homeTeam} vs ${awayTeam} on ${matchDate}`);
+      return null;
+
+    } catch (error) {
+      console.error(`❌ [SofaScore Direct] Error searching for match:`, error);
+      return null;
+    }
+  }
+
+  // Get SofaScore match details by ID
+  async getSofaScoreMatch(matchId: number): Promise<SofaScoreMatch | null> {
+    try {
+      const response = await axios.get('https://sofascore.p.rapidapi.com/matches/get-detail', {
         params: {
-          teamId: teamId
+          matchId: matchId
+        },
+        headers: {
+          'x-rapidapi-key': RAPIDAPI_KEY,
+          'x-rapidapi-host': 'sofascore.p.rapidapi.com'
+        },
+        timeout: 10000
+      });
+
+      if (response.data && response.data.event) {
+        return response.data.event;
+      }
+
+      return null;
+    } catch (error) {
+      console.error(`❌ [SofaScore Direct] Error getting match details:`, error);
+      return null;
+    }
+  }
+
+  // Search for SofaScore players directly by name and team
+  async searchSofaScorePlayers(playerName: string, teamName: string): Promise<SofaScorePlayer | null> {
+    const cacheKey = `${playerName.toLowerCase()}_${teamName.toLowerCase()}`;
+    
+    if (this.playerCache.has(cacheKey)) {
+      const playerId = this.playerCache.get(cacheKey)!;
+      return { id: playerId, name: playerName };
+    }
+
+    try {
+      console.log(`🔍 [SofaScore Direct] Searching for player: ${playerName}`);
+
+      // Search for player by name
+      const response = await axios.get('https://sofascore.p.rapidapi.com/search', {
+        params: {
+          q: playerName
         },
         headers: {
           'x-rapidapi-key': RAPIDAPI_KEY,
@@ -65,175 +165,71 @@ class SofaScoreMappingService {
       if (response.data && response.data.players) {
         const players: SofaScorePlayer[] = response.data.players;
         
-        // Try exact match first
+        // Try to find player with matching team
         let foundPlayer = players.find(p => 
-          p.name.toLowerCase() === playerName.toLowerCase()
+          p.team && this.teamNamesMatch(p.team.name, teamName) &&
+          this.playerNamesMatch(p.name, playerName)
         );
 
-        // If no exact match, try partial match
+        // If no team match, try just name matching
         if (!foundPlayer) {
           foundPlayer = players.find(p => 
-            p.name.toLowerCase().includes(playerName.toLowerCase()) ||
-            playerName.toLowerCase().includes(p.name.toLowerCase())
+            this.playerNamesMatch(p.name, playerName)
           );
-        }
-
-        // Try first/last name matching for players like "L. Messi" vs "Lionel Messi"
-        if (!foundPlayer && playerName.includes('.')) {
-          const nameParts = playerName.split(' ');
-          const lastName = nameParts[nameParts.length - 1].toLowerCase();
-          foundPlayer = players.find(p => 
-            p.name.toLowerCase().includes(lastName) && lastName.length > 3
-          );
-        }
-
-        // Try nickname/common name matching
-        if (!foundPlayer) {
-          const commonNames: Record<string, string[]> = {
-            'messi': ['lionel messi', 'l. messi', 'leo messi'],
-            'ronaldo': ['cristiano ronaldo', 'c. ronaldo', 'cr7'],
-            'neymar': ['neymar jr', 'neymar da silva']
-          };
-          
-          const playerLower = playerName.toLowerCase();
-          for (const [key, variants] of Object.entries(commonNames)) {
-            if (variants.some(variant => 
-              variant.includes(playerLower) || playerLower.includes(variant)
-            )) {
-              foundPlayer = players.find(p => 
-                variants.some(variant => p.name.toLowerCase().includes(variant))
-              );
-              if (foundPlayer) break;
-            }
-          }
         }
 
         if (foundPlayer) {
-          console.log(`✅ [SofaScore Mapping] Found player: ${playerName} -> SofaScore ID: ${foundPlayer.id}`);
+          console.log(`✅ [SofaScore Direct] Found player: ${foundPlayer.name} (ID: ${foundPlayer.id})`);
           this.playerCache.set(cacheKey, foundPlayer.id);
-          return foundPlayer.id;
+          return foundPlayer;
         }
       }
 
-      console.log(`❌ [SofaScore Mapping] Player not found: ${playerName} in team ${teamName}`);
-      console.log(`🔍 [SofaScore Mapping] Available players in team:`, 
-        players.slice(0, 5).map(p => ({ id: p.id, name: p.name })));
+      console.log(`❌ [SofaScore Direct] Player not found: ${playerName}`);
       return null;
 
     } catch (error) {
-      console.error(`❌ [SofaScore Mapping] Error finding player ${playerName}:`, error);
+      console.error(`❌ [SofaScore Direct] Error searching for player:`, error);
       return null;
     }
   }
 
-  // Find SofaScore team ID by team name
-  async findSofaScoreTeamId(teamName: string): Promise<number | null> {
-    const cacheKey = teamName.toLowerCase();
-    
-    if (this.teamCache.has(cacheKey)) {
-      return this.teamCache.get(cacheKey)!;
-    }
-
+  // Get SofaScore heatmap data directly
+  async getSofaScoreHeatmap(matchId: number, playerId: number): Promise<any> {
     try {
-      console.log(`🔍 [SofaScore Mapping] Searching for team: ${teamName}`);
-      
-      // Search for team by name
-      const response = await axios.get('https://sofascore.p.rapidapi.com/search', {
+      console.log(`🔥 [SofaScore Direct] Fetching heatmap for player ${playerId} in match ${matchId}`);
+
+      const response = await axios.get('https://sofascore.p.rapidapi.com/matches/get-player-heatmap', {
         params: {
-          q: teamName
+          matchId: matchId,
+          playerId: playerId
         },
         headers: {
           'x-rapidapi-key': RAPIDAPI_KEY,
           'x-rapidapi-host': 'sofascore.p.rapidapi.com'
         },
-        timeout: 10000
+        timeout: 15000
       });
 
-      if (response.data && response.data.teams) {
-        const teams = response.data.teams;
-        console.log(`🔍 [SofaScore Mapping] Found ${teams.length} teams for search: ${teamName}`);
-        
-        // Try exact match first
-        let foundTeam = teams.find((t: any) => 
-          this.teamNamesMatch(t.name, teamName)
-        );
-
-        if (foundTeam) {
-          console.log(`✅ [SofaScore Mapping] Found team: ${teamName} -> ${foundTeam.name} (ID: ${foundTeam.id})`);
-          this.teamCache.set(cacheKey, foundTeam.id);
-          return foundTeam.id;
-        } else {
-          console.log(`❌ [SofaScore Mapping] No matching team found for: ${teamName}`);
-          console.log(`🔍 [SofaScore Mapping] Available teams:`, teams.map((t: any) => t.name).slice(0, 5));
-        }
+      if (response.data) {
+        console.log(`✅ [SofaScore Direct] Successfully fetched heatmap data`);
+        return {
+          ...response.data,
+          playerId: playerId,
+          matchId: matchId,
+          source: 'sofascore-direct'
+        };
       }
 
-      console.log(`❌ [SofaScore Mapping] Team not found: ${teamName}`);
       return null;
-
     } catch (error) {
-      console.error(`❌ [SofaScore Mapping] Error finding team ${teamName}:`, error);
-      return null;
-    }
-  }
-
-  // Find SofaScore match ID by team names and date
-  async findSofaScoreMatchId(homeTeam: string, awayTeam: string, matchDate: string): Promise<number | null> {
-    const cacheKey = `${homeTeam.toLowerCase()}_${awayTeam.toLowerCase()}_${matchDate}`;
-    
-    if (this.matchCache.has(cacheKey)) {
-      return this.matchCache.get(cacheKey)!;
-    }
-
-    try {
-      // Get the date range for searching
-      const date = new Date(matchDate);
-      const startDate = new Date(date);
-      startDate.setDate(date.getDate() - 1);
-      const endDate = new Date(date);
-      endDate.setDate(date.getDate() + 1);
-
-      // Search for matches by date range
-      const response = await axios.get('https://sofascore.p.rapidapi.com/matches/list-by-date', {
-        params: {
-          date: date.toISOString().split('T')[0]
-        },
-        headers: {
-          'x-rapidapi-key': RAPIDAPI_KEY,
-          'x-rapidapi-host': 'sofascore.p.rapidapi.com'
-        },
-        timeout: 10000
-      });
-
-      if (response.data && response.data.events) {
-        const matches: SofaScoreMatch[] = response.data.events;
-        
-        // Find match by team names
-        const foundMatch = matches.find(match => {
-          const homeMatches = this.teamNamesMatch(match.homeTeam.name, homeTeam);
-          const awayMatches = this.teamNamesMatch(match.awayTeam.name, awayTeam);
-          
-          return homeMatches && awayMatches;
-        });
-
-        if (foundMatch) {
-          console.log(`✅ [SofaScore Mapping] Found match: ${homeTeam} vs ${awayTeam} -> SofaScore ID: ${foundMatch.id}`);
-          this.matchCache.set(cacheKey, foundMatch.id);
-          return foundMatch.id;
-        }
-      }
-
-      console.log(`❌ [SofaScore Mapping] Match not found: ${homeTeam} vs ${awayTeam} on ${matchDate}`);
-      return null;
-
-    } catch (error) {
-      console.error(`❌ [SofaScore Mapping] Error finding match ${homeTeam} vs ${awayTeam}:`, error);
+      console.error(`❌ [SofaScore Direct] Error fetching heatmap:`, error);
       return null;
     }
   }
 
   // Helper method to check if team names match (accounting for variations)
-  private teamNamesMatch(sofaScoreName: string, apiFootballName: string): boolean {
+  private teamNamesMatch(sofaScoreName: string, targetName: string): boolean {
     const normalize = (name: string) => name.toLowerCase()
       .replace(/\bfc\b/g, '')
       .replace(/\bcf\b/g, '')
@@ -247,34 +243,92 @@ class SofaScoreMappingService {
       .replace(/\bu20\b/g, '')
       .replace(/\bu19\b/g, '')
       .replace(/\binter\b/g, '')
+      .replace(/\bmilan\b/g, '')
+      .replace(/\bmadrid\b/g, '')
       .replace(/\s+/g, ' ')
       .replace(/[^\w\s]/g, '')
       .trim();
 
     const normalizedSofaScore = normalize(sofaScoreName);
-    const normalizedApiFootball = normalize(apiFootballName);
+    const normalizedTarget = normalize(targetName);
 
     // Exact match
-    if (normalizedSofaScore === normalizedApiFootball) {
+    if (normalizedSofaScore === normalizedTarget) {
       return true;
     }
 
     // Contains match (both ways)
-    if (normalizedSofaScore.includes(normalizedApiFootball) || 
-        normalizedApiFootball.includes(normalizedSofaScore)) {
+    if (normalizedSofaScore.includes(normalizedTarget) || 
+        normalizedTarget.includes(normalizedSofaScore)) {
       return true;
     }
 
     // Word-based matching for better accuracy
     const sofaWords = normalizedSofaScore.split(' ').filter(w => w.length > 2);
-    const apiWords = normalizedApiFootball.split(' ').filter(w => w.length > 2);
+    const targetWords = normalizedTarget.split(' ').filter(w => w.length > 2);
     
-    if (sofaWords.length > 0 && apiWords.length > 0) {
-      const commonWords = sofaWords.filter(word => apiWords.includes(word));
-      return commonWords.length >= Math.min(sofaWords.length, apiWords.length) * 0.6;
+    if (sofaWords.length > 0 && targetWords.length > 0) {
+      const commonWords = sofaWords.filter(word => targetWords.includes(word));
+      return commonWords.length >= Math.min(sofaWords.length, targetWords.length) * 0.6;
     }
 
     return false;
+  }
+
+  // Helper method to check if player names match
+  private playerNamesMatch(sofaScoreName: string, targetName: string): boolean {
+    const normalize = (name: string) => name.toLowerCase()
+      .replace(/\s+/g, ' ')
+      .replace(/[^\w\s]/g, '')
+      .trim();
+
+    const normalizedSofaScore = normalize(sofaScoreName);
+    const normalizedTarget = normalize(targetName);
+
+    // Exact match
+    if (normalizedSofaScore === normalizedTarget) {
+      return true;
+    }
+
+    // Handle abbreviated names like "L. Messi" vs "Lionel Messi"
+    const sofaWords = normalizedSofaScore.split(' ');
+    const targetWords = normalizedTarget.split(' ');
+
+    // Check for first initial + last name match
+    if (sofaWords.length >= 2 && targetWords.length >= 2) {
+      const sofaLastName = sofaWords[sofaWords.length - 1];
+      const targetLastName = targetWords[targetWords.length - 1];
+      
+      if (sofaLastName === targetLastName) {
+        // Check if first name or initial matches
+        const sofaFirst = sofaWords[0];
+        const targetFirst = targetWords[0];
+        
+        if (sofaFirst.charAt(0) === targetFirst.charAt(0) || 
+            sofaFirst === targetFirst) {
+          return true;
+        }
+      }
+    }
+
+    // Contains match for partial names
+    if (normalizedSofaScore.includes(normalizedTarget) || 
+        normalizedTarget.includes(normalizedSofaScore)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Legacy methods for backward compatibility
+  async findSofaScorePlayerId(playerName: string, teamName: string): Promise<number | null> {
+    const player = await this.searchSofaScorePlayers(playerName, teamName);
+    return player ? player.id : null;
+  }
+
+  async findSofaScoreMatchId(homeTeam: string, awayTeam: string, matchDate: string): Promise<number | null> {
+    const match = await this.searchSofaScoreMatches(homeTeam, awayTeam, matchDate);
+    return match ? match.id : null;
   }
 
   // Clear caches
