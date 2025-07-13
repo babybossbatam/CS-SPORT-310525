@@ -1534,7 +1534,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   events={events}
                   homeTeam={homeTeam}
                   awayTeam={awayTeam}
-                  //getPlayerImage={getPlayerImage}
                   getEventDescription={getEventDescription}
                   isHomeTeam={isHomeTeam}
                 />
@@ -2019,7 +2018,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                   events={events.filter(event => event.type === "Goal")}
                   homeTeam={homeTeam}
                   awayTeam={awayTeam}
-                  //getPlayerImage={getPlayerImage}
                   getEventDescription={getEventDescription}
                   isHomeTeam={isHomeTeam}
                 />
@@ -2031,7 +2029,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 events={events}
                 homeTeam={homeTeam}
                 awayTeam={awayTeam}
-                //getPlayerImage={getPlayerImage}
                 getEventDescription={getEventDescription}
                 isHomeTeam={isHomeTeam}
               />

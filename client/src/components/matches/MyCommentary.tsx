@@ -28,10 +28,6 @@ interface MyCommentaryProps {
   events: MatchEvent[];
   homeTeam?: string;
   awayTeam?: string;
-  getPlayerImage: (
-    playerId: number | undefined,
-    playerName: string | undefined,
-  ) => string;
   getEventDescription: (event: MatchEvent) => string;
   isHomeTeam: (event: MatchEvent) => boolean;
 }
@@ -40,7 +36,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
   events,
   homeTeam,
   awayTeam,
-  getPlayerImage,
   getEventDescription,
   isHomeTeam,
 }) => {
@@ -763,15 +758,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             <div className="flex flex-col gap-2">
                               <div className="flex items-center gap-2 -ml-3   text-xs font-medium bg-stone-200">
                                 <Avatar className="w-8 h-8 border-2  shadow-sm flex-shrink-0 ">
-                                  <AvatarImage
-                                    src={getPlayerImage(
-                                      event.player?.id,
-                                      event.player?.name,
-                                    )}
-                                    alt={event.player?.name || "Player"}
-                                    className="object-cover"
-                                  />
-
                                   <AvatarFallback className="bg-blue-500 text-white text-xs font-bold">
                                     {event.player?.name
                                       ?.split(" ")
@@ -818,14 +804,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             </div>
                             <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200">
                               <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
-                                <AvatarImage
-                                  src={getPlayerImage(
-                                    event.player?.id,
-                                    event.player?.name,
-                                  )}
-                                  alt={event.player?.name || "Player"}
-                                  className="object-cover"
-                                />
                                 <AvatarFallback className="bg-yellow-500 text-white text-xs font-bold">
                                   {event.player?.name
                                     ?.split(" ")
@@ -866,14 +844,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             {event.assist?.name && (
                               <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200 ">
                                 <Avatar className="w-8 h-8 border-2 border-green-400 shadow-sm flex-shrink-0">
-                                  <AvatarImage
-                                    src={getPlayerImage(
-                                      event.assist?.id,
-                                      event.assist?.name,
-                                    )}
-                                    alt={event.assist?.name || "Player"}
-                                    className="object-cover"
-                                  />
                                   <AvatarFallback className="bg-green-500 text-white text-xs font-bold">
                                     {event.assist?.name
                                       ?.split(" ")
@@ -891,14 +861,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             {/* Player going out (player = player out) */}
                             <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200 ">
                               <Avatar className="w-8 h-8 border-2 border-red-400 shadow-sm flex-shrink-0">
-                                <AvatarImage
-                                  src={getPlayerImage(
-                                    event.player?.id,
-                                    event.player?.name,
-                                  )}
-                                  alt={event.player?.name || "Player"}
-                                  className="object-cover"
-                                />
                                 <AvatarFallback className="bg-red-500 text-white text-xs font-bold">
                                   {event.player?.name
                                     ?.split(" ")
@@ -944,14 +906,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             {event.player?.name && (
                               <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-stone-200">
                                 <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
-                                  <AvatarImage
-                                    src={getPlayerImage(
-                                      event.player?.id,
-                                      event.player?.name,
-                                    )}
-                                    alt={event.player?.name || "Player"}
-                                    className="object-cover"
-                                  />
                                   <AvatarFallback className="bg-purple-500 text-white text-xs font-bold">
                                     {event.player?.name
                                       ?.split(" ")
@@ -1015,14 +969,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             {event.player?.name && (
                               <div className="flex items-center gap-2 -ml-3 py-1 text-xs font-medium bg-gray-200">
                                 <Avatar className="w-8 h-8 border-2 shadow-sm flex-shrink-0">
-                                  <AvatarImage
-                                    src={getPlayerImage(
-                                      event.player?.id,
-                                      event.player?.name,
-                                    )}
-                                    alt={event.player?.name || "Player"}
-                                    className="object-cover"
-                                  />
                                   <AvatarFallback className="bg-gray-500 text-white text-xs font-bold">
                                     {event.player?.name
                                       ?.split(" ")
