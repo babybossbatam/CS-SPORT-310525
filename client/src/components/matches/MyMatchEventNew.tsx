@@ -475,10 +475,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     }
   }, [events]);
 
-  //const getPlayerImage = useCallback((
-    //playerId: number | undefined,
-    //playerName: string | undefined,
-  //): string => {
+  const getPlayerImage = useCallback((
+    playerId: number | undefined,
+    playerName: string | undefined,
+  ): string => {
     //const key = `${playerId}_${playerName}`;
     //const cachedImage = playerImages[key];
 
@@ -492,7 +492,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     //}
 
     //return "";
-  //}, [playerImages]);
+    if (playerId) {
+        return `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerId}`;
+      }
+      return `https://ui-avatars.com/api/?name=${playerName?.split(' ').map(n => n[0]).join('').toUpperCase()}&size=128&background=4F46E5&color=fff&bold=true&format=svg`;
+  }, []);
 
   const handlePlayerClick = (playerId: number | undefined, teamId: number | undefined, playerName: string | undefined) => {
     setSelectedPlayer({ playerId: playerId, teamId: teamId });
@@ -1211,26 +1215,59 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 <div className="match-event-home-player-info">
                                   <div className="flex items-center gap-1">
                                     <div 
-                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"} bg-blue-500 text-white text-xs font-bold flex items-center justify-center rounded-full`}
+                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"} rounded-full overflow-hidden`}
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
-                                      {event.player?.name
-                                        ?.split(" ")
-                                        .map((n) => n[0])
-                                        .join("")
-                                        .slice(0, 2) || "P"}
+                                      <img
+                                        src={getPlayerImage(event.player?.id, event.player?.name)}
+                                        alt={event.player?.name || "Player"}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          // Fallback to initials if image fails
+                                          const target = e.currentTarget;
+                                          const initials = event.player?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
+                                          target.style.display = 'none';
+                                          const parent = target.parentElement;
+                                          if (parent) {
+                                            parent.style.backgroundColor = '#4F46E5';
+                                            parent.style.color = 'white';
+                                            parent.style.display = 'flex';
+                                            parent.style.alignItems = 'center';
+                                            parent.style.justifyContent = 'center';
+                                            parent.style.fontSize = '12px';
+                                            parent.style.fontWeight = 'bold';
+                                            parent.textContent = initials;
+                                          }
+                                        }}
+                                      />
                                     </div>
 
                                     {event.type === "subst" && event.assist?.name && (
                                       <div 
-                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors bg-blue-500 text-white text-xs font-bold flex items-center justify-center rounded-full"
+                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors rounded-full overflow-hidden"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
-                                        {event.assist?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .slice(0, 2) || "P"}
+                                        <img
+                                          src={getPlayerImage(event.assist?.id, event.assist?.name)}
+                                          alt={event.assist?.name || "Player"}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            const target = e.currentTarget;
+                                            const initials = event.assist?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
+                                            target.style.display = 'none';
+                                            const parent = target.parentElement;
+                                            if (parent) {
+                                              parent.style.backgroundColor = '#4F46E5';
+                                              parent.style.color = 'white';
+                                              parent.style.display = 'flex';
+                                              parent.style.alignItems = 'center';
+                                              parent.style.justifyContent = 'center';
+                                              parent.style.fontSize = '12px';
+                                              parent.style.fontWeight = 'bold';
+                                              parent.textContent = initials;
+                                            }
+                                          }}
+                                        />
                                       </div>
                                     )}
                                   </div>
@@ -1497,26 +1534,58 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   <div className="flex items-center gap-1">
                                     {event.type === "subst" && event.assist?.name && (
                                       <div 
-                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative z-20 cursor-pointer hover:border-red-500 transition-colors bg-blue-500 text-white text-xs font-bold flex items-center justify-center rounded-full"
+                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative z-20 cursor-pointer hover:border-red-500 transition-colors rounded-full overflow-hidden"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
-                                        {event.assist?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .slice(0, 2) || "P"}
+                                        <img
+                                          src={getPlayerImage(event.assist?.id, event.assist?.name)}
+                                          alt={event.assist?.name || "Player"}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            const target = e.currentTarget;
+                                            const initials = event.assist?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
+                                            target.style.display = 'none';
+                                            const parent = target.parentElement;
+                                            if (parent) {
+                                              parent.style.backgroundColor = '#4F46E5';
+                                              parent.style.color = 'white';
+                                              parent.style.display = 'flex';
+                                              parent.style.alignItems = 'center';
+                                              parent.style.justifyContent = 'center';
+                                              parent.style.fontSize = '12px';
+                                              parent.style.fontWeight = 'bold';
+                                              parent.textContent = initials;
+                                            }
+                                          }}
+                                        />
                                       </div>
                                     )}
 
                                     <div 
-                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"} bg-blue-500 text-white text-xs font-bold flex items-center justify-center rounded-full`}
+                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"} rounded-full overflow-hidden`}
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
-                                      {event.player?.name
-                                        ?.split(" ")
-                                        .map((n) => n[0])
-                                        .join("")
-                                        .slice(0, 2) || "P"}
+                                      <img
+                                        src={getPlayerImage(event.player?.id, event.player?.name)}
+                                        alt={event.player?.name || "Player"}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          const target = e.currentTarget;
+                                          const initials = event.player?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
+                                          target.style.display = 'none';
+                                          const parent = target.parentElement;
+                                          if (parent) {
+                                            parent.style.backgroundColor = '#4F46E5';
+                                            parent.style.color = 'white';
+                                            parent.style.display = 'flex';
+                                            parent.style.alignItems = 'center';
+                                            parent.style.justifyContent = 'center';
+                                            parent.style.fontSize = '12px';
+                                            parent.style.fontWeight = 'bold';
+                                            parent.textContent = initials;
+                                          }
+                                        }}
+                                      />
                                     </div>
                                   </div>
                                 </div>
@@ -1646,7 +1715,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     },
                   );
 
-                  if (goalEvents.length === 0 && periodMarkers.length === 0) {
+                  if (goalEvents.length === 0 && periodMarkers.length === 0){
                     return (
                       <div className="p-8 text-center text-gray-500">
                         <div className="text-4xl mb-4">⚽</div>
@@ -1695,26 +1764,59 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 <div className="match-event-home-player-info">
                                   <div className="flex items-center gap-1">
                                     <div 
-                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"} bg-blue-500 text-white text-xs font-bold flex items-center justify-center rounded-full`}
+                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"} rounded-full overflow-hidden`}
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
-                                      {event.player?.name
-                                        ?.split(" ")
-                                        .map((n) => n[0])
-                                        .join("")
-                                        .slice(0, 2) || "P"}
+                                      <img
+                                        src={getPlayerImage(event.player?.id, event.player?.name)}
+                                        alt={event.player?.name || "Player"}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          // Fallback to initials if image fails
+                                          const target = e.currentTarget;
+                                          const initials = event.player?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
+                                          target.style.display = 'none';
+                                          const parent = target.parentElement;
+                                          if (parent) {
+                                            parent.style.backgroundColor = '#4F46E5';
+                                            parent.style.color = 'white';
+                                            parent.style.display = 'flex';
+                                            parent.style.alignItems = 'center';
+                                            parent.style.justifyContent = 'center';
+                                            parent.style.fontSize = '12px';
+                                            parent.style.fontWeight = 'bold';
+                                            parent.textContent = initials;
+                                          }
+                                        }}
+                                      />
                                     </div>
 
                                     {event.type === "subst" && event.assist?.name && (
                                       <div 
-                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors bg-blue-500 text-white text-xs font-bold flex items-center justify-center rounded-full"
+                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-2 relative z-20 cursor-pointer hover:border-red-500 transition-colors rounded-full overflow-hidden"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
-                                        {event.assist?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .slice(0, 2) || "P"}
+                                        <img
+                                          src={getPlayerImage(event.assist?.id, event.assist?.name)}
+                                          alt={event.assist?.name || "Player"}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            const target = e.currentTarget;
+                                            const initials = event.assist?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
+                                            target.style.display = 'none';
+                                            const parent = target.parentElement;
+                                            if (parent) {
+                                              parent.style.backgroundColor = '#4F46E5';
+                                              parent.style.color = 'white';
+                                              parent.style.display = 'flex';
+                                              parent.style.alignItems = 'center';
+                                              parent.style.justifyContent = 'center';
+                                              parent.style.fontSize = '12px';
+                                              parent.style.fontWeight = 'bold';
+                                              parent.textContent = initials;
+                                            }
+                                          }}
+                                        />
                                       </div>
                                     )}
                                   </div>
@@ -1981,26 +2083,58 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                   <div className="flex items-center gap-1">
                                     {event.type === "subst" && event.assist?.name && (
                                       <div 
-                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative z-20 cursor-pointer hover:border-red-500 transition-colors bg-blue-500 text-white text-xs font-bold flex items-center justify-center rounded-full"
+                                        className="w-9 h-9 border-2 border-red-300 shadow-sm -ml-4 -mr-3 relative z-20 cursor-pointer hover:border-red-500 transition-colors rounded-full overflow-hidden"
                                         onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
                                       >
-                                        {event.assist?.name
-                                          ?.split(" ")
-                                          .map((n) => n[0])
-                                          .join("")
-                                          .slice(0, 2) || "P"}
+                                        <img
+                                          src={getPlayerImage(event.assist?.id, event.assist?.name)}
+                                          alt={event.assist?.name || "Player"}
+                                          className="w-full h-full object-cover"
+                                          onError={(e) => {
+                                            const target = e.currentTarget;
+                                            const initials = event.assist?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
+                                            target.style.display = 'none';
+                                            const parent = target.parentElement;
+                                            if (parent) {
+                                              parent.style.backgroundColor = '#4F46E5';
+                                              parent.style.color = 'white';
+                                              parent.style.display = 'flex';
+                                              parent.style.alignItems = 'center';
+                                              parent.style.justifyContent = 'center';
+                                              parent.style.fontSize = '12px';
+                                              parent.style.fontWeight = 'bold';
+                                              parent.textContent = initials;
+                                            }
+                                          }}
+                                        />
                                       </div>
                                     )}
 
                                     <div 
-                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"} bg-blue-500 text-white text-xs font-bold flex items-center justify-center rounded-full`}
+                                      className={`w-9 h-9 border-2 shadow-sm cursor-pointer hover:border-blue-400 transition-colors ${event.type === "subst" ? "border-green-300" : "border-gray-400"} rounded-full overflow-hidden`}
                                       onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
                                     >
-                                      {event.player?.name
-                                        ?.split(" ")
-                                        .map((n) => n[0])
-                                        .join("")
-                                        .slice(0, 2) || "P"}
+                                      <img
+                                        src={getPlayerImage(event.player?.id, event.player?.name)}
+                                        alt={event.player?.name || "Player"}
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => {
+                                          const target = e.currentTarget;
+                                          const initials = event.player?.name?.split(" ").map(n => n[0]).join("").slice(0, 2) || "P";
+                                          target.style.display = 'none';
+                                          const parent = target.parentElement;
+                                          if (parent) {
+                                            parent.style.backgroundColor = '#4F46E5';
+                                            parent.style.color = 'white';
+                                            parent.style.display = 'flex';
+                                            parent.style.alignItems = 'center';
+                                            parent.style.justifyContent = 'center';
+                                            parent.style.fontSize = '12px';
+                                            parent.style.fontWeight = 'bold';
+                                            parent.textContent = initials;
+                                          }
+                                        }}
+                                      />
                                     </div>
                                   </div>
                                 </div>
