@@ -128,6 +128,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     } catch (error) {
       console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching match lineups:`, error);
       if (isMounted) {
+        setError('Failed to load player from match');
         setImageUrl('/assets/matchdetaillogo/fallback_player.png');
       }
     }
@@ -196,7 +197,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         </div>
       )}
       
-      {error && (
+      {error && typeof error === 'string' && error.trim() && (
         <div 
           key={`error-${componentId}`}
           className="absolute inset-0 bg-red-500 bg-opacity-75 flex items-center justify-center"
