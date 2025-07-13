@@ -102,7 +102,31 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
     try {
       console.log(`🔥 [PlayerModal] Fetching heatmap for player ${playerId} in match ${matchId}`);
       
-      const response = await fetch(`/api/sofascore/player-heatmap/${matchId}/${playerId}`);
+      // We need to get match details to pass team names and match date for mapping
+      const matchResponse = await fetch(`/api/fixtures/${matchId}`);
+      let queryParams = `playerName=${encodeURIComponent(playerName || '')}&teamId=${teamId}`;
+      
+      if (matchResponse.ok) {
+        const matchData = await matchResponse.json();
+        if (matchData) {
+          const homeTeam = matchData.teams?.home?.name;
+          const awayTeam = matchData.teams?.away?.name;
+          const matchDate = matchData.fixture?.date;
+          
+          // Determine which team the player belongs to
+          const isHomeTeam = matchData.lineups?.[0]?.team?.id === teamId;
+          const playerTeam = isHomeTeam ? homeTeam : awayTeam;
+          
+          queryParams += `&teamName=${encodeURIComponent(playerTeam || '')}`;
+          queryParams += `&homeTeam=${encodeURIComponent(homeTeam || '')}`;
+          queryParams += `&awayTeam=${encodeURIComponent(awayTeam || '')}`;
+          queryParams += `&matchDate=${encodeURIComponent(matchDate || '')}`;
+          
+          console.log(`🔄 [PlayerModal] Match mapping data - Home: ${homeTeam}, Away: ${awayTeam}, Player Team: ${playerTeam}`);
+        }
+      }
+      
+      const response = await fetch(`/api/sofascore/player-heatmap/${matchId}/${playerId}?${queryParams}`);
       
       if (response.ok) {
         const data = await response.json();
