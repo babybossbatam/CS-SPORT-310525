@@ -527,6 +527,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           ? "Yellow Card"
                           : "Red Card"
                       }
+                      title={
+                        event.detail?.toLowerCase().includes("Yellow")
+                          ? "Yellow Card"
+                          : "Red Card"
+                      }
                       className="w-4 h-8"
                     />
                   ) : (
@@ -608,6 +613,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           : "/assets/matchdetaillogo/red-card-icon.svg"
                       }
                       alt={
+                        event.detail?.toLowerCase().includes("Yellow")
+                          ? "Yellow Card"
+                          : "Red Card"
+                      }
+                      title={
                         event.detail?.toLowerCase().includes("Yellow")
                           ? "Yellow Card"
                           : "Red Card"
@@ -883,7 +893,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               <RefreshCw className="h-4 w-4 animate-spin text-blue-500" />
             )}
             <button
-              onClick={async () => {
+              onClick={async() => {
                 const { playerImageCache } = await import('../../lib/playerImageCache');
                 const invalidated = playerImageCache.invalidateOldCache(0); // Invalidate all cache
                 console.log(`🔄 Manual cache refresh: ${invalidated} entries cleared`);
@@ -892,8 +902,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                 setLastUpdated(new Date());              }}
               className="text-xs bg-orange-500 text-white px-2 py-1 rounded hover:bg-orange-600 ml-2"
               title="Clear all player image cache"
-            >
-              ```typescript
+            >```typescript
 🔄 Refresh Images
             </button>
           </div>
@@ -1288,6 +1297,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             ? "Yellow Card"
                                             : "Red Card"
                                         }
+                                        title={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "Yellow Card"
+                                            : "Red Card"
+                                        }
                                         className="w-4 h-8 "
                                       />
                                     ) : (
@@ -1390,6 +1406,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             : "/assets/matchdetaillogo/red-card-icon.svg"
                                         }
                                         alt={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "Yellow Card"
+                                            : "Red Card"
+                                        }
+                                        title={
                                           event.detail
                                             ?.toLowerCase()
                                             .includes("yellow")
@@ -1783,6 +1806,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             ? "Yellow Card"
                                             : "Red Card"
                                         }
+                                        title={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "Yellow Card"
+                                            : "Red Card"
+                                        }
                                         className="w-4 h-8 "
                                       />
                                     ) : (
@@ -1885,6 +1915,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             : "/assets/matchdetaillogo/red-card-icon.svg"
                                         }
                                         alt={
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("yellow")
+                                            ? "Yellow Card"
+                                            : "Red Card"
+                                        }
+                                        title={
                                           event.detail
                                             ?.toLowerCase()
                                             .includes("yellow")
