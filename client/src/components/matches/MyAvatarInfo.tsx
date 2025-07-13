@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 interface Player {
@@ -39,12 +38,13 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   const sizeClasses = {
     sm: 'w-6 h-6',
     md: 'w-9 h-9',
-    lg: 'w-12 h-12'
+    lg: 'w-12 h-12',
+    'md-commentary': 'w-7 h-7'  // 2px smaller than md for commentary
   };
 
   const fetchPlayerData = async (playerIdToFetch: number, isMounted = true) => {
     if (!isMounted) return;
-    
+
     try {
       setIsLoading(true);
       setError(null);
@@ -63,7 +63,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         try {
           const img = new Image();
           img.crossOrigin = 'anonymous';
-          
+
           const imageLoaded = await new Promise((resolve) => {
             img.onload = () => resolve(true);
             img.onerror = () => resolve(false);
@@ -127,15 +127,15 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
   const fetchPlayerFromMatch = async (matchIdToFetch: string | number, isMounted = true) => {
     if (!isMounted) return;
-    
+
     try {
       console.log(`🔍 [MyAvatarInfo-${componentId}] Fetching players from match: ${matchIdToFetch}`);
-      
+
       const response = await fetch(`/api/fixtures/${matchIdToFetch}/lineups`);
-      
+
       if (response.ok) {
         const data = await response.json();
-        
+
         // Try to find player in lineups by name
         if (data.lineups && playerName) {
           for (const lineup of data.lineups) {
@@ -144,7 +144,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
             ) || lineup.substitutes?.find((p: any) => 
               p.player?.name?.toLowerCase().includes(playerName.toLowerCase())
             );
-            
+
             if (foundPlayer?.player?.id && isMounted) {
               await fetchPlayerData(foundPlayer.player.id, isMounted);
               return;
@@ -152,7 +152,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           }
         }
       }
-      
+
       // Fallback: use provided playerId or show fallback image
       if (playerId && isMounted) {
         await fetchPlayerData(playerId, isMounted);
@@ -239,8 +239,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           {generateInitials(playerName)}
         </div>
       )}
-      
-      
+
+
     </div>
   );
 };

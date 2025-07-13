@@ -761,7 +761,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 <MyAvatarInfo
                                   playerId={event.player?.id}
                                   playerName={event.player?.name}
-                                  size="md"
+                                  size="md-commentary"
                                   className="border-2 shadow-sm flex-shrink-0"
                                 />
                                 <span className="text-gray-700 font-medium -ml-1">
@@ -804,7 +804,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               <MyAvatarInfo
                                 playerId={event.player?.id}
                                 playerName={event.player?.name}
-                                size="md"
+                                size="md-commentary"
                                 className="border-2 shadow-sm flex-shrink-0"
                               />
                               <span className="text-gray-700 font-medium -ml-1">
@@ -841,7 +841,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 <MyAvatarInfo
                                   playerId={event.assist?.id}
                                   playerName={event.assist?.name}
-                                  size="md"
+                                  size="md-commentary"
                                   className="border-2 border-green-400 shadow-sm flex-shrink-0"
                                 />
                                 <span className="text-gray-700 font-medium -ml-1">
@@ -855,7 +855,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               <MyAvatarInfo
                                 playerId={event.player?.id}
                                 playerName={event.player?.name}
-                                size="md"
+                                size="md-commentary"
                                 className="border-2 border-red-400 shadow-sm flex-shrink-0"
                               />
                               <span className="text-gray-700 font-medium -ml-1">
@@ -897,7 +897,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 <MyAvatarInfo
                                   playerId={event.player?.id}
                                   playerName={event.player?.name}
-                                  size="md"
+                                  size="md-commentary"
                                   className="border-2 shadow-sm flex-shrink-0"
                                 />
                                 <span className="text-gray-700 font-medium -ml-1">
@@ -957,7 +957,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 <MyAvatarInfo
                                   playerId={event.player?.id}
                                   playerName={event.player?.name}
-                                  size="md"
+                                  size="md-commentary"
                                   className="border-2 shadow-sm flex-shrink-0"
                                 />
                                 <span className="text-gray-700 font-medium -ml-1">
