@@ -103,6 +103,8 @@ class SofaScoreMappingService {
     }
 
     try {
+      console.log(`🔍 [SofaScore Mapping] Searching for team: ${teamName}`);
+      
       // Search for team by name
       const response = await axios.get('https://sofascore.p.rapidapi.com/search', {
         params: {
@@ -117,24 +119,20 @@ class SofaScoreMappingService {
 
       if (response.data && response.data.teams) {
         const teams = response.data.teams;
+        console.log(`🔍 [SofaScore Mapping] Found ${teams.length} teams for search: ${teamName}`);
         
         // Try exact match first
         let foundTeam = teams.find((t: any) => 
-          t.name.toLowerCase() === teamName.toLowerCase()
+          this.teamNamesMatch(t.name, teamName)
         );
 
-        // If no exact match, try partial match
-        if (!foundTeam) {
-          foundTeam = teams.find((t: any) => 
-            t.name.toLowerCase().includes(teamName.toLowerCase()) ||
-            teamName.toLowerCase().includes(t.name.toLowerCase())
-          );
-        }
-
         if (foundTeam) {
-          console.log(`✅ [SofaScore Mapping] Found team: ${teamName} -> SofaScore ID: ${foundTeam.id}`);
+          console.log(`✅ [SofaScore Mapping] Found team: ${teamName} -> ${foundTeam.name} (ID: ${foundTeam.id})`);
           this.teamCache.set(cacheKey, foundTeam.id);
           return foundTeam.id;
+        } else {
+          console.log(`❌ [SofaScore Mapping] No matching team found for: ${teamName}`);
+          console.log(`🔍 [SofaScore Mapping] Available teams:`, teams.map((t: any) => t.name).slice(0, 5));
         }
       }
 
@@ -205,17 +203,46 @@ class SofaScoreMappingService {
   // Helper method to check if team names match (accounting for variations)
   private teamNamesMatch(sofaScoreName: string, apiFootballName: string): boolean {
     const normalize = (name: string) => name.toLowerCase()
-      .replace(/fc\b/g, '')
       .replace(/\bfc\b/g, '')
+      .replace(/\bcf\b/g, '')
+      .replace(/\bsc\b/g, '')
+      .replace(/\bac\b/g, '')
+      .replace(/\bas\b/g, '')
+      .replace(/\brc\b/g, '')
+      .replace(/\breal\b/g, '')
+      .replace(/\batletico\b/g, 'atletico')
+      .replace(/\bu21\b/g, '')
+      .replace(/\bu20\b/g, '')
+      .replace(/\bu19\b/g, '')
+      .replace(/\binter\b/g, '')
       .replace(/\s+/g, ' ')
+      .replace(/[^\w\s]/g, '')
       .trim();
 
     const normalizedSofaScore = normalize(sofaScoreName);
     const normalizedApiFootball = normalize(apiFootballName);
 
-    return normalizedSofaScore === normalizedApiFootball ||
-           normalizedSofaScore.includes(normalizedApiFootball) ||
-           normalizedApiFootball.includes(normalizedSofaScore);
+    // Exact match
+    if (normalizedSofaScore === normalizedApiFootball) {
+      return true;
+    }
+
+    // Contains match (both ways)
+    if (normalizedSofaScore.includes(normalizedApiFootball) || 
+        normalizedApiFootball.includes(normalizedSofaScore)) {
+      return true;
+    }
+
+    // Word-based matching for better accuracy
+    const sofaWords = normalizedSofaScore.split(' ').filter(w => w.length > 2);
+    const apiWords = normalizedApiFootball.split(' ').filter(w => w.length > 2);
+    
+    if (sofaWords.length > 0 && apiWords.length > 0) {
+      const commonWords = sofaWords.filter(word => apiWords.includes(word));
+      return commonWords.length >= Math.min(sofaWords.length, apiWords.length) * 0.6;
+    }
+
+    return false;
   }
 
   // Clear caches

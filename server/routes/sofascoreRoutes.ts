@@ -19,6 +19,7 @@ router.get('/player-heatmap/:matchId/:playerId', async (req, res) => {
     // First, try to map the match ID
     let sofaScoreMatchId = matchId;
     if (homeTeam && awayTeam && matchDate) {
+      console.log(`🔍 [SofaScore] Attempting to map match: ${homeTeam} vs ${awayTeam} on ${matchDate}`);
       const mappedMatchId = await sofaScoreMapping.findSofaScoreMatchId(
         homeTeam as string, 
         awayTeam as string, 
@@ -26,21 +27,28 @@ router.get('/player-heatmap/:matchId/:playerId', async (req, res) => {
       );
       if (mappedMatchId) {
         sofaScoreMatchId = mappedMatchId.toString();
-        console.log(`🔄 [SofaScore] Mapped match ID: ${matchId} -> ${sofaScoreMatchId}`);
+        console.log(`✅ [SofaScore] Successfully mapped match ID: ${matchId} -> ${sofaScoreMatchId}`);
+      } else {
+        console.log(`⚠️ [SofaScore] Could not map match ID, using original: ${matchId}`);
       }
     }
     
-    // Then, try to map the player ID
+    // Then, try to map the player ID using team name
     let sofaScorePlayerId = playerId;
     if (playerName && teamName) {
+      console.log(`🔍 [SofaScore] Attempting to map player: ${playerName} from team: ${teamName}`);
       const mappedPlayerId = await sofaScoreMapping.findSofaScorePlayerId(
         playerName as string, 
         teamName as string
       );
       if (mappedPlayerId) {
         sofaScorePlayerId = mappedPlayerId.toString();
-        console.log(`🔄 [SofaScore] Mapped player ID: ${playerId} -> ${sofaScorePlayerId}`);
+        console.log(`✅ [SofaScore] Successfully mapped player ID: ${playerId} -> ${sofaScorePlayerId}`);
+      } else {
+        console.log(`⚠️ [SofaScore] Could not map player ID, using original: ${playerId}`);
       }
+    } else {
+      console.log(`⚠️ [SofaScore] Missing player name or team name for mapping`);
     }
     
     const response = await axios.get('https://sofascore.p.rapidapi.com/matches/get-player-heatmap', {

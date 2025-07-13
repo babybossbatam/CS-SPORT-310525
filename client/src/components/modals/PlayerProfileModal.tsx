@@ -102,7 +102,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
     try {
       console.log(`🔥 [PlayerModal] Fetching heatmap for player ${playerId} in match ${matchId}`);
       
-      // We need to get match details to pass team names and match date for mapping
+      // Get match details to extract team names and match info
       const matchResponse = await fetch(`/api/fixtures/${matchId}`);
       let queryParams = `playerName=${encodeURIComponent(playerName || '')}&teamId=${teamId}`;
       
@@ -113,16 +113,34 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
           const awayTeam = matchData.teams?.away?.name;
           const matchDate = matchData.fixture?.date;
           
-          // Determine which team the player belongs to
-          const isHomeTeam = matchData.lineups?.[0]?.team?.id === teamId;
-          const playerTeam = isHomeTeam ? homeTeam : awayTeam;
+          // Determine which team the player belongs to by checking teamId
+          let playerTeam = '';
+          if (teamId === matchData.teams?.home?.id) {
+            playerTeam = homeTeam;
+          } else if (teamId === matchData.teams?.away?.id) {
+            playerTeam = awayTeam;
+          } else {
+            // Fallback: try to determine from lineups
+            if (matchData.lineups && matchData.lineups.length > 0) {
+              const isHomeTeam = matchData.lineups[0]?.team?.id === teamId;
+              playerTeam = isHomeTeam ? homeTeam : awayTeam;
+            }
+          }
           
           queryParams += `&teamName=${encodeURIComponent(playerTeam || '')}`;
           queryParams += `&homeTeam=${encodeURIComponent(homeTeam || '')}`;
           queryParams += `&awayTeam=${encodeURIComponent(awayTeam || '')}`;
           queryParams += `&matchDate=${encodeURIComponent(matchDate || '')}`;
           
-          console.log(`🔄 [PlayerModal] Match mapping data - Home: ${homeTeam}, Away: ${awayTeam}, Player Team: ${playerTeam}`);
+          console.log(`🔄 [PlayerModal] Match mapping data:`, {
+            homeTeam,
+            awayTeam,
+            playerTeam,
+            matchDate,
+            teamId,
+            homeTeamId: matchData.teams?.home?.id,
+            awayTeamId: matchData.teams?.away?.id
+          });
         }
       }
       
@@ -131,14 +149,17 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
       if (response.ok) {
         const data = await response.json();
         console.log(`✅ [PlayerModal] Received heatmap data:`, data);
-        console.log(`🔍 [PlayerModal] Data type: ${typeof data}, isArray: ${Array.isArray(data)}`);
         
-        // Log the structure for debugging
+        // Enhanced logging for debugging
         if (data && typeof data === 'object') {
-          console.log(`📊 [PlayerModal] Data keys:`, Object.keys(data));
-          if (data.points) {
-            console.log(`📍 [PlayerModal] Points array length:`, data.points.length);
-          }
+          console.log(`📊 [PlayerModal] Data structure:`, {
+            type: typeof data,
+            isArray: Array.isArray(data),
+            keys: Object.keys(data),
+            pointsCount: data.points?.length || 0,
+            hasHeatmapData: !!data.heatmap,
+            hasCoordinates: !!data.coordinates
+          });
         }
         
         setHeatmapData(data);
