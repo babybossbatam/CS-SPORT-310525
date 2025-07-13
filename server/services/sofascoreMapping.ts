@@ -78,6 +78,36 @@ class SofaScoreMappingService {
           );
         }
 
+        // Try first/last name matching for players like "L. Messi" vs "Lionel Messi"
+        if (!foundPlayer && playerName.includes('.')) {
+          const nameParts = playerName.split(' ');
+          const lastName = nameParts[nameParts.length - 1].toLowerCase();
+          foundPlayer = players.find(p => 
+            p.name.toLowerCase().includes(lastName) && lastName.length > 3
+          );
+        }
+
+        // Try nickname/common name matching
+        if (!foundPlayer) {
+          const commonNames: Record<string, string[]> = {
+            'messi': ['lionel messi', 'l. messi', 'leo messi'],
+            'ronaldo': ['cristiano ronaldo', 'c. ronaldo', 'cr7'],
+            'neymar': ['neymar jr', 'neymar da silva']
+          };
+          
+          const playerLower = playerName.toLowerCase();
+          for (const [key, variants] of Object.entries(commonNames)) {
+            if (variants.some(variant => 
+              variant.includes(playerLower) || playerLower.includes(variant)
+            )) {
+              foundPlayer = players.find(p => 
+                variants.some(variant => p.name.toLowerCase().includes(variant))
+              );
+              if (foundPlayer) break;
+            }
+          }
+        }
+
         if (foundPlayer) {
           console.log(`✅ [SofaScore Mapping] Found player: ${playerName} -> SofaScore ID: ${foundPlayer.id}`);
           this.playerCache.set(cacheKey, foundPlayer.id);
@@ -86,6 +116,8 @@ class SofaScoreMappingService {
       }
 
       console.log(`❌ [SofaScore Mapping] Player not found: ${playerName} in team ${teamName}`);
+      console.log(`🔍 [SofaScore Mapping] Available players in team:`, 
+        players.slice(0, 5).map(p => ({ id: p.id, name: p.name })));
       return null;
 
     } catch (error) {

@@ -459,16 +459,20 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               );
             })
           ) : (
-            // Show appropriate message based on data availability
+            /* Show appropriate message based on data availability */
             <g>
-              <rect x="160" y="170" width="320" height="60" fill="rgba(0,0,0,0.7)" rx="5" />
-              <text x="320" y="195" textAnchor="middle" fill="white" fontSize="14">
-                {heatmapData ? 'Unable to parse SofaScore data' : heatmapLoading ? 'Mapping player to SofaScore...' : `SofaScore mapping failed`}
+              <rect x="120" y="160" width="400" height="80" fill="rgba(0,0,0,0.8)" rx="8" />
+              <text x="320" y="185" textAnchor="middle" fill="white" fontSize="16" fontWeight="bold">
+                {heatmapData ? 'Data Format Issue' : heatmapLoading ? 'Mapping Player...' : `Mapping Failed`}
               </text>
-              <text x="320" y="215" textAnchor="middle" fill="white" fontSize="12" opacity="0.7">
-                {heatmapData ? 'Check console for raw data structure' : 
-                 mappedSofaScorePlayerId ? `SofaScore ID: ${mappedSofaScorePlayerId}` :
-                 `${playerName} (API-Football ID: ${playerId})`}
+              <text x="320" y="205" textAnchor="middle" fill="white" fontSize="13">
+                {heatmapData ? 'SofaScore data received but incompatible format' : 
+                 heatmapLoading ? 'Converting API-Football → SofaScore IDs' :
+                 `Could not map ${playerName || 'player'} to SofaScore`}
+              </text>
+              <text x="320" y="225" textAnchor="middle" fill="white" fontSize="11" opacity="0.8">
+                {mappedSofaScorePlayerId ? `✓ Mapped to SofaScore ID: ${mappedSofaScorePlayerId}` :
+                 `API-Football ID: ${playerId} | Team ID: ${teamId}`}
               </text>
             </g>
           )}
