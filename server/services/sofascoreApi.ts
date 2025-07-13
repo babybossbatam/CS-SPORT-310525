@@ -25,25 +25,26 @@ interface SofaScorePlayerStats {
 }
 
 class SofaScoreAPI {
-  private baseUrl = 'https://api.sofascore.com/api/v1';
+  private baseUrl = 'https://sofascore.p.rapidapi.com';
   private headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
+    'X-RapidAPI-Host': 'sofascore.p.rapidapi.com',
     'Accept': 'application/json',
-    'Accept-Language': 'en-US,en;q=0.9',
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache',
-    'Referer': 'https://www.sofascore.com/',
-    'Origin': 'https://www.sofascore.com'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
   };
 
   async getPlayerHeatmap(playerId: number, eventId: number): Promise<SofaScoreHeatmapData | null> {
     try {
       console.log(`🔍 [SofaScore] Fetching heatmap for player ${playerId} in event ${eventId}`);
       
-      // Real SofaScore heatmap endpoint
-      const heatmapUrl = `${this.baseUrl}/event/${eventId}/player/${playerId}/heatmap`;
+      // SofaScore RapidAPI heatmap endpoint
+      const heatmapUrl = `${this.baseUrl}/matches/get-player-heatmap`;
       
       const response = await axios.get(heatmapUrl, { 
+        params: {
+          matchId: eventId,
+          playerId: playerId
+        },
         headers: this.headers, 
         timeout: 8000,
         validateStatus: (status) => status < 500 // Accept 4xx as valid responses
@@ -51,9 +52,10 @@ class SofaScoreAPI {
 
       if (response.status === 200 && response.data) {
         const rawData = response.data;
+        console.log(`✅ [SofaScore] Raw heatmap response:`, rawData);
         
         // Process real SofaScore heatmap data
-        const heatmapPoints = this.processHeatmapData(rawData);
+        const heatmapPoints = this.processHeatmapData(rawData.heatmap || rawData);
         
         // Also try to get shots data
         const shotsData = await this.getPlayerShots(playerId, eventId);
@@ -74,16 +76,20 @@ class SofaScoreAPI {
 
   async getPlayerShots(playerId: number, eventId: number): Promise<Array<{x: number, y: number, type: string, minute: number}> | null> {
     try {
-      const shotsUrl = `${this.baseUrl}/event/${eventId}/player/${playerId}/shots`;
+      const shotsUrl = `${this.baseUrl}/matches/get-shots`;
       
       const response = await axios.get(shotsUrl, { 
+        params: {
+          matchId: eventId,
+          playerId: playerId
+        },
         headers: this.headers, 
         timeout: 5000,
         validateStatus: (status) => status < 500
       });
 
       if (response.status === 200 && response.data) {
-        return this.processShotsData(response.data);
+        return this.processShotsData(response.data.shots || response.data);
       }
       
       return null;
@@ -97,15 +103,19 @@ class SofaScoreAPI {
     try {
       console.log(`🔍 [SofaScore] Fetching player stats for ${playerId} in event ${eventId}`);
       
-      const statsUrl = `${this.baseUrl}/event/${eventId}/player/${playerId}/statistics`;
+      const statsUrl = `${this.baseUrl}/matches/get-player-statistics`;
       const response = await axios.get(statsUrl, { 
+        params: {
+          matchId: eventId,
+          playerId: playerId
+        },
         headers: this.headers, 
         timeout: 8000,
         validateStatus: (status) => status < 500
       });
 
       if (response.status === 200 && response.data) {
-        const stats = response.data;
+        const stats = response.data.statistics || response.data;
         const heatmapData = await this.getPlayerHeatmap(playerId, eventId);
 
         return {

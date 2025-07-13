@@ -3133,31 +3133,23 @@ logoUrl, {
       );
 
       if (heatmapData && heatmapData.heatmap.length > 0) {
-        console.log(`✅ [SofaScore] Successfully retrieved real heatmap data with ${heatmapData.heatmap.length} points`);
+        console.log(`✅ [SofaScore] Successfully retrieved REAL heatmap data with ${heatmapData.heatmap.length} points`);
         res.json({
           ...heatmapData,
           source: 'sofascore',
           playerId: sofaScorePlayerId,
-          eventId: sofaScoreEventId
+          eventId: sofaScoreEventId,
+          message: 'SofaScore Data'
         });
       } else {
-        console.log(`⚠️ [SofaScore] No real data available, returning fallback`);
-        // Return enhanced fallback data with better indication
-        res.json({
-          heatmap: [
-            { x: 65, y: 35, value: 0.9 },
-            { x: 70, y: 30, value: 0.8 },
-            { x: 60, y: 40, value: 0.7 },
-            { x: 80, y: 50, value: 0.6 },
-            { x: 75, y: 45, value: 0.5 }
-          ],
-          shots: [
-            { x: 85, y: 45, type: 'goal', minute: 27 },
-            { x: 82, y: 52, type: 'on_target', minute: 38 },
-            { x: 78, y: 48, type: 'off_target', minute: 55 }
-          ],
-          source: 'fallback',
-          message: 'Real SofaScore data not available'
+        console.log(`⚠️ [SofaScore] No real data available, returning error message instead of fallback`);
+        // Return error instead of demo data as requested
+        res.status(404).json({
+          error: 'Real SofaScore heatmap data not available',
+          source: 'error',
+          playerId: sofaScorePlayerId,
+          eventId: sofaScoreEventId,
+          suggestion: 'Check if the player ID and event ID are correct for SofaScore API'
         });
       }
     } catch (error) {
