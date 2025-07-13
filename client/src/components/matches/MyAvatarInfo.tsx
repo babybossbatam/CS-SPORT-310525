@@ -49,39 +49,71 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
       console.log(`🔍 [MyAvatarInfo] Fetching player data for ID: ${playerIdToFetch}`);
 
-      const response = await fetch('/api/player-data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          playerId: playerIdToFetch,
-          season: '2025'
-        })
-      });
+      // Try multiple image sources directly instead of relying on API
+      const imageUrls = [
+        `https://media.api-sports.io/football/players/${playerIdToFetch}.png`,
+        `https://cdn.resfu.com/img_data/players/medium/${playerIdToFetch}.jpg?size=120x&lossy=1`,
+        `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerIdToFetch}`
+      ];
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch player data: ${response.status}`);
+      // Try to load images in order
+      for (const url of imageUrls) {
+        try {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          
+          const imageLoaded = await new Promise((resolve) => {
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = url;
+          });
+
+          if (imageLoaded && isMounted) {
+            console.log(`✅ [MyAvatarInfo] Successfully loaded image for player ${playerIdToFetch}: ${url}`);
+            setImageUrl(url);
+            setPlayerData({ id: playerIdToFetch, name: playerName || 'Player', photo: url });
+            return;
+          }
+        } catch (err) {
+          console.log(`⚠️ [MyAvatarInfo] Failed to load image: ${url}`);
+          continue;
+        }
       }
 
-      const data = await response.json();
-      
-      if (data.player) {
-        setPlayerData(data.player);
-        
-        // Try multiple image sources
-        if (data.player.photo) {
-          setImageUrl(data.player.photo);
-        } else if (playerIdToFetch) {
-          // Fallback to 365scores CDN
-          const fallbackUrl = `https://imagecache.365scores.com/image/upload/f_png,w_64,h_64,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v41/Athletes/${playerIdToFetch}`;
-          setImageUrl(fallbackUrl);
+      // If all direct images fail, try the API as fallback
+      try {
+        const response = await fetch('/api/player-data', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            playerId: playerIdToFetch,
+            season: '2025'
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.player && data.player.photo && isMounted) {
+            setImageUrl(data.player.photo);
+            setPlayerData(data.player);
+            return;
+          }
         }
+      } catch (apiError) {
+        console.log(`⚠️ [MyAvatarInfo] API fallback failed:`, apiError);
+      }
+
+      // Final fallback - no error, just use initials
+      if (isMounted) {
+        console.log(`📝 [MyAvatarInfo] Using initials for player ${playerIdToFetch} (${playerName})`);
+        setImageUrl('/assets/matchdetaillogo/fallback_player.png');
       }
     } catch (error) {
       console.error(`❌ [MyAvatarInfo-${componentId}] Error fetching player data:`, error);
       if (isMounted) {
-        setError('Failed to load player data');
+        // Don't set error for image loading issues, just use fallback
         setImageUrl('/assets/matchdetaillogo/fallback_player.png');
       }
     } finally {
@@ -159,7 +191,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   }, [playerId, matchId, playerName]);
 
   const handleImageError = () => {
-    console.log(`⚠️ [MyAvatarInfo] Image failed to load, using fallback`);
+    console.log(`⚠️ [MyAvatarInfo] Image failed to load, using initials fallback`);
     setImageUrl('/assets/matchdetaillogo/fallback_player.png');
   };
 
@@ -184,27 +216,20 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       key={componentId}
       className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full overflow-hidden relative ${className}`}
     >
-      {imageUrl !== '/assets/matchdetaillogo/fallback_player.png' ? (
-        <img
-          src={imageUrl}
-          alt={playerName || 'Player'}
-          className="w-full h-full object-cover"
-          onError={handleImageError}
-        />
-      ) : (
+      <img
+        src={imageUrl}
+        alt={playerName || 'Player'}
+        className="w-full h-full object-cover"
+        onError={handleImageError}
+        style={{ display: imageUrl === '/assets/matchdetaillogo/fallback_player.png' ? 'none' : 'block' }}
+      />
+      {imageUrl === '/assets/matchdetaillogo/fallback_player.png' && (
         <div className="w-full h-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold">
           {generateInitials(playerName)}
         </div>
       )}
       
-      {error && typeof error === 'string' && error.trim() && (
-        <div 
-          key={`error-${componentId}`}
-          className="absolute inset-0 bg-red-500 bg-opacity-75 flex items-center justify-center"
-        >
-          <span className="text-white text-xs">!</span>
-        </div>
-      )}
+      
     </div>
   );
 };
