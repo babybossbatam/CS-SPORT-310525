@@ -185,21 +185,14 @@ class PlayerImageCache {
       }
     }
 
-    // Primary: API-Sports.io player images (try with minimal validation)
+    // Primary: API-Sports.io player images (most reliable, same as top scorer section)
     if (playerId) {
       const apiSportsUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
-      try {
-        const validationResult = await this.validateImageUrl(apiSportsUrl);
-        if (validationResult.isValid) {
-          this.setCachedImage(playerId, playerName, apiSportsUrl, 'api', validationResult.headers);
-          return apiSportsUrl;
-        }
-      } catch (error) {
-        console.log(`⚠️ [PlayerImageCache] API-Sports.io validation failed for player ${playerId}, but still trying URL`);
-        // Even if validation fails, try to use the URL as it might still work
-        this.setCachedImage(playerId, playerName, apiSportsUrl, 'api');
-        return apiSportsUrl;
-      }
+      console.log(`🔍 [PlayerImageCache] Trying primary source (API-Sports.io) for ${playerName}: ${apiSportsUrl}`);
+      
+      // Trust API-Sports.io like top scorer section does
+      this.setCachedImage(playerId, playerName, apiSportsUrl, 'api');
+      return apiSportsUrl;
     }
 
     // Secondary: Resfu.com player database
