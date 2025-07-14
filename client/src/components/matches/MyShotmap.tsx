@@ -60,28 +60,40 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
 
           events.forEach((event: any) => {
             if (event.type === 'Goal' || event.detail?.toLowerCase().includes('shot') || 
-                event.detail?.toLowerCase().includes('penalty') || event.detail?.toLowerCase().includes('missed')) {
+                event.detail?.toLowerCase().includes('penalty') || event.detail?.toLowerCase().includes('missed') ||
+                event.type === 'Missed Shot' || event.type === 'Shot' || event.type === 'Blocked Shot') {
 
               // Determine shot type from event detail
               let shotType: 'goal' | 'shot' | 'saved' | 'blocked' | 'missed' = 'shot';
               const detail = event.detail?.toLowerCase() || '';
+              const eventType = event.type?.toLowerCase() || '';
 
               if (event.type === 'Goal' || detail.includes('goal')) {
                 shotType = 'goal';
-              } else if (detail.includes('saved') || detail.includes('save')) {
+              } else if (detail.includes('saved') || detail.includes('save') || eventType.includes('saved')) {
                 shotType = 'saved';
-              } else if (detail.includes('blocked') || detail.includes('block')) {
+              } else if (detail.includes('blocked') || detail.includes('block') || eventType.includes('blocked')) {
                 shotType = 'blocked';
-              } else if (detail.includes('missed') || detail.includes('miss') || detail.includes('wide')) {
+              } else if (detail.includes('missed') || detail.includes('miss') || detail.includes('wide') || 
+                         detail.includes('off target') || eventType.includes('missed') || event.type === 'Missed Shot') {
                 shotType = 'missed';
               }
 
               // Generate realistic coordinates based on shot type and team
               const isHomeTeam = event.team?.name === homeTeam;
-              const x = isHomeTeam ? Math.random() * 30 + 70 : Math.random() * 30 + 5; // Home shots from right side
-              const y = Math.random() * 60 + 20; // Random Y position in central area
+              let x, y;
+              
+              if (shotType === 'missed') {
+                // Missed shots can be from wider areas and off-target positions
+                x = isHomeTeam ? Math.random() * 40 + 60 : Math.random() * 40 + 0;
+                y = Math.random() * 80 + 10; // Wider Y range for missed shots
+              } else {
+                // Regular shots closer to goal
+                x = isHomeTeam ? Math.random() * 30 + 70 : Math.random() * 30 + 5;
+                y = Math.random() * 60 + 20; // Central area
+              }
 
-              shots.push({
+              const shotData = {
                 id: shotId++,
                 x: Math.round(x),
                 y: Math.round(y),
@@ -93,13 +105,27 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                          event.detail?.includes('Right') ? 'Right foot' : 'Left foot',
                 situation: event.detail?.includes('Penalty') ? 'Penalty' : 
                           event.detail?.includes('Free') ? 'Set Piece' : 'Regular Play',
-                xG: Math.random() * 0.8 + 0.05, // Random xG between 0.05 and 0.85
-                xGOT: shotType === 'goal' ? Math.random() * 0.4 + 0.4 : undefined, // Higher xGOT for goals
+                xG: shotType === 'missed' ? Math.random() * 0.3 + 0.02 : Math.random() * 0.8 + 0.05, // Lower xG for missed shots
+                xGOT: shotType === 'goal' ? Math.random() * 0.4 + 0.4 : shotType === 'missed' ? 0 : undefined, // No xGOT for missed shots
                 playerId: event.player?.id,
                 playerPhoto: event.player?.id 
                   ? `https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/${event.player.id}`
                   : '/assets/fallback_player.png'
-              });
+              };
+
+              // Debug log for missed shots
+              if (shotType === 'missed') {
+                console.log(`🎯 [MyShotmap] Missed shot event:`, {
+                  player: shotData.player,
+                  team: shotData.team,
+                  minute: shotData.minute,
+                  detail: event.detail,
+                  type: event.type,
+                  coordinates: { x: shotData.x, y: shotData.y }
+                });
+              }
+
+              shots.push(shotData);
             }
           });
 
