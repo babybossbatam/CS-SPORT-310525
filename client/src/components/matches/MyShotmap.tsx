@@ -433,18 +433,18 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
 
           {/* Goal view section beside the field */}
           <div className="flex-1">
-            <div className="flex flex-col gap-4 p-4 rounded-lg bg-white shadow-sm h-147">
+            <div className="flex flex-col gap-4 rounded-lg bg-white shadow-sm h-147">
               {/* Player info header with navigation arrows */}
-              <div className="flex items-center justify-between mb-4 bg-gray-50 rounded-lg p-3">
+              <div className="pb-8 flex items-center justify-between  bg-gray-50 rounded-lg ">
                 <div className="flex items-center gap-3">
                   <MyAvatarInfo
                     playerId={currentShot?.playerId}
                     playerName={currentShot?.player}
                     size="lg"
-                    className="w-12 h-12 rounded-full border-2 border-gray-300"
+                    className="w-12 h-12  border-2 border-gray-300"
                   />
                   <div>
-                    <div className="font-semibold text-base text-gray-900">{currentShot?.player}</div>
+                    <div className="font-normal text-base text-gray-900 text-sm">{currentShot?.player}</div>
                     <div className={`text-sm font-medium ${
                       currentShot?.type === 'goal' ? 'text-blue-600' : 
                       currentShot?.type === 'saved' ? 'text-yellow-600' :
@@ -466,21 +466,21 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                   <button 
                     onClick={() => navigateShot('prev')}
                     disabled={selectedShotIndex === 0}
-                    className="p-2 rounded-full hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="  transition-colors"
                   >
                     <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-700">
                       <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" fill="currentColor"/>
                     </svg>
                   </button>
 
-                  <div className="text-xl font-bold text-gray-900 min-w-[50px] text-center">
+                  <div className="text-lg font-normal text-gray-900 min-w-[30px] text-center">
                     {currentShot?.minute}'
                   </div>
 
                   <button 
                     onClick={() => navigateShot('next')}
                     disabled={selectedShotIndex === shotData.length - 1}
-                    className="p-2 rounded-full hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    className="    transition-colors"
                   >
                     <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-700">
                       <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z" fill="currentColor"/>
@@ -598,23 +598,23 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               {/* Event details container - 365scores style */}
               <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3 text-xs">
                 <div className="text-center flex-1">
-                  <bdi className="font-semibold text-gray-800 block">{currentShot?.situation || 'Regular Play'}</bdi>
-                  <div className="text-gray-500 mt-1">Situation</div>
+                  <bdi className="font-normal text-gray-800 block whitespace-nowrap text-sm">{currentShot?.situation || 'Regular Play'}</bdi>
+                  <div className="text-gray-500 ">Situation</div>
                 </div>
                 <div className="w-px h-6 bg-gray-300 mx-2"></div>
                 <div className="text-center flex-1">
-                  <bdi className="font-semibold text-gray-800 block whitespace-normal break-words">{currentShot?.bodyPart || 'Left foot'}</bdi>
-                  <div className="text-gray-500 mt-1 whitespace-nowrap">Shot Type</div>
+                  <bdi className="font-normal text-gray-800 block whitespace-nowrap text-sm break-words">{currentShot?.bodyPart || 'Left foot'}</bdi>
+                  <div className="text-gray-500 whitespace-nowrap">Shot Type</div>
                 </div>
                 <div className="w-px h-6 bg-gray-300 mx-2"></div>
                 <div className="text-center flex-1">
-                  <bdi className="font-semibold text-gray-800 block">{currentShot?.xG?.toFixed(2) || '0.00'}</bdi>
-                  <div className="text-gray-500 mt-1">xG</div>
+                  <bdi className="font-normal text-gray-800 text-sm block">{currentShot?.xG?.toFixed(2) || '0.00'}</bdi>
+                  <div className="text-gray-500 ">xG</div>
                 </div>
-                <div className="w-px h-6 bg-gray-300 mx-2"></div>
+                <div className="w-px h-6 bg-gray-300 mx-1"></div>
                 <div className="text-center flex-1">
-                  <bdi className="font-semibold text-gray-800 block">{currentShot?.xGOT?.toFixed(2) || '0.00'}</bdi>
-                  <div className="text-gray-500 mt-1">xGOT</div>
+                  <bdi className="font-nromal text-gray-800 block">{currentShot?.xGOT?.toFixed(2) || '0.00'}</bdi>
+                  <div className="text-gray-500 ">xGOT</div>
                 </div>
               </div>
             </div>
