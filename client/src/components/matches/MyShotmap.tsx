@@ -313,11 +313,10 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                   {/* Goal event - ball inside goal */}
                   {currentShot?.type === 'goal' && (
                     <div 
-                      className="absolute z-10 flex items-center justify-center"
+                      className="absolute z-10"
                       style={{
-                        left: '70%',
-                        bottom: '25%',
-                        transform: 'translate(-50%, 50%)',
+                        left: '99px',
+                        bottom: '16px',
                         width: '12px',
                         height: '12px'
                       }}
@@ -335,11 +334,10 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                   {/* Saved event - ball on goal line */}
                   {currentShot?.type === 'saved' && (
                     <div 
-                      className="absolute z-10 flex items-center justify-center"
+                      className="absolute z-10"
                       style={{
-                        left: '50%',
-                        bottom: '0%',
-                        transform: 'translate(-50%, 0%)',
+                        left: '65px',
+                        bottom: '0px',
                         width: '12px',
                         height: '12px'
                       }}
@@ -357,11 +355,10 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                   {/* Blocked event - ball in penalty area */}
                   {currentShot?.type === 'blocked' && (
                     <div 
-                      className="absolute z-10 flex items-center justify-center"
+                      className="absolute z-10"
                       style={{
-                        left: '45%',
-                        bottom: '35%',
-                        transform: 'translate(-50%, 50%)',
+                        left: '58px',
+                        bottom: '22px',
                         width: '12px',
                         height: '12px'
                       }}
@@ -379,11 +376,10 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                   {/* Missed event - ball outside goal */}
                   {currentShot?.type === 'missed' && (
                     <div 
-                      className="absolute z-10 flex items-center justify-center"
+                      className="absolute z-10"
                       style={{
-                        left: '20%',
-                        top: '20%',
-                        transform: 'translate(-50%, -50%)',
+                        left: '28px',
+                        top: '13px',
                         width: '12px',
                         height: '12px'
                       }}
