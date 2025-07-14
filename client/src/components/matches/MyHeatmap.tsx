@@ -29,7 +29,7 @@ const MyHeatmap: React.FC<MyHeatmapProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedTeam, setSelectedTeam] = useState<'home' | 'away' | 'both'>('both');
-  const [dataSource, setDataSource] = useState<'sofascore' | 'mock'>('mock');
+  const [dataSource, setDataSource] = useState<'sofascore' | 'none'>('none');
 
   useEffect(() => {
     const fetchHeatmapData = async () => {
@@ -70,107 +70,20 @@ const MyHeatmap: React.FC<MyHeatmapProps> = ({
           }
         }
 
-        // Fallback to mock data if SofaScore fails
-        console.log('⚠️ [MyHeatmap] SofaScore data not available, using mock data');
-        generateMockHeatmapData();
+        // No real data available
+        console.log('⚠️ [MyHeatmap] No real SofaScore heatmap data available');
+        setHeatmapData([]);
+        setDataSource('sofascore');
+        setIsLoading(false);
         
       } catch (error) {
         console.error('❌ [MyHeatmap] Error fetching SofaScore data:', error);
-        generateMockHeatmapData();
+        setError('Failed to fetch heatmap data');
+        setIsLoading(false);
       }
     };
 
-    const generateMockHeatmapData = () => {
-      const points: HeatmapPoint[] = [];
-      let pointId = 1;
-
-      // Generate realistic formation-based heatmap data
-      const formations = {
-        home: {
-          // 4-3-3 Formation positions for home team (playing left to right)
-          positions: [
-            // Goalkeeper
-            { x: 8, y: 50, spread: 8 },
-            // Defenders
-            { x: 20, y: 20, spread: 12 },
-            { x: 20, y: 35, spread: 12 },
-            { x: 20, y: 65, spread: 12 },
-            { x: 20, y: 80, spread: 12 },
-            // Midfielders
-            { x: 40, y: 30, spread: 15 },
-            { x: 40, y: 50, spread: 15 },
-            { x: 40, y: 70, spread: 15 },
-            // Forwards
-            { x: 65, y: 25, spread: 18 },
-            { x: 65, y: 50, spread: 18 },
-            { x: 65, y: 75, spread: 18 }
-          ]
-        },
-        away: {
-          // 4-2-3-1 Formation positions for away team (playing right to left)
-          positions: [
-            // Goalkeeper
-            { x: 92, y: 50, spread: 8 },
-            // Defenders
-            { x: 80, y: 20, spread: 12 },
-            { x: 80, y: 35, spread: 12 },
-            { x: 80, y: 65, spread: 12 },
-            { x: 80, y: 80, spread: 12 },
-            // Defensive Midfielders
-            { x: 60, y: 40, spread: 15 },
-            { x: 60, y: 60, spread: 15 },
-            // Attacking Midfielders
-            { x: 45, y: 30, spread: 18 },
-            { x: 45, y: 50, spread: 18 },
-            { x: 45, y: 70, spread: 18 },
-            // Striker
-            { x: 35, y: 50, spread: 20 }
-          ]
-        }
-      };
-
-      // Generate points for home team
-      formations.home.positions.forEach((pos, index) => {
-        const numPoints = Math.floor(Math.random() * 4) + 3; // 3-6 points per position
-        for (let i = 0; i < numPoints; i++) {
-          const spread = pos.spread;
-          const x = Math.max(5, Math.min(95, pos.x + (Math.random() - 0.5) * spread));
-          const y = Math.max(5, Math.min(95, pos.y + (Math.random() - 0.5) * spread));
-
-          points.push({
-            id: pointId++,
-            x,
-            y,
-            player: `Player ${index + 1}`,
-            team: 'home',
-            intensity: Math.random() * 0.5 + 0.5
-          });
-        }
-      });
-
-      // Generate points for away team
-      formations.away.positions.forEach((pos, index) => {
-        const numPoints = Math.floor(Math.random() * 4) + 3; // 3-6 points per position
-        for (let i = 0; i < numPoints; i++) {
-          const spread = pos.spread;
-          const x = Math.max(5, Math.min(95, pos.x + (Math.random() - 0.5) * spread));
-          const y = Math.max(5, Math.min(95, pos.y + (Math.random() - 0.5) * spread));
-
-          points.push({
-            id: pointId++,
-            x,
-            y,
-            player: `Player ${index + 1}`,
-            team: 'away',
-            intensity: Math.random() * 0.5 + 0.5
-          });
-        }
-      });
-
-      setHeatmapData(points);
-      setDataSource('mock');
-      setIsLoading(false);
-    };
+    
 
     fetchHeatmapData();
   }, [fixtureId, homeTeam, awayTeam]);
@@ -225,14 +138,14 @@ const MyHeatmap: React.FC<MyHeatmapProps> = ({
         <CardTitle className="text-lg font-semibold flex items-center justify-between">
           <span>Player Heatmap</span>
           <div className="flex items-center gap-2">
-            {dataSource === 'sofascore' && (
+            {dataSource === 'sofascore' && heatmapData.length > 0 && (
               <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
                 📊 SofaScore Data
               </span>
             )}
-            {dataSource === 'mock' && (
-              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                🎯 Demo Data
+            {dataSource === 'none' && (
+              <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                📊 No Data Available
               </span>
             )}
           </div>
@@ -256,6 +169,15 @@ const MyHeatmap: React.FC<MyHeatmapProps> = ({
         </div>
 
         {/* Football Field with Heatmap */}
+        {heatmapData.length === 0 ? (
+          <div className="flex items-center justify-center p-8 bg-gray-50 rounded-lg">
+            <div className="text-center">
+              <div className="text-4xl mb-2">🗺️</div>
+              <p className="text-gray-600 font-medium">No Heatmap Data Available</p>
+              <p className="text-gray-500 text-sm mt-1">Real player positioning data not available for this match</p>
+            </div>
+          </div>
+        ) : (
         <div className="relative w-full bg-green-600 rounded-lg overflow-hidden" style={{ aspectRatio: '16/10' }}>
           {/* Field Background SVG */}
           <svg 
@@ -327,31 +249,34 @@ const MyHeatmap: React.FC<MyHeatmapProps> = ({
             />
           ))}
         </div>
+        )}
 
         {/* Legend */}
-        <div className="flex items-center justify-between mt-4 p-3 bg-gray-50 rounded-lg text-sm">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
-              <span>{homeTeam || 'Home Team'}</span>
+        {heatmapData.length > 0 && (
+          <div className="flex items-center justify-between mt-4 p-3 bg-gray-50 rounded-lg text-sm">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full bg-white border-2 border-blue-400"></div>
+                <span>{homeTeam || 'Home Team'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 rounded-full bg-white border-2 border-pink-400"></div>
+                <span>{awayTeam || 'Away Team'}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-white border-2 border-pink-400"></div>
-              <span>{awayTeam || 'Away Team'}</span>
+            <div className="text-xs text-gray-600">
+              Larger dots = More activity
             </div>
           </div>
-          <div className="text-xs text-gray-600">
-            Larger dots = More activity
-          </div>
-        </div>
+        )}
 
         {/* Info note */}
         <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
           <p>
             🗺️ Player positioning heatmap shows where players spent time during the match. 
-            {dataSource === 'sofascore' 
+            {dataSource === 'sofascore' && heatmapData.length > 0
               ? ' Using real SofaScore data.' 
-              : ' Demo data shown - real data will appear when available.'
+              : ' No heatmap data available for this match.'
             }
           </p>
         </div>
