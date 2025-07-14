@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import MyAvatarInfo from './MyAvatarInfo';
+import '../../styles/ShotMapEnhancements.css';
 
 interface MyShotmapProps {
   match?: any;
@@ -306,83 +307,17 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                 onClick={() => setSelectedShotIndex(index)}
               >
                 {/* Shot type indicators */}
-                {shot.type === 'goal' && (
-                  <div className={`relative ${index === selectedShotIndex ? 'w-4 h-4' : 'w-3 h-3'} transition-all duration-200`}>
+                <div 
+                  className={`shot-mark-enhanced ${shot.type} ${index === selectedShotIndex ? 'active' : ''}`}
+                >
+                  {shot.type === 'goal' && (
                     <img 
                       src="/assets/matchdetaillogo/soccer-ball.svg" 
                       alt="Goal" 
-                      className="w-full h-full"
-                      style={{
-                        filter: index === selectedShotIndex 
-                          ? 'drop-shadow(0 2px 4px rgba(34,197,94,0.5))' 
-                          : 'drop-shadow(0 1px 2px rgba(34,197,94,0.3))'
-                      }}
+                      className="w-2 h-2"
                     />
-                    {index === selectedShotIndex && (
-                      <div className="absolute inset-0 rounded-full border-2 border-green-500 animate-pulse"></div>
-                    )}
-                  </div>
-                )}
-
-                {shot.type === 'saved' && (
-                  <div 
-                    className={`relative rounded-full bg-yellow-400 border-2 border-yellow-600 transition-all duration-200 ${
-                      index === selectedShotIndex ? 'w-4 h-4 shadow-lg' : 'w-3 h-3'
-                    }`}
-                  >
-                    <div className="absolute inset-1 rounded-full bg-white opacity-30"></div>
-                    {index === selectedShotIndex && (
-                      <div className="absolute inset-0 rounded-full border-2 border-yellow-500 animate-pulse"></div>
-                    )}
-                  </div>
-                )}
-
-                {shot.type === 'blocked' && (
-                  <div 
-                    className={`relative rounded-full bg-red-500 border-2 border-red-700 transition-all duration-200 ${
-                      index === selectedShotIndex ? 'w-4 h-4 shadow-lg' : 'w-3 h-3'
-                    }`}
-                  >
-                    <div className="absolute inset-1 rounded-full bg-white opacity-20"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-1/2 h-0.5 bg-white transform rotate-45"></div>
-                      <div className="w-1/2 h-0.5 bg-white transform -rotate-45 absolute"></div>
-                    </div>
-                    {index === selectedShotIndex && (
-                      <div className="absolute inset-0 rounded-full border-2 border-red-500 animate-pulse"></div>
-                    )}
-                  </div>
-                )}
-
-                {shot.type === 'missed' && (
-                  <div 
-                    className={`relative rounded-full bg-gray-400 border-2 border-gray-600 transition-all duration-200 ${
-                      index === selectedShotIndex ? 'w-4 h-4 shadow-lg' : 'w-3 h-3'
-                    }`}
-                  >
-                    <div className="absolute inset-1 rounded-full bg-white opacity-20"></div>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-1/3 h-0.5 bg-white transform rotate-45"></div>
-                      <div className="w-1/3 h-0.5 bg-white transform -rotate-45 absolute"></div>
-                    </div>
-                    {index === selectedShotIndex && (
-                      <div className="absolute inset-0 rounded-full border-2 border-gray-500 animate-pulse"></div>
-                    )}
-                  </div>
-                )}
-
-                {shot.type === 'shot' && (
-                  <div 
-                    className={`relative rounded-full bg-blue-500 border-2 border-blue-700 transition-all duration-200 ${
-                      index === selectedShotIndex ? 'w-4 h-4 shadow-lg' : 'w-3 h-3'
-                    }`}
-                  >
-                    <div className="absolute inset-1 rounded-full bg-white opacity-30"></div>
-                    {index === selectedShotIndex && (
-                      <div className="absolute inset-0 rounded-full border-2 border-blue-500 animate-pulse"></div>
-                    )}
-                  </div>
-                )}
+                  )}
+                </div>
 
                 {/* Enhanced tooltip */}
                 <div className="absolute top-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30">
@@ -461,36 +396,36 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                   </div>
                 </div>
 
-                {/* Navigation arrows and time */}
-                <div className="flex items-center gap-4">
+                {/* Enhanced navigation */}
+                <div className="shot-navigation">
                   <button 
                     onClick={() => navigateShot('prev')}
                     disabled={selectedShotIndex === 0}
-                    className="  transition-colors"
+                    className={`nav-arrow ${selectedShotIndex === 0 ? 'disabled' : ''}`}
                   >
-                    <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-700">
-                      <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" fill="currentColor"/>
+                    <svg viewBox="0 0 24 24" className="w-full h-full" fill="currentColor">
+                      <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"/>
                     </svg>
                   </button>
 
-                  <div className="text-lg font-normal text-gray-900 min-w-[30px] text-center">
+                  <div className="shot-time">
                     {currentShot?.minute}'
                   </div>
 
                   <button 
                     onClick={() => navigateShot('next')}
                     disabled={selectedShotIndex === shotData.length - 1}
-                    className="    transition-colors"
+                    className={`nav-arrow ${selectedShotIndex === shotData.length - 1 ? 'disabled' : ''}`}
                   >
-                    <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-700">
-                      <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z" fill="currentColor"/>
+                    <svg viewBox="0 0 24 24" className="w-full h-full" fill="currentColor">
+                      <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"/>
                     </svg>
                   </button>
                 </div>
               </div>
 
               {/* Goal frame container */}
-              <div className="relative flex-shrink-0 mx-auto" style={{ height: '72px' }}>
+              <div className="goal-frame-container relative flex-shrink-0 mx-auto" style={{ height: '72px' }}>
                 <div className="relative bg-white rounded" style={{ height: '72px' }}>
                   <img 
                     className="goal-frame"
@@ -501,120 +436,59 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     style={{ width: '150px', height: '82px' }}
                   />
 
-                  {/* Goal event - ball inside goal with move animation mapped to actual shot position */}
-                  {currentShot?.type === 'goal' && (
+                  {/* Enhanced ball animations */}
+                  {currentShot && (
                     <div 
-                      className="absolute z-10 animate-bounce"
+                      className={`animated-ball ${currentShot.type}`}
                       style={{
-                        left: `${56 + (currentShot.y / 100) * 32}px`, // Position inside the goal net
-                        bottom: `${12 + ((100 - currentShot.x) / 100) * 24}px`, // Deeper inside the net for goals
-                        width: '10px',
-                        height: '10px',
-                        animation: 'moveToGoal 1.5s ease-in-out'
+                        left: currentShot.type === 'goal' 
+                          ? `${56 + (currentShot.y / 100) * 32}px`
+                          : currentShot.type === 'saved'
+                          ? `${52 + (currentShot.y / 100) * 40}px`
+                          : currentShot.type === 'blocked'
+                          ? `${36 + (currentShot.y / 100) * 48}px`
+                          : `${12 + (currentShot.y / 100) * 72}px`,
+                        bottom: currentShot.type === 'goal'
+                          ? `${12 + ((100 - currentShot.x) / 100) * 24}px`
+                          : currentShot.type === 'saved'
+                          ? `${2 + ((100 - currentShot.x) / 100) * 12}px`
+                          : currentShot.type === 'blocked'
+                          ? `${16 + ((100 - currentShot.x) / 100) * 24}px`
+                          : 'auto',
+                        top: currentShot.type === 'missed' 
+                          ? `${4 + (currentShot.x / 100) * 28}px` 
+                          : 'auto'
                       }}
                     >
-                      <img 
-                        src="/assets/matchdetaillogo/soccer-ball.svg" 
-                        alt="Goal" 
-                        className="w-2.5 h-2.5"
-                        style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {/* Saved event - ball on goal line with move animation mapped to actual shot position */}
-                  {currentShot?.type === 'saved' && (
-                    <div 
-                      className="absolute z-10"
-                      style={{
-                        left: `${52 + (currentShot.y / 100) * 40}px`, // Map Y coordinate to goal width
-                        bottom: `${2 + ((100 - currentShot.x) / 100) * 12}px`, // Use X coordinate for slight height variation on goal line
-                        width: '10px',
-                        height: '10px',
-                        animation: 'moveToSaved 1.5s ease-in-out'
-                      }}
-                    >
-                      <img 
-                        src="/assets/matchdetaillogo/soccer-ball.svg" 
-                        alt="Saved" 
-                        className="w-2.5 h-2.5"
-                        style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(255,193,7,0.5))'
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {/* Blocked event - ball in penalty area with move animation mapped to actual shot position */}
-                  {currentShot?.type === 'blocked' && (
-                    <div 
-                      className="absolute z-10"
-                      style={{
-                        left: `${36 + (currentShot.y / 100) * 48}px`, // Map Y coordinate to penalty area width
-                        bottom: `${16 + ((100 - currentShot.x) / 100) * 24}px`, // Use X coordinate for penalty area depth
-                        width: '10px',
-                        height: '10px',
-                        animation: 'moveToBlocked 1.5s ease-in-out'
-                      }}
-                    >
-                      <img 
-                        src="/assets/matchdetaillogo/soccer-ball.svg" 
-                        alt="Blocked" 
-                        className="w-2.5 h-2.5"
-                        style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(244,67,54,0.5))'
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {/* Missed event - ball outside goal with move animation mapped to actual shot position */}
-                  {currentShot?.type === 'missed' && (
-                    <div 
-                      className="absolute z-10"
-                      style={{
-                        left: `${12 + (currentShot.y / 100) * 72}px`, // Map Y coordinate to wider area for misses
-                        top: `${4 + (currentShot.x / 100) * 28}px`, // Use X coordinate for miss trajectory height
-                        width: '10px',
-                        height: '10px',
-                        animation: 'moveToMissed 1.5s ease-in-out'
-                      }}
-                    >
-                      <img 
-                        src="/assets/matchdetaillogo/soccer-ball.svg" 
-                        alt="Missed" 
-                        className="w-2.5 h-2.5"
-                        style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(158,158,158,0.5))'
-                        }}
-                      />
+                      {currentShot.type !== 'missed' && (
+                        <img 
+                          src="/assets/matchdetaillogo/soccer-ball.svg" 
+                          alt={currentShot.type} 
+                          className="w-2.5 h-2.5"
+                        />
+                      )}
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Event details container - 365scores style */}
-              <div className="flex items-center justify-between  text-xs -mt-3.5 pt-4 border-t border-black">
-                <div className="text-center flex-1">
-                  <bdi className="font-normal text-gray-800 block whitespace-nowrap text-sm">{currentShot?.situation || 'Regular Play'}</bdi>
-                  <div className="text-gray-500 ">Situation</div>
+              {/* Enhanced event details container */}
+              <div className="event-details-enhanced -mt-3.5">
+                <div className="event-detail-card">
+                  <div className="event-card-main">{currentShot?.situation || 'Regular Play'}</div>
+                  <div className="event-card-sub">Situation</div>
                 </div>
-                <div className="w-px h-6 bg-gray-300 mx-2"></div>
-                <div className="text-center flex-1">
-                  <bdi className="font-normal text-gray-800 block whitespace-nowrap text-sm break-words">{currentShot?.bodyPart || 'Left foot'}</bdi>
-                  <div className="text-gray-500 whitespace-nowrap">Shot Type</div>
+                <div className="event-detail-card">
+                  <div className="event-card-main">{currentShot?.bodyPart || 'Left foot'}</div>
+                  <div className="event-card-sub">Shot Type</div>
                 </div>
-                <div className="w-px h-6 bg-gray-300 mx-2"></div>
-                <div className="text-center flex-1">
-                  <bdi className="font-normal text-gray-800 text-sm block">{currentShot?.xG?.toFixed(2) || '0.00'}</bdi>
-                  <div className="text-gray-500 ">xG</div>
+                <div className="event-detail-card">
+                  <div className="event-card-main">{currentShot?.xG?.toFixed(2) || '0.00'}</div>
+                  <div className="event-card-sub">xG</div>
                 </div>
-                <div className="w-px h-6 bg-gray-300 mx-1"></div>
-                <div className="text-center flex-1">
-                  <bdi className="font-nromal text-gray-800 block">{currentShot?.xGOT?.toFixed(2) || '0.00'}</bdi>
-                  <div className="text-gray-500 ">xGOT</div>
+                <div className="event-detail-card">
+                  <div className="event-card-main">{currentShot?.xGOT?.toFixed(2) || '0.00'}</div>
+                  <div className="event-card-sub">xGOT</div>
                 </div>
               </div>
             </div>

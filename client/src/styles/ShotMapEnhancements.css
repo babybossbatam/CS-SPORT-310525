@@ -1,0 +1,294 @@
+
+/* 365Scores-inspired Shot Map Enhancements */
+
+/* Animated field drawing effects */
+.field-overlay {
+  position: absolute;
+  fill: transparent;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.field-line {
+  stroke-width: 1.75;
+  stroke: #4F46E5;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  fill: transparent;
+}
+
+.field-line.active {
+  animation: drawLine 3s ease-in-out 350ms forwards;
+}
+
+.field-circle {
+  stroke-width: 1.75;
+  stroke: #4F46E5;
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  fill: transparent;
+}
+
+.field-circle.active {
+  animation: drawLine 3s ease-in-out 500ms forwards;
+}
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Enhanced shot markers */
+.shot-mark-enhanced {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  position: absolute;
+  opacity: 0.7;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 350ms ease-in-out;
+  z-index: 3;
+}
+
+.shot-mark-enhanced.goal {
+  background-color: #10B981;
+  border: 1px solid #059669;
+}
+
+.shot-mark-enhanced.saved {
+  background-color: #F59E0B;
+  border: 1px solid #D97706;
+}
+
+.shot-mark-enhanced.blocked {
+  background-color: #EF4444;
+  border: 1px solid #DC2626;
+}
+
+.shot-mark-enhanced.missed {
+  background-color: transparent;
+  border: 1px solid #6B7280;
+}
+
+.shot-mark-enhanced.active {
+  opacity: 1;
+  transform: scale(1.2);
+  z-index: 10;
+}
+
+.shot-mark-enhanced.active::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #4F46E5;
+  background: transparent;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Goal frame enhancements */
+.goal-frame-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  transition: all 350ms ease-in-out;
+}
+
+.animated-ball {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  border-radius: 50%;
+  z-index: 5;
+  transition: all 350ms ease-in-out;
+}
+
+.animated-ball.goal {
+  animation: ballToGoal 1.5s ease-in-out;
+}
+
+.animated-ball.saved {
+  animation: ballToSave 1.5s ease-in-out;
+}
+
+.animated-ball.missed {
+  width: 12px;
+  height: 12px;
+  background-color: transparent;
+  border: 1px solid #6B7280;
+  animation: ballToMiss 1.5s ease-in-out;
+}
+
+@keyframes ballToGoal {
+  0% {
+    transform: translate(-50px, 50px) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(0, 25px) scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes ballToSave {
+  0% {
+    transform: translate(-30px, 30px) scale(0.5);
+    opacity: 0;
+  }
+  70% {
+    transform: translate(0, -5px) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes ballToMiss {
+  0% {
+    transform: translate(-40px, 20px) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: translate(20px, -10px) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(40px, -20px) scale(0.8);
+    opacity: 0.6;
+  }
+}
+
+/* Event details styling */
+.event-details-enhanced {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+  background-color: #F9FAFB;
+  border-top: 1px solid #E5E7EB;
+  border-radius: 0 0 8px 8px;
+}
+
+.event-detail-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 70px;
+  flex: 1;
+  position: relative;
+}
+
+.event-detail-card:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 25%;
+  height: 50%;
+  border-right: 1px solid #D1D5DB;
+}
+
+.event-card-main {
+  font-size: 12px;
+  font-weight: 600;
+  color: #111827;
+  text-align: center;
+}
+
+.event-card-sub {
+  font-size: 10px;
+  color: #6B7280;
+  text-align: center;
+}
+
+/* Navigation arrows */
+.shot-navigation {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px;
+  background-color: #F9FAFB;
+  border-top: 1px solid #E5E7EB;
+}
+
+.nav-arrow {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  color: #374151;
+  transition: color 0.2s ease;
+}
+
+.nav-arrow:hover {
+  color: #4F46E5;
+}
+
+.nav-arrow.disabled {
+  color: #9CA3AF;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.shot-time {
+  font-size: 16px;
+  font-weight: 600;
+  color: #111827;
+  min-width: 40px;
+  text-align: center;
+}
+
+/* Responsive enhancements */
+@media (max-width: 768px) {
+  .shot-mark-enhanced {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .shot-mark-enhanced.active::after {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .event-detail-card {
+    min-width: 60px;
+  }
+  
+  .event-card-main {
+    font-size: 11px;
+  }
+  
+  .event-card-sub {
+    font-size: 9px;
+  }
+}
