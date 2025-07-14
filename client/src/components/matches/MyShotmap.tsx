@@ -275,60 +275,32 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
       </CardHeader>
 
       <CardContent className="p-4">
-        {/* Player selector section */}
+        {/* Shot navigation only */}
         <div className="mb-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <MyAvatarInfo
-                playerId={currentShot?.playerId}
-                playerName={currentShot?.player}
-                size="lg"
-                className="border-2 border-gray-300"
-              />
-              <div>
-                <div className="font-semibold text-base text-gray-900">{currentShot?.player}</div>
-                <div className={`text-sm font-medium ${
-                  currentShot?.type === 'goal' ? 'text-blue-600' : 
-                  currentShot?.type === 'saved' ? 'text-yellow-600' :
-                  currentShot?.type === 'blocked' ? 'text-red-600' :
-                  currentShot?.type === 'missed' ? 'text-gray-600' :
-                  'text-gray-600'
-                }`}>
-                  {currentShot?.type === 'goal' ? 'Goal' : 
-                   currentShot?.type === 'saved' ? 'Saved' :
-                   currentShot?.type === 'blocked' ? 'Blocked' :
-                   currentShot?.type === 'missed' ? 'Missed' :
-                   currentShot?.type?.charAt(0).toUpperCase() + currentShot?.type?.slice(1)}
-                </div>
-              </div>
+          <div className="flex items-center justify-center gap-3">
+            <button 
+              onClick={() => navigateShot('prev')}
+              disabled={selectedShotIndex === 0}
+              className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-600">
+                <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" fill="currentColor"/>
+              </svg>
+            </button>
+
+            <div className="px-4 py-2 bg-white border border-gray-300 rounded text-lg font-bold text-gray-900 min-w-[60px] text-center">
+              Shot {selectedShotIndex + 1} of {shotData.length}
             </div>
 
-            {/* Shot navigation with elapsed time */}
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={() => navigateShot('prev')}
-                disabled={selectedShotIndex === 0}
-                className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-600">
-                  <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" fill="currentColor"/>
-                </svg>
-              </button>
-
-              <div className="px-4 py-2 bg-white border border-gray-300 rounded text-lg font-bold text-gray-900 min-w-[60px] text-center">
-                {currentShot?.minute}'
-              </div>
-
-              <button 
-                onClick={() => navigateShot('next')}
-                disabled={selectedShotIndex === shotData.length - 1}
-                className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-600">
-                  <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z" fill="currentColor"/>
-                </svg>
-              </button>
-            </div>
+            <button 
+              onClick={() => navigateShot('next')}
+              disabled={selectedShotIndex === shotData.length - 1}
+              className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-600">
+                <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z" fill="currentColor"/>
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -490,6 +462,39 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           {/* Goal view section beside the field */}
           <div className="flex-1">
             <div className="flex flex-col gap-4 p-4 rounded-lg bg-white shadow-sm h-147">
+              {/* Player info and elapsed time header */}
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3">
+                  <MyAvatarInfo
+                    playerId={currentShot?.playerId}
+                    playerName={currentShot?.player}
+                    size="lg"
+                    className="border-2 border-gray-300"
+                  />
+                  <div>
+                    <div className="font-semibold text-base text-gray-900">{currentShot?.player}</div>
+                    <div className={`text-sm font-medium ${
+                      currentShot?.type === 'goal' ? 'text-blue-600' : 
+                      currentShot?.type === 'saved' ? 'text-yellow-600' :
+                      currentShot?.type === 'blocked' ? 'text-red-600' :
+                      currentShot?.type === 'missed' ? 'text-gray-600' :
+                      'text-gray-600'
+                    }`}>
+                      {currentShot?.type === 'goal' ? 'Goal' : 
+                       currentShot?.type === 'saved' ? 'Saved' :
+                       currentShot?.type === 'blocked' ? 'Blocked' :
+                       currentShot?.type === 'missed' ? 'Missed' :
+                       currentShot?.type?.charAt(0).toUpperCase() + currentShot?.type?.slice(1)}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Elapsed time */}
+                <div className="px-4 py-2 bg-gray-100 border border-gray-300 rounded text-lg font-bold text-gray-900 min-w-[60px] text-center">
+                  {currentShot?.minute}'
+                </div>
+              </div>
+
               {/* Goal frame container */}
               <div className="relative flex-shrink-0 mx-auto" style={{ height: '72px' }}>
                 <div className="relative bg-white rounded" style={{ height: '72px' }}>
