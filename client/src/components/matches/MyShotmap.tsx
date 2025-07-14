@@ -250,17 +250,19 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
             </div>
           </div>
 
-          {/* Goal view section with SVG goal frame */}
-          <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-6">
-              {/* Goal frame visualization using technical diagram SVG */}
-              <div className="relative flex-shrink-0">
-                <div className="w-40 h-24 border-2 border-gray-300 bg-white rounded relative overflow-hidden">
-                  {/* Technical diagram pattern */}
+          {/* Goal view section with SVG goal frame - 365scores style */}
+          <div className="mb-4">
+            <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-lg">
+              {/* Goal frame container */}
+              <div className="relative flex-shrink-0" style={{ height: '90.6125px' }}>
+                <div className="relative bg-white rounded" style={{ height: '90.6125px' }}>
                   <img 
-                    src="/assets/matchdetaillogo/technical-diagram.svg" 
-                    alt="Technical diagram"
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="goal-frame"
+                    alt=""
+                    title=""
+                    src="/assets/matchdetaillogo/technical-diagram.svg"
+                    loading="lazy"
+                    style={{ width: '141.563px', height: '65.3568px' }}
                   />
                   
                   {/* Ball position in goal for goals */}
@@ -293,23 +295,23 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                 </div>
               </div>
 
-              {/* Shot details */}
-              <div className="grid grid-cols-2 gap-6 flex-1">
-                <div className="text-center">
-                  <div className="font-semibold text-sm text-gray-600">{currentShot?.situation || 'Regular Play'}</div>
-                  <div className="text-xs text-gray-400">Situation</div>
+              {/* Event details container - 365scores style */}
+              <div className="flex gap-4 flex-1">
+                <div className="text-center bg-white rounded-lg p-3 shadow-sm">
+                  <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.situation || 'Regular Play'}</bdi>
+                  <div className="text-xs text-gray-500 mt-1">Situation</div>
                 </div>
-                <div className="text-center">
-                  <div className="font-semibold text-sm text-gray-600">{currentShot?.bodyPart || 'Left foot'}</div>
-                  <div className="text-xs text-gray-400">Shot Type</div>
+                <div className="text-center bg-white rounded-lg p-3 shadow-sm">
+                  <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.bodyPart || 'Left foot'}</bdi>
+                  <div className="text-xs text-gray-500 mt-1">Shot Type</div>
                 </div>
-                <div className="text-center">
-                  <div className="font-semibold text-sm text-gray-600">{currentShot?.xG?.toFixed(2) || '0.00'}</div>
-                  <div className="text-xs text-gray-400">xG</div>
+                <div className="text-center bg-white rounded-lg p-3 shadow-sm">
+                  <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.xG?.toFixed(2) || '0.00'}</bdi>
+                  <div className="text-xs text-gray-500 mt-1">xG</div>
                 </div>
-                <div className="text-center">
-                  <div className="font-semibold text-sm text-gray-600">{currentShot?.xGOT?.toFixed(2) || '0.00'}</div>
-                  <div className="text-xs text-gray-400">xGOT</div>
+                <div className="text-center bg-white rounded-lg p-3 shadow-sm">
+                  <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.xGOT?.toFixed(2) || '0.00'}</bdi>
+                  <div className="text-xs text-gray-500 mt-1">xGOT</div>
                 </div>
               </div>
             </div>
