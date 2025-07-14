@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import MyAvatarInfo from './MyAvatarInfo';
@@ -47,26 +46,26 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
 
       try {
         console.log(`⚽ [MyShotmap] Fetching shot data for fixture: ${fixtureId}`);
-        
+
         // First try to get match events which may contain shot data
         const eventsResponse = await fetch(`/api/fixtures/${fixtureId}/events`);
-        
+
         if (eventsResponse.ok) {
           const events = await eventsResponse.json();
           console.log(`✅ [MyShotmap] Received ${events.length} events`);
-          
+
           // Filter and convert events to shot data
           const shots: ShotData[] = [];
           let shotId = 1;
-          
+
           events.forEach((event: any) => {
             if (event.type === 'Goal' || event.detail?.toLowerCase().includes('shot') || 
                 event.detail?.toLowerCase().includes('penalty') || event.detail?.toLowerCase().includes('missed')) {
-              
+
               // Determine shot type from event detail
               let shotType: 'goal' | 'shot' | 'saved' | 'blocked' | 'missed' = 'shot';
               const detail = event.detail?.toLowerCase() || '';
-              
+
               if (event.type === 'Goal' || detail.includes('goal')) {
                 shotType = 'goal';
               } else if (detail.includes('saved') || detail.includes('save')) {
@@ -81,7 +80,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               const isHomeTeam = event.team?.name === homeTeam;
               const x = isHomeTeam ? Math.random() * 30 + 70 : Math.random() * 30 + 5; // Home shots from right side
               const y = Math.random() * 60 + 20; // Random Y position in central area
-              
+
               shots.push({
                 id: shotId++,
                 x: Math.round(x),
@@ -134,10 +133,10 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
       try {
         // Try to get data from SofaScore API with match details
         const sofaScoreResponse = await fetch(`/api/players/1/heatmap?eventId=${fixtureId}&homeTeam=${encodeURIComponent(homeTeam || '')}&awayTeam=${encodeURIComponent(awayTeam || '')}&matchDate=${new Date().toISOString()}`);
-        
+
         if (sofaScoreResponse.ok) {
           const sofaScoreData = await sofaScoreResponse.json();
-          
+
           if (sofaScoreData.shots && sofaScoreData.shots.length > 0) {
             const convertedShots: ShotData[] = sofaScoreData.shots.map((shot: any, index: number) => ({
               id: index + 1,
@@ -156,13 +155,13 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                 ? `https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/${shot.player.id}`
                 : '/assets/fallback_player.png'
             }));
-            
+
             setShotData(convertedShots);
             console.log(`✅ [MyShotmap] Loaded ${convertedShots.length} shots from SofaScore API`);
             return;
           }
         }
-        
+
         // If SofaScore also fails, show no data available
         console.log(`⚠️ [MyShotmap] No shot data available from any source`);
         setShotData([]);
@@ -279,11 +278,11 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                   <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" fill="currentColor"/>
                 </svg>
               </button>
-              
+
               <div className="px-4 py-2 bg-white border border-gray-300 rounded text-lg font-bold text-gray-900 min-w-[60px] text-center">
                 {currentShot?.minute}'
               </div>
-              
+
               <button 
                 onClick={() => navigateShot('next')}
                 disabled={selectedShotIndex === shotData.length - 1}
@@ -310,33 +309,92 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     loading="lazy"
                     style={{ width: '141.563px', height: '65.3568px' }}
                   />
-                  
-                  {/* Ball position in goal for goals */}
+
+                  {/* Goal event - ball inside goal */}
                   {currentShot?.type === 'goal' && (
                     <div 
-                      className="absolute w-3 h-3 bg-black rounded-full z-10"
+                      className="absolute z-10 flex items-center justify-center"
                       style={{
                         left: '70%',
                         bottom: '25%',
-                        transform: 'translate(-50%, 50%)'
+                        transform: 'translate(-50%, 50%)',
+                        width: '12px',
+                        height: '12px'
                       }}
-                    ></div>
+                    >
+                      <div 
+                        className="w-3 h-3 rounded-full border-2"
+                        style={{
+                          backgroundColor: 'rgb(255, 255, 255)',
+                          borderColor: 'rgb(0, 54, 108)'
+                        }}
+                      ></div>
+                    </div>
                   )}
-                  
-                  {/* Shot target indicator for other shots */}
-                  {currentShot?.type !== 'goal' && (
+
+                  {/* Saved event - ball on goal line */}
+                  {currentShot?.type === 'saved' && (
                     <div 
-                      className={`absolute w-3 h-3 rounded-full z-10 ${
-                        currentShot?.type === 'saved' ? 'bg-yellow-500' : 
-                        currentShot?.type === 'blocked' ? 'bg-red-500' : 
-                        'bg-gray-400'
-                      }`}
+                      className="absolute z-10 flex items-center justify-center"
                       style={{
-                        left: currentShot?.type === 'missed' ? '20%' : '50%',
-                        top: currentShot?.type === 'saved' ? '30%' : '50%',
-                        transform: 'translate(-50%, -50%)'
+                        left: '50%',
+                        bottom: '0%',
+                        transform: 'translate(-50%, 0%)',
+                        width: '12px',
+                        height: '12px'
                       }}
-                    ></div>
+                    >
+                      <div 
+                        className="w-3 h-3 rounded-full"
+                        style={{
+                          backgroundColor: 'rgb(255, 193, 7)',
+                          border: '1px solid rgb(255, 152, 0)'
+                        }}
+                      ></div>
+                    </div>
+                  )}
+
+                  {/* Blocked event - ball in penalty area */}
+                  {currentShot?.type === 'blocked' && (
+                    <div 
+                      className="absolute z-10 flex items-center justify-center"
+                      style={{
+                        left: '45%',
+                        bottom: '35%',
+                        transform: 'translate(-50%, 50%)',
+                        width: '12px',
+                        height: '12px'
+                      }}
+                    >
+                      <div 
+                        className="w-3 h-3 rounded-full"
+                        style={{
+                          backgroundColor: 'rgb(244, 67, 54)',
+                          border: '1px solid rgb(211, 47, 47)'
+                        }}
+                      ></div>
+                    </div>
+                  )}
+
+                  {/* Missed event - ball outside goal */}
+                  {currentShot?.type === 'missed' && (
+                    <div 
+                      className="absolute z-10 flex items-center justify-center"
+                      style={{
+                        left: '20%',
+                        top: '20%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '12px',
+                        height: '12px'
+                      }}
+                    >
+                      <div 
+                        className="w-3 h-3 rounded-full border-2 bg-transparent"
+                        style={{
+                          borderColor: 'rgb(158, 158, 158)'
+                        }}
+                      ></div>
+                    </div>
                   )}
                 </div>
               </div>
@@ -412,7 +470,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     />
                   </div>
                 )}
-                
+
                 {/* Circle with team color border for selected */}
                 {index === selectedShotIndex && (
                   <div 
