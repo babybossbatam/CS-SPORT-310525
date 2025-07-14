@@ -94,7 +94,9 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                           event.detail?.includes('Free') ? 'Set Piece' : 'Regular Play',
                 xG: Math.random() * 0.8 + 0.05, // Random xG between 0.05 and 0.85
                 xGOT: shotType === 'goal' ? Math.random() * 0.4 + 0.4 : undefined, // Higher xGOT for goals
-                playerPhoto: 'https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/874'
+                playerPhoto: event.player?.id 
+                  ? `https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/${event.player.id}`
+                  : '/assets/fallback_player.png'
               });
             }
           });
@@ -139,14 +141,16 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               x: shot.x,
               y: shot.y,
               type: mapSofaScoreShotType(shot.type),
-              player: `Player ${index + 1}`,
+              player: shot.player?.name || `Player ${index + 1}`,
               team: shot.x > 50 ? homeTeam || 'Home Team' : awayTeam || 'Away Team',
               minute: shot.minute,
-              bodyPart: 'Right foot',
-              situation: 'Regular Play',
+              bodyPart: shot.bodyPart || 'Right foot',
+              situation: shot.situation || 'Regular Play',
               xG: Math.random() * 0.8 + 0.05,
               xGOT: shot.type === 'goal' ? Math.random() * 0.4 + 0.4 : undefined,
-              playerPhoto: 'https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/874'
+              playerPhoto: shot.player?.id 
+                ? `https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/${shot.player.id}`
+                : '/assets/fallback_player.png'
             }));
             
             setShotData(convertedShots);
