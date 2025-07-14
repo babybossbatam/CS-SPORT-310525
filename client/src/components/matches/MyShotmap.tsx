@@ -406,7 +406,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                   <div className="text-xs text-gray-500 mt-1">Situation</div>
                 </div>
                 <div className="text-center bg-white rounded-lg p-3 shadow-sm">
-                  <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.bodyPart || 'Left foot'}</bdi>
+                  <bdi className="font-semibold text-sm text-gray-800 block whitespace-nowrap">{currentShot?.bodyPart || 'Left foot'}</bdi>
                   <div className="text-xs text-gray-500 mt-1">Shot Type</div>
                 </div>
                 <div className="text-center bg-white rounded-lg p-3 shadow-sm">
