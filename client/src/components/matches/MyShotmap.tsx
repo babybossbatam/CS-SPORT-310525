@@ -498,7 +498,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     title=""
                     src="/assets/matchdetaillogo/technical-diagram.svg"
                     loading="lazy"
-                    style={{ width: '113px', height: '52px' }}
+                    style={{ width: '130px', height: '52px' }}
                   />
 
                   {/* Goal event - ball inside goal with move animation mapped to actual shot position */}
