@@ -508,25 +508,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           )}
         </div>
 
-        {/* Shot statistics */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <h4 className="font-semibold mb-2">{homeTeam || 'Home Team'}</h4>
-            <div className="space-y-1 text-sm">
-              <div>Goals: {shotData.filter(s => s.team === homeTeam && s.type === 'goal').length}</div>
-              <div>Shots: {shotData.filter(s => s.team === homeTeam).length}</div>
-              <div>On Target: {shotData.filter(s => s.team === homeTeam && (s.type === 'goal' || s.type === 'saved')).length}</div>
-            </div>
-          </div>
-          <div>
-            <h4 className="font-semibold mb-2">{awayTeam || 'Away Team'}</h4>
-            <div className="space-y-1 text-sm">
-              <div>Goals: {shotData.filter(s => s.team === awayTeam && s.type === 'goal').length}</div>
-              <div>Shots: {shotData.filter(s => s.team === awayTeam).length}</div>
-              <div>On Target: {shotData.filter(s => s.team === awayTeam && (s.type === 'goal' || s.type === 'saved')).length}</div>
-            </div>
-          </div>
-        </div>
+        
 
         {/* Legend */}
         <div className="flex items-center gap-6 flex-wrap text-sm bg-white p-3 rounded-lg border">
