@@ -323,7 +323,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
 
           {/* Goal view section with SVG goal frame - 365scores style */}
           <div className="mb-4">
-            <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-lg">
+            <div className="flex flex-col gap-4 p-4 rounded-lg">
               {/* Goal frame container */}
               <div className="relative flex-shrink-0 mx-auto" style={{ height: '90.6125px' }}>
                 <div className="relative bg-white rounded" style={{ height: '90.6125px' }}>
