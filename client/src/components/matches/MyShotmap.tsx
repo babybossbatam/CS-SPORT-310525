@@ -369,70 +369,128 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     </div>
                   )}
 
-                  {/* Saved event - ball on goal line with move animation mapped to actual shot position */}
+                  {/* Saved event - ball caught by goalkeeper with realistic positioning */}
                   {currentShot?.type === 'saved' && (
                     <div 
                       className="absolute z-10"
                       style={{
-                        left: `${65 + (currentShot.y / 100) * 50}px`, // Map Y coordinate to goal width
-                        bottom: `${2 + ((100 - currentShot.x) / 100) * 15}px`, // Use X coordinate for slight height variation on goal line
+                        left: `${68 + (currentShot.y / 100) * 45}px`, // Position within goal area for saves
+                        bottom: `${5 + ((100 - currentShot.x) / 100) * 25}px`, // Goalkeeper reach area
                         width: '12px',
                         height: '12px',
-                        animation: 'moveToSaved 1.5s ease-in-out'
+                        animation: 'moveToSaved 1.8s ease-in-out'
                       }}
                     >
                       <img 
                         src="/assets/matchdetaillogo/soccer-ball.svg" 
-                        alt="Saved" 
+                        alt="Saved Shot" 
                         className="w-3 h-3"
                         style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(255,193,7,0.5))'
+                          filter: 'drop-shadow(0 2px 6px rgba(255,193,7,0.8)) brightness(1.1)',
+                          transform: 'scale(1.1)'
+                        }}
+                      />
+                      {/* Goalkeeper glove effect */}
+                      <div 
+                        className="absolute -top-1 -left-1 w-5 h-5 rounded-full opacity-30 animate-pulse"
+                        style={{
+                          background: 'radial-gradient(circle, rgba(255,193,7,0.6) 0%, transparent 70%)'
                         }}
                       />
                     </div>
                   )}
 
-                  {/* Blocked event - ball in penalty area with move animation mapped to actual shot position */}
+                  {/* Blocked event - ball stopped by defender with impact effect */}
                   {currentShot?.type === 'blocked' && (
                     <div 
                       className="absolute z-10"
                       style={{
-                        left: `${45 + (currentShot.y / 100) * 60}px`, // Map Y coordinate to penalty area width
-                        bottom: `${20 + ((100 - currentShot.x) / 100) * 30}px`, // Use X coordinate for penalty area depth
+                        left: `${50 + (currentShot.y / 100) * 50}px`, // Wider penalty area for blocks
+                        bottom: `${25 + ((100 - currentShot.x) / 100) * 25}px`, // Defender blocking zone
                         width: '12px',
                         height: '12px',
-                        animation: 'moveToBlocked 1.5s ease-in-out'
+                        animation: 'moveToBlocked 1.6s ease-in-out'
                       }}
                     >
                       <img 
                         src="/assets/matchdetaillogo/soccer-ball.svg" 
-                        alt="Blocked" 
+                        alt="Blocked Shot" 
                         className="w-3 h-3"
                         style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(244,67,54,0.5))'
+                          filter: 'drop-shadow(0 2px 6px rgba(244,67,54,0.8)) contrast(1.2)',
+                          transform: 'scale(1.05)'
+                        }}
+                      />
+                      {/* Block impact effect */}
+                      <div 
+                        className="absolute -top-2 -left-2 w-7 h-7 opacity-40"
+                        style={{
+                          background: 'radial-gradient(circle, rgba(244,67,54,0.5) 0%, rgba(244,67,54,0.2) 50%, transparent 70%)',
+                          animation: 'blockImpact 1.6s ease-out'
                         }}
                       />
                     </div>
                   )}
 
-                  {/* Missed event - ball outside goal with move animation mapped to actual shot position */}
+                  {/* Missed event - ball trajectory showing wide/high miss */}
                   {currentShot?.type === 'missed' && (
                     <div 
                       className="absolute z-10"
                       style={{
-                        left: `${15 + (currentShot.y / 100) * 90}px`, // Map Y coordinate to wider area for misses
-                        top: `${5 + (currentShot.x / 100) * 35}px`, // Use X coordinate for miss trajectory height
+                        left: `${20 + (currentShot.y / 100) * 80}px`, // Wide area for missed shots
+                        top: `${10 + (currentShot.x / 100) * 30}px`, // Higher trajectory for misses
                         width: '12px',
                         height: '12px',
-                        animation: 'moveToMissed 1.5s ease-in-out'
+                        animation: 'moveToMissed 2s ease-in-out'
                       }}
                     >
                       <img 
                         src="/assets/matchdetaillogo/soccer-ball.svg" 
-                        alt="Missed" 
+                        alt="Missed Shot" 
                         className="w-3 h-3"
                         style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(158,158,158,0.5))'
+                          filter: 'drop-shadow(0 2px 4px rgba(158,158,158,0.6)) grayscale(0.3)',
+                          opacity: '0.85'
+                        }}
+                      />
+                      {/* Miss trajectory trail effect */}
+                      <div 
+                        className="absolute top-1 left-1 w-2 h-8 opacity-20"
+                        style={{
+                          background: 'linear-gradient(to bottom, rgba(158,158,158,0.4), transparent)',
+                          transform: 'rotate(-15deg)',
+                          animation: 'missTrail 2s ease-out'
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Regular shot event - ball heading towards goal */}
+                  {currentShot?.type === 'shot' && (
+                    <div 
+                      className="absolute z-10"
+                      style={{
+                        left: `${60 + (currentShot.y / 100) * 55}px`, // Shot trajectory towards goal
+                        bottom: `${10 + ((100 - currentShot.x) / 100) * 35}px`, // On target shots
+                        width: '12px',
+                        height: '12px',
+                        animation: 'moveToShot 1.7s ease-in-out'
+                      }}
+                    >
+                      <img 
+                        src="/assets/matchdetaillogo/soccer-ball.svg" 
+                        alt="Shot on Target" 
+                        className="w-3 h-3"
+                        style={{
+                          filter: 'drop-shadow(0 2px 5px rgba(59,130,246,0.7)) brightness(1.05)',
+                          transform: 'scale(1.08)'
+                        }}
+                      />
+                      {/* Shot power effect */}
+                      <div 
+                        className="absolute -top-1 -left-1 w-5 h-5 rounded-full opacity-25 animate-ping"
+                        style={{
+                          background: 'radial-gradient(circle, rgba(59,130,246,0.6) 0%, transparent 70%)'
                         }}
                       />
                     </div>
@@ -559,77 +617,138 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           <p>⚽ Interactive shot map - click on shots to see details and navigate through all match shots.</p>
         </div>
 
-        {/* CSS animations for shot events */}
+        {/* Enhanced CSS animations for all shot types */}
         <style jsx>{`
           @keyframes moveToGoal {
             0% {
-              transform: translate(-50px, 50px) scale(0.8);
+              transform: translate(-50px, 50px) scale(0.8) rotate(-10deg);
               opacity: 0.7;
             }
             50% {
-              transform: translate(-25px, 25px) scale(1.1);
+              transform: translate(-25px, 25px) scale(1.1) rotate(5deg);
               opacity: 1;
             }
             100% {
-              transform: translate(0, 0) scale(1);
+              transform: translate(0, 0) scale(1) rotate(0deg);
               opacity: 1;
             }
           }
 
           @keyframes moveToSaved {
             0% {
-              transform: translate(-40px, 40px) scale(0.8);
+              transform: translate(-45px, 45px) scale(0.8) rotate(-15deg);
               opacity: 0.7;
             }
-            50% {
-              transform: translate(-20px, 20px) scale(1.1);
+            40% {
+              transform: translate(-25px, 25px) scale(1.15) rotate(10deg);
               opacity: 1;
             }
+            70% {
+              transform: translate(-10px, 10px) scale(1.05) rotate(-5deg);
+              opacity: 0.95;
+            }
             100% {
-              transform: translate(0, 0) scale(1);
+              transform: translate(0, 0) scale(1.1) rotate(0deg);
               opacity: 1;
             }
           }
 
           @keyframes moveToBlocked {
             0% {
-              transform: translate(-35px, 35px) scale(0.8);
+              transform: translate(-40px, 40px) scale(0.8) rotate(-12deg);
               opacity: 0.7;
             }
             30% {
-              transform: translate(-20px, 20px) scale(1.1);
+              transform: translate(-25px, 25px) scale(1.2) rotate(8deg);
               opacity: 1;
             }
-            60% {
-              transform: translate(-10px, 10px) scale(0.9);
-              opacity: 0.8;
+            50% {
+              transform: translate(-15px, 15px) scale(0.9) rotate(-8deg);
+              opacity: 0.9;
+            }
+            70% {
+              transform: translate(-8px, 8px) scale(1.1) rotate(4deg);
+              opacity: 0.85;
             }
             100% {
-              transform: translate(0, 0) scale(1);
+              transform: translate(0, 0) scale(1.05) rotate(0deg);
               opacity: 1;
             }
           }
 
           @keyframes moveToMissed {
             0% {
-              transform: translate(30px, -30px) scale(0.8);
+              transform: translate(40px, -40px) scale(0.8) rotate(20deg);
               opacity: 0.7;
             }
             25% {
-              transform: translate(20px, -20px) scale(1.1);
+              transform: translate(25px, -25px) scale(1.1) rotate(15deg);
               opacity: 1;
             }
             50% {
-              transform: translate(10px, -10px) scale(1.2);
+              transform: translate(15px, -15px) scale(1.3) rotate(10deg);
               opacity: 0.9;
             }
             75% {
-              transform: translate(5px, -5px) scale(1.1);
-              opacity: 0.8;
+              transform: translate(8px, -8px) scale(1.1) rotate(5deg);
+              opacity: 0.7;
             }
             100% {
-              transform: translate(0, 0) scale(1);
+              transform: translate(0, 0) scale(0.85) rotate(0deg);
+              opacity: 0.85;
+            }
+          }
+
+          @keyframes moveToShot {
+            0% {
+              transform: translate(-45px, 45px) scale(0.8) rotate(-10deg);
+              opacity: 0.7;
+            }
+            40% {
+              transform: translate(-25px, 25px) scale(1.2) rotate(5deg);
               opacity: 1;
+            }
+            70% {
+              transform: translate(-12px, 12px) scale(1.05) rotate(-3deg);
+              opacity: 0.95;
+            }
+            100% {
+              transform: translate(0, 0) scale(1.08) rotate(0deg);
+              opacity: 1;
+            }
+          }
+
+          @keyframes blockImpact {
+            0% {
+              transform: scale(0.5);
+              opacity: 0.8;
+            }
+            30% {
+              transform: scale(1.2);
+              opacity: 0.6;
+            }
+            60% {
+              transform: scale(1.5);
+              opacity: 0.3;
+            }
+            100% {
+              transform: scale(2);
+              opacity: 0;
+            }
+          }
+
+          @keyframes missTrail {
+            0% {
+              opacity: 0.4;
+              transform: rotate(-15deg) scaleY(1);
+            }
+            50% {
+              opacity: 0.2;
+              transform: rotate(-20deg) scaleY(1.5);
+            }
+            100% {
+              opacity: 0;
+              transform: rotate(-25deg) scaleY(2);
             }
           }
         `}</style>
