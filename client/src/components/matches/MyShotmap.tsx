@@ -351,8 +351,8 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     <div 
                       className="absolute z-10 animate-bounce"
                       style={{
-                        left: `${65 + (currentShot.y / 100) * 50}px`, // More precise mapping: Y coordinate to goal width
-                        bottom: `${8 + ((100 - currentShot.x) / 100) * 40}px`, // Use X coordinate for goal height positioning
+                        left: `${70 + (currentShot.y / 100) * 40}px`, // Position inside the goal net
+                        bottom: `${15 + ((100 - currentShot.x) / 100) * 30}px`, // Deeper inside the net for goals
                         width: '12px',
                         height: '12px',
                         animation: 'moveToGoal 1.5s ease-in-out'
