@@ -478,7 +478,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
             }}
           />
 
-          {/* Shot markers */}
+          {/* All shot markers displayed simultaneously */}
           {shotData.map((shot, index) => (
             <div
               key={shot.id}
@@ -491,72 +491,178 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               }}
               onClick={() => setSelectedShotIndex(index)}
             >
-              <div
-                className={`relative rounded-full border-3 transition-all duration-200 ${
-                  index === selectedShotIndex 
-                    ? 'w-6 h-6 shadow-lg border-4' 
-                    : 'w-4 h-4 opacity-70 hover:opacity-100'
-                } ${
-                  shot.type === 'goal' ? 'bg-transparent border-green-600' :
-                  shot.type === 'saved' ? 'bg-yellow-500 border-yellow-600' :
-                  shot.type === 'blocked' ? 'bg-red-500 border-red-600' :
-                  shot.type === 'missed' ? 'bg-gray-400 border-gray-500' :
-                  'bg-blue-500 border-blue-600'
-                }`}
-              >
-                {/* Soccer ball icon for goals */}
-                {shot.type === 'goal' && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <img 
-                      src="/assets/matchdetaillogo/soccer-ball.svg" 
-                      alt="Goal" 
-                      className={`${index === selectedShotIndex ? 'w-5 h-5' : 'w-3 h-3'}`}
-                    />
-                  </div>
-                )}
-
-                {/* Circle with team color border for selected */}
-                {index === selectedShotIndex && (
-                  <div 
-                    className="absolute inset-0 rounded-full border-2"
+              {/* Shot type indicators */}
+              {shot.type === 'goal' && (
+                <div className={`relative ${index === selectedShotIndex ? 'w-6 h-6' : 'w-4 h-4'} transition-all duration-200`}>
+                  <img 
+                    src="/assets/matchdetaillogo/soccer-ball.svg" 
+                    alt="Goal" 
+                    className="w-full h-full"
                     style={{
-                      borderColor: getShotColor(shot.team),
+                      filter: index === selectedShotIndex 
+                        ? 'drop-shadow(0 2px 4px rgba(34,197,94,0.5))' 
+                        : 'drop-shadow(0 1px 2px rgba(34,197,94,0.3))'
                     }}
-                  ></div>
-                )}
-              </div>
+                  />
+                  {index === selectedShotIndex && (
+                    <div className="absolute inset-0 rounded-full border-2 border-green-500 animate-pulse"></div>
+                  )}
+                </div>
+              )}
+
+              {shot.type === 'saved' && (
+                <div 
+                  className={`relative rounded-full bg-yellow-400 border-2 border-yellow-600 transition-all duration-200 ${
+                    index === selectedShotIndex ? 'w-6 h-6 shadow-lg' : 'w-4 h-4'
+                  }`}
+                >
+                  <div className="absolute inset-1 rounded-full bg-white opacity-30"></div>
+                  {index === selectedShotIndex && (
+                    <div className="absolute inset-0 rounded-full border-2 border-yellow-500 animate-pulse"></div>
+                  )}
+                </div>
+              )}
+
+              {shot.type === 'blocked' && (
+                <div 
+                  className={`relative rounded-full bg-red-500 border-2 border-red-700 transition-all duration-200 ${
+                    index === selectedShotIndex ? 'w-6 h-6 shadow-lg' : 'w-4 h-4'
+                  }`}
+                >
+                  <div className="absolute inset-1 rounded-full bg-white opacity-20"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-1/2 h-0.5 bg-white transform rotate-45"></div>
+                    <div className="w-1/2 h-0.5 bg-white transform -rotate-45 absolute"></div>
+                  </div>
+                  {index === selectedShotIndex && (
+                    <div className="absolute inset-0 rounded-full border-2 border-red-500 animate-pulse"></div>
+                  )}
+                </div>
+              )}
+
+              {shot.type === 'missed' && (
+                <div 
+                  className={`relative rounded-full bg-gray-400 border-2 border-gray-600 transition-all duration-200 ${
+                    index === selectedShotIndex ? 'w-6 h-6 shadow-lg' : 'w-4 h-4'
+                  }`}
+                >
+                  <div className="absolute inset-1 rounded-full bg-white opacity-20"></div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-1/3 h-0.5 bg-white transform rotate-45"></div>
+                    <div className="w-1/3 h-0.5 bg-white transform -rotate-45 absolute"></div>
+                  </div>
+                  {index === selectedShotIndex && (
+                    <div className="absolute inset-0 rounded-full border-2 border-gray-500 animate-pulse"></div>
+                  )}
+                </div>
+              )}
+
+              {shot.type === 'shot' && (
+                <div 
+                  className={`relative rounded-full bg-blue-500 border-2 border-blue-700 transition-all duration-200 ${
+                    index === selectedShotIndex ? 'w-6 h-6 shadow-lg' : 'w-4 h-4'
+                  }`}
+                >
+                  <div className="absolute inset-1 rounded-full bg-white opacity-30"></div>
+                  {index === selectedShotIndex && (
+                    <div className="absolute inset-0 rounded-full border-2 border-blue-500 animate-pulse"></div>
+                  )}
+                </div>
+              )}
 
               {/* Enhanced tooltip */}
               <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 shadow-lg">
                 <div className="font-medium">{shot.player}</div>
-                <div className="text-gray-300">{shot.minute}' • {shot.type}</div>
+                <div className="text-gray-300">{shot.minute}' • {shot.type.charAt(0).toUpperCase() + shot.type.slice(1)}</div>
+                <div className="text-gray-400">xG: {shot.xG?.toFixed(2) || '0.00'}</div>
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
               </div>
             </div>
           ))}
 
-          {/* Selected shot trajectory line */}
-          {currentShot && (
-            <svg className="absolute inset-0 w-full h-full pointer-events-none">
+          {/* Team shot trajectories - show all shots with different opacities */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none">
+            {shotData.map((shot, index) => (
               <line
-                x1={`${currentShot.x}%`}
-                y1={`${currentShot.y}%`}
-                x2={currentShot.team === homeTeam ? "5%" : "95%"}
+                key={`trajectory-${shot.id}`}
+                x1={`${shot.x}%`}
+                y1={`${shot.y}%`}
+                x2={shot.team === homeTeam ? "5%" : "95%"}
                 y2="50%"
-                stroke={getShotColor(currentShot.team)}
-                strokeWidth="2"
-                strokeDasharray="5,5"
-                opacity="0.6"
+                stroke={getShotColor(shot.team)}
+                strokeWidth={index === selectedShotIndex ? "2" : "1"}
+                strokeDasharray="3,3"
+                opacity={index === selectedShotIndex ? "0.8" : "0.2"}
+                className="transition-all duration-200"
               />
-            </svg>
-          )}
+            ))}
+          </svg>
+
+          {/* Shot distribution heatmap overlay (optional) */}
+          <div className="absolute inset-0 pointer-events-none">
+            {shotData.map((shot, index) => (
+              <div
+                key={`heat-${shot.id}`}
+                className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                style={{
+                  left: `${shot.x}%`,
+                  top: `${shot.y}%`,
+                  width: '20px',
+                  height: '20px',
+                  background: `radial-gradient(circle, ${getShotColor(shot.team)}20, transparent)`,
+                  opacity: 0.3,
+                }}
+              />
+            ))}
+          </div>
         </div>
 
         
 
+        {/* Shot type legend */}
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+          <div className="text-sm font-medium text-gray-800 mb-2">Shot Legend</div>
+          <div className="flex flex-wrap gap-4 text-xs">
+            <div className="flex items-center gap-2">
+              <img src="/assets/matchdetaillogo/soccer-ball.svg" alt="Goal" className="w-4 h-4" />
+              <span className="text-green-700 font-medium">Goal</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-yellow-400 border-2 border-yellow-600">
+                <div className="w-full h-full rounded-full bg-white opacity-30"></div>
+              </div>
+              <span className="text-yellow-700 font-medium">Saved</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-red-700 relative">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-1/2 h-0.5 bg-white transform rotate-45"></div>
+                  <div className="w-1/2 h-0.5 bg-white transform -rotate-45 absolute"></div>
+                </div>
+              </div>
+              <span className="text-red-700 font-medium">Blocked</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-gray-400 border-2 border-gray-600 relative">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-1/3 h-0.5 bg-white transform rotate-45"></div>
+                  <div className="w-1/3 h-0.5 bg-white transform -rotate-45 absolute"></div>
+                </div>
+              </div>
+              <span className="text-gray-700 font-medium">Missed</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-blue-700">
+                <div className="w-full h-full rounded-full bg-white opacity-30"></div>
+              </div>
+              <span className="text-blue-700 font-medium">Shot</span>
+            </div>
+          </div>
+        </div>
+
         {/* Info note */}
-        <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
-          <p>⚽ Interactive shot map - click on shots to see details and navigate through all match shots.</p>
+        <div className="mt-3 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
+          <p>⚽ Interactive shot map - click on any shot to see details and navigate through all match shots.</p>
         </div>
 
         {/* CSS animations for shot events */}
