@@ -431,20 +431,23 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               </div>
 
               {/* Event details container - 365scores style */}
-              <div className="flex flex-col gap-4 flex-1">
-                <div className="text-center bg-white rounded-lg p-3 shadow-sm">
+              <div className="flex items-center justify-between flex-1 bg-white rounded-lg p-4 shadow-sm">
+                <div className="text-center flex-1">
                   <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.situation || 'Regular Play'}</bdi>
                   <div className="text-xs text-gray-500 mt-1">Situation</div>
                 </div>
-                <div className="text-center bg-white rounded-lg p-3 shadow-sm">
+                <div className="w-px h-8 bg-gray-300 mx-3"></div>
+                <div className="text-center flex-1">
                   <bdi className="font-semibold text-sm text-gray-800 block whitespace-normal break-words">{currentShot?.bodyPart || 'Left foot'}</bdi>
                   <div className="text-xs text-gray-500 mt-1 whitespace-nowrap">Shot Type</div>
                 </div>
-                <div className="text-center bg-white rounded-lg p-3 shadow-sm">
+                <div className="w-px h-8 bg-gray-300 mx-3"></div>
+                <div className="text-center flex-1">
                   <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.xG?.toFixed(2) || '0.00'}</bdi>
                   <div className="text-xs text-gray-500 mt-1">xG</div>
                 </div>
-                <div className="text-center bg-white rounded-lg p-3 shadow-sm">
+                <div className="w-px h-8 bg-gray-300 mx-3"></div>
+                <div className="text-center flex-1">
                   <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.xGOT?.toFixed(2) || '0.00'}</bdi>
                   <div className="text-xs text-gray-500 mt-1">xGOT</div>
                 </div>
