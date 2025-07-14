@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
+import MyAvatarInfo from './MyAvatarInfo';
 
 interface MyShotmapProps {
   match?: any;
@@ -22,6 +23,7 @@ interface ShotData {
   xG: number;
   xGOT?: number;
   playerPhoto?: string;
+  playerId?: number;
 }
 
 const MyShotmap: React.FC<MyShotmapProps> = ({
@@ -94,6 +96,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                           event.detail?.includes('Free') ? 'Set Piece' : 'Regular Play',
                 xG: Math.random() * 0.8 + 0.05, // Random xG between 0.05 and 0.85
                 xGOT: shotType === 'goal' ? Math.random() * 0.4 + 0.4 : undefined, // Higher xGOT for goals
+                playerId: event.player?.id,
                 playerPhoto: event.player?.id 
                   ? `https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/${event.player.id}`
                   : '/assets/fallback_player.png'
@@ -148,6 +151,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               situation: shot.situation || 'Regular Play',
               xG: Math.random() * 0.8 + 0.05,
               xGOT: shot.type === 'goal' ? Math.random() * 0.4 + 0.4 : undefined,
+              playerId: shot.player?.id,
               playerPhoto: shot.player?.id 
                 ? `https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/${shot.player.id}`
                 : '/assets/fallback_player.png'
@@ -240,17 +244,12 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
         <div className="mb-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 border-2 border-gray-300">
-                <img 
-                  src={currentShot?.playerPhoto || '/assets/fallback_player.png'} 
-                  alt={currentShot?.player}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = '/assets/fallback_player.png';
-                  }}
-                />
-              </div>
+              <MyAvatarInfo
+                playerId={currentShot?.playerId}
+                playerName={currentShot?.player}
+                size="lg"
+                className="border-2 border-gray-300"
+              />
               <div>
                 <div className="font-semibold text-base text-gray-900">{currentShot?.player}</div>
                 <div className={`text-sm font-medium ${
