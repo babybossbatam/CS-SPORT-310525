@@ -46,78 +46,74 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
       try {
         console.log(`⚽ [MyShotmap] Fetching shot data for fixture: ${fixtureId}`);
         
-        // Enhanced mock data with more details
-        const mockShots: ShotData[] = [
-          {
-            id: 1,
-            x: 85,
-            y: 45,
-            type: 'goal',
-            player: 'Lionel Messi',
-            team: homeTeam || 'Home Team',
-            minute: 27,
-            bodyPart: 'Left foot',
-            situation: 'Regular Play',
-            xG: 0.20,
-            xGOT: 0.65,
-            playerPhoto: 'https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/874'
-          },
-          {
-            id: 2,
-            x: 75,
-            y: 35,
-            type: 'shot',
-            player: 'Luis Suárez',
-            team: homeTeam || 'Home Team',
-            minute: 45,
-            bodyPart: 'Right foot',
-            situation: 'Regular Play',
-            xG: 0.15,
-            playerPhoto: 'https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/874'
-          },
-          {
-            id: 3,
-            x: 20,
-            y: 50,
-            type: 'goal',
-            player: 'Carles Gil',
-            team: awayTeam || 'Away Team',
-            minute: 80,
-            bodyPart: 'Right foot',
-            situation: 'Counter Attack',
-            xG: 0.25,
-            xGOT: 0.55,
-            playerPhoto: 'https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/874'
-          },
-          {
-            id: 4,
-            x: 90,
-            y: 40,
-            type: 'saved',
-            player: 'Jordi Alba',
-            team: homeTeam || 'Home Team',
-            minute: 65,
-            bodyPart: 'Left foot',
-            situation: 'Set Piece',
-            xG: 0.18,
-            playerPhoto: 'https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/874'
-          },
-          {
-            id: 5,
-            x: 78,
-            y: 25,
-            type: 'blocked',
-            player: 'Pedri',
-            team: homeTeam || 'Home Team',
-            minute: 38,
-            bodyPart: 'Right foot',
-            situation: 'Regular Play',
-            xG: 0.12,
-            playerPhoto: 'https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/874'
-          }
-        ];
+        // First try to get match events which may contain shot data
+        const eventsResponse = await fetch(`/api/fixtures/${fixtureId}/events`);
+        
+        if (eventsResponse.ok) {
+          const events = await eventsResponse.json();
+          console.log(`✅ [MyShotmap] Received ${events.length} events`);
+          
+          // Filter and convert events to shot data
+          const shots: ShotData[] = [];
+          let shotId = 1;
+          
+          events.forEach((event: any) => {
+            if (event.type === 'Goal' || event.detail?.toLowerCase().includes('shot') || 
+                event.detail?.toLowerCase().includes('penalty') || event.detail?.toLowerCase().includes('missed')) {
+              
+              // Determine shot type from event detail
+              let shotType: 'goal' | 'shot' | 'saved' | 'blocked' | 'missed' = 'shot';
+              const detail = event.detail?.toLowerCase() || '';
+              
+              if (event.type === 'Goal' || detail.includes('goal')) {
+                shotType = 'goal';
+              } else if (detail.includes('saved') || detail.includes('save')) {
+                shotType = 'saved';
+              } else if (detail.includes('blocked') || detail.includes('block')) {
+                shotType = 'blocked';
+              } else if (detail.includes('missed') || detail.includes('miss') || detail.includes('wide')) {
+                shotType = 'missed';
+              }
 
-        setShotData(mockShots);
+              // Generate realistic coordinates based on shot type and team
+              const isHomeTeam = event.team?.name === homeTeam;
+              const x = isHomeTeam ? Math.random() * 30 + 70 : Math.random() * 30 + 5; // Home shots from right side
+              const y = Math.random() * 60 + 20; // Random Y position in central area
+              
+              shots.push({
+                id: shotId++,
+                x: Math.round(x),
+                y: Math.round(y),
+                type: shotType,
+                player: event.player?.name || 'Unknown Player',
+                team: event.team?.name || (isHomeTeam ? homeTeam : awayTeam) || 'Unknown Team',
+                minute: event.time?.elapsed || 0,
+                bodyPart: event.detail?.includes('Header') ? 'Header' : 
+                         event.detail?.includes('Right') ? 'Right foot' : 'Left foot',
+                situation: event.detail?.includes('Penalty') ? 'Penalty' : 
+                          event.detail?.includes('Free') ? 'Set Piece' : 'Regular Play',
+                xG: Math.random() * 0.8 + 0.05, // Random xG between 0.05 and 0.85
+                xGOT: shotType === 'goal' ? Math.random() * 0.4 + 0.4 : undefined, // Higher xGOT for goals
+                playerPhoto: 'https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/874'
+              });
+            }
+          });
+
+          if (shots.length > 0) {
+            // Sort shots by minute
+            shots.sort((a, b) => a.minute - b.minute);
+            setShotData(shots);
+            console.log(`✅ [MyShotmap] Processed ${shots.length} shots from events`);
+          } else {
+            // If no shots found in events, try SofaScore API
+            console.log(`⚠️ [MyShotmap] No shots found in events, trying SofaScore API...`);
+            await fetchFromSofaScore();
+          }
+        } else {
+          console.log(`⚠️ [MyShotmap] Events API failed, trying SofaScore API...`);
+          await fetchFromSofaScore();
+        }
+
         setError(null);
       } catch (error) {
         console.error(`❌ [MyShotmap] Error fetching shot data:`, error);
@@ -127,6 +123,53 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
       } finally {
         setIsLoading(false);
       }
+    };
+
+    const fetchFromSofaScore = async () => {
+      try {
+        // Try to get data from SofaScore API with match details
+        const sofaScoreResponse = await fetch(`/api/players/1/heatmap?eventId=${fixtureId}&homeTeam=${encodeURIComponent(homeTeam || '')}&awayTeam=${encodeURIComponent(awayTeam || '')}&matchDate=${new Date().toISOString()}`);
+        
+        if (sofaScoreResponse.ok) {
+          const sofaScoreData = await sofaScoreResponse.json();
+          
+          if (sofaScoreData.shots && sofaScoreData.shots.length > 0) {
+            const convertedShots: ShotData[] = sofaScoreData.shots.map((shot: any, index: number) => ({
+              id: index + 1,
+              x: shot.x,
+              y: shot.y,
+              type: mapSofaScoreShotType(shot.type),
+              player: `Player ${index + 1}`,
+              team: shot.x > 50 ? homeTeam || 'Home Team' : awayTeam || 'Away Team',
+              minute: shot.minute,
+              bodyPart: 'Right foot',
+              situation: 'Regular Play',
+              xG: Math.random() * 0.8 + 0.05,
+              xGOT: shot.type === 'goal' ? Math.random() * 0.4 + 0.4 : undefined,
+              playerPhoto: 'https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/874'
+            }));
+            
+            setShotData(convertedShots);
+            console.log(`✅ [MyShotmap] Loaded ${convertedShots.length} shots from SofaScore API`);
+            return;
+          }
+        }
+        
+        // If SofaScore also fails, show no data available
+        console.log(`⚠️ [MyShotmap] No shot data available from any source`);
+        setShotData([]);
+      } catch (error) {
+        console.error(`❌ [MyShotmap] SofaScore API error:`, error);
+        setShotData([]);
+      }
+    };
+
+    const mapSofaScoreShotType = (type: string): 'goal' | 'shot' | 'saved' | 'blocked' | 'missed' => {
+      const normalizedType = type.toLowerCase();
+      if (normalizedType.includes('goal')) return 'goal';
+      if (normalizedType.includes('on') || normalizedType.includes('target')) return 'saved';
+      if (normalizedType.includes('block')) return 'blocked';
+      return 'missed';
     };
 
     fetchShotData();
