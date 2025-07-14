@@ -336,13 +336,13 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     style={{ width: '141.563px', height: '65.3568px' }}
                   />
 
-                  {/* Goal event - ball inside goal with move animation */}
+                  {/* Goal event - ball inside goal with move animation mapped to actual shot position */}
                   {currentShot?.type === 'goal' && (
                     <div 
                       className="absolute z-10 animate-bounce"
                       style={{
-                        left: '99px',
-                        bottom: '16px',
+                        left: `${70 + (currentShot.y / 100) * 40}px`, // Map Y coordinate (0-100) to goal width (70px-110px)
+                        bottom: `${10 + ((100 - currentShot.y) / 100) * 35}px`, // Map inverted Y to goal height (10px-45px)
                         width: '12px',
                         height: '12px',
                         animation: 'moveToGoal 1.5s ease-in-out'
@@ -359,13 +359,13 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     </div>
                   )}
 
-                  {/* Saved event - ball on goal line with move animation */}
+                  {/* Saved event - ball on goal line with move animation mapped to actual shot position */}
                   {currentShot?.type === 'saved' && (
                     <div 
                       className="absolute z-10"
                       style={{
-                        left: '65px',
-                        bottom: '0px',
+                        left: `${70 + (currentShot.y / 100) * 40}px`, // Map Y coordinate to goal width
+                        bottom: '0px', // Keep on goal line for saves
                         width: '12px',
                         height: '12px',
                         animation: 'moveToSaved 1.5s ease-in-out'
@@ -382,13 +382,13 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     </div>
                   )}
 
-                  {/* Blocked event - ball in penalty area with move animation */}
+                  {/* Blocked event - ball in penalty area with move animation mapped to actual shot position */}
                   {currentShot?.type === 'blocked' && (
                     <div 
                       className="absolute z-10"
                       style={{
-                        left: '58px',
-                        bottom: '22px',
+                        left: `${50 + (currentShot.y / 100) * 50}px`, // Map Y coordinate to penalty area width
+                        bottom: `${15 + ((100 - currentShot.y) / 100) * 25}px`, // Map to penalty area height
                         width: '12px',
                         height: '12px',
                         animation: 'moveToBlocked 1.5s ease-in-out'
@@ -405,13 +405,13 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     </div>
                   )}
 
-                  {/* Missed event - ball outside goal with move animation */}
+                  {/* Missed event - ball outside goal with move animation mapped to actual shot position */}
                   {currentShot?.type === 'missed' && (
                     <div 
                       className="absolute z-10"
                       style={{
-                        left: '28px',
-                        top: '13px',
+                        left: `${20 + (currentShot.y / 100) * 80}px`, // Map Y coordinate to wider area for misses
+                        top: `${5 + (currentShot.y / 100) * 30}px`, // Map Y coordinate to variable height for misses
                         width: '12px',
                         height: '12px',
                         animation: 'moveToMissed 1.5s ease-in-out'
