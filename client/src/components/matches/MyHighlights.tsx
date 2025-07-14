@@ -15,7 +15,7 @@ interface MyHighlightsProps {
 
 interface VideoSource {
   name: string;
-  type: 'youtube';
+  type: 'youtube' | 'vimeo' | 'dailymotion' | 'feed';
   url?: string;
   embedUrl?: string;
   title?: string;
@@ -230,12 +230,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         // Try multiple search queries for better match accuracy
         const queries = [primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
         let data;
-
+        
         for (const query of queries) {
           try {
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=1&channelId=${concacafChannelId}&order=relevance`);
             data = await response.json();
-
+            
             if (data.items && data.items.length > 0) {
               break;
             }
@@ -277,12 +277,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           secondarySearchQuery
         ];
         let data;
-
+        
         for (const query of brazilQueries) {
           try {
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=1&channelId=${desimpedidosChannelId}&order=relevance`);
             data = await response.json();
-
+            
             if (data.items && data.items.length > 0) {
               break;
             }
@@ -319,12 +319,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         const searchTerm = isPalmeirasChelsea ? 'Chelsea highlights FIFA Club World Cup' : primarySearchQuery;
         const queries = isPalmeirasChelsea ? [searchTerm] : [primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
         let data;
-
+        
         for (const query of queries) {
           try {
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=1&channelId=${fifaChannelId}&order=relevance`);
             data = await response.json();
-
+            
             if (data.items && data.items.length > 0) {
               break;
             }
@@ -357,7 +357,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         // Try multiple search queries in order of specificity
         const queries = [primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
-
+        
         for (const query of queries) {
           try {
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=1&order=relevance`);
@@ -385,7 +385,46 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         throw new Error('No YouTube videos found');
       }
     },
-    
+    {
+      name: 'Vimeo',
+      type: 'vimeo' as const,
+      searchFn: async () => {
+        const response = await fetch(`/api/vimeo/search?q=${encodeURIComponent(primarySearchQuery)}&maxResults=1`);
+        const data = await response.json();
+
+        if (data.items && data.items.length > 0) {
+          const video = data.items[0];
+          return {
+            name: 'Vimeo',
+            type: 'vimeo' as const,
+            url: video.url,
+            embedUrl: `https://player.vimeo.com/video/${video.id}?autoplay=0`,
+            title: video.title
+          };
+        }
+        throw new Error('No Vimeo videos found');
+      }
+    },
+    {
+      name: 'Dailymotion',
+      type: 'dailymotion' as const,
+      searchFn: async () => {
+        const response = await fetch(`/api/dailymotion/search?q=${encodeURIComponent(primarySearchQuery)}&maxResults=1`);
+        const data = await response.json();
+
+        if (data.items && data.items.length > 0) {
+          const video = data.items[0];
+          return {
+            name: 'Dailymotion',
+            type: 'dailymotion' as const,
+            url: `https://www.dailymotion.com/video/${video.id}`,
+            embedUrl: `https://www.dailymotion.com/embed/video/${video.id}?autoplay=0`,
+            title: video.title
+          };
+        }
+        throw new Error('No Dailymotion videos found');
+      }
+    },
     // Additional fallback with broader search terms
     {
       name: 'YouTube Extended',
