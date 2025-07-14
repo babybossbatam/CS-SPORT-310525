@@ -79,18 +79,28 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                 shotType = 'missed';
               }
 
-              // Generate realistic coordinates based on shot type and team
+              // Try to get actual coordinates from SofaScore API or generate realistic ones
               const isHomeTeam = event.team?.name === homeTeam;
               let x, y;
               
-              if (shotType === 'missed') {
-                // Missed shots can be from wider areas and off-target positions
-                x = isHomeTeam ? Math.random() * 40 + 0 : Math.random() * 40 + 60;
-                y = Math.random() * 80 + 10; // Wider Y range for missed shots
+              // Check if we have actual coordinate data from SofaScore
+              if (event.coordinates?.x !== undefined && event.coordinates?.y !== undefined) {
+                // Use actual coordinates from SofaScore API
+                x = Math.max(0, Math.min(100, event.coordinates.x));
+                y = Math.max(0, Math.min(100, event.coordinates.y));
+                console.log(`🎯 [MyShotmap] Using actual coordinates for ${event.player?.name}: x=${x}, y=${y}`);
               } else {
-                // Regular shots closer to goal
-                x = isHomeTeam ? Math.random() * 30 + 5 : Math.random() * 30 + 70;
-                y = Math.random() * 60 + 20; // Central area
+                // Fallback to generated coordinates based on shot type and team
+                if (shotType === 'missed') {
+                  // Missed shots can be from wider areas and off-target positions
+                  x = isHomeTeam ? Math.random() * 40 + 0 : Math.random() * 40 + 60;
+                  y = Math.random() * 80 + 10; // Wider Y range for missed shots
+                } else {
+                  // Regular shots closer to goal
+                  x = isHomeTeam ? Math.random() * 30 + 5 : Math.random() * 30 + 70;
+                  y = Math.random() * 60 + 20; // Central area
+                }
+                console.log(`🎯 [MyShotmap] Using generated coordinates for ${event.player?.name}: x=${x}, y=${y}`);
               }
 
               const shotData = {
@@ -166,16 +176,16 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           if (sofaScoreData.shots && sofaScoreData.shots.length > 0) {
             const convertedShots: ShotData[] = sofaScoreData.shots.map((shot: any, index: number) => ({
               id: index + 1,
-              x: shot.x,
-              y: shot.y,
+              x: Math.max(0, Math.min(100, shot.x || (shot.x > 50 ? 75 : 25))), // Use actual X or fallback
+              y: Math.max(0, Math.min(100, shot.y || 50)), // Use actual Y or fallback to center
               type: mapSofaScoreShotType(shot.type),
               player: shot.player?.name || `Player ${index + 1}`,
-              team: shot.x > 50 ? homeTeam || 'Home Team' : awayTeam || 'Away Team',
-              minute: shot.minute,
+              team: (shot.x || 50) > 50 ? homeTeam || 'Home Team' : awayTeam || 'Away Team',
+              minute: shot.minute || 0,
               bodyPart: shot.bodyPart || 'Right foot',
               situation: shot.situation || 'Regular Play',
-              xG: Math.random() * 0.8 + 0.05,
-              xGOT: shot.type === 'goal' ? Math.random() * 0.4 + 0.4 : undefined,
+              xG: shot.xG || (Math.random() * 0.8 + 0.05),
+              xGOT: shot.type === 'goal' ? (shot.xGOT || Math.random() * 0.4 + 0.4) : shot.xGOT,
               playerId: shot.player?.id,
               playerPhoto: shot.player?.id 
                 ? `https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/${shot.player.id}`
@@ -341,8 +351,8 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     <div 
                       className="absolute z-10 animate-bounce"
                       style={{
-                        left: `${70 + (currentShot.y / 100) * 40}px`, // Map Y coordinate (0-100) to goal width (70px-110px)
-                        bottom: `${10 + ((100 - currentShot.y) / 100) * 35}px`, // Map inverted Y to goal height (10px-45px)
+                        left: `${65 + (currentShot.y / 100) * 50}px`, // More precise mapping: Y coordinate to goal width
+                        bottom: `${8 + ((100 - currentShot.x) / 100) * 40}px`, // Use X coordinate for goal height positioning
                         width: '12px',
                         height: '12px',
                         animation: 'moveToGoal 1.5s ease-in-out'
@@ -364,8 +374,8 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     <div 
                       className="absolute z-10"
                       style={{
-                        left: `${70 + (currentShot.y / 100) * 40}px`, // Map Y coordinate to goal width
-                        bottom: '0px', // Keep on goal line for saves
+                        left: `${65 + (currentShot.y / 100) * 50}px`, // Map Y coordinate to goal width
+                        bottom: `${2 + ((100 - currentShot.x) / 100) * 15}px`, // Use X coordinate for slight height variation on goal line
                         width: '12px',
                         height: '12px',
                         animation: 'moveToSaved 1.5s ease-in-out'
@@ -387,8 +397,8 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     <div 
                       className="absolute z-10"
                       style={{
-                        left: `${50 + (currentShot.y / 100) * 50}px`, // Map Y coordinate to penalty area width
-                        bottom: `${15 + ((100 - currentShot.y) / 100) * 25}px`, // Map to penalty area height
+                        left: `${45 + (currentShot.y / 100) * 60}px`, // Map Y coordinate to penalty area width
+                        bottom: `${20 + ((100 - currentShot.x) / 100) * 30}px`, // Use X coordinate for penalty area depth
                         width: '12px',
                         height: '12px',
                         animation: 'moveToBlocked 1.5s ease-in-out'
@@ -410,8 +420,8 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     <div 
                       className="absolute z-10"
                       style={{
-                        left: `${20 + (currentShot.y / 100) * 80}px`, // Map Y coordinate to wider area for misses
-                        top: `${5 + (currentShot.y / 100) * 30}px`, // Map Y coordinate to variable height for misses
+                        left: `${15 + (currentShot.y / 100) * 90}px`, // Map Y coordinate to wider area for misses
+                        top: `${5 + (currentShot.x / 100) * 35}px`, // Use X coordinate for miss trajectory height
                         width: '12px',
                         height: '12px',
                         animation: 'moveToMissed 1.5s ease-in-out'
