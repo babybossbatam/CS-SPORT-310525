@@ -396,17 +396,21 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     ? 'w-6 h-6 shadow-lg border-4' 
                     : 'w-4 h-4 opacity-70 hover:opacity-100'
                 } ${
-                  shot.type === 'goal' ? 'bg-green-500 border-green-600' :
+                  shot.type === 'goal' ? 'bg-transparent border-green-600' :
                   shot.type === 'saved' ? 'bg-yellow-500 border-yellow-600' :
                   shot.type === 'blocked' ? 'bg-red-500 border-red-600' :
                   shot.type === 'missed' ? 'bg-gray-400 border-gray-500' :
                   'bg-blue-500 border-blue-600'
                 }`}
               >
-                {/* Special icon for goals */}
+                {/* Soccer ball icon for goals */}
                 {shot.type === 'goal' && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                    <img 
+                      src="/assets/matchdetaillogo/soccer-ball.svg" 
+                      alt="Goal" 
+                      className={`${index === selectedShotIndex ? 'w-5 h-5' : 'w-3 h-3'}`}
+                    />
                   </div>
                 )}
                 
