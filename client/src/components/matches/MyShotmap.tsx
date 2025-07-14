@@ -310,28 +310,30 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     style={{ width: '141.563px', height: '65.3568px' }}
                   />
 
-                  {/* Goal event - ball inside goal */}
+                  {/* Goal event - ball inside goal with move animation */}
                   {currentShot?.type === 'goal' && (
                     <div 
-                      className="absolute z-10"
+                      className="absolute z-10 animate-bounce"
                       style={{
                         left: '99px',
                         bottom: '16px',
                         width: '12px',
-                        height: '12px'
+                        height: '12px',
+                        animation: 'moveToGoal 1.5s ease-in-out'
                       }}
                     >
-                      <div 
-                        className="w-3 h-3 rounded-full border-2"
+                      <img 
+                        src="/assets/matchdetaillogo/soccer-ball.svg" 
+                        alt="Goal" 
+                        className="w-3 h-3"
                         style={{
-                          backgroundColor: 'rgb(255, 255, 255)',
-                          borderColor: 'rgb(0, 54, 108)'
+                          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
                         }}
-                      ></div>
+                      />
                     </div>
                   )}
 
-                  {/* Saved event - ball on goal line */}
+                  {/* Saved event - ball on goal line with move animation */}
                   {currentShot?.type === 'saved' && (
                     <div 
                       className="absolute z-10"
@@ -339,20 +341,22 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                         left: '65px',
                         bottom: '0px',
                         width: '12px',
-                        height: '12px'
+                        height: '12px',
+                        animation: 'moveToSaved 1.5s ease-in-out'
                       }}
                     >
-                      <div 
-                        className="w-3 h-3 rounded-full"
+                      <img 
+                        src="/assets/matchdetaillogo/soccer-ball.svg" 
+                        alt="Saved" 
+                        className="w-3 h-3"
                         style={{
-                          backgroundColor: 'rgb(255, 193, 7)',
-                          border: '1px solid rgb(255, 152, 0)'
+                          filter: 'drop-shadow(0 2px 4px rgba(255,193,7,0.5))'
                         }}
-                      ></div>
+                      />
                     </div>
                   )}
 
-                  {/* Blocked event - ball in penalty area */}
+                  {/* Blocked event - ball in penalty area with move animation */}
                   {currentShot?.type === 'blocked' && (
                     <div 
                       className="absolute z-10"
@@ -360,20 +364,22 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                         left: '58px',
                         bottom: '22px',
                         width: '12px',
-                        height: '12px'
+                        height: '12px',
+                        animation: 'moveToBlocked 1.5s ease-in-out'
                       }}
                     >
-                      <div 
-                        className="w-3 h-3 rounded-full"
+                      <img 
+                        src="/assets/matchdetaillogo/soccer-ball.svg" 
+                        alt="Blocked" 
+                        className="w-3 h-3"
                         style={{
-                          backgroundColor: 'rgb(244, 67, 54)',
-                          border: '1px solid rgb(211, 47, 47)'
+                          filter: 'drop-shadow(0 2px 4px rgba(244,67,54,0.5))'
                         }}
-                      ></div>
+                      />
                     </div>
                   )}
 
-                  {/* Missed event - ball outside goal */}
+                  {/* Missed event - ball outside goal with move animation */}
                   {currentShot?.type === 'missed' && (
                     <div 
                       className="absolute z-10"
@@ -381,15 +387,18 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                         left: '28px',
                         top: '13px',
                         width: '12px',
-                        height: '12px'
+                        height: '12px',
+                        animation: 'moveToMissed 1.5s ease-in-out'
                       }}
                     >
-                      <div 
-                        className="w-3 h-3 rounded-full border-2 bg-transparent"
+                      <img 
+                        src="/assets/matchdetaillogo/soccer-ball.svg" 
+                        alt="Missed" 
+                        className="w-3 h-3"
                         style={{
-                          borderColor: 'rgb(158, 158, 158)'
+                          filter: 'drop-shadow(0 2px 4px rgba(158,158,158,0.5))'
                         }}
-                      ></div>
+                      />
                     </div>
                   )}
                 </div>
@@ -510,6 +519,81 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
         <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
           <p>⚽ Interactive shot map - click on shots to see details and navigate through all match shots.</p>
         </div>
+
+        {/* CSS animations for shot events */}
+        <style jsx>{`
+          @keyframes moveToGoal {
+            0% {
+              transform: translate(-50px, 50px) scale(0.8);
+              opacity: 0.7;
+            }
+            50% {
+              transform: translate(-25px, 25px) scale(1.1);
+              opacity: 1;
+            }
+            100% {
+              transform: translate(0, 0) scale(1);
+              opacity: 1;
+            }
+          }
+
+          @keyframes moveToSaved {
+            0% {
+              transform: translate(-40px, 40px) scale(0.8);
+              opacity: 0.7;
+            }
+            50% {
+              transform: translate(-20px, 20px) scale(1.1);
+              opacity: 1;
+            }
+            100% {
+              transform: translate(0, 0) scale(1);
+              opacity: 1;
+            }
+          }
+
+          @keyframes moveToBlocked {
+            0% {
+              transform: translate(-35px, 35px) scale(0.8);
+              opacity: 0.7;
+            }
+            30% {
+              transform: translate(-20px, 20px) scale(1.1);
+              opacity: 1;
+            }
+            60% {
+              transform: translate(-10px, 10px) scale(0.9);
+              opacity: 0.8;
+            }
+            100% {
+              transform: translate(0, 0) scale(1);
+              opacity: 1;
+            }
+          }
+
+          @keyframes moveToMissed {
+            0% {
+              transform: translate(30px, -30px) scale(0.8);
+              opacity: 0.7;
+            }
+            25% {
+              transform: translate(20px, -20px) scale(1.1);
+              opacity: 1;
+            }
+            50% {
+              transform: translate(10px, -10px) scale(1.2);
+              opacity: 0.9;
+            }
+            75% {
+              transform: translate(5px, -5px) scale(1.1);
+              opacity: 0.8;
+            }
+            100% {
+              transform: translate(0, 0) scale(1);
+              opacity: 1;
+            }
+          }
+        `}</style>
       </CardContent>
     </Card>
   );
