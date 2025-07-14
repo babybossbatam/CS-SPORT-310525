@@ -510,27 +510,6 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
 
         
 
-        {/* Legend */}
-        <div className="flex items-center gap-6 flex-wrap text-sm bg-white p-3 rounded-lg border">
-          <div className="text-gray-700 font-medium">Shot Types:</div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-green-500 border border-green-600"></div>
-            <span className="text-gray-600">Goal</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-yellow-500 border border-yellow-600"></div>
-            <span className="text-gray-600">Saved</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-red-500 border border-red-600"></div>
-            <span className="text-gray-600">Blocked</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-gray-400 border border-gray-500"></div>
-            <span className="text-gray-600">Missed</span>
-          </div>
-        </div>
-
         {/* Info note */}
         <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
           <p>⚽ Interactive shot map - click on shots to see details and navigate through all match shots.</p>
