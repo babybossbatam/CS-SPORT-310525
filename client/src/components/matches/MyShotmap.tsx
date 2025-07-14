@@ -596,7 +596,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               </div>
 
               {/* Event details container - 365scores style */}
-              <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3 text-xs">
+              <div className="flex items-center justify-between  text-xs -mt-3.5 pt-4 border-t border-black">
                 <div className="text-center flex-1">
                   <bdi className="font-normal text-gray-800 block whitespace-nowrap text-sm">{currentShot?.situation || 'Regular Play'}</bdi>
                   <div className="text-gray-500 ">Situation</div>
