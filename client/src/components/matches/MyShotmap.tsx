@@ -330,146 +330,12 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               </button>
             </div>
           </div>
-
-          {/* Goal view section with SVG goal frame - 365scores style */}
-          <div className="mb-4">
-            <div className="flex flex-col gap-4 p-4 rounded-lg">
-              {/* Goal frame container */}
-              <div className="relative flex-shrink-0 mx-auto" style={{ height: '90.6125px' }}>
-                <div className="relative bg-white rounded" style={{ height: '90.6125px' }}>
-                  <img 
-                    className="goal-frame"
-                    alt=""
-                    title=""
-                    src="/assets/matchdetaillogo/technical-diagram.svg"
-                    loading="lazy"
-                    style={{ width: '141.563px', height: '65.3568px' }}
-                  />
-
-                  {/* Goal event - ball inside goal with move animation mapped to actual shot position */}
-                  {currentShot?.type === 'goal' && (
-                    <div 
-                      className="absolute z-10 animate-bounce"
-                      style={{
-                        left: `${70 + (currentShot.y / 100) * 40}px`, // Position inside the goal net
-                        bottom: `${15 + ((100 - currentShot.x) / 100) * 30}px`, // Deeper inside the net for goals
-                        width: '12px',
-                        height: '12px',
-                        animation: 'moveToGoal 1.5s ease-in-out'
-                      }}
-                    >
-                      <img 
-                        src="/assets/matchdetaillogo/soccer-ball.svg" 
-                        alt="Goal" 
-                        className="w-3 h-3"
-                        style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {/* Saved event - ball on goal line with move animation mapped to actual shot position */}
-                  {currentShot?.type === 'saved' && (
-                    <div 
-                      className="absolute z-10"
-                      style={{
-                        left: `${65 + (currentShot.y / 100) * 50}px`, // Map Y coordinate to goal width
-                        bottom: `${2 + ((100 - currentShot.x) / 100) * 15}px`, // Use X coordinate for slight height variation on goal line
-                        width: '12px',
-                        height: '12px',
-                        animation: 'moveToSaved 1.5s ease-in-out'
-                      }}
-                    >
-                      <img 
-                        src="/assets/matchdetaillogo/soccer-ball.svg" 
-                        alt="Saved" 
-                        className="w-3 h-3"
-                        style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(255,193,7,0.5))'
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {/* Blocked event - ball in penalty area with move animation mapped to actual shot position */}
-                  {currentShot?.type === 'blocked' && (
-                    <div 
-                      className="absolute z-10"
-                      style={{
-                        left: `${45 + (currentShot.y / 100) * 60}px`, // Map Y coordinate to penalty area width
-                        bottom: `${20 + ((100 - currentShot.x) / 100) * 30}px`, // Use X coordinate for penalty area depth
-                        width: '12px',
-                        height: '12px',
-                        animation: 'moveToBlocked 1.5s ease-in-out'
-                      }}
-                    >
-                      <img 
-                        src="/assets/matchdetaillogo/soccer-ball.svg" 
-                        alt="Blocked" 
-                        className="w-3 h-3"
-                        style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(244,67,54,0.5))'
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {/* Missed event - ball outside goal with move animation mapped to actual shot position */}
-                  {currentShot?.type === 'missed' && (
-                    <div 
-                      className="absolute z-10"
-                      style={{
-                        left: `${15 + (currentShot.y / 100) * 90}px`, // Map Y coordinate to wider area for misses
-                        top: `${5 + (currentShot.x / 100) * 35}px`, // Use X coordinate for miss trajectory height
-                        width: '12px',
-                        height: '12px',
-                        animation: 'moveToMissed 1.5s ease-in-out'
-                      }}
-                    >
-                      <img 
-                        src="/assets/matchdetaillogo/soccer-ball.svg" 
-                        alt="Missed" 
-                        className="w-3 h-3"
-                        style={{
-                          filter: 'drop-shadow(0 2px 4px rgba(158,158,158,0.5))'
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Event details container - 365scores style */}
-              <div className="flex items-center justify-between bg-white rounded-lg p-4 shadow-sm">
-                <div className="text-center flex-1">
-                  <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.situation || 'Regular Play'}</bdi>
-                  <div className="text-xs text-gray-500 mt-1">Situation</div>
-                </div>
-                <div className="w-px h-8 bg-gray-300 mx-3"></div>
-                <div className="text-center flex-1">
-                  <bdi className="font-semibold text-sm text-gray-800 block whitespace-normal break-words">{currentShot?.bodyPart || 'Left foot'}</bdi>
-                  <div className="text-xs text-gray-500 mt-1 whitespace-nowrap">Shot Type</div>
-                </div>
-                <div className="w-px h-8 bg-gray-300 mx-3"></div>
-                <div className="text-center flex-1">
-                  <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.xG?.toFixed(2) || '0.00'}</bdi>
-                  <div className="text-xs text-gray-500 mt-1">xG</div>
-                </div>
-                <div className="w-px h-8 bg-gray-300 mx-3"></div>
-                <div className="text-center flex-1">
-                  <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.xGOT?.toFixed(2) || '0.00'}</bdi>
-                  <div className="text-xs text-gray-500 mt-1">xGOT</div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Main content layout with field on left and details on right */}
+        {/* Main content layout with field and goal view side by side */}
         <div className="flex gap-6 mb-4">
-          {/* Football field - 57.5% size (15% increase), left side */}
-          <div className="relative overflow-hidden rounded-lg flex-shrink-0" style={{ width: '57.5%', height: '184px' }}>
+          {/* Football field - 46% size (20% reduction from 57.5%), left side */}
+          <div className="relative overflow-hidden rounded-lg flex-shrink-0" style={{ width: '46%', height: '147px' }}>
             <img 
               src="/assets/matchdetaillogo/field.png" 
               alt="Football field"
@@ -621,40 +487,135 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
             </div>
           </div>
 
-          {/* Shot details on the right side */}
+          {/* Goal view section beside the field */}
           <div className="flex-1">
-            <div className="bg-white rounded-lg p-4 shadow-sm h-40 flex flex-col justify-center">
-              <div className="text-center">
-                <div className="text-lg font-semibold text-gray-800 mb-2">Shot #{selectedShotIndex + 1} of {shotData.length}</div>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <div className="text-gray-500">Player</div>
-                    <div className="font-medium">{currentShot?.player}</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">Minute</div>
-                    <div className="font-medium">{currentShot?.minute}'</div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">Type</div>
-                    <div className={`font-medium ${
-                      currentShot?.type === 'goal' ? 'text-green-600' : 
-                      currentShot?.type === 'saved' ? 'text-yellow-600' :
-                      currentShot?.type === 'blocked' ? 'text-red-600' :
-                      currentShot?.type === 'missed' ? 'text-gray-600' :
-                      'text-blue-600'
-                    }`}>
-                      {currentShot?.type === 'goal' ? 'Goal' : 
-                       currentShot?.type === 'saved' ? 'Saved' :
-                       currentShot?.type === 'blocked' ? 'Blocked' :
-                       currentShot?.type === 'missed' ? 'Missed' :
-                       currentShot?.type?.charAt(0).toUpperCase() + currentShot?.type?.slice(1)}
+            <div className="flex flex-col gap-4 p-4 rounded-lg bg-white shadow-sm h-147">
+              {/* Goal frame container */}
+              <div className="relative flex-shrink-0 mx-auto" style={{ height: '72px' }}>
+                <div className="relative bg-white rounded" style={{ height: '72px' }}>
+                  <img 
+                    className="goal-frame"
+                    alt=""
+                    title=""
+                    src="/assets/matchdetaillogo/technical-diagram.svg"
+                    loading="lazy"
+                    style={{ width: '113px', height: '52px' }}
+                  />
+
+                  {/* Goal event - ball inside goal with move animation mapped to actual shot position */}
+                  {currentShot?.type === 'goal' && (
+                    <div 
+                      className="absolute z-10 animate-bounce"
+                      style={{
+                        left: `${56 + (currentShot.y / 100) * 32}px`, // Position inside the goal net
+                        bottom: `${12 + ((100 - currentShot.x) / 100) * 24}px`, // Deeper inside the net for goals
+                        width: '10px',
+                        height: '10px',
+                        animation: 'moveToGoal 1.5s ease-in-out'
+                      }}
+                    >
+                      <img 
+                        src="/assets/matchdetaillogo/soccer-ball.svg" 
+                        alt="Goal" 
+                        className="w-2.5 h-2.5"
+                        style={{
+                          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))'
+                        }}
+                      />
                     </div>
-                  </div>
-                  <div>
-                    <div className="text-gray-500">xG</div>
-                    <div className="font-medium">{currentShot?.xG?.toFixed(2) || '0.00'}</div>
-                  </div>
+                  )}
+
+                  {/* Saved event - ball on goal line with move animation mapped to actual shot position */}
+                  {currentShot?.type === 'saved' && (
+                    <div 
+                      className="absolute z-10"
+                      style={{
+                        left: `${52 + (currentShot.y / 100) * 40}px`, // Map Y coordinate to goal width
+                        bottom: `${2 + ((100 - currentShot.x) / 100) * 12}px`, // Use X coordinate for slight height variation on goal line
+                        width: '10px',
+                        height: '10px',
+                        animation: 'moveToSaved 1.5s ease-in-out'
+                      }}
+                    >
+                      <img 
+                        src="/assets/matchdetaillogo/soccer-ball.svg" 
+                        alt="Saved" 
+                        className="w-2.5 h-2.5"
+                        style={{
+                          filter: 'drop-shadow(0 2px 4px rgba(255,193,7,0.5))'
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Blocked event - ball in penalty area with move animation mapped to actual shot position */}
+                  {currentShot?.type === 'blocked' && (
+                    <div 
+                      className="absolute z-10"
+                      style={{
+                        left: `${36 + (currentShot.y / 100) * 48}px`, // Map Y coordinate to penalty area width
+                        bottom: `${16 + ((100 - currentShot.x) / 100) * 24}px`, // Use X coordinate for penalty area depth
+                        width: '10px',
+                        height: '10px',
+                        animation: 'moveToBlocked 1.5s ease-in-out'
+                      }}
+                    >
+                      <img 
+                        src="/assets/matchdetaillogo/soccer-ball.svg" 
+                        alt="Blocked" 
+                        className="w-2.5 h-2.5"
+                        style={{
+                          filter: 'drop-shadow(0 2px 4px rgba(244,67,54,0.5))'
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Missed event - ball outside goal with move animation mapped to actual shot position */}
+                  {currentShot?.type === 'missed' && (
+                    <div 
+                      className="absolute z-10"
+                      style={{
+                        left: `${12 + (currentShot.y / 100) * 72}px`, // Map Y coordinate to wider area for misses
+                        top: `${4 + (currentShot.x / 100) * 28}px`, // Use X coordinate for miss trajectory height
+                        width: '10px',
+                        height: '10px',
+                        animation: 'moveToMissed 1.5s ease-in-out'
+                      }}
+                    >
+                      <img 
+                        src="/assets/matchdetaillogo/soccer-ball.svg" 
+                        alt="Missed" 
+                        className="w-2.5 h-2.5"
+                        style={{
+                          filter: 'drop-shadow(0 2px 4px rgba(158,158,158,0.5))'
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Event details container - 365scores style */}
+              <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3 text-xs">
+                <div className="text-center flex-1">
+                  <bdi className="font-semibold text-gray-800 block">{currentShot?.situation || 'Regular Play'}</bdi>
+                  <div className="text-gray-500 mt-1">Situation</div>
+                </div>
+                <div className="w-px h-6 bg-gray-300 mx-2"></div>
+                <div className="text-center flex-1">
+                  <bdi className="font-semibold text-gray-800 block whitespace-normal break-words">{currentShot?.bodyPart || 'Left foot'}</bdi>
+                  <div className="text-gray-500 mt-1 whitespace-nowrap">Shot Type</div>
+                </div>
+                <div className="w-px h-6 bg-gray-300 mx-2"></div>
+                <div className="text-center flex-1">
+                  <bdi className="font-semibold text-gray-800 block">{currentShot?.xG?.toFixed(2) || '0.00'}</bdi>
+                  <div className="text-gray-500 mt-1">xG</div>
+                </div>
+                <div className="w-px h-6 bg-gray-300 mx-2"></div>
+                <div className="text-center flex-1">
+                  <bdi className="font-semibold text-gray-800 block">{currentShot?.xGOT?.toFixed(2) || '0.00'}</bdi>
+                  <div className="text-gray-500 mt-1">xGOT</div>
                 </div>
               </div>
             </div>
