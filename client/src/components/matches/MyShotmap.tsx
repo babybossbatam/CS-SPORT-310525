@@ -407,7 +407,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                 </div>
                 <div className="text-center bg-white rounded-lg p-3 shadow-sm">
                   <bdi className="font-semibold text-sm text-gray-800 block whitespace-normal break-words">{currentShot?.bodyPart || 'Left foot'}</bdi>
-                  <div className="text-xs text-gray-500 mt-1">Shot Type</div>
+                  <div className="text-xs text-gray-500 mt-1 whitespace-nowrap">Shot Type</div>
                 </div>
                 <div className="text-center bg-white rounded-lg p-3 shadow-sm">
                   <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.xG?.toFixed(2) || '0.00'}</bdi>
