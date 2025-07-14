@@ -323,9 +323,9 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
 
           {/* Goal view section with SVG goal frame - 365scores style */}
           <div className="mb-4">
-            <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-lg">
+            <div className="flex flex-col gap-4 p-4 bg-gray-50 rounded-lg">
               {/* Goal frame container */}
-              <div className="relative flex-shrink-0" style={{ height: '90.6125px' }}>
+              <div className="relative flex-shrink-0 mx-auto" style={{ height: '90.6125px' }}>
                 <div className="relative bg-white rounded" style={{ height: '90.6125px' }}>
                   <img 
                     className="goal-frame"
@@ -431,7 +431,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               </div>
 
               {/* Event details container - 365scores style */}
-              <div className="flex items-center justify-between flex-1 bg-white rounded-lg p-4 shadow-sm">
+              <div className="flex items-center justify-between bg-white rounded-lg p-4 shadow-sm">
                 <div className="text-center flex-1">
                   <bdi className="font-semibold text-sm text-gray-800 block">{currentShot?.situation || 'Regular Play'}</bdi>
                   <div className="text-xs text-gray-500 mt-1">Situation</div>
