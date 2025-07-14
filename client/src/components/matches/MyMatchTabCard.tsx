@@ -4,6 +4,7 @@ import MatchPrediction from './MatchPrediction';
 import MyHighlights from './MyHighlights';
 import MyLiveAction from './MyLiveAction';
 import MyMatchEventNew from './MyMatchEventNew';
+import MyHeatmap from './MyHeatmap';
 
 interface MyMatchTabCardProps {
   match: any;
@@ -88,6 +89,17 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
           awayTeam={match.teams?.away?.name}
           matchData={match}
           theme="light"
+        />
+      </div>
+
+      {/* Player Heatmap */}
+      <div className="space-y-2">
+        
+        <MyHeatmap 
+          match={match}
+          fixtureId={match.fixture?.id}
+          homeTeam={match.teams?.home?.name}
+          awayTeam={match.teams?.away?.name}
         />
       </div>
     </>
