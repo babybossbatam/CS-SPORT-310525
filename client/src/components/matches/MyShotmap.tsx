@@ -82,7 +82,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               // Try to get actual coordinates from SofaScore API or generate realistic ones
               const isHomeTeam = event.team?.name === homeTeam;
               let x, y;
-              
+
               // Check if we have actual coordinate data from SofaScore
               if (event.coordinates?.x !== undefined && event.coordinates?.y !== undefined) {
                 // Use actual coordinates from SofaScore API
@@ -478,6 +478,143 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
             }}
           />
 
+          {/* Additional static shot events to create the visual from your image */}
+          {/* Left penalty area shots (home team) */}
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '15%', top: '30%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '12%', top: '45%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '18%', top: '55%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '8%', top: '38%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '14%', top: '65%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '20%', top: '35%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '16%', top: '72%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '22%', top: '48%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '25%', top: '60%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+
+          {/* Special shots with target icons (left side) */}
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-10 group" style={{ left: '10%', top: '48%' }}>
+            <div className="relative w-4 h-4">
+              <div className="w-full h-full rounded-full bg-blue-500 border-2 border-blue-700 animate-pulse"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-2 h-2 border border-white rounded-full"></div>
+              </div>
+            </div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-blue-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Target shot</div>
+          </div>
+
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-10 group" style={{ left: '13%', top: '52%' }}>
+            <div className="relative w-4 h-4">
+              <div className="w-full h-full rounded-full bg-blue-500 border-2 border-blue-700 animate-pulse"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-2 h-2 border border-white rounded-full"></div>
+              </div>
+            </div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-blue-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Target shot</div>
+          </div>
+
+          {/* Right penalty area shots (away team) */}
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '85%', top: '25%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '88%', top: '40%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '82%', top: '50%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '92%', top: '35%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '86%', top: '60%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '90%', top: '70%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '84%', top: '28%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '87%', top: '75%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '89%', top: '45%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '78%', top: '38%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '91%', top: '55%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-80 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Shot attempt</div>
+          </div>
+
+          {/* Special shots with target icons (right side) */}
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-10 group" style={{ left: '90%', top: '48%' }}>
+            <div className="relative w-4 h-4">
+              <div className="w-full h-full rounded-full bg-blue-500 border-2 border-blue-700 animate-pulse"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-2 h-2 border border-white rounded-full"></div>
+              </div>
+            </div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-blue-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Target shot</div>
+          </div>
+
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-10 group" style={{ left: '87%', top: '52%' }}>
+            <div className="relative w-4 h-4">
+              <div className="w-full h-full rounded-full bg-blue-500 border-2 border-blue-700 animate-pulse"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-2 h-2 border border-white rounded-full"></div>
+              </div>
+            </div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-blue-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Target shot</div>
+          </div>
+
+          {/* Center area shots */}
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '50%', top: '20%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-70 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Long shot</div>
+          </div>
+          <div className="absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 z-5 group" style={{ left: '45%', top: '80%' }}>
+            <div className="w-3 h-3 rounded-full bg-white border-2 border-gray-300 opacity-70 hover:opacity-100 transition-opacity hover:scale-110"></div>
+            <div className="absolute bottom-full mb-1 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Long shot</div>
+          </div>
+
           {/* All shot markers displayed simultaneously */}
           {shotData.map((shot, index) => (
             <div
@@ -617,7 +754,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           </div>
         </div>
 
-        
+
 
         {/* Shot type legend */}
         <div className="mt-4 p-3 bg-gray-50 rounded-lg">
