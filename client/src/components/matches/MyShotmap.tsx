@@ -275,34 +275,6 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
       </CardHeader>
 
       <CardContent className="p-4">
-        {/* Shot navigation only */}
-        <div className="mb-4">
-          <div className="flex items-center justify-center gap-3">
-            <button 
-              onClick={() => navigateShot('prev')}
-              disabled={selectedShotIndex === 0}
-              className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-600">
-                <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" fill="currentColor"/>
-              </svg>
-            </button>
-
-            <div className="px-4 py-2 bg-white border border-gray-300 rounded text-lg font-bold text-gray-900 min-w-[60px] text-center">
-              Shot {selectedShotIndex + 1} of {shotData.length}
-            </div>
-
-            <button 
-              onClick={() => navigateShot('next')}
-              disabled={selectedShotIndex === shotData.length - 1}
-              className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-600">
-                <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z" fill="currentColor"/>
-              </svg>
-            </button>
-          </div>
-        </div>
 
         {/* Main content layout with field and goal view side by side */}
         <div className="flex gap-6 mb-4">
@@ -462,7 +434,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           {/* Goal view section beside the field */}
           <div className="flex-1">
             <div className="flex flex-col gap-4 p-4 rounded-lg bg-white shadow-sm h-147">
-              {/* Player info and elapsed time header */}
+              {/* Player info, navigation, and elapsed time header */}
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
                   <MyAvatarInfo
@@ -488,10 +460,39 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     </div>
                   </div>
                 </div>
-                
-                {/* Elapsed time */}
-                <div className="px-4 py-2 bg-gray-100 border border-gray-300 rounded text-lg font-bold text-gray-900 min-w-[60px] text-center">
-                  {currentShot?.minute}'
+
+                {/* Shot navigation and elapsed time */}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => navigateShot('prev')}
+                      disabled={selectedShotIndex === 0}
+                      className="p-1.5 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 text-gray-600">
+                        <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" fill="currentColor"/>
+                      </svg>
+                    </button>
+
+                    <div className="px-3 py-1 bg-white border border-gray-300 rounded text-sm font-bold text-gray-900 min-w-[80px] text-center">
+                      Shot {selectedShotIndex + 1} of {shotData.length}
+                    </div>
+
+                    <button 
+                      onClick={() => navigateShot('next')}
+                      disabled={selectedShotIndex === shotData.length - 1}
+                      className="p-1.5 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <svg viewBox="0 0 24 24" className="w-4 h-4 text-gray-600">
+                        <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z" fill="currentColor"/>
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Elapsed time */}
+                  <div className="px-4 py-2 bg-gray-100 border border-gray-300 rounded text-lg font-bold text-gray-900 min-w-[60px] text-center">
+                    {currentShot?.minute}'
+                  </div>
                 </div>
               </div>
 
