@@ -261,7 +261,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     src="/assets/matchdetaillogo/technical-diagram.svg" 
                     alt="Technical diagram"
                     className="absolute inset-0 w-full h-full object-cover"
-                  /></div>
+                  />
                   
                   {/* Ball position in goal for goals */}
                   {currentShot?.type === 'goal' && (
