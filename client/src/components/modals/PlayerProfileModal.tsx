@@ -294,27 +294,6 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             )}
           </div>
         </div>
-        
-        {/* Legend */}
-        <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-              <span>Goals</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-              <span>On Target</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-              <span>Off Target</span>
-            </div>
-          </div>
-          <div className="mt-1 text-xs opacity-75">
-            <span className="text-yellow-300">⚠ Shot Map Coming Soon</span>
-          </div>
-        </div>
       </div>
     );
   };
