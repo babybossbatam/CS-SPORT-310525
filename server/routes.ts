@@ -24,8 +24,6 @@ import playerRoutes from './routes/playerRoutes';
 import playerDataRoutes from './routes/playerDataRoutes';
 import featuredMatchRoutes from "./routes/featuredMatchRoutes";
 import { youtubeRoutes } from './routes/youtubeRoutes';
-import { vimeoRoutes } from './routes/vimeoRoutes';
-import { dailymotionRoutes } from './routes/dailymotionRoutes';
 import { sofaScoreAPI } from './services/sofascoreApi';
 import highlightsRoutes from './routes/highlightsRoutes';
 import axios from "axios";
@@ -40,9 +38,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.use("/featured-match", featuredMatchRoutes);
   app.use("/api/featured-match", featuredMatchRoutes);
   app.use("/api/youtube", youtubeRoutes);
-  app.use("/api/vimeo", vimeoRoutes);
-  app.use("/api/dailymotion", dailymotionRoutes);
-  app.use("/api/twitch", twitchRoutes);
   app.use("/api/highlights", highlightsRoutes);
   apiRouter.use('/api', playerRoutes);
   apiRouter.use('/api', playerDataRoutes);
