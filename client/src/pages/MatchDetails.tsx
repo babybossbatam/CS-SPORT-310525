@@ -47,10 +47,6 @@ import TodayMatchpage from "@/components/matches/TodayMatchPageCard";
 import MyMatchdetailsScoreboard from "@/components/matches/MyMatchdetailsScoreboard";
 import MyDetailsLayout from "@/components/matches/MyDetailsLayout";
 import { format } from "date-fns";
-import MyMatchTabCard from '../components/matches/MyMatchTabCard';
-import PlayerHeatMap from '../components/analytics/PlayerHeatMap';
-import ShotMapVisualization from '../components/analytics/ShotMapVisualization';
-import MyHeadtoheadTabsCard from '../components/matches/MyHeadtoheadTabsCard';
 
 const MatchDetails = () => {
   const { id, tab = "summary" } = useParams();

@@ -147,30 +147,6 @@ const PlayerHeatMap: React.FC<PlayerHeatMapProps> = ({
     const totalTouches = heatmapData.reduce((sum, point) => sum + point.intensity, 0);
     const avgIntensity = totalTouches / heatmapData.length;
     
-    // Enhanced analysis from youtube-videos repo techniques
-    const fieldZones = {
-      attacking: heatmapData.filter(point => point.x > 66),
-      middle: heatmapData.filter(point => point.x >= 33 && point.x <= 66),
-      defensive: heatmapData.filter(point => point.x < 33)
-    };
-    
-    // Calculate zone dominance (inspired by mplsoccer tutorials)
-    const zoneDominance = {
-      attacking: (fieldZones.attacking.length / heatmapData.length * 100).toFixed(1),
-      middle: (fieldZones.middle.length / heatmapData.length * 100).toFixed(1),
-      defensive: (fieldZones.defensive.length / heatmapData.length * 100).toFixed(1)
-    };
-    
-    // Heat intensity mapping (similar to seaborn kde approach)
-    const getHeatColor = (intensity: number) => {
-      const normalizedIntensity = intensity / maxIntensity;
-      if (normalizedIntensity > 0.8) return '#ff0000'; // Hot red
-      if (normalizedIntensity > 0.6) return '#ff6600'; // Orange
-      if (normalizedIntensity > 0.4) return '#ffff00'; // Yellow
-      if (normalizedIntensity > 0.2) return '#66ff66'; // Light green
-      return '#0066ff'; // Cool blue
-    };
-    
     // Calculate zone statistics
     const attackingThird = heatmapData.filter(point => point.x > 66).length;
     const middleThird = heatmapData.filter(point => point.x >= 33 && point.x <= 66).length;
@@ -178,7 +154,7 @@ const PlayerHeatMap: React.FC<PlayerHeatMapProps> = ({
     
     return (
       <div className="space-y-4">
-        {/* Enhanced Statistics */}
+        {/* Statistics */}
         <div className="grid grid-cols-4 gap-2 text-sm">
           <div className="text-center">
             <div className="font-semibold text-blue-600">{heatmapData.length}</div>
@@ -193,27 +169,8 @@ const PlayerHeatMap: React.FC<PlayerHeatMapProps> = ({
             <div className="text-gray-500">Avg Intensity</div>
           </div>
           <div className="text-center">
-            <div className="font-semibold text-red-600">{zoneDominance.attacking}%</div>
+            <div className="font-semibold text-red-600">{attackingThird}</div>
             <div className="text-gray-500">Attack Zone</div>
-          </div>
-        </div>
-
-        {/* Zone Analysis (inspired by analysis-repo) */}
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-          <h4 className="font-medium text-sm mb-2">Zone Distribution Analysis</h4>
-          <div className="grid grid-cols-3 gap-2 text-xs">
-            <div className="text-center">
-              <div className="font-bold text-red-600">{zoneDominance.defensive}%</div>
-              <div className="text-gray-600">Defensive</div>
-            </div>
-            <div className="text-center">
-              <div className="font-bold text-yellow-600">{zoneDominance.middle}%</div>
-              <div className="text-gray-600">Middle</div>
-            </div>
-            <div className="text-center">
-              <div className="font-bold text-green-600">{zoneDominance.attacking}%</div>
-              <div className="text-gray-600">Attacking</div>
-            </div>
           </div>
         </div>
 
