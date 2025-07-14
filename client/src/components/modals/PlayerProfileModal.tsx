@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Clock, Target, Users } from 'lucide-react';
+import MyShotmap from '../matches/MyShotmap';
 
 interface PlayerProfileModalProps {
   isOpen: boolean;
@@ -197,103 +198,20 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
       );
     }
 
-    // For now, show a placeholder for shot map - this could be enhanced later
-    const realShotsData = [];
-    
-    const getShotColor = (type: string) => {
-      switch (type.toLowerCase()) {
-        case 'goal': return '#00ff00';
-        case 'on_target': return '#ffff00';
-        case 'off_target': return '#ff6666';
-        case 'blocked': return '#ff9999';
-        default: return '#cccccc';
-      }
-    };
-
-    const getShotRadius = (type: string) => {
-      switch (type.toLowerCase()) {
-        case 'goal': return 8;
-        case 'on_target': return 6;
-        case 'off_target': return 4;
-        case 'blocked': return 5;
-        default: return 4;
-      }
-    };
-    
+    // Use MyShotmap component which contains real elapsed time data
     return (
-      <div className="relative w-full rounded-lg overflow-hidden" style={{ aspectRatio: '16/10' }}>
-        {/* Football field background using field.png */}
-        <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: 'url(/assets/matchdetaillogo/field.png)' }}
-        >
-          {/* Shot markers overlay */}
-          <div className="absolute inset-0 w-full h-full">
-            {realShotsData.length > 0 ? (
-              realShotsData.map((shot, index) => {
-                // Convert percentage coordinates to absolute positioning
-                const x = 50 + (shot.x / 100) * 40; // Adjust for field positioning
-                const y = 10 + (shot.y / 100) * 80;
-                
-                return (
-                  <div
-                    key={`shot-${index}`}
-                    className="absolute"
-                    style={{
-                      left: `${x}%`,
-                      top: `${y}%`,
-                      transform: 'translate(-50%, -50%)'
-                    }}
-                  >
-                    <div
-                      className="rounded-full border-2 border-white opacity-80"
-                      style={{
-                        width: `${getShotRadius(shot.type) * 2}px`,
-                        height: `${getShotRadius(shot.type) * 2}px`,
-                        backgroundColor: getShotColor(shot.type)
-                      }}
-                    />
-                    <div
-                      className="absolute text-white text-xs font-bold pointer-events-none"
-                      style={{
-                        top: `${-getShotRadius(shot.type) - 15}px`,
-                        left: '50%',
-                        transform: 'translateX(-50%)'
-                      }}
-                    >
-                      {shot.minute}'
-                    </div>
-                  </div>
-                );
-              })
-            ) : (
-              // Fallback shot markers
-              <>
-                <div className="absolute" style={{ left: '80%', top: '45%', transform: 'translate(-50%, -50%)' }}>
-                  <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
-                </div>
-                <div className="absolute" style={{ left: '75%', top: '55%', transform: 'translate(-50%, -50%)' }}>
-                  <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
-                </div>
-                <div className="absolute" style={{ left: '78%', top: '35%', transform: 'translate(-50%, -50%)' }}>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full border border-white" />
-                </div>
-                <div className="absolute" style={{ left: '82%', top: '50%', transform: 'translate(-50%, -50%)' }}>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full border border-white" />
-                </div>
-                <div className="absolute" style={{ left: '72%', top: '30%', transform: 'translate(-50%, -50%)' }}>
-                  <div className="w-2 h-2 bg-red-400 rounded-full border border-white" />
-                </div>
-                <div className="absolute" style={{ left: '80%', top: '65%', transform: 'translate(-50%, -50%)' }}>
-                  <div className="w-2 h-2 bg-red-400 rounded-full border border-white" />
-                </div>
-                <div className="absolute" style={{ left: '68%', top: '45%', transform: 'translate(-50%, -50%)' }}>
-                  <div className="w-2 h-2 bg-red-400 rounded-full border border-white" />
-                </div>
-              </>
-            )}
+      <div className="w-full">
+        <Suspense fallback={
+          <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center" style={{ aspectRatio: '16/10' }}>
+            <div className="text-gray-500 text-lg">Loading shot map...</div>
           </div>
-        </div>
+        }>
+          <MyShotmap 
+            fixtureId={teamId || 1326523} // Use teamId as fixture ID fallback
+            playerName={playerName}
+            showPlayerFilter={false}
+          />
+        </Suspense>
       </div>
     );
   };
