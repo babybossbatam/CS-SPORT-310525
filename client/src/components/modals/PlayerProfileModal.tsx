@@ -221,76 +221,79 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
     };
     
     return (
-      <div className="relative w-full bg-green-600 rounded-lg overflow-hidden" style={{ aspectRatio: '16/10' }}>
-        {/* Football field background */}
-        <svg viewBox="0 0 640 400" className="w-full h-full">
-          {/* Field background */}
-          <rect width="640" height="400" fill="#2d5016" />
-          
-          {/* Field lines */}
-          <g stroke="white" strokeWidth="2" fill="none">
-            {/* Show only attacking half */}
-            <rect x="320" y="20" width="300" height="360" />
-            
-            {/* Center line */}
-            <line x1="320" y1="20" x2="320" y2="380" />
-            
-            {/* Center circle (half) */}
-            <path d="M 320 150 A 50 50 0 0 1 320 250" />
-            
-            {/* Right penalty area */}
-            <rect x="540" y="120" width="80" height="160" />
-            <rect x="580" y="160" width="40" height="80" />
-            
-            {/* Goal */}
-            <rect x="612" y="180" width="8" height="40" />
-          </g>
-          
-          {/* Real shot markers */}
-          {realShotsData.length > 0 ? (
-            realShotsData.map((shot, index) => {
-              // Convert percentage coordinates to SVG coordinates (attacking half only)
-              const x = 320 + (shot.x / 100) * 300;
-              const y = 20 + (shot.y / 100) * 360;
-              
-              return (
-                <g key={`shot-${index}`}>
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r={getShotRadius(shot.type)}
-                    fill={getShotColor(shot.type)}
-                    stroke="white"
-                    strokeWidth="1"
-                    opacity="0.8"
-                  />
-                  {/* Minute label */}
-                  <text
-                    x={x}
-                    y={y - getShotRadius(shot.type) - 5}
-                    fill="white"
-                    fontSize="10"
-                    textAnchor="middle"
-                    className="pointer-events-none"
+      <div className="relative w-full rounded-lg overflow-hidden" style={{ aspectRatio: '16/10' }}>
+        {/* Football field background using field.png */}
+        <div 
+          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: 'url(/assets/matchdetaillogo/field.png)' }}
+        >
+          {/* Shot markers overlay */}
+          <div className="absolute inset-0 w-full h-full">
+            {realShotsData.length > 0 ? (
+              realShotsData.map((shot, index) => {
+                // Convert percentage coordinates to absolute positioning
+                const x = 50 + (shot.x / 100) * 40; // Adjust for field positioning
+                const y = 10 + (shot.y / 100) * 80;
+                
+                return (
+                  <div
+                    key={`shot-${index}`}
+                    className="absolute"
+                    style={{
+                      left: `${x}%`,
+                      top: `${y}%`,
+                      transform: 'translate(-50%, -50%)'
+                    }}
                   >
-                    {shot.minute}'
-                  </text>
-                </g>
-              );
-            })
-          ) : (
-            // Fallback shot markers
-            <>
-              <circle cx="580" cy="190" r="8" fill="#00ff00" stroke="white" strokeWidth="2" />
-              <circle cx="560" cy="210" r="8" fill="#00ff00" stroke="white" strokeWidth="2" />
-              <circle cx="570" cy="170" r="6" fill="#ffff00" stroke="white" strokeWidth="1" />
-              <circle cx="590" cy="200" r="6" fill="#ffff00" stroke="white" strokeWidth="1" />
-              <circle cx="550" cy="160" r="4" fill="#ff6666" stroke="white" strokeWidth="1" />
-              <circle cx="580" cy="240" r="4" fill="#ff6666" stroke="white" strokeWidth="1" />
-              <circle cx="530" cy="190" r="4" fill="#ff6666" stroke="white" strokeWidth="1" />
-            </>
-          )}
-        </svg>
+                    <div
+                      className="rounded-full border-2 border-white opacity-80"
+                      style={{
+                        width: `${getShotRadius(shot.type) * 2}px`,
+                        height: `${getShotRadius(shot.type) * 2}px`,
+                        backgroundColor: getShotColor(shot.type)
+                      }}
+                    />
+                    <div
+                      className="absolute text-white text-xs font-bold pointer-events-none"
+                      style={{
+                        top: `${-getShotRadius(shot.type) - 15}px`,
+                        left: '50%',
+                        transform: 'translateX(-50%)'
+                      }}
+                    >
+                      {shot.minute}'
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              // Fallback shot markers
+              <>
+                <div className="absolute" style={{ left: '80%', top: '45%', transform: 'translate(-50%, -50%)' }}>
+                  <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
+                </div>
+                <div className="absolute" style={{ left: '75%', top: '55%', transform: 'translate(-50%, -50%)' }}>
+                  <div className="w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
+                </div>
+                <div className="absolute" style={{ left: '78%', top: '35%', transform: 'translate(-50%, -50%)' }}>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full border border-white" />
+                </div>
+                <div className="absolute" style={{ left: '82%', top: '50%', transform: 'translate(-50%, -50%)' }}>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full border border-white" />
+                </div>
+                <div className="absolute" style={{ left: '72%', top: '30%', transform: 'translate(-50%, -50%)' }}>
+                  <div className="w-2 h-2 bg-red-400 rounded-full border border-white" />
+                </div>
+                <div className="absolute" style={{ left: '80%', top: '65%', transform: 'translate(-50%, -50%)' }}>
+                  <div className="w-2 h-2 bg-red-400 rounded-full border border-white" />
+                </div>
+                <div className="absolute" style={{ left: '68%', top: '45%', transform: 'translate(-50%, -50%)' }}>
+                  <div className="w-2 h-2 bg-red-400 rounded-full border border-white" />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
         
         {/* Legend */}
         <div className="absolute bottom-2 left-2 bg-black bg-opacity-70 text-white text-xs p-2 rounded">
