@@ -294,7 +294,11 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             <Card className="text-center p-4">
               <CardContent className="p-0">
                 <div className="flex flex-col items-center">
-                  <Target className="w-8 h-8 text-gray-700 mb-2" />
+                  <img
+                    src="/assets/matchdetaillogo/soccer-ball.svg"
+                    alt="Goals"
+                    className="w-8 h-8 mb-2"
+                  />
                   <div className="text-2xl font-bold text-gray-900">
                     {playerStats?.goals || '2'}
                   </div>
