@@ -143,9 +143,9 @@ const MyHeadtoheadTabsCard: React.FC<MyHeadtoheadTabsCardProps> = ({ match }) =>
           </div>
         </div>
 
-        {/* Key Statistics */}
+        {/* Enhanced Analytics (inspired by analysis-repo) */}
         <div className="space-y-4">
-          <h3 className="font-semibold text-lg">Key Statistics</h3>
+          <h3 className="font-semibold text-lg">Advanced H2H Analytics</h3>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-blue-50 p-3 rounded-lg">
@@ -155,6 +155,37 @@ const MyHeadtoheadTabsCard: React.FC<MyHeadtoheadTabsCardProps> = ({ match }) =>
             <div className="bg-green-50 p-3 rounded-lg">
               <div className="text-sm text-green-600 font-medium">Clean Sheets</div>
               <div className="text-2xl font-bold text-green-800">25%</div>
+            </div>
+            <div className="bg-purple-50 p-3 rounded-lg">
+              <div className="text-sm text-purple-600 font-medium">xG Difference</div>
+              <div className="text-2xl font-bold text-purple-800">+0.4</div>
+            </div>
+            <div className="bg-orange-50 p-3 rounded-lg">
+              <div className="text-sm text-orange-600 font-medium">Pass Network Density</div>
+              <div className="text-2xl font-bold text-orange-800">73%</div>
+            </div>
+          </div>
+
+          {/* Performance Trends */}
+          <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+            <h4 className="font-medium text-sm mb-2">Performance Trends</h4>
+            <div className="grid grid-cols-2 gap-4 text-xs">
+              <div>
+                <div className="text-gray-600">Recent Form (Last 5)</div>
+                <div className="flex space-x-1 mt-1">
+                  {['W', 'D', 'W', 'L', 'W'].map((result, i) => (
+                    <span key={i} className={`w-6 h-6 rounded text-white text-center leading-6 ${
+                      result === 'W' ? 'bg-green-500' : result === 'D' ? 'bg-yellow-500' : 'bg-red-500'
+                    }`}>
+                      {result}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-gray-600">Goal Scoring Pattern</div>
+                <div className="text-sm font-medium mt-1">Early goals: 62%</div>
+              </div>
             </div>
           </div>
         </div>

@@ -30,18 +30,50 @@ const ShotMapVisualization: React.FC<ShotMapProps> = ({
   const [selectedTeam, setSelectedTeam] = useState<string>('all');
   const [selectedPlayer, setSelectedPlayer] = useState<string>('all');
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Enhanced shot analysis (inspired by analysis-repo)
+  const [shotAnalysis, setShotAnalysis] = useState({
+    totalxG: 0,
+    goals: 0,
+    conversion: 0,
+    avgDistance: 0,
+    hotZones: [] as {x: number, y: number, density: number}[]
+  });
 
   useEffect(() => {
-    // Simulate shot data - in real implementation, fetch from API
+    // Enhanced shot data with xG values (following analysis-repo patterns)
     const mockShots: ShotData[] = [
-      { id: 1, x: 85, y: 45, type: 'goal', player: 'Lionel Messi', team: homeTeam, minute: 27, bodyPart: 'Left Foot' },
-      { id: 2, x: 75, y: 35, type: 'shot', player: 'Luis Suárez', team: homeTeam, minute: 45, bodyPart: 'Right Foot' },
-      { id: 3, x: 20, y: 50, type: 'goal', player: 'Carles Gil', team: awayTeam, minute: 80, bodyPart: 'Right Foot' },
-      { id: 4, x: 90, y: 40, type: 'saved', player: 'Jordi Alba', team: homeTeam, minute: 65, bodyPart: 'Left Foot' },
+      { id: 1, x: 85, y: 45, type: 'goal', player: 'Lionel Messi', team: homeTeam, minute: 27, bodyPart: 'Left Foot', xG: 0.28 },
+      { id: 2, x: 75, y: 35, type: 'shot', player: 'Luis Suárez', team: homeTeam, minute: 45, bodyPart: 'Right Foot', xG: 0.15 },
+      { id: 3, x: 20, y: 50, type: 'goal', player: 'Carles Gil', team: awayTeam, minute: 80, bodyPart: 'Right Foot', xG: 0.85 },
+      { id: 4, x: 90, y: 40, type: 'saved', player: 'Jordi Alba', team: homeTeam, minute: 65, bodyPart: 'Left Foot', xG: 0.12 },
+      { id: 5, x: 88, y: 50, type: 'shot', player: 'Antoine Griezmann', team: homeTeam, minute: 71, bodyPart: 'Right Foot', xG: 0.31 },
     ];
+
+    // Calculate shot analysis (inspired by build_expected_goals_model.ipynb)
+    const calculateShotAnalysis = (shotData: ShotData[]) => {
+      const totalxG = shotData.reduce((sum, shot) => sum + (shot.xG || 0), 0);
+      const goals = shotData.filter(shot => shot.type === 'goal').length;
+      const conversion = goals > 0 ? (goals / shotData.length * 100) : 0;
+      
+      // Calculate average distance from goal (using Pythagorean theorem)
+      const avgDistance = shotData.reduce((sum, shot) => {
+        const distance = Math.sqrt(Math.pow(100 - shot.x, 2) + Math.pow(50 - shot.y, 2));
+        return sum + distance;
+      }, 0) / shotData.length;
+
+      return {
+        totalxG: Number(totalxG.toFixed(2)),
+        goals,
+        conversion: Number(conversion.toFixed(1)),
+        avgDistance: Number(avgDistance.toFixed(1)),
+        hotZones: [] // Could be enhanced with clustering analysis
+      };
+    };
 
     setTimeout(() => {
       setShots(mockShots);
+      setShotAnalysis(calculateShotAnalysis(mockShots));
       setIsLoading(false);
     }, 1000);
   }, [matchId, homeTeam, awayTeam]);
