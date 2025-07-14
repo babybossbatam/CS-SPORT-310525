@@ -193,7 +193,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
         <div className="mb-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+              <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 border-2 border-gray-300">
                 <img 
                   src={currentShot?.playerPhoto || '/assets/fallback_player.png'} 
                   alt={currentShot?.player}
@@ -205,82 +205,119 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                 />
               </div>
               <div>
-                <div className="font-semibold text-sm">{currentShot?.player}</div>
-                <div className={`text-xs ${currentShot?.type === 'goal' ? 'text-green-600 font-semibold' : 'text-gray-600'}`}>
-                  {currentShot?.type === 'goal' ? 'Goal' : currentShot?.type.charAt(0).toUpperCase() + currentShot?.type.slice(1)}
+                <div className="font-semibold text-base text-gray-900">{currentShot?.player}</div>
+                <div className={`text-sm font-medium ${
+                  currentShot?.type === 'goal' ? 'text-blue-600' : 
+                  currentShot?.type === 'saved' ? 'text-yellow-600' :
+                  currentShot?.type === 'blocked' ? 'text-red-600' :
+                  currentShot?.type === 'missed' ? 'text-gray-600' :
+                  'text-gray-600'
+                }`}>
+                  {currentShot?.type === 'goal' ? 'Goal' : 
+                   currentShot?.type === 'saved' ? 'Saved' :
+                   currentShot?.type === 'blocked' ? 'Blocked' :
+                   currentShot?.type === 'missed' ? 'Missed' :
+                   currentShot?.type?.charAt(0).toUpperCase() + currentShot?.type?.slice(1)}
                 </div>
               </div>
             </div>
 
-            {/* Shot navigation */}
-            <div className="flex items-center gap-2">
+            {/* Shot navigation with elapsed time */}
+            <div className="flex items-center gap-3">
               <button 
                 onClick={() => navigateShot('prev')}
                 disabled={selectedShotIndex === 0}
-                className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <svg viewBox="0 0 24 24" className="w-5 h-5">
+                <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-600">
                   <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" fill="currentColor"/>
                 </svg>
               </button>
               
-              <div className="px-3 py-1 bg-gray-100 rounded text-sm font-medium">
+              <div className="px-4 py-2 bg-white border border-gray-300 rounded text-lg font-bold text-gray-900 min-w-[60px] text-center">
                 {currentShot?.minute}'
               </div>
               
               <button 
                 onClick={() => navigateShot('next')}
                 disabled={selectedShotIndex === shotData.length - 1}
-                className="p-1 rounded hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <svg viewBox="0 0 24 24" className="w-5 h-5">
+                <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-600">
                   <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z" fill="currentColor"/>
                 </svg>
               </button>
             </div>
           </div>
 
-          {/* Goal view section for goals */}
-          {currentShot?.type === 'goal' && (
-            <div className="mb-4 p-4 bg-gray-50 rounded-lg">
-              <div className="flex items-center gap-4">
-                {/* Goal frame visualization */}
-                <div className="relative">
-                  <div className="w-32 h-20 border-2 border-gray-400 rounded-sm bg-green-100 relative">
-                    <div className="absolute w-6 h-12 border-2 border-gray-400 border-r-0 -left-2 top-1/2 transform -translate-y-1/2 bg-green-50"></div>
-                    {/* Ball position in goal */}
+          {/* Goal view section with SVG goal frame */}
+          <div className="mb-4 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-6">
+              {/* Goal frame visualization using provided SVG */}
+              <div className="relative flex-shrink-0">
+                <div className="w-40 h-24 border-2 border-gray-300 bg-white rounded relative overflow-hidden">
+                  {/* Goal net pattern */}
+                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 160 96">
+                    {/* Grid pattern for goal net */}
+                    <defs>
+                      <pattern id="net" x="0" y="0" width="16" height="12" patternUnits="userSpaceOnUse">
+                        <rect width="16" height="12" fill="none" stroke="#e5e7eb" strokeWidth="0.5"/>
+                      </pattern>
+                    </defs>
+                    <rect width="160" height="96" fill="url(#net)"/>
+                  </svg>
+                  
+                  {/* Ball position in goal for goals */}
+                  {currentShot?.type === 'goal' && (
                     <div 
-                      className="absolute w-2 h-2 bg-black rounded-full"
+                      className="absolute w-3 h-3 bg-black rounded-full z-10"
                       style={{
-                        left: '60%',
-                        bottom: '10%'
+                        left: '70%',
+                        bottom: '25%',
+                        transform: 'translate(-50%, 50%)'
                       }}
                     ></div>
-                  </div>
+                  )}
+                  
+                  {/* Shot target indicator for other shots */}
+                  {currentShot?.type !== 'goal' && (
+                    <div 
+                      className={`absolute w-3 h-3 rounded-full z-10 ${
+                        currentShot?.type === 'saved' ? 'bg-yellow-500' : 
+                        currentShot?.type === 'blocked' ? 'bg-red-500' : 
+                        'bg-gray-400'
+                      }`}
+                      style={{
+                        left: currentShot?.type === 'missed' ? '20%' : '50%',
+                        top: currentShot?.type === 'saved' ? '30%' : '50%',
+                        transform: 'translate(-50%, -50%)'
+                      }}
+                    ></div>
+                  )}
                 </div>
+              </div>
 
-                {/* Shot details */}
-                <div className="grid grid-cols-2 gap-4 flex-1">
-                  <div className="text-center">
-                    <div className="font-semibold text-sm">{currentShot.situation}</div>
-                    <div className="text-xs text-gray-500">Situation</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-semibold text-sm">{currentShot.bodyPart}</div>
-                    <div className="text-xs text-gray-500">Shot Type</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-semibold text-sm">{currentShot.xG.toFixed(2)}</div>
-                    <div className="text-xs text-gray-500">xG</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-semibold text-sm">{currentShot.xGOT?.toFixed(2) || '-'}</div>
-                    <div className="text-xs text-gray-500">xGOT</div>
-                  </div>
+              {/* Shot details */}
+              <div className="grid grid-cols-2 gap-6 flex-1">
+                <div className="text-center">
+                  <div className="font-semibold text-sm text-gray-600">{currentShot?.situation || 'Regular Play'}</div>
+                  <div className="text-xs text-gray-400">Situation</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-semibold text-sm text-gray-600">{currentShot?.bodyPart || 'Left foot'}</div>
+                  <div className="text-xs text-gray-400">Shot Type</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-semibold text-sm text-gray-600">{currentShot?.xG?.toFixed(2) || '0.00'}</div>
+                  <div className="text-xs text-gray-400">xG</div>
+                </div>
+                <div className="text-center">
+                  <div className="font-semibold text-sm text-gray-600">{currentShot?.xGOT?.toFixed(2) || '0.00'}</div>
+                  <div className="text-xs text-gray-400">xGOT</div>
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Football field */}
@@ -299,8 +336,8 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           {shotData.map((shot, index) => (
             <div
               key={shot.id}
-              className={`absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 ${
-                index === selectedShotIndex ? 'z-10' : 'z-5'
+              className={`absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 group ${
+                index === selectedShotIndex ? 'z-20' : 'z-10'
               }`}
               style={{
                 left: `${shot.x}%`,
@@ -309,35 +346,41 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               onClick={() => setSelectedShotIndex(index)}
             >
               <div
-                className={`w-4 h-4 rounded-full border-2 bg-white transition-all duration-200 ${
+                className={`relative rounded-full border-3 transition-all duration-200 ${
                   index === selectedShotIndex 
-                    ? 'scale-125 shadow-lg border-4' 
-                    : 'scale-100 opacity-80'
-                } ${shot.type === 'goal' ? 'border-green-500' : ''}`}
-                style={{
-                  borderColor: getShotColor(shot.team),
-                  opacity: index === selectedShotIndex ? 1 : 0.8,
-                }}
+                    ? 'w-6 h-6 shadow-lg border-4' 
+                    : 'w-4 h-4 opacity-70 hover:opacity-100'
+                } ${
+                  shot.type === 'goal' ? 'bg-green-500 border-green-600' :
+                  shot.type === 'saved' ? 'bg-yellow-500 border-yellow-600' :
+                  shot.type === 'blocked' ? 'bg-red-500 border-red-600' :
+                  shot.type === 'missed' ? 'bg-gray-400 border-gray-500' :
+                  'bg-blue-500 border-blue-600'
+                }`}
               >
+                {/* Special icon for goals */}
                 {shot.type === 'goal' && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none">
-                      <path 
-                        d="M19.0736 4.93537C18.1476 4.00326 17.0457 3.26388 15.8316 2.76002C14.6175 2.25616 13.3153 1.99784 12.0006 2.00001C10.6855 1.99796 9.38313 2.25633 8.16871 2.76017C6.9543 3.26402 5.85198 4.00334 4.92551 4.93537C1.02483 8.82986 1.02483 15.1691 4.92551 19.0646C5.852 19.9969 6.95446 20.7364 8.16908 21.2403C9.3837 21.7441 10.6863 22.0023 12.0016 22C13.3163 22.0023 14.6183 21.7441 15.8324 21.2404C17.0465 20.7368 18.1485 19.9976 19.0746 19.0656C22.9753 15.1711 22.9753 8.83185 19.0736 4.93537ZM18.2453 16.9955H16.0013L14.7427 19.5092C13.8648 19.8332 12.9365 19.9999 12.0006 20.0018C11.0629 20.0001 10.1329 19.833 9.25338 19.5082L7.99784 17.0055H5.76187C4.93695 15.9813 4.37909 14.7689 4.13817 13.4767L5.99697 11.0009L4.78045 8.57009C5.16862 7.74542 5.69624 6.99375 6.34012 6.34809C7.2413 5.44497 8.34588 4.77043 9.56151 4.38087L11.9996 6.0054L14.4386 4.38187C15.6539 4.7717 16.7583 5.44582 17.66 6.34809C18.3032 6.99298 18.8304 7.7436 19.2187 8.56709L18.0022 11.0009L19.861 13.4767C19.6211 14.7647 19.0661 15.9735 18.2453 16.9955Z" 
-                        fill="#151E22"
-                      />
-                      <path 
-                        d="M8.49805 11.0009L9.9987 14.9973H14.0004L15.5011 11.0009L11.9996 8.50315L8.49805 11.0009Z" 
-                        fill="#151E22"
-                      />
-                    </svg>
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
                   </div>
+                )}
+                
+                {/* Circle with team color border for selected */}
+                {index === selectedShotIndex && (
+                  <div 
+                    className="absolute inset-0 rounded-full border-2"
+                    style={{
+                      borderColor: getShotColor(shot.team),
+                    }}
+                  ></div>
                 )}
               </div>
 
-              {/* Tooltip */}
-              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-20">
-                {shot.player} - {shot.minute}' ({shot.type})
+              {/* Enhanced tooltip */}
+              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 shadow-lg">
+                <div className="font-medium">{shot.player}</div>
+                <div className="text-gray-300">{shot.minute}' • {shot.type}</div>
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
               </div>
             </div>
           ))}
@@ -380,23 +423,23 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
         </div>
 
         {/* Legend */}
-        <div className="flex items-center gap-4 flex-wrap text-xs">
-          <div className="text-gray-600">Shot Types:</div>
+        <div className="flex items-center gap-6 flex-wrap text-sm bg-white p-3 rounded-lg border">
+          <div className="text-gray-700 font-medium">Shot Types:</div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-            <span className="text-gray-500">Goal</span>
+            <div className="w-4 h-4 rounded-full bg-green-500 border border-green-600"></div>
+            <span className="text-gray-600">Goal</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span className="text-gray-500">Shot</span>
+            <div className="w-4 h-4 rounded-full bg-yellow-500 border border-yellow-600"></div>
+            <span className="text-gray-600">Saved</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <span className="text-gray-500">Saved</span>
+            <div className="w-4 h-4 rounded-full bg-red-500 border border-red-600"></div>
+            <span className="text-gray-600">Blocked</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-gray-500"></div>
-            <span className="text-gray-500">Blocked</span>
+            <div className="w-4 h-4 rounded-full bg-gray-400 border border-gray-500"></div>
+            <span className="text-gray-600">Missed</span>
           </div>
         </div>
 
