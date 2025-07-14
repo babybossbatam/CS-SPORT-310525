@@ -1,0 +1,441 @@
+@use "../../../scss/varialbles/colors" as *;
+@use "../../../scss/varialbles/shadows" as *;
+@use "../../../scss/mixins/scrollbar" as *;
+@use "../../../scss/varialbles/font-weights" as *;
+
+.competitor_players_stats_module {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: $surfacePrimary;
+  overflow: hidden;
+}
+
+.small_view.competitor_players_stats_module {
+  width: 100%;
+  height: 100%;
+}
+
+.football {}
+
+.header_container {
+  width: 100%;
+  box-shadow: $defaultShadow;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.header_content {
+  background-color: $surfaceSecondary;
+  height: 112px;
+  margin-bottom: 1px;
+  padding-top: 4px;
+  box-sizing: border-box;
+}
+
+.small_view .header_container {
+  height: 96px;
+}
+
+.small_view.has_game .header_container{
+  min-height: 152px;
+}
+
+.has_game .header_container {
+  height: 168px;
+}
+
+.close_button {
+  color: $textSecondary;
+}
+
+.header_logo_container {
+  position: absolute;
+  margin: 8px 16px;
+  z-index: 1;
+}
+
+.small_view .header_logo_container {
+  margin: 8px 8px;
+}
+
+.header_titles_container {
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.small_view .header_titles_container{
+  margin-top: 1px;
+}
+
+.header_title_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.header_title_name_container {
+  font-size: 14px;
+  line-height: 1;
+  font-weight: $semiBold-font-weight;
+  color: $textPrimary;
+}
+
+.small_view .header_title_name_container {
+  font-size: 13px;
+}
+
+.header_badge_container {
+  width: 24px;
+  height: 13px;
+  border-radius: 6px;
+  color: $whitePrimary;
+  font-size: 12px;
+  cursor: auto;
+}
+
+[dir=ltr] .header_badge_container {
+  margin: 0 0 0 4px;
+}
+
+[dir=rtl]  .header_badge_container {
+  margin: 0 4px 0 0;
+}
+
+.tabs {
+  margin-top: 8px;
+}
+
+.header_badge_text_container {
+  height: 14px;
+  width: 24px;
+}
+
+.header_subtitle_container {
+  display: flex;
+  justify-content: center;
+  font-size: 12px;
+  color: $textSecondary
+}
+
+.small_view .header_subtitle_container {
+  font-size: 10px;
+}
+
+.player_stats_container {
+  width: 100%;
+  height: 512px;
+  overflow: hidden;
+  position: relative;
+}
+
+.has_game .player_stats_container{
+  height: 456px;
+}
+
+.small_view .player_stats_container {
+  height: 100%;
+  overflow-y: scroll;
+}
+
+.player_stats_heat_map_container {
+  width: 100%;
+  height: auto;
+}
+
+.props_container {
+  margin-top: 8px
+}
+
+.court {
+  position: relative;
+  width: 100%;
+}
+
+.court_img {
+  position: relative;
+}
+
+.court_container {
+  width: 100%;
+}
+
+.player_stats_title_container {
+  font-size: 13px;
+  color: $textSecondary;
+}
+
+[dir=ltr] .player_stats_title_container {
+  margin: 8px 0 6px 16px;
+}
+
+[dir=rtl] .player_stats_title_container {
+  margin: 8px 16px 6px 0;
+}
+
+.small_view .player_stats_title_container {
+  font-size: 11px;
+}
+
+[dir=ltr] .small_view .player_stats_title_container {
+  margin: 6px 0 1px 6px;
+}
+
+[dir=rtl] .small_view .player_stats_title_container {
+  margin: 6px 6px 1px 0;
+}
+
+.player_stats_top_stats_container {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.player_stats_top_stats_content_container {
+  width: 100%;
+  height: 76px;
+  display: flex;
+  background-color: $surfaceSecondary;
+  padding: 10px 0;
+}
+
+.small_view .player_stats_top_stats_content_container {
+  height: 60px;
+  padding: 10px 0;
+}
+
+.player_stats_top_stats_content_card_container {
+  width: 146px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.small_view .player_stats_top_stats_content_card_container {
+  width: 100%;
+  gap: 2px;
+}
+
+.player_stats_top_stats_content_card_container:nth-child(2) {
+  border-left: 1px solid $surfacePrimary;
+  border-right: 1px solid $surfacePrimary;
+}
+
+.player_stats_top_stats_content_card_value {
+  font-size: 16px;
+  color: $textPrimary;
+  font-weight: $semiBold-font-weight;
+}
+
+.player_stats_top_stats_content_card_stats_name {
+  font-size: 11px;
+  color: $textSecondary;
+}
+
+.player_stats_top_stats_content_card_logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 34px;
+  min-height: 34px;
+}
+
+.small_view .player_stats_top_stats_content_card_logo {
+  width: 24px;
+  min-height: 24px;
+}
+
+.player_stats_list_container {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.player_stats_list_item_container {
+  height: 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1px;
+  background-color: $surfaceSecondary;
+}
+
+.small_view .player_stats_list_item_container {
+  height: 40px;
+}
+
+.player_stats_list_item_text {
+  margin: 0 16px;
+  font-size: 14px;
+  color: $textPrimary;
+}
+
+.small_view .player_stats_list_item_text {
+  margin: 0 10px;
+  font-size: 13px;
+}
+
+.player-rating-container-no-rating {
+  background-color: $textSecondary;
+}
+
+.player-rating-container-low {
+  background-color: $dangerPrimary;
+}
+
+.player-rating-container-moderate {
+  background-color: $ratePrimary;
+}
+
+.player-rating-container-medium {
+  background-color: $warningPrimary;
+}
+
+.player-rating-container-high {
+  background-color: $successPrimary;
+}
+
+.player-rating-container-best {
+  background-color: $accentPrimary;
+}
+
+.empty_state_container {
+  width: 100%;
+  height: 512px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.small_view .empty_state_container {
+  height: 100%;
+  width: 100%;
+}
+
+.empty_state_image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.empty_state_label {
+  margin-top: 12px;
+  font-size: 16px;
+  color: $textSecondary;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.small_view .empty_state_label {
+  margin-top: 14px;
+}
+
+.shot_mark {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border-width: 2px;
+  border-style: solid;
+  box-sizing: border-box;
+  position: absolute;
+}
+
+
+.shot_mark:after {
+  position: absolute;
+  content: "";
+  top: 1px;
+  left: 1px;
+  width: 8px;
+  height: 8px;
+  border-radius: inherit;
+  background: transparent;
+  z-index: 1;
+}
+
+.football .shot_mark {
+  width: 12px;
+  height: 12px;
+  border-width: 1px;
+  cursor: pointer;
+}
+
+[dir=ltr] .shot_mark {
+  margin-right: 8px;
+}
+
+[dir=rtl] .shot_mark {
+  margin-left: 8px;
+}
+
+.football .shot_mark.goal {
+  width: 12px;
+  height: 12px;
+  border-style: solid;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position:absolute;
+  box-sizing: border-box;
+  z-index: 3;
+}
+
+.court .shot_mark {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.made.shot_mark {
+  border-color: $textPrimary;
+}
+
+.shot_court.made.shot_mark {
+  border-color: $whitePrimary;
+}
+
+.miss.shot_mark {
+  background-color: transparent;
+}
+
+.shot_court.miss.shot_mark:after {
+  border: 1px solid $whitePrimary;
+}
+
+.shot_map_content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.selector {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: $surfaceSecondary;
+}
+
+.goal_view {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 8px;
+}
+
+.shot_navigation {
+  border-top: 1px solid $surfacePrimary;
+  min-height: 24px;
+  background-color: $surfaceSecondary;
+  color: $textSecondary;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}

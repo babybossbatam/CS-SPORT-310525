@@ -1,0 +1,102 @@
+@use "../../../../scss/varialbles/colors" as *;
+@use "../../../../scss/varialbles/font-weights" as *;
+
+.container {
+  min-height: 40px;
+  color: $textPrimary;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.small_view.container {
+
+}
+
+.shallow_shot_map.container {
+  width: 100%;
+}
+
+.single_container {
+  justify-content: center;
+}
+
+:not(.small_view).shallow_shot_map.single_container {
+  gap: 38px;
+}
+
+.shallow_shot_map.small_view .single_container {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.arrow {
+  height: 100%;
+  width: 24px;
+  fill: $textPrimary;
+  cursor: pointer;
+}
+
+.arrow.disable_arrow {
+  fill: $textSecondary;
+  opacity: 0.5;
+  cursor: initial;
+}
+
+.time {
+  text-align: center;
+  min-width: 66px;
+  direction: ltr;
+}
+
+.shallow_shot_map .time {
+  font-weight: $semiBold-font-weight;
+}
+
+[dir=ltr] .shallow_shot_map.small_view .time {
+  margin-right: 8px;
+  text-align: end;
+}
+
+[dir=rtl] .shallow_shot_map.small_view .time {
+  margin-left: 8px;
+  text-align: start;
+}
+
+.time_and_type {
+  min-width: 68px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 16px;
+}
+
+.type {
+  font-size: 12px;
+  color: $warningPrimary;
+}
+
+[data-theme="light"] .type {
+  color: $textPrimary;
+}
+
+.type.is_goal {
+  color: $accentPrimary;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+}
+
+:not(.small_view).shallow_shot_map .content {
+  width: 116px;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.shallow_shot_map.small_view .content {
+    width: 100%;
+}

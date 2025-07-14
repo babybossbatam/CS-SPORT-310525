@@ -1,0 +1,639 @@
+.placeholder_container {
+  padding-top: 112px;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+.small_view {
+}
+
+.dba_banner {
+  display: grid;
+  justify-items: center;
+  margin-top: 16px;
+}
+
+.element {
+  margin-top: 16px;
+}
+
+.element:empty {
+  //display: none;
+  margin-top: 0;
+  height: 0;
+  min-height: 0;
+}
+
+.predictions {
+  grid-area: predictions;
+  width: 100%;
+  min-height: 324px;
+}
+
+.small_view .predictions {
+  min-height: 277px;
+}
+
+.news {
+  grid-area: news;
+  min-height: 228px;
+}
+
+.small_view .news {
+  min-height: 367px;
+}
+
+.stats {
+  grid-area: stats;
+  min-height: 122px;
+}
+
+.small_view .stats {
+  min-height: 114px;
+}
+
+//.ad {
+//  grid-area: ad;
+//  margin-bottom: 16px;
+//  width: 300px;
+//  height: 250px;
+//  background-color: $surfaceSecondary;
+//  display: flex;
+//  justify-content: center;
+//  align-items: center;
+//  font-size: 20px;
+//}
+//
+
+.oddsBy {
+  grid-area: oddsBy;
+  min-height: 89px;
+}
+
+.small_view .oddsBy {
+  min-height: 81px;
+}
+
+.standings {
+  grid-area: standings;
+  min-height: 180px;
+}
+
+.small_view .standings {
+  min-height: 176px;
+}
+
+.trends {
+  grid-area: trends;
+  min-height: 162px;
+  margin-top: 0;
+}
+
+.matchDescription {
+  grid-area: matchDescription;
+  min-height: 85px;
+}
+
+.liveStreaming {
+  grid-area: liveStreaming;
+  min-height: 49px;
+}
+
+.small_view .liveStreaming {
+  min-height: 32px;
+}
+
+.liveOdds {
+  grid-area: liveOdds;
+  min-height: 216px;
+}
+
+.lineups {
+  grid-area: lineups;
+  min-height: 220px;
+}
+
+.small_view .lineups {
+  min-height: 167px;
+}
+
+.last10Matches {
+  min-height: 85px;
+  grid-area: last10Matches;
+}
+
+.lastMatches {
+  grid-area: lastMatches;
+  min-height: 85px;
+}
+
+.gameInfo {
+  grid-area: gameInfo;
+  min-height: 83px;
+}
+
+.small_view .gameInfo {
+  min-height: 69px;
+}
+
+.h2h {
+  grid-area: h2h;
+  min-height: 204px;
+}
+
+.small_view .h2h {
+  min-height: 196px;
+}
+
+.keyPlayers {
+  grid-area: keyPlayers;
+  min-height: 240px;
+}
+
+.small_view .keyPlayers {
+  min-height: 210px;
+}
+
+.topPerformers {
+  grid-area: topPerformers;
+  min-height: 150px;
+}
+
+.oddsComparison {
+  grid-area: oddsComparison;
+  min-height: 150px;
+}
+
+.props {
+  grid-area: props;
+  min-height: 160px;
+}
+
+.relatedGames {
+  grid-area: relatedGames;
+  min-height: 80px;
+}
+
+.matchEvents {
+  grid-area: matchEvents;
+  min-height: 80px;
+}
+
+.teaserOdds {
+  grid-area: teaserOdds;
+  min-height: 131px;
+}
+
+.small_view .teaserOdds {
+  min-height: 113px;
+}
+
+.shotChart {
+  grid-area: shotChart;
+  min-height: 249px;
+}
+
+.small_view .shotChart {
+  min-height: 303px;
+}
+
+.matchFacts {
+  min-height: 80px;
+}
+
+.actualPlayTime {
+  grid-area: actualPlayTime;
+  min-height: 170px;
+}
+
+.small_view .actualPlayTime {
+  min-height: 162px;
+}
+
+.currentOdds {
+  grid-area: currentOdds;
+  min-height: 80px;
+}
+
+.liveMatchTracker {
+  grid-area: liveMatchTracker;
+  min-height: 492px;
+}
+
+.small_view .liveMatchTracker {
+  min-height: 274px;
+}
+
+.videoEmbedded {
+  grid-area: videoEmbedded;
+  min-height: 448px;
+}
+
+.small_view .videoEmbedded {
+  min-height: 251px;
+}
+
+.scoreBoard {
+  grid-area: scoreBoard;
+  min-height: 146px;
+}
+
+.small_view .scoreBoard {
+  min-height: 138px;
+}
+
+.preGameStats {
+  grid-area: preGameStats;
+  min-height: 252px;
+}
+
+.small_view .preGameStats {
+  min-height: 212px;
+}
+
+.hide {
+  display: none;
+}
+
+.pointByPoint {
+  grid-area: pointByPoint;
+  min-height: 122px;
+}
+
+.small_view .pointByPoint {
+  min-height: 114px;
+}
+
+.externalAd_1 {
+  grid-area: externalAd_1;
+}
+
+.externalAd_2 {
+  grid-area: externalAd_2;
+}
+
+.externalAd {
+  grid-area: externalAd;
+}
+
+.bookmakersReview {
+  grid-area: bookmakersReview;
+  min-height: 424px;
+}
+
+.small_view .bookmakersReview {
+  min-height: 416px;
+}
+
+.nextMatch {
+  grid-area: nextMatch;
+  min-height: 113px;
+}
+
+.small_view .nextMatch {
+  min-height: 105px;
+}
+
+.grid_container {
+  display: grid;
+  grid-template-columns: 100%;
+  grid-template-areas: "predictions"
+                        "videoEmbedded"
+                        "matchEvents"
+                        "lineups"
+                        "teaserOdds"
+                        "stats"
+                        "scoreBoard"
+                        "oddsBy"
+                        "actualPlayTime"
+                        "trends"
+                        "gameInfo"
+                        "shotChart"
+                        "standings"
+                        "news"
+                        "h2h"
+                        "externalAd"
+                        "props"
+                        "oddsComparison"
+                        "matchDescription"
+                        "bookmakersReview"
+}
+
+.small_view.grid_container {
+}
+
+.small_view.match_scheduled, .small_view.match_scheduled.grid_1 {
+  grid-template-areas:
+                        "predictions"
+                        "oddsBy"
+                        "lineups"
+                        "preGameStats"
+                        "liveStreaming"
+                        "trends"
+                        "externalAd_1"
+                        "standings"
+                        "h2h"
+                        "keyPlayers"
+                        "topPerformers"
+                        "externalAd_2"
+                        "gameInfo"
+                        "oddsComparison"
+                        "props"
+                        "last10Matches"
+                        "news"
+                        "relatedGames"
+                        "matchDescription"
+                        "bookmakersReview"
+}
+
+.small_view.match_scheduled.grid_5 {
+  grid-template-areas:
+                        "liveStreaming"
+                        "predictions"
+                        "oddsBy"
+                        "lineups"
+                        "preGameStats"
+                        "trends"
+                        "externalAd_1"
+                        "standings"
+                        "keyPlayers"
+                        "topPerformers"
+                        "gameInfo"
+                        "externalAd_2"
+                        "last10Matches"
+                        "h2h"
+                        "news"
+                        "oddsComparison"
+                        "props"
+                        "relatedGames"
+                        "matchDescription"
+                        "bookmakersReview"
+}
+
+.small_view.match_started, .small_view.match_started.grid_1 {
+  grid-template-areas: "liveMatchTracker"
+                        "matchEvents"
+                        "pointByPoint"
+                        "scoreBoard"
+                        "oddsBy"
+                        "externalAd_1"
+                        "liveOdds"
+                        "stats"
+                        "shotChart"
+                        "TopPerformers"
+                        "externalAd_2"
+                        "keyPlayers"
+                        "actualPlayTime"
+                        "liveStreaming"
+                        "standings"
+                        "predictions"
+                        "trends"
+                        "lineups"
+                        "h2h"
+                        "props"
+                        "news"
+                        "gameInfo"
+                        "currentOdds"
+                        "relatedGames"
+                        "bookmakersReview"
+                        "matchDescription"
+}
+
+.small_view.match_started.grid_5 {
+  grid-template-areas: "liveMatchTracker"
+                        "liveStreaming"
+                        "liveOdds"
+                        "actualPlayTime"
+                        "currentOdds"
+                        "externalAd_1"
+                        "scoreBoard"
+                        "pointByPoint"
+                        "matchEvents"
+                        "lineups"
+                        "externalAd_2"
+                        "keyPlayers"
+                        "stats"
+                        "shotChart"
+                        "TopPerformers"
+                        "gameInfo"
+                        "standings"
+                        "predictions"
+                        "oddsBy"
+                        "trends"
+                        "props"
+                        "relatedGames"
+                        "h2h"
+                        "news"
+                        "matchDescription"
+                        "bookmakersReview"
+}
+
+.small_view.match_ended, .small_view.match_ended.grid_1 {
+  grid-template-areas:
+                        "videoEmbedded"
+                        "matchEvents"
+                        "nextMatch"
+                        "oddsBy"
+                        "keyPlayers"
+                        "externalAd_1"
+                        "scoreBoard"
+                        "stats"
+                        "actualPlayTime"
+                        "shotChart"
+                        "gameInfo"
+                        "predictions"
+                        "h2h"
+                        "lineups"
+                        "externalAd_2"
+                        "trends"
+                        "standings"
+                        "news"
+                        "props"
+                        "oddsComparison"
+                        "relatedGames"
+                        "bookmakersReview"
+                        "matchDescription"
+}
+
+.small_view.match_ended.grid_5 {
+  grid-template-areas: "videoEmbedded"
+                        "scoreBoard"
+                        "matchEvents"
+                        "nextMatch"
+                        "relatedGames"
+                        "externalAd_1"
+                        "keyPlayers"
+                        "stats"
+                        "actualPlayTime"
+                        "shotChart"
+                        "standings"
+                        "lineups"
+                        "gameInfo"
+                        "predictions"
+                        "externalAd_2"
+                        "oddsBy"
+                        "trends"
+                        "props"
+                        "h2h"
+                        "news"
+                        "oddsComparison"
+                        "matchDescription"
+                        "bookmakersReview"
+}
+
+.match_scheduled, .match_scheduled.grid_1 {
+  grid-template-areas:
+                        "predictions"
+                        "preGameStats"
+                        "oddsBy"
+                        "liveStreaming"
+                        "trends"
+                        "externalAd"
+                        "standings"
+                        "keyPlayers"
+                        "topPerformers"
+                        "h2h"
+                        "gameInfo"
+                        "oddsComparison"
+                        "props"
+                        "relatedGames"
+                        "last10Matches"
+                        "news"
+                        "bookmakersReview"
+                        "matchDescription"
+}
+
+.match_scheduled.grid_5 {
+  grid-template-areas:
+                        "liveStreaming"
+                        "predictions"
+                        "oddsBy"
+                        "preGameStats"
+                        "trends"
+                        "externalAd"
+                        "standings"
+                        "keyPlayers"
+                        "topPerformers"
+                        "gameInfo"
+                        "last10Matches"
+                        "h2h"
+                        "news"
+                        "oddsComparison"
+                        "props"
+                        "relatedGames"
+                        "matchDescription"
+                        "bookmakersReview"
+}
+
+.match_started, .match_started.grid_1 {
+  grid-template-areas:
+                        "liveMatchTracker"
+                        "actualPlayTime"
+                        "matchEvents"
+                        "pointByPoint"
+                        "scoreBoard"
+                        "externalAd"
+                        "oddsBy"
+                        "stats"
+                        "shotChart"
+                        "keyPlayers"
+                        "liveOdds"
+                        "currentOdds"
+                        "topPerformers"
+                        "liveStreaming"
+                        "standings"
+                        "predictions"
+                        "trends"
+                        "h2h"
+                        "props"
+                        "gameInfo"
+                        "news"
+                        "relatedGames"
+                        "bookmakersReview"
+                        "matchDescription"
+}
+
+.match_started.grid_5 {
+  grid-template-areas: "liveMatchTracker"
+                        "liveStreaming"
+                        "liveOdds"
+                        "actualPlayTime"
+                        "currentOdds"
+                        "externalAd"
+                        "scoreBoard"
+                        "pointByPoint"
+                        "matchEvents"
+                        "stats"
+                        "keyPlayers"
+                        "topPerformers"
+                        "shotChart"
+                        "standings"
+                        "predictions"
+                        "oddsBy"
+                        "trends"
+                        "props"
+                        "gameInfo"
+                        "relatedGames"
+                        "h2h"
+                        "news"
+                        "bookmakersReview"
+                        "matchDescription"
+}
+
+.match_ended, .match_ended.grid_1 {
+  grid-template-areas:
+                        "videoEmbedded"
+                        "matchEvents"
+                        "oddsBy"
+                        "scoreBoard"
+                        "stats"
+                        "actualPlayTime"
+                        "externalAd"
+                        "shotChart"
+                        "predictions"
+                        "trends"
+                        "props"
+                        "standings"
+                        "h2h"
+                        "keyPlayers"
+                        "oddsComparison"
+                        "nextMatch"
+                        "gameInfo"
+                        "currentOdds"
+                        "relatedGames"
+                        "news"
+                        "bookmakersReview"
+                        "matchDescription"
+}
+
+.match_ended.grid_5 {
+  grid-template-areas:
+                        "videoEmbedded"
+                        "scoreBoard"
+                        "matchEvents"
+                        "nextMatch"
+                        "relatedGames"
+                        "keyPlayers"
+                        "externalAd"
+                        "stats"
+                        "actualPlayTime"
+                        "shotChart"
+                        "gameInfo"
+                        "standings"
+                        "predictions"
+                        "oddsBy"
+                        "trends"
+                        "props"
+                        "currentOdds"
+                        "h2h"
+                        "news"
+                        "oddsComparison"
+                        "matchDescription"
+                        "bookmakersReview"
+}
+
+
+
+

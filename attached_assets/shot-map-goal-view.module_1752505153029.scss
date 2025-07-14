@@ -1,0 +1,244 @@
+@use "../../../../scss/varialbles/font-weights" as *;
+@use "../../../../scss/varialbles/colors" as *;
+
+$animation-duration: 350ms;
+
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: $surfaceSecondary;
+  position: relative;
+}
+
+.game {}
+
+.popup {}
+
+.content_container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.border.content_container {
+  border-bottom: 1px solid $textSecondary;
+}
+
+.goal_container {
+  position: relative;
+  width: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  background-color: $surfaceSecondary;
+}
+
+.goal_frame {
+  box-sizing: border-box;
+  transition: all $animation-duration ease-in-out;
+}
+
+.ball {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: $whitePrimary;
+  border-radius: 50%;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+.game .ball {
+}
+
+.missed .ball {
+  width: 12px;
+  height: 12px;
+  background-color: unset;
+  border: unset;
+}
+
+.game .missed .ball {
+  border: 1px solid $textPrimary;
+  box-sizing: border-box;
+}
+
+.own_goal .ball {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: unset;
+  z-index: 1;
+}
+
+.shot_mark {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  position: absolute;
+  opacity: 0.7;
+  background-color: $accentPrimary;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all $animation-duration ease-in-out;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.missed.shot_mark {
+  width: 12px;
+  height: 12px;
+  background-color: unset;
+}
+
+.goal.shot_mark {
+  z-index: 2;
+}
+
+.own_goal.shot_mark {
+  width: 12px;
+  height: 12px;
+  background-color: $dangerPrimary;
+  border: 0.5px solid $whitePrimary
+}
+
+.game_shot.shot_mark {
+  width: 12px;
+  height: 12px;
+  background-color: $whitePrimary;
+  opacity: 1;
+}
+
+.active.shot_mark {
+  opacity: 1;
+  z-index: 3;
+}
+
+.active.shot_mark:after {
+  position: absolute;
+  display: flex;
+  justify-self: center;
+  align-self: center;
+  content: "";
+  width: 14px;
+  height: 14px;
+  border-radius: inherit;
+  background: transparent;
+  border: 1px solid $accentPrimary;
+}
+
+.game_shot_goal.shot_mark:after {
+  border: none;
+}
+
+.all_active .active.shot_mark:after{
+  content: none;
+}
+
+.all_active .missed.active.shot_mark:after {
+  content: none;
+}
+
+.missed.active.shot_mark:after {
+  width: 14px;
+  height: 14px;
+  border: 1px solid $dangerPrimary;
+}
+
+.own_goal.active.shot_mark:after {
+  position: absolute;
+  content: "";
+  width: 14px;
+  height: 14px;
+  border-radius: inherit;
+  background: transparent;
+}
+
+.shot_mark {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.event_details_container {
+  width: 100%;
+  max-width: 432px;
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+  box-sizing: border-box;
+  background-color: $surfaceSecondary;
+  border-top: 1px solid $textSecondary;
+}
+
+[dir=ltr] .event_details_container {
+  flex-direction: row;
+}
+
+[dir=rtl] .event_details_container {
+  flex-direction: row-reverse;
+}
+
+.game .event_details_container {
+  padding: 16px 8px 5px 8px;
+}
+
+.small_view .event_details_container {
+  padding: 8px 0 0 0;
+  height: 40px;
+}
+
+.popup .event_details_container {
+  height: 52px;
+  padding: 4px 0 0 0;
+}
+
+.event_details_container .card_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  max-width: 108px;
+  min-width: 70px;
+  width: 100%;
+  position: relative;
+}
+
+[dir=ltr] .event_details_container .card_container:not(:last-child):after {
+  content: "";
+  position: absolute;
+  border-right: 1px solid $textSecondary;
+  height: 50%;
+  right: 0;
+}
+
+[dir=rtl] .event_details_container .card_container:not(:first-child):after {
+  content: "";
+  position: absolute;
+  border-left: 1px solid $textSecondary;
+  height: 50%;
+  left: 0;
+}
+
+.card_main_text {
+  font-size: 12px;
+  text-align: center;
+  color: $textPrimary
+}
+
+.card_sub_text {
+  font-size: 12px;
+  color: $textSecondary;
+}
+
