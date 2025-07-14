@@ -434,14 +434,14 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           {/* Goal view section beside the field */}
           <div className="flex-1">
             <div className="flex flex-col gap-4 p-4 rounded-lg bg-white shadow-sm h-147">
-              {/* Player info, navigation, and elapsed time header */}
-              <div className="flex items-center justify-between mb-2">
+              {/* Player info header with navigation arrows */}
+              <div className="flex items-center justify-between mb-4 bg-gray-50 rounded-lg p-3">
                 <div className="flex items-center gap-3">
                   <MyAvatarInfo
                     playerId={currentShot?.playerId}
                     playerName={currentShot?.player}
                     size="lg"
-                    className="border-2 border-gray-300"
+                    className="w-12 h-12 rounded-full border-2 border-gray-300"
                   />
                   <div>
                     <div className="font-semibold text-base text-gray-900">{currentShot?.player}</div>
@@ -461,38 +461,31 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                   </div>
                 </div>
 
-                {/* Shot navigation and elapsed time */}
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => navigateShot('prev')}
-                      disabled={selectedShotIndex === 0}
-                      className="p-1.5 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 text-gray-600">
-                        <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" fill="currentColor"/>
-                      </svg>
-                    </button>
+                {/* Navigation arrows and time */}
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={() => navigateShot('prev')}
+                    disabled={selectedShotIndex === 0}
+                    className="p-2 rounded-full hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-700">
+                      <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z" fill="currentColor"/>
+                    </svg>
+                  </button>
 
-                    <div className="px-3 py-1 bg-white border border-gray-300 rounded text-sm font-bold text-gray-900 min-w-[80px] text-center">
-                      Shot {selectedShotIndex + 1} of {shotData.length}
-                    </div>
-
-                    <button 
-                      onClick={() => navigateShot('next')}
-                      disabled={selectedShotIndex === shotData.length - 1}
-                      className="p-1.5 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <svg viewBox="0 0 24 24" className="w-4 h-4 text-gray-600">
-                        <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z" fill="currentColor"/>
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Elapsed time */}
-                  <div className="px-4 py-2 bg-gray-100 border border-gray-300 rounded text-lg font-bold text-gray-900 min-w-[60px] text-center">
+                  <div className="text-xl font-bold text-gray-900 min-w-[50px] text-center">
                     {currentShot?.minute}'
                   </div>
+
+                  <button 
+                    onClick={() => navigateShot('next')}
+                    disabled={selectedShotIndex === shotData.length - 1}
+                    className="p-2 rounded-full hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-700">
+                      <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z" fill="currentColor"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
 
