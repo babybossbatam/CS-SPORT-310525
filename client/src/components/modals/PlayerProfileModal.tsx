@@ -310,7 +310,11 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
             <Card className="text-center p-4">
               <CardContent className="p-0">
                 <div className="flex flex-col items-center">
-                  <Users className="w-8 h-8 text-blue-500 mb-2" />
+                  <img
+                    src="/assets/matchdetaillogo/assist.svg"
+                    alt="Assists"
+                    className="w-8 h-8 mb-2"
+                  />
                   <div className="text-2xl font-bold text-gray-900">
                     {playerStats?.assists || '0'}
                   </div>
