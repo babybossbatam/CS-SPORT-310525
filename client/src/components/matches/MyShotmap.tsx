@@ -253,19 +253,15 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           {/* Goal view section with SVG goal frame */}
           <div className="mb-4 p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-6">
-              {/* Goal frame visualization using provided SVG */}
+              {/* Goal frame visualization using technical diagram SVG */}
               <div className="relative flex-shrink-0">
                 <div className="w-40 h-24 border-2 border-gray-300 bg-white rounded relative overflow-hidden">
-                  {/* Goal net pattern */}
-                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 160 96">
-                    {/* Grid pattern for goal net */}
-                    <defs>
-                      <pattern id="net" x="0" y="0" width="16" height="12" patternUnits="userSpaceOnUse">
-                        <rect width="16" height="12" fill="none" stroke="#e5e7eb" strokeWidth="0.5"/>
-                      </pattern>
-                    </defs>
-                    <rect width="160" height="96" fill="url(#net)"/>
-                  </svg>
+                  {/* Technical diagram pattern */}
+                  <img 
+                    src="/assets/matchdetaillogo/technical-diagram.svg" 
+                    alt="Technical diagram"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  /></div>
                   
                   {/* Ball position in goal for goals */}
                   {currentShot?.type === 'goal' && (
