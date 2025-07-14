@@ -561,11 +561,11 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
 
               {shot.type === 'shot' && (
                 <div 
-                  className={`relative rounded-full bg-blue-500 border-2 border-blue-700 transition-all duration-200 ${
+                  className={`relative  bg-blue-500 border-2 border-blue-700 transition-all duration-200 ${
                     index === selectedShotIndex ? 'w-6 h-6 shadow-lg' : 'w-4 h-4'
                   }`}
                 >
-                  <div className="absolute inset-1 rounded-full bg-white opacity-30"></div>
+                  <div className="absolute inset-1  bg-white opacity-30"></div>
                   {index === selectedShotIndex && (
                     <div className="absolute inset-0 rounded-full border-2 border-blue-500 animate-pulse"></div>
                   )}
@@ -573,7 +573,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               )}
 
               {/* Enhanced tooltip */}
-              <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 shadow-lg">
+              <div className="absolute top-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs  px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30">
                 <div className="font-medium">{shot.player}</div>
                 <div className="text-gray-300">{shot.minute}' • {shot.type.charAt(0).toUpperCase() + shot.type.slice(1)}</div>
                 <div className="text-gray-400">xG: {shot.xG?.toFixed(2) || '0.00'}</div>
@@ -609,8 +609,8 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                 style={{
                   left: `${shot.x}%`,
                   top: `${shot.y}%`,
-                  width: '20px',
-                  height: '20px',
+                  width: '10px',
+                  height: '10px',
                   background: `radial-gradient(circle, ${getShotColor(shot.team)}20, transparent)`,
                   opacity: 0.3,
                 }}
@@ -621,126 +621,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
 
 
 
-        {/* Shot type legend */}
-        <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-          <div className="text-sm font-medium text-gray-800 mb-2">Shot Legend</div>
-          <div className="flex flex-wrap gap-4 text-xs">
-            <div className="flex items-center gap-2">
-              <img src="/assets/matchdetaillogo/soccer-ball.svg" alt="Goal" className="w-4 h-4" />
-              <span className="text-green-700 font-medium">Goal</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-yellow-400 border-2 border-yellow-600">
-                <div className="w-full h-full rounded-full bg-white opacity-30"></div>
-              </div>
-              <span className="text-yellow-700 font-medium">Saved</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-red-700 relative">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-1/2 h-0.5 bg-white transform rotate-45"></div>
-                  <div className="w-1/2 h-0.5 bg-white transform -rotate-45 absolute"></div>
-                </div>
-              </div>
-              <span className="text-red-700 font-medium">Blocked</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-gray-400 border-2 border-gray-600 relative">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-1/3 h-0.5 bg-white transform rotate-45"></div>
-                  <div className="w-1/3 h-0.5 bg-white transform -rotate-45 absolute"></div>
-                </div>
-              </div>
-              <span className="text-gray-700 font-medium">Missed</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-blue-700">
-                <div className="w-full h-full rounded-full bg-white opacity-30"></div>
-              </div>
-              <span className="text-blue-700 font-medium">Shot</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Info note */}
-        <div className="mt-3 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
-          <p>⚽ Interactive shot map - click on any shot to see details and navigate through all match shots.</p>
-        </div>
-
-        {/* CSS animations for shot events */}
-        <style jsx>{`
-          @keyframes moveToGoal {
-            0% {
-              transform: translate(-50px, 50px) scale(0.8);
-              opacity: 0.7;
-            }
-            50% {
-              transform: translate(-25px, 25px) scale(1.1);
-              opacity: 1;
-            }
-            100% {
-              transform: translate(0, 0) scale(1);
-              opacity: 1;
-            }
-          }
-
-          @keyframes moveToSaved {
-            0% {
-              transform: translate(-40px, 40px) scale(0.8);
-              opacity: 0.7;
-            }
-            50% {
-              transform: translate(-20px, 20px) scale(1.1);
-              opacity: 1;
-            }
-            100% {
-              transform: translate(0, 0) scale(1);
-              opacity: 1;
-            }
-          }
-
-          @keyframes moveToBlocked {
-            0% {
-              transform: translate(-35px, 35px) scale(0.8);
-              opacity: 0.7;
-            }
-            30% {
-              transform: translate(-20px, 20px) scale(1.1);
-              opacity: 1;
-            }
-            60% {
-              transform: translate(-10px, 10px) scale(0.9);
-              opacity: 0.8;
-            }
-            100% {
-              transform: translate(0, 0) scale(1);
-              opacity: 1;
-            }
-          }
-
-          @keyframes moveToMissed {
-            0% {
-              transform: translate(30px, -30px) scale(0.8);
-              opacity: 0.7;
-            }
-            25% {
-              transform: translate(20px, -20px) scale(1.1);
-              opacity: 1;
-            }
-            50% {
-              transform: translate(10px, -10px) scale(1.2);
-              opacity: 0.9;
-            }
-            75% {
-              transform: translate(5px, -5px) scale(1.1);
-              opacity: 0.8;
-            }
-            100% {
-              transform: translate(0, 0) scale(1);
-              opacity: 1;
-            }
-          }
-        `}</style>
+     
       </CardContent>
     </Card>
   );
