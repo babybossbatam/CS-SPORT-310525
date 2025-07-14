@@ -466,156 +466,198 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           </div>
         </div>
 
-        {/* Football field */}
-        <div className="relative w-full h-80 mb-4 overflow-hidden rounded-lg">
-          <img 
-            src="/assets/matchdetaillogo/field.png" 
-            alt="Football field"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDQwMCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjUwIiBmaWxsPSIjNGFhYjRhIi8+CjxyZWN0IHg9IjEiIHk9IjEiIHdpZHRoPSIzOTgiIGhlaWdodD0iMjQ4IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz4KPGxpbmUgeDE9IjIwMCIgeTE9IjEiIHgyPSIyMDAiIHkyPSIyNDkiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIvPgo8Y2lyY2xlIGN4PSIyMDAiIGN5PSIxMjUiIHI9IjQwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz4KPC9zdmc+';
-            }}
-          />
-
-          {/* All shot markers are now based on real API data only */}
-
-          {/* All shot markers displayed simultaneously */}
-          {shotData.map((shot, index) => (
-            <div
-              key={shot.id}
-              className={`absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 group ${
-                index === selectedShotIndex ? 'z-20' : 'z-10'
-              }`}
-              style={{
-                left: `${shot.x}%`,
-                top: `${shot.y}%`,
+        {/* Main content layout with field on left and details on right */}
+        <div className="flex gap-6 mb-4">
+          {/* Football field - 50% size, left side */}
+          <div className="relative w-1/2 h-40 overflow-hidden rounded-lg flex-shrink-0">
+            <img 
+              src="/assets/matchdetaillogo/field.png" 
+              alt="Football field"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDQwMCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjUwIiBmaWxsPSIjNGFhYjRhIi8+CjxyZWN0IHg9IjEiIHk9IjEiIHdpZHRoPSIzOTgiIGhlaWdodD0iMjQ4IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz4KPGxpbmUgeDE9IjIwMCIgeTE9IjEiIHgyPSIyMDAiIHkyPSIyNDkiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMiIvPgo8Y2lyY2xlIGN4PSIyMDAiIGN5PSIxMjUiIHI9IjQwIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz4KPC9zdmc+';
               }}
-              onClick={() => setSelectedShotIndex(index)}
-            >
-              {/* Shot type indicators */}
-              {shot.type === 'goal' && (
-                <div className={`relative ${index === selectedShotIndex ? 'w-6 h-6' : 'w-4 h-4'} transition-all duration-200`}>
-                  <img 
-                    src="/assets/matchdetaillogo/soccer-ball.svg" 
-                    alt="Goal" 
-                    className="w-full h-full"
-                    style={{
-                      filter: index === selectedShotIndex 
-                        ? 'drop-shadow(0 2px 4px rgba(34,197,94,0.5))' 
-                        : 'drop-shadow(0 1px 2px rgba(34,197,94,0.3))'
-                    }}
-                  />
-                  {index === selectedShotIndex && (
-                    <div className="absolute inset-0 rounded-full border-2 border-green-500 animate-pulse"></div>
-                  )}
-                </div>
-              )}
+            />
 
-              {shot.type === 'saved' && (
-                <div 
-                  className={`relative rounded-full bg-yellow-400 border-2 border-yellow-600 transition-all duration-200 ${
-                    index === selectedShotIndex ? 'w-6 h-6 shadow-lg' : 'w-4 h-4'
-                  }`}
-                >
-                  <div className="absolute inset-1 rounded-full bg-white opacity-30"></div>
-                  {index === selectedShotIndex && (
-                    <div className="absolute inset-0 rounded-full border-2 border-yellow-500 animate-pulse"></div>
-                  )}
-                </div>
-              )}
+            {/* All shot markers are now based on real API data only */}
 
-              {shot.type === 'blocked' && (
-                <div 
-                  className={`relative rounded-full bg-red-500 border-2 border-red-700 transition-all duration-200 ${
-                    index === selectedShotIndex ? 'w-6 h-6 shadow-lg' : 'w-4 h-4'
-                  }`}
-                >
-                  <div className="absolute inset-1 rounded-full bg-white opacity-20"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-1/2 h-0.5 bg-white transform rotate-45"></div>
-                    <div className="w-1/2 h-0.5 bg-white transform -rotate-45 absolute"></div>
-                  </div>
-                  {index === selectedShotIndex && (
-                    <div className="absolute inset-0 rounded-full border-2 border-red-500 animate-pulse"></div>
-                  )}
-                </div>
-              )}
-
-              {shot.type === 'missed' && (
-                <div 
-                  className={`relative rounded-full bg-gray-400 border-2 border-gray-600 transition-all duration-200 ${
-                    index === selectedShotIndex ? 'w-6 h-6 shadow-lg' : 'w-4 h-4'
-                  }`}
-                >
-                  <div className="absolute inset-1 rounded-full bg-white opacity-20"></div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-1/3 h-0.5 bg-white transform rotate-45"></div>
-                    <div className="w-1/3 h-0.5 bg-white transform -rotate-45 absolute"></div>
-                  </div>
-                  {index === selectedShotIndex && (
-                    <div className="absolute inset-0 rounded-full border-2 border-gray-500 animate-pulse"></div>
-                  )}
-                </div>
-              )}
-
-              {shot.type === 'shot' && (
-                <div 
-                  className={`relative  bg-blue-500 border-2 border-blue-700 transition-all duration-200 ${
-                    index === selectedShotIndex ? 'w-6 h-6 shadow-lg' : 'w-4 h-4'
-                  }`}
-                >
-                  <div className="absolute inset-1  bg-white opacity-30"></div>
-                  {index === selectedShotIndex && (
-                    <div className="absolute inset-0 rounded-full border-2 border-blue-500 animate-pulse"></div>
-                  )}
-                </div>
-              )}
-
-              {/* Enhanced tooltip */}
-              <div className="absolute top-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs  px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30">
-                <div className="font-medium">{shot.player}</div>
-                <div className="text-gray-300">{shot.minute}' • {shot.type.charAt(0).toUpperCase() + shot.type.slice(1)}</div>
-                <div className="text-gray-400">xG: {shot.xG?.toFixed(2) || '0.00'}</div>
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-              </div>
-            </div>
-          ))}
-
-          {/* Team shot trajectories - show all shots with different opacities */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            {shotData.map((shot, index) => (
-              <line
-                key={`trajectory-${shot.id}`}
-                x1={`${shot.x}%`}
-                y1={`${shot.y}%`}
-                x2={shot.team === homeTeam ? "5%" : "95%"}
-                y2="50%"
-                stroke={getShotColor(shot.team)}
-                strokeWidth={index === selectedShotIndex ? "2" : "1"}
-                strokeDasharray="3,3"
-                opacity={index === selectedShotIndex ? "0.8" : "0.2"}
-                className="transition-all duration-200"
-              />
-            ))}
-          </svg>
-
-          {/* Shot distribution heatmap overlay (optional) */}
-          <div className="absolute inset-0 pointer-events-none">
+            {/* All shot markers displayed simultaneously */}
             {shotData.map((shot, index) => (
               <div
-                key={`heat-${shot.id}`}
-                className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                key={shot.id}
+                className={`absolute cursor-pointer transform -translate-x-1/2 -translate-y-1/2 group ${
+                  index === selectedShotIndex ? 'z-20' : 'z-10'
+                }`}
                 style={{
                   left: `${shot.x}%`,
                   top: `${shot.y}%`,
-                  width: '10px',
-                  height: '10px',
-                  background: `radial-gradient(circle, ${getShotColor(shot.team)}20, transparent)`,
-                  opacity: 0.3,
                 }}
-              />
+                onClick={() => setSelectedShotIndex(index)}
+              >
+                {/* Shot type indicators */}
+                {shot.type === 'goal' && (
+                  <div className={`relative ${index === selectedShotIndex ? 'w-4 h-4' : 'w-3 h-3'} transition-all duration-200`}>
+                    <img 
+                      src="/assets/matchdetaillogo/soccer-ball.svg" 
+                      alt="Goal" 
+                      className="w-full h-full"
+                      style={{
+                        filter: index === selectedShotIndex 
+                          ? 'drop-shadow(0 2px 4px rgba(34,197,94,0.5))' 
+                          : 'drop-shadow(0 1px 2px rgba(34,197,94,0.3))'
+                      }}
+                    />
+                    {index === selectedShotIndex && (
+                      <div className="absolute inset-0 rounded-full border-2 border-green-500 animate-pulse"></div>
+                    )}
+                  </div>
+                )}
+
+                {shot.type === 'saved' && (
+                  <div 
+                    className={`relative rounded-full bg-yellow-400 border-2 border-yellow-600 transition-all duration-200 ${
+                      index === selectedShotIndex ? 'w-4 h-4 shadow-lg' : 'w-3 h-3'
+                    }`}
+                  >
+                    <div className="absolute inset-1 rounded-full bg-white opacity-30"></div>
+                    {index === selectedShotIndex && (
+                      <div className="absolute inset-0 rounded-full border-2 border-yellow-500 animate-pulse"></div>
+                    )}
+                  </div>
+                )}
+
+                {shot.type === 'blocked' && (
+                  <div 
+                    className={`relative rounded-full bg-red-500 border-2 border-red-700 transition-all duration-200 ${
+                      index === selectedShotIndex ? 'w-4 h-4 shadow-lg' : 'w-3 h-3'
+                    }`}
+                  >
+                    <div className="absolute inset-1 rounded-full bg-white opacity-20"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-1/2 h-0.5 bg-white transform rotate-45"></div>
+                      <div className="w-1/2 h-0.5 bg-white transform -rotate-45 absolute"></div>
+                    </div>
+                    {index === selectedShotIndex && (
+                      <div className="absolute inset-0 rounded-full border-2 border-red-500 animate-pulse"></div>
+                    )}
+                  </div>
+                )}
+
+                {shot.type === 'missed' && (
+                  <div 
+                    className={`relative rounded-full bg-gray-400 border-2 border-gray-600 transition-all duration-200 ${
+                      index === selectedShotIndex ? 'w-4 h-4 shadow-lg' : 'w-3 h-3'
+                    }`}
+                  >
+                    <div className="absolute inset-1 rounded-full bg-white opacity-20"></div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-1/3 h-0.5 bg-white transform rotate-45"></div>
+                      <div className="w-1/3 h-0.5 bg-white transform -rotate-45 absolute"></div>
+                    </div>
+                    {index === selectedShotIndex && (
+                      <div className="absolute inset-0 rounded-full border-2 border-gray-500 animate-pulse"></div>
+                    )}
+                  </div>
+                )}
+
+                {shot.type === 'shot' && (
+                  <div 
+                    className={`relative rounded-full bg-blue-500 border-2 border-blue-700 transition-all duration-200 ${
+                      index === selectedShotIndex ? 'w-4 h-4 shadow-lg' : 'w-3 h-3'
+                    }`}
+                  >
+                    <div className="absolute inset-1 rounded-full bg-white opacity-30"></div>
+                    {index === selectedShotIndex && (
+                      <div className="absolute inset-0 rounded-full border-2 border-blue-500 animate-pulse"></div>
+                    )}
+                  </div>
+                )}
+
+                {/* Enhanced tooltip */}
+                <div className="absolute top-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30">
+                  <div className="font-medium">{shot.player}</div>
+                  <div className="text-gray-300">{shot.minute}' • {shot.type.charAt(0).toUpperCase() + shot.type.slice(1)}</div>
+                  <div className="text-gray-400">xG: {shot.xG?.toFixed(2) || '0.00'}</div>
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                </div>
+              </div>
             ))}
+
+            {/* Team shot trajectories - show all shots with different opacities */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none">
+              {shotData.map((shot, index) => (
+                <line
+                  key={`trajectory-${shot.id}`}
+                  x1={`${shot.x}%`}
+                  y1={`${shot.y}%`}
+                  x2={shot.team === homeTeam ? "5%" : "95%"}
+                  y2="50%"
+                  stroke={getShotColor(shot.team)}
+                  strokeWidth={index === selectedShotIndex ? "2" : "1"}
+                  strokeDasharray="3,3"
+                  opacity={index === selectedShotIndex ? "0.8" : "0.2"}
+                  className="transition-all duration-200"
+                />
+              ))}
+            </svg>
+
+            {/* Shot distribution heatmap overlay (optional) */}
+            <div className="absolute inset-0 pointer-events-none">
+              {shotData.map((shot, index) => (
+                <div
+                  key={`heat-${shot.id}`}
+                  className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                  style={{
+                    left: `${shot.x}%`,
+                    top: `${shot.y}%`,
+                    width: '8px',
+                    height: '8px',
+                    background: `radial-gradient(circle, ${getShotColor(shot.team)}20, transparent)`,
+                    opacity: 0.3,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Shot details on the right side */}
+          <div className="flex-1">
+            <div className="bg-white rounded-lg p-4 shadow-sm h-40 flex flex-col justify-center">
+              <div className="text-center">
+                <div className="text-lg font-semibold text-gray-800 mb-2">Shot #{selectedShotIndex + 1} of {shotData.length}</div>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <div className="text-gray-500">Player</div>
+                    <div className="font-medium">{currentShot?.player}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500">Minute</div>
+                    <div className="font-medium">{currentShot?.minute}'</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500">Type</div>
+                    <div className={`font-medium ${
+                      currentShot?.type === 'goal' ? 'text-green-600' : 
+                      currentShot?.type === 'saved' ? 'text-yellow-600' :
+                      currentShot?.type === 'blocked' ? 'text-red-600' :
+                      currentShot?.type === 'missed' ? 'text-gray-600' :
+                      'text-blue-600'
+                    }`}>
+                      {currentShot?.type === 'goal' ? 'Goal' : 
+                       currentShot?.type === 'saved' ? 'Saved' :
+                       currentShot?.type === 'blocked' ? 'Blocked' :
+                       currentShot?.type === 'missed' ? 'Missed' :
+                       currentShot?.type?.charAt(0).toUpperCase() + currentShot?.type?.slice(1)}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500">xG</div>
+                    <div className="font-medium">{currentShot?.xG?.toFixed(2) || '0.00'}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
