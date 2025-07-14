@@ -90,4 +90,4 @@ router.get('/search', async (req, res) => {
   }
 });
 
-export default router;
+export { router as youtubeRoutes };
