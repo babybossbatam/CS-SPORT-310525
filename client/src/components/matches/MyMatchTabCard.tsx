@@ -5,7 +5,7 @@ import MyLiveAction from './MyLiveAction';
 import MyMatchEventNew from './MyMatchEventNew';
 import MyHeatmap from './MyHeatmap';
 import MyShotmap from './MyShotmap';
-import ShotMapVisualization from './ShotMapVisualization';
+import ShotMapVisualization from '../analytics/ShotMapVisualization';
 import MyHeadtoheadTabsCard from './MyHeadtoheadTabsCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
