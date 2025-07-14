@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 
@@ -15,6 +16,7 @@ interface HeatmapPoint {
   player: string;
   team: 'home' | 'away';
   intensity: number;
+  playerId?: number;
 }
 
 const MyHeatmap: React.FC<MyHeatmapProps> = ({
@@ -27,9 +29,58 @@ const MyHeatmap: React.FC<MyHeatmapProps> = ({
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedTeam, setSelectedTeam] = useState<'home' | 'away' | 'both'>('both');
+  const [dataSource, setDataSource] = useState<'sofascore' | 'mock'>('mock');
 
   useEffect(() => {
-    const generateHeatmapData = () => {
+    const fetchHeatmapData = async () => {
+      if (!fixtureId) {
+        setError('No fixture ID provided');
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        // Try to fetch real SofaScore heatmap data
+        const response = await fetch(`/api/players/1/heatmap?eventId=${fixtureId}&homeTeam=${encodeURIComponent(homeTeam || '')}&awayTeam=${encodeURIComponent(awayTeam || '')}&matchDate=${new Date().toISOString()}`);
+        
+        if (response.ok) {
+          const sofaScoreData = await response.json();
+          
+          if (sofaScoreData.source === 'sofascore' && sofaScoreData.heatmap && sofaScoreData.heatmap.length > 0) {
+            console.log(`✅ [MyHeatmap] Using real SofaScore data with ${sofaScoreData.heatmap.length} points`);
+            
+            // Convert SofaScore data to our format
+            const convertedPoints: HeatmapPoint[] = sofaScoreData.heatmap.map((point: any, index: number) => ({
+              id: index + 1,
+              x: Math.max(0, Math.min(100, point.x || 50)),
+              y: Math.max(0, Math.min(100, point.y || 50)),
+              player: point.player || `Player ${index + 1}`,
+              team: (point.x || 50) > 50 ? 'away' : 'home', // Assume right side is away team
+              intensity: Math.max(0, Math.min(1, point.value || point.intensity || 0.5)),
+              playerId: point.playerId
+            }));
+
+            setHeatmapData(convertedPoints);
+            setDataSource('sofascore');
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        // Fallback to mock data if SofaScore fails
+        console.log('⚠️ [MyHeatmap] SofaScore data not available, using mock data');
+        generateMockHeatmapData();
+        
+      } catch (error) {
+        console.error('❌ [MyHeatmap] Error fetching SofaScore data:', error);
+        generateMockHeatmapData();
+      }
+    };
+
+    const generateMockHeatmapData = () => {
       const points: HeatmapPoint[] = [];
       let pointId = 1;
 
@@ -117,12 +168,11 @@ const MyHeatmap: React.FC<MyHeatmapProps> = ({
       });
 
       setHeatmapData(points);
+      setDataSource('mock');
       setIsLoading(false);
     };
 
-    // Simulate API call delay
-    const timer = setTimeout(generateHeatmapData, 1000);
-    return () => clearTimeout(timer);
+    fetchHeatmapData();
   }, [fixtureId, homeTeam, awayTeam]);
 
   const filteredPoints = heatmapData.filter(point => {
@@ -148,10 +198,45 @@ const MyHeatmap: React.FC<MyHeatmapProps> = ({
     );
   }
 
+  if (error) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Player Heatmap</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="text-center p-8">
+            <p className="text-red-600 mb-4">{error}</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Retry
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">Player Heatmap</CardTitle>
+        <CardTitle className="text-lg font-semibold flex items-center justify-between">
+          <span>Player Heatmap</span>
+          <div className="flex items-center gap-2">
+            {dataSource === 'sofascore' && (
+              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                📊 SofaScore Data
+              </span>
+            )}
+            {dataSource === 'mock' && (
+              <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                🎯 Demo Data
+              </span>
+            )}
+          </div>
+        </CardTitle>
       </CardHeader>
       <CardContent className="p-4">
         {/* Team Filter */}
@@ -238,7 +323,7 @@ const MyHeatmap: React.FC<MyHeatmapProps> = ({
                   : '2px solid rgba(236, 72, 153, 0.8)',
                 zIndex: Math.floor(point.intensity * 10)
               }}
-              title={`${point.player} (${point.team === 'home' ? homeTeam : awayTeam})`}
+              title={`${point.player} (${point.team === 'home' ? homeTeam : awayTeam}) - Intensity: ${(point.intensity * 100).toFixed(0)}%`}
             />
           ))}
         </div>
@@ -262,7 +347,13 @@ const MyHeatmap: React.FC<MyHeatmapProps> = ({
 
         {/* Info note */}
         <div className="mt-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
-          <p>🗺️ Player positioning heatmap shows where players spent time during the match. Similar to 365scores.com visualization.</p>
+          <p>
+            🗺️ Player positioning heatmap shows where players spent time during the match. 
+            {dataSource === 'sofascore' 
+              ? ' Using real SofaScore data.' 
+              : ' Demo data shown - real data will appear when available.'
+            }
+          </p>
         </div>
       </CardContent>
     </Card>
