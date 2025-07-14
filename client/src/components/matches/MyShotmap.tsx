@@ -85,11 +85,11 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               
               if (shotType === 'missed') {
                 // Missed shots can be from wider areas and off-target positions
-                x = isHomeTeam ? Math.random() * 40 + 60 : Math.random() * 40 + 0;
+                x = isHomeTeam ? Math.random() * 40 + 0 : Math.random() * 40 + 60;
                 y = Math.random() * 80 + 10; // Wider Y range for missed shots
               } else {
                 // Regular shots closer to goal
-                x = isHomeTeam ? Math.random() * 30 + 70 : Math.random() * 30 + 5;
+                x = isHomeTeam ? Math.random() * 30 + 5 : Math.random() * 30 + 70;
                 y = Math.random() * 60 + 20; // Central area
               }
 
@@ -528,7 +528,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               <line
                 x1={`${currentShot.x}%`}
                 y1={`${currentShot.y}%`}
-                x2={currentShot.team === homeTeam ? "95%" : "5%"}
+                x2={currentShot.team === homeTeam ? "5%" : "95%"}
                 y2="50%"
                 stroke={getShotColor(currentShot.team)}
                 strokeWidth="2"
