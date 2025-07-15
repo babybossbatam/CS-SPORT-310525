@@ -62,6 +62,64 @@ shotMapRouter.post("/cache/clear", async (req: Request, res: Response) => {
   }
 });
 
+// Debug endpoint to test SofaScore connectivity
+shotMapRouter.get("/debug/sofascore/:eventId", async (req: Request, res: Response) => {
+  try {
+    const { eventId } = req.params;
+    const sofaScoreEventId = parseInt(eventId);
+
+    if (isNaN(sofaScoreEventId)) {
+      return res.status(400).json({ error: 'Invalid SofaScore event ID' });
+    }
+
+    console.log(`🧪 [ShotMapAPI] Testing SofaScore connectivity for event ${sofaScoreEventId}`);
+
+    // Test lineups
+    const lineups = await sofaScoreAPI.getMatchLineups(sofaScoreEventId);
+    
+    // Test events
+    const events = await sofaScoreAPI.getMatchEvents(sofaScoreEventId);
+    
+    // Test heatmap
+    const heatmap = await sofaScoreAPI.getPlayerHeatmap(0, sofaScoreEventId);
+
+    const debugInfo = {
+      eventId: sofaScoreEventId,
+      lineups: {
+        available: !!lineups,
+        homeFormation: lineups?.home?.formation || 'N/A',
+        awayFormation: lineups?.away?.formation || 'N/A',
+        homePlayersCount: lineups?.home?.players?.length || 0,
+        awayPlayersCount: lineups?.away?.players?.length || 0
+      },
+      events: {
+        available: !!events,
+        eventsCount: events?.events?.length || 0,
+        sampleEvents: events?.events?.slice(0, 3)?.map((e: any) => ({
+          type: e.type,
+          player: e.player?.name,
+          time: e.time
+        })) || []
+      },
+      heatmap: {
+        available: !!heatmap,
+        heatmapPoints: heatmap?.heatmap?.length || 0,
+        shotsCount: heatmap?.shots?.length || 0
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    res.json(debugInfo);
+
+  } catch (error) {
+    console.error(`❌ [ShotMapAPI] Debug error:`, error);
+    res.status(500).json({ 
+      error: 'Debug test failed',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 export default shotMapRouter;
 import express from 'express';
 import { sofaScoreMappingService } from '../services/sofaScoreMapping';

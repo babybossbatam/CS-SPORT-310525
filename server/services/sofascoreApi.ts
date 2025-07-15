@@ -183,27 +183,52 @@ class SofaScoreAPI {
         const eventsUrl = `${this.baseUrl}/sport/football/events/date/${tryDate}`;
         
         try {
+          console.log(`🔍 [SofaScore] Trying URL: ${eventsUrl}`);
           const response = await axios.get(eventsUrl, { 
             headers: this.headers, 
             timeout: 8000,
             validateStatus: (status) => status < 500
           });
 
-          if (response.status === 200 && response.data && response.data.events) {
-            const matchingEvent = this.findBestMatchingEvent(response.data.events, homeTeam, awayTeam);
-            
-            if (matchingEvent) {
-              console.log(`✅ [SofaScore] Found matching event ID: ${matchingEvent.id} for ${matchingEvent.homeTeam?.name} vs ${matchingEvent.awayTeam?.name}`);
-              return matchingEvent.id;
+          console.log(`📡 [SofaScore] API Response Status: ${response.status}`);
+          
+          if (response.status === 200 && response.data) {
+            console.log(`📊 [SofaScore] Response data structure:`, {
+              hasEvents: !!response.data.events,
+              eventsCount: response.data.events?.length || 0,
+              dataKeys: Object.keys(response.data)
+            });
+
+            if (response.data.events && response.data.events.length > 0) {
+              console.log(`🎯 [SofaScore] Sample event:`, {
+                id: response.data.events[0].id,
+                homeTeam: response.data.events[0].homeTeam?.name,
+                awayTeam: response.data.events[0].awayTeam?.name,
+                status: response.data.events[0].status
+              });
+
+              const matchingEvent = this.findBestMatchingEvent(response.data.events, homeTeam, awayTeam);
+              
+              if (matchingEvent) {
+                console.log(`✅ [SofaScore] Found matching event ID: ${matchingEvent.id} for ${matchingEvent.homeTeam?.name} vs ${matchingEvent.awayTeam?.name}`);
+                return matchingEvent.id;
+              } else {
+                console.log(`⚠️ [SofaScore] No matching teams found among ${response.data.events.length} events on ${tryDate}`);
+              }
             }
+          } else {
+            console.log(`⚠️ [SofaScore] Invalid response for date ${tryDate}:`, {
+              status: response.status,
+              hasData: !!response.data
+            });
           }
         } catch (dateError) {
-          console.log(`⚠️ [SofaScore] No events found for date ${tryDate}`);
+          console.error(`❌ [SofaScore] Error for date ${tryDate}:`, dateError.message);
           continue;
         }
       }
       
-      console.log(`❌ [SofaScore] No matching event found for ${homeTeam} vs ${awayTeam}`);
+      console.log(`❌ [SofaScore] No matching event found for ${homeTeam} vs ${awayTeam} after trying all dates`);
       return null;
     } catch (error) {
       console.error(`❌ [SofaScore] Error searching for event:`, error);
