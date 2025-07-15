@@ -93,49 +93,49 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
             // Transform 365scores data to match our PlayerStats interface
             const transformedStats: PlayerStats[] = keyPlayersArray.map((player: any) => ({
               player: {
-                id: player.playerId || player.id,
-                name: player.playerName || player.name,
+                id: player.playerId || player.id || Math.random(),
+                name: player.playerName || player.name || 'Unknown Player',
                 photo: player.photo || '/assets/fallback_player.png'
               },
               statistics: [{
                 team: {
-                  id: player.teamId,
-                  name: player.teamName
+                  id: player.teamId || 0,
+                  name: player.teamName || 'Unknown Team'
                 },
                 games: {
-                  minutes: player.stats?.minutesPlayed || 90,
-                  position: player.position || 'Unknown'
+                  minutes: player.stats?.minutesPlayed || player.minutesPlayed || 90,
+                  position: player.position || player.stats?.position || 'Midfielder'
                 },
                 goals: {
-                  total: player.stats?.goals || 0,
-                  assists: player.stats?.assists || 0
+                  total: player.stats?.goals || player.goals || 0,
+                  assists: player.stats?.assists || player.assists || 0
                 },
                 shots: {
-                  total: player.stats?.shots || 0,
-                  on: player.stats?.shotsOnTarget || 0
+                  total: player.stats?.shots || player.shots || 0,
+                  on: player.stats?.shotsOnTarget || player.shotsOnTarget || 0
                 },
                 passes: {
-                  total: player.stats?.passes || 0,
-                  key: player.stats?.keyPasses || 0,
-                  accuracy: player.stats?.passAccuracy || 0
+                  total: player.stats?.passes || player.passes || 0,
+                  key: player.stats?.keyPasses || player.keyPasses || 0,
+                  accuracy: player.stats?.passAccuracy || player.passAccuracy || 0
                 },
                 tackles: {
-                  total: player.stats?.tackles || 0,
-                  blocks: player.stats?.blocks || 0,
-                  interceptions: player.stats?.interceptions || 0
+                  total: player.stats?.tackles || player.tackles || 0,
+                  blocks: player.stats?.blocks || player.blocks || 0,
+                  interceptions: player.stats?.interceptions || player.interceptions || 0
                 },
                 duels: {
-                  total: player.stats?.duels || 0,
-                  won: player.stats?.duelsWon || 0
+                  total: player.stats?.duels || player.duels || 0,
+                  won: player.stats?.duelsWon || player.duelsWon || 0
                 },
                 fouls: {
-                  drawn: player.stats?.foulsDrawn || 0,
-                  committed: player.stats?.foulsCommitted || 0
+                  drawn: player.stats?.foulsDrawn || player.foulsDrawn || 0,
+                  committed: player.stats?.foulsCommitted || player.foulsCommitted || 0
                 }
               }]
             }));
             
-            console.log(`🎯 [MyKeyPlayer] Transformed ${transformedStats.length} players from 365scores`);
+            console.log(`🎯 [MyKeyPlayer] Transformed ${transformedStats.length} players from 365scores:`, transformedStats);
             setPlayerStats(transformedStats);
             setError(null);
             setIsLoading(false);
@@ -246,19 +246,52 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
   }, [fixtureId]);
 
   const getTopPlayersByPosition = (position: string) => {
+    console.log(`🔍 [MyKeyPlayer] Filtering ${playerStats.length} players for position: ${position}`);
+    
     const filtered = playerStats.filter(playerStat => {
       const playerPosition = playerStat.statistics[0]?.games?.position?.toLowerCase() || '';
       const targetPosition = position.toLowerCase();
       
+      console.log(`🔍 [MyKeyPlayer] Player: ${playerStat.player.name}, Position: "${playerPosition}", Target: "${targetPosition}"`);
+      
       if (targetPosition === 'attacker') {
-        return playerPosition.includes('forward') || playerPosition.includes('striker') || playerPosition.includes('winger') || playerPosition.includes('cf') || playerPosition.includes('lw') || playerPosition.includes('rw');
+        const isAttacker = playerPosition.includes('forward') || 
+                          playerPosition.includes('striker') || 
+                          playerPosition.includes('winger') || 
+                          playerPosition.includes('cf') || 
+                          playerPosition.includes('lw') || 
+                          playerPosition.includes('rw') ||
+                          playerPosition.includes('attacker') ||
+                          playerPosition.includes('attack');
+        console.log(`🔍 [MyKeyPlayer] Is attacker: ${isAttacker}`);
+        return isAttacker;
       } else if (targetPosition === 'midfielder') {
-        return playerPosition.includes('midfield') || playerPosition.includes('cm') || playerPosition.includes('am') || playerPosition.includes('dm') || playerPosition.includes('cam') || playerPosition.includes('cdm');
+        const isMidfielder = playerPosition.includes('midfield') || 
+                           playerPosition.includes('cm') || 
+                           playerPosition.includes('am') || 
+                           playerPosition.includes('dm') || 
+                           playerPosition.includes('cam') || 
+                           playerPosition.includes('cdm') ||
+                           playerPosition.includes('midfielder') ||
+                           playerPosition.includes('mid');
+        console.log(`🔍 [MyKeyPlayer] Is midfielder: ${isMidfielder}`);
+        return isMidfielder;
       } else if (targetPosition === 'defender') {
-        return playerPosition.includes('defender') || playerPosition.includes('back') || playerPosition.includes('cb') || playerPosition.includes('lb') || playerPosition.includes('rb') || playerPosition.includes('wb');
+        const isDefender = playerPosition.includes('defender') || 
+                         playerPosition.includes('back') || 
+                         playerPosition.includes('cb') || 
+                         playerPosition.includes('lb') || 
+                         playerPosition.includes('rb') || 
+                         playerPosition.includes('wb') ||
+                         playerPosition.includes('defence') ||
+                         playerPosition.includes('def');
+        console.log(`🔍 [MyKeyPlayer] Is defender: ${isDefender}`);
+        return isDefender;
       }
       return false;
     });
+
+    console.log(`🔍 [MyKeyPlayer] Filtered ${filtered.length} players for position ${position}:`, filtered.map(p => ({ name: p.player.name, position: p.statistics[0]?.games?.position })));
 
     // Sort by key stats based on position
     return filtered.sort((a, b) => {
@@ -527,6 +560,37 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                   {topPlayers[1]?.statistics[0]?.games?.position || 'Unknown'}
                 </div>
               </div>
+            </div>
+          </div>
+        ) : topPlayers.length === 1 ? (
+          <div className="flex items-center justify-center">
+            <div className="flex flex-col items-center">
+              <MyAvatarInfo
+                playerId={topPlayers[0]?.player?.id}
+                playerName={topPlayers[0]?.player?.name}
+                size="lg"
+                className="mb-3"
+              />
+              <div className="text-center">
+                <div className="font-medium text-gray-900 text-sm mb-1">
+                  {topPlayers[0]?.player?.name}
+                </div>
+                <div className="text-xs text-gray-500">
+                  {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : playerStats.length > 0 ? (
+          <div className="text-center text-gray-500 py-4">
+            <p>No {selectedPosition.toLowerCase()}s found</p>
+            <p className="text-xs mt-1">Available players: {playerStats.length}</p>
+            <div className="mt-2 text-xs">
+              {playerStats.slice(0, 3).map((player, idx) => (
+                <div key={idx}>
+                  {player.player.name} ({player.statistics[0]?.games?.position || 'Unknown'})
+                </div>
+              ))}
             </div>
           </div>
         ) : (
