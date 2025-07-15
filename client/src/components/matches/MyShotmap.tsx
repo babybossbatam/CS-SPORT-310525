@@ -280,7 +280,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
         {/* Main content layout with field and goal view side by side */}
         <div className="flex gap-2">
           {/* Football field - 50.6% size (10% increase from 46%), left side */}
-          <div className="relative overflow-hidden -ml-4 -mt-4 flex-shrink-0 h-full " style={{ width: '45.6%', height: '130%' }}>
+          <div className="relative overflow-hidden -ml-4 -mt-4 flex-shrink-0" style={{ width: '45.6%', height: '180%' }}>
             <img 
               src="/assets/matchdetaillogo/field.png" 
               alt="Football field"
