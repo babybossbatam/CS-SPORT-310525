@@ -823,8 +823,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               name: "UEFA Champions League",
               type: "Cup",
               logo: "https://media.api-sports.io/football/leagues/2.png",
-              ```text
-country: "World",
+              country: "World",
             },
             country: {
               name: "World",
@@ -1719,8 +1718,7 @@ country: "World",
     async (req: Request, res: Response) => {
       try {
         const { teamId } = req.params;
-        const size = parseInt(```text
-req.query.size as string) || 72; // Default 72x72 pixels
+        const size = parseInt(req.query.size as string) || 72; // Default 72x72 pixels
 
         console.log(
           `Fetching and resizing team logo for ID: ${teamId} to ${size}x${size}`,

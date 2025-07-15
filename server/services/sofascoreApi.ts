@@ -165,164 +165,38 @@ class SofaScoreAPI {
     return 'off_target';
   }
 
-  // Method to convert API-Sports event ID to SofaScore event ID with improved matching
+  // Method to convert API-Sports event ID to SofaScore event ID
   async findEventBySimilarity(homeTeam: string, awayTeam: string, date: string): Promise<number | null> {
     try {
       // Format date for SofaScore API (YYYY-MM-DD)
       const searchDate = date.split('T')[0];
-      console.log(`🔍 [SofaScore] Searching for match: ${homeTeam} vs ${awayTeam} on ${searchDate}`);
+      const eventsUrl = `${this.baseUrl}/sport/football/events/date/${searchDate}`;
       
-      // Try multiple date formats and nearby dates
-      const datesToTry = [
-        searchDate,
-        new Date(new Date(searchDate).getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Previous day
-        new Date(new Date(searchDate).getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0]  // Next day
-      ];
+      const response = await axios.get(eventsUrl, { 
+        headers: this.headers, 
+        timeout: 5000 
+      });
 
-      for (const tryDate of datesToTry) {
-        const eventsUrl = `${this.baseUrl}/sport/football/events/date/${tryDate}`;
-        
-        try {
-          console.log(`🔍 [SofaScore] Trying URL: ${eventsUrl}`);
-          const response = await axios.get(eventsUrl, { 
-            headers: this.headers, 
-            timeout: 8000,
-            validateStatus: (status) => status < 500
-          });
-
-          console.log(`📡 [SofaScore] API Response Status: ${response.status}`);
+      if (response.data && response.data.events) {
+        const matchingEvent = response.data.events.find((event: any) => {
+          const homeTeamName = event.homeTeam?.name || '';
+          const awayTeamName = event.awayTeam?.name || '';
           
-          if (response.status === 200 && response.data) {
-            console.log(`📊 [SofaScore] Response data structure:`, {
-              hasEvents: !!response.data.events,
-              eventsCount: response.data.events?.length || 0,
-              dataKeys: Object.keys(response.data)
-            });
+          return (
+            homeTeamName.toLowerCase().includes(homeTeam.toLowerCase().split(' ')[0]) &&
+            awayTeamName.toLowerCase().includes(awayTeam.toLowerCase().split(' ')[0])
+          ) || (
+            homeTeamName.toLowerCase().includes(awayTeam.toLowerCase().split(' ')[0]) &&
+            awayTeamName.toLowerCase().includes(homeTeam.toLowerCase().split(' ')[0])
+          );
+        });
 
-            if (response.data.events && response.data.events.length > 0) {
-              console.log(`🎯 [SofaScore] Sample event:`, {
-                id: response.data.events[0].id,
-                homeTeam: response.data.events[0].homeTeam?.name,
-                awayTeam: response.data.events[0].awayTeam?.name,
-                status: response.data.events[0].status
-              });
-
-              const matchingEvent = this.findBestMatchingEvent(response.data.events, homeTeam, awayTeam);
-              
-              if (matchingEvent) {
-                console.log(`✅ [SofaScore] Found matching event ID: ${matchingEvent.id} for ${matchingEvent.homeTeam?.name} vs ${matchingEvent.awayTeam?.name}`);
-                return matchingEvent.id;
-              } else {
-                console.log(`⚠️ [SofaScore] No matching teams found among ${response.data.events.length} events on ${tryDate}`);
-              }
-            }
-          } else {
-            console.log(`⚠️ [SofaScore] Invalid response for date ${tryDate}:`, {
-              status: response.status,
-              hasData: !!response.data
-            });
-          }
-        } catch (dateError) {
-          console.error(`❌ [SofaScore] Error for date ${tryDate}:`, dateError.message);
-          continue;
-        }
+        return matchingEvent?.id || null;
       }
       
-      console.log(`❌ [SofaScore] No matching event found for ${homeTeam} vs ${awayTeam} after trying all dates`);
       return null;
     } catch (error) {
       console.error(`❌ [SofaScore] Error searching for event:`, error);
-      return null;
-    }
-  }
-
-  private findBestMatchingEvent(events: any[], homeTeam: string, awayTeam: string): any {
-    // Normalize team names for better matching
-    const normalizeTeam = (name: string) => {
-      return name.toLowerCase()
-        .replace(/fc\s*/g, '')
-        .replace(/\s*(fc|cf|sc|ac|real|atletico)\s*/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
-    };
-
-    const normalizedHome = normalizeTeam(homeTeam);
-    const normalizedAway = normalizeTeam(awayTeam);
-
-    let bestMatch = null;
-    let bestScore = 0;
-
-    for (const event of events) {
-      const eventHome = normalizeTeam(event.homeTeam?.name || '');
-      const eventAway = normalizeTeam(event.awayTeam?.name || '');
-
-      // Calculate similarity score
-      let score = 0;
-      
-      // Direct matches
-      if (eventHome.includes(normalizedHome.split(' ')[0]) && eventAway.includes(normalizedAway.split(' ')[0])) {
-        score += 2;
-      }
-      
-      // Reverse matches (in case teams are swapped)
-      if (eventHome.includes(normalizedAway.split(' ')[0]) && eventAway.includes(normalizedHome.split(' ')[0])) {
-        score += 2;
-      }
-
-      // Partial matches
-      if (eventHome.includes(normalizedHome.split(' ')[0]) || eventAway.includes(normalizedAway.split(' ')[0])) {
-        score += 1;
-      }
-
-      if (score > bestScore) {
-        bestScore = score;
-        bestMatch = event;
-      }
-    }
-
-    return bestScore >= 2 ? bestMatch : null;
-  }
-
-  // Get match lineups to find player IDs
-  async getMatchLineups(eventId: number): Promise<any> {
-    try {
-      const lineupsUrl = `${this.baseUrl}/matches/get-lineups`;
-      const response = await axios.get(lineupsUrl, {
-        params: { matchId: eventId },
-        headers: this.headers,
-        timeout: 8000,
-        validateStatus: (status) => status < 500
-      });
-
-      if (response.status === 200 && response.data) {
-        return response.data;
-      }
-      
-      return null;
-    } catch (error) {
-      console.error(`❌ [SofaScore] Error fetching lineups for match ${eventId}:`, error);
-      return null;
-    }
-  }
-
-  // Get match events that include shots
-  async getMatchEvents(eventId: number): Promise<any> {
-    try {
-      const eventsUrl = `${this.baseUrl}/matches/get-events`;
-      const response = await axios.get(eventsUrl, {
-        params: { matchId: eventId },
-        headers: this.headers,
-        timeout: 8000,
-        validateStatus: (status) => status < 500
-      });
-
-      if (response.status === 200 && response.data) {
-        return response.data;
-      }
-      
-      return null;
-    } catch (error) {
-      console.error(`❌ [SofaScore] Error fetching events for match ${eventId}:`, error);
       return null;
     }
   }
@@ -348,34 +222,6 @@ class SofaScoreAPI {
       return null;
     } catch (error) {
       console.error(`❌ [SofaScore] Error searching for player:`, error);
-      return null;
-    }
-  }
-
-  // Method to get player name by ID
-  async getPlayerName(playerId: number): Promise<string | null> {
-    try {
-      console.log(`🔍 [SofaScore] Fetching player name for ID: ${playerId}`);
-      
-      const playerUrl = `${this.baseUrl}/players/get-info`;
-      const response = await axios.get(playerUrl, { 
-        params: {
-          playerId: playerId
-        },
-        headers: this.headers, 
-        timeout: 5000,
-        validateStatus: (status) => status < 500
-      });
-
-      if (response.status === 200 && response.data) {
-        const playerName = response.data.player?.name || response.data.name;
-        console.log(`✅ [SofaScore] Found player name: ${playerName} for ID ${playerId}`);
-        return playerName;
-      }
-      
-      return null;
-    } catch (error) {
-      console.error(`❌ [SofaScore] Error fetching player name for ID ${playerId}:`, error);
       return null;
     }
   }
