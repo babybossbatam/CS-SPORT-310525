@@ -3203,7 +3203,6 @@ logoUrl, {
   app.use('/api', playerRoutes);
   app.use('/api', playersRoutes);
   app.use('/api', youtubeRoutes);
-  app.use('/api', uefaU21Routes);
 
   return httpServer;
 }
