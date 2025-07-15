@@ -379,12 +379,6 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               {/* Player info header with navigation arrows */}
               <div className="pb-8 flex items-center justify-between  bg-gray-50 rounded-lg ">
                 <div className="flex items-center gap-3">
-                  <MyAvatarInfo
-                    playerId={currentShot?.playerId}
-                    playerName={currentShot?.player}
-                    size="lg"
-                    className="w-12 h-12  border-2 border-gray-300"
-                  />
                   <div>
                     <div className="font-normal text-base text-gray-900 text-sm">{currentShot?.player}</div>
                     <div className={`text-sm font-medium ${
