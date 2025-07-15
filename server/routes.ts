@@ -821,8 +821,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
           },
           {
-            league:```text
-{
+```text
               id: 2,
               name: "UEFA Champions League",
               type: "Cup",
@@ -2681,9 +2680,7 @@ logoUrl, {
     async (req: Request, res: Response) => {
       try {
         const { id } = req.params;
-        console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);
-
-        const lineups = await soccersApi.getMatchLineups(id);
+        console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);        const lineups = await soccersApi.getMatchLineups(id);
         res.json({
           success: true,
           lineups: lineups,        });
@@ -3196,10 +3193,8 @@ logoUrl, {
   });
 
   // Register 365scores stats routes
-  app.use('/api/365scores', scores365StatsRoutes);
-
-  // Register 365scores key players routes
   app.use('/api/365scores', keyPlayersRoutes);
+  app.use('/api/365scores', scores365StatsRoutes);
 
   // Use routers
   app.use('/api', featuredMatchRoutes);

@@ -77,12 +77,31 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
       try {
         console.log(`🔍 [MyKeyPlayer] Fetching player statistics for fixture: ${fixtureId}`);
         
-        // Try 365scores API first
+        // Try 365scores stats API first
+        try {
+          console.log(`🔍 [MyKeyPlayer] Trying 365scores stats API for fixture: ${fixtureId}`);
+          const response365Stats = await fetch(`/api/365scores/game/${fixtureId}/players`);
+          const data365Stats = await response365Stats.json();
+          
+          console.log(`🔍 [MyKeyPlayer] 365scores stats API response:`, data365Stats);
+          
+          if (data365Stats && Array.isArray(data365Stats) && data365Stats.length > 0) {
+            console.log(`✅ [MyKeyPlayer] Found ${data365Stats.length} players from 365scores stats API`);
+            setPlayerStats(data365Stats);
+            setError(null);
+            setIsLoading(false);
+            return;
+          }
+        } catch (error365Stats) {
+          console.error(`❌ [MyKeyPlayer] 365scores stats API failed:`, error365Stats);
+        }
+
+        // Try 365scores key players API as fallback
         try {
           const response365 = await fetch(`/api/365scores/game/${fixtureId}/key-players`);
           const data365 = await response365.json();
           
-          console.log(`🔍 [MyKeyPlayer] 365scores API response:`, data365);
+          console.log(`🔍 [MyKeyPlayer] 365scores key players API response:`, data365);
           
           // Handle both direct keyPlayers array and success wrapper formats
           const keyPlayersArray = data365?.keyPlayers || data365?.data?.keyPlayers || (Array.isArray(data365) ? data365 : []);
@@ -142,7 +161,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
             return;
           }
         } catch (error365) {
-          console.error(`❌ [MyKeyPlayer] 365scores API failed:`, error365);
+          console.error(`❌ [MyKeyPlayer] 365scores key players API failed:`, error365);
         }
         
         // Fallback to API-Football statistics endpoint
@@ -247,6 +266,11 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
 
   const getTopPlayersByPosition = (position: string) => {
     console.log(`🔍 [MyKeyPlayer] Filtering ${playerStats.length} players for position: ${position}`);
+    console.log(`🔍 [MyKeyPlayer] All available players:`, playerStats.map(p => ({ 
+      name: p.player.name, 
+      position: p.statistics[0]?.games?.position,
+      team: p.statistics[0]?.team?.name 
+    })));
     
     const filtered = playerStats.filter(playerStat => {
       const playerPosition = playerStat.statistics[0]?.games?.position?.toLowerCase() || '';
@@ -262,7 +286,10 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                           playerPosition.includes('lw') || 
                           playerPosition.includes('rw') ||
                           playerPosition.includes('attacker') ||
-                          playerPosition.includes('attack');
+                          playerPosition.includes('attack') ||
+                          playerPosition.includes('centre-forward') ||
+                          playerPosition.includes('left winger') ||
+                          playerPosition.includes('right winger');
         console.log(`🔍 [MyKeyPlayer] Is attacker: ${isAttacker}`);
         return isAttacker;
       } else if (targetPosition === 'midfielder') {
@@ -273,7 +300,10 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                            playerPosition.includes('cam') || 
                            playerPosition.includes('cdm') ||
                            playerPosition.includes('midfielder') ||
-                           playerPosition.includes('mid');
+                           playerPosition.includes('mid') ||
+                           playerPosition.includes('central midfield') ||
+                           playerPosition.includes('attacking midfield') ||
+                           playerPosition.includes('defensive midfield');
         console.log(`🔍 [MyKeyPlayer] Is midfielder: ${isMidfielder}`);
         return isMidfielder;
       } else if (targetPosition === 'defender') {
@@ -284,14 +314,22 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                          playerPosition.includes('rb') || 
                          playerPosition.includes('wb') ||
                          playerPosition.includes('defence') ||
-                         playerPosition.includes('def');
+                         playerPosition.includes('def') ||
+                         playerPosition.includes('centre-back') ||
+                         playerPosition.includes('left-back') ||
+                         playerPosition.includes('right-back');
         console.log(`🔍 [MyKeyPlayer] Is defender: ${isDefender}`);
         return isDefender;
       }
       return false;
     });
 
-    console.log(`🔍 [MyKeyPlayer] Filtered ${filtered.length} players for position ${position}:`, filtered.map(p => ({ name: p.player.name, position: p.statistics[0]?.games?.position })));
+    console.log(`🔍 [MyKeyPlayer] Filtered ${filtered.length} players for position ${position}:`, filtered.map(p => ({ 
+      name: p.player.name, 
+      position: p.statistics[0]?.games?.position,
+      goals: p.statistics[0]?.goals?.total,
+      assists: p.statistics[0]?.goals?.assists
+    })));
 
     // Sort by key stats based on position
     return filtered.sort((a, b) => {
