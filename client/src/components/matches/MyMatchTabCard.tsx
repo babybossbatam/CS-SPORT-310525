@@ -6,6 +6,7 @@ import MyLiveAction from './MyLiveAction';
 import MyMatchEventNew from './MyMatchEventNew';
 
 import MyShotmap from './MyShotmap';
+import MyKeyPlayer from './MyKeyPlayer';
 
 interface MyMatchTabCardProps {
   match: any;
@@ -99,6 +100,17 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
       <div className="space-y-2">
         
         <MyShotmap 
+          match={match}
+          fixtureId={match.fixture?.id}
+          homeTeam={match.teams?.home?.name}
+          awayTeam={match.teams?.away?.name}
+        />
+      </div>
+
+      {/* Key Players */}
+      <div className="space-y-2">
+        
+        <MyKeyPlayer 
           match={match}
           fixtureId={match.fixture?.id}
           homeTeam={match.teams?.home?.name}

@@ -28,6 +28,9 @@ import { sofaScoreAPI } from './services/sofascoreApi';
 import highlightsRoutes from './routes/highlightsRoutes';
 import axios from "axios";
 import { simpleRapidApi } from "./services/simpleRapidApi";
+import athlete365Routes from './routes/athlete365Routes';
+import { scores365StatsRoutes } from './routes/365scoresStatsRoutes';
+import keyPlayersRoutes from './routes/365scoresKeyPlayersRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -1714,6 +1717,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // New endpoint for square team logos
   apiRouter.get(
     "/team-logo/square/:teamId",
+```text
     async (req: Request, res: Response) => {
       try {
         const { teamId } = req.params;
@@ -3189,6 +3193,12 @@ logoUrl, {
       res.status(500).json({ error: 'Failed to fetch SofaScore stats' });
     }
   });
+
+  // Register 365scores stats routes
+  app.use('/api/365scores', scores365StatsRoutes);
+
+  // Register 365scores key players routes
+  app.use('/api/365scores', keyPlayersRoutes);
 
   return httpServer;
 }
