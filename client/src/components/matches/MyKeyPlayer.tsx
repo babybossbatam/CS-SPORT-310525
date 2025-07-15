@@ -76,17 +76,17 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
       try {
         console.log(`🔍 [MyKeyPlayer] Fetching player statistics for fixture: ${fixtureId}`);
 
-        // Try API-Football statistics endpoint first (most reliable)
-        console.log(`🔄 [MyKeyPlayer] Trying API-Football statistics endpoint first`);
-        const response = await fetch(`/api/fixtures/${fixtureId}/statistics`);
-        const data = await response.json();
+        // PRIORITY 1: Try API-Football (RapidAPI) statistics endpoint first
+        console.log(`🔄 [MyKeyPlayer] Trying RapidAPI (API-Football) statistics endpoint first`);
+        const rapidResponse = await fetch(`/api/fixtures/${fixtureId}/statistics`);
+        const rapidData = await rapidResponse.json();
 
-        console.log(`🔍 [MyKeyPlayer] API-Football statistics response:`, data);
+        console.log(`🔍 [MyKeyPlayer] RapidAPI statistics response:`, rapidData);
 
-        if (data && Array.isArray(data) && data.length > 0) {
+        if (rapidData && Array.isArray(rapidData) && rapidData.length > 0) {
           const allPlayerStats: PlayerStats[] = [];
 
-          data.forEach((teamStat: any) => {
+          rapidData.forEach((teamStat: any) => {
             console.log(`🔍 [MyKeyPlayer] Processing team: ${teamStat.team?.name}`, {
               playersCount: teamStat.players?.length,
               hasPlayers: !!teamStat.players
@@ -94,7 +94,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
 
             if (teamStat.players && Array.isArray(teamStat.players)) {
               teamStat.players.forEach((playerData: any) => {
-                if (playerData && playerData.player && playerData.statistics) {
+                if (playerData && playerData.player && playerData.statistics && playerData.statistics.length > 0) {
                   console.log(`📊 [MyKeyPlayer] Adding player: ${playerData.player.name}`, {
                     position: playerData.statistics[0]?.games?.position,
                     minutes: playerData.statistics[0]?.games?.minutes,
@@ -108,24 +108,28 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           });
 
           if (allPlayerStats.length > 0) {
-            console.log(`✅ [MyKeyPlayer] Loaded ${allPlayerStats.length} player statistics from API-Football`);
+            console.log(`✅ [MyKeyPlayer] Successfully loaded ${allPlayerStats.length} player statistics from RapidAPI`);
             setPlayerStats(allPlayerStats);
             setError(null);
             setIsLoading(false);
             return;
+          } else {
+            console.log(`⚠️ [MyKeyPlayer] RapidAPI returned data but no valid player statistics found`);
           }
+        } else {
+          console.log(`⚠️ [MyKeyPlayer] RapidAPI returned no data or invalid format`);
         }
 
-        // Try 365scores stats API as fallback
+        // FALLBACK 1: Try 365scores stats API only if RapidAPI fails
         try {
-          console.log(`🔍 [MyKeyPlayer] Trying 365scores stats API for fixture: ${fixtureId}`);
+          console.log(`🔍 [MyKeyPlayer] RapidAPI failed, trying 365scores stats API for fixture: ${fixtureId}`);
           const response365Stats = await fetch(`/api/365scores/game/${fixtureId}/players`);
           const data365Stats = await response365Stats.json();
 
           console.log(`🔍 [MyKeyPlayer] 365scores stats API response:`, data365Stats);
 
           if (data365Stats && Array.isArray(data365Stats) && data365Stats.length > 0) {
-            console.log(`✅ [MyKeyPlayer] Found ${data365Stats.length} players from 365scores stats API`);
+            console.log(`✅ [MyKeyPlayer] Found ${data365Stats.length} players from 365scores stats API (fallback)`);
             setPlayerStats(data365Stats);
             setError(null);
             setIsLoading(false);
@@ -135,8 +139,9 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           console.error(`❌ [MyKeyPlayer] 365scores stats API failed:`, error365Stats);
         }
 
-        // Try 365scores key players API as fallback
+        // FALLBACK 2: Try 365scores key players API as last resort
         try {
+          console.log(`🔍 [MyKeyPlayer] Both RapidAPI and 365scores stats failed, trying 365scores key players API`);
           const response365 = await fetch(`/api/365scores/game/${fixtureId}/key-players`);
           const data365 = await response365.json();
 
@@ -203,97 +208,10 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           console.error(`❌ [MyKeyPlayer] 365scores key players API failed:`, error365);
         }
 
-        // Fallback to API-Football statistics endpoint
-        console.log(`🔄 [MyKeyPlayer] Trying API-Football statistics endpoint`);
-        const fallbackResponse = await fetch(`/api/fixtures/${fixtureId}/statistics`);
-        const fallbackData = await fallbackResponse.json();
-
-        console.log(`🔍 [MyKeyPlayer] API-Football statistics response:`, fallbackData);
-
-        if (fallbackData && Array.isArray(fallbackData) && fallbackData.length > 0) {
-          const allPlayerStats: PlayerStats[] = [];
-
-          fallbackData.forEach((teamStat: any) => {
-            console.log(`🔍 [MyKeyPlayer] Processing team: ${teamStat.team?.name}`, {
-              playersCount: teamStat.players?.length,
-              hasPlayers: !!teamStat.players
-            });
-
-            if (teamStat.players && Array.isArray(teamStat.players)) {
-              teamStat.players.forEach((playerData: any) => {
-                if (playerData && playerData.player && playerData.statistics) {
-                  console.log(`📊 [MyKeyPlayer] Adding player: ${playerData.player.name}`, playerData);
-                  allPlayerStats.push(playerData);
-                }
-              });
-            }
-          });
-
-          console.log(`✅ [MyKeyPlayer] Loaded ${allPlayerStats.length} player statistics from API-Football`);
-          setPlayerStats(allPlayerStats);
-          setError(null);
-        } else {
-          console.log(`⚠️ [MyKeyPlayer] No player statistics available from API-Football`);
-
-          // Create sample players to test the UI (for finished matches)
-          const samplePlayers: PlayerStats[] = [
-            {
-              player: {
-                id: 1,
-                name: "Sample Player 1",
-                photo: "/assets/fallback_player.png"
-              },
-              statistics: [{
-                team: { id: 1, name: "Home Team" },
-                games: { minutes: 90, position: "Midfielder" },
-                goals: { total: 1, assists: 2 },
-                shots: { total: 5, on: 3 },
-                passes: { total: 45, key: 3, accuracy: 85 },
-                tackles: { total: 4, blocks: 2, interceptions: 3 },
-                duels: { total: 8, won: 5 },
-                fouls: { drawn: 2, committed: 1 }
-              }]
-            },
-            {
-              player: {
-                id: 2,
-                name: "Sample Player 2", 
-                photo: "/assets/fallback_player.png"
-              },
-              statistics: [{
-                team: { id: 2, name: "Away Team" },
-                games: { minutes: 85, position: "Forward" },
-                goals: { total: 2, assists: 0 },
-                shots: { total: 7, on: 4 },
-                passes: { total: 25, key: 1, accuracy: 75 },
-                tackles: { total: 1, blocks: 0, interceptions: 1 },
-                duels: { total: 12, won: 7 },
-                fouls: { drawn: 3, committed: 2 }
-              }]
-            },
-            {
-              player: {
-                id: 3,
-                name: "Sample Player 3",
-                photo: "/assets/fallback_player.png"
-              },
-              statistics: [{
-                team: { id: 1, name: "Home Team" },
-                games: { minutes: 90, position: "Defender" },
-                goals: { total: 0, assists: 0 },
-                shots: { total: 1, on: 0 },
-                passes: { total: 55, key: 0, accuracy: 92 },
-                tackles: { total: 6, blocks: 3, interceptions: 5 },
-                duels: { total: 9, won: 6 },
-                fouls: { drawn: 1, committed: 3 }
-              }]
-            }
-          ];
-
-          console.log(`📝 [MyKeyPlayer] Using sample player data for testing`);
-          setPlayerStats(samplePlayers);
-          setError(null);
-        }
+        // FALLBACK 3: If all APIs fail, show informative message
+        console.log(`⚠️ [MyKeyPlayer] All player statistics APIs failed, showing empty state`);
+        setPlayerStats([]);
+        setError("Unable to load player statistics. Data may be available after the match concludes.");
       } catch (error) {
         console.error(`❌ [MyKeyPlayer] Error fetching player statistics:`, error);
         setError(error instanceof Error ? error.message : "Failed to fetch player statistics");
