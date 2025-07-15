@@ -272,15 +272,15 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">Shot Map</CardTitle>
+        <CardTitle className="text-sm font-semibold border-b">Shot Map</CardTitle>
       </CardHeader>
 
-      <CardContent className="p-4">
+      <CardContent className="-mb-4  ">
 
         {/* Main content layout with field and goal view side by side */}
         <div className="flex gap-2">
           {/* Football field - 50.6% size (10% increase from 46%), left side */}
-          <div className="relative overflow-hidden -ml-4 -mt-4 flex-shrink-0" style={{ width: '45.6%', height: '180%' }}>
+          <div className="relative overflow-hidden -ml-4 -mt-4 -mb-2 flex-shrink-0 " style={{ width: '52.6%', height: '100%' }}>
             <img 
               src="/assets/matchdetaillogo/field.png" 
               alt="Football field"
@@ -368,9 +368,9 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
 
           {/* Goal view section beside the field */}
           <div className="flex-1">
-            <div className="flex flex-col gap-4 rounded-lg bg-white shadow-sm h-147">
+            <div className="flex flex-col gap-4    h-147">
               {/* Player info header with navigation arrows */}
-              <div className="pb-8 flex items-center justify-between  bg-gray-50 rounded-lg ">
+              <div className="pb-8 flex items-center justify-between    ">
                 <div className="flex items-center gap-3">
                   <MyAvatarInfo
                     playerId={currentShot?.playerId}
@@ -425,7 +425,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               </div>
 
               {/* Goal frame container */}
-              <div className="goal-frame-container relative flex-shrink-0 mx-auto" style={{ height: '72px' }}>
+              <div className="goal-frame-container relative flex-shrink-0 mx-auto" style={{ height: '52px' }}>
                 <div className="relative bg-white rounded" style={{ height: '72px' }}>
                   <img 
                     className="goal-frame"
@@ -473,9 +473,9 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               </div>
 
               {/* Enhanced event details container */}
-              <div className="event-details-enhanced -mt-3.5">
-                <div className="event-detail-card">
-                  <div className="event-card-main">{currentShot?.situation || 'Regular Play'}</div>
+              <div className="event-details-enhanced -mt-3.5 ">
+                <div className="event-detail-card ">
+                  <div className="event-card-main whitespace-nowrap pr-2 bg-transparent">{currentShot?.situation || 'Regular Play'}</div>
                   <div className="event-card-sub">Situation</div>
                 </div>
                 <div className="event-detail-card">
