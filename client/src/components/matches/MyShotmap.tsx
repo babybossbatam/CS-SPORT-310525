@@ -280,7 +280,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
         {/* Main content layout with field and goal view side by side */}
         <div className="flex gap-1 ">
           {/* Football field - 50.6% size (10% increase from 46%), left side */}
-          <div className="relative overflow-hidden flex-shrink-0 -mt-4 -ml-4 " style={{ width: '52.6%', height: '110%' }}>
+          <div className="relative overflow-hidden flex-shrink-0 -mt-4 -ml-4 " style={{ width: 'auto', height: 'auto' }}>
             <img 
               src="/assets/matchdetaillogo/field.png" 
               alt="Football field"
@@ -473,9 +473,13 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               </div>
 
               {/* Enhanced event details container */}
-              <div className="event-details-enhanced -mt-3.5 pt-4">
+              <div className="event-details-enhanced -mt-3.5 pt-4"
+                style={{ width: '105%' }}
+                >
                 <div className="event-detail-card">
-                  <div className="event-card-main whitespace-nowrap ">{currentShot?.situation || 'Regular Play'}</div>
+                  <div className="event-card-main whitespace-nowrap pr-4"
+                    
+                    >{currentShot?.situation || 'Regular Play'}</div>
                   <div className="event-card-sub ">Situation</div>
                 </div>
                 <div className="event-detail-card ">
