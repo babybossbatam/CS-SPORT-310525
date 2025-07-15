@@ -15,6 +15,7 @@ interface PlayerProfileModalProps {
   playerName?: string;
   teamId?: number;
   playerImage?: string;
+  competitionId?: number;
 }
 
 interface PlayerStats {
@@ -24,6 +25,35 @@ interface PlayerStats {
   position: string;
   rating: number;
   team: string;
+  appearances?: number;
+  yellowCards?: number;
+  redCards?: number;
+  cleanSheets?: number;
+  saves?: number;
+}
+
+interface Athlete365Data {
+  id: number;
+  name: string;
+  position: string;
+  team: string;
+  photo: string;
+  stats: {
+    goals: number;
+    assists: number;
+    appearances: number;
+    minutes: number;
+    rating: number;
+    yellowCards?: number;
+    redCards?: number;
+    cleanSheets?: number;
+    saves?: number;
+  };
+  competitions: Array<{
+    id: number;
+    name: string;
+    stats: any;
+  }>;
 }
 
 const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
@@ -33,19 +63,71 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   playerName,
   teamId,
   playerImage,
+  competitionId = 104, // Default to a popular competition
 }) => {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
+  const [athlete365Data, setAthlete365Data] = useState<Athlete365Data | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   // Removed heatmapData state - now handled by PlayerHeatMap component
 
   useEffect(() => {
     if (isOpen && playerId) {
       fetchPlayerStats();
+      fetch365ScoresData();
       loadPlayerImage();
     }
-  }, [isOpen, playerId, playerImage]);
+  }, [isOpen, playerId, playerImage, competitionId]);
 
   // fetchHeatmapData removed - now handled by PlayerHeatMap component
+
+  const fetch365ScoresData = async () => {
+    if (!playerId) return;
+
+    try {
+      console.log(`🔍 [365Scores] Fetching athlete data for player ${playerId}`);
+      
+      // Use Asia/Manila timezone as in your example
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Manila';
+      const url = `https://webws.365scores.com/web/athletes/?appTypeId=5&langId=1&timezoneName=${encodeURIComponent(timezone)}&athletes=${playerId}&competitionId=${competitionId}&fullDetails=true`;
+      
+      const response = await fetch(`/api/proxy/365scores-athlete?${new URLSearchParams({
+        playerId: playerId.toString(),
+        competitionId: competitionId.toString(),
+        timezone: timezone
+      })}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(`✅ [365Scores] Received athlete data:`, data);
+        
+        if (data.athletes && data.athletes.length > 0) {
+          const athlete = data.athletes[0];
+          setAthlete365Data(athlete);
+          
+          // Update player stats with 365Scores data
+          if (athlete.stats) {
+            setPlayerStats({
+              goals: athlete.stats.goals || 0,
+              assists: athlete.stats.assists || 0,
+              minutes: athlete.stats.minutes || 0,
+              position: athlete.position || 'Unknown',
+              rating: athlete.stats.rating || 7.0,
+              team: athlete.team || 'Unknown Team',
+              appearances: athlete.stats.appearances || 0,
+              yellowCards: athlete.stats.yellowCards || 0,
+              redCards: athlete.stats.redCards || 0,
+              cleanSheets: athlete.stats.cleanSheets || 0,
+              saves: athlete.stats.saves || 0,
+            });
+          }
+        }
+      } else {
+        console.log(`⚠️ [365Scores] Failed to fetch athlete data, status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error(`❌ [365Scores] Error fetching athlete data:`, error);
+    }
+  };
 
   const fetchPlayerStats = async () => {
     setIsLoading(true);
@@ -323,6 +405,49 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               </CardContent>
             </Card>
           </div>
+
+          {/* Additional stats from 365Scores data */}
+          {athlete365Data && (
+            <div className="grid grid-cols-4 gap-3 mb-6">
+              <Card className="text-center p-3">
+                <CardContent className="p-0">
+                  <div className="text-lg font-bold text-gray-900">
+                    {playerStats?.appearances || 0}
+                  </div>
+                  <div className="text-xs text-gray-600">Apps</div>
+                </CardContent>
+              </Card>
+              
+              <Card className="text-center p-3">
+                <CardContent className="p-0">
+                  <div className="text-lg font-bold text-yellow-600">
+                    {playerStats?.yellowCards || 0}
+                  </div>
+                  <div className="text-xs text-gray-600">Yellow</div>
+                </CardContent>
+              </Card>
+              
+              <Card className="text-center p-3">
+                <CardContent className="p-0">
+                  <div className="text-lg font-bold text-red-600">
+                    {playerStats?.redCards || 0}
+                  </div>
+                  <div className="text-xs text-gray-600">Red</div>
+                </CardContent>
+              </Card>
+
+              <Card className="text-center p-3">
+                <CardContent className="p-0">
+                  <div className="text-lg font-bold text-green-600">
+                    {playerStats?.cleanSheets || playerStats?.saves || 0}
+                  </div>
+                  <div className="text-xs text-gray-600">
+                    {playerStats?.position?.toLowerCase().includes('goalkeeper') ? 'Saves' : 'Clean'}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Additional Stats Section */}
           <div className="bg-white rounded-lg p-4">
