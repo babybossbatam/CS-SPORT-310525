@@ -317,6 +317,13 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                       className="w-4 h-4"
                     />
                   )}
+                  {(shot.type === 'saved' || shot.type === 'missed' || shot.type === 'blocked' || shot.type === 'shot') && (
+                    <img 
+                      src="/assets/matchdetaillogo/shot-event.svg" 
+                      alt={shot.type.charAt(0).toUpperCase() + shot.type.slice(1)} 
+                      className="w-4 h-4"
+                    />
+                  )}
                 </div>
 
                 {/* Enhanced tooltip */}
