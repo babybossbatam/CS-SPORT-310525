@@ -28,6 +28,7 @@ import { sofaScoreAPI } from './services/sofascoreApi';
 import highlightsRoutes from './routes/highlightsRoutes';
 import axios from "axios";
 import { simpleRapidApi } from "./services/simpleRapidApi";
+import scores365Routes from './routes/scores365Routes.js';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -2682,7 +2683,7 @@ logoUrl, {
         res.json({
           success: true,
           lineups: lineups,        });
-      } catch (error) {
+        } catch (error) {
         console.error("❌ [SoccersAPI] Error fetching match lineups:", error);
         res.status(500).json({
           success: false,
@@ -3084,8 +3085,16 @@ logoUrl, {
   app.get('/api/players/:playerId/statistics', playerRoutes);
 
   // SofaScore routes
-  const sofascoreRoutes = (await import('./routes/sofascoreRoutes')).default;
   app.use('/api/sofascore', sofascoreRoutes);
+
+  // Player data routes
+  app.use('/api', playerDataRoutes);
+
+  // YouTube routes
+  app.use('/api', youtubeRoutes);
+
+  // 365Scores routes
+  app.use('/api/365scores', scores365Routes);
 
   // SofaScore player heatmap routes
   app.get('/api/players/:playerId/heatmap', async (req, res) => {

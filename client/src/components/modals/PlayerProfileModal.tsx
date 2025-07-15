@@ -7,6 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Clock, Target, Users } from 'lucide-react';
 import MyShotmap from '../matches/MyShotmap';
+import Player365StatsSection from './Player365StatsSection';
 
 interface PlayerProfileModalProps {
   isOpen: boolean;
@@ -337,6 +338,13 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
               </button>
             </div>
           </div>
+
+          {/* 365Scores Live Stats Section */}
+          <Player365StatsSection 
+            playerId={playerId}
+            playerName={playerName}
+            gameId={teamId || 4318871} // Use teamId as gameId fallback or the example gameId
+          />
         </div>
       </DialogContent>
     </Dialog>
