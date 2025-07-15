@@ -119,12 +119,19 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                 y = Math.random() * 60 + 20; // Central area
               }
 
+              // Use real player name from event data, with better fallbacks
+              const playerName = event.player?.name || 
+                                event.assist?.name || 
+                                (event.detail?.includes('(') ? 
+                                  event.detail.match(/\(([^)]+)\)/)?.[1] : null) ||
+                                'Unknown Player';
+
               const shotData = {
                 id: shotId++,
                 x: Math.round(x),
                 y: Math.round(y),
                 type: shotType,
-                player: event.player?.name || 'Unknown Player',
+                player: playerName,
                 team: event.team?.name || (isHomeTeam ? homeTeam : awayTeam) || 'Unknown Team',
                 minute: event.time?.elapsed || 0,
                 bodyPart: event.detail?.includes('Header') ? 'Header' : 
@@ -174,12 +181,21 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
       const sampleShots: ShotData[] = [];
       const shotTypes: ('goal' | 'saved' | 'blocked' | 'missed')[] = ['goal', 'saved', 'blocked', 'missed'];
       
+      // Sample realistic player names
+      const samplePlayers = [
+        'L. Messi', 'C. Ronaldo', 'K. Mbappé', 'E. Haaland', 'N. Benzema',
+        'R. Lewandowski', 'M. Salah', 'S. Mané', 'K. De Bruyne', 'L. Modrić',
+        'Vinícius Jr.', 'Pedri', 'Gavi', 'J. Bellingham', 'P. Foden',
+        'Bruno Fernandes', 'H. Kane', 'Son Heung-min', 'R. Mahrez', 'T. Müller'
+      ];
+      
       // Generate 10-15 sample shots for better visualization
       const numShots = Math.floor(Math.random() * 6) + 10;
       
       for (let i = 0; i < numShots; i++) {
         const isHomeTeam = Math.random() > 0.5;
         const shotType = shotTypes[Math.floor(Math.random() * shotTypes.length)];
+        const randomPlayer = samplePlayers[Math.floor(Math.random() * samplePlayers.length)];
         
         // Generate realistic coordinates based on shot type
         let x, y;
@@ -196,7 +212,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           x: Math.round(x),
           y: Math.round(y),
           type: shotType,
-          player: `Player ${i + 1}`,
+          player: randomPlayer,
           team: isHomeTeam ? homeTeam || 'Home Team' : awayTeam || 'Away Team',
           minute: Math.floor(Math.random() * 90) + 1,
           bodyPart: Math.random() > 0.7 ? 'Header' : Math.random() > 0.5 ? 'Right foot' : 'Left foot',

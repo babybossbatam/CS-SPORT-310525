@@ -118,13 +118,16 @@ class SofaScoreMappingService {
         if (heatmapData && heatmapData.shots && heatmapData.shots.length > 0) {
           console.log(`✅ [SofaScoreMapping] Found ${heatmapData.shots.length} shots for player ${playerId}`);
           
+          // Try to get player name from SofaScore API
+          const playerName = await sofaScoreAPI.getPlayerName(playerId);
+          
           for (const shot of heatmapData.shots) {
             const mappedShot: MappedShotData = {
               id: shotId++,
               x: Math.max(0, Math.min(100, shot.x)),
               y: Math.max(0, Math.min(100, shot.y)),
               type: this.mapSofaScoreShotType(shot.type),
-              player: `Player ${playerId}`,
+              player: playerName || `Player ${playerId}`,
               team: shot.x > 50 ? awayTeam : homeTeam,
               minute: shot.minute || Math.floor(Math.random() * 90) + 1,
               bodyPart: 'Right foot',
