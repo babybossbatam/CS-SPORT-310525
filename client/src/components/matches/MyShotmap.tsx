@@ -272,15 +272,15 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">Shot Map</CardTitle>
+        <CardTitle className="text-sm font-normal">Shot Map</CardTitle>
       </CardHeader>
 
-      <CardContent className="p-4">
+      <CardContent className="">
 
         {/* Main content layout with field and goal view side by side */}
-        <div className="flex gap-6 mb-4">
+        <div className="flex gap-1 ">
           {/* Football field - 50.6% size (10% increase from 46%), left side */}
-          <div className="relative overflow-hidden rounded-lg flex-shrink-0 h-full" style={{ width: '50.6%', height: '110%' }}>
+          <div className="relative overflow-hidden flex-shrink-0 -mt-4 -ml-4 " style={{ width: '52.6%', height: '110%' }}>
             <img 
               src="/assets/matchdetaillogo/field.png" 
               alt="Football field"
@@ -314,7 +314,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     <img 
                       src="/assets/matchdetaillogo/soccer-ball.svg" 
                       alt="Goal" 
-                      className="w-2 h-2"
+                      className="w-4 h-4"
                     />
                   )}
                 </div>
@@ -425,7 +425,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               </div>
 
               {/* Goal frame container */}
-              <div className="goal-frame-container relative flex-shrink-0 mx-auto" style={{ height: '72px' }}>
+              <div className="goal-frame-container relative flex-shrink-0 mx-auto" style={{ height: '52px' }}>
                 <div className="relative bg-white rounded" style={{ height: '72px' }}>
                   <img 
                     className="goal-frame"
@@ -473,12 +473,12 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
               </div>
 
               {/* Enhanced event details container */}
-              <div className="event-details-enhanced -mt-3.5">
+              <div className="event-details-enhanced -mt-3.5 pt-4">
                 <div className="event-detail-card">
-                  <div className="event-card-main">{currentShot?.situation || 'Regular Play'}</div>
-                  <div className="event-card-sub">Situation</div>
+                  <div className="event-card-main whitespace-nowrap ">{currentShot?.situation || 'Regular Play'}</div>
+                  <div className="event-card-sub ">Situation</div>
                 </div>
-                <div className="event-detail-card">
+                <div className="event-detail-card ">
                   <div className="event-card-main">{currentShot?.bodyPart || 'Left foot'}</div>
                   <div className="event-card-sub">Shot Type</div>
                 </div>
