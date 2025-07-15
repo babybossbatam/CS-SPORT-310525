@@ -924,6 +924,48 @@ export const rapidApiService = {
     }
   },
 
+  async getFixturePlayerStatistics(fixtureId: number): Promise<any[]> {
+    const cacheKey = `fixture-players-${fixtureId}`;
+    const cached = playersCache.get(cacheKey);
+
+    const now = Date.now();
+    if (cached && now - cached.timestamp < LIVE_DATA_CACHE_DURATION) {
+      console.log(`👥 [RapidAPI] Using cached player statistics for fixture ${fixtureId}`);
+      return cached.data;
+    }
+
+    try {
+      console.log(`👥 [RapidAPI] Fetching player statistics for fixture ${fixtureId}`);
+
+      const response = await apiClient.get("/fixtures/players", {
+        params: {
+          fixture: fixtureId,
+        },
+      });
+
+      if (response.data?.response) {
+        const playerStats = response.data.response;
+        playersCache.set(cacheKey, {
+          data: playerStats,
+          timestamp: now,
+        });
+        console.log(`✅ [RapidAPI] Found player statistics for fixture ${fixtureId}, teams: ${playerStats.length}`);
+        return playerStats;
+      }
+
+      console.log(`👥 [RapidAPI] No player statistics found for fixture ${fixtureId}`);
+      return [];
+    } catch (error) {
+      console.error(`❌ [RapidAPI] Error fetching player statistics for fixture ${fixtureId}:`, error);
+      if (cached?.data) {
+        console.log("Using cached data due to API error");
+        return cached.data;
+      }
+      console.error("API request failed and no cache available");
+      return null;
+    }
+  },
+
   async getFixtureStatistics(fixtureId: number, teamId?: number): Promise<any[]> {
     const cacheKey = teamId ? `fixture-stats-${fixtureId}-${teamId}` : `fixture-stats-${fixtureId}`;
     const cached = playersCache.get(cacheKey);

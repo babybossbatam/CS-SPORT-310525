@@ -76,24 +76,24 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
       try {
         console.log(`🔍 [MyKeyPlayer] Fetching player statistics for fixture: ${fixtureId}`);
 
-        // PRIORITY 1: Try API-Football (RapidAPI) statistics endpoint first
-        console.log(`🔄 [MyKeyPlayer] Trying RapidAPI (API-Football) statistics endpoint first`);
-        const rapidResponse = await fetch(`/api/fixtures/${fixtureId}/statistics`);
-        const rapidData = await rapidResponse.json();
+        // PRIORITY 1: Try API-Football (RapidAPI) fixtures/players endpoint first
+        console.log(`🔄 [MyKeyPlayer] Trying RapidAPI fixtures/players endpoint first`);
+        const rapidPlayersResponse = await fetch(`/api/fixtures/${fixtureId}/players`);
+        const rapidPlayersData = await rapidPlayersResponse.json();
 
-        console.log(`🔍 [MyKeyPlayer] RapidAPI statistics response:`, rapidData);
+        console.log(`🔍 [MyKeyPlayer] RapidAPI fixtures/players response:`, rapidPlayersData);
 
-        if (rapidData && Array.isArray(rapidData) && rapidData.length > 0) {
+        if (rapidPlayersData && Array.isArray(rapidPlayersData) && rapidPlayersData.length > 0) {
           const allPlayerStats: PlayerStats[] = [];
 
-          rapidData.forEach((teamStat: any) => {
-            console.log(`🔍 [MyKeyPlayer] Processing team: ${teamStat.team?.name}`, {
-              playersCount: teamStat.players?.length,
-              hasPlayers: !!teamStat.players
+          rapidPlayersData.forEach((teamData: any) => {
+            console.log(`🔍 [MyKeyPlayer] Processing team: ${teamData.team?.name}`, {
+              playersCount: teamData.players?.length,
+              hasPlayers: !!teamData.players
             });
 
-            if (teamStat.players && Array.isArray(teamStat.players)) {
-              teamStat.players.forEach((playerData: any) => {
+            if (teamData.players && Array.isArray(teamData.players)) {
+              teamData.players.forEach((playerData: any) => {
                 if (playerData && playerData.player && playerData.statistics && playerData.statistics.length > 0) {
                   console.log(`📊 [MyKeyPlayer] Adding player: ${playerData.player.name}`, {
                     position: playerData.statistics[0]?.games?.position,
@@ -101,6 +101,91 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                     goals: playerData.statistics[0]?.goals?.total,
                     assists: playerData.statistics[0]?.goals?.assists
                   });
+                  
+                  // Transform the data to match our PlayerStats interface
+                  const transformedPlayer: PlayerStats = {
+                    player: {
+                      id: playerData.player.id,
+                      name: playerData.player.name,
+                      photo: playerData.player.photo || '/assets/fallback_player.png'
+                    },
+                    statistics: playerData.statistics.map((stat: any) => ({
+                      team: {
+                        id: teamData.team?.id || 0,
+                        name: teamData.team?.name || 'Unknown Team'
+                      },
+                      games: {
+                        minutes: stat.games?.minutes || 0,
+                        position: stat.games?.position || 'Unknown'
+                      },
+                      goals: {
+                        total: stat.goals?.total || 0,
+                        assists: stat.goals?.assists || 0
+                      },
+                      shots: {
+                        total: stat.shots?.total || 0,
+                        on: stat.shots?.on || 0
+                      },
+                      passes: {
+                        total: stat.passes?.total || 0,
+                        key: stat.passes?.key || 0,
+                        accuracy: stat.passes?.accuracy || 0
+                      },
+                      tackles: {
+                        total: stat.tackles?.total || 0,
+                        blocks: stat.tackles?.blocks || 0,
+                        interceptions: stat.tackles?.interceptions || 0
+                      },
+                      duels: {
+                        total: stat.duels?.total || 0,
+                        won: stat.duels?.won || 0
+                      },
+                      fouls: {
+                        drawn: stat.fouls?.drawn || 0,
+                        committed: stat.fouls?.committed || 0
+                      }
+                    }))
+                  };
+                  
+                  allPlayerStats.push(transformedPlayer);
+                }
+              });
+            }
+          });
+
+          if (allPlayerStats.length > 0) {
+            console.log(`✅ [MyKeyPlayer] Successfully loaded ${allPlayerStats.length} player statistics from RapidAPI fixtures/players`);
+            setPlayerStats(allPlayerStats);
+            setError(null);
+            setIsLoading(false);
+            return;
+          } else {
+            console.log(`⚠️ [MyKeyPlayer] RapidAPI fixtures/players returned data but no valid player statistics found`);
+          }
+        } else {
+          console.log(`⚠️ [MyKeyPlayer] RapidAPI fixtures/players returned no data or invalid format`);
+        }
+
+        // FALLBACK 1: Try the statistics endpoint if fixtures/players fails
+        console.log(`🔄 [MyKeyPlayer] Trying RapidAPI statistics endpoint as fallback`);
+        const rapidStatsResponse = await fetch(`/api/fixtures/${fixtureId}/statistics`);
+        const rapidStatsData = await rapidStatsResponse.json();
+
+        console.log(`🔍 [MyKeyPlayer] RapidAPI statistics response:`, rapidStatsData);
+
+        if (rapidStatsData && Array.isArray(rapidStatsData) && rapidStatsData.length > 0) {
+          const allPlayerStats: PlayerStats[] = [];
+
+          rapidStatsData.forEach((teamStat: any) => {
+            console.log(`🔍 [MyKeyPlayer] Processing team stats: ${teamStat.team?.name}`, {
+              playersCount: teamStat.players?.length,
+              hasPlayers: !!teamStat.players
+            });
+
+            if (teamStat.players && Array.isArray(teamStat.players)) {
+              teamStat.players.forEach((playerData: any) => {
+                if (playerData && playerData.player && playerData.statistics && playerData.statistics.length > 0) {
+                  console.log(`📊 [MyKeyPlayer] Adding player from stats: ${playerData.player.name}`);
                   allPlayerStats.push(playerData);
                 }
               });
@@ -108,16 +193,16 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           });
 
           if (allPlayerStats.length > 0) {
-            console.log(`✅ [MyKeyPlayer] Successfully loaded ${allPlayerStats.length} player statistics from RapidAPI`);
+            console.log(`✅ [MyKeyPlayer] Successfully loaded ${allPlayerStats.length} player statistics from RapidAPI statistics fallback`);
             setPlayerStats(allPlayerStats);
             setError(null);
             setIsLoading(false);
             return;
           } else {
-            console.log(`⚠️ [MyKeyPlayer] RapidAPI returned data but no valid player statistics found`);
+            console.log(`⚠️ [MyKeyPlayer] RapidAPI statistics returned data but no valid player statistics found`);
           }
         } else {
-          console.log(`⚠️ [MyKeyPlayer] RapidAPI returned no data or invalid format`);
+          console.log(`⚠️ [MyKeyPlayer] RapidAPI statistics returned no data or invalid format`);
         }
 
         // FALLBACK 1: Try 365scores stats API only if RapidAPI fails

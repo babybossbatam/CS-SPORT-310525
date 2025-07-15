@@ -819,6 +819,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               code: "DE",
               flag: "https://media.api-sports.io/flags/de.svg",
             },
+```tool_code
           },
           {
             league: {
@@ -2929,19 +2930,47 @@ logoUrl, {
   });
 
    // Get fixture statistics (including player statistics)
-  apiRouter.get('/fixtures/:id/statistics', async (req, res) => {
+  apiRouter.get('/fixtures/:id/players', async (req: Request, res: Response) => {
     try {
       const fixtureId = parseInt(req.params.id);
-      const teamId = req.query.team;
-      console.log(`📊 [Stats API] Fetching statistics for fixture ${fixtureId}, team ${teamId}`);
 
-      const statistics = await rapidApiService.getFixtureStatistics(parseInt(fixtureId), teamId ? parseInt(teamId as string) : undefined);
-      console.log(`📊 [Stats API] Fetched statistics for fixture ${fixtureId}`);
+      console.log(`👥 [Players API] Fetching player statistics for fixture ${fixtureId}`);
 
-      res.json(statistics);
+      const playerStats = await rapidApiService.getFixturePlayerStatistics(fixtureId);
+
+      if (playerStats) {
+        console.log(`👥 [Players API] Fetched ${playerStats.length} team(s) with player statistics for fixture ${fixtureId}`);
+        res.json(playerStats);
+      } else {
+        console.log(`👥 [Players API] No player statistics found for fixture ${fixtureId}`);
+        res.status(404).json({ error: "Player statistics not found" });
+      }
     } catch (error) {
-      console.error('❌ [Stats API] Error fetching fixture statistics:', error);
-      res.status(500).json({ error: 'Failed to fetch fixture statistics' });
+      console.error(`❌ [Players API] Error fetching player statistics:`, error);
+      res.status(500).json({ error: "Failed to fetch player statistics" });
+    }
+  });
+
+  // Get fixture statistics
+  apiRouter.get("/fixtures/:id/statistics", async (req: Request, res: Response) => {
+    try {
+      const fixtureId = parseInt(req.params.id);
+      const teamId = req.query.team ? parseInt(req.query.team as string) : undefined;
+
+      console.log(`📊 [Stats API] Fetching statistics for fixture ${fixtureId}${teamId ? `, team ${teamId}` : ''}`);
+
+      const statistics = await rapidApiService.getFixtureStatistics(fixtureId, teamId);
+
+      if (statistics) {
+        console.log(`📊 [Stats API] Fetched statistics for fixture ${fixtureId}`);
+        res.json(statistics);
+      } else {
+        console.log(`📊 [Stats API] No statistics found for fixture ${fixtureId}`);
+        res.status(404).json({ error: "Statistics not found" });
+      }
+    } catch (error) {
+      console.error(`❌ [Stats API] Error fetching statistics:`, error);
+      res.status(500).json({ error: "Failed to fetch statistics" });
     }
   });
 
