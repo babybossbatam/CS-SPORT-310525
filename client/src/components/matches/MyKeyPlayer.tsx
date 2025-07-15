@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -76,7 +75,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
 
       try {
         console.log(`🔍 [MyKeyPlayer] Fetching player statistics for fixture: ${fixtureId}`);
-        
+
         // Try API-Football statistics endpoint first (most reliable)
         console.log(`🔄 [MyKeyPlayer] Trying API-Football statistics endpoint first`);
         const response = await fetch(`/api/fixtures/${fixtureId}/statistics`);
@@ -86,13 +85,13 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
 
         if (data && Array.isArray(data) && data.length > 0) {
           const allPlayerStats: PlayerStats[] = [];
-          
+
           data.forEach((teamStat: any) => {
             console.log(`🔍 [MyKeyPlayer] Processing team: ${teamStat.team?.name}`, {
               playersCount: teamStat.players?.length,
               hasPlayers: !!teamStat.players
             });
-            
+
             if (teamStat.players && Array.isArray(teamStat.players)) {
               teamStat.players.forEach((playerData: any) => {
                 if (playerData && playerData.player && playerData.statistics) {
@@ -116,15 +115,15 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
             return;
           }
         }
-        
+
         // Try 365scores stats API as fallback
         try {
           console.log(`🔍 [MyKeyPlayer] Trying 365scores stats API for fixture: ${fixtureId}`);
           const response365Stats = await fetch(`/api/365scores/game/${fixtureId}/players`);
           const data365Stats = await response365Stats.json();
-          
+
           console.log(`🔍 [MyKeyPlayer] 365scores stats API response:`, data365Stats);
-          
+
           if (data365Stats && Array.isArray(data365Stats) && data365Stats.length > 0) {
             console.log(`✅ [MyKeyPlayer] Found ${data365Stats.length} players from 365scores stats API`);
             setPlayerStats(data365Stats);
@@ -140,15 +139,15 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
         try {
           const response365 = await fetch(`/api/365scores/game/${fixtureId}/key-players`);
           const data365 = await response365.json();
-          
+
           console.log(`🔍 [MyKeyPlayer] 365scores key players API response:`, data365);
-          
+
           // Handle both direct keyPlayers array and success wrapper formats
           const keyPlayersArray = data365?.keyPlayers || data365?.data?.keyPlayers || (Array.isArray(data365) ? data365 : []);
-          
+
           if (keyPlayersArray && keyPlayersArray.length > 0) {
             console.log(`✅ [MyKeyPlayer] Found ${keyPlayersArray.length} key players from 365scores`);
-            
+
             // Transform 365scores data to match our PlayerStats interface
             const transformedStats: PlayerStats[] = keyPlayersArray.map((player: any) => ({
               player: {
@@ -193,7 +192,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                 }
               }]
             }));
-            
+
             console.log(`🎯 [MyKeyPlayer] Transformed ${transformedStats.length} players from 365scores:`, transformedStats);
             setPlayerStats(transformedStats);
             setError(null);
@@ -203,23 +202,23 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
         } catch (error365) {
           console.error(`❌ [MyKeyPlayer] 365scores key players API failed:`, error365);
         }
-        
+
         // Fallback to API-Football statistics endpoint
         console.log(`🔄 [MyKeyPlayer] Trying API-Football statistics endpoint`);
-        const response = await fetch(`/api/fixtures/${fixtureId}/statistics`);
-        const data = await response.json();
+        const fallbackResponse = await fetch(`/api/fixtures/${fixtureId}/statistics`);
+        const fallbackData = await fallbackResponse.json();
 
-        console.log(`🔍 [MyKeyPlayer] API-Football statistics response:`, data);
+        console.log(`🔍 [MyKeyPlayer] API-Football statistics response:`, fallbackData);
 
-        if (data && Array.isArray(data) && data.length > 0) {
+        if (fallbackData && Array.isArray(fallbackData) && fallbackData.length > 0) {
           const allPlayerStats: PlayerStats[] = [];
-          
-          data.forEach((teamStat: any) => {
+
+          fallbackData.forEach((teamStat: any) => {
             console.log(`🔍 [MyKeyPlayer] Processing team: ${teamStat.team?.name}`, {
               playersCount: teamStat.players?.length,
               hasPlayers: !!teamStat.players
             });
-            
+
             if (teamStat.players && Array.isArray(teamStat.players)) {
               teamStat.players.forEach((playerData: any) => {
                 if (playerData && playerData.player && playerData.statistics) {
@@ -235,7 +234,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           setError(null);
         } else {
           console.log(`⚠️ [MyKeyPlayer] No player statistics available from API-Football`);
-          
+
           // Create sample players to test the UI (for finished matches)
           const samplePlayers: PlayerStats[] = [
             {
@@ -290,7 +289,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               }]
             }
           ];
-          
+
           console.log(`📝 [MyKeyPlayer] Using sample player data for testing`);
           setPlayerStats(samplePlayers);
           setError(null);
@@ -314,13 +313,13 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
       position: p.statistics[0]?.games?.position,
       team: p.statistics[0]?.team?.name 
     })));
-    
+
     const filtered = playerStats.filter(playerStat => {
       const playerPosition = (playerStat.statistics[0]?.games?.position || '').toLowerCase().trim();
       const targetPosition = position.toLowerCase();
-      
+
       console.log(`🔍 [MyKeyPlayer] Player: ${playerStat.player.name}, Position: "${playerPosition}", Target: "${targetPosition}"`);
-      
+
       if (targetPosition === 'attacker') {
         const isAttacker = playerPosition.includes('forward') || 
                           playerPosition.includes('striker') || 
@@ -395,7 +394,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
     return filtered.sort((a, b) => {
       const aStats = a.statistics[0];
       const bStats = b.statistics[0];
-      
+
       if (position === 'Attacker') {
         const aScore = (aStats?.goals?.total || 0) + (aStats?.shots?.total || 0) * 0.1;
         const bScore = (bStats?.goals?.total || 0) + (bStats?.shots?.total || 0) * 0.1;
@@ -414,7 +413,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
 
   const getKeyStatsForPosition = (position: string, playerStats: any) => {
     const stats = playerStats.statistics[0];
-    
+
     if (position === 'Attacker') {
       return {
         stat1: { label: 'Goals', value: stats?.goals?.total || 0 },
@@ -503,7 +502,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                 </div>
                 <span className="text-lg font-semibold text-gray-400 w-8 text-center">-</span>
               </div>
-              
+
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-lg font-semibold text-gray-400 w-8 text-center">-</span>
                 <div className="flex flex-col items-center mx-3">
@@ -513,7 +512,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                 </div>
                 <span className="text-lg font-semibold text-gray-400 w-8 text-center">-</span>
               </div>
-              
+
               <div className="flex items-center justify-between w-full mt-2 pt-2 border-t">
                 <span className="text-sm text-gray-400 w-8 text-center">-</span>
                 <span className="text-xs text-gray-500 mx-3">Min</span>
@@ -536,7 +535,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               </div>
             </div>
           </div>
-          
+
           <div className="mt-4 text-center text-xs text-gray-400">
             <p>Player statistics will load after the match</p>
           </div>
@@ -596,7 +595,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               {(() => {
                 const player1Stats = getKeyStatsForPosition(selectedPosition, topPlayers[0]);
                 const player2Stats = getKeyStatsForPosition(selectedPosition, topPlayers[1]);
-                
+
                 return (
                   <>
                     <div className="flex items-center justify-between w-full mb-2">
@@ -612,7 +611,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                         {player2Stats.stat1.value}
                       </span>
                     </div>
-                    
+
                     <div className="flex items-center justify-between w-full mb-2">
                       <span className="text-lg font-semibold text-gray-900 w-8 text-center">
                         {player1Stats.stat2.value}
@@ -626,7 +625,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                         {player2Stats.stat2.value}
                       </span>
                     </div>
-                    
+
                     {/* Minutes played */}
                     <div className="flex items-center justify-between w-full mt-2 pt-2 border-t">
                       <span className="text-sm text-gray-600 w-8 text-center">
