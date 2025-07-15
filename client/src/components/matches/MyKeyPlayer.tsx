@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import MyAvatarInfo from './MyAvatarInfo';
 
 interface MyKeyPlayerProps {
   match?: any;
@@ -443,19 +444,12 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           <div className="flex items-center justify-between">
             {/* Player 1 (left) */}
             <div className="flex flex-col items-center flex-1">
-              <Avatar className="w-16 h-16 mb-3 border-2 border-gray-300">
-                <AvatarImage 
-                  src={topPlayers[0]?.player?.photo} 
-                  alt={topPlayers[0]?.player?.name}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = '/assets/fallback_player.png';
-                  }}
-                />
-                <AvatarFallback className="text-lg font-semibold">
-                  {topPlayers[0]?.player?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P'}
-                </AvatarFallback>
-              </Avatar>
+              <MyAvatarInfo
+                playerId={topPlayers[0]?.player?.id}
+                playerName={topPlayers[0]?.player?.name}
+                size="lg"
+                className="mb-3"
+              />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
                   {topPlayers[0]?.player?.name}
@@ -519,19 +513,12 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
 
             {/* Player 2 (right) */}
             <div className="flex flex-col items-center flex-1">
-              <Avatar className="w-16 h-16 mb-3 border-2 border-gray-300">
-                <AvatarImage 
-                  src={topPlayers[1]?.player?.photo} 
-                  alt={topPlayers[1]?.player?.name}
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = '/assets/fallback_player.png';
-                  }}
-                />
-                <AvatarFallback className="text-lg font-semibold">
-                  {topPlayers[1]?.player?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P'}
-                </AvatarFallback>
-              </Avatar>
+              <MyAvatarInfo
+                playerId={topPlayers[1]?.player?.id}
+                playerName={topPlayers[1]?.player?.name}
+                size="lg"
+                className="mb-3"
+              />
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
                   {topPlayers[1]?.player?.name}
