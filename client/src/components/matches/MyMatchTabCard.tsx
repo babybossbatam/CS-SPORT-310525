@@ -1,3 +1,4 @@
+
 import React from 'react';
 import MatchPrediction from './MatchPrediction';
 import MyHighlights from './MyHighlights';
@@ -5,7 +6,6 @@ import MyLiveAction from './MyLiveAction';
 import MyMatchEventNew from './MyMatchEventNew';
 import MyHeatmap from './MyHeatmap';
 import MyShotmap from './MyShotmap';
-import MyHeadtoheadTabsCard from './MyHeadtoheadTabsCard';
 
 interface MyMatchTabCardProps {
   match: any;
@@ -18,7 +18,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
     <>
       {/* Match Prediction */}
       <div className="space-y-2">
-
+        
         <MatchPrediction 
           homeTeam={match.teams?.home}
           awayTeam={match.teams?.away}
@@ -83,7 +83,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
 
       {/* Match Events */}
       <div className="space-y-2">
-
+        
         <MyMatchEventNew 
           fixtureId={match.fixture?.id}
           homeTeam={match.teams?.home?.name}
@@ -95,7 +95,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
 
       {/* Player Heatmap */}
       <div className="space-y-2">
-
+        
         <MyHeatmap 
           match={match}
           fixtureId={match.fixture?.id}
@@ -106,7 +106,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
 
       {/* Shot Map */}
       <div className="space-y-2">
-
+        
         <MyShotmap 
           match={match}
           fixtureId={match.fixture?.id}
@@ -114,12 +114,6 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
           awayTeam={match.teams?.away?.name}
         />
       </div>
-
-      {/* Head-to-Head */}
-      <MyHeadtoheadTabsCard
-        homeTeamId={match.teams?.home?.id}
-        awayTeamId={match.teams?.away?.id}
-      />
     </>
   );
 };
