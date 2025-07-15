@@ -118,4 +118,40 @@ router.get('/player-shots/:eventId/:playerId', async (req, res) => {
   }
 });
 
+// Get Head-to-Head data for a specific SofaScore event
+router.get('/h2h/:eventId', async (req, res) => {
+  try {
+    const { eventId } = req.params;
+
+    if (!eventId || isNaN(Number(eventId))) {
+      return res.status(400).json({ error: 'Valid eventId is required' });
+    }
+
+    console.log(`🔄 [SofaScore] Fetching H2H for event: ${eventId}`);
+
+    const h2hData = await sofaScoreAPI.getH2HData(Number(eventId));
+
+    if (h2hData && h2hData.h2h.length > 0) {
+      console.log(`✅ [SofaScore] Retrieved H2H with ${h2hData.h2h.length} historical matches`);
+      res.json({
+        ...h2hData,
+        eventId: Number(eventId),
+        source: 'sofascore'
+      });
+    } else {
+      console.log(`⚠️ [SofaScore] No H2H data found for event ${eventId}`);
+      res.status(404).json({ 
+        error: 'No H2H data found for this event',
+        eventId: Number(eventId)
+      });
+    }
+  } catch (error) {
+    console.error('❌ [SofaScore] Error fetching H2H data:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch H2H data',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 export default router;

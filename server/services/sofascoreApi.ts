@@ -258,6 +258,44 @@ class SofaScoreAPI {
       return null;
     }
   }
+
+  // Get Head-to-Head data for a specific event
+  async getH2HData(eventId: number): Promise<{h2h: any[]} | null> {
+    try {
+      console.log(`🔄 [SofaScore] Fetching H2H data for event ${eventId}`);
+      
+      const h2hUrl = `https://www.sofascore.com/api/v1/event/${eventId}/h2h`;
+      
+      const response = await axios.get(h2hUrl, { 
+        headers: {
+          'accept': '*/*',
+          'accept-language': 'en-US,en;q=0.9',
+          'cache-control': 'max-age=0',
+          'sec-fetch-dest': 'empty',
+          'sec-fetch-mode': 'cors',
+          'sec-fetch-site': 'same-origin',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+        }, 
+        timeout: 8000,
+        validateStatus: (status) => status < 500
+      });
+
+      if (response.status === 200 && response.data) {
+        const h2hData = response.data;
+        console.log(`✅ [SofaScore] Retrieved H2H data with ${h2hData.events?.length || 0} historical matches`);
+        
+        return {
+          h2h: h2hData.events || []
+        };
+      } else {
+        console.log(`⚠️ [SofaScore] H2H API returned status ${response.status}`);
+        return null;
+      }
+    } catch (error) {
+      console.error(`❌ [SofaScore] Error fetching H2H data:`, error);
+      return null;
+    }
+  }
 }
 
 export const sofaScoreAPI = new SofaScoreAPI();
