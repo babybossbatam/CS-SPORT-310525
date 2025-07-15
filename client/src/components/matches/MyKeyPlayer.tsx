@@ -82,9 +82,14 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           const data365 = await response365.json();
           
           console.log(`🔍 [MyKeyPlayer] 365scores API response:`, data365);
+          console.log(`🔍 [MyKeyPlayer] Response keys:`, Object.keys(data365 || {}));
+          console.log(`🔍 [MyKeyPlayer] Response structure:`, JSON.stringify(data365, null, 2));
           
           // Handle both direct keyPlayers array and success wrapper formats
           const keyPlayersArray = data365?.keyPlayers || data365?.data?.keyPlayers || (Array.isArray(data365) ? data365 : []);
+          
+          console.log(`🔍 [MyKeyPlayer] Extracted keyPlayersArray:`, keyPlayersArray);
+          console.log(`🔍 [MyKeyPlayer] KeyPlayers array length:`, keyPlayersArray?.length);
           
           if (keyPlayersArray && keyPlayersArray.length > 0) {
             console.log(`✅ [MyKeyPlayer] Found ${keyPlayersArray.length} key players from 365scores`);
@@ -273,14 +278,90 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
     return (
       <Card className="w-full">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Key Players</CardTitle>
+          <CardTitle className="text-sm font-normal">Key Players</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="flex items-center justify-center p-8">
-            <div className="text-center text-gray-500">
-              <p>Key players data not available</p>
-              <p className="text-sm">Player statistics will load after the match</p>
+          {/* Position selector tabs */}
+          <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
+            {(['Attacker', 'Midfielder', 'Defender'] as const).map((position) => (
+              <button
+                key={position}
+                onClick={() => setSelectedPosition(position)}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                  selectedPosition === position
+                    ? 'bg-blue-500 text-white'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                {position}
+              </button>
+            ))}
+          </div>
+
+          {/* Sample layout matching the expected design */}
+          <div className="flex items-center justify-between">
+            {/* Player 1 (left) */}
+            <div className="flex flex-col items-center flex-1">
+              <div className="w-16 h-16 mb-3 border-2 border-gray-300 rounded-full bg-gray-100 flex items-center justify-center">
+                <span className="text-gray-400 text-sm">No</span>
+              </div>
+              <div className="text-center">
+                <div className="font-medium text-gray-500 text-sm mb-1">
+                  No player data
+                </div>
+                <div className="text-xs text-gray-400">
+                  Position
+                </div>
+              </div>
             </div>
+
+            {/* Stats comparison in the middle */}
+            <div className="flex flex-col items-center mx-6 min-w-[120px]">
+              <div className="flex items-center justify-between w-full mb-2">
+                <span className="text-lg font-semibold text-gray-400 w-8 text-center">-</span>
+                <div className="flex flex-col items-center mx-3">
+                  <span className="text-xs text-gray-500">
+                    {selectedPosition === 'Attacker' ? 'Goals' : selectedPosition === 'Midfielder' ? 'Passes' : 'Tackles'}
+                  </span>
+                </div>
+                <span className="text-lg font-semibold text-gray-400 w-8 text-center">-</span>
+              </div>
+              
+              <div className="flex items-center justify-between w-full mb-2">
+                <span className="text-lg font-semibold text-gray-400 w-8 text-center">-</span>
+                <div className="flex flex-col items-center mx-3">
+                  <span className="text-xs text-gray-500">
+                    {selectedPosition === 'Attacker' ? 'Shots' : selectedPosition === 'Midfielder' ? 'Assists' : 'Blocks'}
+                  </span>
+                </div>
+                <span className="text-lg font-semibold text-gray-400 w-8 text-center">-</span>
+              </div>
+              
+              <div className="flex items-center justify-between w-full mt-2 pt-2 border-t">
+                <span className="text-sm text-gray-400 w-8 text-center">-</span>
+                <span className="text-xs text-gray-500 mx-3">Min</span>
+                <span className="text-sm text-gray-400 w-8 text-center">-</span>
+              </div>
+            </div>
+
+            {/* Player 2 (right) */}
+            <div className="flex flex-col items-center flex-1">
+              <div className="w-16 h-16 mb-3 border-2 border-gray-300 rounded-full bg-gray-100 flex items-center justify-center">
+                <span className="text-gray-400 text-sm">No</span>
+              </div>
+              <div className="text-center">
+                <div className="font-medium text-gray-500 text-sm mb-1">
+                  No player data
+                </div>
+                <div className="text-xs text-gray-400">
+                  Position
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-4 text-center text-xs text-gray-400">
+            <p>Player statistics will load after the match</p>
           </div>
         </CardContent>
       </Card>
