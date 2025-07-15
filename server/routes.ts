@@ -3083,6 +3083,10 @@ logoUrl, {
   // Player statistics endpoint
   app.get('/api/players/:playerId/statistics', playerRoutes);
 
+  // SofaScore routes
+  const sofascoreRoutes = (await import('./routes/sofascoreRoutes')).default;
+  app.use('/api/sofascore', sofascoreRoutes);
+
   // SofaScore player heatmap routes
   app.get('/api/players/:playerId/heatmap', async (req, res) => {
     try {

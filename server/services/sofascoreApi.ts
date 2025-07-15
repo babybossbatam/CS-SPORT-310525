@@ -225,6 +225,39 @@ class SofaScoreAPI {
       return null;
     }
   }
+
+  // Get shotmap data for a specific event
+  async getShotmapData(eventId: number): Promise<{shotmap: any[]} | null> {
+    try {
+      console.log(`🎯 [SofaScore] Fetching shotmap for event ${eventId}`);
+      
+      const shotmapUrl = `${this.baseUrl}/event/${eventId}/shotmap`;
+      
+      const response = await axios.get(shotmapUrl, { 
+        headers: {
+          ...this.headers,
+          'If-Modified-Since': 'Mon, 01 Jan 2020 00:00:00 GMT' // Force fresh data
+        }, 
+        timeout: 8000,
+        validateStatus: (status) => status < 500
+      });
+
+      if (response.status === 200 && response.data) {
+        const shotmapData = response.data;
+        console.log(`✅ [SofaScore] Retrieved shotmap data with ${shotmapData.shotmap?.length || 0} shots`);
+        
+        return {
+          shotmap: shotmapData.shotmap || []
+        };
+      } else {
+        console.log(`⚠️ [SofaScore] Shotmap API returned status ${response.status}`);
+        return null;
+      }
+    } catch (error) {
+      console.error(`❌ [SofaScore] Error fetching shotmap data:`, error);
+      return null;
+    }
+  }
 }
 
 export const sofaScoreAPI = new SofaScoreAPI();
