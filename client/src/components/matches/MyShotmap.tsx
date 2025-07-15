@@ -37,6 +37,48 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [selectedShotIndex, setSelectedShotIndex] = useState(0);
 
+  // Function to fetch real shot data from API
+  const fetchRealShotData = useCallback(async () => {
+    try {
+      console.log(`🎯 [MyShotmap] Fetching real shot data for fixture: ${fixtureId}`);
+      
+      const shotResponse = await fetch(`/api/fixtures/${fixtureId}/shots`);
+      
+      if (shotResponse.ok) {
+        const realShots = await shotResponse.json();
+        
+        if (realShots && realShots.length > 0) {
+          const convertedShots: ShotData[] = realShots.map((shot: any, index: number) => ({
+            id: shot.id || index + 1,
+            x: shot.x || (shot.team?.name === homeTeam ? 75 : 25), // Use real X coordinate
+            y: shot.y || 50, // Use real Y coordinate
+            type: shot.type || 'shot',
+            player: shot.player?.name || 'Unknown Player',
+            team: shot.team?.name || 'Unknown Team',
+            minute: shot.minute || 0,
+            bodyPart: shot.bodyPart || 'Right foot',
+            situation: shot.situation || 'Regular Play',
+            xG: shot.xG || 0.05,
+            xGOT: shot.xGOT,
+            playerId: shot.player?.id,
+            playerPhoto: shot.player?.photo || shot.player?.id 
+              ? `https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/${shot.player.id}`
+              : '/assets/fallback_player.png'
+          }));
+
+          setShotData(convertedShots);
+          console.log(`✅ [MyShotmap] Loaded ${convertedShots.length} real shots from API`);
+          return true;
+        }
+      }
+      
+      return false;
+    } catch (error) {
+      console.error(`❌ [MyShotmap] Real shot data API error:`, error);
+      return false;
+    }
+  }, [fixtureId, homeTeam]);
+
   // Memoize the fetchFromSofaScore function to prevent recreation on every render
   const fetchFromSofaScore = useCallback(async () => {
     try {
@@ -100,7 +142,15 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
     try {
       console.log(`⚽ [MyShotmap] Fetching shot data for fixture: ${fixtureId}`);
 
-      // First try to get match events which may contain shot data
+      // First try to get real shot data with coordinates
+      const hasRealShotData = await fetchRealShotData();
+      
+      if (hasRealShotData) {
+        setError(null);
+        return;
+      }
+
+      // Fallback: try to get match events which may contain shot data
       const eventsResponse = await fetch(`/api/fixtures/${fixtureId}/events`);
 
         if (eventsResponse.ok) {
