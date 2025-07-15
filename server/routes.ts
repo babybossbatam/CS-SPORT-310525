@@ -821,7 +821,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
           },
           {
-              id:```text
+            league: {
               id: 2,
               name: "UEFA Champions League",
               type: "Cup",
@@ -1717,7 +1717,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // New endpoint for square team logos
   apiRouter.get(
-```python
     "/team-logo/square/:teamId",
     async (req: Request, res: Response) => {
       try {
