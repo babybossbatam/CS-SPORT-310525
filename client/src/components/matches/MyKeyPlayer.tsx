@@ -76,19 +76,87 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
       try {
         console.log(`🔍 [MyKeyPlayer] Fetching player statistics for fixture: ${fixtureId}`);
         
+        // Try 365scores API first
+        try {
+          const response365 = await fetch(`/api/365scores/game/${fixtureId}/key-players`);
+          const data365 = await response365.json();
+          
+          if (data365?.success && data365?.keyPlayers && data365.keyPlayers.length > 0) {
+            console.log(`✅ [MyKeyPlayer] Found ${data365.keyPlayers.length} key players from 365scores`);
+            
+            // Transform 365scores data to match our PlayerStats interface
+            const transformedStats: PlayerStats[] = data365.keyPlayers.map((player: any) => ({
+              player: {
+                id: player.playerId,
+                name: player.playerName,
+                photo: player.photo || '/assets/fallback_player.png'
+              },
+              statistics: [{
+                team: {
+                  id: player.teamId,
+                  name: player.teamName
+                },
+                games: {
+                  minutes: player.stats?.minutesPlayed || 90,
+                  position: player.position || 'Unknown'
+                },
+                goals: {
+                  total: player.stats?.goals || 0,
+                  assists: player.stats?.assists || 0
+                },
+                shots: {
+                  total: player.stats?.shots || 0,
+                  on: 0
+                },
+                passes: {
+                  total: player.stats?.passes || 0,
+                  key: 0,
+                  accuracy: 0
+                },
+                tackles: {
+                  total: player.stats?.tackles || 0,
+                  blocks: 0,
+                  interceptions: player.stats?.interceptions || 0
+                },
+                duels: {
+                  total: 0,
+                  won: 0
+                },
+                fouls: {
+                  drawn: 0,
+                  committed: 0
+                }
+              }]
+            }));
+            
+            setPlayerStats(transformedStats);
+            setError(null);
+            return;
+          }
+        } catch (error365) {
+          console.log(`⚠️ [MyKeyPlayer] 365scores API failed, falling back to API-Football`);
+        }
+        
+        // Fallback to API-Football
         const response = await fetch(`/api/fixtures/${fixtureId}/statistics`);
         const data = await response.json();
 
         if (data && Array.isArray(data) && data.length > 0) {
-          // API-Football returns player statistics in a different format
-          // We need to extract individual player stats from the team statistics
+          // API-Football returns team statistics with players array
           const allPlayerStats: PlayerStats[] = [];
           
           data.forEach((teamStat: any) => {
+            console.log(`🔍 [MyKeyPlayer] Processing team: ${teamStat.team?.name}`, teamStat);
+            
             if (teamStat.players && Array.isArray(teamStat.players)) {
+              console.log(`📊 [MyKeyPlayer] Found ${teamStat.players.length} players for ${teamStat.team?.name}`);
               teamStat.players.forEach((playerData: any) => {
-                allPlayerStats.push(playerData);
+                if (playerData && playerData.player && playerData.statistics) {
+                  allPlayerStats.push(playerData);
+                }
               });
+            } else {
+              console.log(`⚠️ [MyKeyPlayer] No players array found for team: ${teamStat.team?.name}`);
             }
           });
 
@@ -96,7 +164,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           setError(null);
           console.log(`✅ [MyKeyPlayer] Loaded ${allPlayerStats.length} player statistics`);
         } else {
-          console.log(`⚠️ [MyKeyPlayer] No player statistics available`);
+          console.log(`⚠️ [MyKeyPlayer] No team statistics data available`);
           setPlayerStats([]);
           setError(null);
         }
