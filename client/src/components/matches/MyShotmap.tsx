@@ -58,7 +58,16 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           console.log(`✅ [MyShotmap] Received ${dynamicShots.length} dynamic shots from shot map API`);
 
           if (dynamicShots.length > 0) {
-            setShotData(dynamicShots);
+            // Enhance shot data with SofaScore information if available
+            const enhancedShots = dynamicShots.map((shot: any) => ({
+              ...shot,
+              player: shot.sofaScorePlayerId ? `Player ${shot.sofaScorePlayerId}` : shot.player,
+              playerPhoto: shot.sofaScorePlayerId 
+                ? `https://imagecache.365scores.com/image/upload/f_png,w_38,h_38,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/v53/Athletes/${shot.sofaScorePlayerId}`
+                : shot.playerPhoto || '/assets/fallback_player.png'
+            }));
+            
+            setShotData(enhancedShots);
             setError(null);
             return;
           }

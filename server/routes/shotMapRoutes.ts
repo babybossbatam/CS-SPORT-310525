@@ -20,6 +20,7 @@ shotMapRouter.get("/fixtures/:fixtureId/shots", async (req: Request, res: Respon
 
     console.log(`🎯 [ShotMapAPI] Fetching shot data for fixture ${fixtureId}`);
     console.log(`🏟️ [ShotMapAPI] Teams: ${homeTeam} vs ${awayTeam}`);
+    console.log(`📅 [ShotMapAPI] Match date: ${matchDate}`);
 
     const shotData = await sofaScoreMappingService.getMappedShotData(
       fixtureId,
@@ -29,6 +30,16 @@ shotMapRouter.get("/fixtures/:fixtureId/shots", async (req: Request, res: Respon
     );
 
     console.log(`✅ [ShotMapAPI] Returning ${shotData.length} shots for fixture ${fixtureId}`);
+    
+    // Log first shot for debugging
+    if (shotData.length > 0) {
+      console.log(`🔍 [ShotMapAPI] Sample shot data:`, {
+        player: shotData[0].player,
+        type: shotData[0].type,
+        sofaScorePlayerId: shotData[0].sofaScorePlayerId,
+        minute: shotData[0].minute
+      });
+    }
     res.json(shotData);
 
   } catch (error) {
