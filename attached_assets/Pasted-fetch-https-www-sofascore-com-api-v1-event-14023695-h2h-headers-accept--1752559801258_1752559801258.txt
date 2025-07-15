@@ -1,0 +1,21 @@
+fetch("https://www.sofascore.com/api/v1/event/14023695/h2h", {
+  "headers": {
+    "accept": "*/*",
+    "accept-language": "en-US,en;q=0.9,id;q=0.8,zh-TW;q=0.7,zh;q=0.6",
+    "baggage": "sentry-environment=production,sentry-release=FrWvcUSIE5GnyGkEcdAlc,sentry-public_key=d693747a6bb242d9bb9cf7069fb57988,sentry-trace_id=38a95907d9a94e50a9113bd9c544e8ef",
+    "cache-control": "max-age=0",
+    "priority": "u=1, i",
+    "sec-ch-ua": "\"Not)A;Brand\";v=\"8\", \"Chromium\";v=\"138\", \"Google Chrome\";v=\"138\"",
+    "sec-ch-ua-mobile": "?0",
+    "sec-ch-ua-platform": "\"Windows\"",
+    "sec-fetch-dest": "empty",
+    "sec-fetch-mode": "cors",
+    "sec-fetch-site": "same-origin",
+    "sentry-trace": "38a95907d9a94e50a9113bd9c544e8ef-b174f53bdd7ca04a",
+    "x-requested-with": "d291c7",
+    "cookie": "_lr_env_src_ats=false; _cc_id=808c3d8a149415c45770540198b8e5f0; _gcl_au=1.1.1388753068.1750210690; gcid_first=cec424f2-4d23-459d-8c43-0d1cf668fe4f; _awl=2.1750409673.5-ceafff248c1f6b3639083979adbe677b-6763652d617369612d6561737431-0; _fbp=fb.1.1752396755840.230283418676994587; hb_insticator_uid=e934f2dd-462e-4e08-bda0-b4b48df4372f; panoramaId=6b87a2a5e20f946e81a436e54e3e185ca02c9c0232244add8f628f21af1adb62; panoramaIdType=panoDevice; _ga=GA1.1.1031206511.1752558385; panoramaId_expiry=1753163184933; cto_bidid=Hegk819UTUFWaklPam11VnJiVDh6MmJvTTIlMkJ0VE8waG5IejNZektxWndzWFNJazc0Q3hCTWdXYndoY2tBNEdHbm50RlI5a0VUJTJCQThwb2ZDMEp6TUZteDJGa3h6REI3VHVFWiUyRjEyeWRRTGRoNkFYbyUzRA; FCNEC=%5B%5B%22AKsRol87Qbo01vHTLZ6yHltHZA_4TKuzJPUT-bM1Da6_BDfvuyL4tdDfWNNu-41pM8WDTR0jLQBWZIn9h6TW555fUMV9HtPTC42VYfudftOBXKhRGMMybNCx6p4N_AXRCmIWkgL09hZMev0XAi-p7Ad_hjC06gYLqw%3D%3D%22%5D%5D; cto_bundle=29FZxl9BQjFNUWtqMjZEMWklMkZIajExOU9zdVRiZUVHSTJ2NUpJM1ZNSGZuOTl2SE9hdnE5NzklMkI0TlBDanhmcnNEZmtoJTJCS1pXbUVaM1JvSHZYV29QRmM3aFVFRFdGckxWVVIzNmNWcHFHM1hYZyUyQml3bnZiYTJMJTJGNlN6OGVyYWVodVZqUWtndXdRWnRBSGVkVFd0WERwQ3lkbFhBJTNEJTNE; __gads=ID=b1303e243758090f:T=1750210688:RT=1752559693:S=ALNI_MaQ0qXAO6P95kby6JHvilp-pG1gSw; __gpi=UID=00001131e06be7d8:T=1750210688:RT=1752559693:S=ALNI_MYr5tCSHCI330J-5kb01Uoz_KhgWQ; __eoi=ID=d3ddbdaffb04efa4:T=1750210688:RT=1752559693:S=AA-AfjbZN33G9RwL7Kp5pdml2UMJ; _ga_HNQ9P9MGZR=GS2.1.s1752558385$o1$g1$t1752559694$j60$l0$h0",
+    "Referer": "https://www.sofascore.com/football/match/kairat-almaty-nk-olimpija-ljubljana/qYsxdc"
+  },
+  "body": null,
+  "method": "GET"
+});
