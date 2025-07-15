@@ -81,11 +81,16 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           const response365 = await fetch(`/api/365scores/game/${fixtureId}/key-players`);
           const data365 = await response365.json();
           
-          if (data365?.success && data365?.keyPlayers && data365.keyPlayers.length > 0) {
-            console.log(`✅ [MyKeyPlayer] Found ${data365.keyPlayers.length} key players from 365scores`);
+          console.log(`🔍 [MyKeyPlayer] 365scores API response:`, data365);
+          
+          // Handle both direct keyPlayers array and success wrapper formats
+          const keyPlayersArray = data365?.keyPlayers || data365?.data?.keyPlayers || (Array.isArray(data365) ? data365 : []);
+          
+          if (keyPlayersArray && keyPlayersArray.length > 0) {
+            console.log(`✅ [MyKeyPlayer] Found ${keyPlayersArray.length} key players from 365scores`);
             
             // Transform 365scores data to match our PlayerStats interface
-            const transformedStats: PlayerStats[] = data365.keyPlayers.map((player: any) => ({
+            const transformedStats: PlayerStats[] = keyPlayersArray.map((player: any) => ({
               player: {
                 id: player.playerId,
                 name: player.playerName,
@@ -129,12 +134,21 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
               }]
             }));
             
+            console.log(`🎯 [MyKeyPlayer] Transformed ${transformedStats.length} players:`, transformedStats);
             setPlayerStats(transformedStats);
             setError(null);
+            setIsLoading(false);
             return;
+          } else {
+            console.log(`⚠️ [MyKeyPlayer] 365scores API returned no valid key players data:`, {
+              success: data365?.success,
+              keyPlayersLength: keyPlayersArray?.length,
+              hasKeyPlayers: !!keyPlayersArray,
+              fullResponse: data365
+            });
           }
         } catch (error365) {
-          console.log(`⚠️ [MyKeyPlayer] 365scores API failed, falling back to API-Football`);
+          console.error(`❌ [MyKeyPlayer] 365scores API failed:`, error365);
         }
         
         // Fallback to API-Football
