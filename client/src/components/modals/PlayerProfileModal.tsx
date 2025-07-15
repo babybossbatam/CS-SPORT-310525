@@ -15,7 +15,6 @@ interface PlayerProfileModalProps {
   playerName?: string;
   teamId?: number;
   playerImage?: string;
-  competitionId?: number;
 }
 
 interface PlayerStats {
@@ -25,35 +24,6 @@ interface PlayerStats {
   position: string;
   rating: number;
   team: string;
-  appearances?: number;
-  yellowCards?: number;
-  redCards?: number;
-  cleanSheets?: number;
-  saves?: number;
-}
-
-interface Athlete365Data {
-  id: number;
-  name: string;
-  position: string;
-  team: string;
-  photo: string;
-  stats: {
-    goals: number;
-    assists: number;
-    appearances: number;
-    minutes: number;
-    rating: number;
-    yellowCards?: number;
-    redCards?: number;
-    cleanSheets?: number;
-    saves?: number;
-  };
-  competitions: Array<{
-    id: number;
-    name: string;
-    stats: any;
-  }>;
 }
 
 const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
@@ -63,148 +33,19 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
   playerName,
   teamId,
   playerImage,
-  competitionId = 104, // Default to a popular competition
 }) => {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
-  const [athlete365Data, setAthlete365Data] = useState<Athlete365Data | null>(null);
-  const [dynamicGameStats, setDynamicGameStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   // Removed heatmapData state - now handled by PlayerHeatMap component
 
   useEffect(() => {
     if (isOpen && playerId) {
       fetchPlayerStats();
-      fetch365ScoresData();
-      fetchDynamic365ScoresStats();
       loadPlayerImage();
     }
-  }, [isOpen, playerId, playerImage, competitionId, teamId]);
+  }, [isOpen, playerId, playerImage]);
 
   // fetchHeatmapData removed - now handled by PlayerHeatMap component
-
-  const fetchDynamic365ScoresStats = async () => {
-    if (!playerId || !teamId) return;
-
-    try {
-      console.log(`🔍 [365Scores Dynamic] Fetching dynamic stats for player ${playerId} with teamId ${teamId}`);
-      
-      // First try to map our fixture ID to 365Scores game ID
-      const mappingResponse = await fetch(`/api/365scores-stats/map-match/${teamId}`);
-      
-      if (mappingResponse.ok) {
-        const mapping = await mappingResponse.json();
-        console.log(`🔍 [365Scores Dynamic] Mapping result:`, mapping);
-        
-        if (mapping.mapped365ScoresId) {
-          // Fetch player stats from the mapped game
-          const statsResponse = await fetch(`/api/365scores-stats/player-stats/${playerId}/${mapping.mapped365ScoresId}`);
-          
-          if (statsResponse.ok) {
-            const dynamicStats = await statsResponse.json();
-            console.log(`✅ [365Scores Dynamic] Received dynamic stats:`, dynamicStats);
-            
-            setDynamicGameStats(dynamicStats);
-            
-            // Update player stats with dynamic data if available
-            if (dynamicStats.gameStats) {
-              setPlayerStats(prevStats => ({
-                ...prevStats,
-                goals: dynamicStats.gameStats.goals || prevStats?.goals || 0,
-                assists: dynamicStats.gameStats.assists || prevStats?.assists || 0,
-                rating: dynamicStats.gameStats.rating || prevStats?.rating || 7.0,
-                // Add more dynamic fields as needed
-              }));
-            }
-          }
-        }
-      }
-    } catch (error) {
-      console.error(`❌ [365Scores Dynamic] Error fetching dynamic stats:`, error);
-    }
-  };
-
-  const fetch365ScoresData = async () => {
-    if (!playerId) return;
-
-    try {
-      console.log(`🔍 [365Scores] Fetching athlete data for player ${playerId}`);
-      
-      // Use Asia/Manila timezone as in your example
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Manila';
-      
-      const response = await fetch(`/api/proxy/365scores-athlete?${new URLSearchParams({
-        playerId: playerId.toString(),
-        competitionId: competitionId.toString(),
-        timezone: timezone
-      })}`);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`✅ [365Scores] Received athlete data:`, data);
-        
-        if (data.athletes && data.athletes.length > 0) {
-          const athlete = data.athletes[0];
-          setAthlete365Data(athlete);
-          
-          // Update player stats with 365Scores data - enhanced mapping
-          const statsData = athlete.seasonStatistics?.[0] || athlete.stats || {};
-          
-          setPlayerStats({
-            goals: statsData.goals || statsData.totalGoals || 0,
-            assists: statsData.assists || statsData.totalAssists || 0,
-            minutes: statsData.minutesPlayed || statsData.minutes || 0,
-            position: athlete.position || 'Unknown',
-            rating: statsData.averageRating || statsData.rating || 7.0,
-            team: athlete.team?.name || athlete.teamName || 'Unknown Team',
-            appearances: statsData.appearances || statsData.matchesPlayed || 0,
-            yellowCards: statsData.yellowCards || 0,
-            redCards: statsData.redCards || 0,
-            cleanSheets: statsData.cleanSheets || 0,
-            saves: statsData.saves || statsData.totalSaves || 0,
-          });
-          
-          console.log(`✅ [365Scores] Updated player stats:`, {
-            goals: statsData.goals || statsData.totalGoals || 0,
-            assists: statsData.assists || statsData.totalAssists || 0,
-            appearances: statsData.appearances || statsData.matchesPlayed || 0,
-            rating: statsData.averageRating || statsData.rating || 7.0
-          });
-        }
-      } else {
-        console.log(`⚠️ [365Scores] Failed to fetch athlete data, status: ${response.status}`);
-        // Set fallback stats based on player position
-        setPlayerStats({
-          goals: Math.floor(Math.random() * 15) + 1,
-          assists: Math.floor(Math.random() * 10),
-          minutes: Math.floor(Math.random() * 2000) + 500,
-          position: 'Forward',
-          rating: (Math.random() * 2 + 7).toFixed(1),
-          team: 'Team',
-          appearances: Math.floor(Math.random() * 30) + 5,
-          yellowCards: Math.floor(Math.random() * 8),
-          redCards: Math.floor(Math.random() * 3),
-          cleanSheets: Math.floor(Math.random() * 10),
-          saves: Math.floor(Math.random() * 50),
-        });
-      }
-    } catch (error) {
-      console.error(`❌ [365Scores] Error fetching athlete data:`, error);
-      // Set fallback stats
-      setPlayerStats({
-        goals: Math.floor(Math.random() * 15) + 1,
-        assists: Math.floor(Math.random() * 10),
-        minutes: Math.floor(Math.random() * 2000) + 500,
-        position: 'Forward',
-        rating: (Math.random() * 2 + 7).toFixed(1),
-        team: 'Team',
-        appearances: Math.floor(Math.random() * 30) + 5,
-        yellowCards: Math.floor(Math.random() * 8),
-        redCards: Math.floor(Math.random() * 3),
-        cleanSheets: Math.floor(Math.random() * 10),
-        saves: Math.floor(Math.random() * 50),
-      });
-    }
-  };
 
   const fetchPlayerStats = async () => {
     setIsLoading(true);
@@ -433,31 +274,24 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
           </Tabs>
         </div>
 
-        {/* Enhanced Player Statistics Section */}
+        {/* Top Stats Section */}
         <div className="px-6 pb-4">
-          <h3 className="font-semibold text-lg mb-4 text-gray-900 flex items-center gap-2">
-            <Target className="w-5 h-5 text-blue-500" />
-            Player Statistics
-            {isLoading && <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>}
-          </h3>
+          <h3 className="font-semibold text-lg mb-3 text-gray-900">Top Stats</h3>
           
-          {/* Primary Stats Row */}
-          <div className="grid grid-cols-4 gap-3 mb-6">
-            <Card className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <Card className="text-center p-4">
               <CardContent className="p-0">
                 <div className="flex flex-col items-center">
-                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mb-2">
-                    <span className="text-white font-bold text-sm">{playerStats?.rating || '7.0'}</span>
+                  <Clock className="w-8 h-8 text-red-500 mb-2" />
+                  <div className="text-2xl font-bold text-gray-900">
+                    {playerStats?.minutes || '90'}'
                   </div>
-                  <div className="text-lg font-bold text-blue-700">
-                    {playerStats?.rating || '7.0'}
-                  </div>
-                  <div className="text-xs text-blue-600">Rating</div>
+                  <div className="text-sm text-gray-600">Min</div>
                 </div>
               </CardContent>
             </Card>
-
-            <Card className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            
+            <Card className="text-center p-4">
               <CardContent className="p-0">
                 <div className="flex flex-col items-center">
                   <img
@@ -465,15 +299,15 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
                     alt="Goals"
                     className="w-8 h-8 mb-2"
                   />
-                  <div className="text-lg font-bold text-green-700">
-                    {playerStats?.goals || '0'}
+                  <div className="text-2xl font-bold text-gray-900">
+                    {playerStats?.goals || '2'}
                   </div>
-                  <div className="text-xs text-green-600">Goals</div>
+                  <div className="text-sm text-gray-600">Goals</div>
                 </div>
               </CardContent>
             </Card>
             
-            <Card className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+            <Card className="text-center p-4">
               <CardContent className="p-0">
                 <div className="flex flex-col items-center">
                   <img
@@ -481,164 +315,28 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
                     alt="Assists"
                     className="w-8 h-8 mb-2"
                   />
-                  <div className="text-lg font-bold text-purple-700">
+                  <div className="text-2xl font-bold text-gray-900">
                     {playerStats?.assists || '0'}
                   </div>
-                  <div className="text-xs text-purple-600">Assists</div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center p-4 bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-              <CardContent className="p-0">
-                <div className="flex flex-col items-center">
-                  <Clock className="w-8 h-8 text-orange-500 mb-2" />
-                  <div className="text-lg font-bold text-orange-700">
-                    {playerStats?.appearances || '0'}
-                  </div>
-                  <div className="text-xs text-orange-600">Apps</div>
+                  <div className="text-sm text-gray-600">Assists</div>
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Secondary Stats Row */}
-          <div className="grid grid-cols-5 gap-2 mb-6">
-            <Card className="text-center p-3">
-              <CardContent className="p-0">
-                <div className="text-sm font-bold text-gray-900">
-                  {Math.floor((playerStats?.minutes || 0) / 90) || '0'}
-                </div>
-                <div className="text-xs text-gray-600">90min</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center p-3">
-              <CardContent className="p-0">
-                <div className="text-sm font-bold text-yellow-600">
-                  {playerStats?.yellowCards || '0'}
-                </div>
-                <div className="text-xs text-gray-600">Yellow</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center p-3">
-              <CardContent className="p-0">
-                <div className="text-sm font-bold text-red-600">
-                  {playerStats?.redCards || '0'}
-                </div>
-                <div className="text-xs text-gray-600">Red</div>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center p-3">
-              <CardContent className="p-0">
-                <div className="text-sm font-bold text-green-600">
-                  {playerStats?.cleanSheets || '0'}
-                </div>
-                <div className="text-xs text-gray-600">Clean</div>
-              </CardContent>
-            </Card>
-
-            <Card className="text-center p-3">
-              <CardContent className="p-0">
-                <div className="text-sm font-bold text-blue-600">
-                  {playerStats?.saves || '0'}
-                </div>
-                <div className="text-xs text-gray-600">Saves</div>
-              </CardContent>
-            </Card>
+          {/* Additional Stats Section */}
+          <div className="bg-white rounded-lg p-4">
+            <h4 className="font-semibold text-gray-900 mb-3">Attacking</h4>
+            <div className="flex justify-between items-center">
+              <span className="text-blue-600 font-medium">{playerName || 'Player'}</span>
+              <button 
+                className="text-gray-600 hover:text-gray-800"
+                onClick={onClose}
+              >
+                Close
+              </button>
+            </div>
           </div>
-
-          {/* Performance Metrics */}
-          {playerStats && (
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <Users className="w-4 h-4 text-gray-600" />
-                Performance Metrics
-              </h4>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Goals per Game</span>
-                  <span className="font-semibold text-gray-900">
-                    {playerStats.appearances ? (playerStats.goals / playerStats.appearances).toFixed(2) : '0.00'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Assists per Game</span>
-                  <span className="font-semibold text-gray-900">
-                    {playerStats.appearances ? (playerStats.assists / playerStats.appearances).toFixed(2) : '0.00'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Minutes per Game</span>
-                  <span className="font-semibold text-gray-900">
-                    {playerStats.appearances ? Math.floor(playerStats.minutes / playerStats.appearances) : '0'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Position</span>
-                  <span className="font-semibold text-gray-900">{playerStats.position}</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Dynamic Game Stats Display */}
-          {dynamicGameStats && (
-            <div className="bg-green-50 rounded-lg p-4 mb-4 border border-green-200">
-              <h4 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
-                Live Match Stats
-              </h4>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="bg-white rounded p-2">
-                  <p className="text-green-600 font-medium">Rating</p>
-                  <p className="text-lg font-bold text-green-800">{dynamicGameStats.gameStats?.rating || 'N/A'}</p>
-                </div>
-                <div className="bg-white rounded p-2">
-                  <p className="text-green-600 font-medium">Minutes</p>
-                  <p className="text-lg font-bold text-green-800">{dynamicGameStats.gameStats?.minutesPlayed || 0}'</p>
-                </div>
-                <div className="bg-white rounded p-2">
-                  <p className="text-green-600 font-medium">Touches</p>
-                  <p className="text-lg font-bold text-green-800">{dynamicGameStats.gameStats?.touches || 0}</p>
-                </div>
-                <div className="bg-white rounded p-2">
-                  <p className="text-green-600 font-medium">Pass Acc.</p>
-                  <p className="text-lg font-bold text-green-800">{dynamicGameStats.gameStats?.passAccuracy || 0}%</p>
-                </div>
-                <div className="bg-white rounded p-2">
-                  <p className="text-green-600 font-medium">Shots</p>
-                  <p className="text-lg font-bold text-green-800">{dynamicGameStats.gameStats?.shots || 0}</p>
-                </div>
-                <div className="bg-white rounded p-2">
-                  <p className="text-green-600 font-medium">Duels Won</p>
-                  <p className="text-lg font-bold text-green-800">{dynamicGameStats.gameStats?.duelsWon || 0}</p>
-                </div>
-              </div>
-              <div className="mt-2 text-xs text-green-600">
-                Game ID: {dynamicGameStats.gameId} • {dynamicGameStats.isStarter ? 'Starter' : 'Substitute'}
-              </div>
-            </div>
-          )}
-
-          {/* 365Scores Data Display */}
-          {athlete365Data && (
-            <div className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-200">
-              <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
-                365Scores Data
-              </h4>
-              <div className="text-sm text-blue-700">
-                <p><strong>Team:</strong> {playerStats?.team}</p>
-                <p><strong>Competition:</strong> {athlete365Data.competitions?.[0]?.name || 'N/A'}</p>
-                {athlete365Data.seasonStatistics?.[0] && (
-                  <p><strong>Season:</strong> Current season statistics loaded</p>
-                )}
-              </div>
-            </div>
-          )}
         </div>
       </DialogContent>
     </Dialog>

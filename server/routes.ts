@@ -28,7 +28,6 @@ import { sofaScoreAPI } from './services/sofascoreApi';
 import highlightsRoutes from './routes/highlightsRoutes';
 import axios from "axios";
 import { simpleRapidApi } from "./services/simpleRapidApi";
-import athlete365Routes from './routes/athlete365Routes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -2682,7 +2681,7 @@ logoUrl, {
         const lineups = await soccersApi.getMatchLineups(id);
         res.json({
           success: true,
-          lineups: lineups,                });
+          lineups: lineups,        });
       } catch (error) {
         console.error("❌ [SoccersAPI] Error fetching match lineups:", error);
         res.status(500).json({
@@ -3190,9 +3189,6 @@ logoUrl, {
       res.status(500).json({ error: 'Failed to fetch SofaScore stats' });
     }
   });
-
-  // Register 365Scores athlete routes
-  app.use('/api/proxy', athlete365Routes);
 
   return httpServer;
 }
