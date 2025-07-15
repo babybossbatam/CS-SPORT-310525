@@ -104,7 +104,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
-  const leagueIds = [38, 15, 2, 71, 3, 848,  22, 72, 73, 75, 128, 233,  667, 253, 850, 893,  531, 921, 886, 493]; // Added UEFA Champions League (2), Brazilian Serie A (71), CONCACAF Gold Cup (22), Serie B (72), Serie C (73), Serie D (75), Copa Argentina (128), Iraqi League (233), UEFA Europa Conference League (848), Friendlies Clubs (667), MLS (253), and additional leagues (850, 893, 3, 531, 921, 886, 493)
+  const leagueIds = [38, 15, 2, 11, 71, 3, 848,  22, 72, 73, 75, 128, 233,  667, 253, 850, 893,  531, 921, 886, 493]; // Added UEFA Champions League (2), CONMEBOL Sudamericana (11), Brazilian Serie A (71), CONCACAF Gold Cup (22), Serie B (72), Serie C (73), Serie D (75), Copa Argentina (128), Iraqi League (233), UEFA Europa Conference League (848), Friendlies Clubs (667), MLS (253), and additional leagues (850, 893, 3, 531, 921, 886, 493)
 
   // Check if a match ended more than 24 hours ago
   const isMatchOldEnded = useCallback((fixture: FixtureData): boolean => {
@@ -1566,7 +1566,7 @@ b.fixture.status.elapsed) || 0;
       {Object.values(matchesByLeague)
         .sort((a, b) => {
           // Define priority order
-          const priorityOrder = [38, 15, 2, 71, 22, 72, 73, 75, 128, 233, 667, 253]; // UEFA U21, FIFA Club World Cup, UEFA Champions League, Serie A, CONCACAF Gold Cup, Serie B, Serie C, Serie D, Copa Argentina, Iraqi League, Friendlies Clubs, MLS
+          const priorityOrder = [38, 15, 2, 11, 71, 22, 72, 73, 75, 128, 233, 667, 253]; // UEFA U21, FIFA Club World Cup, UEFA Champions League, CONMEBOL Sudamericana, Serie A, CONCACAF Gold Cup, Serie B, Serie C, Serie D, Copa Argentina, Iraqi League, Friendlies Clubs, MLS
 
           const aIndex = priorityOrder.indexOf(a.league.id);
           const bIndex = priorityOrder.indexOf(b.league.id);
