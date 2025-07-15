@@ -67,6 +67,7 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
 }) => {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [athlete365Data, setAthlete365Data] = useState<Athlete365Data | null>(null);
+  const [dynamicGameStats, setDynamicGameStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   // Removed heatmapData state - now handled by PlayerHeatMap component
 
@@ -74,11 +75,53 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
     if (isOpen && playerId) {
       fetchPlayerStats();
       fetch365ScoresData();
+      fetchDynamic365ScoresStats();
       loadPlayerImage();
     }
-  }, [isOpen, playerId, playerImage, competitionId]);
+  }, [isOpen, playerId, playerImage, competitionId, teamId]);
 
   // fetchHeatmapData removed - now handled by PlayerHeatMap component
+
+  const fetchDynamic365ScoresStats = async () => {
+    if (!playerId || !teamId) return;
+
+    try {
+      console.log(`🔍 [365Scores Dynamic] Fetching dynamic stats for player ${playerId} with teamId ${teamId}`);
+      
+      // First try to map our fixture ID to 365Scores game ID
+      const mappingResponse = await fetch(`/api/365scores-stats/map-match/${teamId}`);
+      
+      if (mappingResponse.ok) {
+        const mapping = await mappingResponse.json();
+        console.log(`🔍 [365Scores Dynamic] Mapping result:`, mapping);
+        
+        if (mapping.mapped365ScoresId) {
+          // Fetch player stats from the mapped game
+          const statsResponse = await fetch(`/api/365scores-stats/player-stats/${playerId}/${mapping.mapped365ScoresId}`);
+          
+          if (statsResponse.ok) {
+            const dynamicStats = await statsResponse.json();
+            console.log(`✅ [365Scores Dynamic] Received dynamic stats:`, dynamicStats);
+            
+            setDynamicGameStats(dynamicStats);
+            
+            // Update player stats with dynamic data if available
+            if (dynamicStats.gameStats) {
+              setPlayerStats(prevStats => ({
+                ...prevStats,
+                goals: dynamicStats.gameStats.goals || prevStats?.goals || 0,
+                assists: dynamicStats.gameStats.assists || prevStats?.assists || 0,
+                rating: dynamicStats.gameStats.rating || prevStats?.rating || 7.0,
+                // Add more dynamic fields as needed
+              }));
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error(`❌ [365Scores Dynamic] Error fetching dynamic stats:`, error);
+    }
+  };
 
   const fetch365ScoresData = async () => {
     if (!playerId) return;
@@ -537,6 +580,45 @@ const PlayerProfileModal: React.FC<PlayerProfileModalProps> = ({
                   <span className="text-gray-600">Position</span>
                   <span className="font-semibold text-gray-900">{playerStats.position}</span>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Dynamic Game Stats Display */}
+          {dynamicGameStats && (
+            <div className="bg-green-50 rounded-lg p-4 mb-4 border border-green-200">
+              <h4 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
+                <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
+                Live Match Stats
+              </h4>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="bg-white rounded p-2">
+                  <p className="text-green-600 font-medium">Rating</p>
+                  <p className="text-lg font-bold text-green-800">{dynamicGameStats.gameStats?.rating || 'N/A'}</p>
+                </div>
+                <div className="bg-white rounded p-2">
+                  <p className="text-green-600 font-medium">Minutes</p>
+                  <p className="text-lg font-bold text-green-800">{dynamicGameStats.gameStats?.minutesPlayed || 0}'</p>
+                </div>
+                <div className="bg-white rounded p-2">
+                  <p className="text-green-600 font-medium">Touches</p>
+                  <p className="text-lg font-bold text-green-800">{dynamicGameStats.gameStats?.touches || 0}</p>
+                </div>
+                <div className="bg-white rounded p-2">
+                  <p className="text-green-600 font-medium">Pass Acc.</p>
+                  <p className="text-lg font-bold text-green-800">{dynamicGameStats.gameStats?.passAccuracy || 0}%</p>
+                </div>
+                <div className="bg-white rounded p-2">
+                  <p className="text-green-600 font-medium">Shots</p>
+                  <p className="text-lg font-bold text-green-800">{dynamicGameStats.gameStats?.shots || 0}</p>
+                </div>
+                <div className="bg-white rounded p-2">
+                  <p className="text-green-600 font-medium">Duels Won</p>
+                  <p className="text-lg font-bold text-green-800">{dynamicGameStats.gameStats?.duelsWon || 0}</p>
+                </div>
+              </div>
+              <div className="mt-2 text-xs text-green-600">
+                Game ID: {dynamicGameStats.gameId} • {dynamicGameStats.isStarter ? 'Starter' : 'Substitute'}
               </div>
             </div>
           )}
