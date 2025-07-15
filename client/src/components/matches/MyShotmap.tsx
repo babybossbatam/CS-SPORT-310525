@@ -351,14 +351,6 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                     />
                   )}
                 </div>
-
-                {/* Enhanced tooltip */}
-                <div className="absolute top-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30">
-                  <div className="font-medium">{shot.player}</div>
-                  <div className="text-gray-300">{shot.minute}' • {shot.type.charAt(0).toUpperCase() + shot.type.slice(1)}</div>
-                  <div className="text-gray-400">xG: {shot.xG?.toFixed(2) || '0.00'}</div>
-                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
-                </div>
               </div>
             ))}
 
