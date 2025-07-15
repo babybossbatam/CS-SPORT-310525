@@ -10,24 +10,48 @@ interface MyKeyPlayerProps {
   awayTeam?: string;
 }
 
-interface KeyPlayerStats {
-  playerId: number;
-  playerName: string;
-  position: string;
-  teamId: number;
-  teamName: string;
-  stats: {
-    interceptions?: number;
-    clearances?: number;
-    minutesPlayed?: number;
-    tackles?: number;
-    passes?: number;
-    shots?: number;
-    saves?: number;
-    assists?: number;
-    goals?: number;
+interface PlayerStats {
+  player: {
+    id: number;
+    name: string;
+    photo: string;
   };
-  photo?: string;
+  statistics: Array<{
+    team: {
+      id: number;
+      name: string;
+    };
+    games: {
+      minutes: number;
+      position: string;
+    };
+    goals: {
+      total: number;
+      assists: number;
+    };
+    shots: {
+      total: number;
+      on: number;
+    };
+    passes: {
+      total: number;
+      key: number;
+      accuracy: number;
+    };
+    tackles: {
+      total: number;
+      blocks: number;
+      interceptions: number;
+    };
+    duels: {
+      total: number;
+      won: number;
+    };
+    fouls: {
+      drawn: number;
+      committed: number;
+    };
+  }>;
 }
 
 const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
@@ -36,13 +60,13 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
   homeTeam,
   awayTeam,
 }) => {
-  const [keyPlayers, setKeyPlayers] = useState<KeyPlayerStats[]>([]);
+  const [playerStats, setPlayerStats] = useState<PlayerStats[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedPosition, setSelectedPosition] = useState<'Attacker' | 'Midfielder' | 'Defender'>('Attacker');
 
   useEffect(() => {
-    const fetchKeyPlayers = async () => {
+    const fetchPlayerStats = async () => {
       if (!fixtureId) {
         setError("No fixture ID provided");
         setIsLoading(false);
@@ -50,71 +74,99 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
       }
 
       try {
-        console.log(`🔍 [MyKeyPlayer] Fetching key players for fixture: ${fixtureId}`);
+        console.log(`🔍 [MyKeyPlayer] Fetching player statistics for fixture: ${fixtureId}`);
         
-        const response = await fetch(`/api/365scores/game/${fixtureId}/key-players`);
+        const response = await fetch(`/api/fixtures/${fixtureId}/statistics`);
         const data = await response.json();
 
-        if (data.success && data.keyPlayers) {
-          setKeyPlayers(data.keyPlayers);
+        if (data && Array.isArray(data) && data.length > 0) {
+          // API-Football returns player statistics in a different format
+          // We need to extract individual player stats from the team statistics
+          const allPlayerStats: PlayerStats[] = [];
+          
+          data.forEach((teamStat: any) => {
+            if (teamStat.players && Array.isArray(teamStat.players)) {
+              teamStat.players.forEach((playerData: any) => {
+                allPlayerStats.push(playerData);
+              });
+            }
+          });
+
+          setPlayerStats(allPlayerStats);
           setError(null);
-          console.log(`✅ [MyKeyPlayer] Loaded ${data.keyPlayers.length} key players`);
+          console.log(`✅ [MyKeyPlayer] Loaded ${allPlayerStats.length} player statistics`);
         } else {
-          console.log(`⚠️ [MyKeyPlayer] No key players data available`);
-          setKeyPlayers([]);
+          console.log(`⚠️ [MyKeyPlayer] No player statistics available`);
+          setPlayerStats([]);
           setError(null);
         }
       } catch (error) {
-        console.error(`❌ [MyKeyPlayer] Error fetching key players:`, error);
-        setError(error instanceof Error ? error.message : "Failed to fetch key players data");
-        setKeyPlayers([]);
+        console.error(`❌ [MyKeyPlayer] Error fetching player statistics:`, error);
+        setError(error instanceof Error ? error.message : "Failed to fetch player statistics");
+        setPlayerStats([]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchKeyPlayers();
+    fetchPlayerStats();
   }, [fixtureId]);
 
   const getTopPlayersByPosition = (position: string) => {
-    const filtered = keyPlayers.filter(player => {
-      const playerPosition = player.position.toLowerCase();
+    const filtered = playerStats.filter(playerStat => {
+      const playerPosition = playerStat.statistics[0]?.games?.position?.toLowerCase() || '';
       const targetPosition = position.toLowerCase();
       
       if (targetPosition === 'attacker') {
-        return playerPosition.includes('forward') || playerPosition.includes('striker') || playerPosition.includes('winger');
+        return playerPosition.includes('forward') || playerPosition.includes('striker') || playerPosition.includes('winger') || playerPosition.includes('cf') || playerPosition.includes('lw') || playerPosition.includes('rw');
       } else if (targetPosition === 'midfielder') {
-        return playerPosition.includes('midfield') || playerPosition.includes('central') || playerPosition.includes('attacking midfielder') || playerPosition.includes('defensive midfielder');
+        return playerPosition.includes('midfield') || playerPosition.includes('cm') || playerPosition.includes('am') || playerPosition.includes('dm') || playerPosition.includes('cam') || playerPosition.includes('cdm');
       } else if (targetPosition === 'defender') {
-        return playerPosition.includes('defender') || playerPosition.includes('back') || playerPosition.includes('centre-back') || playerPosition.includes('fullback');
+        return playerPosition.includes('defender') || playerPosition.includes('back') || playerPosition.includes('cb') || playerPosition.includes('lb') || playerPosition.includes('rb') || playerPosition.includes('wb');
       }
       return false;
     });
 
     // Sort by key stats based on position
     return filtered.sort((a, b) => {
+      const aStats = a.statistics[0];
+      const bStats = b.statistics[0];
+      
       if (position === 'Attacker') {
-        return (b.stats.goals || 0) + (b.stats.shots || 0) - ((a.stats.goals || 0) + (a.stats.shots || 0));
+        const aScore = (aStats?.goals?.total || 0) + (aStats?.shots?.total || 0) * 0.1;
+        const bScore = (bStats?.goals?.total || 0) + (bStats?.shots?.total || 0) * 0.1;
+        return bScore - aScore;
       } else if (position === 'Midfielder') {
-        return (b.stats.passes || 0) + (b.stats.assists || 0) - ((a.stats.passes || 0) + (a.stats.assists || 0));
+        const aScore = (aStats?.passes?.total || 0) * 0.01 + (aStats?.goals?.assists || 0) * 2;
+        const bScore = (bStats?.passes?.total || 0) * 0.01 + (bStats?.goals?.assists || 0) * 2;
+        return bScore - aScore;
       } else {
-        return (b.stats.interceptions || 0) + (b.stats.clearances || 0) - ((a.stats.interceptions || 0) + (a.stats.clearances || 0));
+        const aScore = (aStats?.tackles?.total || 0) + (aStats?.tackles?.interceptions || 0) + (aStats?.tackles?.blocks || 0);
+        const bScore = (bStats?.tackles?.total || 0) + (bStats?.tackles?.interceptions || 0) + (bStats?.tackles?.blocks || 0);
+        return bScore - aScore;
       }
     }).slice(0, 2); // Top 2 players per position
   };
 
-  const getKeyStatsForPosition = (position: string) => {
+  const getKeyStatsForPosition = (position: string, playerStats: any) => {
+    const stats = playerStats.statistics[0];
+    
     if (position === 'Attacker') {
-      return ['goals', 'shots'];
+      return {
+        stat1: { label: 'Goals', value: stats?.goals?.total || 0 },
+        stat2: { label: 'Shots', value: stats?.shots?.total || 0 }
+      };
     } else if (position === 'Midfielder') {
-      return ['passes', 'assists'];
+      return {
+        stat1: { label: 'Passes', value: stats?.passes?.total || 0 },
+        stat2: { label: 'Assists', value: stats?.goals?.assists || 0 }
+      };
     } else {
-      return ['interceptions', 'clearances'];
+      return {
+        stat1: { label: 'Tackles', value: stats?.tackles?.total || 0 },
+        stat2: { label: 'Interceptions', value: stats?.tackles?.interceptions || 0 }
+      };
     }
-  };
-
-  const formatStatValue = (value: number | undefined): string => {
-    return value !== undefined ? value.toString() : '0';
   };
 
   if (isLoading) {
@@ -135,7 +187,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
     );
   }
 
-  if (error || keyPlayers.length === 0) {
+  if (error || playerStats.length === 0) {
     return (
       <Card className="w-full">
         <CardHeader>
@@ -145,7 +197,7 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           <div className="flex items-center justify-center p-8">
             <div className="text-center text-gray-500">
               <p>Key players data not available</p>
-              <p className="text-sm">This feature will be available soon</p>
+              <p className="text-sm">Player statistics will load after the match</p>
             </div>
           </div>
         </CardContent>
@@ -154,7 +206,6 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
   }
 
   const topPlayers = getTopPlayersByPosition(selectedPosition);
-  const keyStats = getKeyStatsForPosition(selectedPosition);
 
   return (
     <Card className="w-full">
@@ -182,87 +233,103 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
         {/* Key players comparison */}
         {topPlayers.length >= 2 ? (
           <div className="flex items-center justify-between">
-            {/* Home team player (left) */}
+            {/* Player 1 (left) */}
             <div className="flex flex-col items-center flex-1">
               <Avatar className="w-16 h-16 mb-3 border-2 border-gray-300">
                 <AvatarImage 
-                  src={topPlayers[0]?.photo} 
-                  alt={topPlayers[0]?.playerName}
+                  src={topPlayers[0]?.player?.photo} 
+                  alt={topPlayers[0]?.player?.name}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = '/assets/fallback_player.png';
                   }}
                 />
                 <AvatarFallback className="text-lg font-semibold">
-                  {topPlayers[0]?.playerName?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P'}
+                  {topPlayers[0]?.player?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P'}
                 </AvatarFallback>
               </Avatar>
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {topPlayers[0]?.playerName}
+                  {topPlayers[0]?.player?.name}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {topPlayers[0]?.position}
+                  {topPlayers[0]?.statistics[0]?.games?.position || 'Unknown'}
                 </div>
               </div>
             </div>
 
             {/* Stats comparison in the middle */}
             <div className="flex flex-col items-center mx-6 min-w-[120px]">
-              {keyStats.map((statKey, index) => (
-                <div key={statKey} className="flex items-center justify-between w-full mb-2">
-                  <span className="text-lg font-semibold text-gray-900 w-8 text-center">
-                    {formatStatValue(topPlayers[0]?.stats[statKey as keyof typeof topPlayers[0]['stats']] as number)}
-                  </span>
-                  <div className="flex flex-col items-center mx-3">
-                    <span className="text-xs text-gray-500 capitalize">
-                      {statKey === 'goals' ? 'Goals' : 
-                       statKey === 'shots' ? 'Shots' :
-                       statKey === 'passes' ? 'Passes' :
-                       statKey === 'assists' ? 'Assists' :
-                       statKey === 'interceptions' ? 'Interceptions' :
-                       statKey === 'clearances' ? 'Clearances' : statKey}
-                    </span>
-                  </div>
-                  <span className="text-lg font-semibold text-gray-900 w-8 text-center">
-                    {formatStatValue(topPlayers[1]?.stats[statKey as keyof typeof topPlayers[1]['stats']] as number)}
-                  </span>
-                </div>
-              ))}
-              
-              {/* Minutes played */}
-              <div className="flex items-center justify-between w-full mt-2 pt-2 border-t">
-                <span className="text-sm text-gray-600 w-8 text-center">
-                  {formatStatValue(topPlayers[0]?.stats.minutesPlayed)}
-                </span>
-                <span className="text-xs text-gray-500 mx-3">Min</span>
-                <span className="text-sm text-gray-600 w-8 text-center">
-                  {formatStatValue(topPlayers[1]?.stats.minutesPlayed)}
-                </span>
-              </div>
+              {(() => {
+                const player1Stats = getKeyStatsForPosition(selectedPosition, topPlayers[0]);
+                const player2Stats = getKeyStatsForPosition(selectedPosition, topPlayers[1]);
+                
+                return (
+                  <>
+                    <div className="flex items-center justify-between w-full mb-2">
+                      <span className="text-lg font-semibold text-gray-900 w-8 text-center">
+                        {player1Stats.stat1.value}
+                      </span>
+                      <div className="flex flex-col items-center mx-3">
+                        <span className="text-xs text-gray-500">
+                          {player1Stats.stat1.label}
+                        </span>
+                      </div>
+                      <span className="text-lg font-semibold text-gray-900 w-8 text-center">
+                        {player2Stats.stat1.value}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center justify-between w-full mb-2">
+                      <span className="text-lg font-semibold text-gray-900 w-8 text-center">
+                        {player1Stats.stat2.value}
+                      </span>
+                      <div className="flex flex-col items-center mx-3">
+                        <span className="text-xs text-gray-500">
+                          {player1Stats.stat2.label}
+                        </span>
+                      </div>
+                      <span className="text-lg font-semibold text-gray-900 w-8 text-center">
+                        {player2Stats.stat2.value}
+                      </span>
+                    </div>
+                    
+                    {/* Minutes played */}
+                    <div className="flex items-center justify-between w-full mt-2 pt-2 border-t">
+                      <span className="text-sm text-gray-600 w-8 text-center">
+                        {topPlayers[0]?.statistics[0]?.games?.minutes || 0}
+                      </span>
+                      <span className="text-xs text-gray-500 mx-3">Min</span>
+                      <span className="text-sm text-gray-600 w-8 text-center">
+                        {topPlayers[1]?.statistics[0]?.games?.minutes || 0}
+                      </span>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
-            {/* Away team player (right) */}
+            {/* Player 2 (right) */}
             <div className="flex flex-col items-center flex-1">
               <Avatar className="w-16 h-16 mb-3 border-2 border-gray-300">
                 <AvatarImage 
-                  src={topPlayers[1]?.photo} 
-                  alt={topPlayers[1]?.playerName}
+                  src={topPlayers[1]?.player?.photo} 
+                  alt={topPlayers[1]?.player?.name}
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.src = '/assets/fallback_player.png';
                   }}
                 />
                 <AvatarFallback className="text-lg font-semibold">
-                  {topPlayers[1]?.playerName?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P'}
+                  {topPlayers[1]?.player?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'P'}
                 </AvatarFallback>
               </Avatar>
               <div className="text-center">
                 <div className="font-medium text-gray-900 text-sm mb-1">
-                  {topPlayers[1]?.playerName}
+                  {topPlayers[1]?.player?.name}
                 </div>
                 <div className="text-xs text-gray-500">
-                  {topPlayers[1]?.position}
+                  {topPlayers[1]?.statistics[0]?.games?.position || 'Unknown'}
                 </div>
               </div>
             </div>

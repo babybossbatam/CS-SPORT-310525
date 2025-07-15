@@ -2930,7 +2930,7 @@ logoUrl, {
     }
   });
 
-   // Get fixture statistics
+   // Get fixture statistics (including player statistics)
   apiRouter.get('/fixtures/:id/statistics', async (req, res) => {
     try {
       const fixtureId = parseInt(req.params.id);
