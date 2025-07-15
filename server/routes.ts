@@ -28,7 +28,6 @@ import { sofaScoreAPI } from './services/sofascoreApi';
 import highlightsRoutes from './routes/highlightsRoutes';
 import axios from "axios";
 import { simpleRapidApi } from "./services/simpleRapidApi";
-import shotMapRouter from './routes/shotMapRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -2137,7 +2136,7 @@ logoUrl, {
               ? {
                   status: sportsRadarData.status,
                   homeTeam: sportsRadarData.home_team?.name,
-                  away_score: sportsRadarData.away_score,
+                  awayTeam: sportsRadarData.away_score,
                   date: sportsRadarData.scheduled,
                   elapsed: sportsRadarData.clock?.minute,
                   league: sportsRadarData.tournament?.name,
@@ -3190,9 +3189,6 @@ logoUrl, {
       res.status(500).json({ error: 'Failed to fetch SofaScore stats' });
     }
   });
-
-  // Shot map routes
-  app.use('/api/shot-map', shotMapRouter);
 
   return httpServer;
 }

@@ -225,34 +225,6 @@ class SofaScoreAPI {
       return null;
     }
   }
-
-  // Method to get player name by ID
-  async getPlayerName(playerId: number): Promise<string | null> {
-    try {
-      console.log(`🔍 [SofaScore] Fetching player name for ID: ${playerId}`);
-      
-      const playerUrl = `${this.baseUrl}/players/get-info`;
-      const response = await axios.get(playerUrl, { 
-        params: {
-          playerId: playerId
-        },
-        headers: this.headers, 
-        timeout: 5000,
-        validateStatus: (status) => status < 500
-      });
-
-      if (response.status === 200 && response.data) {
-        const playerName = response.data.player?.name || response.data.name;
-        console.log(`✅ [SofaScore] Found player name: ${playerName} for ID ${playerId}`);
-        return playerName;
-      }
-      
-      return null;
-    } catch (error) {
-      console.error(`❌ [SofaScore] Error fetching player name for ID ${playerId}:`, error);
-      return null;
-    }
-  }
 }
 
 export const sofaScoreAPI = new SofaScoreAPI();

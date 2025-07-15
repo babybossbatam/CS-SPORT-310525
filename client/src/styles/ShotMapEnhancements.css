@@ -1,3 +1,4 @@
+
 /* 365Scores-inspired Shot Map Enhancements */
 
 /* Animated field drawing effects */
@@ -42,101 +43,71 @@
 
 /* Enhanced shot markers */
 .shot-mark-enhanced {
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  border: 2px solid white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  position: absolute;
+  opacity: 0.7;
   cursor: pointer;
-  position: relative;
-  z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 350ms ease-in-out;
+  z-index: 3;
 }
 
 .shot-mark-enhanced.goal {
-  background-color: #22c55e;
-  box-shadow: 0 0 12px rgba(34, 197, 94, 0.8), 0 2px 8px rgba(0, 0, 0, 0.2);
-  border-color: #16a34a;
+  background-color: #10B981;
+  border: 1px solid #059669;
 }
 
 .shot-mark-enhanced.saved {
-  background-color: #f59e0b;
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.8), 0 2px 8px rgba(0, 0, 0, 0.2);
-  border-color: #d97706;
+  background-color: #F59E0B;
+  border: 1px solid #D97706;
 }
 
 .shot-mark-enhanced.blocked {
-  background-color: #ef4444;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.8), 0 2px 8px rgba(0, 0, 0, 0.2);
-  border-color: #dc2626;
+  background-color: #EF4444;
+  border: 1px solid #DC2626;
 }
 
 .shot-mark-enhanced.missed {
-  background-color: #6b7280;
-  box-shadow: 0 0 12px rgba(107, 114, 128, 0.8), 0 2px 8px rgba(0, 0, 0, 0.2);
-  border-color: #4b5563;
-}
-
-.shot-mark-enhanced.shot {
-  background-color: #3b82f6;
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.8), 0 2px 8px rgba(0, 0, 0, 0.2);
-  border-color: #2563eb;
+  background-color: transparent;
+  border: 1px solid #6B7280;
 }
 
 .shot-mark-enhanced.active {
-  transform: scale(1.4);
-  z-index: 20;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 30px currentColor;
-  border-width: 3px;
+  opacity: 1;
+  transform: scale(1.2);
+  z-index: 10;
 }
 
-.shot-mark-enhanced:hover {
-  transform: scale(1.25);
-  z-index: 15;
-  border-width: 3px;
-}
-
-/* Shot type indicators inside markers */
-.shot-mark-enhanced::before {
-  content: '';
+.shot-mark-enhanced.active::after {
+  content: "";
   position: absolute;
-  width: 6px;
-  height: 6px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid #4F46E5;
+  background: transparent;
+  animation: pulse 1.5s infinite;
 }
 
-.shot-mark-enhanced.goal::before {
-  content: '⚽';
-  font-size: 8px;
-  background: none;
-  width: auto;
-  height: auto;
-}
-
-.shot-mark-enhanced.saved::before {
-  background-color: rgba(255, 255, 255, 0.9);
-}
-
-.shot-mark-enhanced.blocked::before {
-  content: '🚫';
-  font-size: 6px;
-  background: none;
-  width: auto;
-  height: auto;
-}
-
-.shot-mark-enhanced.missed::before {
-  content: '✕';
-  font-size: 8px;
-  background: none;
-  width: auto;
-  height: auto;
-  color: white;
-  font-weight: bold;
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Goal frame enhancements */
@@ -303,20 +274,20 @@
     width: 10px;
     height: 10px;
   }
-
+  
   .shot-mark-enhanced.active::after {
     width: 14px;
     height: 14px;
   }
-
+  
   .event-detail-card {
     min-width: 60px;
   }
-
+  
   .event-card-main {
     font-size: 11px;
   }
-
+  
   .event-card-sub {
     font-size: 9px;
   }
