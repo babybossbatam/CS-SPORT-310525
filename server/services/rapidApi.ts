@@ -164,24 +164,27 @@ export const rapidApiService = {
   /**
    * Get player statistics for a specific player, team, and season
    */
-  async getPlayerStatistics(playerId: number, teamId?: number, season: number = 2024): Promise<any> {
-    const cacheKey = `player-stats-${playerId}-${teamId || 'all'}-${season}`;
+  async getPlayerStatistics(playerId?: number, teamId?: number, season: number = 2024): Promise<any> {
+    const cacheKey = `player-stats-${playerId || 'team'}-${teamId || 'all'}-${season}`;
     const cached = playersCache.get(cacheKey);
 
     const now = Date.now();
     // Use longer cache duration for player stats (4 hours)
     if (cached && now - cached.timestamp < 4 * 60 * 60 * 1000) {
-      console.log(`📦 [RapidAPI] Using cached player statistics for player ${playerId}`);
+      console.log(`📦 [RapidAPI] Using cached player statistics for ${playerId ? `player ${playerId}` : `team ${teamId}`}`);
       return cached.data;
     }
 
     try {
-      console.log(`📊 [RapidAPI] Fetching player statistics for player ${playerId}, team ${teamId}, season ${season}`);
+      console.log(`📊 [RapidAPI] Fetching player statistics for ${playerId ? `player ${playerId}` : `team ${teamId}`}, season ${season}`);
 
       const params: any = {
-        id: playerId,
         season: season
       };
+      
+      if (playerId) {
+        params.id = playerId;
+      }
       
       if (teamId) {
         params.team = teamId;
@@ -199,14 +202,14 @@ export const rapidApiService = {
           data: playerData,
           timestamp: now,
         });
-        console.log(`✅ [RapidAPI] Successfully cached player statistics for player ${playerId}`);
+        console.log(`✅ [RapidAPI] Successfully cached player statistics for ${playerId ? `player ${playerId}` : `team ${teamId}`}`);
         return playerData;
       }
 
-      console.log(`❌ [RapidAPI] No statistics data for player ${playerId}, team ${teamId}, season ${season}`);
+      console.log(`❌ [RapidAPI] No statistics data for ${playerId ? `player ${playerId}` : `team ${teamId}`}, season ${season}`);
       return null;
     } catch (error) {
-      console.error(`❌ [RapidAPI] Error fetching player statistics for player ${playerId}:`, error);
+      console.error(`❌ [RapidAPI] Error fetching player statistics for ${playerId ? `player ${playerId}` : `team ${teamId}`}:`, error);
       if (cached?.data) {
         console.log("Using cached data due to API error");
         return cached.data;

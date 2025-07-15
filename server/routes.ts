@@ -31,6 +31,7 @@ import { simpleRapidApi } from "./services/simpleRapidApi";
 import athlete365Routes from './routes/athlete365Routes';
 import { scores365StatsRoutes } from './routes/365scoresStatsRoutes';
 import keyPlayersRoutes from './routes/365scoresKeyPlayersRoutes';
+import playersRoutes from './routes/playersRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -820,7 +821,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
           },
           {
-            league: {
+            league:```text
+{
               id: 2,
               name: "UEFA Champions League",
               type: "Cup",
@@ -1717,7 +1719,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // New endpoint for square team logos
   apiRouter.get(
     "/team-logo/square/:teamId",
-```text
     async (req: Request, res: Response) => {
       try {
         const { teamId } = req.params;
@@ -3199,6 +3200,15 @@ logoUrl, {
 
   // Register 365scores key players routes
   app.use('/api/365scores', keyPlayersRoutes);
+
+  // Use routers
+  app.use('/api', featuredMatchRoutes);
+  app.use('/api', highlightsRoutes);
+  app.use('/api', playerDataRoutes);
+  app.use('/api', playerRoutes);
+  app.use('/api', playersRoutes);
+  app.use('/api', youtubeRoutes);
+  app.use('/api', uefaU21Routes);
 
   return httpServer;
 }

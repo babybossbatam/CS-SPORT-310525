@@ -82,14 +82,9 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
           const data365 = await response365.json();
           
           console.log(`🔍 [MyKeyPlayer] 365scores API response:`, data365);
-          console.log(`🔍 [MyKeyPlayer] Response keys:`, Object.keys(data365 || {}));
-          console.log(`🔍 [MyKeyPlayer] Response structure:`, JSON.stringify(data365, null, 2));
           
           // Handle both direct keyPlayers array and success wrapper formats
           const keyPlayersArray = data365?.keyPlayers || data365?.data?.keyPlayers || (Array.isArray(data365) ? data365 : []);
-          
-          console.log(`🔍 [MyKeyPlayer] Extracted keyPlayersArray:`, keyPlayersArray);
-          console.log(`🔍 [MyKeyPlayer] KeyPlayers array length:`, keyPlayersArray?.length);
           
           if (keyPlayersArray && keyPlayersArray.length > 0) {
             console.log(`✅ [MyKeyPlayer] Found ${keyPlayersArray.length} key players from 365scores`);
@@ -97,8 +92,8 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
             // Transform 365scores data to match our PlayerStats interface
             const transformedStats: PlayerStats[] = keyPlayersArray.map((player: any) => ({
               player: {
-                id: player.playerId,
-                name: player.playerName,
+                id: player.playerId || player.id,
+                name: player.playerName || player.name,
                 photo: player.photo || '/assets/fallback_player.png'
               },
               statistics: [{
@@ -116,76 +111,126 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
                 },
                 shots: {
                   total: player.stats?.shots || 0,
-                  on: 0
+                  on: player.stats?.shotsOnTarget || 0
                 },
                 passes: {
                   total: player.stats?.passes || 0,
-                  key: 0,
-                  accuracy: 0
+                  key: player.stats?.keyPasses || 0,
+                  accuracy: player.stats?.passAccuracy || 0
                 },
                 tackles: {
                   total: player.stats?.tackles || 0,
-                  blocks: 0,
+                  blocks: player.stats?.blocks || 0,
                   interceptions: player.stats?.interceptions || 0
                 },
                 duels: {
-                  total: 0,
-                  won: 0
+                  total: player.stats?.duels || 0,
+                  won: player.stats?.duelsWon || 0
                 },
                 fouls: {
-                  drawn: 0,
-                  committed: 0
+                  drawn: player.stats?.foulsDrawn || 0,
+                  committed: player.stats?.foulsCommitted || 0
                 }
               }]
             }));
             
-            console.log(`🎯 [MyKeyPlayer] Transformed ${transformedStats.length} players:`, transformedStats);
+            console.log(`🎯 [MyKeyPlayer] Transformed ${transformedStats.length} players from 365scores`);
             setPlayerStats(transformedStats);
             setError(null);
             setIsLoading(false);
             return;
-          } else {
-            console.log(`⚠️ [MyKeyPlayer] 365scores API returned no valid key players data:`, {
-              success: data365?.success,
-              keyPlayersLength: keyPlayersArray?.length,
-              hasKeyPlayers: !!keyPlayersArray,
-              fullResponse: data365
-            });
           }
         } catch (error365) {
           console.error(`❌ [MyKeyPlayer] 365scores API failed:`, error365);
         }
         
-        // Fallback to API-Football
+        // Fallback to API-Football statistics endpoint
+        console.log(`🔄 [MyKeyPlayer] Trying API-Football statistics endpoint`);
         const response = await fetch(`/api/fixtures/${fixtureId}/statistics`);
         const data = await response.json();
 
+        console.log(`🔍 [MyKeyPlayer] API-Football statistics response:`, data);
+
         if (data && Array.isArray(data) && data.length > 0) {
-          // API-Football returns team statistics with players array
           const allPlayerStats: PlayerStats[] = [];
           
           data.forEach((teamStat: any) => {
-            console.log(`🔍 [MyKeyPlayer] Processing team: ${teamStat.team?.name}`, teamStat);
+            console.log(`🔍 [MyKeyPlayer] Processing team: ${teamStat.team?.name}`, {
+              playersCount: teamStat.players?.length,
+              hasPlayers: !!teamStat.players
+            });
             
             if (teamStat.players && Array.isArray(teamStat.players)) {
-              console.log(`📊 [MyKeyPlayer] Found ${teamStat.players.length} players for ${teamStat.team?.name}`);
               teamStat.players.forEach((playerData: any) => {
                 if (playerData && playerData.player && playerData.statistics) {
+                  console.log(`📊 [MyKeyPlayer] Adding player: ${playerData.player.name}`, playerData);
                   allPlayerStats.push(playerData);
                 }
               });
-            } else {
-              console.log(`⚠️ [MyKeyPlayer] No players array found for team: ${teamStat.team?.name}`);
             }
           });
 
+          console.log(`✅ [MyKeyPlayer] Loaded ${allPlayerStats.length} player statistics from API-Football`);
           setPlayerStats(allPlayerStats);
           setError(null);
-          console.log(`✅ [MyKeyPlayer] Loaded ${allPlayerStats.length} player statistics`);
         } else {
-          console.log(`⚠️ [MyKeyPlayer] No team statistics data available`);
-          setPlayerStats([]);
-          setError(null);
+          // If no statistics, try direct players endpoint for teams in this fixture
+          console.log(`🔄 [MyKeyPlayer] No statistics found, trying players endpoint approach`);
+          
+          // Get fixture details first to get team IDs
+          const fixtureResponse = await fetch(`/api/fixtures/${fixtureId}`);
+          const fixtureData = await fixtureResponse.json();
+          
+          if (fixtureData && fixtureData.teams) {
+            const homeTeamId = fixtureData.teams.home.id;
+            const awayTeamId = fixtureData.teams.away.id;
+            const season = new Date().getFullYear();
+            
+            console.log(`🔍 [MyKeyPlayer] Fetching players for teams: ${homeTeamId}, ${awayTeamId}, season: ${season}`);
+            
+            const [homePlayersResp, awayPlayersResp] = await Promise.all([
+              fetch(`/api/players?team=${homeTeamId}&season=${season}`),
+              fetch(`/api/players?team=${awayTeamId}&season=${season}`)
+            ]);
+            
+            const [homePlayersData, awayPlayersData] = await Promise.all([
+              homePlayersResp.json(),
+              awayPlayersResp.json()
+            ]);
+            
+            console.log(`🔍 [MyKeyPlayer] Players data:`, {
+              homePlayers: homePlayersData?.response?.length || 0,
+              awayPlayers: awayPlayersData?.response?.length || 0
+            });
+            
+            const allPlayers: PlayerStats[] = [];
+            
+            // Process home team players
+            if (homePlayersData?.response) {
+              homePlayersData.response.slice(0, 5).forEach((playerData: any) => {
+                if (playerData.player && playerData.statistics?.[0]) {
+                  allPlayers.push(playerData);
+                }
+              });
+            }
+            
+            // Process away team players
+            if (awayPlayersData?.response) {
+              awayPlayersData.response.slice(0, 5).forEach((playerData: any) => {
+                if (playerData.player && playerData.statistics?.[0]) {
+                  allPlayers.push(playerData);
+                }
+              });
+            }
+            
+            console.log(`✅ [MyKeyPlayer] Loaded ${allPlayers.length} players from team rosters`);
+            setPlayerStats(allPlayers);
+            setError(null);
+          } else {
+            console.log(`⚠️ [MyKeyPlayer] No fixture data available for team lookup`);
+            setPlayerStats([]);
+            setError(null);
+          }
         }
       } catch (error) {
         console.error(`❌ [MyKeyPlayer] Error fetching player statistics:`, error);
