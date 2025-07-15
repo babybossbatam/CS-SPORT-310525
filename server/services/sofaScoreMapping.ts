@@ -344,13 +344,17 @@ class SofaScoreMappingService {
   // Get comprehensive shot data for a match
   async getMappedShotData(fixtureId: string, homeTeam: string, awayTeam: string, matchDate?: string): Promise<MappedShotData[]> {
     try {
-      console.log(`🎯 [SofaScoreMapping] Getting mapped shot data for fixture ${fixtureId}`);
+      console.log(`🎯 [SofaScoreMapping] Getting mapped shot data for fixture ${fixtureId}: ${homeTeam} vs ${awayTeam}`);
 
       // First map the match ID
       const sofaScoreEventId = await this.mapMatchId(fixtureId, homeTeam, awayTeam, matchDate);
 
       if (!sofaScoreEventId) {
-        console.log(`⚠️ [SofaScoreMapping] No SofaScore event ID found for fixture ${fixtureId}`);
+        console.log(`⚠️ [SofaScoreMapping] No SofaScore event ID found for fixture ${fixtureId} (${homeTeam} vs ${awayTeam})`);
+        console.log(`🔍 [SofaScoreMapping] This could mean:`);
+        console.log(`   - The match is not available in SofaScore`);
+        console.log(`   - Team names don't match between API-Football and SofaScore`);
+        console.log(`   - The match date doesn't align`);
         return [];
       }
 

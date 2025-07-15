@@ -49,13 +49,22 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
         console.log(`⚽ [MyShotmap] Fetching dynamic shot data for fixture: ${fixtureId}`);
 
         // First try to get shot data from our new shot map API
-        const shotMapResponse = await fetch(
-          `/api/shot-map/fixtures/${fixtureId}/shots?homeTeam=${encodeURIComponent(homeTeam || '')}&awayTeam=${encodeURIComponent(awayTeam || '')}&matchDate=${new Date().toISOString()}`
-        );
+        const shotMapUrl = `/api/shot-map/fixtures/${fixtureId}/shots?homeTeam=${encodeURIComponent(homeTeam || '')}&awayTeam=${encodeURIComponent(awayTeam || '')}&matchDate=${new Date().toISOString()}`;
+        console.log(`🎯 [MyShotmap] Calling shot map API: ${shotMapUrl}`);
+        
+        const shotMapResponse = await fetch(shotMapUrl);
 
         if (shotMapResponse.ok) {
           const dynamicShots = await shotMapResponse.json();
           console.log(`✅ [MyShotmap] Received ${dynamicShots.length} dynamic shots from shot map API`);
+          
+          if (dynamicShots.length === 0) {
+            console.log(`⚠️ [MyShotmap] SofaScore mapping returned no shots. This could mean:`);
+            console.log(`   - Match not found in SofaScore: ${homeTeam} vs ${awayTeam}`);
+            console.log(`   - Team names need better normalization`);
+            console.log(`   - Match date mismatch`);
+            console.log(`   - No shot data available for this match in SofaScore`);
+          }
 
           if (dynamicShots.length > 0) {
             // Use real player names from API data, don't override with generic names
