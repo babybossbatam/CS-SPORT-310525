@@ -29,7 +29,7 @@ import highlightsRoutes from './routes/highlightsRoutes';
 import axios from "axios";
 import { simpleRapidApi } from "./services/simpleRapidApi";
 import athlete365Routes from './routes/athlete365Routes';
-import { scores365StatsRoutes } from './routes/365scoresStatsRoutes';
+import scores365StatsRoutes from './routes/365scoresStatsRoutes';
 import keyPlayersRoutes from './routes/365scoresKeyPlayersRoutes';
 import playersRoutes from './routes/playersRoutes';
 
