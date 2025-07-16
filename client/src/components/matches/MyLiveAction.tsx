@@ -708,40 +708,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
         {/* Professional Football Field with Enhanced Graphics */}
         <div className="relative h-96 overflow-hidden" style={{
-          background: `
-            linear-gradient(90deg, 
-              rgba(76, 125, 45, 0.95) 0%, 
-              rgba(95, 145, 65, 0.98) 4.16%, 
-              rgba(76, 125, 45, 0.95) 8.33%, 
-              rgba(95, 145, 65, 0.98) 12.5%, 
-              rgba(76, 125, 45, 0.95) 16.66%, 
-              rgba(95, 145, 65, 0.98) 20.83%, 
-              rgba(76, 125, 45, 0.95) 25%, 
-              rgba(95, 145, 65, 0.98) 29.16%, 
-              rgba(76, 125, 45, 0.95) 33.33%, 
-              rgba(95, 145, 65, 0.98) 37.5%, 
-              rgba(76, 125, 45, 0.95) 41.66%, 
-              rgba(95, 145, 65, 0.98) 45.83%, 
-              rgba(76, 125, 45, 0.95) 50%, 
-              rgba(95, 145, 65, 0.98) 54.16%, 
-              rgba(76, 125, 45, 0.95) 58.33%, 
-              rgba(95, 145, 65, 0.98) 62.5%, 
-              rgba(76, 125, 45, 0.95) 66.66%, 
-              rgba(95, 145, 65, 0.98) 70.83%, 
-              rgba(76, 125, 45, 0.95) 75%, 
-              rgba(95, 145, 65, 0.98) 79.16%, 
-              rgba(76, 125, 45, 0.95) 83.33%, 
-              rgba(95, 145, 65, 0.98) 87.5%, 
-              rgba(76, 125, 45, 0.95) 91.66%, 
-              rgba(95, 145, 65, 0.98) 95.83%, 
-              rgba(76, 125, 45, 0.95) 100%
-            ),
-            radial-gradient(ellipse at center, rgba(100, 150, 70, 0.3) 0%, rgba(70, 120, 40, 0.6) 100%)
-          `,
-          backgroundColor: '#4c7d2d',
-          minHeight: '400px',
-          backgroundSize: '100% 100%, 100% 100%',
-          backgroundBlendMode: 'multiply'
+          backgroundImage: `url('/assets/matchdetaillogo/field.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          minHeight: '400px'
         }}>
 
           {/* Enhanced grass texture overlay */}
@@ -920,13 +891,13 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                    style={{ left: '-12px', top: '18px' }}></div>
 
               {/* Professional ball - enhanced */}
-              <div className="w-6 h-6 bg-white rounded-full shadow-2xl relative overflow-hidden border border-gray-200 animate-spin-slow">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/60 to-transparent"></div>
-                <div className="absolute inset-0 rounded-full">
-                  <div className="absolute top-1.5 left-1.5 w-2 h-2 bg-black rounded-full opacity-80"></div>
-                  <div className="absolute bottom-1.5 right-1.5 w-1.5 h-1.5 bg-black rounded-full opacity-70"></div>
-                  <div className="absolute top-2.5 right-2 w-1 h-1 bg-black rounded-full opacity-60"></div>
-                </div>
+              <div className="w-6 h-6 relative">
+                <img 
+                  src="/assets/matchdetaillogo/shot-event.svg" 
+                  alt="Ball" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
 
                 {/* Enhanced possession glow effect */}
                 {ballPossession && (
