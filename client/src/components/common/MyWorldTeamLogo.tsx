@@ -1,4 +1,3 @@
-
 import React from "react";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MyCircularFlag from "./MyCircularFlag";
@@ -36,7 +35,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 }) => {
   // Check if this is a national team
   const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
-  
+
   // Check for youth teams
   const isYouthTeam = teamName?.includes("U17") || 
                      teamName?.includes("U19") ||
@@ -46,14 +45,14 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
   // Check if this is FIFA Club World Cup (club competition, not national teams)
   const isFifaClubWorldCup = leagueContext?.name?.toLowerCase().includes("fifa club world cup");
-  
+
   // Check if this is Friendlies Club (club competition, not national teams)
   const isFriendliesClub = leagueContext?.name?.toLowerCase().includes("friendlies clubs");
 
   // Check if this is Friendlies Club (club competition, not national teams)
   const isUefaEuropaLeague = leagueContext?.name?.toLowerCase().includes("uefa europa league") || 
   leagueContext?.name?.toLowerCase().includes("europa league");
-  
+
   // Check if this is UEFA Europa Conference League (club competition, not national teams)
   const isUefaConferenceLeague = leagueContext?.name?.toLowerCase().includes("uefa europa conference league") || 
                                 leagueContext?.name?.toLowerCase().includes("europa conference league");
@@ -61,15 +60,19 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   // Check if this is UEFA Champions League (club competition, not national teams)
   const isUefaChampionsLeague = leagueContext?.name?.toLowerCase().includes("uefa champions league") || 
                                leagueContext?.name?.toLowerCase().includes("champions league");
+  
+  // Check if this is CONMEBOL Sudamericana (club competition, not national teams)
+  const isConmebolSudamericana = leagueContext?.name?.toLowerCase().includes("conmebol sudamericana") ||
+                                 leagueContext?.name?.toLowerCase().includes("copa sudamericana");
 
   // Check if this is a Brazilian league (treat as club teams, not national teams)
   const isBrazilianLeague = leagueContext?.country?.toLowerCase() === "brazil";
-  
+
   // Check if this is a Brazilian team (by team name or league context)
   const isBrazilianTeam = isBrazilianLeague || teamName?.toLowerCase().includes("brazil");
 
-  // Use MyCircularFlag for ONLY actual national teams and youth teams, but NOT for club competitions or Brazilian teams
-  if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isFriendliesClub && !isUefaConferenceLeague && !isUefaEuropaLeague && !isUefaChampionsLeague && !isBrazilianTeam) {
+  // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup, Friendlies Club, UEFA Europa League, UEFA Europa Conference League, or CONMEBOL Sudamericana
+  if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isFriendliesClub && !isUefaEuropaLeague && !isUefaConferenceLeague && !isConmebolSudamericana) {
     return (
       <MyCircularFlag
         teamName={teamName}
