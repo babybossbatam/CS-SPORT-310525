@@ -959,9 +959,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               </div>
             </div>
           )}
-        </div>
 
-        {/* Live Commentary Overlay on Field */}
+          {/* Live Commentary Overlay on Field */}
           {currentView === 'commentary' && (
             <div className="absolute bottom-16 left-4 right-4 z-30 bg-black/80 backdrop-blur-sm rounded-lg border border-white/20">
               <div className="p-4">
