@@ -805,42 +805,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           ))}
 
-          {/* Field markings - precise 365scores style */}
-          <svg className="absolute inset-0 w-full h-full z-10" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <defs>
-              <filter id="whiteGlow" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="0.3" result="coloredBlur"/>
-                <feMerge> 
-                  <feMergeNode in="coloredBlur"/>
-                  <feMergeNode in="SourceGraphic"/>
-                </feMerge>
-              </filter>
-            </defs>
-
-            {/* Field boundary */}
-            <rect x="5" y="15" width="90" height="70" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.6" filter="url(#whiteGlow)"/>
-
-            {/* Center line */}
-            <line x1="50" y1="15" x2="50" y2="85" stroke="rgba(255,255,255,0.95)" strokeWidth="0.6" filter="url(#whiteGlow)"/>
-
-            {/* Center circle */}
-            <circle cx="50" cy="50" r="12" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.6" filter="url(#whiteGlow)"/>
-            <circle cx="50" cy="50" r="0.8" fill="rgba(255,255,255,0.95)"/>
-
-            {/* Penalty areas */}
-            <rect x="5" y="30" width="16" height="40" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.6" filter="url(#whiteGlow)"/>
-            <rect x="79" y="30" width="16" height="40" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.6" filter="url(#whiteGlow)"/>
-
-            {/* Goal areas */}
-            <rect x="5" y="40" width="5.5" height="20" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.6" filter="url(#whiteGlow)"/>
-            <rect x="89.5" y="40" width="5.5" height="20" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="0.6" filter="url(#whiteGlow)"/>
-
-            {/* Corner arcs */}
-            <path d="M 7 15 A 2 2 0 0 1 5 17" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" fill="none" filter="url(#whiteGlow)"/>
-            <path d="M 93 15 A 2 2 0 0 0 95 17" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" fill="none" filter="url(#whiteGlow)"/>
-            <path d="M 7 85 A 2 2 0 0 0 5 83" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" fill="none" filter="url(#whiteGlow)"/>
-            <path d="M 93 85 A 2 2 0 0 1 95 83" stroke="rgba(255,255,255,0.95)" strokeWidth="0.5" fill="none" filter="url(#whiteGlow)"/>
-          </svg>
+          
 
           {/* Enhanced ball trail with 365scores precision */}
           {ballTrail.length > 1 && (
