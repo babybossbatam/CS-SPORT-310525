@@ -1599,6 +1599,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               <div className="text-3xl font-bold">
                                 {homeScore} - {awayScore}
                               </div>
+                              {/* Show penalty scores if match ended in penalties */}
+                              {matchStatus === "PEN" && currentMatch.score?.penalty && (
+                                <div className="text-sm text-gray-600 mt-1">
+                                  Penalties: {currentMatch.score.penalty.home} - {currentMatch.score.penalty.away}
+                                </div>
+                              )}
                             </div>
                           );
                         }
