@@ -962,34 +962,35 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         </div>
 
         {/* Live Commentary Overlay on Field */}
-        {currentView === 'commentary' && (
-          <div className="absolute bottom-16 left-4 right-4 z-30 bg-black/80 backdrop-blur-sm rounded-lg border border-white/20">
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-white text-xs font-medium uppercase tracking-wide">Live Commentary</span>
-                <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
-                  {elapsed}'
+          {currentView === 'commentary' && (
+            <div className="absolute bottom-16 left-4 right-4 z-30 bg-black/80 backdrop-blur-sm rounded-lg border border-white/20">
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-white text-xs font-medium uppercase tracking-wide">Live Commentary</span>
+                  <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
+                    {elapsed}'
+                  </div>
+                </div>
+                <div className="space-y-2 max-h-32 overflow-y-auto commentary-scroll">
+                  {liveCommentary.slice(0, 4).map((comment) => (
+                    <div key={comment.id} className="flex items-start gap-3 text-sm">
+                      <div className="text-blue-400 font-semibold min-w-0">{comment.minute}'</div>
+                      <div className={`flex-1 ${comment.isImportant ? 'font-medium text-white' : 'text-gray-200'}`}>
+                        {comment.text}
+                      </div>
+                      {comment.team && (
+                        <div className={`w-2 h-2 rounded-full ${comment.team === 'home' ? 'bg-blue-400' : 'bg-red-400'}`}></div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="space-y-2 max-h-32 overflow-y-auto commentary-scroll">
-                {liveCommentary.slice(0, 4).map((comment) => (
-                  <div key={comment.id} className="flex items-start gap-3 text-sm">
-                    <div className="text-blue-400 font-semibold min-w-0">{comment.minute}'</div>
-                    <div className={`flex-1 ${comment.isImportant ? 'font-medium text-white' : 'text-gray-200'}`}>
-                      {comment.text}
-                    </div>
-                    {comment.team && (
-                      <div className={`w-2 h-2 rounded-full ${comment.team === 'home' ? 'bg-blue-400' : 'bg-red-400'}`}></div>
-                    )}
-                  </div>
-                ))}
-              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Enhanced bottom statistics panel - 365scores style */}
-        <div className="bg-white border-t border-gray-200">
+        <div className="bg-white border-t border-gray-200"></div>
 
           {currentView === 'stats' && (
             <div className="p-4">
