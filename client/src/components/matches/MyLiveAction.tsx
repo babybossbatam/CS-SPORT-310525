@@ -170,7 +170,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           updateInterval = setInterval(() => {
             generateDynamicEvent();
             updateLiveCommentary();
-          }, 12000); // Updated to match 365scores frequency
+          }, 30000); // Slower updates to reduce flickering
         }
       }
     });
@@ -676,7 +676,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   };
 
   return (
-    <div className={`w-full ${className} professional-live-action`}>
+    <div className={`w-full ${className} professional-live-action`} style={{ zIndex: 1, position: 'relative' }}>
       <div className={`bg-white rounded-xl overflow-hidden shadow-lg border-2 transition-all duration-300 ${getIntensityColor()}`}>
         {/* Enhanced Header with 365scores style */}
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 border-b border-gray-200">

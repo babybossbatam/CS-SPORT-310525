@@ -14,6 +14,7 @@ import {
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MyCircularFlag from "../common/MyCircularFlag";
 import LazyImage from "../common/LazyImage";
+import "../../styles/stable-live-components.css";
 
 interface MyNewPopularLeagueProps {
   selectedDate: string;
@@ -230,11 +231,11 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
   const isToday = selectedDate === today;
   const isFuture = selectedDate > today;
 
-  // Shorter cache for live/current matches to ensure consistency
+  // Longer cache to reduce flickering
   const cacheMaxAge = isFuture
     ? 4 * 60 * 60 * 1000
     : isToday
-      ? 1 * 60 * 1000 // 1 minute for today to catch live match updates
+      ? 5 * 60 * 1000 // 5 minutes for today to reduce flickering
       : 30 * 60 * 1000;
 
   // Fetch all fixtures for the selected date
@@ -267,6 +268,8 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
       refetchOnMount: false,
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
+      refetchInterval: false, // Disable automatic refetching
+      refetchIntervalInBackground: false,
     },
   );
 
@@ -1049,33 +1052,36 @@ return null;
 
                             {/* Home team logo - grid area */}
                             <div className="home-team-logo-container">
-                              {isNationalTeam(
-                                match.teams.home,
-                                { id: competition.leagueIds[0] },
-                              ) ? (
-                                <MyCircularFlag
-                                  teamName={match.teams.home.name}
-                                  fallbackUrl={match.teams.home.logo}
-                                  alt={match.teams.home.name}
-                                  size="34px"
-                                  className="popular-leagues-size"
-                                />
-                              ) : (
-                                <LazyImage
-                                  src={
-                                    match.teams.home.id
-                                      ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                                      : "/assets/fallback-logo.svg"
-                                  }
-                                  alt={match.teams.home.name}
-                                  title={match.teams.home.name}
-                                  className="team-logo"
-                                  style={{
-                                    filter:
-                                      "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                  }}
-                                  
-                                />
+                              {React.useMemo(() => 
+                                isNationalTeam(
+                                  match.teams.home,
+                                  { id: competition.leagueIds[0] },
+                                ) ? (
+                                  <MyCircularFlag
+                                    key={`home-${match.teams.home.id}`}
+                                    teamName={match.teams.home.name}
+                                    fallbackUrl={match.teams.home.logo}
+                                    alt={match.teams.home.name}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                  />
+                                ) : (
+                                  <LazyImage
+                                    key={`home-${match.teams.home.id}`}
+                                    src={
+                                      match.teams.home.id
+                                        ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={match.teams.home.name}
+                                    title={match.teams.home.name}
+                                    className="team-logo"
+                                    style={{
+                                      filter:
+                                        "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
+                                    }}
+                                  />
+                                ), [match.teams.home.id, match.teams.home.name, match.teams.home.logo, competition.leagueIds[0]]
                               )}
                             </div>
 
@@ -1211,33 +1217,36 @@ return null;
 
                             {/* Away team logo - grid area */}
                             <div className="away-team-logo-container">
-                              {isNationalTeam(
-                                match.teams.away,
-                                { id: competition.leagueIds[0] },
-                              ) ? (
-                                <MyCircularFlag
-                                  teamName={match.teams.away.name}
-                                  fallbackUrl={match.teams.away.logo}
-                                  alt={match.teams.away.name}
-                                  size="34px"
-                                  className="popular-leagues-size"
-                                />
-                              ) : (
-                                <LazyImage
-                                  src={
-                                    match.teams.away.id
-                                      ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                                      : "/assets/fallback-logo.svg"
-                                  }
-                                  alt={match.teams.away.name}
-                                  title={match.teams.away.name}
-                                  className="team-logo"
-                                  style={{
-                                    filter:
-                                      "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
-                                  }}
-                                  
-                                />
+                              {React.useMemo(() => 
+                                isNationalTeam(
+                                  match.teams.away,
+                                  { id: competition.leagueIds[0] },
+                                ) ? (
+                                  <MyCircularFlag
+                                    key={`away-${match.teams.away.id}`}
+                                    teamName={match.teams.away.name}
+                                    fallbackUrl={match.teams.away.logo}
+                                    alt={match.teams.away.name}
+                                    size="34px"
+                                    className="popular-leagues-size"
+                                  />
+                                ) : (
+                                  <LazyImage
+                                    key={`away-${match.teams.away.id}`}
+                                    src={
+                                      match.teams.away.id
+                                        ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                                        : "/assets/fallback-logo.svg"
+                                    }
+                                    alt={match.teams.away.name}
+                                    title={match.teams.away.name}
+                                    className="team-logo"
+                                    style={{
+                                      filter:
+                                        "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))",
+                                    }}
+                                  />
+                                ), [match.teams.away.id, match.teams.away.name, match.teams.away.logo, competition.leagueIds[0]]
                               )}
                             </div>
 
