@@ -821,7 +821,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               flag: "https://media.api-sports.io/flags/de.svg",
             },
 
-          ```python
+          
           },
           {
             league: {
@@ -2671,7 +2671,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             error: "Match not found",
           });
         }
-      } catch (```python
+      } catch (
 error) {
         console.error("❌ [SoccersAPI] Error fetching match details:", error);
         res.status(500).json({
