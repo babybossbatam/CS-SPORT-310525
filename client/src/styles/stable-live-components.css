@@ -1,4 +1,3 @@
-
 /* Prevent flickering in live components */
 .professional-live-action {
   position: relative !important;
@@ -135,4 +134,48 @@
   animation: none !important;
   transform: none !important;
   will-change: auto !important;
+}
+
+/* Stable components that shouldn't animate during live updates */
+.stable-live-badge {
+  animation: none !important;
+  transition: none !important;
+}
+
+.stable-team-logo {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+.stable-league-header {
+  animation: none !important;
+  transition: none !important;
+}
+
+.stable-live-timer {
+  animation: none !important;
+  transition: background-color 0.2s ease !important;
+}
+
+/* Static team components - prevent any re-rendering artifacts */
+.home-team-name, .away-team-name {
+  will-change: auto;
+  contain: layout style;
+}
+
+.home-team-logo-container, .away-team-logo-container {
+  will-change: auto;
+  contain: layout;
+}
+
+/* Dynamic score components - optimized for frequent updates */
+.match-score-container {
+  will-change: contents;
+  contain: layout style;
+}
+
+.match-status-top {
+  will-change: contents;
+  contain: layout style;
 }

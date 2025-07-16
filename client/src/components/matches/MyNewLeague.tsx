@@ -883,7 +883,340 @@ b.fixture.status.elapsed) || 0;
     />
   ));
 
-  // Memoized match card component to prevent unnecessary re-renders
+  // Memoized dynamic score component - only re-renders when scores/status change
+  const DynamicMatchData = memo(({ 
+    fixtureId,
+    status,
+    goals,
+    elapsed,
+    penaltyScores,
+    isHalftimeFlash,
+    isFulltimeFlash,
+    isGoalFlash,
+    fixtureDate
+  }: {
+    fixtureId: number;
+    status: string;
+    goals: { home: number | null; away: number | null };
+    elapsed?: number;
+    penaltyScores?: { home: number | null; away: number | null };
+    isHalftimeFlash: boolean;
+    isFulltimeFlash: boolean;
+    isGoalFlash: boolean;
+    fixtureDate: string;
+  }) => {
+    return (
+      <>
+        {/* Top Grid: Match Status */}
+        <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          {(() => {
+            if (
+              [
+                "LIVE",
+                "LIV",
+                "1H",
+                "HT",
+                "2H",
+                "ET",
+                "BT",
+                "P",
+                "INT",
+              ].includes(status)
+            ) {
+              let displayText = "";
+              if (status === "HT") {
+                displayText = "Halftime";
+              } else if (status === "P") {
+                displayText = "Penalties";
+              } else if (status === "ET") {
+                displayText = elapsed
+                  ? `${elapsed}' ET`
+                  : "Extra Time";
+              } else if (status === "BT") {
+                displayText = "Break Time";
+              } else if (status === "INT") {
+                displayText = "Interrupted";
+              } else {
+                displayText = elapsed ? `${elapsed}'` : "LIVE";
+              }
+
+              return (
+                <div 
+                  className="match-status-label status-live"
+                  style={{
+                    minWidth: '60px',
+                    textAlign: 'center',
+                    transition: 'none',
+                    animation: 'none',
+                    padding: '2px 8px',
+                    fontSize: '11px',
+                    fontWeight: '600'
+                  }}
+                >
+                  {displayText}
+                </div>
+              );
+            }
+
+            if (
+              [
+                "FT",
+                "AET",
+                "PEN",
+                "AWD",
+                "WO",
+                "ABD",
+                "CANC",
+                "SUSP",
+              ].includes(status)
+            ) {
+              return (
+                <div 
+                  className="match-status-label status-ended"
+                  style={{
+                    minWidth: '60px',
+                    textAlign: 'center',
+                    transition: 'none',
+                    animation: 'none'
+                  }}
+                >
+                  {status === "FT"
+                    ? "Ended"
+                    : status === "AET"
+                      ? "After Extra Time"
+                      : status}
+                </div>
+              );
+            }
+
+            if (status === "TBD") {
+              return (
+                <div 
+                  className="match-status-label status-upcoming"
+                  style={{
+                    minWidth: '60px',
+                    textAlign: 'center',
+                    transition: 'none',
+                    animation: 'none'
+                  }}
+                >
+                  Time TBD
+                </div>
+              );
+            }
+
+            return null;
+          })()}
+        </div>
+
+        {/* Score/Time Center */}
+        <div className="match-score-container">
+          {(() => {
+            if (
+              [
+                "LIVE",
+                "LIV",
+                "1H",
+                "HT",
+                "2H",
+                "ET",
+                "BT",
+                "P",
+                "INT",
+              ].includes(status)
+            ) {
+              return (
+                <div className="match-score-display">
+                  <span className="score-number">
+                    {goals.home ?? 0}
+                  </span>
+                  <span className="score-separator">-</span>
+                  <span className="score-number">
+                    {goals.away ?? 0}
+                  </span>
+                </div>
+              );
+            }
+
+            if (
+              [
+                "FT",
+                "AET",
+                "PEN",
+                "AWD",
+                "WO",
+                "ABD",
+                "CANC",
+                "SUSP",
+              ].includes(status)
+            ) {
+              const homeScore = goals.home;
+              const awayScore = goals.away;
+              const hasValidScores =
+                homeScore !== null &&
+                homeScore !== undefined &&
+                awayScore !== null &&
+                awayScore !== undefined &&
+                !isNaN(Number(homeScore)) &&
+                !isNaN(Number(awayScore));
+
+              if (hasValidScores) {
+                return (
+                  <div className="match-score-display">
+                    <span className="score-number">
+                      {homeScore}
+                    </span>
+                    <span className="score-separator">-</span>
+                    <span className="score-number">
+                      {awayScore}
+                    </span>
+                  </div>
+                );
+              } else {
+                return (
+                  <div
+                    className="match-time-display"
+                    style={{ fontSize: "0.882em" }}
+                  >
+                    {formatMatchTimeWithTimezone(fixtureDate)}
+                  </div>
+                );
+              }
+            }
+
+            return (
+              <div
+                className="match-time-display"
+                style={{ fontSize: "0.882em" }}
+              >
+                {status === "TBD"
+                  ? "TBD"
+                  : formatMatchTimeWithTimezone(fixtureDate)}
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Bottom Grid: Penalty Result Status */}
+        <div className="match-penalty-bottom">
+          {(() => {
+            const isPenaltyMatch = status === "PEN";
+            const penaltyHome = penaltyScores?.home;
+            const penaltyAway = penaltyScores?.away;
+            const hasPenaltyScores =
+              penaltyHome !== null &&
+              penaltyHome !== undefined &&
+              penaltyAway !== null &&
+              penaltyAway !== undefined;
+
+            if (isPenaltyMatch && hasPenaltyScores) {
+              return (
+                <div className="penalty-result-display">
+                  <span className="penalty-winner">
+                    Penalties: {penaltyHome}-{penaltyAway}
+                  </span>
+                </div>
+              );
+            }
+            return null;
+          })()}
+        </div>
+      </>
+    );
+  }, (prevProps, nextProps) => {
+    // Custom comparison - only re-render if dynamic data changes
+    return (
+      prevProps.status === nextProps.status &&
+      prevProps.goals.home === nextProps.goals.home &&
+      prevProps.goals.away === nextProps.goals.away &&
+      prevProps.elapsed === nextProps.elapsed &&
+      prevProps.isHalftimeFlash === nextProps.isHalftimeFlash &&
+      prevProps.isFulltimeFlash === nextProps.isFulltimeFlash &&
+      prevProps.isGoalFlash === nextProps.isGoalFlash &&
+      prevProps.penaltyScores?.home === nextProps.penaltyScores?.home &&
+      prevProps.penaltyScores?.away === nextProps.penaltyScores?.away
+    );
+  });
+
+  // Memoized static team data component - never re-renders unless teams change
+  const StaticTeamData = memo(({ 
+    homeTeam,
+    awayTeam,
+    leagueGroup
+  }: {
+    homeTeam: { id?: number; name: string; logo?: string };
+    awayTeam: { id?: number; name: string; logo?: string };
+    leagueGroup: any;
+  }) => {
+    return (
+      <>
+        {/* Home Team Name */}
+        <div
+          className="home-team-name"
+          style={{
+            textAlign: "right",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {shortenTeamName(homeTeam.name) || "Unknown Team"}
+        </div>
+
+        {/* Home team logo */}
+        <div
+          className="home-team-logo-container"
+          style={{ padding: "0 0.6rem" }}
+        >
+          <TeamLogo
+            teamId={homeTeam.id}
+            teamName={homeTeam.name}
+            logoUrl={
+              homeTeam.id
+                ? `/api/team-logo/square/${homeTeam.id}?size=32`
+                : "/assets/fallback-logo.svg"
+            }
+            size="34px"
+            leagueGroup={leagueGroup}
+          />
+        </div>
+
+        {/* Away team logo */}
+        <div
+          className="away-team-logo-container"
+          style={{ padding: "0 0.5rem" }}
+        >
+          <TeamLogo
+            teamId={awayTeam.id}
+            teamName={awayTeam.name}
+            logoUrl={
+              awayTeam.id
+                ? `/api/team-logo/square/${awayTeam.id}?size=32`
+                : "/assets/fallback-logo.svg"
+            }
+            size="34px"
+            leagueGroup={leagueGroup}
+          />
+        </div>
+
+        {/* Away Team Name */}
+        <div
+          className="away-team-name"
+          style={{
+            paddingLeft: "0.75rem",
+            textAlign: "left",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {shortenTeamName(awayTeam.name) || "Unknown Team"}
+        </div>
+      </>
+    );
+  });
+
+  // Optimized match card component
   const MatchCard = memo(({ 
     match, 
     isHalftimeFlash, isFulltimeFlash, 
@@ -907,7 +1240,7 @@ b.fixture.status.elapsed) || 0;
       if (onMatchClick) {
         onMatchClick(match);
       }
-    }, [match, onMatchClick]);
+    }, [match.fixture.id, onMatchClick]); // Only depend on fixture ID, not entire match object
 
     return (
       <div
@@ -1061,206 +1394,45 @@ b.fixture.status.elapsed) || 0;
 
             {/* Middle Grid: Main match content */}
             <div className="match-content-container">
-              {/* Home Team Name */}
-              <div
-                className={`home-team-name ${
-                  match.goals.home !== null &&
-                  match.goals.away !== null &&
-                  match.goals.home > match.goals.away
-                    ? "winner"
-                    : ""
-                }`}
-                style={{
-                  textAlign: "right",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {shortenTeamName(match.teams.home.name) || "Unknown Team"}
-              </div>
-
-              {/* Home team logo */}
-              <div
-                className="home-team-logo-container"
-                style={{ padding: "0 0.6rem" }}
-              >
-                <TeamLogo
-                  teamId={match.teams.home.id}
-                  teamName={match.teams.home.name}
-                  logoUrl={
-                    match.teams.home.id
-                      ? `/api/team-logo/square/${match.teams.home.id}?size=32`
-                      : "/assets/fallback-logo.svg"
-                  }
-                  size="34px"
-                  leagueGroup={leagueGroup}
-                />
-              </div>
-
-              {/* Score/Time Center */}
-              <div className="match-score-container">
-                {(() => {
-                  const status = match.fixture.status.short;
-                  const fixtureDate = parseISO(match.fixture.date);
-
-                  if (
-                    [
-                      "LIVE",
-                      "LIV",
-                      "1H",
-                      "HT",
-                      "2H",
-                      "ET",
-                      "BT",
-                      "P",
-                      "INT",
-                    ].includes(status)
-                  ) {
-                    return (
-                      <div className="match-score-display">
-                        <span className="score-number">
-                          {match.goals.home ?? 0}
-                        </span>
-                        <span className="score-separator">-</span>
-                        <span className="score-number">
-                          {match.goals.away ?? 0}
-                        </span>
-                      </div>
-                    );
-                  }
-
-                  if (
-                    [
-                      "FT",
-                      "AET",
-                      "PEN",
-                      "AWD",
-                      "WO",
-                      "ABD",
-                      "CANC",
-                      "SUSP",
-                    ].includes(status)
-                  ) {
-                    const homeScore = match.goals.home;
-                    const awayScore = match.goals.away;
-                    const hasValidScores =
-                      homeScore !== null &&
-                      homeScore !== undefined &&
-                      awayScore !== null &&
-                      awayScore !== undefined &&
-                      !isNaN(Number(homeScore)) &&
-                      !isNaN(Number(awayScore));
-
-                    if (hasValidScores) {
-                      return (
-                        <div className="match-score-display">
-                          <span className="score-number">
-                            {homeScore}
-                          </span>
-                          <span className="score-separator">-</span>
-                          <span className="score-number">
-                            {awayScore}
-                          </span>
-                        </div>
-                      );
-                    } else {
-                      return (
-                        <div
-                          className="match-time-display"
-                          style={{ fontSize: "0.882em" }}
-                        >
-                          {formatMatchTimeWithTimezone(match.fixture.date)}
-                        </div>
-                      );
-                    }
-                  }
-
-                  return (
-                    <div
-                      className="match-time-display"
-                      style={{ fontSize: "0.882em" }}
-                    >
-                      {status === "TBD"
-                        ? "TBD"
-                        : formatMatchTimeWithTimezone(match.fixture.date)}
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* Away team logo */}
-              <div
-                className="away-team-logo-container"
-                style={{ padding: "0 0.5rem" }}
-              >
-                <TeamLogo
-                  teamId={match.teams.away.id}
-                  teamName={match.teams.away.name}
-                  logoUrl={
-                    match.teams.away.id
-                      ? `/api/team-logo/square/${match.teams.away.id}?size=32`
-                      : "/assets/fallback-logo.svg"
-                  }
-                  size="34px"
-                  leagueGroup={leagueGroup}
-                />
-              </div>
-
-              {/* Away Team Name */}
-              <div
-                className={`away-team-name ${
-                  match.goals.home !== null &&
-                  match.goals.away !== null &&
-                  match.goals.away > match.goals.home
-                    ? "winner"
-                    : ""
-                }`}
-                style={{
-                  paddingLeft: "0.75rem",
-                  textAlign: "left",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {shortenTeamName(match.teams.away.name) || "Unknown Team"}
-              </div>
-            </div>
-
-            {/* Bottom Grid: Penalty Result Status */}
-            <div className="match-penalty-bottom">
-              {(() => {
-                const status = match.fixture.status.short;
-                const isPenaltyMatch = status === "PEN";
-                const penaltyHome = match.score?.penalty?.home;
-                const penaltyAway = match.score?.penalty?.away;
-                const hasPenaltyScores =
-                  penaltyHome !== null &&
-                  penaltyHome !== undefined &&
-                  penaltyAway !== null &&
-                  penaltyAway !== undefined;
-
-                if (isPenaltyMatch && hasPenaltyScores) {
-                  const winnerText =
-                    penaltyHome > penaltyAway
-                      ? `${shortenTeamName(match.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
-                      : `${shortenTeamName(match.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
-
-                  return (
-                    <div className="penalty-result-display">
-                      <span className="penalty-winner">
-                        {winnerText}
-                      </span>
-                    </div>
-                  );
-                }
-                return null;
-              })()}
+              <StaticTeamData
+                homeTeam={match.teams.home}
+                awayTeam={match.teams.away}
+                leagueGroup={leagueGroup}
+              />
+              
+              <DynamicMatchData
+                fixtureId={match.fixture.id}
+                status={match.fixture.status.short}
+                goals={match.goals}
+                elapsed={match.fixture.status.elapsed}
+                penaltyScores={match.score?.penalty}
+                isHalftimeFlash={isHalftimeFlash}
+                isFulltimeFlash={isFulltimeFlash}
+                isGoalFlash={isGoalFlash}
+                fixtureDate={match.fixture.date}
+              />
             </div>
           </div>
         </div>
       </div>
+    );
+  }, (prevProps, nextProps) => {
+    // Custom comparison - only re-render if essential data changes
+    const prevMatch = prevProps.match;
+    const nextMatch = nextProps.match;
+    
+    return (
+      prevMatch.fixture.id === nextMatch.fixture.id &&
+      prevMatch.fixture.status.short === nextMatch.fixture.status.short &&
+      prevMatch.fixture.status.elapsed === nextMatch.fixture.status.elapsed &&
+      prevMatch.goals.home === nextMatch.goals.home &&
+      prevMatch.goals.away === nextMatch.goals.away &&
+      prevMatch.score?.penalty?.home === nextMatch.score?.penalty?.home &&
+      prevMatch.score?.penalty?.away === nextMatch.score?.penalty?.away &&
+      prevProps.isHalftimeFlash === nextProps.isHalftimeFlash &&
+      prevProps.isFulltimeFlash === nextProps.isFulltimeFlash &&
+      prevProps.isGoalFlash === nextProps.isGoalFlash &&
+      prevProps.isStarred === nextProps.isStarred
     );
   });
 
