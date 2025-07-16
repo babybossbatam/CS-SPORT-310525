@@ -1147,10 +1147,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           )}
         </div>
       </div>
-    </div>
+
   );
 };
 
 export default MyLiveAction;
 
-export default MyLiveAction;
