@@ -1,7 +1,7 @@
 
 // Selective live data update routes - only returns essential live data
 import express from 'express';
-import { rapidApi } from '../services/rapidApi';
+import { rapidApiService } from '../services/rapidApi';
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ router.get('/live/selective', async (req, res) => {
     console.log('🔴 [Selective Live] Fetching selective live updates');
     
     // Fetch full live data from RapidAPI
-    const liveFixtures = await rapidApi.getLiveFixtures();
+    const liveFixtures = await rapidApiService.getLiveFixtures();
     
     if (!Array.isArray(liveFixtures)) {
       return res.json([]);
