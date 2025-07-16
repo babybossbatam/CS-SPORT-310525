@@ -907,109 +907,7 @@ b.fixture.status.elapsed) || 0;
   }) => {
     return (
       <>
-        {/* Top Grid: Match Status */}
-        <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          {(() => {
-            if (
-              [
-                "LIVE",
-                "LIV",
-                "1H",
-                "HT",
-                "2H",
-                "ET",
-                "BT",
-                "P",
-                "INT",
-              ].includes(status)
-            ) {
-              let displayText = "";
-              if (status === "HT") {
-                displayText = "Halftime";
-              } else if (status === "P") {
-                displayText = "Penalties";
-              } else if (status === "ET") {
-                displayText = elapsed
-                  ? `${elapsed}' ET`
-                  : "Extra Time";
-              } else if (status === "BT") {
-                displayText = "Break Time";
-              } else if (status === "INT") {
-                displayText = "Interrupted";
-              } else {
-                displayText = elapsed ? `${elapsed}'` : "LIVE";
-              }
-
-              return (
-                <div 
-                  className="match-status-label status-live"
-                  style={{
-                    minWidth: '60px',
-                    textAlign: 'center',
-                    transition: 'none',
-                    animation: 'none',
-                    padding: '2px 8px',
-                    fontSize: '11px',
-                    fontWeight: '600'
-                  }}
-                >
-                  {displayText}
-                </div>
-              );
-            }
-
-            if (
-              [
-                "FT",
-                "AET",
-                "PEN",
-                "AWD",
-                "WO",
-                "ABD",
-                "CANC",
-                "SUSP",
-              ].includes(status)
-            ) {
-              return (
-                <div 
-                  className="match-status-label status-ended"
-                  style={{
-                    minWidth: '60px',
-                    textAlign: 'center',
-                    transition: 'none',
-                    animation: 'none'
-                  }}
-                >
-                  {status === "FT"
-                    ? "Ended"
-                    : status === "AET"
-                      ? "After Extra Time"
-                      : status}
-                </div>
-              );
-            }
-
-            if (status === "TBD") {
-              return (
-                <div 
-                  className="match-status-label status-upcoming"
-                  style={{
-                    minWidth: '60px',
-                    textAlign: 'center',
-                    transition: 'none',
-                    animation: 'none'
-                  }}
-                >
-                  Time TBD
-                </div>
-              );
-            }
-
-            return null;
-          })()}
-        </div>
-
-        {/* Score/Time Center */}
+        {/* Score/Time Center - ONLY dynamic content */}
         <div className="match-score-container">
           {(() => {
             if (
@@ -1095,10 +993,40 @@ b.fixture.status.elapsed) || 0;
               </div>
             );
           })()}
-        </div>
 
-        {/* Bottom Grid: Penalty Result Status */}
-        <div className="match-penalty-bottom">
+          {/* Live status indicator */}
+          {
+            [
+              "LIVE",
+              "LIV",
+              "1H",
+              "HT",
+              "2H",
+              "ET",
+              "BT",
+              "P",
+              "INT",
+            ].includes(status) && (
+              <div 
+                className="live-status-indicator"
+                style={{
+                  fontSize: '10px',
+                  fontWeight: '600',
+                  marginTop: '2px',
+                  color: status === "HT" ? '#ff6b35' : '#dc2626'
+                }}
+              >
+                {status === "HT" ? "Halftime" : 
+                 status === "P" ? "Penalties" : 
+                 status === "ET" ? (elapsed ? `${elapsed}' ET` : "Extra Time") :
+                 status === "BT" ? "Break Time" :
+                 status === "INT" ? "Interrupted" :
+                 (elapsed ? `${elapsed}'` : "LIVE")}
+              </div>
+            )
+          }
+
+          {/* Penalty Result Status */}
           {(() => {
             const isPenaltyMatch = status === "PEN";
             const penaltyHome = penaltyScores?.home;
@@ -1111,7 +1039,7 @@ b.fixture.status.elapsed) || 0;
 
             if (isPenaltyMatch && hasPenaltyScores) {
               return (
-                <div className="penalty-result-display">
+                <div className="penalty-result-display" style={{ fontSize: '10px', marginTop: '2px' }}>
                   <span className="penalty-winner">
                     Penalties: {penaltyHome}-{penaltyAway}
                   </span>
@@ -1214,6 +1142,15 @@ b.fixture.status.elapsed) || 0;
         </div>
       </>
     );
+  }, (prevProps, nextProps) => {
+    // Only re-render if team data actually changes
+    return (
+      prevProps.homeTeam.id === nextProps.homeTeam.id &&
+      prevProps.homeTeam.name === nextProps.homeTeam.name &&
+      prevProps.awayTeam.id === nextProps.awayTeam.id &&
+      prevProps.awayTeam.name === nextProps.awayTeam.name &&
+      prevProps.leagueGroup.league.id === nextProps.leagueGroup.league.id
+    );
   });
 
   // Optimized match card component
@@ -1285,133 +1222,25 @@ b.fixture.status.elapsed) || 0;
             />
           </button>
 
-          {/* Match content container */}
-          <div className="match-three-grid-container">
-            {/* Top Grid: Match Status */}
-            <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              {(() => {
-                const status = match.fixture.status.short;
-                const elapsed = match.fixture.status.elapsed;
-
-                if (
-                  [
-                    "LIVE",
-                    "LIV",
-                    "1H",
-                    "HT",
-                    "2H",
-                    "ET",
-                    "BT",
-                    "P",
-                    "INT",
-                  ].includes(status)
-                ) {
-                  let displayText = "";
-                  if (status === "HT") {
-                    displayText = "Halftime";
-                  } else if (status === "P") {
-                    displayText = "Penalties";
-                  } else if (status === "ET") {
-                    displayText = elapsed
-                      ? `${elapsed}' ET`
-                      : "Extra Time";
-                  } else if (status === "BT") {
-                    displayText = "Break Time";
-                  } else if (status === "INT") {
-                    displayText = "Interrupted";
-                  } else {
-                    displayText = elapsed ? `${elapsed}'` : "LIVE";
-                  }
-
-                  return (
-                    <div 
-                      className="match-status-label status-live"
-                      style={{
-                        minWidth: '60px',
-                        textAlign: 'center',
-                        transition: 'none',
-                        animation: 'none',
-                        padding: '2px 8px',
-                        fontSize: '11px',
-                        fontWeight: '600'
-                      }}
-                    >
-                      {displayText}
-                    </div>
-                  );
-                }
-
-                if (
-                  [
-                    "FT",
-                    "AET",
-                    "PEN",
-                    "AWD",
-                    "WO",
-                    "ABD",
-                    "CANC",
-                    "SUSP",
-                  ].includes(status)
-                ) {
-                  return (
-                    <div 
-                      className="match-status-label status-ended"
-                      style={{
-                        minWidth: '60px',
-                        textAlign: 'center',
-                        transition: 'none',
-                        animation: 'none'
-                      }}
-                    >
-                      {status === "FT"
-                        ? "Ended"
-                        : status === "AET"
-                          ? "After Extra Time"
-                          : status}
-                    </div>
-                  );
-                }
-
-                if (status === "TBD") {
-                  return (
-                    <div 
-                      className="match-status-label status-upcoming"
-                      style={{
-                        minWidth: '60px',
-                        textAlign: 'center',
-                        transition: 'none',
-                        animation: 'none'
-                      }}
-                    >
-                      Time TBD
-                    </div>
-                  );
-                }
-
-                return null;
-              })()}
-            </div>
-
-            {/* Middle Grid: Main match content */}
-            <div className="match-content-container">
-              <StaticTeamData
-                homeTeam={match.teams.home}
-                awayTeam={match.teams.away}
-                leagueGroup={leagueGroup}
-              />
-              
-              <DynamicMatchData
-                fixtureId={match.fixture.id}
-                status={match.fixture.status.short}
-                goals={match.goals}
-                elapsed={match.fixture.status.elapsed}
-                penaltyScores={match.score?.penalty}
-                isHalftimeFlash={isHalftimeFlash}
-                isFulltimeFlash={isFulltimeFlash}
-                isGoalFlash={isGoalFlash}
-                fixtureDate={match.fixture.date}
-              />
-            </div>
+          {/* Match content container - Simplified structure */}
+          <div className="match-content-container">
+            <StaticTeamData
+              homeTeam={match.teams.home}
+              awayTeam={match.teams.away}
+              leagueGroup={leagueGroup}
+            />
+            
+            <DynamicMatchData
+              fixtureId={match.fixture.id}
+              status={match.fixture.status.short}
+              goals={match.goals}
+              elapsed={match.fixture.status.elapsed}
+              penaltyScores={match.score?.penalty}
+              isHalftimeFlash={isHalftimeFlash}
+              isFulltimeFlash={isFulltimeFlash}
+              isGoalFlash={isGoalFlash}
+              fixtureDate={match.fixture.date}
+            />
           </div>
         </div>
       </div>

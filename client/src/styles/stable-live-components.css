@@ -179,3 +179,120 @@
   will-change: contents;
   contain: layout style;
 }
+
+/* Stable live components - prevent re-renders and layout shifts */
+
+.stable-live-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background-color: #dc2626;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+  min-width: 50px;
+  text-align: center;
+  justify-content: center;
+  /* Prevent animation and transitions that cause re-renders */
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}
+
+.stable-elapsed-time {
+  font-size: 10px;
+  font-weight: 600;
+  color: #dc2626;
+  /* Stable positioning */
+  position: relative;
+  display: inline-block;
+  min-width: 30px;
+  text-align: center;
+  /* Prevent re-render triggers */
+  animation: none !important;
+  transition: none !important;
+}
+
+.stable-team-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  /* Prevent logo re-renders */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  /* Stable positioning */
+  position: relative;
+  display: block;
+  /* Prevent unnecessary repaints */
+  will-change: auto;
+  backface-visibility: hidden;
+}
+
+.stable-team-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  /* Prevent text layout shifts */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Stable positioning */
+  position: relative;
+  display: block;
+}
+
+.stable-match-score {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  /* Stable score display */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  text-align: center;
+}
+
+.stable-match-time {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6b7280;
+  /* Stable time display */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  text-align: center;
+}
+
+/* Optimized match content layout */
+.match-content-container {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  /* Prevent layout shifts */
+  min-height: 50px;
+}
+
+.match-score-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+  /* Stable dimensions to prevent layout shift */
+  min-height: 40px;
+}
+
+.live-status-indicator {
+  /* Stable status indicator styling */
+  white-space: nowrap;
+  text-align: center;
+  /* Prevent re-render triggers */
+  animation: none !important;
+  transition: none !important;
+}
