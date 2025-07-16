@@ -1312,7 +1312,7 @@ b.fixture.status.elapsed) || 0;
         </div>
       </div>
     );
-  });
+  };
 
   // Clear cache for specific match when status transitions occur
   const clearMatchCache = useCallback((matchId: number, transition: string, fixtureDate: string) => {
