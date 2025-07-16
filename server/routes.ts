@@ -819,7 +819,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               code: "DE",
               flag: "https://media.api-sports.io/flags/de.svg",
             },
-```tool_code
+
           },
           {
             league: {
