@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, memo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Star, Calendar, ChevronDown, ChevronUp } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
@@ -206,7 +206,50 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     }
   }, [getCacheKey, isMatchOldEnded]);
 
-  // Enhanced data fetching function combining original league iteration with Simple API
+  // Selective live data update function - only updates scores, status, elapsed time
+  const updateLiveMatchData = useCallback(async () => {
+    try {
+      console.log(`🔴 [MyNewLeague] Fetching selective live updates only`);
+      const response = await apiRequest("GET", "/api/fixtures/live/selective");
+      const liveData = await response.json();
+
+      if (Array.isArray(liveData)) {
+        // Filter live fixtures to only include our target leagues
+        const relevantLiveFixtures = liveData.filter(fixture => 
+          leagueIds.includes(fixture.league?.id)
+        );
+
+        if (relevantLiveFixtures.length > 0) {
+          console.log(`🔴 [MyNewLeague] Updating ${relevantLiveFixtures.length} live matches`);
+
+          // Update existing fixtures with live data WITHOUT full re-render
+          setFixtures(prevFixtures => {
+            return prevFixtures.map(fixture => {
+              const liveUpdate = relevantLiveFixtures.find(live => live.fixture.id === fixture.fixture.id);
+              
+              if (liveUpdate) {
+                // Only update the dynamic fields, keep static data unchanged
+                return {
+                  ...fixture,
+                  fixture: {
+                    ...fixture.fixture,
+                    status: liveUpdate.fixture.status, // Update status and elapsed time
+                  },
+                  goals: liveUpdate.goals, // Update scores
+                };
+              }
+              
+              return fixture; // Return unchanged for non-live matches
+            });
+          });
+        }
+      }
+    } catch (liveError) {
+      console.warn("🔴 [MyNewLeague] Failed to fetch live updates:", liveError);
+    }
+  }, []);
+
+  // Enhanced data fetching function for initial load and non-live data
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
     if (!isUpdate) {
       setLoading(true);
@@ -219,35 +262,27 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
       console.log(`🔍 [MyNewLeague] Fetching data for ${selectedDate}`);
 
-      // Always fetch live fixtures for real-time data
-      try {
-        console.log(`🔴 [MyNewLeague] Fetching live fixtures`);
-        const response = await apiRequest("GET", "/api/fixtures/live");
-        const liveData = await response.json();
+      // For initial load or updates, fetch live fixtures
+      if (!isUpdate) {
+        try {
+          console.log(`🔴 [MyNewLeague] Fetching live fixtures for initial load`);
+          const response = await apiRequest("GET", "/api/fixtures/live");
+          const liveData = await response.json();
 
-        if (Array.isArray(liveData)) {
-          // Filter live fixtures to only include our target leagues
-          const relevantLiveFixtures = liveData.filter(fixture => 
-            leagueIds.includes(fixture.league?.id)
-          );
+          if (Array.isArray(liveData)) {
+            const relevantLiveFixtures = liveData.filter(fixture => 
+              leagueIds.includes(fixture.league?.id)
+            );
 
-          if (relevantLiveFixtures.length > 0) {
-            console.log(`🔴 [MyNewLeague] Found ${relevantLiveFixtures.length} live fixtures from target leagues`);
+            if (relevantLiveFixtures.length > 0) {
+              console.log(`🔴 [MyNewLeague] Found ${relevantLiveFixtures.length} live fixtures from target leagues`);
+            }
 
-            // Check if any live fixtures were previously cached as upcoming
-            relevantLiveFixtures.forEach(liveFixture => {
-              const previousFixture = fixtures.find(f => f.fixture.id === liveFixture.fixture.id);
-              if (previousFixture && previousFixture.fixture.status.short === 'NS') {
-                console.log(`🔄 [MyNewLeague] Status transition detected: ${liveFixture.teams.home.name} vs ${liveFixture.teams.away.name} (NS → ${liveFixture.fixture.status.short})`);
-              }
-            });
+            allFixtures.push(...relevantLiveFixtures);
           }
-
-          // Add live fixtures first
-          allFixtures.push(...relevantLiveFixtures);
+        } catch (liveError) {
+          console.warn("🔴 [MyNewLeague] Failed to fetch live fixtures:", liveError);
         }
-      } catch (liveError) {
-        console.warn("🔴 [MyNewLeague] Failed to fetch live fixtures:", liveError);
       }
 
       // Iterate through each league to fetch fixtures
@@ -565,20 +600,35 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   useEffect(() => {
     fetchLeagueData(false);
 
-    // Check if we have any live matches to determine refresh frequency
+    // Check if we have any live matches to determine refresh strategy
     const hasLiveMatches = fixtures.some(fixture => 
       ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture.status.short)
     );
 
-    // More aggressive refresh for live matches, less aggressive for non-live
-    const refreshInterval = hasLiveMatches ? 15000 : 60000; // 15s for live, 60s for non-live
+    console.log(`⏰ [MyNewLeague] Setting up selective updates (hasLiveMatches: ${hasLiveMatches})`);
 
-    console.log(`⏰ [MyNewLeague] Setting refresh interval to ${refreshInterval/1000}s (hasLiveMatches: ${hasLiveMatches})`);
+    let liveUpdateInterval: NodeJS.Timeout | null = null;
+    let fullUpdateInterval: NodeJS.Timeout | null = null;
 
-    // Set up periodic refresh with dynamic interval
-    const interval = setInterval(() => {
-      fetchLeagueData(true); // Pass true to indicate this is an update
-    }, refreshInterval);
+    if (hasLiveMatches) {
+      // For live matches: frequent selective updates (10s) + occasional full updates (5min)
+      liveUpdateInterval = setInterval(() => {
+        updateLiveMatchData(); // Only update scores, status, elapsed time
+      }, 10000); // 10 seconds for live data
+
+      fullUpdateInterval = setInterval(() => {
+        fetchLeagueData(true); // Full update every 5 minutes to catch new matches
+      }, 5 * 60 * 1000); // 5 minutes
+
+      console.log(`⏰ [MyNewLeague] Live mode: 10s selective updates + 5min full updates`);
+    } else {
+      // For non-live matches: less frequent full updates only
+      fullUpdateInterval = setInterval(() => {
+        fetchLeagueData(true);
+      }, 60000); // 1 minute
+
+      console.log(`⏰ [MyNewLeague] Non-live mode: 60s full updates`);
+    }
 
     // Set up periodic cleanup of status transitions - every 5 minutes
     const cleanupInterval = setInterval(() => {
@@ -586,10 +636,11 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     }, 5 * 60 * 1000);
 
     return () => {
-      clearInterval(interval);
+      if (liveUpdateInterval) clearInterval(liveUpdateInterval);
+      if (fullUpdateInterval) clearInterval(fullUpdateInterval);
       clearInterval(cleanupInterval);
     };
-  }, [fetchLeagueData, selectedDate, fixtures.length]);
+  }, [fetchLeagueData, updateLiveMatchData, selectedDate, fixtures.length]);
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
@@ -862,8 +913,8 @@ b.fixture.status.elapsed) || 0;
     });
   }, []);
 
-  // Memoize team logos separately to prevent logo rerenders
-  const TeamLogo = memo(({ teamId, teamName, logoUrl, size, leagueGroup }: {
+  // Direct components without memoization since selective updates prevent unnecessary re-renders
+  const TeamLogo = ({ teamId, teamName, logoUrl, size, leagueGroup }: {
     teamId: number;
     teamName: string;
     logoUrl: string;
@@ -881,10 +932,10 @@ b.fixture.status.elapsed) || 0;
         country: leagueGroup.league.country,
       }}
     />
-  ));
+  );
 
-  // Memoized match card component to prevent unnecessary re-renders
-  const MatchCard = memo(({ 
+  // Direct match card component - no memoization needed with selective updates
+  const MatchCard = ({ 
     match, 
     isHalftimeFlash, isFulltimeFlash, 
     isGoalFlash, 
@@ -902,12 +953,11 @@ b.fixture.status.elapsed) || 0;
     onMatchClick?: (match: any) => void;
     leagueGroup: any;
   }) => {
-    // Memoize the click handler to prevent re-renders
-    const handleMatchClick = useCallback(() => {
+    const handleMatchClick = () => {
       if (onMatchClick) {
         onMatchClick(match);
       }
-    }, [match, onMatchClick]);
+    };
 
     return (
       <div

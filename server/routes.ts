@@ -32,6 +32,7 @@ import athlete365Routes from './routes/athlete365Routes';
 import scores365StatsRoutes from './routes/365scoresStatsRoutes';
 import keyPlayersRoutes from './routes/365scoresKeyPlayersRoutes';
 import playersRoutes from './routes/playersRoutes';
+import selectiveLiveRoutes from './routes/selectiveLiveRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -820,6 +821,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               flag: "https://media.api-sports.io/flags/de.svg",
             },
 
+          ```python
           },
           {
             league: {
@@ -1722,19 +1724,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req: Request, res: Response) => {
       try {
         const { fixtureId } = req.params;
-        
+
         const response = await rapidApi.get('/fixtures/players', {
           params: { fixture: fixtureId }
         });
-        
+
         // Extract shot data from player statistics
         const shots: any[] = [];
-        
+
         response.data.response.forEach((team: any) => {
           team.players?.forEach((playerData: any) => {
             const player = playerData.player;
             const statistics = playerData.statistics[0]; // First statistics object
-            
+
             // Check if player has shot data
             if (statistics.shots && statistics.shots.total > 0) {
               // For each shot (you'd need more detailed shot data from API)
@@ -1760,7 +1762,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           });
         });
-        
+
         res.json(shots);
       } catch (error) {
         console.error('Error fetching shot data:', error);
@@ -2669,7 +2671,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             error: "Match not found",
           });
         }
-      } catch (error) {
+      } catch (```python
+error) {
         console.error("❌ [SoccersAPI] Error fetching match details:", error);
         res.status(500).json({
           success: false,        error: "Failed to fetch SoccersAPI match details",
@@ -3284,6 +3287,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', playerRoutes);
   app.use('/api', playersRoutes);
   app.use('/api', youtubeRoutes);
+  app.use('/api/fixtures', selectiveLiveRoutes);
 
   return httpServer;
 }
