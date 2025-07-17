@@ -322,9 +322,14 @@
   background-color: transparent;
 }
 
-.country-matches-container .status-live {
+.country-matches-container .status-live-elapsed {
   color: rgb(220 38 38);
   animation: pulse 2s infinite;
+}
+
+.country-matches-container .status-halftime {
+  color: rgb(220 38 38);
+  /* No animation for halftime - static display */
 }
 
 .country-matches-container .status-ended {
