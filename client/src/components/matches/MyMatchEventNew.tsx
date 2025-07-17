@@ -890,7 +890,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3```typescript
+            <h3
  className="text-md font-semibold">Match Events</h3>
 
           </div>
