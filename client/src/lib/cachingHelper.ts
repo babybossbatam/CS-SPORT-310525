@@ -9,7 +9,7 @@ interface CachedQueryOptions<T> extends Partial<UseQueryOptions<T>> {
   backgroundRefresh?: boolean;
 }
 
-// Enhanced useQuery hook with smart caching
+// Simplified cached query hook - selective fetching approach
 export const useCachedQuery = <T>(
   queryKey: string[],
   queryFn: () => Promise<T>,
@@ -17,60 +17,20 @@ export const useCachedQuery = <T>(
 ) => {
   const {
     forceRefresh = false,
-    maxAge = 30 * 60 * 1000, // 30 minutes default
-    backgroundRefresh = false, // Default to false to prevent frequent calls
+    maxAge = 30 * 60 * 1000,
     ...queryOptions
   } = options;
 
-  // Check if we should use cached data
-  const existingQuery = queryClient.getQueryData(queryKey);
-  const queryState = queryClient.getQueryState(queryKey);
-  
-  const shouldUseCache = existingQuery && 
-                        queryState?.dataUpdatedAt && 
-                        CACHE_FRESHNESS.isFresh(queryState.dataUpdatedAt, maxAge) && 
-                        !forceRefresh;
-
-  console.log(`📋 [Cache Check] ${queryKey.join('-')}:`, {
-    hasExistingData: !!existingQuery,
-    dataAge: queryState?.dataUpdatedAt ? Date.now() - queryState.dataUpdatedAt : null,
-    maxAge,
-    shouldUseCache,
-    forceRefresh
-  });
-
   return useQuery({
     queryKey,
-    queryFn: async () => {
-      // If we have fresh cache and not forcing refresh, return cached data
-      if (shouldUseCache && !forceRefresh) {
-        console.log(`✅ [Cache Hit] Using cached data for: ${queryKey.join('-')}`);
-        return existingQuery;
-      }
-
-      console.log(`🔄 [Cache Miss] Fetching fresh data for: ${queryKey.join('-')}`);
-      const result = await queryFn();
-      
-      // Store in localStorage as backup
-      try {
-        const cacheKey = queryKey.join('-');
-        localStorage.setItem(cacheKey, JSON.stringify({
-          data: result,
-          timestamp: Date.now()
-        }));
-      } catch (error) {
-        console.warn('Failed to store in localStorage:', error);
-      }
-      
-      return result;
-    },
+    queryFn,
     enabled: queryOptions.enabled !== false,
     staleTime: maxAge,
-    gcTime: maxAge * 3, // Keep in memory longer
+    gcTime: maxAge * 2, // Reduce memory usage
     refetchOnWindowFocus: false,
-    refetchOnMount: false, // Never refetch on mount to prevent unnecessary calls
+    refetchOnMount: false,
     refetchOnReconnect: false,
-    retry: 1, // Reduce retry attempts
+    retry: 1,
     ...queryOptions,
   });
 };

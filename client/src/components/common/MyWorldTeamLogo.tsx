@@ -1,5 +1,4 @@
-
-import React, { useMemo } from "react";
+import React from "react";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MyCircularFlag from "./MyCircularFlag";
 import LazyImage from "./LazyImage";
@@ -23,7 +22,7 @@ interface MyWorldTeamLogoProps {
   showNextMatchOverlay?: boolean;
 }
 
-const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = React.memo(({
+const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   teamName,
   teamLogo,
   alt,
@@ -34,66 +33,51 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = React.memo(({
   nextMatchInfo,
   showNextMatchOverlay = false,
 }) => {
-  // Memoize team type checks to prevent recalculation
-  const teamTypeChecks = useMemo(() => {
-    const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
-    const isYouthTeam = teamName?.includes("U17") || 
-                       teamName?.includes("U19") ||
-                       teamName?.includes("U20") || 
-                       teamName?.includes("U21") ||
-                       teamName?.includes("U23");
+  // Simple checks without excessive memoization
+  const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
+  const isYouthTeam = teamName?.includes("U17") || 
+                     teamName?.includes("U19") ||
+                     teamName?.includes("U20") || 
+                     teamName?.includes("U21") ||
+                     teamName?.includes("U23");
 
-    const leagueName = leagueContext?.name?.toLowerCase() || "";
-    const isFifaClubWorldCup = leagueName.includes("fifa club world cup");
-    const isFriendliesClub = leagueName.includes("friendlies clubs");
-    const isUefaEuropaLeague = leagueName.includes("uefa europa league") || 
-                              leagueName.includes("europa league");
-    const isUefaConferenceLeague = leagueName.includes("uefa europa conference league") || 
-                                  leagueName.includes("europa conference league");
-    const isUefaChampionsLeague = leagueName.includes("uefa champions league") || 
-                                 leagueName.includes("champions league");
-    const isConmebolSudamericana = leagueName.includes("conmebol sudamericana") ||
-                                  leagueName.includes("copa sudamericana");
-    const isBrazilianLeague = leagueContext?.country?.toLowerCase() === "brazil";
-    const isBrazilianTeam = isBrazilianLeague || teamName?.toLowerCase().includes("brazil");
+  const leagueName = leagueContext?.name?.toLowerCase() || "";
+  const isFifaClubWorldCup = leagueName.includes("fifa club world cup");
+  const isFriendliesClub = leagueName.includes("friendlies clubs");
+  const isUefaEuropaLeague = leagueName.includes("uefa europa league") || 
+                            leagueName.includes("europa league");
+  const isUefaConferenceLeague = leagueName.includes("uefa europa conference league") || 
+                                leagueName.includes("europa conference league");
+  const isUefaChampionsLeague = leagueName.includes("uefa champions league") || 
+                               leagueName.includes("champions league");
+  const isConmebolSudamericana = leagueName.includes("conmebol sudamericana") ||
+                                leagueName.includes("copa sudamericana");
 
-    return {
-      isActualNationalTeam,
-      isYouthTeam,
-      isFifaClubWorldCup,
-      isFriendliesClub,
-      isUefaEuropaLeague,
-      isUefaConferenceLeague,
-      isUefaChampionsLeague,
-      isConmebolSudamericana,
-      shouldUseCircularFlag: (isActualNationalTeam || isYouthTeam) && 
-                            !isFifaClubWorldCup && 
-                            !isFriendliesClub && 
-                            !isUefaEuropaLeague && 
-                            !isUefaConferenceLeague && 
-                            !isUefaChampionsLeague && 
-                            !isConmebolSudamericana
-    };
-  }, [teamName, leagueContext]);
+  const shouldUseCircularFlag = (isActualNationalTeam || isYouthTeam) && 
+                              !isFifaClubWorldCup && 
+                              !isFriendliesClub && 
+                              !isUefaEuropaLeague && 
+                              !isUefaConferenceLeague && 
+                              !isUefaChampionsLeague && 
+                              !isConmebolSudamericana;
 
-  // Memoize container style to prevent object recreation
-  const containerStyle = useMemo(() => ({
+  // Simple inline styles without memoization
+  const containerStyle = {
     width: size,
     height: size,
     position: "relative" as const,
     left: moveLeft ? "-16px" : "4px",
-  }), [size, moveLeft]);
+  };
 
-  // Memoize image style to prevent object recreation
-  const imageStyle = useMemo(() => ({ 
+  const imageStyle = { 
     backgroundColor: "transparent",
     width: "100%",
     height: "100%",
     objectFit: "contain" as const,
     borderRadius: "0%"
-  }), []);
+  };
 
-  if (teamTypeChecks.shouldUseCircularFlag) {
+  if (shouldUseCircularFlag) {
     return (
       <MyCircularFlag
         teamName={teamName}
@@ -124,8 +108,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = React.memo(({
       />
     </div>
   );
-});
-
-MyWorldTeamLogo.displayName = 'MyWorldTeamLogo';
+};
 
 export default MyWorldTeamLogo;
