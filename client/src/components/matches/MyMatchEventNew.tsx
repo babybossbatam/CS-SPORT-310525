@@ -447,7 +447,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     event: MatchEvent;
     isLast: boolean;
   }) => {
-    const isHome = isHomeTeam(event);
+    // For own goals, show on the side of the team that benefits (opposite of scoring team)
+                    const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
+                    const isHome = isOwnGoal ? event.team?.name !== homeTeam : event.team?.name === homeTeam;
 
     return (
       <div className="relative flex items-center">
@@ -888,10 +890,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-md font-semibold">Match Events</h3>
-         
+            <h3```typescript
+ className="text-md font-semibold">Match Events</h3>
+
           </div>
-         
+
         </div>
 
       </CardHeader>
@@ -1126,7 +1129,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       );
                     }
 
-                    const isHome = event.team?.name === homeTeam;
+                    // For own goals, show on the side of the team that benefits (opposite of scoring team)
+                    const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
+                    const isHome = isOwnGoal ? event.team?.name !== homeTeam : event.team?.name === homeTeam;
 
                     return (
                       <div key={`event-${index}`} className="match-event-container">
@@ -1636,7 +1641,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       );
                     }
 
-                    const isHome = event.team?.name === homeTeam;
+                    // For own goals, show on the side of the team that benefits (opposite of scoring team)
+                    const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
+                    const isHome = isOwnGoal ? event.team?.name !== homeTeam : event.team?.name === homeTeam;
 
                     return (
                       <div key={`goal-event-${index}`} className="match-event-container">
@@ -1756,8 +1763,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         } else if (detail.includes("own goal")) {
                                           return (
                                             <img
-                                              src="/assets/matchdetaillogo/soccer-logo.svg"
-                                              alt="Own Goal"
+                                              src="/assets/matchdetaillogo/soccer-logo.svg                                              alt="Own Goal"
                                               className="w-4 h-4 "
                                             />
                                           );
