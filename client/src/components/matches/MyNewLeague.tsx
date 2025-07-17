@@ -220,7 +220,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
       }
 
       console.log(`🔴 [MyNewLeague] Updating ${currentLiveMatches.length} live matches`);
-      
+
       const response = await apiRequest("GET", "/api/fixtures/live/selective");
       const liveData = await response.json();
 
@@ -234,7 +234,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           setFixtures(prevFixtures => {
             const updatedFixtures = prevFixtures.map(fixture => {
               const liveUpdate = relevantLiveFixtures.find(live => live.fixture.id === fixture.fixture.id);
-              
+
               if (liveUpdate && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short)) {
                 return {
                   ...fixture,
@@ -245,10 +245,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                   goals: liveUpdate.goals,
                 };
               }
-              
+
               return fixture;
             });
-            
+
             return updatedFixtures;
           });
         }
@@ -325,9 +325,9 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
               // Convert fixture UTC time to user's local timezone
               const fixtureUTCDate = new Date(fixtureDate);
               const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
-              
+
               const matches = fixtureLocalDate === selectedDate;
-              
+
               if (matches) {
                 console.log(`🎯 [TIMEZONE AWARE FETCH] Including match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
                   fixtureUTCTime: fixtureDate,
@@ -446,14 +446,14 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
             if (fixtureDate) {
               const fixtureUTCDate = new Date(fixtureDate);
               const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
-              
+
               // Only include fixtures that match the selected date in local timezone
               if (fixtureLocalDate === selectedDate) {
                 if (!leagueFixturesMap.has(leagueId)) {
                   leagueFixturesMap.set(leagueId, []);
                 }
                 leagueFixturesMap.get(leagueId).push(fixture);
-                
+
                 console.log(`🌍 [SMART FETCH TIMEZONE] Including: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
                   fixtureUTCTime: fixtureDate,
                   fixtureLocalDate,
@@ -613,7 +613,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     const liveMatches = fixtures.filter(fixture => 
       ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture.status.short)
     );
-    
+
     const upcomingMatches = fixtures.filter(fixture => 
       ['NS', 'TBD'].includes(fixture.fixture.status.short)
     );
@@ -757,7 +757,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     // Convert fixture UTC time to user's local timezone first
     const fixtureUTCDate = new Date(fixtureDate);
     const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
-    
+
     // Debug timezone conversion
     console.log(`🌍 [TIMEZONE CONVERSION] Match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
       fixtureUTCTime: fixtureDate,
@@ -770,7 +770,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
 
     // Primary filter: match the local date with selected date
     const dateMatches = fixtureLocalDate === selectedDate;
-    
+
     if (!dateMatches) {
       console.log(`❌ [TIMEZONE DATE FILTER] Excluded match: ${f.teams.home.name} vs ${f.teams.away.name}`, {
         reason: 'Date mismatch after timezone conversion',
@@ -1058,21 +1058,11 @@ b.fixture.status.elapsed) || 0;
                   }
 
                   return (
-                    <div 
-                      className="match-status-label status-live"
-                      style={{
-                        minWidth: '60px',
-                        textAlign: 'center',
-                        transition: 'none',
-                        animation: 'none',
-                        padding: '2px 8px',
-                        fontSize: '11px',
-                        fontWeight: '600'
-                      }}
-                    >
-                      {displayText}
-                    </div>
-                  );
+                    
+                      <div className={`match-status-label ${status === "HT" ? "status-halftime" : "status-live-elapsed"}`}>
+                        {displayText}
+                      </div>
+                    );
                 }
 
                 if (
@@ -1329,19 +1319,19 @@ b.fixture.status.elapsed) || 0;
     // Simple comparison - only re-render if essential props change
     const prevMatch = prevProps.match;
     const nextMatch = nextProps.match;
-    
+
     if (prevMatch.fixture.id !== nextMatch.fixture.id) {
       return false; // Different match, re-render
     }
-    
+
     const status = nextMatch.fixture.status.short;
     const isEndedMatch = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
-    
+
     // For ended matches, only re-render if starred status changes
     if (isEndedMatch) {
       return prevProps.isStarred === nextProps.isStarred; // True = prevent re-render
     }
-    
+
     // For live/upcoming matches, compare essential props
     return (
       prevMatch.fixture.status.short === nextMatch.fixture.status.short &&
@@ -1433,7 +1423,7 @@ b.fixture.status.elapsed) || 0;
 
       // Only track changes for live/upcoming matches
       const isLiveOrUpcoming = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT', 'NS', 'TBD'].includes(currentStatus);
-      
+
       if (isLiveOrUpcoming && previousStatus && previousStatus !== currentStatus) {
         console.log(`🔄 [MyNewLeague] Status change: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${previousStatus} → ${currentStatus})`);
 
