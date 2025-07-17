@@ -206,46 +206,42 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     }
   }, [getCacheKey, isMatchOldEnded]);
 
-  // Selective live data update function - only updates scores, status, elapsed time
+  // Simple live data update - only scores, status, elapsed time
   const updateLiveMatchData = useCallback(async () => {
     try {
-      console.log(`🔴 [MyNewLeague] Fetching selective live updates only`);
       const response = await apiRequest("GET", "/api/fixtures/live/selective");
       const liveData = await response.json();
 
       if (Array.isArray(liveData)) {
-        // Filter live fixtures to only include our target leagues
         const relevantLiveFixtures = liveData.filter(fixture => 
           leagueIds.includes(fixture.league?.id)
         );
 
         if (relevantLiveFixtures.length > 0) {
-          console.log(`🔴 [MyNewLeague] Updating ${relevantLiveFixtures.length} live matches`);
-
-          // Update existing fixtures with live data WITHOUT full re-render
+          // Simple update - only live data fields
           setFixtures(prevFixtures => {
             return prevFixtures.map(fixture => {
               const liveUpdate = relevantLiveFixtures.find(live => live.fixture.id === fixture.fixture.id);
               
               if (liveUpdate) {
-                // Only update the dynamic fields, keep static data unchanged
+                // Update only live data - no team names, logos, or other static data
                 return {
                   ...fixture,
                   fixture: {
                     ...fixture.fixture,
-                    status: liveUpdate.fixture.status, // Update status and elapsed time
+                    status: liveUpdate.fixture.status,
                   },
-                  goals: liveUpdate.goals, // Update scores
+                  goals: liveUpdate.goals,
                 };
               }
               
-              return fixture; // Return unchanged for non-live matches
+              return fixture;
             });
           });
         }
       }
-    } catch (liveError) {
-      console.warn("🔴 [MyNewLeague] Failed to fetch live updates:", liveError);
+    } catch (error) {
+      console.warn("Failed to fetch live updates:", error);
     }
   }, []);
 
@@ -600,45 +596,27 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   useEffect(() => {
     fetchLeagueData(false);
 
-    // Check if we have any live matches to determine refresh strategy
+    // Simple update strategy
     const hasLiveMatches = fixtures.some(fixture => 
       ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture.status.short)
     );
 
-    console.log(`⏰ [MyNewLeague] Setting up selective updates (hasLiveMatches: ${hasLiveMatches})`);
-
-    let liveUpdateInterval: NodeJS.Timeout | null = null;
-    let fullUpdateInterval: NodeJS.Timeout | null = null;
+    let updateInterval: NodeJS.Timeout | null = null;
 
     if (hasLiveMatches) {
-      // For live matches: frequent selective updates (10s) + occasional full updates (5min)
-      liveUpdateInterval = setInterval(() => {
-        updateLiveMatchData(); // Only update scores, status, elapsed time
-      }, 10000); // 10 seconds for live data
-
-      fullUpdateInterval = setInterval(() => {
-        fetchLeagueData(true); // Full update every 5 minutes to catch new matches
-      }, 5 * 60 * 1000); // 5 minutes
-
-      console.log(`⏰ [MyNewLeague] Live mode: 10s selective updates + 5min full updates`);
+      // For live matches: update only live data every 10 seconds
+      updateInterval = setInterval(() => {
+        updateLiveMatchData();
+      }, 10000);
     } else {
-      // For non-live matches: less frequent full updates only
-      fullUpdateInterval = setInterval(() => {
+      // For non-live matches: full update every 60 seconds
+      updateInterval = setInterval(() => {
         fetchLeagueData(true);
-      }, 60000); // 1 minute
-
-      console.log(`⏰ [MyNewLeague] Non-live mode: 60s full updates`);
+      }, 60000);
     }
 
-    // Set up periodic cleanup of status transitions - every 5 minutes
-    const cleanupInterval = setInterval(() => {
-      fixtureCache.invalidateTransitionedFixtures();
-    }, 5 * 60 * 1000);
-
     return () => {
-      if (liveUpdateInterval) clearInterval(liveUpdateInterval);
-      if (fullUpdateInterval) clearInterval(fullUpdateInterval);
-      clearInterval(cleanupInterval);
+      if (updateInterval) clearInterval(updateInterval);
     };
   }, [fetchLeagueData, updateLiveMatchData, selectedDate, fixtures.length]);
 
@@ -913,13 +891,11 @@ b.fixture.status.elapsed) || 0;
     });
   }, []);
 
-  // Direct components without memoization since selective updates prevent unnecessary re-renders
-  const TeamLogo = ({ teamId, teamName, logoUrl, size, leagueGroup }: {
-    teamId: number;
+  // Simple team logo component - no memoization needed
+  const TeamLogo = ({ teamName, logoUrl, size }: {
     teamName: string;
     logoUrl: string;
     size: string;
-    leagueGroup: any;
   }) => (
     <MyWorldTeamLogo
       teamName={teamName}
@@ -927,10 +903,6 @@ b.fixture.status.elapsed) || 0;
       alt={teamName}
       size={size}
       className="popular-leagues-size"
-      leagueContext={{
-        name: leagueGroup.league.name,
-        country: leagueGroup.league.country,
-      }}
     />
   );
 
@@ -1136,7 +1108,6 @@ b.fixture.status.elapsed) || 0;
                 style={{ padding: "0 0.6rem" }}
               >
                 <TeamLogo
-                  teamId={match.teams.home.id}
                   teamName={match.teams.home.name}
                   logoUrl={
                     match.teams.home.id
@@ -1144,7 +1115,6 @@ b.fixture.status.elapsed) || 0;
                       : "/assets/fallback-logo.svg"
                   }
                   size="34px"
-                  leagueGroup={leagueGroup}
                 />
               </div>
 
@@ -1245,7 +1215,6 @@ b.fixture.status.elapsed) || 0;
                 style={{ padding: "0 0.5rem" }}
               >
                 <TeamLogo
-                  teamId={match.teams.away.id}
                   teamName={match.teams.away.name}
                   logoUrl={
                     match.teams.away.id
@@ -1253,7 +1222,6 @@ b.fixture.status.elapsed) || 0;
                       : "/assets/fallback-logo.svg"
                   }
                   size="34px"
-                  leagueGroup={leagueGroup}
                 />
               </div>
 
