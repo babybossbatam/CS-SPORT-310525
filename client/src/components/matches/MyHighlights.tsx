@@ -107,9 +107,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   // Create more targeted search queries with correct home vs away order
   const primarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear}`.trim();
-  const secondarySearchQuery = `${home} ${away} highlights ${league} ${matchYear}`.trim();
+  const secondarySearchQuery = `"${home}" "${away}" ${league} highlights ${matchYear}`.trim();
   const tertiarySearchQuery = `${home} vs ${away} ${matchYear} highlights`.trim();
   const fallbackSearchQuery = `${home} vs ${away} highlights`.trim();
+  
+  // Additional specific search for exact order
+  const exactOrderQuery = `${home} v ${away} highlights ${matchYear}`.trim();
 
   // Debug logging to verify correct team names and order
   console.log(`🎬 [Highlights] Match data extraction with correct home/away order:`, {
@@ -197,14 +200,81 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     return true;
   };
 
-  // Helper function to filter and sort videos by title order preference
+  // Helper function to calculate relevance score for video titles
+  const calculateRelevanceScore = (title: string, homeTeam: string, awayTeam: string): number => {
+    const titleLower = title.toLowerCase();
+    const homeLower = homeTeam.toLowerCase();
+    const awayLower = awayTeam.toLowerCase();
+    
+    let score = 0;
+    
+    // Check for exact team name matches
+    const homePos = titleLower.indexOf(homeLower);
+    const awayPos = titleLower.indexOf(awayLower);
+    
+    if (homePos !== -1 && awayPos !== -1) {
+      // Both teams found
+      score += 10;
+      
+      // Bonus for correct order (home before away)
+      if (homePos < awayPos) {
+        score += 5;
+      } else {
+        // Penalty for wrong order
+        score -= 3;
+      }
+      
+      // Check for "vs" between teams
+      const vsKeywords = ['vs', 'v ', 'versus', '-', 'against'];
+      const teamSection = titleLower.substring(homePos, awayPos + awayLower.length);
+      if (vsKeywords.some(keyword => teamSection.includes(keyword))) {
+        score += 3;
+      }
+      
+      // Bonus for highlights-related keywords
+      const highlightKeywords = ['highlights', 'goals', 'best moments', 'summary', 'extended'];
+      if (highlightKeywords.some(keyword => titleLower.includes(keyword))) {
+        score += 2;
+      }
+      
+      // Bonus for exact match format "Team1 vs Team2"
+      const exactPattern = new RegExp(`${homeLower}\\s*(vs?|v|-)\\s*${awayLower}`, 'i');
+      if (exactPattern.test(titleLower)) {
+        score += 4;
+      }
+    } else if (homePos !== -1 || awayPos !== -1) {
+      // Only one team found - lower score
+      score += 2;
+    }
+    
+    return score;
+  };
+
+  // Helper function to filter and sort videos by relevance and title order
   const filterAndSortVideos = (videos: any[], homeTeam: string, awayTeam: string) => {
     return videos
-      .map(video => ({
-        ...video,
-        orderScore: validateTitleOrder(video.snippet?.title || '', homeTeam, awayTeam) ? 1 : 0
-      }))
-      .sort((a, b) => b.orderScore - a.orderScore); // Prefer correct order first
+      .map(video => {
+        const title = video.snippet?.title || '';
+        const relevanceScore = calculateRelevanceScore(title, homeTeam, awayTeam);
+        const correctOrder = validateTitleOrder(title, homeTeam, awayTeam);
+        
+        return {
+          ...video,
+          relevanceScore,
+          correctOrder,
+          // Combined score prioritizing relevance and correct order
+          combinedScore: relevanceScore + (correctOrder ? 2 : 0)
+        };
+      })
+      .filter(video => video.relevanceScore >= 5) // Only keep videos with good relevance
+      .sort((a, b) => {
+        // First sort by combined score (relevance + order bonus)
+        if (b.combinedScore !== a.combinedScore) {
+          return b.combinedScore - a.combinedScore;
+        }
+        // Then by relevance score
+        return b.relevanceScore - a.relevanceScore;
+      });
   };
 
   const videoSources = [
@@ -407,12 +477,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'YouTube',
       type: 'youtube' as const,
       searchFn: async () => {
-        // Try multiple search queries in order of specificity
-        const queries = [primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
+        // Try multiple search queries in order of specificity, including exact order
+        const queries = [exactOrderQuery, primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
         
         for (const query of queries) {
           try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=10&order=relevance`);
             const data = await response.json();
 
             if (data.error || data.quotaExceeded) {
@@ -420,16 +490,26 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             }
 
             if (data.items && data.items.length > 0) {
-              // Filter and sort by title order preference
+              // Filter and sort by relevance and title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
-              const video = sortedVideos[0];
-              return {
-                name: 'YouTube',
-                type: 'youtube' as const,
-                url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
-                embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
-                title: video.snippet.title
-              };
+              
+              console.log(`🎬 [Highlights] YouTube search results for "${query}":`, sortedVideos.map(v => ({
+                title: v.snippet?.title,
+                relevanceScore: v.relevanceScore,
+                correctOrder: v.correctOrder,
+                combinedScore: v.combinedScore
+              })));
+              
+              if (sortedVideos.length > 0) {
+                const video = sortedVideos[0];
+                return {
+                  name: 'YouTube',
+                  type: 'youtube' as const,
+                  url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+                  embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+                  title: video.snippet.title
+                };
+              }
             }
           } catch (error) {
             console.warn(`🎬 [Highlights] YouTube search failed for query: ${query}`, error);
@@ -484,11 +564,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'YouTube Extended',
       type: 'youtube' as const,
       searchFn: async () => {
-        // Try different combinations for better results with year emphasis
+        // Try different combinations for better results with year emphasis and exact order
         const fallbackQueries = [
-          `"${home}" "${away}" highlights ${matchYear}`,
+          `"${home}" v "${away}" highlights ${matchYear}`,
+          `"${home}" vs "${away}" highlights ${matchYear}`,
           `${home} ${away} highlights football ${matchYear}`,
-          `"${rawHome}" "${rawAway}" highlights ${matchYear}`,
+          `"${rawHome}" v "${rawAway}" highlights ${matchYear}`,
           `${home} vs ${away} ${league} ${matchYear}`,
           `${home} ${away} goals highlights ${matchYear}`,
           `${home} ${away} ${matchYear} match highlights`,
