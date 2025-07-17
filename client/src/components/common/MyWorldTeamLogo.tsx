@@ -1,4 +1,5 @@
-import React from "react";
+
+import React, { useMemo } from "react";
 import { isNationalTeam } from "@/lib/teamLogoSources";
 import MyCircularFlag from "./MyCircularFlag";
 import LazyImage from "./LazyImage";
@@ -22,7 +23,7 @@ interface MyWorldTeamLogoProps {
   showNextMatchOverlay?: boolean;
 }
 
-const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
+const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = React.memo(({
   teamName,
   teamLogo,
   alt,
@@ -33,46 +34,66 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   nextMatchInfo,
   showNextMatchOverlay = false,
 }) => {
-  // Check if this is a national team
-  const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
+  // Memoize team type checks to prevent recalculation
+  const teamTypeChecks = useMemo(() => {
+    const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
+    const isYouthTeam = teamName?.includes("U17") || 
+                       teamName?.includes("U19") ||
+                       teamName?.includes("U20") || 
+                       teamName?.includes("U21") ||
+                       teamName?.includes("U23");
 
-  // Check for youth teams
-  const isYouthTeam = teamName?.includes("U17") || 
-                     teamName?.includes("U19") ||
-                     teamName?.includes("U20") || 
-                     teamName?.includes("U21") ||
-                     teamName?.includes("U23");
+    const leagueName = leagueContext?.name?.toLowerCase() || "";
+    const isFifaClubWorldCup = leagueName.includes("fifa club world cup");
+    const isFriendliesClub = leagueName.includes("friendlies clubs");
+    const isUefaEuropaLeague = leagueName.includes("uefa europa league") || 
+                              leagueName.includes("europa league");
+    const isUefaConferenceLeague = leagueName.includes("uefa europa conference league") || 
+                                  leagueName.includes("europa conference league");
+    const isUefaChampionsLeague = leagueName.includes("uefa champions league") || 
+                                 leagueName.includes("champions league");
+    const isConmebolSudamericana = leagueName.includes("conmebol sudamericana") ||
+                                  leagueName.includes("copa sudamericana");
+    const isBrazilianLeague = leagueContext?.country?.toLowerCase() === "brazil";
+    const isBrazilianTeam = isBrazilianLeague || teamName?.toLowerCase().includes("brazil");
 
-  // Check if this is FIFA Club World Cup (club competition, not national teams)
-  const isFifaClubWorldCup = leagueContext?.name?.toLowerCase().includes("fifa club world cup");
+    return {
+      isActualNationalTeam,
+      isYouthTeam,
+      isFifaClubWorldCup,
+      isFriendliesClub,
+      isUefaEuropaLeague,
+      isUefaConferenceLeague,
+      isUefaChampionsLeague,
+      isConmebolSudamericana,
+      shouldUseCircularFlag: (isActualNationalTeam || isYouthTeam) && 
+                            !isFifaClubWorldCup && 
+                            !isFriendliesClub && 
+                            !isUefaEuropaLeague && 
+                            !isUefaConferenceLeague && 
+                            !isUefaChampionsLeague && 
+                            !isConmebolSudamericana
+    };
+  }, [teamName, leagueContext]);
 
-  // Check if this is Friendlies Club (club competition, not national teams)
-  const isFriendliesClub = leagueContext?.name?.toLowerCase().includes("friendlies clubs");
+  // Memoize container style to prevent object recreation
+  const containerStyle = useMemo(() => ({
+    width: size,
+    height: size,
+    position: "relative" as const,
+    left: moveLeft ? "-16px" : "4px",
+  }), [size, moveLeft]);
 
-  // Check if this is Friendlies Club (club competition, not national teams)
-  const isUefaEuropaLeague = leagueContext?.name?.toLowerCase().includes("uefa europa league") || 
-  leagueContext?.name?.toLowerCase().includes("europa league");
+  // Memoize image style to prevent object recreation
+  const imageStyle = useMemo(() => ({ 
+    backgroundColor: "transparent",
+    width: "100%",
+    height: "100%",
+    objectFit: "contain" as const,
+    borderRadius: "0%"
+  }), []);
 
-  // Check if this is UEFA Europa Conference League (club competition, not national teams)
-  const isUefaConferenceLeague = leagueContext?.name?.toLowerCase().includes("uefa europa conference league") || 
-                                leagueContext?.name?.toLowerCase().includes("europa conference league");
-
-  // Check if this is UEFA Champions League (club competition, not national teams)
-  const isUefaChampionsLeague = leagueContext?.name?.toLowerCase().includes("uefa champions league") || 
-                               leagueContext?.name?.toLowerCase().includes("champions league");
-  
-  // Check if this is CONMEBOL Sudamericana (club competition, not national teams)
-  const isConmebolSudamericana = leagueContext?.name?.toLowerCase().includes("conmebol sudamericana") ||
-                                 leagueContext?.name?.toLowerCase().includes("copa sudamericana");
-
-  // Check if this is a Brazilian league (treat as club teams, not national teams)
-  const isBrazilianLeague = leagueContext?.country?.toLowerCase() === "brazil";
-
-  // Check if this is a Brazilian team (by team name or league context)
-  const isBrazilianTeam = isBrazilianLeague || teamName?.toLowerCase().includes("brazil");
-
-  // Use MyCircularFlag for national teams and youth teams, but NOT for club competitions like FIFA Club World Cup, Friendlies Club, UEFA Europa League, UEFA Europa Conference League, UEFA Champions League, or CONMEBOL Sudamericana
-  if ((isActualNationalTeam || isYouthTeam) && !isFifaClubWorldCup && !isFriendliesClub && !isUefaEuropaLeague && !isUefaConferenceLeague && !isUefaChampionsLeague && !isConmebolSudamericana) {
+  if (teamTypeChecks.shouldUseCircularFlag) {
     return (
       <MyCircularFlag
         teamName={teamName}
@@ -91,29 +112,20 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   return (
     <div
       className={`team-logo-container ${className}`}
-      style={{
-        width: size,
-        height: size,
-        position: "relative",
-        left: moveLeft ? "-16px" : "4px",
-      }}
+      style={containerStyle}
     >
       <LazyImage
         src={teamLogo || "/assets/fallback-logo.svg"}
         alt={alt || teamName}
         title={teamName}
         className="team-logo"
-        style={{ 
-          backgroundColor: "transparent",
-          width: "100%",
-          height: "100%",
-          objectFit: "contain",
-          borderRadius: "0%"
-        }}
+        style={imageStyle}
         fallbackSrc="/assets/fallback-logo.svg"
       />
     </div>
   );
-};
+});
+
+MyWorldTeamLogo.displayName = 'MyWorldTeamLogo';
 
 export default MyWorldTeamLogo;
