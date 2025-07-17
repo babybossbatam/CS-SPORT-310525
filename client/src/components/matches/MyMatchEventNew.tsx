@@ -889,16 +889,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-md font-semibold">Match Events</h3>
-         
+
           </div>
-         
+
         </div>
 
       </CardHeader>
 
       {/* Tab Navigation */}
       <div className="pl-28 pr-28 py-4 flex">
-        <button
+        <button```text
           onClick={() => setActiveTab('all')}
           className={`flex-1  text-xs font-small  transition-colors ${
             activeTab === 'all'
@@ -1149,7 +1149,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         matchId={fixtureId}
                                         teamId={event.team?.id}
                                         size="md"
-                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
+                                        className="shadow-sm border-gray-400"
                                       />
                                     </div>
 
@@ -1470,7 +1470,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         matchId={fixtureId}
                                         teamId={event.team?.id}
                                         size="md"
-                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
+                                        className="shadow-sm border-gray-400"
                                       />
                                     </div>
                                   </div>
@@ -1659,7 +1659,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         matchId={fixtureId}
                                         teamId={event.team?.id}
                                         size="md"
-                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
+                                        className="shadow-sm border-gray-400"
                                       />
                                     </div>
 
@@ -1979,7 +1979,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         matchId={fixtureId}
                                         teamId={event.team?.id}
                                         size="md"
-                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
+                                        className="shadow-sm border-gray-400"
                                       />
                                     </div>
                                   </div>
