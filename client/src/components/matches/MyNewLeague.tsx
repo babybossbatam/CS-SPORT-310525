@@ -951,34 +951,55 @@ b.fixture.status.elapsed) || 0;
     />
   );
 
-  // Simplified match card component
-  const MatchCard = React.memo(({ 
-    match, 
-    isHalftimeFlash, isFulltimeFlash, 
+  // Optimized match card component - no React.memo, selective updates only
+  const MatchCard = ({ 
+    matchId,
+    homeTeamName,
+    awayTeamName,
+    homeTeamId,
+    awayTeamId,
+    homeScore,
+    awayScore,
+    status,
+    elapsed,
+    matchDate,
+    penaltyHome,
+    penaltyAway,
+    isHalftimeFlash, 
+    isFulltimeFlash, 
     isGoalFlash, 
     isStarred, 
     onStarToggle, 
-    onMatchClick,
-    leagueGroup 
+    onMatchClick
   }: {
-    match: any;
+    matchId: number;
+    homeTeamName: string;
+    awayTeamName: string;
+    homeTeamId: number;
+    awayTeamId: number;
+    homeScore: number | null;
+    awayScore: number | null;
+    status: string;
+    elapsed: number | undefined;
+    matchDate: string;
+    penaltyHome: number | null;
+    penaltyAway: number | null;
     isHalftimeFlash: boolean;
     isFulltimeFlash: boolean;
     isGoalFlash: boolean;
     isStarred: boolean;
     onStarToggle: (matchId: number) => void;
-    onMatchClick?: (match: any) => void;
-    leagueGroup: any;
+    onMatchClick?: (matchId: number, homeTeamName: string, awayTeamName: string) => void;
   }) => {
     const handleMatchClick = () => {
       if (onMatchClick) {
-        onMatchClick(match);
+        onMatchClick(matchId, homeTeamName, awayTeamName);
       }
     };
 
     return (
       <div
-        key={match.fixture.id}
+        key={matchId}
         className="country-matches-container"
       >
         <div 
@@ -989,7 +1010,7 @@ b.fixture.status.elapsed) || 0;
           } ${
             isGoalFlash ? 'goal-flash' : ''
           }`}
-          data-fixture-id={match.fixture.id}
+          data-fixture-id={matchId}
           onClick={handleMatchClick}
           style={{
             cursor: onMatchClick ? "pointer" : "default",
@@ -999,7 +1020,7 @@ b.fixture.status.elapsed) || 0;
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onStarToggle(match.fixture.id);
+              onStarToggle(matchId);
             }}
             className="match-star-button"
             title="Add to favorites"
@@ -1024,9 +1045,6 @@ b.fixture.status.elapsed) || 0;
             {/* Top Grid: Match Status */}
             <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               {(() => {
-                const status = match.fixture.status.short;
-                const elapsed = match.fixture.status.elapsed;
-
                 if (
                   [
                     "LIVE",
@@ -1121,9 +1139,9 @@ b.fixture.status.elapsed) || 0;
               {/* Home Team Name */}
               <div
                 className={`home-team-name ${
-                  match.goals.home !== null &&
-                  match.goals.away !== null &&
-                  match.goals.home > match.goals.away
+                  homeScore !== null &&
+                  awayScore !== null &&
+                  homeScore > awayScore
                     ? "winner"
                     : ""
                 }`}
@@ -1134,7 +1152,7 @@ b.fixture.status.elapsed) || 0;
                   whiteSpace: "nowrap",
                 }}
               >
-                {shortenTeamName(match.teams.home.name) || "Unknown Team"}
+                {shortenTeamName(homeTeamName) || "Unknown Team"}
               </div>
 
               {/* Home team logo */}
@@ -1143,10 +1161,10 @@ b.fixture.status.elapsed) || 0;
                 style={{ padding: "0 0.6rem" }}
               >
                 <TeamLogo
-                  teamName={match.teams.home.name}
+                  teamName={homeTeamName}
                   logoUrl={
-                    match.teams.home.id
-                      ? `/api/team-logo/square/${match.teams.home.id}?size=32`
+                    homeTeamId
+                      ? `/api/team-logo/square/${homeTeamId}?size=32`
                       : "/assets/fallback-logo.svg"
                   }
                   size="34px"
@@ -1156,9 +1174,6 @@ b.fixture.status.elapsed) || 0;
               {/* Score/Time Center */}
               <div className="match-score-container">
                 {(() => {
-                  const status = match.fixture.status.short;
-                  const fixtureDate = parseISO(match.fixture.date);
-
                   if (
                     [
                       "LIVE",
@@ -1175,11 +1190,11 @@ b.fixture.status.elapsed) || 0;
                     return (
                       <div className="match-score-display">
                         <span className="score-number">
-                          {match.goals.home ?? 0}
+                          {homeScore ?? 0}
                         </span>
                         <span className="score-separator">-</span>
                         <span className="score-number">
-                          {match.goals.away ?? 0}
+                          {awayScore ?? 0}
                         </span>
                       </div>
                     );
@@ -1197,8 +1212,6 @@ b.fixture.status.elapsed) || 0;
                       "SUSP",
                     ].includes(status)
                   ) {
-                    const homeScore = match.goals.home;
-                    const awayScore = match.goals.away;
                     const hasValidScores =
                       homeScore !== null &&
                       homeScore !== undefined &&
@@ -1225,7 +1238,7 @@ b.fixture.status.elapsed) || 0;
                           className="match-time-display"
                           style={{ fontSize: "0.882em" }}
                         >
-                          {formatMatchTimeWithTimezone(match.fixture.date)}
+                          {formatMatchTimeWithTimezone(matchDate)}
                         </div>
                       );
                     }
@@ -1238,7 +1251,7 @@ b.fixture.status.elapsed) || 0;
                     >
                       {status === "TBD"
                         ? "TBD"
-                        : formatMatchTimeWithTimezone(match.fixture.date)}
+                        : formatMatchTimeWithTimezone(matchDate)}
                     </div>
                   );
                 })()}
@@ -1250,10 +1263,10 @@ b.fixture.status.elapsed) || 0;
                 style={{ padding: "0 0.5rem" }}
               >
                 <TeamLogo
-                  teamName={match.teams.away.name}
+                  teamName={awayTeamName}
                   logoUrl={
-                    match.teams.away.id
-                      ? `/api/team-logo/square/${match.teams.away.id}?size=32`
+                    awayTeamId
+                      ? `/api/team-logo/square/${awayTeamId}?size=32`
                       : "/assets/fallback-logo.svg"
                   }
                   size="34px"
@@ -1263,9 +1276,9 @@ b.fixture.status.elapsed) || 0;
               {/* Away Team Name */}
               <div
                 className={`away-team-name ${
-                  match.goals.home !== null &&
-                  match.goals.away !== null &&
-                  match.goals.away > match.goals.home
+                  homeScore !== null &&
+                  awayScore !== null &&
+                  awayScore > homeScore
                     ? "winner"
                     : ""
                 }`}
@@ -1277,17 +1290,14 @@ b.fixture.status.elapsed) || 0;
                   whiteSpace: "nowrap",
                 }}
               >
-                {shortenTeamName(match.teams.away.name) || "Unknown Team"}
+                {shortenTeamName(awayTeamName) || "Unknown Team"}
               </div>
             </div>
 
             {/* Bottom Grid: Penalty Result Status */}
             <div className="match-penalty-bottom">
               {(() => {
-                const status = match.fixture.status.short;
                 const isPenaltyMatch = status === "PEN";
-                const penaltyHome = match.score?.penalty?.home;
-                const penaltyAway = match.score?.penalty?.away;
                 const hasPenaltyScores =
                   penaltyHome !== null &&
                   penaltyHome !== undefined &&
@@ -1297,8 +1307,8 @@ b.fixture.status.elapsed) || 0;
                 if (isPenaltyMatch && hasPenaltyScores) {
                   const winnerText =
                     penaltyHome > penaltyAway
-                      ? `${shortenTeamName(match.teams.home.name)} won ${penaltyHome}-${penaltyAway} on penalties`
-                      : `${shortenTeamName(match.teams.away.name)} won ${penaltyAway}-${penaltyHome} on penalties`;
+                      ? `${shortenTeamName(homeTeamName)} won ${penaltyHome}-${penaltyAway} on penalties`
+                      : `${shortenTeamName(awayTeamName)} won ${penaltyAway}-${penaltyHome} on penalties`;
 
                   return (
                     <div className="penalty-result-display">
@@ -1315,35 +1325,7 @@ b.fixture.status.elapsed) || 0;
         </div>
       </div>
     );
-  }, (prevProps, nextProps) => {
-    // Simple comparison - only re-render if essential props change
-    const prevMatch = prevProps.match;
-    const nextMatch = nextProps.match;
-
-    if (prevMatch.fixture.id !== nextMatch.fixture.id) {
-      return false; // Different match, re-render
-    }
-
-    const status = nextMatch.fixture.status.short;
-    const isEndedMatch = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
-
-    // For ended matches, only re-render if starred status changes
-    if (isEndedMatch) {
-      return prevProps.isStarred === nextProps.isStarred; // True = prevent re-render
-    }
-
-    // For live/upcoming matches, compare essential props
-    return (
-      prevMatch.fixture.status.short === nextMatch.fixture.status.short &&
-      prevMatch.fixture.status.elapsed === nextMatch.fixture.status.elapsed &&
-      prevMatch.goals.home === nextMatch.goals.home &&
-      prevMatch.goals.away === nextMatch.goals.away &&
-      prevProps.isStarred === nextProps.isStarred &&
-      prevProps.isHalftimeFlash === nextProps.isHalftimeFlash &&
-      prevProps.isFulltimeFlash === nextProps.isFulltimeFlash &&
-      prevProps.isGoalFlash === nextProps.isGoalFlash
-    );
-  });
+  };
 
   // Clear cache for specific match when status transitions occur
   const clearMatchCache = useCallback((matchId: number, transition: string, fixtureDate: string) => {
@@ -1646,14 +1628,30 @@ b.fixture.status.elapsed) || 0;
                   return (
                     <MatchCard
                       key={match.fixture.id}
-                      match={match}
+                      matchId={matchId}
+                      homeTeamName={match.teams.home.name}
+                      awayTeamName={match.teams.away.name}
+                      homeTeamId={match.teams.home.id}
+                      awayTeamId={match.teams.away.id}
+                      homeScore={match.goals.home}
+                      awayScore={match.goals.away}
+                      status={match.fixture.status.short}
+                      elapsed={match.fixture.status.elapsed}
+                      matchDate={match.fixture.date}
+                      penaltyHome={match.score?.penalty?.home}
+                      penaltyAway={match.score?.penalty?.away}
                       isHalftimeFlash={isHalftimeFlash}
                       isFulltimeFlash={isFulltimeFlash}
                       isGoalFlash={isGoalFlash}
                       isStarred={isStarred}
                       onStarToggle={toggleStarMatch}
-                      onMatchClick={handleMatchCardClick}
-                      leagueGroup={leagueGroup}
+                      onMatchClick={(matchId, homeTeamName, awayTeamName) => {
+                        // Find the full match object for the callback
+                        const fullMatch = leagueGroup.matches.find((m: any) => m.fixture.id === matchId);
+                        if (fullMatch) {
+                          handleMatchCardClick(fullMatch);
+                        }
+                      }}
                     />
                   );
                 })}
