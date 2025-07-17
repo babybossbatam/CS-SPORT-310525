@@ -348,7 +348,7 @@
 
 /* Enhanced hover effects for different event types */
 .match-event-icon.goal:hover {
-  border-color: none;
+  border-color: transparent;
   background: none;
   box-shadow: none;
 }
@@ -364,7 +364,7 @@
 .match-event-icon.goal {
   background: none;
   color: none;
-  border-color: var(--successPrimary);
+  border-color: transparent;
 }
 
 .match-event-icon.card {
