@@ -709,7 +709,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         {/* Professional Football Field with Enhanced Graphics */}
         <div className="relative h-96 overflow-hidden" style={{
           backgroundImage: `url('/assets/matchdetaillogo/field.png')`,
-          backgroundSize: 'cover',
+          backgroundSize: '80%',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           minHeight: '400px'
