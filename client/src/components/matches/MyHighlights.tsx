@@ -62,23 +62,23 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   };
 
   // Extract team names from match prop or use provided props
-  // Handle multiple possible data structures
-  const rawHome = homeTeam || 
-                  homeTeamName || 
-                  match?.teams?.home?.name || 
+  // Handle multiple possible data structures and ensure correct home/away order
+  const rawHome = match?.teams?.home?.name || 
                   match?.homeTeam?.name ||
                   match?.homeTeam ||
                   match?.home?.name ||
                   match?.home ||
+                  homeTeam || 
+                  homeTeamName || 
                   'Home Team';
 
-  const rawAway = awayTeam || 
-                  awayTeamName || 
-                  match?.teams?.away?.name || 
+  const rawAway = match?.teams?.away?.name || 
                   match?.awayTeam?.name ||
                   match?.awayTeam ||
                   match?.away?.name ||
                   match?.away ||
+                  awayTeam || 
+                  awayTeamName || 
                   'Away Team';
 
   // Clean team names for better search results
@@ -105,26 +105,39 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     return new Date().getFullYear();
   })();
 
-  // Create more targeted search queries with different levels of specificity
+  // Create more targeted search queries with correct home vs away order
   const primarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear}`.trim();
   const secondarySearchQuery = `${home} ${away} highlights ${league} ${matchYear}`.trim();
   const tertiarySearchQuery = `${home} vs ${away} ${matchYear} highlights`.trim();
   const fallbackSearchQuery = `${home} vs ${away} highlights`.trim();
 
-  // Debug logging to verify correct team names
-  console.log(`🎬 [Highlights] Match data extraction:`, {
-    rawHomeTeam: rawHome,
-    rawAwayTeam: rawAway,
-    cleanedHomeTeam: home,
-    cleanedAwayTeam: away,
+  // Debug logging to verify correct team names and order
+  console.log(`🎬 [Highlights] Match data extraction with correct home/away order:`, {
+    extractedFromMatch: {
+      homeFromTeams: match?.teams?.home?.name,
+      awayFromTeams: match?.teams?.away?.name,
+    },
+    fallbackFromProps: {
+      homeTeam,
+      awayTeam,
+      homeTeamName,
+      awayTeamName
+    },
+    finalResult: {
+      rawHomeTeam: rawHome,
+      rawAwayTeam: rawAway,
+      cleanedHomeTeam: home,
+      cleanedAwayTeam: away,
+    },
+    searchQueries: {
+      primarySearchQuery: primarySearchQuery,
+      secondarySearchQuery: secondarySearchQuery,
+      tertiarySearchQuery: tertiarySearchQuery,
+      fallbackSearchQuery: fallbackSearchQuery,
+    },
     league: league,
     matchYear: matchYear,
-    primarySearchQuery: primarySearchQuery,
-    secondarySearchQuery: secondarySearchQuery,
-    tertiarySearchQuery: tertiarySearchQuery,
-    fallbackSearchQuery: fallbackSearchQuery,
-    rawMatch: match,
-    props: { homeTeam, awayTeam, homeTeamName, awayTeamName, leagueName }
+    fullMatch: match
   });
 
   // Check if this is a CONCACAF competition
