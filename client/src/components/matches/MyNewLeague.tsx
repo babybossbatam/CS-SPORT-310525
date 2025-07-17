@@ -234,7 +234,8 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
           
           // Simple update - only live data fields for live matches
           setFixtures(prevFixtures => {
-            return prevFixtures.map(fixture => {
+            let hasChanges = false;
+            const updatedFixtures = prevFixtures.map(fixture => {
               const liveUpdate = relevantLiveFixtures.find(live => live.fixture.id === fixture.fixture.id);
               
               if (liveUpdate) {
@@ -248,26 +249,38 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
                     return fixture;
                   }
 
-                  return {
-                    ...fixture,
-                    fixture: {
-                      ...fixture.fixture,
-                      status: liveUpdate.fixture.status,
-                    },
-                    goals: liveUpdate.goals,
-                  };
+                  // Check if there are actual changes before updating
+                  const hasStatusChange = fixture.fixture.status.short !== liveUpdate.fixture.status.short || 
+                                         fixture.fixture.status.elapsed !== liveUpdate.fixture.status.elapsed;
+                  const hasScoreChange = fixture.goals.home !== liveUpdate.goals.home || 
+                                        fixture.goals.away !== liveUpdate.goals.away;
+                  
+                  if (hasStatusChange || hasScoreChange) {
+                    hasChanges = true;
+                    return {
+                      ...fixture,
+                      fixture: {
+                        ...fixture.fixture,
+                        status: liveUpdate.fixture.status,
+                      },
+                      goals: liveUpdate.goals,
+                    };
+                  }
                 }
               }
               
               return fixture;
             });
+            
+            // Only update state if there are actual changes
+            return hasChanges ? updatedFixtures : prevFixtures;
           });
         }
       }
     } catch (error) {
       console.warn("Failed to fetch live updates:", error);
     }
-  }, [fixtures, isMatchOldEnded]);
+  }, [fixtures.length, isMatchOldEnded]); // Only depend on fixtures length, not entire fixtures array
 
   // Enhanced data fetching function for initial load and non-live data
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
@@ -644,16 +657,16 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     let fullUpdateInterval: NodeJS.Timeout | null = null;
 
     if (liveMatches.length > 0) {
-      // For live matches: update only live data every 10 seconds
+      // For live matches: update only live data every 15 seconds (increased from 10 to reduce load)
       console.log(`🔴 [MyNewLeague] Starting live updates for ${liveMatches.length} live matches`);
       liveUpdateInterval = setInterval(() => {
         updateLiveMatchData();
-      }, 10000);
+      }, 15000);
     } else {
       console.log(`⏸️ [MyNewLeague] No live matches, skipping live updates`);
     }
 
-    // For recent ended matches and upcoming matches: much less frequent full updates (5 minutes)
+    // For recent ended matches and upcoming matches: much less frequent full updates (10 minutes)
     // Skip updates entirely for matches ended more than 24 hours ago
     if (recentEndedMatches.length > 0 || fixtures.some(f => f.fixture.status.short === 'NS')) {
       console.log(`🔄 [MyNewLeague] Starting periodic updates for recent matches`);
@@ -662,7 +675,7 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         if (liveMatches.length === 0) {
           fetchLeagueData(true);
         }
-      }, 300000); // 5 minutes
+      }, 600000); // 10 minutes (increased from 5 minutes)
     } else if (oldEndedMatches.length > 0) {
       console.log(`💾 [MyNewLeague] All matches are old ended matches, using cached data only`);
     }
@@ -926,7 +939,8 @@ b.fixture.status.elapsed) || 0;
 
   // Memoize the match click handler to prevent infinite re-renders
   const handleMatchCardClick = useCallback((match: any) => {
-    console.log('🎯 [MyNewLeague] Match card clicked:', {      fixtureId: match.fixture?.id,
+    console.log('🎯 [MyNewLeague] Match card clicked:', {
+      fixtureId: match.fixture?.id,
       teams: `${match.teams?.home?.name} vs ${match.teams?.away?.name}`,
       league: match.league?.name,
       status: match.fixture?.status?.short,
@@ -984,11 +998,11 @@ b.fixture.status.elapsed) || 0;
     onMatchClick?: (match: any) => void;
     leagueGroup: any;
   }) => {
-    const handleMatchClick = () => {
+    const handleMatchClick = useCallback(() => {
       if (onMatchClick) {
         onMatchClick(match);
       }
-    };
+    }, [onMatchClick, match.fixture.id]); // Only depend on match ID, not entire match object
 
     return (
       <div
@@ -1340,9 +1354,14 @@ b.fixture.status.elapsed) || 0;
       </div>
     );
   }, (prevProps, nextProps) => {
-    // Custom comparison function to prevent re-renders for ended matches
+    // Custom comparison function to prevent re-renders for stable matches
     const prevMatch = prevProps.match;
     const nextMatch = nextProps.match;
+    
+    // Always re-render if it's a different match
+    if (prevMatch.fixture.id !== nextMatch.fixture.id) {
+      return false;
+    }
     
     // Check if match ended more than 24 hours ago
     const isOldEndedMatch = (() => {
@@ -1359,10 +1378,7 @@ b.fixture.status.elapsed) || 0;
     
     // For matches ended more than 24 hours ago, prevent ALL re-renders unless starred status changes
     if (isOldEndedMatch) {
-      const shouldUpdate = (
-        prevMatch.fixture.id !== nextMatch.fixture.id ||
-        prevProps.isStarred !== nextProps.isStarred
-      );
+      const shouldUpdate = prevProps.isStarred !== nextProps.isStarred;
       
       if (!shouldUpdate) {
         console.log(`🚫 [MatchCard Memo] Preventing re-render for old ended match: ${nextMatch.teams.home.name} vs ${nextMatch.teams.away.name}`);
@@ -1371,24 +1387,19 @@ b.fixture.status.elapsed) || 0;
       return !shouldUpdate; // Return true to prevent re-render
     }
     
-    // If match is recently ended, only re-render if basic props change
-    const isRecentEndedMatch = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(nextMatch.fixture.status.short);
+    // For all other matches, compare essential props
+    const essentialPropsEqual = (
+      prevMatch.fixture.status.short === nextMatch.fixture.status.short &&
+      prevMatch.fixture.status.elapsed === nextMatch.fixture.status.elapsed &&
+      prevMatch.goals.home === nextMatch.goals.home &&
+      prevMatch.goals.away === nextMatch.goals.away &&
+      prevProps.isStarred === nextProps.isStarred &&
+      prevProps.isHalftimeFlash === nextProps.isHalftimeFlash &&
+      prevProps.isFulltimeFlash === nextProps.isFulltimeFlash &&
+      prevProps.isGoalFlash === nextProps.isGoalFlash
+    );
     
-    if (isRecentEndedMatch) {
-      return (
-        prevMatch.fixture.id === nextMatch.fixture.id &&
-        prevMatch.fixture.status.short === nextMatch.fixture.status.short &&
-        prevMatch.goals.home === nextMatch.goals.home &&
-        prevMatch.goals.away === nextMatch.goals.away &&
-        prevProps.isStarred === nextProps.isStarred &&
-        prevProps.isHalftimeFlash === nextProps.isHalftimeFlash &&
-        prevProps.isFulltimeFlash === nextProps.isFulltimeFlash &&
-        prevProps.isGoalFlash === nextProps.isGoalFlash
-      );
-    }
-    
-    // For live matches, always re-render
-    return false;
+    return essentialPropsEqual; // Return true to prevent re-render
   });
 
   // Clear cache for specific match when status transitions occur
