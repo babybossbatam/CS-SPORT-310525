@@ -692,24 +692,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             marginBottom: "2px",
                           }}
                         >
-                          {(() => {
-                            const elapsed = event.time.elapsed;
-                            const extra = event.time.extra;
-
-                            // Handle extra time display properly
-                            if (elapsed > 90 && !extra) {
-                              // If elapsed is > 90 but no extra time field, calculate it
-                              const regularTime = elapsed > 45 ? (elapsed > 90 ? 90 : 45) : elapsed;
-                              const extraTime = elapsed - regularTime;
-                              return `${regularTime}' +${extraTime}'`;
-                            } else if (extra && extra > 0) {
-                              // If extra time field exists, use it
-                              return `${elapsed}' +${extra}'`;
-                            } else {
-                              // Regular time
-                              return `${elapsed}'`;
-                            }
-                          })()}
+                          {event.time.elapsed}'
                         </div>
 
                         {index < allCommentaryItems.length - 1 && (
