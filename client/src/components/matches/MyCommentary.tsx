@@ -745,14 +745,21 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 }
                               })()}
                               <span className="flex-1">
-                                Score:{" "}
                                 {(() => {
-                                  // Calculate score including this goal event
-                                  const scoreAfterGoal = calculateScoreAtTime(
-                                    event.time.elapsed +
-                                      (event.time.extra || 0),
-                                  );
-                                  return `${scoreAfterGoal.homeScore} - ${scoreAfterGoal.awayScore}`;
+                                  const detail = event.detail?.toLowerCase() || "";
+                                  const playerName = event.player?.name || "Unknown Player";
+
+                                  if (detail.includes("own goal")) {
+                                    return `💥 Own Goal! Unlucky for ${playerName}`;
+                                  } else if (detail.includes("penalty")) {
+                                    if (detail.includes("missed")) {
+                                      return `❌ Penalty Missed! ${playerName} fails to convert`;
+                                    } else {
+                                      return `⚽ PENALTY GOAL! ${playerName} converts from the spot`;
+                                    }
+                                  } else {
+                                    return `⚽ GOAL! ${playerName} finds the net`;
+                                  }
                                 })()}
                               </span>
                               {/* Team logo of the team that scored */}
@@ -879,32 +886,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                   playerId={event.assist?.id}
                                   playerName={event.assist?.name}
                                   size="md-commentary"
-                                  className="border-2 border-green-400 shadow-sm flex-shrink-0"
-                                />
-                                <span className="text-gray-700 font-medium -ml-1">
-                                  {event.assist?.name || "Unknown Player"}
-                                </span>
-                              </div>
-                            )}
-
-                            {/* Player going out (player = player out) */}
-                            <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200 ">
-                              <MyAvatarInfo
-                                playerId={event.player?.id}
-                                playerName={event.player?.name}
-                                size="md-commentary"
-                                className="border-2 border-red-400 shadow-sm flex-shrink-0"
-                              />
-                              <span className="text-gray-700 font-medium -ml-1">
-                                {event.player?.name || "Unknown Player"}
-                              </span>
-                            </div>
-
-                            {/* Additional comments if any */}
-                            {event.comments && (
-                              <div className="text-xs text-gray-600 leading-relaxed -ml-3 italic mt-1">
-                                ```text
-                                {event.comments}
+                                  className="border-2 border-green-400 shadow-sm flex-shrink{event.comments}
                               </div>
                             )}
 
