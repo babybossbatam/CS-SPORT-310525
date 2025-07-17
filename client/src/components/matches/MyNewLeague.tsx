@@ -1064,9 +1064,12 @@ b.fixture.status.elapsed) || 0;
                   } else if (status === "P") {
                     displayText = "Penalties";
                   } else if (status === "ET") {
-                    displayText = elapsed
-                      ? `${elapsed}' ET`
-                      : "Extra Time";
+                    if (elapsed) {
+                      const extraTime = elapsed - 90;
+                      displayText = extraTime > 0 ? `90' + ${extraTime}'` : `${elapsed}'`;
+                    } else {
+                      displayText = "Extra Time";
+                    }
                   } else if (status === "BT") {
                     displayText = "Break Time";
                   } else if (status === "INT") {
