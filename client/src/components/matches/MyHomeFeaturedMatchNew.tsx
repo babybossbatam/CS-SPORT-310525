@@ -932,7 +932,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               if (count > maxCount) {
                 maxCount = count;
                 dominantColor = color;
-              }```text
+              }
               }
             }
 
