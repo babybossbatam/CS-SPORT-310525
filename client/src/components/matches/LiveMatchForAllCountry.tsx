@@ -1042,7 +1042,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
                                     ].includes(status)
                                   ) {
                                     return (
-                                      <div className="match-status-label status-live">
+                                      <div className={`match-status-label ${status === "HT" ? "status-halftime" : "status-live-elapsed"}`}>
                                         {status === "HT"
                                           ? "Halftime"
                                           : `${match.fixture.status.elapsed || 0}'`}

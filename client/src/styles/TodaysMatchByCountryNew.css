@@ -324,7 +324,7 @@
 
 .country-matches-container .status-live-elapsed {
   color: rgb(220 38 38);
-  animation: pulse 2s infinite;
+  animation: truePulse 2s infinite ease-in-out;
 }
 
 .country-matches-container .status-halftime {
@@ -482,9 +482,20 @@
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
+    transform: scale(1);
   }
   50% {
-    opacity: 0.7;
+    opacity: 0.6;
+    transform: scale(1);
+  }
+}
+
+@keyframes truePulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
   }
 }
 
