@@ -478,43 +478,43 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     (event.type === "Goal" && 
                       event.detail?.toLowerCase().includes("penalty")) ? (
                     (() => {
-                                        const detail = event.detail?.toLowerCase() || "";
-                                        if (detail.includes("penalty")) {
-                                          if (detail.includes("missed")) {
-                                            return (
-                                              <img
-                                                src="/assets/matchdetaillogo/missed-penalty.svg"
-                                                alt="Missed Penalty"
-                                                className="w-4 h-4"
-                                              />
-                                            );
-                                          } else {
-                                            return (
-                                              <img
-                                                src="/assets/matchdetaillogo/penalty.svg"
-                                                alt="Penalty Goal"
-                                                className="w-4 h-4"
-                                              />
-                                            );
-                                          }
-                                        } else if (detail.includes("own goal")) {
-                                          return (
-                                            <img
-                                              src="/assets/matchdetaillogo/soccer-logo.svg"
-                                              alt="Own Goal"
-                                              className="w-4 h-4"
-                                            />
-                                          );
-                                        } else {
-                                          return (
-                                            <img
-                                              src="/assets/matchdetaillogo/soccer-ball.svg"
-                                              alt="Goal"
-                                              className="w-4 h-4"
-                                            />
-                                          );
-                                        }
-                                      })()
+                                    const detail = event.detail?.toLowerCase() || "";
+                                    if (detail.includes("penalty")) {
+                                      if (detail.includes("missed")) {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/missed-penalty.svg"
+                                            alt="Missed Penalty"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      } else {
+                                        return (
+                                          <img
+                                            src="/assets/matchdetaillogo/penalty.svg"
+                                            alt="Penalty Goal"
+                                            className="w-4 h-4"
+                                          />
+                                        );
+                                      }
+                                    } else if (detail.includes("own goal")) {
+                                      return (
+                                        <img
+                                          src="/assets/matchdetaillogo/soccer-logo.svg"
+                                          alt="Own Goal"
+                                          className="w-4 h-4"
+                                        />
+                                      );
+                                    } else {
+                                      return (
+                                        <img
+                                          src="/assets/matchdetaillogo/soccer-ball.svg"
+                                          alt="Goal"
+                                          className="w-4 h-4"
+                                        />
+                                      );
+                                    }
+                                  })()
                   ) : event.type === "Card" ? (
                     <img
                       src={
@@ -889,9 +889,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <h3 className="text-md font-semibold">Match Events</h3>
-
+         
           </div>
-
+         
         </div>
 
       </CardHeader>
@@ -1231,7 +1231,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                               <img
                                                 src="/assets/matchdetaillogo/missed-penalty.svg"
                                                 alt="Missed Penalty"
-                                                className="w-4 h-4"
+                                                className="w-4 h-4  "
                                               />
                                             );
                                           } else {
@@ -1239,7 +1239,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                               <img
                                                 src="/assets/matchdetaillogo/penalty.svg"
                                                 alt="Penalty Goal"
-                                                className="w-4 h-4"
+                                                className="w-4 h-4  "
                                               />
                                             );
                                           }
@@ -1248,7 +1248,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             <img
                                               src="/assets/matchdetaillogo/soccer-logo.svg"
                                               alt="Own Goal"
-                                              className="w-4 h-4"
+                                              className="w-4 h-4 "
                                             />
                                           );
                                         } else {
@@ -1256,7 +1256,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             <img
                                               src="/assets/matchdetaillogo/soccer-ball.svg"
                                               alt="Goal"
-                                              className="w-4 h-4"
+                                              className="w-4 h-4 "
                                             />
                                           );
                                         }
@@ -1470,7 +1470,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         matchId={fixtureId}
                                         teamId={event.team?.id}
                                         size="md"
-                                        className="shadow-sm border-gray-400"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
                                     </div>
                                   </div>
@@ -1659,7 +1659,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         matchId={fixtureId}
                                         teamId={event.team?.id}
                                         size="md"
-                                        className="shadow-sm border-gray-400"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
                                     </div>
 
@@ -1741,7 +1741,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                               <img
                                                 src="/assets/matchdetaillogo/missed-penalty.svg"
                                                 alt="Missed Penalty"
-                                                className="w-4 h-4 "
+                                                className="w-4 h-4  "
                                               />
                                             );
                                           } else {
@@ -1749,7 +1749,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                               <img
                                                 src="/assets/matchdetaillogo/penalty.svg"
                                                 alt="Penalty Goal"
-                                                className="w-4 h-4 "
+                                                className="w-4 h-4  "
                                               />
                                             );
                                           }
@@ -1781,7 +1781,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         }
                                         alt={
                                           event.detail
-                                            ?.toLowerCase()```text
+                                            ?.toLowerCase()
                                             .includes("yellow")
                                             ? "Yellow Card"
                                             : "Red Card"
@@ -1979,7 +1979,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         matchId={fixtureId}
                                         teamId={event.team?.id}
                                         size="md"
-                                        className="shadow-sm border-gray-400"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
                                     </div>
                                   </div>
