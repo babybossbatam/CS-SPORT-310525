@@ -144,12 +144,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     try {
       const response = await apiRequest("GET", `/api/fixtures/rounds?league=${leagueId}&season=${season}`);
       const rounds = await response.json();
-      
+
       setRoundsCache(prev => ({
         ...prev,
         [cacheKey]: rounds
       }));
-      
+
       return rounds;
     } catch (error) {
       console.warn(`Failed to fetch rounds for league ${leagueId}:`, error);
@@ -424,8 +424,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Must have valid teams, be from popular leagues, not priority leagues, and NOT be live
                     const hasValidTeams =
                       fixture.teams?.home?.name && fixture.teams?.away?.name;
+
+                    const leagueName = fixture.league?.name?.toLowerCase() || "";
+                    const country = fixture.league?.country?.toLowerCase() || "";
+
+                    // Check if it's a popular league or from a popular country
                     const isPopularLeague = POPULAR_LEAGUES.some(
                       (league) => league.id === fixture.league?.id,
+                    );
+                    const isFromPopularCountry = POPULAR_LEAGUES.some(
+                      (league) => league.country.toLowerCase() === country,
                     );
                     const isPriorityLeague = priorityLeagueIds.includes(
                       fixture.league?.id,
@@ -434,9 +442,56 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       fixture.fixture.status.short,
                     );
 
+                    // Check if it's an international competition
+                    const isInternationalCompetition =
+                      leagueName.includes("champions league") ||
+                      leagueName.includes("europa league") ||
+                      leagueName.includes("conference league") ||
+                      leagueName.includes("uefa") ||
+                      leagueName.includes("world cup") ||
+                      leagueName.includes("fifa club world cup") ||
+                      leagueName.includes("fifa") ||
+                      leagueName.includes("conmebol") ||
+                      leagueName.includes("copa america") ||
+                      leagueName.includes("copa libertadores") ||
+                      leagueName.includes("copa sudamericana") ||
+                      leagueName.includes("libertadores") ||
+                      leagueName.includes("sudamericana") ||
+                      (leagueName.includes("friendlies") && !leagueName.includes("women")) ||
+                      (leagueName.includes("international") && !leagueName.includes("women")) ||
+                      country.includes("world") ||
+                      country.includes("europe") ||
+                      country.includes("international");
+
+                    // Check if it's a club friendly with popular teams
+                    const isPopularClubFriendly = () => {
+                      if (leagueName.includes("club friendlies") || 
+                          (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women"))) {
+                        const homeTeam = fixture.teams?.home?.name?.toLowerCase() || "";
+                        const awayTeam = fixture.teams?.away?.name?.toLowerCase() || "";
+
+                        const popularTeams = [
+                          "real madrid", "barcelona", "manchester", "bayern", "juventus", 
+                          "psg", "liverpool", "arsenal", "chelsea", "atletico", "tottenham",
+                          "manchester city", "manchester united", "ac milan", "inter", 
+                          "napoli", "roma", "borussia", "leipzig", "bayer leverkusen",
+                          "lyon", "marseille", "monaco", "sevilla", "valencia", "villarreal",
+                          "ajax", "feyenoord", "psv", "porto", "benfica", "sporting"
+                        ];
+
+                        return popularTeams.some(team => 
+                          homeTeam.includes(team) || awayTeam.includes(team)
+                        );
+                      }
+                      return false;
+                    };
+
                     return (
                       hasValidTeams &&
-                      isPopularLeague &&
+                      (isPopularLeague ||
+                      isFromPopularCountry ||
+                      isInternationalCompetition ||
+                      isPopularClubFriendly()) &&
                       !isPriorityLeague &&
                       isNotLive
                     );
@@ -877,6 +932,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               if (count > maxCount) {
                 maxCount = count;
                 dominantColor = color;
+              }```text
               }
             }
 
@@ -1344,7 +1400,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               profiles.smallClubProfile += 1;
                             }
 
-                            // Big club indicators
+                            // Big club indicators (expanded list for popular teams)
                             if (
                               lowerName.includes("real madrid") ||
                               lowerName.includes("barcelona") ||
@@ -1355,7 +1411,29 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               lowerName.includes("liverpool") ||
                               lowerName.includes("arsenal") ||
                               lowerName.includes("chelsea") ||
-                              lowerName.includes("atletico")
+                              lowerName.includes("atletico") ||
+                              lowerName.includes("tottenham") ||
+                              lowerName.includes("manchester city") ||
+                              lowerName.includes("manchester united") ||
+                              lowerName.includes("ac milan") ||
+                              lowerName.includes("inter") ||
+                              lowerName.includes("napoli") ||
+                              lowerName.includes("roma") ||
+                              lowerName.includes("borussia") ||
+                              lowerName.includes("leipzig") ||
+                              lowerName.includes("bayer leverkusen") ||
+                              lowerName.includes("lyon") ||
+                              lowerName.includes("marseille") ||
+                              lowerName.includes("monaco") ||
+                              lowerName.includes("sevilla") ||
+                              lowerName.includes("valencia") ||
+                              lowerName.includes("villarreal") ||
+                              lowerName.includes("ajax") ||
+                              lowerName.includes("feyenoord") ||
+                              lowerName.includes("psv") ||
+                              lowerName.includes("porto") ||
+                              lowerName.includes("benfica") ||
+                              lowerName.includes("sporting")
                             ) {
                               profiles.bigClubProfile += 2;
                             }
@@ -1490,6 +1568,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           if (daysFromNow > 7) return "Quarter Finals";
                           if (daysFromNow > 3) return "Semi Finals";
                           return "Final";
+                        }
+
+                        // Club friendlies - only for popular teams
+                        if (
+                          lowerLeague.includes("club friendlies") ||
+                          lowerLeague.includes("friendlies") ||
+                          (lowerLeague.includes("friendly") && !lowerLeague.includes("international"))
+                        ) {
+                          const teamProfiles = analyzeTeamProfile(teamNames);
+                          // Only show friendlies if at least one team is a big club
+                          if (teamProfiles.bigClubProfile >= 1) {
+                            return "Club Friendly";
+                          }
+                          return null; // Don't show non-popular team friendlies
                         }
 
                         return null;
