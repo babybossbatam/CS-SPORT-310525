@@ -1763,7 +1763,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         } else if (detail.includes("own goal")) {
                                           return (
                                             <img
-                                              src="/assets/matchdetaillogo/soccer-logo.svg                                              alt="Own Goal"
+                                              src="/assets/matchdetaillogo/soccer-logo.svg"
+                                              alt="Own Goal"
                                               className="w-4 h-4 "
                                             />
                                           );
