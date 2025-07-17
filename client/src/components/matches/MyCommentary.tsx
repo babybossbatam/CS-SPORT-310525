@@ -695,7 +695,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           {(() => {
                             const elapsed = event.time.elapsed;
                             const extra = event.time.extra;
-                            
+
                             // Handle extra time display properly
                             if (elapsed > 90 && !extra) {
                               // If elapsed is > 90 but no extra time field, calculate it
@@ -761,7 +761,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                   );
                                 }
                               })()}
-                              <span>
+                              <span className="flex-1">
                                 Score:{" "}
                                 {(() => {
                                   // Calculate score including this goal event
@@ -772,6 +772,25 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                   return `${scoreAfterGoal.homeScore} - ${scoreAfterGoal.awayScore}`;
                                 })()}
                               </span>
+                              {/* Team logos at the right edge */}
+                              <div className="flex items-center gap-1 ml-2">
+                                <img
+                                  src={`/api/team-logo/square/${events.find(e => isHomeTeam(e))?.team?.id || 'fallback'}?size=16`}
+                                  alt={homeTeam}
+                                  className="w-4 h-4 rounded-sm"
+                                  onError={(e) => {
+                                    e.currentTarget.src = "/assets/fallback-logo.svg";
+                                  }}
+                                />
+                                <img
+                                  src={`/api/team-logo/square/${events.find(e => !isHomeTeam(e))?.team?.id || 'fallback'}?size=16`}
+                                  alt={awayTeam}
+                                  className="w-4 h-4 rounded-sm"
+                                  onError={(e) => {
+                                    e.currentTarget.src = "/assets/fallback-logo.svg";
+                                  }}
+                                />
+                              </div>
                             </div>
                             <div className="flex flex-col gap-2">
                               <div className="flex items-center gap-2 -ml-3   text-xs font-medium bg-stone-200">
