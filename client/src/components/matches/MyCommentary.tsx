@@ -772,19 +772,11 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                   return `${scoreAfterGoal.homeScore} - ${scoreAfterGoal.awayScore}`;
                                 })()}
                               </span>
-                              {/* Team logos at the right edge */}
+                              {/* Team logo of the team that scored */}
                               <div className="flex items-center gap-1 ml-2">
                                 <img
-                                  src={`/api/team-logo/square/${events.find(e => isHomeTeam(e))?.team?.id || 'fallback'}?size=16`}
-                                  alt={homeTeam}
-                                  className="w-4 h-4 rounded-sm"
-                                  onError={(e) => {
-                                    e.currentTarget.src = "/assets/fallback-logo.svg";
-                                  }}
-                                />
-                                <img
-                                  src={`/api/team-logo/square/${events.find(e => !isHomeTeam(e))?.team?.id || 'fallback'}?size=16`}
-                                  alt={awayTeam}
+                                  src={`/api/team-logo/square/${event.team?.id || 'fallback'}?size=16`}
+                                  alt={event.team?.name}
                                   className="w-4 h-4 rounded-sm"
                                   onError={(e) => {
                                     e.currentTarget.src = "/assets/fallback-logo.svg";
