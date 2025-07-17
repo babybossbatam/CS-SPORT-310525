@@ -745,22 +745,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 }
                               })()}
                               <span className="flex-1">
-                                {(() => {
-                                  const detail = event.detail?.toLowerCase() || "";
-                                  const playerName = event.player?.name || "Unknown Player";
-                                  
-                                  if (detail.includes("penalty")) {
-                                    if (detail.includes("missed")) {
-                                      return `Penalty Missed! ${playerName} fails to convert`;
-                                    } else {
-                                      return `⚽ PENALTY GOAL! ${playerName} converts from the spot`;
-                                    }
-                                  } else if (detail.includes("own goal")) {
-                                    return `⚽ Own Goal by ${playerName} - Unlucky!`;
-                                  } else {
-                                    return `⚽ GOAL! ${playerName} finds the net`;
-                                  }
-                                })()}
+                                Goal
                               </span>
                               {/* Team logo of the team that scored */}
                               <div className="flex items-center gap-1 ml-2">
