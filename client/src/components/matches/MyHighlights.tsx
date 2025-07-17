@@ -105,14 +105,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     return new Date().getFullYear();
   })();
 
-  // Create more targeted search queries with correct home vs away order
-  const primarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear}`.trim();
-  const secondarySearchQuery = `"${home}" "${away}" ${league} highlights ${matchYear}`.trim();
-  const tertiarySearchQuery = `${home} vs ${away} ${matchYear} highlights`.trim();
-  const fallbackSearchQuery = `${home} vs ${away} highlights`.trim();
+  // Create more targeted search queries with correct home vs away order and esports exclusion
+  const primarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esoccer -virtual -fifa -gaming`.trim();
+  const secondarySearchQuery = `"${home}" "${away}" ${league} highlights ${matchYear} -esports -simulation`.trim();
+  const tertiarySearchQuery = `${home} vs ${away} ${matchYear} highlights -cyber -ebet -online`.trim();
+  const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer`.trim();
   
-  // Additional specific search for exact order
-  const exactOrderQuery = `${home} v ${away} highlights ${matchYear}`.trim();
+  // Additional specific search for exact order with esports exclusion
+  const exactOrderQuery = `${home} v ${away} highlights ${matchYear} -esports -fifa -virtual`.trim();
 
   // Debug logging to verify correct team names and order
   console.log(`🎬 [Highlights] Match data extraction with correct home/away order:`, {
@@ -208,6 +208,37 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     
     let score = 0;
     
+    // Check for esports/virtual match terms - heavily penalize these
+    const esportsTerms = [
+      'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual', 'fifa', 
+      'pro evolution soccer', 'pes', 'efootball', 'e-football', 'volta',
+      'ultimate team', 'clubs', 'gaming', 'game', 'simulator', 'simulation',
+      'digital', 'online', 'battle', 'legend', 'champion', 'tournament online',
+      'vs online', 'gt sport', 'rocket league', 'fc online', 'dream league',
+      'top eleven', 'football manager', 'championship manager', 'mobile', 'app',
+      'eafc', 'ea fc', 'ea sports fc', 'console', 'playstation', 'xbox',
+      'pc gaming', 'stream', 'twitch', 'youtube gaming'
+    ];
+    
+    // Heavy penalty for esports content
+    if (esportsTerms.some(term => titleLower.includes(term))) {
+      score -= 50; // Massive penalty to push esports content to bottom
+    }
+    
+    // Bonus for real football indicators
+    const realFootballTerms = [
+      'official', 'stadium', 'live', 'match day', 'full time', 'half time',
+      'premier league', 'champions league', 'la liga', 'serie a', 'bundesliga',
+      'ligue 1', 'uefa', 'fifa official', 'real madrid', 'barcelona', 'manchester',
+      'liverpool', 'arsenal', 'chelsea', 'psg', 'bayern', 'juventus', 'milan',
+      'dortmund', 'atletico', 'tottenham', 'inter', 'napoli', 'roma', 'sevilla'
+    ];
+    
+    // Bonus for real football content
+    if (realFootballTerms.some(term => titleLower.includes(term))) {
+      score += 15;
+    }
+    
     // Check for exact team name matches
     const homePos = titleLower.indexOf(homeLower);
     const awayPos = titleLower.indexOf(awayLower);
@@ -266,7 +297,29 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           combinedScore: relevanceScore + (correctOrder ? 2 : 0)
         };
       })
-      .filter(video => video.relevanceScore >= 5) // Only keep videos with good relevance
+      .filter(video => {
+        // Filter out esports content completely
+        const title = video.snippet?.title?.toLowerCase() || '';
+        const esportsTerms = [
+          'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual', 'fifa',
+          'pro evolution soccer', 'pes', 'efootball', 'e-football', 'volta',
+          'ultimate team', 'clubs', 'gaming', 'game', 'simulator', 'simulation',
+          'digital', 'online', 'battle', 'legend', 'champion', 'tournament online',
+          'vs online', 'gt sport', 'rocket league', 'fc online', 'dream league',
+          'top eleven', 'football manager', 'championship manager', 'mobile', 'app',
+          'eafc', 'ea fc', 'ea sports fc', 'console', 'playstation', 'xbox',
+          'pc gaming', 'stream', 'twitch', 'youtube gaming'
+        ];
+        
+        // Exclude if contains esports terms
+        if (esportsTerms.some(term => title.includes(term))) {
+          console.log(`🚫 [Highlights] Filtering out esports content: ${title}`);
+          return false;
+        }
+        
+        // Only keep videos with positive relevance score (adjusted for esports penalty)
+        return video.relevanceScore > 0;
+      })
       .sort((a, b) => {
         // First sort by combined score (relevance + order bonus)
         if (b.combinedScore !== a.combinedScore) {
