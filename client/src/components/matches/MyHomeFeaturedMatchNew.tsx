@@ -105,6 +105,28 @@ interface DayMatches {
 const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   maxMatches = 15,
 }) => {
+  // Add CSS for truePulse animation
+  const truePulseStyle = `
+    @keyframes truePulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+  `;
+
+  // Inject styles if not already present
+  React.useEffect(() => {
+    const styleId = 'truePulse-animation';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = truePulseStyle;
+      document.head.appendChild(style);
+    }
+  }, []);
   const [, navigate] = useLocation();
   const [featuredMatches, setFeaturedMatches] = useState<DayMatches[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -1566,8 +1588,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                           return (
                             <div className="space-y-1">
-                              <div className="text-red-600 text-sm animate-pulse flex items-center justify-center gap-2">
-                                {elapsed && <span> {elapsed}'</span>}
+                              <div className="text-red-600 text-sm flex items-center justify-center gap-2">
+                                {elapsed && <span className="animate-pulse" style={{animation: 'truePulse 2s infinite ease-in-out'}}> {elapsed}'</span>}
                               </div>
                               <div className="text-2xl font-md">
                                 {homeScore} - {awayScore}
