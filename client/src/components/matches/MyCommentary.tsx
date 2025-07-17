@@ -775,9 +775,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               {/* Team logo of the team that scored */}
                               <div className="flex items-center gap-1 ml-2">
                                 <img
-                                  src={`/api/team-logo/square/${event.team?.id || 'fallback'}?size=16`}
+                                  src={`/api/team-logo/square/${event.team?.id || 'fallback'}?size=20`}
                                   alt={event.team?.name}
-                                  className="w-4 h-4 rounded-sm"
+                                  className="w-6 h-6 rounded-sm"
                                   onError={(e) => {
                                     e.currentTarget.src = "/assets/fallback-logo.svg";
                                   }}
