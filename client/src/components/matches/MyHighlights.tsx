@@ -135,6 +135,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       tertiarySearchQuery: tertiarySearchQuery,
       fallbackSearchQuery: fallbackSearchQuery,
     },
+    expectedOrder: `${home} vs ${away}`,
     league: league,
     matchYear: matchYear,
     fullMatch: match
@@ -176,6 +177,35 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   // Special case for CRB vs Coritiba match - use reliable video source
   const isCRBCoritiba = (home.toLowerCase().includes('crb') && away.toLowerCase().includes('coritiba')) ||
                        (home.toLowerCase().includes('coritiba') && away.toLowerCase().includes('crb'));
+
+  // Helper function to validate video title order matches home vs away
+  const validateTitleOrder = (title: string, homeTeam: string, awayTeam: string): boolean => {
+    const titleLower = title.toLowerCase();
+    const homeLower = homeTeam.toLowerCase();
+    const awayLower = awayTeam.toLowerCase();
+    
+    // Find positions of team names in title
+    const homePos = titleLower.indexOf(homeLower);
+    const awayPos = titleLower.indexOf(awayLower);
+    
+    // If both teams found, check if home comes before away
+    if (homePos !== -1 && awayPos !== -1) {
+      return homePos < awayPos;
+    }
+    
+    // If only one team found or neither found, return true (don't filter out)
+    return true;
+  };
+
+  // Helper function to filter and sort videos by title order preference
+  const filterAndSortVideos = (videos: any[], homeTeam: string, awayTeam: string) => {
+    return videos
+      .map(video => ({
+        ...video,
+        orderScore: validateTitleOrder(video.snippet?.title || '', homeTeam, awayTeam) ? 1 : 0
+      }))
+      .sort((a, b) => b.orderScore - a.orderScore); // Prefer correct order first
+  };
 
   const videoSources = [
     // Specific CRB vs Coritiba video (highest priority)
@@ -246,10 +276,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         
         for (const query of queries) {
           try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=1&channelId=${concacafChannelId}&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${concacafChannelId}&order=relevance`);
             data = await response.json();
             
             if (data.items && data.items.length > 0) {
+              // Filter and sort by title order preference
+              const sortedVideos = filterAndSortVideos(data.items, home, away);
+              data.items = sortedVideos;
               break;
             }
           } catch (error) {
@@ -293,10 +326,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         
         for (const query of brazilQueries) {
           try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=1&channelId=${desimpedidosChannelId}&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${desimpedidosChannelId}&order=relevance`);
             data = await response.json();
             
             if (data.items && data.items.length > 0) {
+              // Filter and sort by title order preference
+              const sortedVideos = filterAndSortVideos(data.items, home, away);
+              data.items = sortedVideos;
               break;
             }
           } catch (error) {
@@ -335,10 +371,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         
         for (const query of queries) {
           try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=1&channelId=${fifaChannelId}&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${fifaChannelId}&order=relevance`);
             data = await response.json();
             
             if (data.items && data.items.length > 0) {
+              // Filter and sort by title order preference
+              const sortedVideos = filterAndSortVideos(data.items, home, away);
+              data.items = sortedVideos;
               break;
             }
           } catch (error) {
@@ -373,7 +412,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         
         for (const query of queries) {
           try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=1&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&order=relevance`);
             const data = await response.json();
 
             if (data.error || data.quotaExceeded) {
@@ -381,7 +420,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             }
 
             if (data.items && data.items.length > 0) {
-              const video = data.items[0];
+              // Filter and sort by title order preference
+              const sortedVideos = filterAndSortVideos(data.items, home, away);
+              const video = sortedVideos[0];
               return {
                 name: 'YouTube',
                 type: 'youtube' as const,
@@ -457,7 +498,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
         for (const query of fallbackQueries) {
           try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=3&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&order=relevance`);
             const data = await response.json();
 
             if (data.error || data.quotaExceeded) {
@@ -465,7 +506,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             }
 
             if (data.items && data.items.length > 0) {
-              const video = data.items[0];
+              // Filter and sort by title order preference
+              const sortedVideos = filterAndSortVideos(data.items, home, away);
+              const video = sortedVideos[0];
               return {
                 name: 'YouTube Extended',
                 type: 'youtube' as const,
