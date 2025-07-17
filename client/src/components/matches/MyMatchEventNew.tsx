@@ -898,7 +898,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
       {/* Tab Navigation */}
       <div className="pl-28 pr-28 py-4 flex">
-        <button```text
+        <button
           onClick={() => setActiveTab('all')}
           className={`flex-1  text-xs font-small  transition-colors ${
             activeTab === 'all'
@@ -1149,7 +1149,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         matchId={fixtureId}
                                         teamId={event.team?.id}
                                         size="md"
-                                        className="shadow-sm border-gray-400"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
                                     </div>
 
