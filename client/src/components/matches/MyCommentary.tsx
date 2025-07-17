@@ -745,7 +745,15 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 }
                               })()}
                               <span className="flex-1">
-                                Goal
+                                Score:{" "}
+                                {(() => {
+                                  // Calculate score including this goal event
+                                  const scoreAfterGoal = calculateScoreAtTime(
+                                    event.time.elapsed +
+                                      (event.time.extra || 0),
+                                  );
+                                  return `${scoreAfterGoal.homeScore} - ${scoreAfterGoal.awayScore}`;
+                                })()}
                               </span>
                               {/* Team logo of the team that scored */}
                               <div className="flex items-center gap-1 ml-2">
@@ -758,18 +766,6 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                   }}
                                 />
                               </div>
-                            </div>
-                            <div className="flex items-center gap-2 -ml-3 text-xs font-medium text-green-600">
-                              <span>
-                                Score: {(() => {
-                                  // Calculate score including this goal event
-                                  const scoreAfterGoal = calculateScoreAtTime(
-                                    event.time.elapsed +
-                                      (event.time.extra || 0),
-                                  );
-                                  return `${scoreAfterGoal.homeScore} - ${scoreAfterGoal.awayScore}`;
-                                })()}
-                              </span>
                             </div>
                             <div className="flex flex-col gap-2">
                               <div className="flex items-center gap-2 -ml-3   text-xs font-medium bg-stone-200">
@@ -838,18 +834,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 />
                               )}
                               <span className="text-gray-700 font-medium">
-                                {(() => {
-                                  const detail = event.detail?.toLowerCase() || "";
-                                  const playerName = event.player?.name || "Unknown Player";
-                                  
-                                  if (detail.includes("yellow")) {
-                                    return `🟨 Yellow Card - ${playerName} cautioned`;
-                                  } else if (detail.includes("red")) {
-                                    return `🟥 Red Card - ${playerName} sent off!`;
-                                  } else {
-                                    return event.detail || "Card";
-                                  }
-                                })()}
+                                {event.detail || "Card"}
                               </span>
                             </div>
                             <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200">
@@ -883,7 +868,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 className="w-4 h-4 opacity-80 flex-shrink-0"
                               />
                               <span className="text-gray-700 font-medium">
-                                🔄 Tactical Change - {event.team?.name || "Team"} substitution
+                                Substitution
                               </span>
                             </div>
 
@@ -939,19 +924,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 className="w-4 h-4 opacity-80 flex-shrink-0"
                               />
                               <span className="text-gray-700 font-medium">
-                                {(() => {
-                                  const detail = event.detail?.toLowerCase() || "";
-                                  
-                                  if (detail.includes("goal") && detail.includes("overturned")) {
-                                    return "📺 VAR DECISION: Goal Disallowed! Drama unfolds";
-                                  } else if (detail.includes("no goal")) {
-                                    return "📺 VAR CHECK: No Goal Confirmed";
-                                  } else if (detail.includes("penalty")) {
-                                    return "📺 VAR REVIEW: Penalty Decision Under Review";
-                                  } else {
-                                    return `📺 VAR ${event.detail || "Review"} - Decision Pending`;
-                                  }
-                                })()}
+                                {event.detail?.includes("Goal")
+                                  ? "Goal Disallowed"
+                                  : `VAR ${event.detail || "Review"}`}
                               </span>
                             </div>
                             {event.player?.name && (
@@ -1011,22 +986,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 className="w-4 h-4 opacity-80 flex-shrink-0"
                               />
                               <span className="text-gray-700 font-medium">
-                                {(() => {
-                                  const eventType = event.type?.toLowerCase() || "";
-                                  const playerName = event.player?.name || "";
-                                  
-                                  if (eventType.includes("free kick")) {
-                                    return `⚽ Free Kick - ${playerName} steps up`;
-                                  } else if (eventType.includes("corner")) {
-                                    return `🚩 Corner Kick - Opportunity for ${event.team?.name || "Team"}`;
-                                  } else if (eventType.includes("offside")) {
-                                    return `🚫 Offside - ${playerName} caught ahead of play`;
-                                  } else if (eventType.includes("foul")) {
-                                    return `⚠️ Foul - ${playerName} penalized`;
-                                  } else {
-                                    return `⚽ ${event.type} - ${event.detail || "Match Event"}`;
-                                  }
-                                })()}
+                                {event.type} - {event.detail || "Match Event"}
                               </span>
                             </div>
                             {event.player?.name && (
