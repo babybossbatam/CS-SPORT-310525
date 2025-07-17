@@ -1154,7 +1154,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         matchId={fixtureId}
                                         teamId={event.team?.id}
                                         size="md"
-                                        className="shadow-sm border-gray-400"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
                                     </div>
 
@@ -1475,7 +1475,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         matchId={fixtureId}
                                         teamId={event.team?.id}
                                         size="md"
-                                        className="shadow-sm border-gray-400"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
                                     </div>
                                   </div>
@@ -1666,7 +1666,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         matchId={fixtureId}
                                         teamId={event.team?.id}
                                         size="md"
-                                        className="shadow-sm border-gray-400"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
                                     </div>
 
@@ -1771,7 +1771,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         } else {
                                           return (
                                             <img
-                                                                             src="/assets/matchdetaillogo/soccer-ball.svg"
+                                              src="/assets/matchdetaillogo/soccer-ball.svg"
                                               alt="Goal"
                                               className="w-4 h-4 "
                                             />
@@ -1986,7 +1986,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         matchId={fixtureId}
                                         teamId={event.team?.id}
                                         size="md"
-                                        className="shadow-sm border-gray-400"
+                                        className={`shadow-sm ${event.type === "subst" ? "border-green-300" : "border-gray-400"}`}
                                       />
                                     </div>
                                   </div>
@@ -2038,4 +2038,3 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 };
 
 export default MyMatchEventNew;
-// This component is modified to remove the green border from goal events in the Top tab.
