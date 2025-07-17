@@ -206,10 +206,10 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
     }
   }, [getCacheKey, isMatchOldEnded]);
 
-  // Simple live data update - only scores, status, elapsed time for LIVE matches only
+  // Optimized live data update - only for truly live matches
   const updateLiveMatchData = useCallback(async () => {
     try {
-      // First check if we have any truly live matches to avoid unnecessary API calls
+      // Get current live matches to avoid unnecessary API calls
       const currentLiveMatches = fixtures.filter(fixture => 
         ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short)
       );
@@ -219,68 +219,44 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         return;
       }
 
+      console.log(`🔴 [MyNewLeague] Updating ${currentLiveMatches.length} live matches`);
+      
       const response = await apiRequest("GET", "/api/fixtures/live/selective");
       const liveData = await response.json();
 
       if (Array.isArray(liveData)) {
         const relevantLiveFixtures = liveData.filter(fixture => 
           leagueIds.includes(fixture.league?.id) &&
-          // Only include truly live matches - exclude ended matches
           ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short)
         );
 
         if (relevantLiveFixtures.length > 0) {
-          console.log(`🔴 [MyNewLeague] Updating ${relevantLiveFixtures.length} live matches only`);
-          
-          // Simple update - only live data fields for live matches
           setFixtures(prevFixtures => {
-            let hasChanges = false;
             const updatedFixtures = prevFixtures.map(fixture => {
               const liveUpdate = relevantLiveFixtures.find(live => live.fixture.id === fixture.fixture.id);
               
-              if (liveUpdate) {
-                // Only update if current fixture is also live (double check)
-                const currentStatus = fixture.fixture.status.short;
-                if (["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(currentStatus)) {
-                  
-                  // Don't update if match ended more than 24 hours ago
-                  if (isMatchOldEnded(fixture)) {
-                    console.log(`⏰ [MyNewLeague] Skipping live update for old ended match: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-                    return fixture;
-                  }
-
-                  // Check if there are actual changes before updating
-                  const hasStatusChange = fixture.fixture.status.short !== liveUpdate.fixture.status.short || 
-                                         fixture.fixture.status.elapsed !== liveUpdate.fixture.status.elapsed;
-                  const hasScoreChange = fixture.goals.home !== liveUpdate.goals.home || 
-                                        fixture.goals.away !== liveUpdate.goals.away;
-                  
-                  if (hasStatusChange || hasScoreChange) {
-                    hasChanges = true;
-                    return {
-                      ...fixture,
-                      fixture: {
-                        ...fixture.fixture,
-                        status: liveUpdate.fixture.status,
-                      },
-                      goals: liveUpdate.goals,
-                    };
-                  }
-                }
+              if (liveUpdate && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(fixture.fixture.status.short)) {
+                return {
+                  ...fixture,
+                  fixture: {
+                    ...fixture.fixture,
+                    status: liveUpdate.fixture.status,
+                  },
+                  goals: liveUpdate.goals,
+                };
               }
               
               return fixture;
             });
             
-            // Only update state if there are actual changes
-            return hasChanges ? updatedFixtures : prevFixtures;
+            return updatedFixtures;
           });
         }
       }
     } catch (error) {
       console.warn("Failed to fetch live updates:", error);
     }
-  }, [fixtures.length, isMatchOldEnded]); // Only depend on fixtures length, not entire fixtures array
+  }, [fixtures.length]);
 
   // Enhanced data fetching function for initial load and non-live data
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
@@ -633,51 +609,47 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
   useEffect(() => {
     fetchLeagueData(false);
 
-    // Smart update strategy - separate intervals for live and ended matches
+    // Optimized update strategy - only update what needs updating
     const liveMatches = fixtures.filter(fixture => 
       ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture.status.short)
     );
     
+    const upcomingMatches = fixtures.filter(fixture => 
+      ['NS', 'TBD'].includes(fixture.fixture.status.short)
+    );
+
     const endedMatches = fixtures.filter(fixture => 
       ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(fixture.fixture.status.short)
     );
 
-    // Filter out matches ended more than 24 hours ago from updates
-    const recentEndedMatches = endedMatches.filter(fixture => !isMatchOldEnded(fixture));
-    const oldEndedMatches = endedMatches.filter(fixture => isMatchOldEnded(fixture));
-
-    console.log(`🔄 [MyNewLeague] Update intervals setup:`, {
+    console.log(`🔄 [MyNewLeague] Update strategy:`, {
       liveMatches: liveMatches.length,
-      recentEndedMatches: recentEndedMatches.length,
-      oldEndedMatches: oldEndedMatches.length,
-      upcomingMatches: fixtures.filter(f => f.fixture.status.short === 'NS').length
+      upcomingMatches: upcomingMatches.length,
+      endedMatches: endedMatches.length
     });
 
     let liveUpdateInterval: NodeJS.Timeout | null = null;
-    let fullUpdateInterval: NodeJS.Timeout | null = null;
+    let upcomingUpdateInterval: NodeJS.Timeout | null = null;
 
+    // Only update live matches frequently
     if (liveMatches.length > 0) {
-      // For live matches: update only live data every 15 seconds (increased from 10 to reduce load)
       console.log(`🔴 [MyNewLeague] Starting live updates for ${liveMatches.length} live matches`);
       liveUpdateInterval = setInterval(() => {
         updateLiveMatchData();
-      }, 15000);
-    } else {
-      console.log(`⏸️ [MyNewLeague] No live matches, skipping live updates`);
+      }, 15000); // 15 seconds for live matches
     }
 
-    // For recent ended matches and upcoming matches: much less frequent full updates (10 minutes)
-    // Skip updates entirely for matches ended more than 24 hours ago
-    if (recentEndedMatches.length > 0 || fixtures.some(f => f.fixture.status.short === 'NS')) {
-      console.log(`🔄 [MyNewLeague] Starting periodic updates for recent matches`);
-      fullUpdateInterval = setInterval(() => {
-        // Only do full update if there are no live matches to avoid conflicts
-        if (liveMatches.length === 0) {
-          fetchLeagueData(true);
-        }
-      }, 600000); // 10 minutes (increased from 5 minutes)
-    } else if (oldEndedMatches.length > 0) {
-      console.log(`💾 [MyNewLeague] All matches are old ended matches, using cached data only`);
+    // Update upcoming matches less frequently (they might change to live)
+    if (upcomingMatches.length > 0) {
+      console.log(`⏰ [MyNewLeague] Starting upcoming match updates for ${upcomingMatches.length} matches`);
+      upcomingUpdateInterval = setInterval(() => {
+        fetchLeagueData(true);
+      }, 300000); // 5 minutes for upcoming matches
+    }
+
+    // No updates for ended matches - they won't change
+    if (endedMatches.length > 0) {
+      console.log(`💾 [MyNewLeague] ${endedMatches.length} ended matches - no updates needed`);
     }
 
     return () => {
@@ -685,12 +657,12 @@ const MyNewLeague: React.FC<MyNewLeagueProps> = ({
         clearInterval(liveUpdateInterval);
         console.log(`🛑 [MyNewLeague] Cleared live update interval`);
       }
-      if (fullUpdateInterval) {
-        clearInterval(fullUpdateInterval);
-        console.log(`🛑 [MyNewLeague] Cleared full update interval`);
+      if (upcomingUpdateInterval) {
+        clearInterval(upcomingUpdateInterval);
+        console.log(`🛑 [MyNewLeague] Cleared upcoming update interval`);
       }
     };
-  }, [fetchLeagueData, updateLiveMatchData, selectedDate, fixtures.length, isMatchOldEnded]);
+  }, [fetchLeagueData, updateLiveMatchData, selectedDate, fixtures.length]);
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
@@ -979,7 +951,7 @@ b.fixture.status.elapsed) || 0;
     />
   );
 
-  // Memoized match card component to prevent unnecessary re-renders
+  // Simplified match card component
   const MatchCard = React.memo(({ 
     match, 
     isHalftimeFlash, isFulltimeFlash, 
@@ -998,11 +970,11 @@ b.fixture.status.elapsed) || 0;
     onMatchClick?: (match: any) => void;
     leagueGroup: any;
   }) => {
-    const handleMatchClick = useCallback(() => {
+    const handleMatchClick = () => {
       if (onMatchClick) {
         onMatchClick(match);
       }
-    }, [onMatchClick, match.fixture.id]); // Only depend on match ID, not entire match object
+    };
 
     return (
       <div
@@ -1354,41 +1326,24 @@ b.fixture.status.elapsed) || 0;
       </div>
     );
   }, (prevProps, nextProps) => {
-    // Custom comparison function to prevent re-renders for stable matches
+    // Simple comparison - only re-render if essential props change
     const prevMatch = prevProps.match;
     const nextMatch = nextProps.match;
     
-    // Always re-render if it's a different match
     if (prevMatch.fixture.id !== nextMatch.fixture.id) {
-      return false;
+      return false; // Different match, re-render
     }
     
-    // Check if match ended more than 24 hours ago
-    const isOldEndedMatch = (() => {
-      const status = nextMatch.fixture.status.short;
-      const isEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
-      
-      if (!isEnded) return false;
-      
-      const matchDate = new Date(nextMatch.fixture.date);
-      const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
-      
-      return hoursAgo > 24;
-    })();
+    const status = nextMatch.fixture.status.short;
+    const isEndedMatch = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
     
-    // For matches ended more than 24 hours ago, prevent ALL re-renders unless starred status changes
-    if (isOldEndedMatch) {
-      const shouldUpdate = prevProps.isStarred !== nextProps.isStarred;
-      
-      if (!shouldUpdate) {
-        console.log(`🚫 [MatchCard Memo] Preventing re-render for old ended match: ${nextMatch.teams.home.name} vs ${nextMatch.teams.away.name}`);
-      }
-      
-      return !shouldUpdate; // Return true to prevent re-render
+    // For ended matches, only re-render if starred status changes
+    if (isEndedMatch) {
+      return prevProps.isStarred === nextProps.isStarred; // True = prevent re-render
     }
     
-    // For all other matches, compare essential props
-    const essentialPropsEqual = (
+    // For live/upcoming matches, compare essential props
+    return (
       prevMatch.fixture.status.short === nextMatch.fixture.status.short &&
       prevMatch.fixture.status.elapsed === nextMatch.fixture.status.elapsed &&
       prevMatch.goals.home === nextMatch.goals.home &&
@@ -1398,8 +1353,6 @@ b.fixture.status.elapsed) || 0;
       prevProps.isFulltimeFlash === nextProps.isFulltimeFlash &&
       prevProps.isGoalFlash === nextProps.isGoalFlash
     );
-    
-    return essentialPropsEqual; // Return true to prevent re-render
   });
 
   // Clear cache for specific match when status transitions occur
@@ -1460,20 +1413,13 @@ b.fixture.status.elapsed) || 0;
     }
   }, [getCacheKey]);
 
-  // Stabilized effect to detect status and score changes with flash effects and cache clearing
+  // Simplified status change detection - only for live matches
   useEffect(() => {
     if (!fixtures?.length) return;
-
-    const currentTime = Date.now();
-    // Only process changes every 2 seconds to prevent excessive re-renders
-    if (currentTime - lastUpdateTime < 2000) return;
 
     const newHalftimeMatches = new Set<number>();
     const newFulltimeMatches = new Set<number>();
     const newGoalMatches = new Set<number>();
-    
-    let hasStatusChanges = false;
-    let hasScoreChanges = false;
 
     fixtures.forEach((fixture) => {
       const matchId = fixture.fixture.id;
@@ -1485,70 +1431,34 @@ b.fixture.status.elapsed) || 0;
       };
       const previousScore = previousMatchScoresRef.current.get(matchId);
 
-      // Only check for changes if we have a previous status (not on first load)
-      if (previousStatus && previousStatus !== currentStatus) {
-        console.log(`🔄 [MyNewLeague STATUS TRANSITION] Match ${matchId}:`, {
-          teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-          transition: `${previousStatus} → ${currentStatus}`,
-          time: new Date().toLocaleTimeString(),
-          elapsed: fixture.fixture.status.elapsed
-        });
+      // Only track changes for live/upcoming matches
+      const isLiveOrUpcoming = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT', 'NS', 'TBD'].includes(currentStatus);
+      
+      if (isLiveOrUpcoming && previousStatus && previousStatus !== currentStatus) {
+        console.log(`🔄 [MyNewLeague] Status change: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${previousStatus} → ${currentStatus})`);
 
-        hasStatusChanges = true;
-
-        // Track status transition in cache system for invalidation
-        fixtureCache.trackStatusTransition(matchId, previousStatus, currentStatus);
-
-        // Handle NS → LIVE transition - clear upcoming match cache
-        if (previousStatus === 'NS' && ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(currentStatus)) {
-          clearMatchCache(matchId, 'NS→LIVE', fixture.fixture.date);
-        }
-
-        // Handle LIVE → ENDED transition - clear live match cache
-        if (['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(previousStatus) && 
-            ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(currentStatus)) {
-          clearMatchCache(matchId, 'LIVE→ENDED', fixture.fixture.date);
-        }
-
-        // Check if status just changed to halftime
         if (currentStatus === 'HT') {
           newHalftimeMatches.add(matchId);
         }
-
-        // Check if status just changed to fulltime
         if (currentStatus === 'FT') {
           newFulltimeMatches.add(matchId);
         }
       }
 
-      // Check for goal changes during live matches
+      // Check for goal changes only during live matches
       if (previousScore && 
           (currentScore.home !== previousScore.home || currentScore.away !== previousScore.away) &&
           ['1H', '2H', 'LIVE', 'LIV'].includes(currentStatus)) {
-        console.log(`⚽ [MyNewLeague GOAL FLASH] Match ${matchId} score changed!`, {
-          home: fixture.teams?.home?.name,
-          away: fixture.teams?.away?.name,
-          previousScore,
-          currentScore,
-          status: currentStatus,
-          elapsed: fixture.fixture.status.elapsed
-        });
+        console.log(`⚽ [MyNewLeague] Goal scored: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`);
         newGoalMatches.add(matchId);
-        hasScoreChanges = true;
-        clearMatchCache(matchId, 'GOAL_SCORED', fixture.fixture.date);
       }
 
-      // Update refs
+      // Update refs for all matches
       previousMatchStatusesRef.current.set(matchId, currentStatus);
       previousMatchScoresRef.current.set(matchId, currentScore);
     });
 
-    // Only update state if there are actual changes
-    if (hasStatusChanges || hasScoreChanges) {
-      setLastUpdateTime(currentTime);
-    }
-
-    // Trigger flash effects with debouncing
+    // Trigger flash effects
     if (newHalftimeMatches.size > 0) {
       setHalftimeFlashMatches(newHalftimeMatches);
       setTimeout(() => setHalftimeFlashMatches(new Set()), 3000);
@@ -1563,7 +1473,7 @@ b.fixture.status.elapsed) || 0;
       setGoalFlashMatches(newGoalMatches);
       setTimeout(() => setGoalFlashMatches(new Set()), 2000);
     }
-  }, [fixtures, clearMatchCache, lastUpdateTime]);
+  }, [fixtures]);
 
   if (loading) {
     return (
