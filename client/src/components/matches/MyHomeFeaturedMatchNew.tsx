@@ -80,6 +80,7 @@ const POPULAR_LEAGUES = [
   { id: 38, name: "UEFA U21 Championship", country: "World" },
   { id: 9, name: "Copa America", country: "World" },
   { id: 16, name: "CONCACAF Gold Cup", country: "World" },
+  { id: 667, name: "Friendlies Clubs", country: "World" },
 ];
 
 // Define featured leagues
@@ -524,6 +525,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Check if it's a club friendly with popular teams using the imported popular teams list
                     const isPopularClubFriendly = () => {
                       if (leagueName.includes("club friendlies") || 
+                          leagueName.includes("friendlies clubs") ||
                           (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women"))) {
                         const homeTeamId = fixture.teams?.home?.id;
                         const awayTeamId = fixture.teams?.away?.id;
@@ -534,7 +536,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         if (homeTeamId && awayTeamId) {
                           const hasPopularTeamById = POPULAR_TEAM_IDS.includes(homeTeamId) || POPULAR_TEAM_IDS.includes(awayTeamId);
                           if (hasPopularTeamById) {
-                            console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found by ID: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                            console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found by ID: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
                             return true;
                           }
                         }
@@ -545,18 +547,21 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
 
                         if (hasPopularTeamByName) {
-                          console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                          console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
                           return true;
                         }
 
-                        // Additional keyword-based matching for team variations
+                        // Enhanced keyword-based matching for team variations including full names
                         const popularTeamKeywords = [
-                          "real madrid", "barcelona", "manchester", "bayern", "juventus", 
-                          "psg", "liverpool", "arsenal", "chelsea", "atletico", "tottenham",
-                          "ac milan", "inter", "napoli", "roma", "borussia", "leipzig", 
-                          "bayer leverkusen", "lyon", "marseille", "monaco", "sevilla", 
-                          "valencia", "villarreal", "ajax", "feyenoord", "psv", "porto", 
-                          "benfica", "sporting"
+                          "real madrid", "barcelona", "manchester city", "manchester united", "manchester",
+                          "bayern munich", "bayern", "juventus", "psg", "paris saint-germain", "paris saint germain",
+                          "liverpool", "arsenal", "chelsea", "atletico madrid", "atletico", "tottenham",
+                          "ac milan", "inter milan", "inter", "napoli", "roma", "as roma", 
+                          "borussia dortmund", "borussia", "dortmund", "rb leipzig", "leipzig", 
+                          "bayer leverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
+                          "olympique marseille", "monaco", "as monaco", "sevilla", "valencia", 
+                          "villarreal", "ajax", "feyenoord", "psv eindhoven", "psv", "porto", 
+                          "fc porto", "benfica", "sl benfica", "sporting cp", "sporting lisbon", "sporting"
                         ];
 
                         const hasKeywordMatch = popularTeamKeywords.some(keyword => 
@@ -564,11 +569,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
 
                         if (hasKeywordMatch) {
-                          console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found by keyword: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                          console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found by keyword: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
                           return true;
                         }
 
-                        console.log(`❌ [MyHomeFeaturedMatchNew] Club friendly excluded (no popular teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                        console.log(`❌ [MyHomeFeaturedMatchNew] Club friendly excluded (no popular teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
                         return false;
                       }
                       return false;
@@ -778,9 +783,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 return aPriority - bPriority;
 
               // Popular team friendlies get priority over regular matches
-              const aIsPopularFriendly = a.league.name?.toLowerCase()?.includes("friendlies") && 
+              const aLeagueName = a.league.name?.toLowerCase() || "";
+              const bLeagueName = b.league.name?.toLowerCase() || "";
+              
+              const aIsPopularFriendly = (aLeagueName.includes("friendlies") || aLeagueName.includes("club friendlies")) && 
                 (POPULAR_TEAM_IDS.includes(a.teams.home.id) || POPULAR_TEAM_IDS.includes(a.teams.away.id));
-              const bIsPopularFriendly = b.league.name?.toLowerCase()?.includes("friendlies") && 
+              const bIsPopularFriendly = (bLeagueName.includes("friendlies") || bLeagueName.includes("club friendlies")) && 
                 (POPULAR_TEAM_IDS.includes(b.teams.home.id) || POPULAR_TEAM_IDS.includes(b.teams.away.id));
 
               if (aIsPopularFriendly && !bIsPopularFriendly) return -1;
