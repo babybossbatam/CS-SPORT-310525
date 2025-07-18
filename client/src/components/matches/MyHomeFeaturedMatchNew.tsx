@@ -22,6 +22,7 @@ import {
   getEnhancedHomeTeamGradient,
 } from "@/lib/colorExtractor";
 import { motion, AnimatePresence } from "framer-motion";
+import FixedScoreboard from "./FixedScoreboard";
 
 // Import popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
@@ -1305,13 +1306,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   }
 
   return (
-    <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4 overflow-hidden">
-      <Badge
-        variant="secondary"
-        className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
-      >
-        Featured Match
-      </Badge>
+    <>
+      <Card className="px-0 pt-0 pb-2 relative shadow-md mb-4 overflow-hidden">
+        <Badge
+          variant="secondary"
+          className="bg-gray-700 text-white text-xs font-medium py-1 px-2 rounded-bl-md absolute top-0 right-0 z-10 pointer-events-none"
+        >
+          Featured Match
+        </Badge>
 
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-sm"></CardTitle>
@@ -2309,6 +2311,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         )}
       </CardContent>
     </Card>
+    <FixedScoreboard />
+    </>
   );
 };
 
