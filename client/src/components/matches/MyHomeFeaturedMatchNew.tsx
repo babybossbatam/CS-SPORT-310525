@@ -1098,11 +1098,65 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         >
           Featured Match
         </Badge>
-        <CardContent className="p-6">
+        <CardHeader className="pb-2">
+          <div className="flex items-center gap-2 justify-center">
+            <Skeleton className="h-6 w-6 rounded" />
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-16 rounded-full" />
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
           <div className="space-y-4">
-            <div className="animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-              <div className="h-32 bg-gray-100 rounded"></div>
+            {/* Match status skeleton */}
+            <div className="text-center">
+              <Skeleton className="h-4 w-20 mx-auto mb-2" />
+              <Skeleton className="h-8 w-16 mx-auto" />
+            </div>
+
+            {/* Teams display skeleton */}
+            <div className="relative mt-4">
+              <div className="flex relative h-[53px] rounded-md mb-8">
+                <div className="w-full h-full flex justify-between relative">
+                  {/* Home team section */}
+                  <div className="flex items-center w-[45%]">
+                    <Skeleton className="h-16 w-16 rounded-full" />
+                    <Skeleton className="h-6 w-24 ml-4" />
+                  </div>
+                  
+                  {/* VS section */}
+                  <div className="flex items-center justify-center">
+                    <Skeleton className="h-12 w-12 rounded-full" />
+                  </div>
+                  
+                  {/* Away team section */}
+                  <div className="flex items-center justify-end w-[45%]">
+                    <Skeleton className="h-6 w-24 mr-4" />
+                    <Skeleton className="h-16 w-16 rounded-full" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Match details skeleton */}
+              <div className="text-center">
+                <Skeleton className="h-4 w-64 mx-auto" />
+              </div>
+            </div>
+
+            {/* Action buttons skeleton */}
+            <div className="flex justify-around border-t border-gray-200 pt-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex flex-col items-center">
+                  <Skeleton className="h-5 w-5 mb-1" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+              ))}
+            </div>
+
+            {/* Navigation indicators skeleton */}
+            <div className="flex justify-center mt-4 gap-1">
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="w-1.5 h-1.5 rounded-full" />
+              ))}
             </div>
           </div>
         </CardContent>

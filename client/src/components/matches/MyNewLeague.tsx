@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef, lazy, Suspense } from "react";
 import { Card, CardContent, CardHeader } from "../ui/card";
 import { Star, Calendar, ChevronDown, ChevronUp } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
@@ -13,6 +14,19 @@ import {
 import { MyAdvancedTimeClassifier } from "@/lib/MyAdvancedTimeClassifier";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
+
+// Lazy load the team logo component for better performance
+const LazyTeamLogo = lazy(() => Promise.resolve({ 
+  default: ({ teamName, logoUrl, size }: { teamName: string; logoUrl: string; size: string; }) => (
+    <MyWorldTeamLogo
+      teamName={teamName}
+      teamLogo={logoUrl}
+      alt={teamName}
+      size={size}
+      className="popular-leagues-size"
+    />
+  )
+}));
 
 interface MyNewLeagueProps {
   selectedDate: string;
@@ -77,7 +91,7 @@ interface LeagueData {
   };
 }
 
-const MyNewLeague: React.FC<MyNewLeagueProps> = ({
+const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   selectedDate,
   timeFilterActive,
   showTop10,
@@ -936,19 +950,63 @@ b.fixture.status.elapsed) || 0;
     });
   }, []);
 
-  // Simple team logo component - no memoization needed
+  // Lazy loading team logo component with skeleton fallback
   const TeamLogo = ({ teamName, logoUrl, size }: {
     teamName: string;
     logoUrl: string;
     size: string;
   }) => (
-    <MyWorldTeamLogo
-      teamName={teamName}
-      teamLogo={logoUrl}
-      alt={teamName}
-      size={size}
-      className="popular-leagues-size"
-    />
+    <Suspense fallback={<Skeleton className={`h-8 w-8 rounded`} />}>
+      <LazyTeamLogo teamName={teamName} logoUrl={logoUrl} size={size} />
+    </Suspense>
+  );
+
+  // Enhanced lazy loading skeleton for league card
+  const LeagueCardSkeleton = () => (
+    <Card className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing">
+      <div className="w-full flex items-center gap-2 p-2 bg-white border-b border-gray-200">
+        <Skeleton className="h-5 w-5 rounded-full" />
+        <Skeleton className="w-6 h-6 rounded-full" />
+        <div className="flex flex-col flex-1 gap-1">
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-3 w-24" />
+        </div>
+        <Skeleton className="h-4 w-12 rounded-full" />
+      </div>
+      <div className="match-cards-wrapper">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="country-matches-container">
+            <div className="match-card-container">
+              <div className="match-three-grid-container">
+                <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <Skeleton className="h-4 w-16 rounded" />
+                </div>
+                <div className="match-content-container">
+                  <div className="home-team-name" style={{ textAlign: "right" }}>
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                  <div className="home-team-logo-container" style={{ padding: "0 0.6rem" }}>
+                    <Skeleton className="h-8 w-8 rounded" />
+                  </div>
+                  <div className="match-score-container">
+                    <Skeleton className="h-6 w-12" />
+                  </div>
+                  <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
+                    <Skeleton className="h-8 w-8 rounded" />
+                  </div>
+                  <div className="away-team-name" style={{ textAlign: "left" }}>
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                </div>
+                <div className="match-penalty-bottom">
+                  {/* Empty for penalty results */}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
   );
 
   // Optimized match card component - no React.memo, selective updates only
@@ -1450,34 +1508,21 @@ b.fixture.status.elapsed) || 0;
     }
   }, [fixtures]);
 
-  if (loading) {
+  if (loading || isLoading) {
     return (
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-2">
-            <div className="h-4 w-4 rounded-full bg-gray-200 animate-pulse" />
-            <div className="h-4 w-48 bg-gray-200 animate-pulse rounded" />
+      <>
+        {/* Header Section Skeleton */}
+        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+          <div className="flex justify-between items-center w-full">
+            <Skeleton className="h-5 w-48" />
           </div>
-          <div className="h-3 w-40 bg-gray-200 animate-pulse rounded" />
         </CardHeader>
-        <CardContent className="p-0">
-          <div className="space-y-0">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="border-b border-gray-100 last:border-b-0">
-                <div className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-6 h-4 bg-gray-200 animate-pulse rounded-sm" />
-                    <div className="h-4 w-24 bg-gray-200 animate-pulse rounded" />
-                    <div className="h-4 w-8 bg-gray-200 animate-pulse rounded" />
-                    <div className="h-5 w-12 bg-gray-200 animate-pulse rounded-full" />
-                  </div>
-                  <div className="h-4 w-4 bg-gray-200 animate-pulse rounded" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+
+        {/* Multiple League Cards Skeleton */}
+        {[1, 2, 3, 4].map((i) => (
+          <LeagueCardSkeleton key={i} />
+        ))}
+      </>
     );
   }
 
@@ -1666,5 +1711,74 @@ b.fixture.status.elapsed) || 0;
     </>
   );
 };
+
+// Set display name for debugging
+MyNewLeagueComponent.displayName = 'MyNewLeague';
+
+// Lazy-loaded wrapper with Suspense
+const MyNewLeague: React.FC<MyNewLeagueProps> = (props) => (
+  <Suspense fallback={
+    <>
+      {/* Header Section Skeleton */}
+      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+        <div className="flex justify-between items-center w-full">
+          <Skeleton className="h-5 w-48" />
+        </div>
+      </CardHeader>
+
+      {/* Multiple League Cards Skeleton */}
+      {[1, 2, 3, 4].map((i) => (
+        <Card key={i} className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing">
+          <div className="w-full flex items-center gap-2 p-2 bg-white border-b border-gray-200">
+            <Skeleton className="h-5 w-5 rounded-full" />
+            <Skeleton className="w-6 h-6 rounded-full" />
+            <div className="flex flex-col flex-1 gap-1">
+              <Skeleton className="h-4 w-32" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+            <Skeleton className="h-4 w-12 rounded-full" />
+          </div>
+          <div className="match-cards-wrapper">
+            {[1, 2, 3].map((j) => (
+              <div key={j} className="country-matches-container">
+                <div className="match-card-container">
+                  <div className="match-three-grid-container">
+                    <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                      <Skeleton className="h-4 w-16 rounded" />
+                    </div>
+                    <div className="match-content-container">
+                      <div className="home-team-name" style={{ textAlign: "right" }}>
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                      <div className="home-team-logo-container" style={{ padding: "0 0.6rem" }}>
+                        <Skeleton className="h-8 w-8 rounded" />
+                      </div>
+                      <div className="match-score-container">
+                        <Skeleton className="h-6 w-12" />
+                      </div>
+                      <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
+                        <Skeleton className="h-8 w-8 rounded" />
+                      </div>
+                      <div className="away-team-name" style={{ textAlign: "left" }}>
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                    </div>
+                    <div className="match-penalty-bottom">
+                      {/* Empty for penalty results */}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      ))}
+    </>
+  }>
+    <MyNewLeagueComponent {...props} />
+  </Suspense>
+);
+
+MyNewLeague.displayName = 'MyNewLeague';
 
 export default MyNewLeague;
