@@ -21,6 +21,7 @@ import {
   getEnhancedHomeTeamGradient,
 } from "@/lib/colorExtractor";
 import { motion, AnimatePresence } from "framer-motion";
+import { shouldExcludeFromFeaturedMatch } from "@/lib/MyNewExclusionFilter";
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
   maxMatches?: number;
@@ -348,7 +349,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const isNotLive = !isLiveMatch(
                       fixture.fixture.status.short,
                     );
-                    const shouldInclude = hasValidTeams && isNotLive;
+                    
+                    // Apply exclusion filter for women's competitions
+                    const shouldExclude = shouldExcludeFromFeaturedMatch(
+                      fixture.league?.name || '',
+                      fixture.teams?.home?.name || '',
+                      fixture.teams?.away?.name || '',
+                      fixture.league?.country || ''
+                    );
+                    
+                    const shouldInclude = hasValidTeams && isNotLive && !shouldExclude;
 
                     if (shouldInclude) {
                       console.log(
@@ -359,6 +369,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
                           status: fixture.fixture.status.short,
+                        },
+                      );
+                    } else if (shouldExclude) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding women's/unwanted competition:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
                         },
                       );
                     }
@@ -428,6 +447,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const leagueName = fixture.league?.name?.toLowerCase() || "";
                     const country = fixture.league?.country?.toLowerCase() || "";
 
+                    // Apply exclusion filter for women's competitions
+                    const shouldExclude = shouldExcludeFromFeaturedMatch(
+                      fixture.league?.name || '',
+                      fixture.teams?.home?.name || '',
+                      fixture.teams?.away?.name || '',
+                      fixture.league?.country || ''
+                    );
+
                     // Check if it's a popular league or from a popular country
                     const isPopularLeague = POPULAR_LEAGUES.some(
                       (league) => league.id === fixture.league?.id,
@@ -493,6 +520,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       isInternationalCompetition ||
                       isPopularClubFriendly()) &&
                       !isPriorityLeague &&
+                      !shouldExclude &&
                       isNotLive
                     );
                   })
@@ -562,8 +590,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         (existing) =>
                           existing.fixture.id === fixture.fixture.id,
                       );
+                      
+                      // Apply exclusion filter for women's competitions
+                      const shouldExclude = shouldExcludeFromFeaturedMatch(
+                        fixture.league?.name || '',
+                        fixture.teams?.home?.name || '',
+                        fixture.teams?.away?.name || '',
+                        fixture.league?.country || ''
+                      );
 
-                      return hasValidTeams && isNotLive && isNotDuplicate;
+                      return hasValidTeams && isNotLive && isNotDuplicate && !shouldExclude;
                     })
                     .slice(0, 5) // Limit to prevent overwhelming
                     .map((fixture: any) => ({
