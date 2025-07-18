@@ -45,6 +45,17 @@ export const shouldExcludeFromFeaturedMatch = (
   const homeTeam = homeTeamName.toLowerCase();
   const awayTeam = awayTeamName.toLowerCase();
   const countryLower = country.toLowerCase();
+  
+  // Debug logging to see what's being excluded
+  const debugMatch = () => {
+    console.log(`🔍 [EXCLUSION DEBUG] Checking: ${homeTeamName} vs ${awayTeamName}`, {
+      league: leagueName,
+      country: country,
+      isSpecificWomens: false,
+      isGeneralWomens: false,
+      isUnwanted: false
+    });
+  };
 
   // First check for specific women's competitions
   const isSpecificWomensCompetition = specificWomensCompetitions.some(competition => 
@@ -55,13 +66,22 @@ export const shouldExcludeFromFeaturedMatch = (
     return true;
   }
 
-  // Check for general women's competitions (but be more careful)
+  // Check for general women's competitions (be very specific)
   const isWomensCompetition = womensCompetitionTerms.some(term => {
-    // Only exclude if the term appears in the league name or team names
-    // Don't exclude based on country alone to avoid false positives
-    return league.includes(term) || 
-           (homeTeam.includes(term) && homeTeam.includes('women')) || 
-           (awayTeam.includes(term) && awayTeam.includes('women'));
+    // Only exclude if the term appears clearly in context of women's sports
+    const leagueMatch = league.includes(term) && 
+                       (league.includes('women') || league.includes('femenina') || league.includes('feminine'));
+    
+    const teamMatch = (homeTeam.includes(term) && homeTeam.includes('women')) || 
+                     (awayTeam.includes(term) && awayTeam.includes('women'));
+    
+    // Be extra specific for common false positive terms
+    if (term === 'women' || term === 'girls') {
+      return leagueMatch || teamMatch;
+    }
+    
+    // For other terms, only match if clearly in women's context
+    return leagueMatch || teamMatch;
   });
 
   // Check for other unwanted competitions (esports, virtual, etc.)
@@ -71,7 +91,20 @@ export const shouldExcludeFromFeaturedMatch = (
     awayTeam.includes(term)
   );
 
-  return isWomensCompetition || isUnwantedCompetition;
+  const shouldExcludeResult = isWomensCompetition || isUnwantedCompetition;
+  
+  // Debug log exclusions
+  if (shouldExcludeResult) {
+    console.log(`❌ [EXCLUSION] Excluding: ${homeTeamName} vs ${awayTeamName}`, {
+      league: leagueName,
+      country: country,
+      reason: isSpecificWomensCompetition ? 'Specific women\'s competition' : 
+              isWomensCompetition ? 'General women\'s competition' : 
+              isUnwantedCompetition ? 'Unwanted competition type' : 'Unknown'
+    });
+  }
+  
+  return shouldExcludeResult;
 };
 
 /**

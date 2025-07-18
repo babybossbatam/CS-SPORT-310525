@@ -369,6 +369,19 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           reason: 'Women\'s or unwanted competition'
                         }
                       );
+                    } else {
+                      console.log(
+                        `✅ [MyHomeFeaturedMatchNew] NOT excluding match:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          country: fixture.league?.country,
+                          hasValidTeams,
+                          isNotLive,
+                          shouldExclude
+                        }
+                      );
                     }
                     
                     const shouldInclude = hasValidTeams && isNotLive && !shouldExclude;
