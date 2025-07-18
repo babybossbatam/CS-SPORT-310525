@@ -1820,7 +1820,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         // Return processed round or fallback
                         return processedRound || "UPCOMING";
                       })()}
-</Badge>
+                    </Badge>
                     )}
                   </div>
 
