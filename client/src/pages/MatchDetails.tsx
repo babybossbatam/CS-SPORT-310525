@@ -591,7 +591,11 @@ const MatchDetails = () => {
           {/* League Information Header */}
           <div className="flex items-center  mb-4">
             <img
-              src={currentFixture?.league.logo || "/assets/fallback-logo.svg"}
+              src={
+                currentFixture?.league.name?.toLowerCase().includes('cotif')
+                  ? "/assets/matchdetaillogo/SGCUNl9j-zkh3mv3i.png"
+                  : currentFixture?.league.logo || "/assets/fallback-logo.svg"
+              }
               alt={currentFixture?.league.name}
               className="h-16 w-17 object-cover bg-gray-50"
               onError={(e) => {
