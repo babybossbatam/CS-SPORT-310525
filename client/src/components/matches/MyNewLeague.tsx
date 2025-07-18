@@ -28,6 +28,41 @@ const LazyTeamLogo = lazy(() => Promise.resolve({
   )
 }));
 
+// Intersection Observer Hook for lazy loading
+const useIntersectionObserver = (
+  ref: React.RefObject<Element>,
+  options: IntersectionObserverInit = {}
+) => {
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const [hasIntersected, setHasIntersected] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      const isElementIntersecting = entry.isIntersecting;
+      setIsIntersecting(isElementIntersecting);
+      
+      if (isElementIntersecting && !hasIntersected) {
+        setHasIntersected(true);
+      }
+    }, {
+      threshold: 0.1,
+      rootMargin: '50px',
+      ...options
+    });
+
+    observer.observe(element);
+
+    return () => {
+      observer.unobserve(element);
+    };
+  }, [ref, hasIntersected, options.threshold, options.rootMargin]);
+
+  return { isIntersecting, hasIntersected };
+};
+
 interface MyNewLeagueProps {
   selectedDate: string;
   timeFilterActive: boolean;
@@ -90,6 +125,80 @@ interface LeagueData {
     name: string;
   };
 }
+
+// Lazy Loading Wrapper Component
+const LazyMyNewLeagueWrapper: React.FC<MyNewLeagueProps> = (props) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { hasIntersected } = useIntersectionObserver(containerRef, {
+    threshold: 0.1,
+    rootMargin: '100px'
+  });
+
+  // Placeholder skeleton while not intersected
+  if (!hasIntersected) {
+    return (
+      <div ref={containerRef}>
+        {/* Header Section Skeleton */}
+        <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
+          <div className="flex justify-between items-center w-full">
+            <Skeleton className="h-5 w-48" />
+          </div>
+        </CardHeader>
+
+        {/* Multiple League Cards Skeleton */}
+        {[1, 2, 3, 4].map((i) => (
+          <Card key={i} className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing">
+            <div className="w-full flex items-center gap-2 p-2 bg-white border-b border-gray-200">
+              <Skeleton className="h-5 w-5 rounded-full" />
+              <Skeleton className="w-6 h-6 rounded-full" />
+              <div className="flex flex-col flex-1 gap-1">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+              <Skeleton className="h-4 w-12 rounded-full" />
+            </div>
+            <div className="match-cards-wrapper">
+              {[1, 2, 3].map((j) => (
+                <div key={j} className="country-matches-container">
+                  <div className="match-card-container">
+                    <div className="match-three-grid-container">
+                      <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <Skeleton className="h-4 w-16 rounded" />
+                      </div>
+                      <div className="match-content-container">
+                        <div className="home-team-name" style={{ textAlign: "right" }}>
+                          <Skeleton className="h-4 w-24" />
+                        </div>
+                        <div className="home-team-logo-container" style={{ padding: "0 0.6rem" }}>
+                          <Skeleton className="h-8 w-8 rounded" />
+                        </div>
+                        <div className="match-score-container">
+                          <Skeleton className="h-6 w-12" />
+                        </div>
+                        <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
+                          <Skeleton className="h-8 w-8 rounded" />
+                        </div>
+                        <div className="away-team-name" style={{ textAlign: "left" }}>
+                          <Skeleton className="h-4 w-24" />
+                        </div>
+                      </div>
+                      <div className="match-penalty-bottom">
+                        {/* Empty for penalty results */}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  // Render actual component when intersected
+  return <MyNewLeagueComponent {...props} />;
+};
 
 const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   selectedDate,
@@ -1713,71 +1822,13 @@ b.fixture.status.elapsed) || 0;
 };
 
 // Set display name for debugging
-MyNewLeagueComponent.displayName = 'MyNewLeague';
+MyNewLeagueComponent.displayName = 'MyNewLeagueComponent';
+LazyMyNewLeagueWrapper.displayName = 'LazyMyNewLeagueWrapper';
 
-// Lazy-loaded wrapper with Suspense
-const MyNewLeague: React.FC<MyNewLeagueProps> = (props) => (
-  <Suspense fallback={
-    <>
-      {/* Header Section Skeleton */}
-      <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
-        <div className="flex justify-between items-center w-full">
-          <Skeleton className="h-5 w-48" />
-        </div>
-      </CardHeader>
-
-      {/* Multiple League Cards Skeleton */}
-      {[1, 2, 3, 4].map((i) => (
-        <Card key={i} className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing">
-          <div className="w-full flex items-center gap-2 p-2 bg-white border-b border-gray-200">
-            <Skeleton className="h-5 w-5 rounded-full" />
-            <Skeleton className="w-6 h-6 rounded-full" />
-            <div className="flex flex-col flex-1 gap-1">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-24" />
-            </div>
-            <Skeleton className="h-4 w-12 rounded-full" />
-          </div>
-          <div className="match-cards-wrapper">
-            {[1, 2, 3].map((j) => (
-              <div key={j} className="country-matches-container">
-                <div className="match-card-container">
-                  <div className="match-three-grid-container">
-                    <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                      <Skeleton className="h-4 w-16 rounded" />
-                    </div>
-                    <div className="match-content-container">
-                      <div className="home-team-name" style={{ textAlign: "right" }}>
-                        <Skeleton className="h-4 w-24" />
-                      </div>
-                      <div className="home-team-logo-container" style={{ padding: "0 0.6rem" }}>
-                        <Skeleton className="h-8 w-8 rounded" />
-                      </div>
-                      <div className="match-score-container">
-                        <Skeleton className="h-6 w-12" />
-                      </div>
-                      <div className="away-team-logo-container" style={{ padding: "0 0.5rem" }}>
-                        <Skeleton className="h-8 w-8 rounded" />
-                      </div>
-                      <div className="away-team-name" style={{ textAlign: "left" }}>
-                        <Skeleton className="h-4 w-24" />
-                      </div>
-                    </div>
-                    <div className="match-penalty-bottom">
-                      {/* Empty for penalty results */}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      ))}
-    </>
-  }>
-    <MyNewLeagueComponent {...props} />
-  </Suspense>
-);
+// Main export using lazy loading wrapper
+const MyNewLeague: React.FC<MyNewLeagueProps> = (props) => {
+  return <LazyMyNewLeagueWrapper {...props} />;
+};
 
 MyNewLeague.displayName = 'MyNewLeague';
 
