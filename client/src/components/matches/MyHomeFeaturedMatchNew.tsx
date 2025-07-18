@@ -22,6 +22,42 @@ import {
   getEnhancedHomeTeamGradient,
 } from "@/lib/colorExtractor";
 import { motion, AnimatePresence } from "framer-motion";
+
+// Import popular teams data
+const POPULAR_TEAMS_DATA = [
+  { id: 33, name: 'Manchester United', country: 'England' },
+  { id: 40, name: 'Liverpool', country: 'England' },
+  { id: 10, name: 'England', country: 'England' },
+  { id: 50, name: 'Manchester City', country: 'England' },
+  { id: 42, name: 'Arsenal', country: 'England' },
+  { id: 49, name: 'Chelsea', country: 'England' },
+  { id: 541, name: 'Real Madrid', country: 'Spain' },
+  { id: 529, name: 'FC Barcelona', country: 'Spain' },
+  { id: 47, name: 'Tottenham', country: 'England' },
+  { id: 157, name: 'Bayern Munich', country: 'Germany' },
+  { id: 489, name: 'AC Milan', country: 'Italy' },
+  { id: 492, name: 'Inter', country: 'Italy' },
+  { id: 496, name: 'Juventus', country: 'Italy' },
+  { id: 165, name: 'Borussia Dortmund', country: 'Germany' },
+  { id: 173, name: 'RB Leipzig', country: 'Germany' },
+  { id: 168, name: 'Bayer Leverkusen', country: 'Germany' },
+  { id: 81, name: 'PSG', country: 'France' },
+  { id: 85, name: 'Lyon', country: 'France' },
+  { id: 212, name: 'Marseille', country: 'France' },
+  { id: 548, name: 'Atletico Madrid', country: 'Spain' },
+  { id: 530, name: 'Sevilla', country: 'Spain' },
+  { id: 532, name: 'Valencia', country: 'Spain' },
+  { id: 533, name: 'Villarreal', country: 'Spain' },
+  { id: 610, name: 'Ajax', country: 'Netherlands' },
+  { id: 194, name: 'PSV', country: 'Netherlands' },
+  { id: 120, name: 'Feyenoord', country: 'Netherlands' },
+  { id: 211, name: 'Porto', country: 'Portugal' },
+  { id: 212, name: 'Benfica', country: 'Portugal' },
+  { id: 228, name: 'Sporting CP', country: 'Portugal' }
+];
+
+const POPULAR_TEAM_IDS = POPULAR_TEAMS_DATA.map(team => team.id);
+const POPULAR_TEAM_NAMES = POPULAR_TEAMS_DATA.map(team => team.name.toLowerCase());
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
   maxMatches?: number;
@@ -464,25 +500,55 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       country.includes("europe") ||
                       country.includes("international");
 
-                    // Check if it's a club friendly with popular teams
+                    // Check if it's a club friendly with popular teams using the imported popular teams list
                     const isPopularClubFriendly = () => {
                       if (leagueName.includes("club friendlies") || 
                           (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women"))) {
+                        const homeTeamId = fixture.teams?.home?.id;
+                        const awayTeamId = fixture.teams?.away?.id;
                         const homeTeam = fixture.teams?.home?.name?.toLowerCase() || "";
                         const awayTeam = fixture.teams?.away?.name?.toLowerCase() || "";
 
-                        const popularTeams = [
+                        // First check by team ID (most accurate)
+                        if (homeTeamId && awayTeamId) {
+                          const hasPopularTeamById = POPULAR_TEAM_IDS.includes(homeTeamId) || POPULAR_TEAM_IDS.includes(awayTeamId);
+                          if (hasPopularTeamById) {
+                            console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found by ID: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                            return true;
+                          }
+                        }
+
+                        // Fallback to name matching (for cases where ID matching fails)
+                        const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(popularTeam => 
+                          homeTeam.includes(popularTeam) || awayTeam.includes(popularTeam)
+                        );
+
+                        if (hasPopularTeamByName) {
+                          console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                          return true;
+                        }
+
+                        // Additional keyword-based matching for team variations
+                        const popularTeamKeywords = [
                           "real madrid", "barcelona", "manchester", "bayern", "juventus", 
                           "psg", "liverpool", "arsenal", "chelsea", "atletico", "tottenham",
-                          "manchester city", "manchester united", "ac milan", "inter", 
-                          "napoli", "roma", "borussia", "leipzig", "bayer leverkusen",
-                          "lyon", "marseille", "monaco", "sevilla", "valencia", "villarreal",
-                          "ajax", "feyenoord", "psv", "porto", "benfica", "sporting"
+                          "ac milan", "inter", "napoli", "roma", "borussia", "leipzig", 
+                          "bayer leverkusen", "lyon", "marseille", "monaco", "sevilla", 
+                          "valencia", "villarreal", "ajax", "feyenoord", "psv", "porto", 
+                          "benfica", "sporting"
                         ];
 
-                        return popularTeams.some(team => 
-                          homeTeam.includes(team) || awayTeam.includes(team)
+                        const hasKeywordMatch = popularTeamKeywords.some(keyword => 
+                          homeTeam.includes(keyword) || awayTeam.includes(keyword)
                         );
+
+                        if (hasKeywordMatch) {
+                          console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found by keyword: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                          return true;
+                        }
+
+                        console.log(`❌ [MyHomeFeaturedMatchNew] Club friendly excluded (no popular teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                        return false;
                       }
                       return false;
                     };
@@ -662,7 +728,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               if (aIsSpecialMatch && !bIsSpecialMatch) return -1;
               if (!aIsSpecialMatch && bIsSpecialMatch) return 1;
 
-              // Priority sort: live matches first, then by league priority, then by time
+              // Priority sort: live matches first, then by league priority, then by popular team friendlies, then by time
               const aStatus = a.fixture.status.short;
               const bStatus = b.fixture.status.short;
 
@@ -681,6 +747,30 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               if (aPriority === -1 && bPriority !== -1) return 1;
               if (aPriority !== -1 && bPriority !== -1)
                 return aPriority - bPriority;
+
+              // Popular team friendlies get priority over regular matches
+              const aIsPopularFriendly = a.league.name?.toLowerCase()?.includes("friendlies") && 
+                (POPULAR_TEAM_IDS.includes(a.teams.home.id) || POPULAR_TEAM_IDS.includes(a.teams.away.id));
+              const bIsPopularFriendly = b.league.name?.toLowerCase()?.includes("friendlies") && 
+                (POPULAR_TEAM_IDS.includes(b.teams.home.id) || POPULAR_TEAM_IDS.includes(b.teams.away.id));
+
+              if (aIsPopularFriendly && !bIsPopularFriendly) return -1;
+              if (!aIsPopularFriendly && bIsPopularFriendly) return 1;
+
+              // Calculate popular team score for additional sorting within friendlies
+              const getPopularTeamScore = (match: FeaturedMatch) => {
+                let score = 0;
+                if (POPULAR_TEAM_IDS.includes(match.teams.home.id)) score += 1;
+                if (POPULAR_TEAM_IDS.includes(match.teams.away.id)) score += 1;
+                return score;
+              };
+
+              // If both are popular friendlies, prioritize by number of popular teams
+              if (aIsPopularFriendly && bIsPopularFriendly) {
+                const aScore = getPopularTeamScore(a);
+                const bScore = getPopularTeamScore(b);
+                if (aScore !== bScore) return bScore - aScore; // Higher score first
+              }
 
               // Finally by time
               return (
