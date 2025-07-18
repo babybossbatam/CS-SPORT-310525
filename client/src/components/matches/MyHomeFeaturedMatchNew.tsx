@@ -23,10 +23,11 @@ import {
 } from "@/lib/colorExtractor";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Import popular teams data from the same source as PopularTeamsList
+// Import popular teams data
 const POPULAR_TEAMS_DATA = [
   { id: 33, name: 'Manchester United', country: 'England' },
   { id: 40, name: 'Liverpool', country: 'England' },
+  { id: 10, name: 'England', country: 'England' },
   { id: 50, name: 'Manchester City', country: 'England' },
   { id: 42, name: 'Arsenal', country: 'England' },
   { id: 49, name: 'Chelsea', country: 'England' },
@@ -51,13 +52,8 @@ const POPULAR_TEAMS_DATA = [
   { id: 194, name: 'PSV', country: 'Netherlands' },
   { id: 120, name: 'Feyenoord', country: 'Netherlands' },
   { id: 211, name: 'Porto', country: 'Portugal' },
-  { id: 228, name: 'Sporting CP', country: 'Portugal' },
-  // Additional popular teams from various leagues
-  { id: 502, name: 'Napoli', country: 'Italy' },
-  { id: 500, name: 'AS Roma', country: 'Italy' },
-  { id: 505, name: 'Lazio', country: 'Italy' },
-  { id: 192, name: 'Union Berlin', country: 'Germany' },
-  { id: 169, name: 'Eintracht Frankfurt', country: 'Germany' }
+  { id: 212, name: 'Benfica', country: 'Portugal' },
+  { id: 228, name: 'Sporting CP', country: 'Portugal' }
 ];
 
 const POPULAR_TEAM_IDS = POPULAR_TEAMS_DATA.map(team => team.id);
