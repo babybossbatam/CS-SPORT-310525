@@ -358,6 +358,19 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       fixture.league?.country || ''
                     );
                     
+                    if (shouldExclude) {
+                      console.log(
+                        `🚫 [MyHomeFeaturedMatchNew] Excluding match:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          country: fixture.league?.country,
+                          reason: 'Women\'s or unwanted competition'
+                        }
+                      );
+                    }
+                    
                     const shouldInclude = hasValidTeams && isNotLive && !shouldExclude;
 
                     if (shouldInclude) {
@@ -598,6 +611,19 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         fixture.teams?.away?.name || '',
                         fixture.league?.country || ''
                       );
+
+                      if (shouldExclude) {
+                        console.log(
+                          `🚫 [MyHomeFeaturedMatchNew] Excluding expanded search match:`,
+                          {
+                            home: fixture.teams?.home?.name,
+                            away: fixture.teams?.away?.name,
+                            league: fixture.league?.name,
+                            country: fixture.league?.country,
+                            reason: 'Women\'s or unwanted competition'
+                          }
+                        );
+                      }
 
                       return hasValidTeams && isNotLive && isNotDuplicate && !shouldExclude;
                     })

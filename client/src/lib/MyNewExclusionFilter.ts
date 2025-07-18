@@ -4,7 +4,17 @@
  * Excludes women's competitions and other unwanted matches
  */
 
-// Women's competition terms to exclude
+// Specific women's competitions to exclude
+const specificWomensCompetitions = [
+  'copa america femenina',
+  'africa cup of nations - women',
+  'uefa nations league - women',
+  'fifa women\'s world cup',
+  'uefa women\'s championship',
+  'olympic women\'s tournament'
+];
+
+// General women's competition terms to exclude
 const womensCompetitionTerms = [
   'women', 'girls', 'feminine', 'feminin', 'donne', 'frauen', 'femenina', 'femenino',
   'women\'s', "women's", 'ladies', 'female'
@@ -36,15 +46,25 @@ export const shouldExcludeFromFeaturedMatch = (
   const awayTeam = awayTeamName.toLowerCase();
   const countryLower = country.toLowerCase();
 
-  // Check for women's competitions
-  const isWomensCompetition = womensCompetitionTerms.some(term => 
-    league.includes(term) || 
-    homeTeam.includes(term) || 
-    awayTeam.includes(term) ||
-    countryLower.includes(term)
+  // First check for specific women's competitions
+  const isSpecificWomensCompetition = specificWomensCompetitions.some(competition => 
+    league.includes(competition)
   );
 
-  // Check for other unwanted competitions
+  if (isSpecificWomensCompetition) {
+    return true;
+  }
+
+  // Check for general women's competitions (but be more careful)
+  const isWomensCompetition = womensCompetitionTerms.some(term => {
+    // Only exclude if the term appears in the league name or team names
+    // Don't exclude based on country alone to avoid false positives
+    return league.includes(term) || 
+           (homeTeam.includes(term) && homeTeam.includes('women')) || 
+           (awayTeam.includes(term) && awayTeam.includes('women'));
+  });
+
+  // Check for other unwanted competitions (esports, virtual, etc.)
   const isUnwantedCompetition = unwantedTerms.some(term =>
     league.includes(term) || 
     homeTeam.includes(term) || 
