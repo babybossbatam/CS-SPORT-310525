@@ -1738,7 +1738,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                         // Nations League
                         if (lowerLeague.includes("nations league")) {
-                          if```text
+                          if
 (daysFromNow > 30) return "League Phase";
                           if (daysFromNow > 3) return "Semi Finals";
                           return "Final";
