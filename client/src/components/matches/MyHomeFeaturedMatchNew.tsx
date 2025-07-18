@@ -1827,18 +1827,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
                       }
 
-                      // Fallback: show basic match status for matches without round data
-                      const matchStatus = currentMatch.fixture.status.short;
-                      if (
-                        ["1H", "2H", "HT", "LIVE"].includes(matchStatus)
-                      ) {
-                        return (
-                          <span className="text-xs text-red-600 font-medium">
-                            • Live Match
-                          </span>
-                        );
-                      }
-
+                      // No fallback status display needed
                       return null;
                     })()}
                     {getStatusDisplay(currentMatch).isLive && (
