@@ -571,7 +571,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           "bayer leverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
                           "olympique marseille", "monaco", "as monaco", "sevilla", "valencia", 
                           "villarreal", "ajax", "feyenoord", "psv eindhoven", "psv", "porto", 
-                          "fc porto", "benfica", "sl benfica", "sporting cp", "sporting lisbon", "sporting"
+                          "fc porto", "benfica", "sl benfica", "sporting cp", "sporting lisbon", "sporting",
+                          "fenerbahce", "galatasaray", "besiktas", "trabzonspor", "millwall", "southampton",
+                          "elche", "valencia", "newcastle", "west ham", "brighton", "brentford"
                         ];
 
                         const hasKeywordMatch = popularTeamKeywords.some(keyword => 
@@ -1736,7 +1738,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                         // Nations League
                         if (lowerLeague.includes("nations league")) {
-                          if (daysFromNow > 30) return "League Phase";
+                          if```text
+(daysFromNow > 30) return "League Phase";
                           if (daysFromNow > 3) return "Semi Finals";
                           return "Final";
                         }
