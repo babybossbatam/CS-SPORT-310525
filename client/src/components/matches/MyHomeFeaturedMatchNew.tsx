@@ -23,11 +23,10 @@ import {
 } from "@/lib/colorExtractor";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Import popular teams data
+// Import popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
   { id: 33, name: 'Manchester United', country: 'England' },
   { id: 40, name: 'Liverpool', country: 'England' },
-  { id: 10, name: 'England', country: 'England' },
   { id: 50, name: 'Manchester City', country: 'England' },
   { id: 42, name: 'Arsenal', country: 'England' },
   { id: 49, name: 'Chelsea', country: 'England' },
@@ -53,7 +52,18 @@ const POPULAR_TEAMS_DATA = [
   { id: 120, name: 'Feyenoord', country: 'Netherlands' },
   { id: 211, name: 'Porto', country: 'Portugal' },
   { id: 212, name: 'Benfica', country: 'Portugal' },
-  { id: 228, name: 'Sporting CP', country: 'Portugal' }
+  { id: 228, name: 'Sporting CP', country: 'Portugal' },
+  // Additional popular teams from various leagues
+  { id: 502, name: 'Napoli', country: 'Italy' },
+  { id: 500, name: 'AS Roma', country: 'Italy' },
+  { id: 505, name: 'Lazio', country: 'Italy' },
+  { id: 192, name: 'Union Berlin', country: 'Germany' },
+  { id: 169, name: 'Eintracht Frankfurt', country: 'Germany' },
+  // Popular reserve/academy teams
+  { id: 1859, name: 'Bayern München II', country: 'Germany' },
+  { id: 1860, name: 'Borussia Dortmund II', country: 'Germany' },
+  { id: 8572, name: 'Jong PSV', country: 'Netherlands' },
+  { id: 8564, name: 'Jong Ajax', country: 'Netherlands' }
 ];
 
 const POPULAR_TEAM_IDS = POPULAR_TEAMS_DATA.map(team => team.id);
@@ -385,14 +395,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const isNotLive = !isLiveMatch(
                       fixture.fixture.status.short,
                     );
-                    
+
                     // Exclude women's competitions
                     const leagueName = fixture.league?.name?.toLowerCase() || "";
                     const isWomensCompetition = leagueName.includes("women") || 
                       leagueName.includes("femenina") || 
                       leagueName.includes("feminine") ||
                       leagueName.includes("feminin");
-                    
+
                     const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition;
 
                     if (shouldInclude) {
@@ -656,7 +666,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         (existing) =>
                           existing.fixture.id === fixture.fixture.id,
                       );
-                      
+
                       // Exclude women's competitions
                       const leagueName = fixture.league?.name?.toLowerCase() || "";
                       const isWomensCompetition = leagueName.includes("women") || 
@@ -785,7 +795,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               // Popular team friendlies get priority over regular matches
               const aLeagueName = a.league.name?.toLowerCase() || "";
               const bLeagueName = b.league.name?.toLowerCase() || "";
-              
+
               const aIsPopularFriendly = (aLeagueName.includes("friendlies") || aLeagueName.includes("club friendlies")) && 
                 (POPULAR_TEAM_IDS.includes(a.teams.home.id) || POPULAR_TEAM_IDS.includes(a.teams.away.id));
               const bIsPopularFriendly = (bLeagueName.includes("friendlies") || bLeagueName.includes("club friendlies")) && 
@@ -1250,12 +1260,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     <Skeleton className="h-16 w-16 rounded-full" />
                     <Skeleton className="h-6 w-24 ml-4" />
                   </div>
-                  
+
                   {/* VS section */}
                   <div className="flex items-center justify-center">
                     <Skeleton className="h-12 w-12 rounded-full" />
                   </div>
-                  
+
                   {/* Away team section */}
                   <div className="flex items-center justify-end w-[45%]">
                     <Skeleton className="h-6 w-24 mr-4" />
