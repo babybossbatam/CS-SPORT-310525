@@ -1830,7 +1830,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       if (matchStatus === "FT") {
                         return (
                           <span className="text-xs text-gray-600 font-medium">
-                            • Match Finished
+                            • Ended
                           </span>
                         );
                       } else if (
