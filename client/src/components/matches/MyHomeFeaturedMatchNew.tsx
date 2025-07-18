@@ -1343,7 +1343,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   {/* League header */}
                   <div className="flex items-center justify-center gap-2 mb-4 p-2">
                     <LazyImage
-                      src={currentMatch.league.logo}
+                      src={
+                        currentMatch.league.name?.toLowerCase().includes('cotif') 
+                          ? "/assets/matchdetaillogo/SGCUNl9j-zkh3mv3i.png"
+                          : currentMatch.league.logo
+                      }
                       alt={currentMatch.league.name}
                       className="w-6 h-6"
                       fallbackSrc="/assets/fallback-logo.svg"
