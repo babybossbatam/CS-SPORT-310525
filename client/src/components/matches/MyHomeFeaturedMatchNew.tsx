@@ -1837,12 +1837,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             • Live Match
                           </span>
                         );
-                      } else if (matchStatus === "NS") {
-                        return (
-                          <span className="text-xs text-blue-600 font-medium">
-                            • Upcoming Match
-                          </span>
-                        );
                       }
 
                       return null;
