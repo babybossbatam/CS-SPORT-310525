@@ -1869,7 +1869,19 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               : "border-blue-500 text-blue-500"
                           }`}
                         >
-                          {currentMatch?.fixture?.status?.short === "FT" ? "FINISHED" : "UPCOMING"}
+                          {(() => {
+                            // Show actual tournament round/stage from API
+                            const round = currentMatch?.league?.round || 
+                                        currentMatch?.fixture?.round || 
+                                        currentMatch?.league?.season?.round;
+                            
+                            if (currentMatch?.fixture?.status?.short === "FT") {
+                              return "FINISHED";
+                            }
+                            
+                            // Return actual round if available, otherwise fallback to UPCOMING
+                            return round && round !== "TBD" && round !== "N/A" ? round : "UPCOMING";
+                          })()}
                         </Badge>
                       )}
                     </div>
