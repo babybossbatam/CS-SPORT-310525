@@ -1830,11 +1830,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       // Fallback: show basic match status for matches without round data
                       const matchStatus = currentMatch.fixture.status.short;
                       if (matchStatus === "FT") {
-                        return (
-                          <span className="text-xs text-gray-600 font-medium">
-                            • Ended
-                          </span>
-                        );
+                        return null;
                       } else if (
                         ["1H", "2H", "HT", "LIVE"].includes(matchStatus)
                       ) {
