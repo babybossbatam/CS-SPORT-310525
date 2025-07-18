@@ -1818,8 +1818,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
                       }
 
-                      // Show round information for all matches (live, ended, upcoming)
-                      if (processedRound) {
+                      // Only show round information if it's meaningful (not generic status)
+                      if (processedRound && !processedRound.includes("Not Started") && !processedRound.includes("Upcoming")) {
                         return (
                           <span className="text-xs text-gray-600 font-medium">
                             • {processedRound}
@@ -1827,7 +1827,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
                       }
 
-                      // No fallback status display needed
+                      // No status display for upcoming matches
                       return null;
                     })()}
                     {getStatusDisplay(currentMatch).isLive && (
