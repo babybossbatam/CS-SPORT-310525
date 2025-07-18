@@ -428,23 +428,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const leagueName = fixture.league?.name?.toLowerCase() || "";
                     const country = fixture.league?.country?.toLowerCase() || "";
 
-                    // Check if it's a women's competition and exclude it
-                    const isWomensCompetition = 
-                      leagueName.includes("women") ||
-                      leagueName.includes("femenina") ||
-                      leagueName.includes("feminine") ||
-                      leagueName.includes("feminin") ||
-                      leagueName.includes("copa america femenina") ||
-                      leagueName.includes("africa cup of nations - women") ||
-                      leagueName.includes("uefa nations league - women") ||
-                      fixture.teams?.home?.name?.toLowerCase().includes(" w") ||
-                      fixture.teams?.away?.name?.toLowerCase().includes(" w");
-
-                    // Early exclusion for women's competitions
-                    if (isWomensCompetition) {
-                      return false;
-                    }
-
                     // Check if it's a popular league or from a popular country
                     const isPopularLeague = POPULAR_LEAGUES.some(
                       (league) => league.id === fixture.league?.id,
