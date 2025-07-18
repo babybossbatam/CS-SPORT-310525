@@ -384,7 +384,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const isNotLive = !isLiveMatch(
                       fixture.fixture.status.short,
                     );
-                    const shouldInclude = hasValidTeams && isNotLive;
+                    
+                    // Exclude women's competitions
+                    const leagueName = fixture.league?.name?.toLowerCase() || "";
+                    const isWomensCompetition = leagueName.includes("women") || 
+                      leagueName.includes("femenina") || 
+                      leagueName.includes("feminine") ||
+                      leagueName.includes("feminin");
+                    
+                    const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition;
 
                     if (shouldInclude) {
                       console.log(
@@ -395,6 +403,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
                           status: fixture.fixture.status.short,
+                        },
+                      );
+                    } else if (isWomensCompetition) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding women's competition:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
                         },
                       );
                     }
@@ -463,6 +479,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     const leagueName = fixture.league?.name?.toLowerCase() || "";
                     const country = fixture.league?.country?.toLowerCase() || "";
+
+                    // Exclude women's competitions
+                    const isWomensCompetition = leagueName.includes("women") || 
+                      leagueName.includes("femenina") || 
+                      leagueName.includes("feminine") ||
+                      leagueName.includes("feminin");
 
                     // Check if it's a popular league or from a popular country
                     const isPopularLeague = POPULAR_LEAGUES.some(
@@ -559,7 +581,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       isInternationalCompetition ||
                       isPopularClubFriendly()) &&
                       !isPriorityLeague &&
-                      isNotLive
+                      isNotLive &&
+                      !isWomensCompetition
                     );
                   })
                   .map((fixture: any) => ({
@@ -628,8 +651,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         (existing) =>
                           existing.fixture.id === fixture.fixture.id,
                       );
+                      
+                      // Exclude women's competitions
+                      const leagueName = fixture.league?.name?.toLowerCase() || "";
+                      const isWomensCompetition = leagueName.includes("women") || 
+                        leagueName.includes("femenina") || 
+                        leagueName.includes("feminine") ||
+                        leagueName.includes("feminin");
 
-                      return hasValidTeams && isNotLive && isNotDuplicate;
+                      return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition;
                     })
                     .slice(0, 5) // Limit to prevent overwhelming
                     .map((fixture: any) => ({
