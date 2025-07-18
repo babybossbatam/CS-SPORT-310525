@@ -1834,6 +1834,46 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       <Star className="h-4 w-4 text-red-500 fill-current" />
                     )}
                   </div>
+                  {/* League information component */}
+                  <div className="bg-gray-50 p-2 relative">
+                    <div className="flex items-center justify-center">
+                      {currentMatch?.league?.logo ? (
+                        <img
+                          src={currentMatch.league.logo}
+                          alt={currentMatch.league.name}
+                          className="w-5 h-5 object-contain mr-2"
+                          onError={(e) => {
+                            e.currentTarget.src = "/assets/fallback-logo.svg";
+                          }}
+                        />
+                      ) : (
+                        <Trophy className="w-5 h-5 text-amber-500 mr-2" />
+                      )}
+                      <span className="text-sm font-medium">{currentMatch?.league?.name || "League Name"}</span>
+                      {getStatusDisplay(currentMatch).isLive ? (
+                        <div className="flex items-center gap-1.5 ml-2">
+                          <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] px-1.5 py-0 border border-red-500 text-red-500 animate-pulse"
+                          >
+                            LIVE
+                          </Badge>
+                        </div>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] px-1.5 py-0 border ml-[3px] ${
+                            currentMatch?.fixture?.status?.short === "FT"
+                              ? "border-gray-500 text-gray-500"
+                              : "border-blue-500 text-blue-500"
+                          }`}
+                        >
+                          {currentMatch?.fixture?.status?.short === "FT" ? "FINISHED" : "UPCOMING"}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
 
                   {/* Match day indicator */}
                   <div className="text-center mb-4 ">
