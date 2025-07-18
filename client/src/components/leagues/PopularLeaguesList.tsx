@@ -26,7 +26,6 @@ export const CURRENT_POPULAR_LEAGUES = [
   { id: 38, name: 'UEFA U21 Championship', logo: 'https://media.api-sports.io/football/leagues/38.png', country: 'World' },
   { id: 9, name: 'Copa America', logo: 'https://media.api-sports.io/football/leagues/9.png', country: 'World' },
   { id: 22, name: 'CONCACAF Gold Cup', logo: 'https://media.api-sports.io/football/leagues/22.png', country: 'World' },
-  { id: 6, name: 'Africa Cup of Nations', logo: 'https://media.api-sports.io/football/leagues/6.png', country: 'World' },
   { id: 7, name: 'Asian Cup', logo: 'https://media.api-sports.io/football/leagues/7.png', country: 'World' },
   // Domestic Cups
   { id: 137, name: 'Coppa Italia', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Italy' },
