@@ -431,7 +431,64 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         throw new Error('No CONCACAF official videos found');
       }
     }] : []),
-    // Desimpedidos Channel (priority for Brazilian leagues)
+    // Brazilian Highlights Channel - PRIMARY option for Brazilian leagues  
+    ...(isBrazilianLeague ? [{
+      name: 'Canal do Futebol BR',
+      type: 'youtube' as const,
+      searchFn: async () => {
+        const brazilianChannelId = 'UCw5-xj3AKqEizC7MvHaIPqA';
+        
+        // Create Brazil-specific search queries optimized for this channel
+        const brazilQueries = [
+          `${home} vs ${away} highlights ${matchYear}`,
+          `${home} x ${away} melhores momentos ${matchYear}`,
+          `${home} ${away} gols highlights ${matchYear}`,
+          `${rawHome} vs ${rawAway} ${matchYear}`,
+          `${home} x ${away} gols`,
+          `${home} ${away} resumo`,
+          primarySearchQuery.replace('highlights', 'melhores momentos'),
+          secondarySearchQuery
+        ];
+        
+        let data;
+
+        for (const query of brazilQueries) {
+          try {
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=10&channelId=${brazilianChannelId}&order=relevance`);
+            data = await response.json();
+
+            if (data.items && data.items.length > 0) {
+              // Filter and sort by title order preference
+              const sortedVideos = filterAndSortVideos(data.items, home, away);
+              data.items = sortedVideos;
+              if (sortedVideos.length > 0) {
+                break;
+              }
+            }
+          } catch (error) {
+            console.warn(`🎬 [Highlights] Canal do Futebol BR search failed for query: ${query}`, error);
+            continue;
+          }
+        }
+
+        if (data.error || data.quotaExceeded) {
+          throw new Error(data.error || 'Canal do Futebol BR search failed');
+        }
+
+        if (data.items && data.items.length > 0) {
+          const video = data.items[0];
+          return {
+            name: 'Canal do Futebol BR',
+            type: 'youtube' as const,
+            url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+            embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+            title: video.snippet.title
+          };
+        }
+        throw new Error('No Canal do Futebol BR videos found');
+      }
+    }] : []),
+    // Desimpedidos Channel (secondary for Brazilian leagues)
     ...(isBrazilianLeague ? [{
       name: 'Desimpedidos',
       type: 'youtube' as const,
@@ -481,47 +538,61 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         throw new Error('No Desimpedidos videos found');
       }
     }] : []),
-    // Brazilian Highlights Channel - secondary option for Brazilian leagues  
+    // Brazilian Highlights Channel - PRIMARY option for Brazilian leagues  
     ...(isBrazilianLeague ? [{
-      name: 'Brazilian Highlights',
+      name: 'Canal do Futebol BR',
       type: 'youtube' as const,
       searchFn: async () => {
         const brazilianChannelId = 'UCw5-xj3AKqEizC7MvHaIPqA';
-        const queries = [primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
+        
+        // Create Brazil-specific search queries optimized for this channel
+        const brazilQueries = [
+          `${home} vs ${away} highlights ${matchYear}`,
+          `${home} x ${away} melhores momentos ${matchYear}`,
+          `${home} ${away} gols highlights ${matchYear}`,
+          `${rawHome} vs ${rawAway} ${matchYear}`,
+          `${home} x ${away} gols`,
+          `${home} ${away} resumo`,
+          primarySearchQuery.replace('highlights', 'melhores momentos'),
+          secondarySearchQuery
+        ];
+        
         let data;
 
-        for (const query of queries) {
+        for (const query of brazilQueries) {
           try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${brazilianChannelId}&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=10&channelId=${brazilianChannelId}&order=relevance`);
             data = await response.json();
 
             if (data.items && data.items.length > 0) {
               // Filter and sort by title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
               data.items = sortedVideos;
-              break;
+              if (sortedVideos.length > 0) {
+                break;
+              }
             }
           } catch (error) {
-            console.warn(`🎬 [Highlights] Brazilian Highlights search failed for query: ${query}`, error);
+            console.warn(`🎬 [Highlights] Canal do Futebol BR search failed for query: ${query}`, error);
             continue;
           }
         }
 
         if (data.error || data.quotaExceeded) {
-          throw new Error(data.error || 'Brazilian Highlights channel search failed');
+          throw new Error(data.error || 'Canal do Futebol BR search failed');
         }
 
         if (data.items && data.items.length > 0) {
           const video = data.items[0];
           return {
-            name: 'Brazilian Highlights',
+            name: 'Canal do Futebol BR',
             type: 'youtube' as const,
             url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
             embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
             title: video.snippet.title
           };
         }
-        throw new Error('No Brazilian Highlights videos found');
+        throw new Error('No Canal do Futebol BR videos found');
       }
     }] : []),
     // FIFA Club World Cup Official Channel (priority)
@@ -812,8 +883,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   </span>
                 )}
                 {sourceIndex === 0 && isBrazilianLeague && !isConcacafCompetition && !isFifaClubWorldCup && (
-                  <span className="block text-xs text-orange-500">
-                    Checking Desimpedidos Channel first
+                  <span className="block text-xs text-green-600">
+                    Checking Canal do Futebol BR first
                   </span>
                 )}
                  {sourceIndex === 0 && !isFifaClubWorldCup && !isConcacafCompetition && !isBrazilianLeague }
