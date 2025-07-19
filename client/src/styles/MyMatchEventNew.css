@@ -272,15 +272,14 @@
   border-color: var(--accentPrimary);
 }
 
-/* Center time display - fixed positioning */
+/* Center time display - grid-based positioning */
 .match-event-time-display {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-areas: "elapsed extra";
   justify-content: center;
   align-items: center;
+  gap: 0;
   text-align: center;
   font-size: 12px;
   font-weight: var(--semiBold-font-weight);
@@ -289,6 +288,8 @@
   white-space: nowrap;
   height: 40px;
   min-width: 72px;
+  width: 100%;
+  place-content: center;
 }
 
 /* Away team events (right side) */
