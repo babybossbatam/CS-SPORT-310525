@@ -1327,12 +1327,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           {/* Center Grid: Time display only */}
                           <div className="match-event-time-center-simple">
                             {/* Middle: Time display - show elapsed time in black and extra time in red */}
-                            <div className="match-event-time-display">
-                              <span style={{ color: "black" }}>
+                            <div className="match-event-time-display" style={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center',
+                              flexDirection: 'row',
+                              height: '100%'
+                            }}>
+                              <span style={{ color: "black", lineHeight: '1' }}>
                                 {event.time?.elapsed}'
                               </span>
                               {event.time?.extra && (
-                                <span style={{ color: "red" }}>
+                                <span style={{ color: "red", lineHeight: '1' }}>
                                   +{event.time.extra}
                                 </span>
                               )}
@@ -1857,12 +1863,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           {/* Center Grid: Time display only */}
                           <div className="match-event-time-center-simple">
                             {/* Middle: Time display - show elapsed time in black and extra time in red */}
-                            <div className="match-event-time-display">
-                              <span style={{ color: "black" }}>
+                            <div className="match-event-time-display" style={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center',
+                              flexDirection: 'row',
+                              height: '100%'
+                            }}>
+                              <span style={{ color: "black", lineHeight: '1' }}>
                                 {event.time?.elapsed}'
                               </span>
                               {event.time?.extra && (
-                                <span style={{ color: "red" }}>
+                                <span style={{ color: "red", lineHeight: '1' }}>
                                   +{event.time.extra}
                                 </span>
                               )}
