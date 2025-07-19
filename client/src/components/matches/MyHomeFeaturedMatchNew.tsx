@@ -1736,4 +1736,4 @@ competitions
                               lowerName.includes("celje") ||
                               lowerName.includes("sabah") ||
                               lowerName.includes("panevežys") ||
-                              lowerName.includes("vikingur") ||
+                              lowerName.includes("vikingur")
