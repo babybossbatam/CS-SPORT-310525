@@ -809,7 +809,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     // Exclude women's competitions
                     const isWomensCompetition = leagueName.includes("women") || 
                       leagueName.includes("femenina") || 
-                      leagueName.includes```text
+                      leagueName.includes
 ("feminine") ||
                       leagueName.includes("feminin");
 
