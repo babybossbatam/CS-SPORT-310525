@@ -821,9 +821,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       );
                                     } else {
                                       return (
-                                        
+                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
                                           Goal
-                                        
+                                        </span>
                                       );
                                     }
                                   })()}
