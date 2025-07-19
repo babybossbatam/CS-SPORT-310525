@@ -1675,6 +1675,60 @@ id: fixture.teams.away.id,
                           }
 
                           // If no specific round info, determine by timing
+                          // Helper function to analyze team profile
+                          const analyzeTeamProfile = (teams: string[]) => {
+                            const profiles = {
+                              smallClubProfile: 0,
+                              bigClubProfile: 0,
+                              qualifyingProfile: 0,
+                            };
+
+                            teams.forEach((teamName) => {
+                              const lowerName = teamName.toLowerCase();
+
+                              // Big club indicators (expanded list for popular teams)
+                              if (
+                                lowerName.includes("real madrid") ||
+                                lowerName.includes("barcelona") ||
+                                lowerName.includes("manchester") ||
+                                lowerName.includes("bayern") ||
+                                lowerName.includes("juventus") ||
+                                lowerName.includes("psg") ||
+                                lowerName.includes("liverpool") ||
+                                lowerName.includes("arsenal") ||
+                                lowerName.includes("chelsea") ||
+                                lowerName.includes("atletico") ||
+                                lowerName.includes("tottenham") ||
+                                lowerName.includes("manchester city") ||
+                                lowerName.includes("manchester united") ||
+                                lowerName.includes("ac milan") ||
+                                lowerName.includes("inter") ||
+                                lowerName.includes("napoli") ||
+                                lowerName.includes("roma") ||
+                                lowerName.includes("as roma") ||
+                                lowerName.includes("borussia") ||
+                                lowerName.includes("leipzig") ||
+                                lowerName.includes("bayer leverkusen") ||
+                                lowerName.includes("lyon") ||
+                                lowerName.includes("marseille") ||
+                                lowerName.includes("monaco") ||
+                                lowerName.includes("sevilla") ||
+                                lowerName.includes("valencia") ||
+                                lowerName.includes("villarreal") ||
+                                lowerName.includes("ajax") ||
+                                lowerName.includes("feyenoord") ||
+                                lowerName.includes("psv") ||
+                                lowerName.includes("porto") ||
+                                lowerName.includes("benfica") ||
+                                lowerName.includes("sporting")
+                              ) {
+                                profiles.bigClubProfile += 2;
+                              }
+                            });
+
+                            return profiles;
+                          };
+
                           const teamProfiles = analyzeTeamProfile(teamNames);
                           if (teamProfiles.bigClubProfile >= 1) {
                             // Use timing to infer friendly type
