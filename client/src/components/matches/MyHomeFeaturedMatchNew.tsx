@@ -469,6 +469,119 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             }
           }
 
+          // Fetch popular team friendlies from Friendlies Clubs league (667)
+          try {
+            console.log(
+              `🔍 [MyHomeFeaturedMatchNew] Fetching Friendlies Clubs fixtures for popular teams`,
+            );
+
+            const friendliesResponse = await apiRequest(
+              "GET",
+              `/api/featured-match/leagues/667/fixtures?skipFilter=true`,
+            );
+            const friendliesData = await friendliesResponse.json();
+
+            if (Array.isArray(friendliesData)) {
+              const popularFriendlies = friendliesData
+                .filter((fixture: any) => {
+                  // Must have valid teams and NOT be live
+                  const hasValidTeams = isValidMatch(fixture);
+                  const isNotLive = !isLiveMatch(
+                    fixture.fixture.status.short,
+                  );
+
+                  if (!hasValidTeams || !isNotLive) {
+                    return false;
+                  }
+
+                  // Check if it involves popular teams
+                  const homeTeamId = fixture.teams?.home?.id;
+                  const awayTeamId = fixture.teams?.away?.id;
+                  const homeTeam = fixture.teams?.home?.name?.toLowerCase() || "";
+                  const awayTeam = fixture.teams?.away?.name?.toLowerCase() || "";
+
+                  // First check by team ID (most accurate)
+                  const hasPopularTeamById = POPULAR_TEAM_IDS.includes(homeTeamId) || POPULAR_TEAM_IDS.includes(awayTeamId);
+
+                  if (hasPopularTeamById) {
+                    console.log(`🎯 [MyHomeFeaturedMatchNew] Popular club friendly found by ID: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                    return true;
+                  }
+
+                  // Fallback to name matching
+                  const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(popularTeam => 
+                    homeTeam.includes(popularTeam) || awayTeam.includes(popularTeam)
+                  );
+
+                  if (hasPopularTeamByName) {
+                    console.log(`🎯 [MyHomeFeaturedMatchNew] Popular club friendly found by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                    return true;
+                  }
+
+                  // Enhanced keyword-based matching for major clubs
+                  const popularTeamKeywords = [
+                    "real madrid", "barcelona", "manchester city", "manchester united", "manchester",
+                    "bayern munich", "bayern", "juventus", "psg", "paris saint-germain", "paris saint germain",
+                    "liverpool", "arsenal", "chelsea", "atletico madrid", "atletico", "tottenham",
+                    "ac milan", "inter milan", "inter", "napoli", "roma", "as roma", 
+                    "borussia dortmund", "borussia", "dortmund", "rb leipzig", "leipzig", 
+                    "bayer leverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
+                    "olympique marseille", "monaco", "as monaco", "sevilla", "valencia", 
+                    "villarreal", "ajax", "feyenoord", "psv eindhoven", "psv", "porto", 
+                    "fc porto", "benfica", "sl benfica", "sporting cp", "sporting lisbon", "sporting"
+                  ];
+
+                  const hasKeywordMatch = popularTeamKeywords.some(keyword => 
+                    homeTeam.includes(keyword) || awayTeam.includes(keyword)
+                  );
+
+                  if (hasKeywordMatch) {
+                    console.log(`🎯 [MyHomeFeaturedMatchNew] Popular club friendly found by keyword: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                    return true;
+                  }
+
+                  return false;
+                })
+                .map((fixture: any) => ({
+                  fixture: {
+                    id: fixture.fixture.id,
+                    date: fixture.fixture.date,
+                    status: fixture.fixture.status,
+                  },
+                  league: {
+                    id: fixture.league.id,
+                    name: fixture.league.name,
+                    country: fixture.league.country,
+                    logo: fixture.league.logo,
+                  },
+                  teams: {
+                    home: {
+                      id: fixture.teams.home.id,
+                      name: fixture.teams.home.name,
+                      logo: fixture.teams.home.logo,
+                    },
+                    away: {
+                      id: fixture.teams.away.id,
+                      name: fixture.teams.away.name,
+                      logo: fixture.teams.away.logo,
+                    },
+                  },
+                  goals: {
+                    home: fixture.goals?.home ?? null,
+                    away: fixture.goals?.away ?? null,
+                  },
+                }));
+
+              console.log(`🎯 [MyHomeFeaturedMatchNew] Found ${popularFriendlies.length} popular team friendlies`);
+              allFixtures.push(...popularFriendlies);
+            }
+          } catch (friendliesError) {
+            console.warn(
+              `Failed to fetch Friendlies Clubs data:`,
+              friendliesError,
+            );
+          }
+
           // Fetch non-live matches from cached date-based data
           for (const dateInfo of dates) {
             try {
@@ -537,6 +650,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const isPopularClubFriendly = () => {
                       if (leagueName.includes("club friendlies") || 
                           leagueName.includes("friendlies clubs") ||
+                          fixture.league?.id === 667 ||
                           (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women"))) {
                         const homeTeamId = fixture.teams?.home?.id;
                         const awayTeamId = fixture.teams?.away?.id;
@@ -799,9 +913,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const aLeagueName = a.league.name?.toLowerCase() || "";
               const bLeagueName = b.league.name?.toLowerCase() || "";
 
-              const aIsPopularFriendly = (aLeagueName.includes("friendlies") || aLeagueName.includes("friendlies clubs")) && 
+              const aIsPopularFriendly = (aLeagueName.includes("friendlies") || aLeagueName.includes("friendlies clubs") || a.league.id === 667) && 
                 (POPULAR_TEAM_IDS.includes(a.teams.home.id) || POPULAR_TEAM_IDS.includes(a.teams.away.id));
-              const bIsPopularFriendly = (bLeagueName.includes("friendlies") || bLeagueName.includes("friendlies clubs")) && 
+              const bIsPopularFriendly = (bLeagueName.includes("friendlies") || bLeagueName.includes("friendlies clubs") || b.league.id === 667) && 
                 (POPULAR_TEAM_IDS.includes(b.teams.home.id) || POPULAR_TEAM_IDS.includes(b.teams.away.id));
 
               if (aIsPopularFriendly && !bIsPopularFriendly) return -1;
