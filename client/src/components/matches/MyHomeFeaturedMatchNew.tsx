@@ -22,7 +22,7 @@ import {
   getEnhancedHomeTeamGradient,
 } from "@/lib/colorExtractor";
 import { motion, AnimatePresence } from "framer-motion";
-import FixedScoreboard from "./FixedScoreboard";
+
 import { RoundBadge } from "@/components/ui/round-badge";
 
 // Import popular teams data from the same source as PopularTeamsList
@@ -2063,7 +2063,6 @@ id: fixture.teams.away.id,
         )}
       </CardContent>
     </Card>
-    <FixedScoreboard />
     </>
   );
 };
