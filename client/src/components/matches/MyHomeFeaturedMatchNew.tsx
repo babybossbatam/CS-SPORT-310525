@@ -1956,6 +1956,13 @@ id: fixture.teams.away.id,
                           lowerLeague.includes("friendlies clubs") ||
                           (lowerLeague.includes("friendlies") && !lowerLeague.includes("international"))
                         ) {
+                          // Normalize round info for friendlies detection
+                          const normalizedRound = (roundInfo || "").toLowerCase()
+                            .replace(/\d+st|\d+nd|\d+rd|\d+th/g, "") // Remove ordinal suffixes
+                            .replace(/[-_]/g, " ") // Replace dashes/underscores with spaces
+                            .replace(/\s+/g, " ") // Normalize multiple spaces
+                            .trim();
+
                           // Check for specific round patterns in friendlies
                           if (normalizedRound.includes("club friendlies 1") || normalizedRound.includes("pre season")) {
                             return "Pre-Season Friendlies";
