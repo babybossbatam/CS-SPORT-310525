@@ -1810,7 +1810,7 @@ id: fixture.teams.away.id,
                               lowerName.includes("ajax") ||
                               lowerName.includes("feyenoord") ||
                               lowerName.includes("psv") ||
-                              lowerName<previous_generation>s("porto") ||
+                              lowerName.includes("porto") ||
                               lowerName.includes("benfica") ||
                               lowerName.includes("sporting")
                             ) {
