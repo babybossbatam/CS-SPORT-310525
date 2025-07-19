@@ -1289,8 +1289,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-        // Only show countdown if match is within 8 hours
-        if (totalHours > 8) {
+        // Only show countdown if match is within 12 hours
+        if (totalHours > 12) {
           setCountdownTimer("");
           return;
         }
