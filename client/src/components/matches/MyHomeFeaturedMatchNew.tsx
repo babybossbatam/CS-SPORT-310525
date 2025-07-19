@@ -1932,8 +1932,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
                       }
 
-                      // Only show round information if it's meaningful (not generic status)
-                      if (processedRound && !processedRound.includes("Not Started") && !processedRound.includes("Upcoming")) {
+                      // Only show round information if it's meaningful and not generic fallback
+                      if (processedRound && 
+                          !processedRound.includes("Not Started") && 
+                          !processedRound.includes("Upcoming") &&
+                          !processedRound.includes("UPCOMING") &&
+                          processedRound !== "TBD" &&
+                          processedRound !== "NS") {
                         return (
                           <span className="text-xs text-gray-600 font-medium">
                             • {processedRound}
@@ -1941,7 +1946,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
                       }
 
-                      // No status display for upcoming matches
+                      // No status display for matches without meaningful round data
                       return null;
                     })()}
                     {getStatusDisplay(currentMatch).isLive ? (
@@ -2083,11 +2088,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           processedRound = inferBracketStatus(currentMatch.league.name, matchDate, teamNames, currentMatch.fixture.id);
                         }
 
-                        // Return processed round or fallback
-                        return processedRound || "UPCOMING";
+                        // Only return processed round if it exists, no fallback
+                        return processedRound;
                       })()}
                     </Badge>
-                    )}
+                    ) : null}
                   </div>
                   
 
