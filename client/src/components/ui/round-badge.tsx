@@ -99,24 +99,27 @@ export function RoundBadge({
     return round.length > 20 ? round.substring(0, 17) + "..." : round;
   };
 
+  // Don't show loading skeleton, just return null if loading
   if (isLoading) {
-    return <Skeleton className="h-5 w-16 rounded-full" />;
+    return null;
   }
 
-  // Use current round prop first, then try to get from API data
-  let displayRound = currentRound;
+  // Only use actual API round data - no fallbacks to currentRound prop or hardcoded values
+  let displayRound = null;
 
-  if (!displayRound && roundData && roundData.length > 0) {
-    // Try to find the most recent or current round
+  if (roundData && roundData.length > 0) {
+    // Get the most recent round from API data
     displayRound = roundData[roundData.length - 1];
   }
 
+  // If no round data from API, don't show the badge at all
   if (!displayRound) {
     return null;
   }
 
   const roundText = formatRoundText(displayRound);
 
+  // If formatting returns null, don't show the badge
   if (!roundText) {
     return null;
   }
