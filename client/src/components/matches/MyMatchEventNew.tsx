@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 
 import { Clock, RefreshCw, AlertCircle } from "lucide-react";
@@ -63,7 +69,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [playerImages, setPlayerImages] = useState<Record<string, string>>({});
-  const [activeTab, setActiveTab] = useState<'all' | 'top' | 'commentary'>('all');
+  const [activeTab, setActiveTab] = useState<"all" | "top" | "commentary">(
+    "all",
+  );
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [selectedPlayer, setSelectedPlayer] = useState<{
     id: number;
@@ -101,9 +109,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       const penaltyRelatedEvents = eventData.filter((event: any) => {
         const detail = event.detail?.toLowerCase() || "";
         const type = event.type?.toLowerCase() || "";
-        return detail.includes("penalty") || type.includes("penalty") || detail.includes("shootout");
+        return (
+          detail.includes("penalty") ||
+          type.includes("penalty") ||
+          detail.includes("shootout")
+        );
       });
-      console.log("🔍 [Event Debug] Penalty-related events:", penaltyRelatedEvents);
+      console.log(
+        "🔍 [Event Debug] Penalty-related events:",
+        penaltyRelatedEvents,
+      );
 
       setEvents(eventData || []);
       setLastUpdated(new Date());
@@ -148,44 +163,42 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   };
 
   const getEventIcon = (type: string, detail?: string) => {
-    const eventType = type?.toLowerCase() || '';
-    const eventDetail = detail?.toLowerCase() || '';
+    const eventType = type?.toLowerCase() || "";
+    const eventDetail = detail?.toLowerCase() || "";
 
     switch (eventType) {
-      case 'goal':
-        if (eventDetail.includes('penalty')) {
-          return '⚽'; // Penalty goal
-        } else if (eventDetail.includes('own goal')) {
-          return '🥅'; // Own goal
+      case "goal":
+        if (eventDetail.includes("penalty")) {
+          return "⚽"; // Penalty goal
+        } else if (eventDetail.includes("own goal")) {
+          return "🥅"; // Own goal
         }
-        return '⚽'; // Regular goal
+        return "⚽"; // Regular goal
 
+      case "subst":
+      case "substitution":
+        return "🔄"; // Substitution
 
+      case "Var":
+        return "📺"; // VAR
 
-      case 'subst':
-      case 'substitution':
-        return '🔄'; // Substitution
+      case "Foul":
+        return "🚫"; // Foul
 
-      case 'Var':
-        return '📺'; // VAR
+      case "Offside":
+        return "🚩"; // Offside
 
-      case 'Foul':
-        return '🚫'; // Foul
+      case "Corner":
+        return "📐"; // Corner kick
 
-      case 'Offside':
-        return '🚩'; // Offside
+      case "Free kick":
+        return "🦶"; // Free kick
 
-      case 'Corner':
-        return '📐'; // Corner kick
-
-      case 'Free kick':
-        return '🦶'; // Free kick
-
-      case 'Throw in':
-        return '👐'; // Throw in
+      case "Throw in":
+        return "👐"; // Throw in
 
       default:
-        return '📝'; // Default event
+        return "📝"; // Default event
     }
   };
 
@@ -398,9 +411,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     return periods;
   };
 
-  const isHomeTeam = useCallback((event: MatchEvent) => {
-    return event.team?.name?.toLowerCase() === homeTeam?.toLowerCase();
-  }, [homeTeam]);
+  const isHomeTeam = useCallback(
+    (event: MatchEvent) => {
+      return event.team?.name?.toLowerCase() === homeTeam?.toLowerCase();
+    },
+    [homeTeam],
+  );
 
   const isDarkTheme = useMemo(() => theme === "dark", [theme]);
   const groupedEvents = useMemo(() => groupEventsByPeriod(events), [events]);
@@ -422,20 +438,34 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   // No need for complex player image loading - using fallback only
 
-  const getPlayerImage = useCallback((
-    playerId: number | undefined,
-    playerName: string | undefined,
-    teamId: number | undefined,
-  ): string => {
-    // Always return the same fallback image
-    return "/assets/fallback-logo.png";
-  }, []);
+  const getPlayerImage = useCallback(
+    (
+      playerId: number | undefined,
+      playerName: string | undefined,
+      teamId: number | undefined,
+    ): string => {
+      // Always return the same fallback image
+      return "/assets/fallback-logo.png";
+    },
+    [],
+  );
 
-  const handlePlayerClick = (playerId?: number, teamId?: number, playerName?: string, playerImage?: string) => {
+  const handlePlayerClick = (
+    playerId?: number,
+    teamId?: number,
+    playerName?: string,
+    playerImage?: string,
+  ) => {
     if (playerId && playerName) {
       // Get the actual image URL from MyAvatarInfo component
-      const imageUrl = playerImage || getPlayerImage(playerId, playerName, teamId);
-      setSelectedPlayer({ id: playerId, name: playerName, teamId, image: imageUrl });
+      const imageUrl =
+        playerImage || getPlayerImage(playerId, playerName, teamId);
+      setSelectedPlayer({
+        id: playerId,
+        name: playerName,
+        teamId,
+        image: imageUrl,
+      });
       setShowPlayerModal(true);
     }
   };
@@ -448,8 +478,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     isLast: boolean;
   }) => {
     // For own goals, show on the side of the team that benefits (opposite of scoring team)
-                    const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
-                    const isHome = isOwnGoal ? event.team?.name !== homeTeam : event.team?.name === homeTeam;
+    const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
+    const isHome = isOwnGoal
+      ? event.team?.name !== homeTeam
+      : event.team?.name === homeTeam;
 
     return (
       <div className="relative flex items-center">
@@ -477,46 +509,46 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       className="w-4 h-4"
                     />
                   ) : event.type === "Goal" ||
-                    (event.type === "Goal" && 
+                    (event.type === "Goal" &&
                       event.detail?.toLowerCase().includes("penalty")) ? (
                     (() => {
-                                    const detail = event.detail?.toLowerCase() || "";
-                                    if (detail.includes("penalty")) {
-                                      if (detail.includes("missed")) {
-                                        return (
-                                          <img
-                                            src="/assets/matchdetaillogo/missed-penalty.svg"
-                                            alt="Missed Penalty"
-                                            className="w-4 h-4"
-                                          />
-                                        );
-                                      } else {
-                                        return (
-                                          <img
-                                            src="/assets/matchdetaillogo/penalty.svg"
-                                            alt="Penalty Goal"
-                                            className="w-4 h-4"
-                                          />
-                                        );
-                                      }
-                                    } else if (detail.includes("own goal")) {
-                                      return (
-                                        <img
-                                          src="/assets/matchdetaillogo/soccer-logo.svg"
-                                          alt="Own Goal"
-                                          className="w-4 h-4"
-                                        />
-                                      );
-                                    } else {
-                                      return (
-                                        <img
-                                          src="/assets/matchdetaillogo/soccer-ball.svg"
-                                          alt="Goal"
-                                          className="w-4 h-4"
-                                        />
-                                      );
-                                    }
-                                  })()
+                      const detail = event.detail?.toLowerCase() || "";
+                      if (detail.includes("penalty")) {
+                        if (detail.includes("missed")) {
+                          return (
+                            <img
+                              src="/assets/matchdetaillogo/missed-penalty.svg"
+                              alt="Missed Penalty"
+                              className="w-4 h-4"
+                            />
+                          );
+                        } else {
+                          return (
+                            <img
+                              src="/assets/matchdetaillogo/penalty.svg"
+                              alt="Penalty Goal"
+                              className="w-4 h-4"
+                            />
+                          );
+                        }
+                      } else if (detail.includes("own goal")) {
+                        return (
+                          <img
+                            src="/assets/matchdetaillogo/soccer-logo.svg"
+                            alt="Own Goal"
+                            className="w-4 h-4"
+                          />
+                        );
+                      } else {
+                        return (
+                          <img
+                            src="/assets/matchdetaillogo/soccer-ball.svg"
+                            alt="Goal"
+                            className="w-4 h-4"
+                          />
+                        );
+                      }
+                    })()
                   ) : event.type === "Card" ? (
                     <img
                       src={
@@ -570,43 +602,43 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     (event.type === "goal" &&
                       event.detail?.toLowerCase().includes("penalty")) ? (
                     (() => {
-                                    const detail = event.detail?.toLowerCase() || "";
-                                    if (detail.includes("penalty")) {
-                                      if (detail.includes("missed")) {
-                                        return (
-                                          <img
-                                            src="/assets/matchdetaillogo/missed-penalty.svg"
-                                            alt="Missed Penalty"
-                                            className="w-4 h-4"
-                                          />
-                                        );
-                                      } else {
-                                        return (
-                                          <img
-                                            src="/assets/matchdetaillogo/penalty.svg"
-                                            alt="Penalty Goal"
-                                            className="w-4 h-4"
-                                          />
-                                        );
-                                      }
-                                    } else if (detail.includes("own goal")) {
-                                      return (
-                                        <img
-                                          src="/assets/matchdetaillogo/soccer-logo.svg"
-                                          alt="Own Goal"
-                                          className="w-4 h-4"
-                                        />
-                                      );
-                                    } else {
-                                      return (
-                                        <img
-                                          src="/assets/matchdetaillogo/soccer-ball.svg"
-                                          alt="Goal"
-                                          className="w-4 h-4"
-                                        />
-                                      );
-                                    }
-                                  })()
+                      const detail = event.detail?.toLowerCase() || "";
+                      if (detail.includes("penalty")) {
+                        if (detail.includes("missed")) {
+                          return (
+                            <img
+                              src="/assets/matchdetaillogo/missed-penalty.svg"
+                              alt="Missed Penalty"
+                              className="w-4 h-4"
+                            />
+                          );
+                        } else {
+                          return (
+                            <img
+                              src="/assets/matchdetaillogo/penalty.svg"
+                              alt="Penalty Goal"
+                              className="w-4 h-4"
+                            />
+                          );
+                        }
+                      } else if (detail.includes("own goal")) {
+                        return (
+                          <img
+                            src="/assets/matchdetaillogo/soccer-logo.svg"
+                            alt="Own Goal"
+                            className="w-4 h-4"
+                          />
+                        );
+                      } else {
+                        return (
+                          <img
+                            src="/assets/matchdetaillogo/soccer-ball.svg"
+                            alt="Goal"
+                            className="w-4 h-4"
+                          />
+                        );
+                      }
+                    })()
                   ) : event.type === "card" ? (
                     <img
                       src={
@@ -670,7 +702,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
         // Check for penalty shootout events specifically (not regular match penalties)
         return (
-          detail.includes("penalty") || 
+          detail.includes("penalty") ||
           type === "penalty" ||
           detail.includes("shootout") ||
           type.includes("shootout") ||
@@ -681,12 +713,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       .sort((a, b) => a.time.elapsed - b.time.elapsed);
 
     console.log("🔍 [Penalty Debug] All penalty events found:", penaltyEvents);
-    console.log("🔍 [Penalty Debug] Total penalty events:", penaltyEvents.length);
+    console.log(
+      "🔍 [Penalty Debug] Total penalty events:",
+      penaltyEvents.length,
+    );
     console.log("🔍 [Penalty Debug] Match data:", matchData);
 
     // Check if penalty data is available in matchData
     const penaltyScores = matchData?.score?.penalty;
-    console.log("🔍 [Penalty Debug] Penalty scores from match data:", penaltyScores);
+    console.log(
+      "🔍 [Penalty Debug] Penalty scores from match data:",
+      penaltyScores,
+    );
 
     // If we don't have enough penalty events from the API, create mock data based on the final score
     let penaltySequence = [];
@@ -697,7 +735,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       const awayPenalties = penaltyScores.away || 3;
       const totalPenalties = Math.max(6, homePenalties + awayPenalties);
 
-      console.log(`🔍 [Penalty Debug] Creating mock penalties: Home ${homePenalties}, Away ${awayPenalties}`);
+      console.log(
+        `🔍 [Penalty Debug] Creating mock penalties: Home ${homePenalties}, Away ${awayPenalties}`,
+      );
 
       // Create alternating pattern (home, away, home, away...)
       for (let i = 1; i <= totalPenalties; i++) {
@@ -717,19 +757,20 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
           team: {
             id: isHomePenalty ? 1 : 2,
             name: isHomePenalty ? homeTeam : awayTeam,
-            logo: ""
+            logo: "",
           },
           player: {
             id: 1000 + i,
-            name: i === 1 ? "Malik Tillman" : i === 2 ? "F. Calvo" : `Player ${i}`
+            name:
+              i === 1 ? "Malik Tillman" : i === 2 ? "F. Calvo" : `Player ${i}`,
           },
           type: "penalty",
-          detail: wasScored ? "Penalty" : "Penalty missed"
+          detail: wasScored ? "Penalty" : "Penalty missed",
         };
 
         penaltySequence.push({
           number: i,
-          event: mockEvent
+          event: mockEvent,
         });
       }
     } else {
@@ -739,7 +780,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         const penaltyEvent = penaltyEvents[i - 1];
         penaltySequence.push({
           number: i,
-          event: penaltyEvent
+          event: penaltyEvent,
         });
       }
     }
@@ -747,7 +788,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     return (
       <div className="penalty-shootout-timeline">
         <div className="penalty-timeline-header">
-          <span className="text-sm font-bold text-gray-700">Penalty Shootout</span>
+          <span className="text-sm font-bold text-gray-700">
+            Penalty Shootout
+          </span>
         </div>
 
         <div className="penalty-timeline-container">
@@ -779,17 +822,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         </div>
                         <div className="flex items-center gap-1 ml-2">
                           {(() => {
-                            const detail = penalty.event.detail?.toLowerCase() || "";
+                            const detail =
+                              penalty.event.detail?.toLowerCase() || "";
                             if (detail.includes("missed")) {
                               return (
                                 <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                                  <span className="text-white text-xs font-bold">X</span>
+                                  <span className="text-white text-xs font-bold">
+                                    X
+                                  </span>
                                 </div>
                               );
                             } else {
                               return (
                                 <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                                  <span className="text-white text-xs font-bold">✓</span>
+                                  <span className="text-white text-xs font-bold">
+                                    ✓
+                                  </span>
                                 </div>
                               );
                             }
@@ -814,17 +862,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       <>
                         <div className="flex items-center gap-1 mr-2">
                           {(() => {
-                            const detail = penalty.event.detail?.toLowerCase() || "";
+                            const detail =
+                              penalty.event.detail?.toLowerCase() || "";
                             if (detail.includes("missed")) {
                               return (
                                 <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                                  <span className="text-white text-xs font-bold">X</span>
+                                  <span className="text-white text-xs font-bold">
+                                    X
+                                  </span>
                                 </div>
                               );
                             } else {
                               return (
                                 <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                                  <span className="text-white text-xs font-bold">✓</span>
+                                  <span className="text-white text-xs font-bold">
+                                    ✓
+                                  </span>
                                 </div>
                               );
                             }
@@ -845,14 +898,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           /> */}
                         </div>
                       </>
-                                        ) : (
+                    ) : (
                       <div className="flex-1"></div>
                     )}
                   </div>
                 </div>
 
                 {/* Connecting line */}
-                {index < penaltySequence.length - 1 &&(
+                {index < penaltySequence.length - 1 && (
                   <div className="penalty-connecting-line"></div>
                 )}
               </div>
@@ -889,45 +942,40 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         className={`pb-3 ${isDarkTheme ? "bg-gray-700" : "mb-2"} border-b`}
       >
         <div className="flex items-center justify-between">
-          ```text
           <div className="flex items-center gap-2">
-            <h3
- className="text-md font-semibold">Match Events</h3>
-
+            <h3 className="text-md font-semibold">Match Events</h3>
           </div>
-
         </div>
-
       </CardHeader>
 
       {/* Tab Navigation */}
       <div className="pl-28 pr-28 py-4 flex">
         <button
-          onClick={() => setActiveTab('all')}
+          onClick={() => setActiveTab("all")}
           className={`flex-1  text-xs font-small  transition-colors ${
-            activeTab === 'all'
-              ? 'bg-blue-500 text-white '
-              : 'bg-white text-blue-400 border border-blue-400 hover:bg-gray-200'
+            activeTab === "all"
+              ? "bg-blue-500 text-white "
+              : "bg-white text-blue-400 border border-blue-400 hover:bg-gray-200"
           }`}
         >
           All
         </button>
         <button
-          onClick={() => setActiveTab('top')}
+          onClick={() => setActiveTab("top")}
           className={`flex-1 py-3  text-xs font-small text-center transition-colors ${
-            activeTab === 'top'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white text-blue-400 border border-blue-400 hover:bg-gray-200'
+            activeTab === "top"
+              ? "bg-blue-500 text-white"
+              : "bg-white text-blue-400 border border-blue-400 hover:bg-gray-200"
           }`}
         >
           Top
         </button>
         <button
-          onClick={() => setActiveTab('commentary')}
+          onClick={() => setActiveTab("commentary")}
           className={`flex-1 py-3  text-xs font-small text-center transition-colors ${
-            activeTab === 'commentary'
-              ? 'bg-blue-500 text-white'
-              : 'bg-white text-blue-400 border border-blue-400 hover:bg-gray-200'
+            activeTab === "commentary"
+              ? "bg-blue-500 text-white"
+              : "bg-white text-blue-400 border border-blue-400 hover:bg-gray-200"
           }`}
         >
           Commentary
@@ -952,17 +1000,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         ) : (
           <div className="space-y-2">
             {/* Render content based on active tab */}
-            {activeTab === 'all' && (
+            {activeTab === "all" && (
               <>
                 {/* Show penalty shootout only if match actually ended with penalties */}
-                {matchData?.fixture?.status?.short === "PEN" && 
-                 matchData?.score?.penalty?.home !== null && 
-                 matchData?.score?.penalty?.away !== null && (
-                  <PenaltyShootoutDisplay 
-                    homeScore={matchData.score.penalty.home} 
-                    awayScore={matchData.score.penalty.away} 
-                  />
-                )}
+                {matchData?.fixture?.status?.short === "PEN" &&
+                  matchData?.score?.penalty?.home !== null &&
+                  matchData?.score?.penalty?.away !== null && (
+                    <PenaltyShootoutDisplay
+                      homeScore={matchData.score.penalty.home}
+                      awayScore={matchData.score.penalty.away}
+                    />
+                  )}
 
                 {/* All events in chronological order with period score markers */}
                 {(() => {
@@ -1000,7 +1048,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       // Add "End of 90 Minutes" marker for ended matches
                       const matchStatus = matchData?.fixture?.status?.short;
-                      const isMatchEnded = ["FT", "AET", "PEN"].includes(matchStatus);
+                      const isMatchEnded = ["FT", "AET", "PEN"].includes(
+                        matchStatus,
+                      );
                       const fullTimeEvents = events.filter(
                         (e) => e.time?.elapsed >= 90,
                       );
@@ -1024,7 +1074,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       const secondHalfEvents = events.filter(
                         (e) => e.time?.elapsed > 45,
                       );
-                      if (firstHalfEvents.length > 0 && secondHalfEvents.length > 0) {
+                      if (
+                        firstHalfEvents.length > 0 &&
+                        secondHalfEvents.length > 0
+                      ) {
                         const halftimeScore = calculateHalftimeScore();
                         markers.push({
                           time: { elapsed: 45 },
@@ -1038,9 +1091,11 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
 
                       // Add penalty shootout marker only if match actually ended with penalties
-                      if (matchData?.fixture?.status?.short === "PEN" && 
-                          matchData?.score?.penalty?.home !== null && 
-                          matchData?.score?.penalty?.away !== null) {
+                      if (
+                        matchData?.fixture?.status?.short === "PEN" &&
+                        matchData?.score?.penalty?.home !== null &&
+                        matchData?.score?.penalty?.away !== null
+                      ) {
                         markers.push({
                           time: { elapsed: 121 }, // Put penalties after extra time
                           type: "penalty_shootout",
@@ -1067,15 +1122,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       if (b.type === "penalty_shootout") return 1;
 
                       // Special priority for "Full Time" - put it second
-                      if (
-                        a.type === "period_score" &&
-                        a.detail === "Full Time"
-                      )
+                      if (a.type === "period_score" && a.detail === "Full Time")
                         return -1;
-                      if (
-                        b.type === "period_score" &&
-                        b.detail === "Full Time"
-                      )
+                      if (b.type === "period_score" && b.detail === "Full Time")
                         return 1;
 
                       // Special priority for "End of 90 Minutes" - put it third
@@ -1096,10 +1145,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       // If events happen at the same time, prioritize card events with red cards first
                       if (aTotalTime === bTotalTime) {
-                        const aIsYellowCard = a.type === "Card" && a.detail?.toLowerCase().includes("yellow");
-                        const bIsYellowCard = b.type === "Card" && b.detail?.toLowerCase().includes("yellow");
-                        const aIsRedCard = a.type === "Card" && a.detail?.toLowerCase().includes("red");
-                        const bIsRedCard = b.type === "Card" && b.detail?.toLowerCase().includes("red");
+                        const aIsYellowCard =
+                          a.type === "Card" &&
+                          a.detail?.toLowerCase().includes("yellow");
+                        const bIsYellowCard =
+                          b.type === "Card" &&
+                          b.detail?.toLowerCase().includes("yellow");
+                        const aIsRedCard =
+                          a.type === "Card" &&
+                          a.detail?.toLowerCase().includes("red");
+                        const bIsRedCard =
+                          b.type === "Card" &&
+                          b.detail?.toLowerCase().includes("red");
 
                         // Prioritize red card over yellow card at same minute
                         if (aIsRedCard && bIsYellowCard) return -1;
@@ -1108,10 +1165,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       // Sort by total time in descending order (latest first)
                       // Special case: 46' (second half start) should come before 45' + extra time
-                      if (a.time.elapsed === 46 && b.time.elapsed === 45 && b.time.extra) {
+                      if (
+                        a.time.elapsed === 46 &&
+                        b.time.elapsed === 45 &&
+                        b.time.extra
+                      ) {
                         return -1; // 46' comes first
                       }
-                      if (b.time.elapsed === 46 && a.time.elapsed === 45 && a.time.extra) {
+                      if (
+                        b.time.elapsed === 46 &&
+                        a.time.elapsed === 45 &&
+                        a.time.extra
+                      ) {
                         return 1; // 46' comes first
                       }
 
@@ -1151,11 +1216,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     }
 
                     // For own goals, show on the side of the team that benefits (opposite of scoring team)
-                    const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
-                    const isHome = isOwnGoal ? event.team?.name !== homeTeam : event.team?.name === homeTeam;
+                    const isOwnGoal = event.detail
+                      ?.toLowerCase()
+                      .includes("own goal");
+                    const isHome = isOwnGoal
+                      ? event.team?.name !== homeTeam
+                      : event.team?.name === homeTeam;
 
                     return (
-                      <div key={`event-${index}`} className="match-event-container">
+                      <div
+                        key={`event-${index}`}
+                        className="match-event-container"
+                      >
                         {/* Three-grid layout container */}
                         <div className="match-event-three-grid-container">
                           {/* Left Grid: Home Team Events */}
@@ -1165,9 +1237,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 {/* Column 1: Player Info */}
                                 <div className="match-event-home-player-info">
                                   <div className="flex items-center gap-1">
-                                    <div 
+                                    <div
                                       className="cursor-pointer hover:scale-105 transition-transform"
-                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
+                                      onClick={() =>
+                                        handlePlayerClick(
+                                          event.player?.id,
+                                          event.team.id,
+                                          event.player?.name,
+                                        )
+                                      }
                                     >
                                       <MyAvatarInfo
                                         playerId={event.player?.id}
@@ -1179,21 +1257,28 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       />
                                     </div>
 
-                                    {event.type === "subst" && event.assist?.name && (
-                                      <div 
-                                        className="-ml-4 -mr-2 relative z-20 cursor-pointer hover:scale-105 transition-transform"
-                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
-                                      >
-                                        <MyAvatarInfo
-                                          playerId={event.assist?.id}
-                                          playerName={event.assist?.name}
-                                          matchId={fixtureId}
-                                          teamId={event.team?.id}
-                                          size="md"
-                                          className="shadow-sm border-red-300"
-                                        />
-                                      </div>
-                                    )}
+                                    {event.type === "subst" &&
+                                      event.assist?.name && (
+                                        <div
+                                          className="-ml-4 -mr-2 relative z-20 cursor-pointer hover:scale-105 transition-transform"
+                                          onClick={() =>
+                                            handlePlayerClick(
+                                              event.assist?.id,
+                                              event.team.id,
+                                              event.assist?.name,
+                                            )
+                                          }
+                                        >
+                                          <MyAvatarInfo
+                                            playerId={event.assist?.id}
+                                            playerName={event.assist?.name}
+                                            matchId={fixtureId}
+                                            teamId={event.team?.id}
+                                            size="md"
+                                            className="shadow-sm border-red-300"
+                                          />
+                                        </div>
+                                      )}
                                   </div>
 
                                   <div className="text-left">
@@ -1204,7 +1289,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           {event.assist.name}
                                         </div>
                                         <div className="text-xs font-medium text-red-600">
-                                          {event.player?.name || "Unknown Player"}
+                                          {event.player?.name ||
+                                            "Unknown Player"}
                                         </div>
                                       </>
                                     ) : (
@@ -1218,14 +1304,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && event.type !== "Card" && event.type !== "Goal" && (
-                                      <div className="text-xs text-gray-400">
-                                        {event.type === "foul" ||
-                                        event.detail?.toLowerCase().includes("foul")
-                                          ? `Foul by ${event.player?.name || "Unknown Player"}`
-                                          : event.detail || event.type}
-                                      </div>
-                                    )}
+                                    {event.type !== "subst" &&
+                                      event.type !== "Card" &&
+                                      event.type !== "Goal" && (
+                                        <div className="text-xs text-gray-400">
+                                          {event.type === "foul" ||
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("foul")
+                                            ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                            : event.detail || event.type}
+                                        </div>
+                                      )}
                                   </div>
                                 </div>
 
@@ -1239,7 +1329,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           ? "card"
                                           : "substitution"
                                     } relative group`}
-                                    style={{ marginRight: '-8px' }}
+                                    style={{ marginRight: "-8px" }}
                                     title={getEventDescription(event)}
                                   >
                                     {event.type === "subst" ? (
@@ -1250,7 +1340,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       />
                                     ) : event.type === "Goal" ? (
                                       (() => {
-                                        const detail = event.detail?.toLowerCase() || "";
+                                        const detail =
+                                          event.detail?.toLowerCase() || "";
                                         if (detail.includes("penalty")) {
                                           if (detail.includes("missed")) {
                                             return (
@@ -1269,7 +1360,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                               />
                                             );
                                           }
-                                        } else if (detail.includes("own goal")) {
+                                        } else if (
+                                          detail.includes("own goal")
+                                        ) {
                                           return (
                                             <img
                                               src="/assets/matchdetaillogo/soccer-logo.svg"
@@ -1317,8 +1410,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         {getEventIcon(event.type, event.detail)}
                                       </span>
                                     )}
-
-                                    </div>
+                                  </div>
                                 </div>
                               </>
                             )}
@@ -1327,18 +1419,21 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           {/* Center Grid: Time display only */}
                           <div className="match-event-time-center-simple">
                             {/* Middle: Time display - show elapsed time in black and extra time in red */}
-                            <div className="match-event-time-display" style={{ 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              justifyContent: 'center',
-                              flexDirection: 'row',
-                              height: '100%'
-                            }}>
-                              <span style={{ color: "black", lineHeight: '1' }}>
+                            <div
+                              className="match-event-time-display"
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexDirection: "row",
+                                height: "100%",
+                              }}
+                            >
+                              <span style={{ color: "black", lineHeight: "1" }}>
                                 {event.time?.elapsed}'
                               </span>
                               {event.time?.extra && (
-                                <span style={{ color: "red", lineHeight: '1' }}>
+                                <span style={{ color: "red", lineHeight: "1" }}>
                                   +{event.time.extra}
                                 </span>
                               )}
@@ -1359,8 +1454,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           ? "Card"
                                           : "Substitution"
                                     }`}
-
-                                    style={{ marginRight: '-8px' }}
+                                    style={{ marginRight: "-8px" }}
                                     title={getEventDescription(event)}
                                   >
                                     {event.type === "subst" ? (
@@ -1371,7 +1465,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       />
                                     ) : event.type === "Goal" ? (
                                       (() => {
-                                        const detail = event.detail?.toLowerCase() || "";
+                                        const detail =
+                                          event.detail?.toLowerCase() || "";
                                         if (detail.includes("penalty")) {
                                           if (detail.includes("missed")) {
                                             return (
@@ -1390,7 +1485,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                               />
                                             );
                                           }
-                                        } else if (detail.includes("own goal")) {
+                                        } else if (
+                                          detail.includes("own goal")
+                                        ) {
                                           return (
                                             <img
                                               src="/assets/matchdetaillogo/soccer-logo.svg"
@@ -1451,7 +1548,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           {event.assist.name}
                                         </div>
                                         <div className="text-xs font-medium text-red-600 text-right">
-                                          {event.player?.name || "Unknown Player"}
+                                          {event.player?.name ||
+                                            "Unknown Player"}
                                         </div>
                                       </>
                                     ) : (
@@ -1465,36 +1563,53 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && event.type !== "Card" && event.type !== "Goal" && (
-                                      <div className="text-xs text-gray-400 text-right">
-                                        {event.type === "foul" ||
-                                        event.detail?.toLowerCase().includes("foul")
-                                          ? `Foul by ${event.player?.name || "Unknown Player"}`
-                                          : event.detail || event.type}
-                                      </div>
-                                    )}
+                                    {event.type !== "subst" &&
+                                      event.type !== "Card" &&
+                                      event.type !== "Goal" && (
+                                        <div className="text-xs text-gray-400 text-right">
+                                          {event.type === "foul" ||
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("foul")
+                                            ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                            : event.detail || event.type}
+                                        </div>
+                                      )}
                                   </div>
 
                                   <div className="flex items-center gap-1">
-                                    {event.type === "subst" && event.assist?.name && (
-                                      <div 
-                                        className="-ml-4 -mr-3 relative z-20 cursor-pointer hover:scale-105 transition-transform"
-                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
-                                      >
-                                        <MyAvatarInfo
-                                          playerId={event.assist?.id}
-                                          playerName={event.assist?.name}
-                                          matchId={fixtureId}
-                                          teamId={event.team?.id}
-                                          size="md"
-                                          className="shadow-sm border-red-300"
-                                        />
-                                      </div>
-                                    )}
+                                    {event.type === "subst" &&
+                                      event.assist?.name && (
+                                        <div
+                                          className="-ml-4 -mr-3 relative z-20 cursor-pointer hover:scale-105 transition-transform"
+                                          onClick={() =>
+                                            handlePlayerClick(
+                                              event.assist?.id,
+                                              event.team.id,
+                                              event.assist?.name,
+                                            )
+                                          }
+                                        >
+                                          <MyAvatarInfo
+                                            playerId={event.assist?.id}
+                                            playerName={event.assist?.name}
+                                            matchId={fixtureId}
+                                            teamId={event.team?.id}
+                                            size="md"
+                                            className="shadow-sm border-red-300"
+                                          />
+                                        </div>
+                                      )}
 
-                                    <div 
+                                    <div
                                       className="cursor-pointer hover:scale-105 transition-transform"
-                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
+                                      onClick={() =>
+                                        handlePlayerClick(
+                                          event.player?.id,
+                                          event.team.id,
+                                          event.player?.name,
+                                        )
+                                      }
                                     >
                                       <MyAvatarInfo
                                         playerId={event.player?.id}
@@ -1527,13 +1642,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               </>
             )}
 
-            {activeTab === 'top' && (
+            {activeTab === "top" && (
               <>
                 {/* Filter to show only Goal events with period markers */}
                 {(() => {
-                  const goalEvents = events.filter(event => event.type === "Goal").sort(
-                    (a, b) => b.time.elapsed - a.time.elapsed,
-                  );
+                  const goalEvents = events
+                    .filter((event) => event.type === "Goal")
+                    .sort((a, b) => b.time.elapsed - a.time.elapsed);
 
                   // Create period markers for Top tab (same logic as All tab)
                   const createTopTabPeriodMarkers = () => {
@@ -1564,7 +1679,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       // Add "End of 90 Minutes" marker for ended matches
                       const matchStatus = matchData?.fixture?.status?.short;
-                      const isMatchEnded = ["FT", "AET", "PEN"].includes(matchStatus);
+                      const isMatchEnded = ["FT", "AET", "PEN"].includes(
+                        matchStatus,
+                      );
                       const fullTimeGoals = goalEvents.filter(
                         (e) => e.time?.elapsed >= 90,
                       );
@@ -1582,7 +1699,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
 
                       // Always add "Halftime" marker if match has progressed beyond first half
-                      const hasSecondHalfEvents = events.some((e) => e.time?.elapsed > 45);
+                      const hasSecondHalfEvents = events.some(
+                        (e) => e.time?.elapsed > 45,
+                      );
                       const firstHalfGoals = goalEvents.filter(
                         (e) => e.time?.elapsed >= 1 && e.time?.elapsed <= 45,
                       );
@@ -1601,7 +1720,10 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                         });
                       }
                     } catch (error) {
-                      console.error("Error creating Top tab period markers:", error);
+                      console.error(
+                        "Error creating Top tab period markers:",
+                        error,
+                      );
                     }
 
                     return markers;
@@ -1630,10 +1752,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       // If events happen at the same time, prioritize card events with red cards first
                       if (aTotalTime === bTotalTime) {
-                        const aIsYellowCard = a.type === "Card" && a.detail?.toLowerCase().includes("yellow");
-                        const bIsYellowCard = b.type === "Card" && b.detail?.toLowerCase().includes("yellow");
-                        const aIsRedCard = a.type === "Card" && a.detail?.toLowerCase().includes("red");
-                        const bIsRedCard = b.type === "Card" && b.detail?.toLowerCase().includes("red");
+                        const aIsYellowCard =
+                          a.type === "Card" &&
+                          a.detail?.toLowerCase().includes("yellow");
+                        const bIsYellowCard =
+                          b.type === "Card" &&
+                          b.detail?.toLowerCase().includes("yellow");
+                        const aIsRedCard =
+                          a.type === "Card" &&
+                          a.detail?.toLowerCase().includes("red");
+                        const bIsRedCard =
+                          b.type === "Card" &&
+                          b.detail?.toLowerCase().includes("red");
 
                         // Prioritize red card over yellow card at same minute
                         if (aIsRedCard && bIsYellowCard) return -1;
@@ -1642,10 +1772,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                       // Sort by total time in descending order (latest first)
                       // Special case: 46' (second half start) should come before 45' + extra time
-                      if (a.time.elapsed === 46 && b.time.elapsed === 45 && b.time.extra) {
+                      if (
+                        a.time.elapsed === 46 &&
+                        b.time.elapsed === 45 &&
+                        b.time.extra
+                      ) {
                         return -1; // 46' comes first
                       }
-                      if (b.time.elapsed === 46 && a.time.elapsed === 45 && a.time.extra) {
+                      if (
+                        b.time.elapsed === 46 &&
+                        a.time.elapsed === 45 &&
+                        a.time.extra
+                      ) {
                         return 1; // 46' comes first
                       }
 
@@ -1653,11 +1791,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                     },
                   );
 
-                  if (goalEvents.length== 0 && periodMarkers.length === 0){
+                  if (goalEvents.length == 0 && periodMarkers.length === 0) {
                     return (
                       <div className="p-8 text-center text-gray-500">
                         <div className="text-4xl mb-4">⚽</div>
-                        <h3 className="text-lg font-medium mb-2">No Goals Yet</h3><p className="text-sm">Goal events will appear here when they happen</p>
+                        <h3 className="text-lg font-medium mb-2">
+                          No Goals Yet
+                        </h3>
+                        <p className="text-sm">
+                          Goal events will appear here when they happen
+                        </p>
                       </div>
                     );
                   }
@@ -1679,21 +1822,29 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                             </div>
                           </div>
                           {/* Show "No Top Events" for halftime if no goals in first half */}
-                          {event.detail === "Halftime" && event.hasFirstHalfGoals === false && (
-                            <div className="text-center text-gray-500 text-sm mt-2 py-2 bg-gray-50 rounded">
-                              No Top Events
-                            </div>
-                          )}
+                          {event.detail === "Halftime" &&
+                            event.hasFirstHalfGoals === false && (
+                              <div className="text-center text-gray-500 text-sm mt-2 py-2 bg-gray-50 rounded">
+                                No Top Events
+                              </div>
+                            )}
                         </div>
                       );
                     }
 
                     // For own goals, show on the side of the team that benefits (opposite of scoring team)
-                    const isOwnGoal = event.detail?.toLowerCase().includes("own goal");
-                    const isHome = isOwnGoal ? event.team?.name !== homeTeam : event.team?.name === homeTeam;
+                    const isOwnGoal = event.detail
+                      ?.toLowerCase()
+                      .includes("own goal");
+                    const isHome = isOwnGoal
+                      ? event.team?.name !== homeTeam
+                      : event.team?.name === homeTeam;
 
                     return (
-                      <div key={`goal-event-${index}`} className="match-event-container">
+                      <div
+                        key={`goal-event-${index}`}
+                        className="match-event-container"
+                      >
                         {/* Three-grid layout container */}
                         <div className="match-event-three-grid-container">
                           {/* Left Grid: Home Team Events */}
@@ -1703,9 +1854,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 {/* Column 1: Player Info */}
                                 <div className="match-event-home-player-info">
                                   <div className="flex items-center gap-1">
-                                    <div 
+                                    <div
                                       className="cursor-pointer hover:scale-105 transition-transform"
-                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
+                                      onClick={() =>
+                                        handlePlayerClick(
+                                          event.player?.id,
+                                          event.team.id,
+                                          event.player?.name,
+                                        )
+                                      }
                                     >
                                       <MyAvatarInfo
                                         playerId={event.player?.id}
@@ -1717,21 +1874,28 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       />
                                     </div>
 
-                                    {event.type === "subst" && event.assist?.name && (
-                                      <div 
-                                        className="-ml-4 -mr-2 relative z-20 cursor-pointer hover:scale-105 transition-transform"
-                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
-                                      >
-                                        <MyAvatarInfo
-                                          playerId={event.assist?.id}
-                                          playerName={event.assist?.name}
-                                          matchId={fixtureId}
-                                          teamId={event.team?.id}
-                                          size="md"
-                                          className="shadow-sm border-red-300"
-                                        />
-                                      </div>
-                                    )}
+                                    {event.type === "subst" &&
+                                      event.assist?.name && (
+                                        <div
+                                          className="-ml-4 -mr-2 relative z-20 cursor-pointer hover:scale-105 transition-transform"
+                                          onClick={() =>
+                                            handlePlayerClick(
+                                              event.assist?.id,
+                                              event.team.id,
+                                              event.assist?.name,
+                                            )
+                                          }
+                                        >
+                                          <MyAvatarInfo
+                                            playerId={event.assist?.id}
+                                            playerName={event.assist?.name}
+                                            matchId={fixtureId}
+                                            teamId={event.team?.id}
+                                            size="md"
+                                            className="shadow-sm border-red-300"
+                                          />
+                                        </div>
+                                      )}
                                   </div>
 
                                   <div className="text-left">
@@ -1742,7 +1906,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           {event.assist.name}
                                         </div>
                                         <div className="text-xs font-medium text-red-600">
-                                          {event.player?.name || "Unknown Player"}
+                                          {event.player?.name ||
+                                            "Unknown Player"}
                                         </div>
                                       </>
                                     ) : (
@@ -1756,19 +1921,25 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && event.type !== "Card" && event.type !== "Goal" && (
-                                      <div className="text-xs text-gray-400">
-                                        {event.type === "foul" ||
-                                        event.detail?.toLowerCase().includes("foul")
-                                          ? `Foul by ${event.player?.name || "Unknown Player"}`
-                                                                         : event.detail || event.type}
-                                      </div>
-                                    )}
+                                    {event.type !== "subst" &&
+                                      event.type !== "Card" &&
+                                      event.type !== "Goal" && (
+                                        <div className="text-xs text-gray-400">
+                                          {event.type === "foul" ||
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("foul")
+                                            ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                            : event.detail || event.type}
+                                        </div>
+                                      )}
                                   </div>
                                 </div>
 
                                 {/* Column 2: Event Icon */}
-                               <div className="match-event-home-icon-column">                                  <div
+                                <div className="match-event-home-icon-column">
+                                  {" "}
+                                  <div
                                     className={`match-event-icon ${
                                       event.type === "Goal"
                                         ? "goal"
@@ -1776,7 +1947,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           ? "card"
                                           : "substitution"
                                     } relative group`}
-                                    style={{ marginRight: '-8px' }}
+                                    style={{ marginRight: "-8px" }}
                                     title={getEventDescription(event)}
                                   >
                                     {event.type === "subst" ? (
@@ -1787,7 +1958,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       />
                                     ) : event.type === "Goal" ? (
                                       (() => {
-                                        const detail = event.detail?.toLowerCase() || "";
+                                        const detail =
+                                          event.detail?.toLowerCase() || "";
                                         if (detail.includes("penalty")) {
                                           if (detail.includes("missed")) {
                                             return (
@@ -1806,7 +1978,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                               />
                                             );
                                           }
-                                        } else if (detail.includes("own goal")) {
+                                        } else if (
+                                          detail.includes("own goal")
+                                        ) {
                                           return (
                                             <img
                                               src="/assets/matchdetaillogo/soccer-logo.svg"
@@ -1828,7 +2002,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       <img
                                         src={
                                           event.detail
-                                            ?.toLowerCase().includes("yellow")
+                                            ?.toLowerCase()
+                                            .includes("yellow")
                                             ? "/assets/matchdetaillogo/card-icon.svg"
                                             : "/assets/matchdetaillogo/red-card-icon.svg"
                                         }
@@ -1853,8 +2028,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         {getEventIcon(event.type, event.detail)}
                                       </span>
                                     )}
-
-                                    </div>
+                                  </div>
                                 </div>
                               </>
                             )}
@@ -1863,18 +2037,21 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                           {/* Center Grid: Time display only */}
                           <div className="match-event-time-center-simple">
                             {/* Middle: Time display - show elapsed time in black and extra time in red */}
-                            <div className="match-event-time-display" style={{ 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              justifyContent: 'center',
-                              flexDirection: 'row',
-                              height: '100%'
-                            }}>
-                              <span style={{ color: "black", lineHeight: '1' }}>
+                            <div
+                              className="match-event-time-display"
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                flexDirection: "row",
+                                height: "100%",
+                              }}
+                            >
+                              <span style={{ color: "black", lineHeight: "1" }}>
                                 {event.time?.elapsed}'
                               </span>
                               {event.time?.extra && (
-                                <span style={{ color: "red", lineHeight: '1' }}>
+                                <span style={{ color: "red", lineHeight: "1" }}>
                                   +{event.time.extra}
                                 </span>
                               )}
@@ -1895,8 +2072,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           ? "Card"
                                           : "Substitution"
                                     }`}
-
-                                    style={{ marginRight: '-8px' }}
+                                    style={{ marginRight: "-8px" }}
                                     title={getEventDescription(event)}
                                   >
                                     {event.type === "subst" ? (
@@ -1907,7 +2083,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                       />
                                     ) : event.type === "Goal" ? (
                                       (() => {
-                                        const detail = event.detail?.toLowerCase() || "";
+                                        const detail =
+                                          event.detail?.toLowerCase() || "";
                                         if (detail.includes("penalty")) {
                                           if (detail.includes("missed")) {
                                             return (
@@ -1926,7 +2103,9 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                               />
                                             );
                                           }
-                                        } else if (detail.includes("own goal")) {
+                                        } else if (
+                                          detail.includes("own goal")
+                                        ) {
                                           return (
                                             <img
                                               src="/assets/matchdetaillogo/soccer-logo.svg"
@@ -1987,7 +2166,8 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           {event.assist.name}
                                         </div>
                                         <div className="text-xs font-medium text-red-600 text-right">
-                                          {event.player?.name || "Unknown Player"}
+                                          {event.player?.name ||
+                                            "Unknown Player"}
                                         </div>
                                       </>
                                     ) : (
@@ -2001,36 +2181,53 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                           (Assist: {event.assist.name})
                                         </div>
                                       )}
-                                    {event.type !== "subst" && event.type !== "Card" && event.type !== "Goal" && (
-                                      <div className="text-xs text-gray-400 text-right">
-                                        {event.type === "foul" ||
-                                        event.detail?.toLowerCase().includes("foul")
-                                          ? `Foul by ${event.player?.name || "Unknown Player"}`
-                                          : event.detail || event.type}
-                                      </div>
-                                    )}
+                                    {event.type !== "subst" &&
+                                      event.type !== "Card" &&
+                                      event.type !== "Goal" && (
+                                        <div className="text-xs text-gray-400 text-right">
+                                          {event.type === "foul" ||
+                                          event.detail
+                                            ?.toLowerCase()
+                                            .includes("foul")
+                                            ? `Foul by ${event.player?.name || "Unknown Player"}`
+                                            : event.detail || event.type}
+                                        </div>
+                                      )}
                                   </div>
 
                                   <div className="flex items-center gap-1">
-                                    {event.type === "subst" && event.assist?.name && (
-                                      <div 
-                                        className="-ml-4 -mr-3 relative z-20 cursor-pointer hover:scale-105 transition-transform"
-                                        onClick={() => handlePlayerClick(event.assist?.id, event.team.id, event.assist?.name)}
-                                      >
-                                        <MyAvatarInfo
-                                          playerId={event.assist?.id}
-                                          playerName={event.assist?.name}
-                                          matchId={fixtureId}
-                                          teamId={event.team?.id}
-                                          size="md"
-                                          className="shadow-sm border-red-300"
-                                        />
-                                      </div>
-                                    )}
+                                    {event.type === "subst" &&
+                                      event.assist?.name && (
+                                        <div
+                                          className="-ml-4 -mr-3 relative z-20 cursor-pointer hover:scale-105 transition-transform"
+                                          onClick={() =>
+                                            handlePlayerClick(
+                                              event.assist?.id,
+                                              event.team.id,
+                                              event.assist?.name,
+                                            )
+                                          }
+                                        >
+                                          <MyAvatarInfo
+                                            playerId={event.assist?.id}
+                                            playerName={event.assist?.name}
+                                            matchId={fixtureId}
+                                            teamId={event.team?.id}
+                                            size="md"
+                                            className="shadow-sm border-red-300"
+                                          />
+                                        </div>
+                                      )}
 
-                                    <div 
+                                    <div
                                       className="cursor-pointer hover:scale-105 transition-transform"
-                                      onClick={() => handlePlayerClick(event.player?.id, event.team.id, event.player?.name)}
+                                      onClick={() =>
+                                        handlePlayerClick(
+                                          event.player?.id,
+                                          event.team.id,
+                                          event.player?.name,
+                                        )
+                                      }
                                     >
                                       <MyAvatarInfo
                                         playerId={event.player?.id}
@@ -2054,7 +2251,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
                 {/* Show MyCommentary with filtered Goal events for Top tab */}
                 <MyCommentary
-                  events={events.filter(event => event.type === "Goal")}
+                  events={events.filter((event) => event.type === "Goal")}
                   homeTeam={homeTeam}
                   awayTeam={awayTeam}
                   getEventDescription={getEventDescription}
@@ -2063,7 +2260,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
               </>
             )}
 
-            {activeTab === 'commentary' && (
+            {activeTab === "commentary" && (
               <MyCommentary
                 events={events}
                 homeTeam={homeTeam}
@@ -2078,13 +2275,13 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
       {/* Player Profile Modal */}
       <PlayerProfileModal
-          isOpen={showPlayerModal}
-          onClose={() => setShowPlayerModal(false)}
-          playerId={selectedPlayer?.id}
-          playerName={selectedPlayer?.name}
-          teamId={selectedPlayer?.teamId}
-          playerImage={selectedPlayer?.image}
-        />
+        isOpen={showPlayerModal}
+        onClose={() => setShowPlayerModal(false)}
+        playerId={selectedPlayer?.id}
+        playerName={selectedPlayer?.name}
+        teamId={selectedPlayer?.teamId}
+        playerImage={selectedPlayer?.image}
+      />
     </Card>
   );
 };
