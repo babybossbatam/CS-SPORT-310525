@@ -1932,13 +1932,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
                       }
 
-                      // Only show round information if it's meaningful and not generic fallback
-                      if (processedRound && 
-                          !processedRound.includes("Not Started") && 
-                          !processedRound.includes("Upcoming") &&
-                          !processedRound.includes("UPCOMING") &&
-                          processedRound !== "TBD" &&
-                          processedRound !== "NS") {
+                      // Only show round information if it's meaningful (not generic status)
+                      if (processedRound && !processedRound.includes("Not Started") && !processedRound.includes("Upcoming")) {
                         return (
                           <span className="text-xs text-gray-600 font-medium">
                             • {processedRound}
@@ -1946,10 +1941,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         );
                       }
 
-                      // No status display for matches without meaningful round data
+                      // No status display for upcoming matches
                       return null;
                     })()}
-                    {getMatchStatusLabel(currentMatch) === "LIVE" ? (
+                    {getStatusDisplay(currentMatch).isLive ? (
                       <div className="flex items-center gap-1.5 ml-2">
                         <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                         <Badge
@@ -1963,262 +1958,595 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       <Badge
                         variant="outline"
                         className={`text-[10px] px-1.5 py-0 border ml-[3px] ${
-                          getMatchStatusLabel(currentMatch) === "FINISHED"
+                          currentMatch?.fixture?.status?.short === "FT"
                             ? "border-gray-500 text-gray-500"
                             : "border-blue-500 text-blue-500"
                         }`}
                       >
-                        {getMatchStatusLabel(currentMatch)}
-                      </Badge>
+                      {(() => {
+                        // Handle status based display first
+                        if (currentMatch?.fixture?.status?.short === "FT") {
+                          return "FINISHED";
+                        }
+
+                        // Enhanced round data extraction with comprehensive processing
+                        let roundInfo =
+                          currentMatch.league.round ||
+                          currentMatch.fixture?.round ||
+                          currentMatch.league.season?.round ||
+                          currentMatch.fixture?.status?.round ||
+                          currentMatch.round ||
+                          currentMatch.fixture?.status?.long ||
+                          currentMatch.league?.season?.current;
+
+                        // Enhanced bracket status mapping with comprehensive patterns
+                        const getBracketStatus = (leagueName: string, round: string) => {
+                          const lowerLeague = leagueName.toLowerCase();
+                          const lowerRound = round?.toLowerCase() || "";
+
+                          // Normalize common variations
+                          const normalizedRound = lowerRound
+                            .replace(/\d+st|\d+nd|\d+rd|\d+th/g, "") // Remove ordinal suffixes
+                            .replace(/[-_]/g, " ") // Replace dashes/underscores with spaces
+                            .replace(/\s+/g, " ") // Normalize multiple spaces
+                            .trim();
+
+                          // Universal tournament stage patterns
+                          if (normalizedRound.includes("final") && !normalizedRound.includes("semi") && !normalizedRound.includes("quarter") && !normalizedRound.includes("3rd")) {
+                            return "Final";
+                          }
+                          if (normalizedRound.includes("semi final") || normalizedRound.includes("semi-final") || normalizedRound.includes("semifinal")) {
+                            return "Semi Finals";
+                          }
+                          if (normalizedRound.includes("quarter final") || normalizedRound.includes("quarter-final") || normalizedRound.includes("quarterfinal")) {
+                            return "Quarter Finals";
+                          }
+                          if (normalizedRound.includes("3rd place") || normalizedRound.includes("third place") || normalizedRound.includes("bronze")) {
+                            return "3rd Place Playoff";
+                          }
+
+                          // Round-based patterns
+                          if (normalizedRound.includes("round of 32") || normalizedRound.includes("r32")) return "Round of 32";
+                          if (normalizedRound.includes("round of 16") || normalizedRound.includes("r16") || normalizedRound.includes("last 16")) return "Round of 16";
+                          if (normalizedRound.includes("round of 8") || normalizedRound.includes("r8") || normalizedRound.includes("last 8")) return "Quarter Finals";
+                          if (normalizedRound.includes("round of 4") || normalizedRound.includes("r4") || normalizedRound.includes("last 4")) return "Semi Finals";
+
+                          // Group stage patterns
+                          if (normalizedRound.includes("group") || normalizedRound.includes("league phase")) return "Group Stage";
+
+                          // Qualifying patterns
+                          if (normalizedRound.includes("qualifying") || normalizedRound.includes("qualifier") || normalizedRound.includes("preliminary")) {
+                            if (normalizedRound.includes("final")) return "Qualifying Final";
+                            return "Qualifying Round";
+                          }
+                          if (normalizedRound.includes("play off") || normalizedRound.includes("playoff") || normalizedRound.includes("play-off")) {
+                            return "Play-off Round";
+                          }
+
+                          // Knockout stage patterns
+                          if (normalizedRound.includes("knockout")) return "Knockout Stage";
+
+                          // Default: return cleaned up round info if it doesn't match patterns
+                          if (round && round.length > 0 && round !== "TBD" && round !== "N/A") {
+                            // Capitalize first letter of each word
+                            return round.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
+                          }
+
+                          return null;
+                        };
+
+                        // Enhanced dynamic inference based on league, timing, team profiles, and match count
+                        const inferBracketStatus = (leagueName: string, matchDate: Date, teamNames: string[], fixtureId: number) => {
+                          const lowerLeague = leagueName.toLowerCase();
+                          const currentDate = new Date();
+                          const daysFromNow = (matchDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24);
+
+                          // Conference League intelligent inference
+                          if (lowerLeague.includes("conference league")) {
+                            if (daysFromNow > 60) return "Qualifying Round";
+                            if (daysFromNow > 0) return "Group Stage";
+                            if (daysFromNow > -60) return "Knockout Stage";
+                            return "Final Stages";
+                          }
+
+                          // Champions League
+                          if (lowerLeague.includes("champions league")) {
+                            if (daysFromNow > 90) return "Qualifying Round";
+                            if (daysFromNow > 30) return "Group Stage";
+                            if (daysFromNow > -30) return "Knockout Stage";
+                            return "Final Stages";
+                          }
+
+                          // Europa League
+                          if (lowerLeague.includes("europa league") && !lowerLeague.includes("conference")) {
+                            if (daysFromNow > 90) return "Qualifying Round";
+                            if (daysFromNow > 30) return "Group Stage";
+                            if (daysFromNow > -30) return "Knockout Stage";
+                            return "Final Stages";
+                          }
+
+                          return null;
+                        };
+
+                        // Main processing logic
+                        let processedRound = null;
+
+                        // First try to extract from round data
+                        if (roundInfo && roundInfo.trim() !== "" && roundInfo !== "TBD" && roundInfo !== "N/A") {
+                          processedRound = getBracketStatus(currentMatch.league.name, roundInfo);
+                        }
+
+                        // If no round info or processing failed, use intelligent inference
+                        if (!processedRound) {
+                          const matchDate = new Date(currentMatch.fixture.date);
+                          const teamNames = [currentMatch.teams.home.name, currentMatch.teams.away.name];
+                          processedRound = inferBracketStatus(currentMatch.league.name, matchDate, teamNames, currentMatch.fixture.id);
+                        }
+
+                        // Return processed round or fallback
+                        return processedRound || "UPCOMING";
+                      })()}
+                    </Badge>
                     )}
                   </div>
+                  
 
-                  {/* Match status and time display */}
-                  <div className="text-center space-y-2 mb-6">
-                    <div className="text-lg font-bold text-gray-900">
+                  {/* Match day indicator */}
+                  <div className="text-center mb-4 ">
+                    <div className="text-lg font-bold text-gray-800 ">
                       {(() => {
                         const statusInfo = getStatusDisplay(currentMatch);
-                        
+                        const matchStatus = currentMatch.fixture.status.short;
+                        const matchDate = new Date(currentMatch.fixture.date);
+                        const today = new Date();
+                        const tomorrow = addDays(today, 1);
+
+                        const matchDateString = format(matchDate, "yyyy-MM-dd");
+                        const todayString = format(today, "yyyy-MM-dd");
+                        const tomorrowString = format(tomorrow, "yyyy-MM-dd");
+
+                        // Live matches - show elapsed time and live score
                         if (statusInfo.isLive) {
-                          return statusInfo.text;
-                        }
-                        
-                        if (statusInfo.isUpcoming) {
-                          return statusInfo.text;
-                        }
-                        
-                        if (currentMatch?.fixture?.status?.short === "FT") {
-                          return "Full Time";
-                        }
-                        
-                        return statusInfo.text;
-                      })()}
-                    </div>
-
-                    {/* Score display for live and finished matches */}
-                    {currentMatch?.fixture?.status?.short &&
-                      (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
-                        currentMatch.fixture.status.short,
-                      )) && (
-                        <div className="text-3xl font-bold text-gray-900 flex items-center justify-center gap-2">
-                          <span>{currentMatch?.goals?.home ?? 0}</span>
-                          <span className="text-2xl text-gray-400">-</span>
-                          <span>{currentMatch?.goals?.away ?? 0}</span>
-                        </div>
-                      )}
-
-                    {/* Countdown timer for upcoming matches */}
-                    {getStatusDisplay(currentMatch).isUpcoming && countdownTimer && countdownTimer !== "Loading..." && countdownTimer !== "" && (
-                      <div className="text-sm text-blue-600 font-medium">
-                        Starts in: {countdownTimer}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Teams display */}
-                  <div className="relative mb-8">
-                    <div className="flex items-center justify-between h-16">
-                      {/* Home team */}
-                      <div className="flex items-center space-x-3 flex-1 min-w-0">
-                        <div
-                          className="w-12 h-12 rounded-full p-2 flex items-center justify-center"
-                          style={{
-                            background: getEnhancedTeamColor(
-                              currentMatch?.teams?.home?.name || "",
-                              true,
-                            ),
-                          }}
-                        >
-                          <MyWorldTeamLogo
-                            src={currentMatch?.teams?.home?.logo || ""}
-                            alt={currentMatch?.teams?.home?.name || "Home Team"}
-                            countryName={currentMatch?.teams?.home?.name || ""}
-                            className="w-8 h-8 object-contain"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {currentMatch?.teams?.home?.name || "Home Team"}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* VS separator */}
-                      <div className="mx-4 text-sm font-medium text-gray-500">
-                        VS
-                      </div>
-
-                      {/* Away team */}
-                      <div className="flex items-center space-x-3 flex-1 min-w-0 flex-row-reverse">
-                        <div
-                          className="w-12 h-12 rounded-full p-2 flex items-center justify-center"
-                          style={{
-                            background: getEnhancedTeamColor(
-                              currentMatch?.teams?.away?.name || "",
-                              false,
-                            ),
-                          }}
-                        >
-                          <MyWorldTeamLogo
-                            src={currentMatch?.teams?.away?.logo || ""}
-                            alt={currentMatch?.teams?.away?.name || "Away Team"}
-                            countryName={currentMatch?.teams?.away?.name || ""}
-                            className="w-8 h-8 object-contain"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate text-right">
-                            {currentMatch?.teams?.away?.name || "Away Team"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Match details */}
-                    <div className="text-center mt-4 text-xs text-gray-500">
-                      {(() => {
-                        try {
-                          const matchDate = parseISO(currentMatch.fixture.date);
-                          const formattedDate = format(matchDate, "EEEE, do MMM");
-                          const timeOnly = format(matchDate, "HH:mm");
+                          const elapsed = currentMatch.fixture.status.elapsed;
+                          const homeScore = currentMatch.goals.home ?? 0;
+                          const awayScore = currentMatch.goals.away ?? 0;
 
                           return (
-                            <>
-                              {formattedDate} | {timeOnly}
-                              {currentMatch.fixture.venue?.name
-                                ? ` | ${currentMatch.fixture.venue.name}`
-                                : ""}
-                            </>
+                            <div className="space-y-1">
+                              <div className="text-red-600 text-sm flex items-center justify-center gap-2">
+                                {elapsed && <span className="animate-pulse" style={{animation: 'truePulse 2s infinite ease-in-out'}}> {elapsed}'</span>}
+                              </div>
+                              <div className="text-2xl font-md">
+                                {homeScore} - {awayScore}
+                              </div>
+                            </div>
                           );
-                        } catch (e) {
-                          return currentMatch.fixture.venue?.name || "";
                         }
+
+                        // Ended matches - show final score
+                        if (
+                          matchStatus === "FT" ||
+                          matchStatus === "AET" ||
+                          matchStatus === "PEN"
+                        ) {
+                          const homeScore = currentMatch.goals.home ?? 0;
+                          const awayScore = currentMatch.goals.away ?? 0;
+
+                          return (
+                            <div className="space-y-0">
+                              <div className="text-gray-600 text-sm ">
+                                {matchStatus === "FT"
+                                  ? "Ended"
+                                  : matchStatus === "AET"
+                                    ? "After Extra Time"
+                                    : matchStatus === "PEN"
+                                      ? "After Penalties"
+                                      : "Ended"}
+                              </div>
+                              <div className="text-3xl font-bold">
+                                {homeScore} - {awayScore}
+                              </div>
+                              {/* Show penalty scores if match ended in penalties */}
+                              {matchStatus === "PEN" && currentMatch.score?.penalty && (
+                                <div className="text-sm text-gray-600 mt-1">
+                                  Penalties: {currentMatch.score.penalty.home} - {currentMatch.score.penalty.away}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }
+
+                        // Upcoming matches - show countdown timer if within 8 hours, otherwise date
+                        const upcomingContent = (() => {
+                          // Show countdown timer if available and not empty
+                          if (
+                            countdownTimer &&
+                            countdownTimer !== "" &&
+                            countdownTimer !== "Loading..." &&
+                            countdownTimer !== "--:--:--"
+                          ) {
+                            return countdownTimer;
+                          }
+
+                          // Fallback to date labeling
+                          if (matchDateString === todayString) {
+                            return "Today";
+                          } else if (matchDateString === tomorrowString) {
+                            return "Tomorrow";
+                          } else {
+                            // Calculate days difference for upcoming matches
+                            const daysDiff = Math.ceil(
+                              (matchDate.getTime() - today.getTime()) /
+                                (1000 * 60 * 60 * 24),
+                            );
+
+                            if (daysDiff > 0 && daysDiff <= 7) {
+                              // For matches within a week, show just the number of days
+                              return `${daysDiff} ${daysDiff === 1 ? "Day" : "Days"}`;
+                            } else if (daysDiff > 7) {
+                              // For matches more than a week away, show date
+                              return format(matchDate, "EEEE, MMM d");
+                            } else {
+                              // For past matches that aren't ended (edge case)
+                              return format(matchDate, "EEEE, MMM d");
+                            }
+                          }
+                        })();
+
+                        return (
+                          <div className="space-y-1">
+                            <div className="text-sm text-gray-600 invisible">
+                              {/* Hidden status placeholder to maintain spacing */}
+                              Ended
+                            </div>
+                            <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
+                              {upcomingContent}
+                            </div>
+                          </div>
+                        );
                       })()}
                     </div>
                   </div>
 
-                  {/* Action buttons */}
+                  {/* Teams display using colored bar like FixedScoreboard */}
+                  <div className="relative mt-2">
+                    <div
+                      className="flex relative h-[53px] rounded-md mb-8"
+                      onClick={() =>
+                        navigate(`/match/${currentMatch.fixture.id}`)
+                      }
+                      style={{ cursor: "pointer" }}
+                    >
+                      <div className="w-full h-full flex justify-between relative">
+                        {/* Home team colored bar and logo */}
+
+                        <div
+                          className="h-full w-[calc(50%+20px)] ml-[34px] transition-all duration-500 ease-in-out opacity-100 relative "
+                          style={{
+                            background: getEnhancedTeamColor(
+                              currentMatch?.teams?.home?.name || "Home Team",
+                              true,
+                            ),
+                            transition: "all 0.3s ease-in-out",
+                            clipPath:
+                              "polygon(0 0, 100% 0, 100% 100%, 100% 100%, 100%)",
+                            right: "-15px",
+                          }}
+                        >
+                          {currentMatch?.teams?.home && (
+                            <div
+                              className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
+                              style={{
+                                cursor: "pointer",
+                                top: "calc(50% - 32px)",
+                                left: "-38px",
+                                filter: "contrast(115%) brightness(105%)",
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/match/${currentMatch.fixture.id}`);
+                              }}
+                            >
+                              <MyWorldTeamLogo
+                                teamName={
+                                  currentMatch.teams.home.name || "Home Team"
+                                }
+                                teamLogo={
+                                  currentMatch.teams.home.id
+                                    ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
+                                    : currentMatch.teams.home.logo ||
+                                      "/assets/fallback-logo.svg"
+                                }
+                                alt={
+                                  currentMatch.teams.home.name || "Home Team"
+                                }
+                                size="64px"
+                                className="w-full h-full object-contain"
+                                leagueContext={{
+                                  name: currentMatch.league.name,
+                                  country: currentMatch.league.country,
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        <div
+                          className="absolute text-white uppercase text-center max-w-[160px] truncate md:max-w-[240px] font-sans"
+                          style={{
+                            top: "calc(50% - 13px)",
+                            left: "83px",
+                            fontSize: "1.24rem",
+                            fontWeight: "normal",
+                          }}
+                        >
+                          {currentMatch?.teams?.home?.name || "TBD"}
+                        </div>
+
+                        {/* VS circle */}
+                        <div
+                          className="absolute text-white font-md text-3xl  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
+                          style={{
+                            background: "transparent",
+                            left: "calc(50% - 25px)",
+                            top: "calc(50% - 26px)",
+                            minWidth: "52px",
+                          }}
+                        >
+                          <span className="vs-text font-bold">VS</span>
+                        </div>
+
+                        {/* Match date and venue - centered below VS */}
+                        <div
+                          className=" absolute text-center text-xs text-black font-medium"
+                          style={{
+                            fontSize: "0.875rem",
+                            whiteSpace: "nowrap",
+                            overflow: "visible",
+                            textAlign: "center",
+                            position: "absolute",
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            top: "60px",
+                            bottom: "-15px",
+                            width: "max-content",
+                            fontFamily: "'Inter', system-ui, sans-serif",
+                          }}
+                        >
+                          {(() => {
+                            try {
+                              const matchDate = new Date(
+                                currentMatch.fixture.date,
+                              );
+                              const formattedDate = format(
+                                matchDate,
+                                "EEEE, do MMMM",
+                              );
+                              const timeOnly = format(matchDate, "HH:mm");
+
+                              // Safely get venue with proper fallbacks
+                              let displayVenue = currentMatch.fixture?.venue?.name || null;
+
+                              // Check if venue is missing or has placeholder values
+                              if (
+                                !displayVenue ||
+                                displayVenue === "TBD" ||
+                                displayVenue === "Venue TBA" ||
+                                displayVenue === "" ||
+                                displayVenue === "Unknown"
+                              ) {
+                                displayVenue = null; // No valid venue found
+                              }
+
+                              return (
+                                <>
+                                  {formattedDate} | {timeOnly}
+                                  {displayVenue ? ` | ${displayVenue}` : ""}
+                                </>
+                              );
+                            } catch (e) {
+                              console.warn(
+                                "Error formatting match date/venue:",
+                                e,
+                              );
+                              return "Match details unavailable";
+                            }
+                          })()}
+                        </div>
+
+                        {/* Away team colored bar and logo */}
+                        <div
+                          className="h-full w-[calc(50%+16px)] mr-[35px] transition-all duration-500 ease-in-out opacity-100"
+                          style={{
+                            background: getEnhancedTeamColor(
+                              currentMatch?.teams?.away?.name || "Away Team",
+                              false,
+                            ),
+                            transition: "all 0.3s ease-in-out",
+                            clipPath:
+                              "polygon(15px 0, 100% 0, 100% 100%, 0 100%)",
+                            marginLeft: "-15px",
+                          }}
+                        ></div>
+
+                        <div
+                          className="absolute text-white uppercase text-center max-w-[120px] truncate md:max-w-[200px] font-sans"
+                          style={{
+                            top: "calc(50% - 15px)",
+                            right: "88px",
+                            fontSize: "1.24rem",
+                            fontWeight: "normal",
+                          }}
+                        >
+                          {currentMatch?.teams?.away?.name || "Away Team"}
+                        </div>
+
+                        <div
+                          className="absolute z-20 w-[64px] h-[64px] transition-all duration-300 ease-in-out"
+                          style={{
+                            cursor: "pointer",
+                            top: "calc(50% - 35px)",
+                            right: "55px",
+                            transform: "translateX(50%)",
+                            filter: "contrast(115%) brightness(105%)",
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/match/${currentMatch.fixture.id}`);
+                          }}
+                        >
+                          <MyWorldTeamLogo
+                            teamName={
+                              currentMatch?.teams?.away?.name || "Away Team"
+                            }
+                            teamLogo={
+                              currentMatch.teams.away.id
+                                ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=64`
+                                : currentMatch?.teams?.away?.logo ||
+                                  `/assets/fallback-logo.svg`
+                            }
+                            alt={currentMatch?.teams?.away?.name || "Away Team"}
+                            size="70px"
+                            className="w-full hull object-contain"
+                            leagueContext={{
+                              name: currentMatch.league.name,
+                              country: currentMatch.league.country,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
                   <div className="flex justify-around border-t border-gray-200 pt-4">
                     <button
-                      className="flex flex-col items-center text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                      className="flex flex-col items-center cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/match/${currentMatch?.fixture?.id}`);
+                        navigate(`/match/${currentMatch.fixture.id}`);
                       }}
                     >
                       <svg
-                        width="18"
-                        height="18"
+                        width="20"
+                        height="20"
                         viewBox="0 0 24 24"
-                        className="mb-1"
+                        className="text-blue-500"
                       >
                         <path
                           d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z"
                           fill="currentColor"
                         />
                       </svg>
-                      Match Page
+                      <span className="text-xs text-gray-600 mt-1">
+                        Match Page
+                      </span>
                     </button>
                     <button
-                      className="flex flex-col items-center text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                      className="flex flex-col items-center cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/match/${currentMatch?.fixture?.id}/lineups`);
                       }}
                     >
                       <svg
-                        width="18"
-                        height="18"
+                        width="20"
+                        height="20"
                         viewBox="0 0 24 24"
-                        className="mb-1"
+                        className="text-blue-500"
                       >
                         <path
-                          d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM13 19V5H19V19H13Z"
-                          fill="currentColor"
+                          d="M21.5 4H2.5C2.22386 4 2 4.22386 2 4.5V19.5C2 19.7761 2.22386 20 2.5 20H21.5C21.7761 20 22 19.7761 22 19.5V4.5C22 4.22386 21.7761 4 21.5 4Z"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          fill="none"
+                        />
+                        <path
+                          d="M21.5 9H18.5C18.2239 9 18 9.22386 18 9.5V14.5C18 14.7761 18.2239 15 18.5 15H21.5C21.7761 15 22 14.7761 22 14.5V9.5C22 9.22386 21.7761 9 21.5 9Z"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          fill="none"
+                        />
+                        <path
+                          d="M5.5 9H2.5C2.22386 9 2 9.22386 2 9.5V14.5C2 14.7761 2.22386 15 2.5 15H5.5C5.77614 15 6 14.7761 6 14.5V9.5C6 9.22386 5.77614 9 5.5 9Z"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          fill="none"
                         />
                       </svg>
-                      Lineups
+                      <span className="text-xs text-gray-600 mt-1">
+                        Lineups
+                      </span>
                     </button>
                     <button
-                      className="flex flex-col items-center text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                      className="flex flex-col items-center cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/match/${currentMatch?.fixture?.id}/h2h`);
                       }}
                     >
                       <svg
-                        width="18"
-                        height="18"
+                        width="20"
+                        height="20"
                         viewBox="0 0 24 24"
-                        className="mb-1"
+className="text-blue-500"
                       >
                         <path
-                          d="M14.06 9.02L16.66 11.62L14.06 14.22L15.48 15.64L18.08 13.04L20.68 15.64L19.26 17.06L21.86 19.66L20.44 21.08L17.84 18.48L15.24 21.08L13.82 19.66L16.42 17.06L15.06 15.64L12.46 13.04L15.06 10.44L13.64 9.02L11.04 11.62L8.44 9.02L9.86 7.6L7.26 5L4.66 7.6L6.08 9.02L3.48 11.62L6.08 14.22L4.66 15.64L2.06 13.04L4.66 10.44L6.08 9.02L3.48 6.42L4.9 5L7.5 7.6L10.1 5L11.52 6.42L8.92 9.02L11.52 11.62L14.06 9.02M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 2 12Z"
+                          d="M12 2C6.486 2 2 6.486 2 12C2 17.514 6.486 22 12 22C17.514 22 22 17.514 22 12C22 6.486 17.514 2 12 2ZM19.931 11H13V4.069C14.7598 4.29335 16.3953 5.09574 17.6498 6.3502C18.9043 7.60466 19.7066 9.24017 19.931 11ZM4 12C4 7.928 7.061 4.564 11 4.069V12C11.003 12.1526 11.0409 12.3024 11.111 12.438C11.126 12.468 11.133 12.501 11.152 12.531L15.354 19.254C14.3038 19.7442 13.159 19.9988 12 20C7.589 20 4 16.411 4 12ZM17.052 18.196L13.805 13H19.931C19.6746 15.0376 18.6436 16.8982 17.052 18.196Z"
                           fill="currentColor"
                         />
                       </svg>
-                      H2H
+                      <span className="text-xs text-gray-600 mt-1">Stats</span>
                     </button>
                     <button
-                      className="flex flex-col items-center text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                      className="flex flex-col items-center cursor-pointer"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/match/${currentMatch?.fixture?.id}/standings`);
+                        navigate(`/league/${currentMatch.league.id}/standings`);
                       }}
                     >
                       <svg
-                        width="18"
-                        height="18"
+                        width="20"
+                        height="20"
                         viewBox="0 0 24 24"
-                        className="mb-1"
+                        className="text-blue-500"
                       >
                         <path
-                          d="M12 4C11.17 4 10.36 4.16 9.59 4.47L7.75 6.32L16.68 15.25L18.53 13.4C18.84 12.64 19 11.83 19 11C19 7.13 15.87 4 12 4M5.24 8.66L6.66 7.24L7.93 8.51C8.74 8.2 9.56 8 10.4 7.83L12.24 5.96L3.31 14.89L5.24 8.66M13.6 16.6L5.33 21.88C5.72 22.4 6.29 22.88 6.93 23.17L8.77 21.33L16.36 13.74L13.6 16.6M15.25 17.75L13.4 19.6C12.64 19.84 11.83 20 11 20C7.13 20 4 16.87 4 13C4 12.17 4.16 11.36 4.47 10.59L6.32 8.75L15.25 17.75Z"
+                          d="M4 6H6V8H4V6ZM4 11H6V13H4V11ZM4 16H6V18H4V16ZM20 8V6H8.023V8H18.8H20ZM8 11H20V13H8V11ZM8 16H20V18H8V16Z"
                           fill="currentColor"
                         />
                       </svg>
-                      Standings
+                      <span className="text-xs text-gray-600 mt-1">Groups</span>
                     </button>
                   </div>
+
+                  {/* Slide indicators */}
+                  {allMatches.length > 1 && (
+                    <div className="flex justify-center mt-4 gap-1">
+                      {allMatches.map((_, index) => (
+                        <button
+                          key={index}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCurrentMatchIndex(index);
+                          }}
+                          className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                            index === currentMatchIndex
+                              ? "bg-blue-500"
+                              : "bg-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
-
-            {/* Navigation dots */}
-            {allMatches.length > 1 && (
-              <div className="flex justify-center gap-2 mt-4">
-                {allMatches.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentMatchIndex(index)}
-                    className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
-                      index === currentMatchIndex ? "bg-gray-900" : "bg-gray-300"
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
-              </div>
-            )}
           </div>
         )}
       </CardContent>
     </Card>
+    <FixedScoreboard />
     </>
   );
-};
-
-// Helper function to get match status label - matches FixedScoreboard implementation
-const getMatchStatusLabel = (match: any) => {
-  const status = match?.fixture?.status?.short;
-  
-  if (status === "FT") return "FINISHED";
-  if (status === "1H" || status === "2H") return `${match?.fixture?.status?.elapsed || 0}'`;
-  if (status === "HT") return "HALF TIME";
-  if (status === "NS") return "NOT STARTED";
-  if (status === "PST") return "POSTPONED";
-  if (status === "CANC") return "CANCELLED";
-  
-  return status || "UNKNOWN";
 };
 
 export default MyHomeFeaturedMatchNew;
