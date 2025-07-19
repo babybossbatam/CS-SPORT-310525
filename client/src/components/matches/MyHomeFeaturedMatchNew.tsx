@@ -812,7 +812,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           logo: fixture.teams.home.logo,
                         },
                         away: {
-                     
+
 id: fixture.teams.away.id,
                           name: fixture.teams.away.name,
                           logo: fixture.teams.away.logo,
@@ -1651,22 +1651,47 @@ id: fixture.teams.away.id,
                           return "Matchday";
                         }
 
-                        // Default: return cleaned up round info if it doesn't match patterns
+                        // Enhanced Club friendlies handling with proper bracket status
                         if (
-                          round &&
-                          round.length > 0 &&
-                          round !== "TBD" &&
-                          round !== "N/A"
+                          lowerLeague.includes("club friendlies") ||
+                          lowerLeague.includes("friendlies clubs") ||
+                          (lowerLeague.includes("friendlies") && !lowerLeague.includes("international") && !lowerLeague.includes("women"))
                         ) {
-                          // Capitalize first letter of each word
-                          return round
-                            .split(" ")
-                            .map(
-                              (word) =>
-                                word.charAt(0).toUpperCase() +
-                                word.slice(1).toLowerCase(),
-                            )
-                            .join(" ");
+                          // Check for specific round patterns in friendlies
+                          if (normalizedRound.includes("club friendlies 1") || normalizedRound.includes("pre season")) {
+                            return "Pre-Season Friendlies";
+                          }
+                          if (normalizedRound.includes("club friendlies 2") || normalizedRound.includes("mid season")) {
+                            return "Mid-Season Friendlies";
+                          }
+                          if (normalizedRound.includes("club friendlies 3") || normalizedRound.includes("winter")) {
+                            return "Winter Friendlies";
+                          }
+                          if (normalizedRound.includes("club friendlies 4") || normalizedRound.includes("summer")) {
+                            return "Summer Friendlies";
+                          }
+                          if (normalizedRound.includes("club friendlies 5") || normalizedRound.includes("post season")) {
+                            return "Post-Season Friendlies";
+                          }
+
+                          // If no specific round info, determine by timing
+                          const teamProfiles = analyzeTeamProfile(teamNames);
+                          if (teamProfiles.bigClubProfile >= 1) {
+                            // Use timing to infer friendly type
+                            const currentDate = new Date();
+                            const month = currentDate.getMonth() + 1; // 1-12
+
+                            if (month >= 6 && month <= 8) {
+                              return "Summer Friendlies";
+                            } else if (month >= 12 || month <= 2) {
+                              return "Winter Friendlies";
+                            } else if (month >= 3 && month <= 5) {
+                              return "Pre-Season Friendlies";
+                            } else {
+                              return "Club Friendlies";
+                            }
+                          }
+                          return null; // Don't show non-popular team friendlies
                         }
 
                         return null;
@@ -1867,12 +1892,29 @@ id: fixture.teams.away.id,
                           return "Final";
                         }
 
-                        // Club friendlies - only for popular teams
+                        // Enhanced Club friendlies handling with proper bracket status
                         if (
                           lowerLeague.includes("club friendlies") ||
-                          lowerLeague.includes("friendlies") ||
-                          (lowerLeague.includes("friendly") && !lowerLeague.includes("international"))
+                          lowerLeague.includes("friendlies clubs") ||
+                          (lowerLeague.includes("friendlies") && !lowerLeague.includes("international"))
                         ) {
+                          // Check for specific round patterns in friendlies
+                          if (normalizedRound.includes("club friendlies 1") || normalizedRound.includes("pre season")) {
+                            return "Pre-Season Friendlies";
+                          }
+                          if (normalizedRound.includes("club friendlies 2") || normalizedRound.includes("mid season")) {
+                            return "Mid-Season Friendlies";
+                          }
+                          if (normalizedRound.includes("club friendlies 3") || normalizedRound.includes("winter")) {
+                            return "Winter Friendlies";
+                          }
+                          if (normalizedRound.includes("club friendlies 4") || normalizedRound.includes("summer")) {
+                            return "Summer Friendlies";
+                          }
+                          if (normalizedRound.includes("club friendlies 5") || normalizedRound.includes("post season")) {
+                            return "Post-Season Friendlies";
+                          }
+
                           const teamProfiles = analyzeTeamProfile(teamNames);
                           // Only show friendlies if at least one team is a big club
                           if (teamProfiles.bigClubProfile >= 1) {
@@ -2008,6 +2050,31 @@ id: fixture.teams.away.id,
 
                           // Knockout stage patterns
                           if (normalizedRound.includes("knockout")) return "Knockout Stage";
+
+                          // Enhanced Club friendlies handling with proper bracket status
+                          if (
+                            lowerLeague.includes("club friendlies") ||
+                            lowerLeague.includes("friendlies clubs") ||
+                            (lowerLeague.includes("friendlies") && !lowerLeague.includes("international"))
+                          ) {
+                            // Check for specific round patterns in friendlies
+                            if (normalizedRound.includes("club friendlies 1") || normalizedRound.includes("pre season")) {
+                              return "Pre-Season Friendlies";
+                            }
+                            if (normalizedRound.includes("club friendlies 2") || normalizedRound.includes("mid season")) {
+                              return "Mid-Season Friendlies";
+                            }
+                            if (normalizedRound.includes("club friendlies 3") || normalizedRound.includes("winter")) {
+                              return "Winter Friendlies";
+                            }
+                            if (normalizedRound.includes("club friendlies 4") || normalizedRound.includes("summer")) {
+                              return "Summer Friendlies";
+                            }
+                            if (normalizedRound.includes("club friendlies 5") || normalizedRound.includes("post season")) {
+                              return "Post-Season Friendlies";
+                            }
+                            return "Club Friendlies";
+                          }
 
                           // Default: return cleaned up round info if it doesn't match patterns
                           if (round && round.length > 0 && round !== "TBD" && round !== "N/A") {
@@ -2470,7 +2537,7 @@ id: fixture.teams.away.id,
                         width="20"
                         height="20"
                         viewBox="0 0 24 24"
-className="text-blue-500"
+                        className="text-blue-500"
                       >
                         <path
                           d="M12 2C6.486 2 2 6.486 2 12C2 17.514 6.486 22 12 22C17.514 22 22 17.514 22 12C22 6.486 17.514 2 12 2ZM19.931 11H13V4.069C14.7598 4.29335 16.3953 5.09574 17.6498 6.3502C18.9043 7.60466 19.7066 9.24017 19.931 11ZM4 12C4 7.928 7.061 4.564 11 4.069V12C11.003 12.1526 11.0409 12.3024 11.111 12.438C11.126 12.468 11.133 12.501 11.152 12.531L15.354 19.254C14.3038 19.7442 13.159 19.9988 12 20C7.589 20 4 16.411 4 12ZM17.052 18.196L13.805 13H19.931C19.6746 15.0376 18.6436 16.8982 17.052 18.196Z"
