@@ -1,7 +1,5 @@
-Modified MyHomeFeaturedMatchNew.tsx to require both teams to be popular for friendlies to be included.
-```
 
-```tsx
+
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
