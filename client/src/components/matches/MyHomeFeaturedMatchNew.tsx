@@ -812,7 +812,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           logo: fixture.teams.home.logo,
                         },
                         away: {
-                          ```text
+                     
 id: fixture.teams.away.id,
                           name: fixture.teams.away.name,
                           logo: fixture.teams.away.logo,
