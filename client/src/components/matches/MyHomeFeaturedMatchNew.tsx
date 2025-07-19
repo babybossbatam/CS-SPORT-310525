@@ -39,7 +39,7 @@ const POPULAR_TEAMS_DATA = [
   { id: 492, name: 'Inter', country: 'Italy' },
   { id: 496, name: 'Juventus', country: 'Italy' },
   { id: 165, name: 'Borussia Dortmund', country: 'Germany' },
-  { id: 173, name: 'RB Leipzig', country: 'Germany' },
+ 
   { id: 168, name: 'Bayer Leverkusen', country: 'Germany' },
   { id: 81, name: 'PSG', country: 'France' },
   { id: 85, name: 'Lyon', country: 'France' },
@@ -58,8 +58,7 @@ const POPULAR_TEAMS_DATA = [
   { id: 502, name: 'Napoli', country: 'Italy' },
   { id: 500, name: 'AS Roma', country: 'Italy' },
   { id: 505, name: 'Lazio', country: 'Italy' },
-  { id: 192, name: 'Union Berlin', country: 'Germany' },
-  { id: 169, name: 'Eintracht Frankfurt', country: 'Germany' },
+
   // Popular reserve/academy teams
   { id: 1859, name: 'Bayern München II', country: 'Germany' },
   { id: 1860, name: 'Borussia Dortmund II', country: 'Germany' },
@@ -1695,23 +1694,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                           teams.forEach((teamName) => {
                             const lowerName = teamName.toLowerCase();
-
-                            // Small/qualifying club indicators
-                            if (
-                              lowerName.includes("žalgiris") ||
-                              lowerName.includes("penybont") ||
-                              lowerName.includes("celje") ||
-                              lowerName.includes("sabah") ||
-                              lowerName.includes("panevežys") ||
-                              lowerName.includes("vikingur") ||
-                              lowerName.includes("paks") ||
-                              lowerName.includes("ballkani") ||
-                              lowerName.includes("hajduk") ||
-                              lowerName.includes("zrinjski")
-                            ) {
-                              profiles.qualifyingProfile += 2;
-                              profiles.smallClubProfile += 1;
-                            }
 
                             // Big club indicators (expanded list for popular teams)
                             if (
