@@ -707,7 +707,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                             {/* Enhanced Goal Header with Animation */}
                             <div className="flex items-center gap-2 -ml-3 -mt-1 py-2 px-3 rounded-lg text-xs font-medium bg-gradient-to-r from-green-50 to-blue-50 border border-green-200">
                               {(() => {
-                                const detail = event.detail?.toLowerCase() || "";
+                                const detail =
+                                  event.detail?.toLowerCase() || "";
                                 if (detail.includes("penalty")) {
                                   if (detail.includes("missed")) {
                                     return (
@@ -742,7 +743,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       <img
                                         src="/assets/matchdetaillogo/soccer-logo.svg"
                                         alt="Own Goal"
-                                        className="w-5 h-5 opacity-90 flex-shrink-0 animate-pulse"
+                                        className="w-4 h-4 opacity-90 flex-shrink-0 animate-pulse"
                                       />
                                       <span className="text-orange-600 font-bold uppercase text-xs tracking-wider">
                                         Own Goal 😬
@@ -755,30 +756,31 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       <img
                                         src="/assets/matchdetaillogo/blue ball.svg"
                                         alt="Goal"
-                                        className="w-5 h-5 opacity-90 flex-shrink-0 animate-bounce"
+                                        className="w-4 h-4 opacity-90 flex-shrink-50 animate-pulse"
                                       />
-                                      <span className="text-blue-600 font-bold uppercase text-xs tracking-wider">
-                                        Goal! ⚽
-                                      </span>
+                                      <span >
+                                      <span className="text-lg font-bold text-green-700">
+                                        {(() => {
+                                          const scoreAfterGoal = calculateScoreAtTime(
+                                            event.time.elapsed +
+                                              (event.time.extra || 0),
+                                          );
+                                          return `${scoreAfterGoal.homeScore} - ${scoreAfterGoal.awayScore}`;
+                                        })()}
+                                      </span></span>
                                     </>
                                   );
                                 }
                               })()}
                               <div className="ml-auto flex items-center gap-2">
-                                <span className="text-lg font-bold text-green-700">
-                                  {(() => {
-                                    const scoreAfterGoal = calculateScoreAtTime(
-                                      event.time.elapsed + (event.time.extra || 0),
-                                    );
-                                    return `${scoreAfterGoal.homeScore} - ${scoreAfterGoal.awayScore}`;
-                                  })()}
-                                </span>
+                               
                                 <img
-                                  src={`/api/team-logo/square/${event.team?.id || 'fallback'}?size=24`}
+                                  src={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
                                   alt={event.team?.name}
-                                  className="w-6 h-6 rounded-sm border border-gray-200"
+                                  className="w-4 h-4 rounded-sm border border-gray-200"
                                   onError={(e) => {
-                                    e.currentTarget.src = "/assets/fallback-logo.svg";
+                                    e.currentTarget.src =
+                                      "/assets/fallback-logo.svg";
                                   }}
                                 />
                               </div>
@@ -786,7 +788,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                             {/* Enhanced Player Section */}
                             <div className="flex flex-col gap-3">
-                              <div className="flex items-center gap-2 -ml-3 py-2 px-3 rounded-md text-xs font-medium bg-gradient-to-r from-gray-50 to-gray-100 border-l-4 border-blue-500">
+                              <div className="flex items-center gap-2 -ml-3   rounded-md text-xs font-medium bg-stone-200  ">
                                 <MyAvatarInfo
                                   playerId={event.player?.id}
                                   playerName={event.player?.name}
@@ -803,24 +805,40 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 </div>
                                 <div className="ml-auto">
                                   {(() => {
-                                    const detail = event.detail?.toLowerCase() || "";
+                                    const detail =
+                                      event.detail?.toLowerCase() || "";
                                     if (detail.includes("penalty")) {
-                                      return <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Penalty</span>;
+                                      return (
+                                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                                          Penalty
+                                        </span>
+                                      );
                                     } else if (detail.includes("own goal")) {
-                                      return <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">Own Goal</span>;
+                                      return (
+                                        <span className="text-xs ">
+                                          Own Goal
+                                        </span>
+                                      );
                                     } else {
-                                      return <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Goal</span>;
+                                      return (
+                                        
+                                          Goal
+                                        
+                                      );
                                     }
                                   })()}
                                 </div>
                               </div>
 
                               {/* Enhanced Commentary Description */}
-                              <div className="text-sm text-gray-700 leading-relaxed -ml-3 bg-blue-50 p-3 rounded-md border-l-4 border-blue-300">
+                              <div className="text-sm text-gray-700 leading-relaxed -ml-3   ">
                                 {(() => {
-                                  const detail = event.detail?.toLowerCase() || "";
-                                  const playerName = event.player?.name || "Unknown Player";
-                                  const teamName = event.team?.name || "Unknown Team";
+                                  const detail =
+                                    event.detail?.toLowerCase() || "";
+                                  const playerName =
+                                    event.player?.name || "Unknown Player";
+                                  const teamName =
+                                    event.team?.name || "Unknown Team";
 
                                   if (detail.includes("penalty")) {
                                     if (detail.includes("missed")) {
@@ -835,9 +853,16 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       `🔥 What a strike from ${playerName}! The ball flies into the net with precision and power!`,
                                       `⚡ ${playerName} finds the perfect moment to strike! A brilliant finish that sends the crowd wild!`,
                                       `🎯 ${playerName} shows excellent composure in front of goal! A clinical finish that makes all the difference!`,
-                                      `💫 Magical moment from ${playerName}! The ball nestles beautifully into the corner of the net!`
+                                      `💫 Magical moment from ${playerName}! The ball nestles beautifully into the corner of the net!`,
                                     ];
-                                    return goalCelebrations[Math.floor(Math.random() * goalCelebrations.length)] + ` ${teamName} are celebrating!`;
+                                    return (
+                                      goalCelebrations[
+                                        Math.floor(
+                                          Math.random() *
+                                            goalCelebrations.length,
+                                        )
+                                      ] + ` ${teamName} are celebrating!`
+                                    );
                                   }
                                 })()}
                               </div>
@@ -877,7 +902,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                   </div>
 
                                   <div className="text-sm text-indigo-700 leading-relaxed -ml-3 bg-indigo-50 p-3 rounded-md border-l-4 border-indigo-300">
-                                    🎨 Brilliant setup from {event.assist.name}! The vision and execution to create this scoring opportunity was absolutely perfect. Great teamwork between {event.assist.name} and {event.player?.name || "the goalscorer"}!
+                                    🎨 Brilliant setup from {event.assist.name}!
+                                    The vision and execution to create this
+                                    scoring opportunity was absolutely perfect.
+                                    Great teamwork between {event.assist.name}{" "}
+                                    and {event.player?.name || "the goalscorer"}
+                                    !
                                   </div>
                                 </>
                               )}
