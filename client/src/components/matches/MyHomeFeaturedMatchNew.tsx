@@ -397,14 +397,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       fixture.fixture.status.short,
                     );
 
-                    // Exclude women's competitions
+                    // Exclude women's competitions and Oberliga leagues
                     const leagueName = fixture.league?.name?.toLowerCase() || "";
+                    const country = fixture.league?.country?.toLowerCase() || "";
+
+                    // Exclude women's competitions
                     const isWomensCompetition = leagueName.includes("women") || 
                       leagueName.includes("femenina") || 
                       leagueName.includes("feminine") ||
                       leagueName.includes("feminin");
 
-                    const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition;
+                    // Exclude Oberliga leagues (German regional leagues)
+                    const isOberligaLeague = leagueName.includes("oberliga");
+
+                    const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isOberligaLeague;
 
                     if (shouldInclude) {
                       console.log(
@@ -420,6 +426,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     } else if (isWomensCompetition) {
                       console.log(
                         `❌ [MyHomeFeaturedMatchNew] Excluding women's competition:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isOberligaLeague) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Oberliga league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -605,11 +619,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const leagueName = fixture.league?.name?.toLowerCase() || "";
                     const country = fixture.league?.country?.toLowerCase() || "";
 
-                    // Exclude women's competitions
+                    // Exclude women's competitions and Oberliga leagues
                     const isWomensCompetition = leagueName.includes("women") || 
                       leagueName.includes("femenina") || 
                       leagueName.includes("feminine") ||
                       leagueName.includes("feminin");
+
+                    // Exclude Oberliga leagues (German regional leagues)
+                    const isOberligaLeague = leagueName.includes("oberliga");
 
                     // Check if it's a popular league or from a popular country
                     const isPopularLeague = POPULAR_LEAGUES.some(
@@ -714,7 +731,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       isPopularClubFriendly()) &&
                       !isPriorityLeague &&
                       isNotLive &&
-                      !isWomensCompetition
+                      !isWomensCompetition &&
+                      !isOberligaLeague
                     );
                   })
                   .map((fixture: any) => ({
@@ -784,14 +802,21 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           existing.fixture.id === fixture.fixture.id,
                       );
 
-                      // Exclude women's competitions
-                      const leagueName = fixture.league?.name?.toLowerCase() || "";
-                      const isWomensCompetition = leagueName.includes("women") || 
-                        leagueName.includes("femenina") || 
-                        leagueName.includes("feminine") ||
-                        leagueName.includes("feminin");
+                    // Exclude women's competitions and Oberliga leagues
+                    const leagueName = fixture.league?.name?.toLowerCase() || "";
+                    const country = fixture.league?.country?.toLowerCase() || "";
 
-                      return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition;
+                    // Exclude women's competitions
+                    const isWomensCompetition = leagueName.includes("women") || 
+                      leagueName.includes("femenina") || 
+                      leagueName.includes```text
+("feminine") ||
+                      leagueName.includes("feminin");
+
+                    // Exclude Oberliga leagues (German regional leagues)
+                    const isOberligaLeague = leagueName.includes("oberliga");
+
+                      return hasValidTeams && isNotLive && isNotDuplicate && !isWomensCompetition && !isOberligaLeague;
                     })
                     .slice(0, 5) // Limit to prevent overwhelming
                     .map((fixture: any) => ({
@@ -848,7 +873,7 @@ id: fixture.teams.away.id,
           `📋 [MyHomeFeaturedMatchNew] Total unique fixtures found:`,
           uniqueFixtures.length,
         );
-        
+
         // Enhanced debug logging with league IDs
         const fixtureDetails = uniqueFixtures.map((f) => ({
           id: f.fixture.id,
@@ -859,14 +884,14 @@ id: fixture.teams.away.id,
           status: f.fixture.status.short,
           date: f.fixture.date,
         }));
-        
+
         console.log(`📋 [MyHomeFeaturedMatchNew] Fixture details with League IDs:`, fixtureDetails);
-        
+
         // Special debug for Oberliga leagues
         const oberligaMatches = uniqueFixtures.filter(f => 
           f.league.name?.toLowerCase().includes('oberliga')
         );
-        
+
         if (oberligaMatches.length > 0) {
           console.log(`🎯 [OBERLIGA LEAGUES FOUND] Count: ${oberligaMatches.length}`);
           oberligaMatches.forEach(match => {
@@ -879,13 +904,13 @@ id: fixture.teams.away.id,
             });
           });
         }
-        
+
         // Special debug for Bayern Süd
         const bayernSudMatches = uniqueFixtures.filter(f => 
           f.league.name?.toLowerCase().includes('bayern') && 
           f.league.name?.toLowerCase().includes('süd')
         );
-        
+
         if (bayernSudMatches.length > 0) {
           console.log(`🏰 [BAYERN SÜD LEAGUES FOUND] Count: ${bayernSudMatches.length}`);
           bayernSudMatches.forEach(match => {
@@ -1526,7 +1551,7 @@ id: fixture.teams.away.id,
                       awayTeam: currentMatch.teams.away.name,
                       fixtureStatus: currentMatch.fixture.status.short
                     });
-                    
+
                     // Special debug for Oberliga leagues
                     if (currentMatch.league.name?.toLowerCase().includes('oberliga')) {
                       console.log(`🎯 [OBERLIGA DEBUG] Found Oberliga league:`, {
@@ -1536,7 +1561,7 @@ id: fixture.teams.away.id,
                         COUNTRY: currentMatch.league.country
                       });
                     }
-                    
+
                     // Special debug for Bayern Süd
                     if (currentMatch.league.name?.toLowerCase().includes('bayern') || 
                         currentMatch.league.name?.toLowerCase().includes('süd')) {
@@ -1546,7 +1571,7 @@ id: fixture.teams.away.id,
                         MATCH_DETAILS: `${currentMatch.teams.home.name} vs ${currentMatch.teams.away.name}`
                       });
                     }
-                    
+
                     navigate(`/match/${currentMatch.fixture.id}`);
                   }}
                 >
