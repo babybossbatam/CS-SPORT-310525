@@ -454,8 +454,54 @@
   width: 100%;
   margin-bottom: 8px;
   border-radius: 8px;
-  transition: all 0.2s ease;
-  
+  transition: all 0.3s ease;
+  animation: commentaryFadeIn 0.6s ease-out;
+}
+
+.commentary-event-container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Goal event animations */
+.goal-celebration {
+  animation: goalPulse 2s ease-in-out infinite;
+}
+
+.penalty-excitement {
+  animation: penaltyShake 0.5s ease-in-out;
+}
+
+@keyframes commentaryFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes goalPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes penaltyShake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
 }
 
 /* Commentary text styling - consistent text-xs (12px) font size */

@@ -701,119 +701,186 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       </div>
 
                       {/* Content Column */}
-                      <div className="flex-1">
-                        {event.type === "Goal" ? (
-                          <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-1 -ml-3 -mt-1 py-1 rounded-md text-xs font-medium">
+                      {event.type === "Goal" ? (
+                          <div className="flex flex-col gap-3">
+                            {/* Enhanced Goal Header with Animation */}
+                            <div className="flex items-center gap-2 -ml-3 -mt-1 py-2 px-3 rounded-lg text-xs font-medium bg-gradient-to-r from-green-50 to-blue-50 border border-green-200">
                               {(() => {
-                                const detail =
-                                  event.detail?.toLowerCase() || "";
+                                const detail = event.detail?.toLowerCase() || "";
                                 if (detail.includes("penalty")) {
                                   if (detail.includes("missed")) {
                                     return (
-                                      <img
-                                        src="/assets/matchdetaillogo/missed-penalty.svg"
-                                        alt="Missed Penalty"
-                                        className="w-4 h-4 opacity-80 flex-shrink-0"
-                                      />
+                                      <>
+                                        <img
+                                          src="/assets/matchdetaillogo/missed-penalty.svg"
+                                          alt="Missed Penalty"
+                                          className="w-5 h-5 opacity-90 flex-shrink-0 animate-pulse"
+                                        />
+                                        <span className="text-red-600 font-bold uppercase text-xs tracking-wider">
+                                          Penalty Missed!
+                                        </span>
+                                      </>
                                     );
                                   } else {
                                     return (
-                                      <img
-                                        src="/assets/matchdetaillogo/penalty.svg"
-                                        alt="Penalty Goal"
-                                        className="w-4 h-4 opacity-80 flex-shrink-0"
-                                      />
+                                      <>
+                                        <img
+                                          src="/assets/matchdetaillogo/penalty.svg"
+                                          alt="Penalty Goal"
+                                          className="w-5 h-5 opacity-90 flex-shrink-0 animate-bounce"
+                                        />
+                                        <span className="text-green-600 font-bold uppercase text-xs tracking-wider">
+                                          Penalty Goal! 🥅
+                                        </span>
+                                      </>
                                     );
                                   }
                                 } else if (detail.includes("own goal")) {
                                   return (
-                                    <img
-                                      src="/assets/matchdetaillogo/soccer-logo.svg"
-                                      alt="Own Goal"
-                                      className="w-4 h-4 opacity-80 flex-shrink-0"
-                                    />
+                                    <>
+                                      <img
+                                        src="/assets/matchdetaillogo/soccer-logo.svg"
+                                        alt="Own Goal"
+                                        className="w-5 h-5 opacity-90 flex-shrink-0 animate-pulse"
+                                      />
+                                      <span className="text-orange-600 font-bold uppercase text-xs tracking-wider">
+                                        Own Goal 😬
+                                      </span>
+                                    </>
                                   );
                                 } else {
                                   return (
-                                    <img
-                                      src="/assets/matchdetaillogo/blue ball.svg"
-                                      alt="Goal"
-                                      className="w-4 h-4 opacity-80 flex-shrink-0"
-                                    />
+                                    <>
+                                      <img
+                                        src="/assets/matchdetaillogo/blue ball.svg"
+                                        alt="Goal"
+                                        className="w-5 h-5 opacity-90 flex-shrink-0 animate-bounce"
+                                      />
+                                      <span className="text-blue-600 font-bold uppercase text-xs tracking-wider">
+                                        Goal! ⚽
+                                      </span>
+                                    </>
                                   );
                                 }
                               })()}
-                              <span className="flex-1">
-                                Score:{" "}
-                                {(() => {
-                                  // Calculate score including this goal event
-                                  const scoreAfterGoal = calculateScoreAtTime(
-                                    event.time.elapsed +
-                                      (event.time.extra || 0),
-                                  );
-                                  return `${scoreAfterGoal.homeScore} - ${scoreAfterGoal.awayScore}`;
-                                })()}
-                              </span>
-                              {/* Team logo of the team that scored */}
-                              <div className="flex items-center gap-1 ml-2">
+                              <div className="ml-auto flex items-center gap-2">
+                                <span className="text-lg font-bold text-green-700">
+                                  {(() => {
+                                    const scoreAfterGoal = calculateScoreAtTime(
+                                      event.time.elapsed + (event.time.extra || 0),
+                                    );
+                                    return `${scoreAfterGoal.homeScore} - ${scoreAfterGoal.awayScore}`;
+                                  })()}
+                                </span>
                                 <img
-                                  src={`/api/team-logo/square/${event.team?.id || 'fallback'}?size=20`}
+                                  src={`/api/team-logo/square/${event.team?.id || 'fallback'}?size=24`}
                                   alt={event.team?.name}
-                                  className="w-6 h-6 rounded-sm"
+                                  className="w-6 h-6 rounded-sm border border-gray-200"
                                   onError={(e) => {
                                     e.currentTarget.src = "/assets/fallback-logo.svg";
                                   }}
                                 />
                               </div>
                             </div>
-                            <div className="flex flex-col gap-2">
-                              <div className="flex items-center gap-2 -ml-3   text-xs font-medium bg-stone-200">
+
+                            {/* Enhanced Player Section */}
+                            <div className="flex flex-col gap-3">
+                              <div className="flex items-center gap-2 -ml-3 py-2 px-3 rounded-md text-xs font-medium bg-gradient-to-r from-gray-50 to-gray-100 border-l-4 border-blue-500">
                                 <MyAvatarInfo
                                   playerId={event.player?.id}
                                   playerName={event.player?.name}
                                   size="md-commentary"
-                                  className="border-2 shadow-sm flex-shrink-0"
+                                  className="border-2 border-blue-400 shadow-lg flex-shrink-0"
                                 />
-                                <span className="text-gray-700 font-medium -ml-1">
-                                  {event.player?.name || "Unknown Player"}
-                                </span>
+                                <div className="flex flex-col">
+                                  <span className="text-gray-800 font-bold text-sm">
+                                    {event.player?.name || "Unknown Player"}
+                                  </span>
+                                  <span className="text-gray-500 text-xs">
+                                    {event.team?.name}
+                                  </span>
+                                </div>
+                                <div className="ml-auto">
+                                  {(() => {
+                                    const detail = event.detail?.toLowerCase() || "";
+                                    if (detail.includes("penalty")) {
+                                      return <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Penalty</span>;
+                                    } else if (detail.includes("own goal")) {
+                                      return <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">Own Goal</span>;
+                                    } else {
+                                      return <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Goal</span>;
+                                    }
+                                  })()}
+                                </div>
                               </div>
-                              <div className="text-xs  text-gray-900 leading-relaxed -ml-3">
-                                {eventDescription}
+
+                              {/* Enhanced Commentary Description */}
+                              <div className="text-sm text-gray-700 leading-relaxed -ml-3 bg-blue-50 p-3 rounded-md border-l-4 border-blue-300">
+                                {(() => {
+                                  const detail = event.detail?.toLowerCase() || "";
+                                  const playerName = event.player?.name || "Unknown Player";
+                                  const teamName = event.team?.name || "Unknown Team";
+
+                                  if (detail.includes("penalty")) {
+                                    if (detail.includes("missed")) {
+                                      return `💔 ${playerName} steps up to the penalty spot but fails to convert! The goalkeeper makes a crucial save or the ball goes wide. What a missed opportunity for ${teamName}!`;
+                                    } else {
+                                      return `🎯 ${playerName} confidently steps up to take the penalty and finds the back of the net! Cool, calm, and collected from the spot. ${teamName} capitalize on their chance!`;
+                                    }
+                                  } else if (detail.includes("own goal")) {
+                                    return `😬 Unfortunately for ${playerName} and ${teamName}, this one goes into their own net! Sometimes these things happen in football - a moment of misfortune that changes the game.`;
+                                  } else {
+                                    const goalCelebrations = [
+                                      `🔥 What a strike from ${playerName}! The ball flies into the net with precision and power!`,
+                                      `⚡ ${playerName} finds the perfect moment to strike! A brilliant finish that sends the crowd wild!`,
+                                      `🎯 ${playerName} shows excellent composure in front of goal! A clinical finish that makes all the difference!`,
+                                      `💫 Magical moment from ${playerName}! The ball nestles beautifully into the corner of the net!`
+                                    ];
+                                    return goalCelebrations[Math.floor(Math.random() * goalCelebrations.length)] + ` ${teamName} are celebrating!`;
+                                  }
+                                })()}
                               </div>
-                              {/* Assist section - only show if assist data exists */}
+
+                              {/* Enhanced Assist section */}
                               {event.assist?.name && (
                                 <>
-                                  <div className="flex items-center gap-2 -ml-3 text-xs font-medium">
+                                  <div className="flex items-center gap-2 -ml-3 text-xs font-medium py-1">
                                     <img
                                       src="/assets/matchdetaillogo/assist.svg"
                                       alt="Assist"
                                       className="w-4 h-4 opacity-80 flex-shrink-0"
                                     />
-                                    <span className="text-black-400 font-medium">Assist</span>
+                                    <span className="text-blue-600 font-bold uppercase text-xs tracking-wider">
+                                      Assist Provider 🎯
+                                    </span>
                                   </div>
 
-                                  <div className="flex items-center gap-2 -ml-3 text-xs font-medium bg-stone-200">
+                                  <div className="flex items-center gap-2 -ml-3 py-2 px-3 rounded-md text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-indigo-400">
                                     <MyAvatarInfo
                                       playerId={event.assist?.id}
                                       playerName={event.assist?.name}
                                       size="md-commentary"
-                                      className="border-2 border-blue-400 shadow-sm flex-shrink-0"
+                                      className="border-2 border-indigo-400 shadow-lg flex-shrink-0"
                                     />
-                                    <span className="text-blue-700 font-medium -ml-1">
-                                      {event.assist.name}
-                                    </span>  
+                                    <div className="flex flex-col">
+                                      <span className="text-indigo-700 font-bold text-sm">
+                                        {event.assist.name}
+                                      </span>
+                                      <span className="text-indigo-500 text-xs">
+                                        Perfect setup play
+                                      </span>
+                                    </div>
+                                    <span className="ml-auto text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">
+                                      Assist
+                                    </span>
+                                  </div>
+
+                                  <div className="text-sm text-indigo-700 leading-relaxed -ml-3 bg-indigo-50 p-3 rounded-md border-l-4 border-indigo-300">
+                                    🎨 Brilliant setup from {event.assist.name}! The vision and execution to create this scoring opportunity was absolutely perfect. Great teamwork between {event.assist.name} and {event.player?.name || "the goalscorer"}!
                                   </div>
                                 </>
                               )}
                             </div>
-
-                            <div className="flex items-start gap-2 -ml-3">
-                              <div className="goal-event-wrapper ">
-                              </div>
-                            </div>
-
                           </div>
                         ) : event.type === "Card" ? (
                           <div className="flex flex-col gap-2">
