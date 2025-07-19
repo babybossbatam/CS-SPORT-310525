@@ -1106,12 +1106,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
 
                       // Sort by total time in descending order (latest first)
-                      if (bTotalTime !== aTotalTime) {
-                        return bTotalTime - aTotalTime;
-                      }
-
-                      // If times are equal, maintain stable sort order
-                      return 0;
+                      return bTotalTime - aTotalTime;
                     },
                   );
 
@@ -1631,12 +1626,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
 
                       // Sort by total time in descending order (latest first)
-                      if (bTotalTime !== aTotalTime) {
-                        return bTotalTime - aTotalTime;
-                      }
-
-                      // If times are equal, maintain stable sort order
-                      return 0;
+                      return bTotalTime - aTotalTime;
                     },
                   );
 
@@ -1755,7 +1745,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 </div>
 
                                 {/* Column 2: Event Icon */}
-                                <div className="match-event-home-icon-column">                                  <div
+                               <div className="match-event-home-icon-column">                                  <div
                                     className={`match-event-icon ${
                                       event.type === "Goal"
                                         ? "goal"
