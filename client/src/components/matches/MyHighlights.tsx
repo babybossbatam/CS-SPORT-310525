@@ -106,13 +106,16 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   })();
 
   // Create more targeted search queries with better team name handling
-  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esoccer -virtual -fifa -gaming`.trim();
-  const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esports -simulation`.trim();
-  const tertiarySearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} -cyber -ebet -online`.trim();
-  const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer`.trim();
+  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esoccer -virtual -"fifa 24" -"fifa 25" -gaming`.trim();
+  const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esports -simulation -mobile`.trim();
+  const tertiarySearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} -cyber -ebet -"online battle"`.trim();
+  const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer -app`.trim();
 
   // Additional specific search for exact order with esports exclusion
-  const exactOrderQuery = `${rawHome} v ${rawAway} highlights ${matchYear} -esports -fifa -virtual`.trim();
+  const exactOrderQuery = `${rawHome} v ${rawAway} highlights ${matchYear} -esports -"fifa 24" -"fifa 25" -virtual -mobile`.trim();
+  
+  // Enhanced search query with competition context
+  const competitionQuery = `${rawHome} vs ${rawAway} ${league} ${matchYear} highlights -esports -virtual -gaming`.trim();
 
   // Debug logging to verify correct team names and order
   console.log(`🎬 [Highlights] Match data extraction with correct home/away order:`, {
@@ -210,19 +213,19 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
     // Check for esports/virtual match terms - heavily penalize these
     const esportsTerms = [
-      'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual', 'fifa', 
+      'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual', 'fifa 24', 'fifa 25',
       'pro evolution soccer', 'pes', 'efootball', 'e-football', 'volta',
       'ultimate team', 'clubs', 'gaming', 'game', 'simulator', 'simulation',
-      'digital', 'online', 'battle', 'legend', 'champion', 'tournament online',
+      'digital', 'online battle', 'legend', 'champion online', 'tournament online',
       'vs online', 'gt sport', 'rocket league', 'fc online', 'dream league',
       'top eleven', 'football manager', 'championship manager', 'mobile', 'app',
       'eafc', 'ea fc', 'ea sports fc', 'console', 'playstation', 'xbox',
-      'pc gaming', 'stream', 'twitch', 'youtube gaming'
+      'pc gaming', 'stream', 'twitch', 'youtube gaming', 'android', 'ios'
     ];
 
     // Heavy penalty for esports content
     if (esportsTerms.some(term => titleLower.includes(term))) {
-      score -= 50; // Massive penalty to push esports content to bottom
+      score -= 100; // Even heavier penalty to ensure esports content is filtered out
     }
 
     // Bonus for real football indicators
@@ -231,51 +234,74 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       'premier league', 'champions league', 'la liga', 'serie a', 'bundesliga',
       'ligue 1', 'uefa', 'fifa official', 'real madrid', 'barcelona', 'manchester',
       'liverpool', 'arsenal', 'chelsea', 'psg', 'bayern', 'juventus', 'milan',
-      'dortmund', 'atletico', 'tottenham', 'inter', 'napoli', 'roma', 'sevilla'
+      'dortmund', 'atletico', 'tottenham', 'inter', 'napoli', 'roma', 'sevilla',
+      'melhores momentos', 'gols', 'resumo', 'highlights', 'goals', 'sudamericana',
+      'libertadores', 'copa do brasil', 'brasileirao', 'serie a brazil'
     ];
 
     // Bonus for real football content
     if (realFootballTerms.some(term => titleLower.includes(term))) {
-      score += 15;
+      score += 20;
     }
 
-    // Check for exact team name matches
+    // Check for exact team name matches with partial matching
+    const homeMatches = homeLower.split(' ').filter(word => word.length > 2 && titleLower.includes(word));
+    const awayMatches = awayLower.split(' ').filter(word => word.length > 2 && titleLower.includes(word));
+    
     const homePos = titleLower.indexOf(homeLower);
     const awayPos = titleLower.indexOf(awayLower);
 
     if (homePos !== -1 && awayPos !== -1) {
-      // Both teams found
-      score += 10;
+      // Both teams found exactly
+      score += 20;
 
       // Bonus for correct order (home before away)
       if (homePos < awayPos) {
-        score += 5;
+        score += 10;
       } else {
-        // Penalty for wrong order
-        score -= 3;
+        // Smaller penalty for wrong order since some channels use different conventions
+        score -= 2;
       }
 
       // Check for "vs" between teams
-      const vsKeywords = ['vs', 'v ', 'versus', '-', 'against'];
+      const vsKeywords = ['vs', 'v ', 'versus', '-', 'against', 'x ', ' x '];
       const teamSection = titleLower.substring(homePos, awayPos + awayLower.length);
       if (vsKeywords.some(keyword => teamSection.includes(keyword))) {
-        score += 3;
+        score += 5;
       }
 
       // Bonus for highlights-related keywords
-      const highlightKeywords = ['highlights', 'goals', 'best moments', 'summary', 'extended'];
+      const highlightKeywords = ['highlights', 'goals', 'best moments', 'summary', 'extended', 'melhores momentos', 'gols', 'resumo'];
       if (highlightKeywords.some(keyword => titleLower.includes(keyword))) {
-        score += 2;
+        score += 5;
       }
 
       // Bonus for exact match format "Team1 vs Team2"
-      const exactPattern = new RegExp(`${homeLower}\\s*(vs?|v|-)\\s*${awayLower}`, 'i');
+      const exactPattern = new RegExp(`${homeLower}\\s*(vs?|v|x|-)\\s*${awayLower}`, 'i');
       if (exactPattern.test(titleLower)) {
-        score += 4;
+        score += 8;
       }
+    } else if (homeMatches.length > 0 && awayMatches.length > 0) {
+      // Partial team name matches
+      score += 10 + (homeMatches.length * 2) + (awayMatches.length * 2);
     } else if (homePos !== -1 || awayPos !== -1) {
-      // Only one team found - lower score
+      // Only one team found exactly
+      score += 5;
+    } else if (homeMatches.length > 0 || awayMatches.length > 0) {
+      // Only partial matches for one team
       score += 2;
+    }
+
+    // Penalty for very old videos (more than 2 years difference)
+    const currentYear = new Date().getFullYear();
+    const yearPattern = /\b(20\d{2})\b/g;
+    const videoYears = title.match(yearPattern);
+    if (videoYears) {
+      const videoYear = parseInt(videoYears[videoYears.length - 1]);
+      const yearDifference = Math.abs(currentYear - videoYear);
+      if (yearDifference > 2) {
+        score -= yearDifference * 2;
+      }
     }
 
     return score;
@@ -536,63 +562,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           };
         }
         throw new Error('No Desimpedidos videos found');
-      }
-    }] : []),
-    // Brazilian Highlights Channel - PRIMARY option for Brazilian leagues  
-    ...(isBrazilianLeague ? [{
-      name: 'Canal do Futebol BR',
-      type: 'youtube' as const,
-      searchFn: async () => {
-        const brazilianChannelId = 'UCw5-xj3AKqEizC7MvHaIPqA';
-        
-        // Create Brazil-specific search queries optimized for this channel
-        const brazilQueries = [
-          `${home} vs ${away} highlights ${matchYear}`,
-          `${home} x ${away} melhores momentos ${matchYear}`,
-          `${home} ${away} gols highlights ${matchYear}`,
-          `${rawHome} vs ${rawAway} ${matchYear}`,
-          `${home} x ${away} gols`,
-          `${home} ${away} resumo`,
-          primarySearchQuery.replace('highlights', 'melhores momentos'),
-          secondarySearchQuery
-        ];
-        
-        let data;
-
-        for (const query of brazilQueries) {
-          try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=10&channelId=${brazilianChannelId}&order=relevance`);
-            data = await response.json();
-
-            if (data.items && data.items.length > 0) {
-              // Filter and sort by title order preference
-              const sortedVideos = filterAndSortVideos(data.items, home, away);
-              data.items = sortedVideos;
-              if (sortedVideos.length > 0) {
-                break;
-              }
-            }
-          } catch (error) {
-            console.warn(`🎬 [Highlights] Canal do Futebol BR search failed for query: ${query}`, error);
-            continue;
-          }
-        }
-
-        if (data.error || data.quotaExceeded) {
-          throw new Error(data.error || 'Canal do Futebol BR search failed');
-        }
-
-        if (data.items && data.items.length > 0) {
-          const video = data.items[0];
-          return {
-            name: 'Canal do Futebol BR',
-            type: 'youtube' as const,
-            url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
-            embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
-            title: video.snippet.title
-          };
-        }
-        throw new Error('No Canal do Futebol BR videos found');
       }
     }] : []),
     // FIFA Club World Cup Official Channel (priority)
