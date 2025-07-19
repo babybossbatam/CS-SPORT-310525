@@ -481,6 +481,49 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         throw new Error('No Desimpedidos videos found');
       }
     }] : []),
+    // Brazilian Highlights Channel - secondary option for Brazilian leagues  
+    ...(isBrazilianLeague ? [{
+      name: 'Brazilian Highlights',
+      type: 'youtube' as const,
+      searchFn: async () => {
+        const brazilianChannelId = 'UCw5-xj3AKqEizC7MvHaIPqA';
+        const queries = [primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
+        let data;
+
+        for (const query of queries) {
+          try {
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${brazilianChannelId}&order=relevance`);
+            data = await response.json();
+
+            if (data.items && data.items.length > 0) {
+              // Filter and sort by title order preference
+              const sortedVideos = filterAndSortVideos(data.items, home, away);
+              data.items = sortedVideos;
+              break;
+            }
+          } catch (error) {
+            console.warn(`🎬 [Highlights] Brazilian Highlights search failed for query: ${query}`, error);
+            continue;
+          }
+        }
+
+        if (data.error || data.quotaExceeded) {
+          throw new Error(data.error || 'Brazilian Highlights channel search failed');
+        }
+
+        if (data.items && data.items.length > 0) {
+          const video = data.items[0];
+          return {
+            name: 'Brazilian Highlights',
+            type: 'youtube' as const,
+            url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+            embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+            title: video.snippet.title
+          };
+        }
+        throw new Error('No Brazilian Highlights videos found');
+      }
+    }] : []),
     // FIFA Club World Cup Official Channel (priority)
     ...(isFifaClubWorldCup && !isPalmeirasChelsea ? [{
       name: 'FIFA Official',
@@ -773,7 +816,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                     Checking Desimpedidos Channel first
                   </span>
                 )}
-                {sourceIndex === 0 && !isFifaClubWorldCup && !isConcacafCompetition && !isBrazilianLeague }
+                 {sourceIndex === 0 && !isFifaClubWorldCup && !isConcacafCompetition && !isBrazilianLeague }
                 {sourceIndex > 0 && (
                   <span className="block text-xs text-gray-400">
                     Trying {videoSources[sourceIndex]?.name || 'alternative source'}
