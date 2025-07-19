@@ -848,16 +848,56 @@ id: fixture.teams.away.id,
           `📋 [MyHomeFeaturedMatchNew] Total unique fixtures found:`,
           uniqueFixtures.length,
         );
-        console.log(
-          `📋 [MyHomeFeaturedMatchNew] Fixture details:`,
-          uniqueFixtures.map((f) => ({
-            id: f.fixture.id,
-            teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
-            league: f.league.name,
-            status: f.fixture.status.short,
-            date: f.fixture.date,
-          })),
+        
+        // Enhanced debug logging with league IDs
+        const fixtureDetails = uniqueFixtures.map((f) => ({
+          id: f.fixture.id,
+          teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+          league: f.league.name,
+          leagueId: f.league.id,
+          country: f.league.country,
+          status: f.fixture.status.short,
+          date: f.fixture.date,
+        }));
+        
+        console.log(`📋 [MyHomeFeaturedMatchNew] Fixture details with League IDs:`, fixtureDetails);
+        
+        // Special debug for Oberliga leagues
+        const oberligaMatches = uniqueFixtures.filter(f => 
+          f.league.name?.toLowerCase().includes('oberliga')
         );
+        
+        if (oberligaMatches.length > 0) {
+          console.log(`🎯 [OBERLIGA LEAGUES FOUND] Count: ${oberligaMatches.length}`);
+          oberligaMatches.forEach(match => {
+            console.log(`🏆 [OBERLIGA MATCH]`, {
+              LEAGUE_ID: match.league.id,
+              LEAGUE_NAME: match.league.name,
+              MATCH: `${match.teams.home.name} vs ${match.teams.away.name}`,
+              COUNTRY: match.league.country,
+              STATUS: match.fixture.status.short
+            });
+          });
+        }
+        
+        // Special debug for Bayern Süd
+        const bayernSudMatches = uniqueFixtures.filter(f => 
+          f.league.name?.toLowerCase().includes('bayern') && 
+          f.league.name?.toLowerCase().includes('süd')
+        );
+        
+        if (bayernSudMatches.length > 0) {
+          console.log(`🏰 [BAYERN SÜD LEAGUES FOUND] Count: ${bayernSudMatches.length}`);
+          bayernSudMatches.forEach(match => {
+            console.log(`⚽ [BAYERN SÜD MATCH]`, {
+              LEAGUE_ID: match.league.id,
+              LEAGUE_NAME: match.league.name,
+              MATCH: `${match.teams.home.name} vs ${match.teams.away.name}`,
+              COUNTRY: match.league.country,
+              STATUS: match.fixture.status.short
+            });
+          });
+        }
 
         // Group fixtures by date
         const allMatches: DayMatches[] = [];
@@ -1475,10 +1515,53 @@ id: fixture.teams.away.id,
                     ease: "easeInOut",
                   }}
                   className="cursor-pointer"
-                  onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
+                  onClick={() => {
+                    // Debug logging for league identification
+                    console.log(`🔍 [FEATURED MATCH DEBUG] League ID Debug:`, {
+                      leagueId: currentMatch.league.id,
+                      leagueName: currentMatch.league.name,
+                      leagueCountry: currentMatch.league.country,
+                      matchId: currentMatch.fixture.id,
+                      homeTeam: currentMatch.teams.home.name,
+                      awayTeam: currentMatch.teams.away.name,
+                      fixtureStatus: currentMatch.fixture.status.short
+                    });
+                    
+                    // Special debug for Oberliga leagues
+                    if (currentMatch.league.name?.toLowerCase().includes('oberliga')) {
+                      console.log(`🎯 [OBERLIGA DEBUG] Found Oberliga league:`, {
+                        LEAGUE_ID: currentMatch.league.id,
+                        LEAGUE_NAME: currentMatch.league.name,
+                        FULL_MATCH_INFO: `${currentMatch.teams.home.name} vs ${currentMatch.teams.away.name}`,
+                        COUNTRY: currentMatch.league.country
+                      });
+                    }
+                    
+                    // Special debug for Bayern Süd
+                    if (currentMatch.league.name?.toLowerCase().includes('bayern') || 
+                        currentMatch.league.name?.toLowerCase().includes('süd')) {
+                      console.log(`🏰 [BAYERN SÜD DEBUG] Found Bayern Süd related league:`, {
+                        LEAGUE_ID: currentMatch.league.id,
+                        LEAGUE_NAME: currentMatch.league.name,
+                        MATCH_DETAILS: `${currentMatch.teams.home.name} vs ${currentMatch.teams.away.name}`
+                      });
+                    }
+                    
+                    navigate(`/match/${currentMatch.fixture.id}`);
+                  }}
                 >
                   {/* League header */}
-                  <div className="flex items-center justify-center gap-2 mb-4 p-2">
+                  <div 
+                    className="flex items-center justify-center gap-2 mb-4 p-2"
+                    onClick={() => {
+                      console.log(`🔍 [LEAGUE HEADER DEBUG] Clicked on league:`, {
+                        LEAGUE_ID: currentMatch.league.id,
+                        LEAGUE_NAME: currentMatch.league.name,
+                        LEAGUE_COUNTRY: currentMatch.league.country,
+                        LEAGUE_LOGO: currentMatch.league.logo
+                      });
+                    }}
+                  >
                     <LazyImage
                       src={
                         currentMatch.league.name?.toLowerCase().includes('cotif') 
@@ -1489,7 +1572,10 @@ id: fixture.teams.away.id,
                       className="w-6 h-6"
                       fallbackSrc="/assets/fallback-logo.svg"
                     />
-                    <span className="text-sm font-medium text-gray-700 text-center">
+                    <span 
+                      className="text-sm font-medium text-gray-700 text-center"
+                      title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
+                    >
                       {currentMatch.league.name}
                     </span>
 
