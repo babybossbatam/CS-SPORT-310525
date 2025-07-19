@@ -744,19 +744,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                   );
                                 }
                               })()}
-                              <span className="flex-1 font-semibold text-green-700">
-                                {(() => {
-                                  const detail = event.detail?.toLowerCase() || "";
-                                  if (detail.includes("penalty")) {
-                                    return "PENALTY GOAL!";
-                                  } else if (detail.includes("own goal")) {
-                                    return "OWN GOAL";
-                                  } else {
-                                    return "GOAL!";
-                                  }
-                                })()}
-                              </span>
-                              <span className="text-lg font-bold text-gray-900">
+                              <span className="flex-1">
+                                Score:{" "}
                                 {(() => {
                                   // Calculate score including this goal event
                                   const scoreAfterGoal = calculateScoreAtTime(
@@ -790,58 +779,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                   {event.player?.name || "Unknown Player"}
                                 </span>
                               </div>
-                              
-                              {/* Enhanced interactive commentary */}
-                              <div className="text-xs text-gray-900 leading-relaxed -ml-3 bg-green-50 p-2 rounded-md border-l-4 border-green-400">
-                                {(() => {
-                                  const detail = event.detail?.toLowerCase() || "";
-                                  const playerName = event.player?.name || "Player";
-                                  const teamName = event.team?.name || "Team";
-                                  
-                                  if (detail.includes("penalty")) {
-                                    return (
-                                      <div className="space-y-1">
-                                        <div className="font-semibold text-green-700">🥅 PENALTY CONVERTED!</div>
-                                        <div>
-                                          {playerName} steps up to the penalty spot with nerves of steel! 
-                                          The goalkeeper dives one way, but {playerName} coolly slots it into the opposite corner. 
-                                          What a crucial moment for {teamName}!
-                                        </div>
-                                        <div className="text-xs italic text-green-600 mt-1">
-                                          ⚽ Perfect penalty technique - right into the bottom corner!
-                                        </div>
-                                      </div>
-                                    );
-                                  } else if (detail.includes("own goal")) {
-                                    return (
-                                      <div className="space-y-1">
-                                        <div className="font-semibold text-orange-700">😬 UNFORTUNATE OWN GOAL</div>
-                                        <div>
-                                          Disaster for {teamName}! {playerName} deflects the ball into their own net. 
-                                          Sometimes these things happen in football - just unlucky for the defender.
-                                        </div>
-                                        <div className="text-xs italic text-orange-600 mt-1">
-                                          💔 No fault of the player - just an unfortunate deflection
-                                        </div>
-                                      </div>
-                                    );
-                                  } else {
-                                    return (
-                                      <div className="space-y-1">
-                                        <div className="font-semibold text-green-700">⚽ WHAT A GOAL!</div>
-                                        <div>
-                                          Brilliant finish from {playerName}! The {teamName} striker finds the back of the net 
-                                          with a composed finish. The crowd erupts as the ball nestles into the goal!
-                                        </div>
-                                        <div className="text-xs italic text-green-600 mt-1">
-                                          🎯 Clinical finishing - that's why they're a top striker!
-                                        </div>
-                                      </div>
-                                    );
-                                  }
-                                })()}
+                              <div className="text-xs  text-gray-900 leading-relaxed -ml-3">
+                                {eventDescription}
                               </div>
-
                               {/* Assist section - only show if assist data exists */}
                               {event.assist?.name && (
                                 <>
@@ -851,24 +791,19 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       alt="Assist"
                                       className="w-4 h-4 opacity-80 flex-shrink-0"
                                     />
-                                    <span className="text-blue-600 font-semibold">🎯 BRILLIANT ASSIST!</span>
+                                    <span className="text-black-400 font-medium">Assist</span>
                                   </div>
 
-                                  <div className="flex items-center gap-2 -ml-3 text-xs font-medium bg-blue-50 p-2 rounded-md">
+                                  <div className="flex items-center gap-2 -ml-3 text-xs font-medium bg-stone-200">
                                     <MyAvatarInfo
                                       playerId={event.assist?.id}
                                       playerName={event.assist?.name}
                                       size="md-commentary"
                                       className="border-2 border-blue-400 shadow-sm flex-shrink-0"
                                     />
-                                    <div className="flex-1">
-                                      <div className="text-blue-700 font-medium -ml-1">
-                                        {event.assist.name}
-                                      </div>
-                                      <div className="text-xs text-blue-600 italic mt-1">
-                                        Perfect vision and execution to set up the goal!
-                                      </div>
-                                    </div>
+                                    <span className="text-blue-700 font-medium -ml-1">
+                                      {event.assist.name}
+                                    </span>  
                                   </div>
                                 </>
                               )}
