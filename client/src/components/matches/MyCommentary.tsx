@@ -701,7 +701,8 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                       </div>
 
                       {/* Content Column */}
-                      {event.type === "Goal" ? (
+                      <div className="flex-1">
+                        {event.type === "Goal" ? (
                           <div className="flex flex-col gap-3">
                             {/* Enhanced Goal Header with Animation */}
                             <div className="flex items-center gap-2 -ml-3 -mt-1 py-2 px-3 rounded-lg text-xs font-medium bg-gradient-to-r from-green-50 to-blue-50 border border-green-200">
