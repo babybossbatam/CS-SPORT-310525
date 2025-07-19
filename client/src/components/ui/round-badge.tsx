@@ -48,6 +48,27 @@ export function RoundBadge({
     const lowerRound = round.toLowerCase();
     const lowerLeague = leagueName?.toLowerCase() || "";
 
+    // Handle numbered tournament rounds (1st Round, 2nd Round, etc.)
+    if (lowerRound.match(/(\d+)(st|nd|rd|th)\s+round/)) {
+      const match = lowerRound.match(/(\d+)(st|nd|rd|th)\s+round/);
+      if (match) {
+        const roundNumber = match[1];
+        return `${roundNumber}${match[2]} Round`;
+      }
+    }
+
+    // Handle "Club Friendlies X" format for tournament bracket rounds
+    if (lowerRound.match(/club friendlies \d+/) && !lowerLeague.includes("friendlies")) {
+      const match = lowerRound.match(/club friendlies (\d+)/);
+      if (match) {
+        const roundNumber = parseInt(match[1]);
+        const suffix = roundNumber === 1 ? 'st' : 
+                      roundNumber === 2 ? 'nd' : 
+                      roundNumber === 3 ? 'rd' : 'th';
+        return `${roundNumber}${suffix} Round`;
+      }
+    }
+
     // Handle specific round formats
     if (lowerRound.includes("final") && !lowerRound.includes("semi") && !lowerRound.includes("quarter")) {
       return "Final";
@@ -74,7 +95,7 @@ export function RoundBadge({
       return "Knockout Phase";
     }
 
-    // Handle friendlies
+    // Handle friendlies (only for actual friendly leagues)
     if (lowerLeague.includes("friendlies") || lowerLeague.includes("friendly")) {
       if (lowerRound.includes("summer") || lowerRound.includes("4")) {
         return "Summer Friendlies";
