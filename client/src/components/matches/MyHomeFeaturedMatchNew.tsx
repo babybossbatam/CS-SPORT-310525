@@ -799,9 +799,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const aLeagueName = a.league.name?.toLowerCase() || "";
               const bLeagueName = b.league.name?.toLowerCase() || "";
 
-              const aIsPopularFriendly = (aLeagueName.includes("friendlies") || aLeagueName.includes("club friendlies")) && 
+              const aIsPopularFriendly = (aLeagueName.includes("friendlies") || aLeagueName.includes("friendlies clubs")) && 
                 (POPULAR_TEAM_IDS.includes(a.teams.home.id) || POPULAR_TEAM_IDS.includes(a.teams.away.id));
-              const bIsPopularFriendly = (bLeagueName.includes("friendlies") || bLeagueName.includes("club friendlies")) && 
+              const bIsPopularFriendly = (bLeagueName.includes("friendlies") || bLeagueName.includes("friendlies clubs")) && 
                 (POPULAR_TEAM_IDS.includes(b.teams.home.id) || POPULAR_TEAM_IDS.includes(b.teams.away.id));
 
               if (aIsPopularFriendly && !bIsPopularFriendly) return -1;
