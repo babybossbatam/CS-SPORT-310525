@@ -1093,16 +1093,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       const aTotalTime = a.time.elapsed + (a.time.extra || 0);
                       const bTotalTime = b.time.elapsed + (b.time.extra || 0);
 
-                      // If events happen at the same time, prioritize card events with yellow cards first
+                      // If events happen at the same time, prioritize card events with red cards first
                       if (aTotalTime === bTotalTime) {
                         const aIsYellowCard = a.type === "Card" && a.detail?.toLowerCase().includes("yellow");
                         const bIsYellowCard = b.type === "Card" && b.detail?.toLowerCase().includes("yellow");
                         const aIsRedCard = a.type === "Card" && a.detail?.toLowerCase().includes("red");
                         const bIsRedCard = b.type === "Card" && b.detail?.toLowerCase().includes("red");
 
-                        // Prioritize yellow card over red card at same minute
-                        if (aIsYellowCard && bIsRedCard) return -1;
-                        if (bIsYellowCard && aIsRedCard) return 1;
+                        // Prioritize red card over yellow card at same minute
+                        if (aIsRedCard && bIsYellowCard) return -1;
+                        if (bIsRedCard && aIsYellowCard) return 1;
                       }
 
                       // Sort by total time in descending order (latest first)
@@ -1613,16 +1613,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       const aTotalTime = a.time.elapsed + (a.time.extra || 0);
                       const bTotalTime = b.time.elapsed + (b.time.extra || 0);
 
-                      // If events happen at the same time, prioritize card events with yellow cards first
+                      // If events happen at the same time, prioritize card events with red cards first
                       if (aTotalTime === bTotalTime) {
                         const aIsYellowCard = a.type === "Card" && a.detail?.toLowerCase().includes("yellow");
                         const bIsYellowCard = b.type === "Card" && b.detail?.toLowerCase().includes("yellow");
                         const aIsRedCard = a.type === "Card" && a.detail?.toLowerCase().includes("red");
                         const bIsRedCard = b.type === "Card" && b.detail?.toLowerCase().includes("red");
 
-                        // Prioritize yellow card over red card at same minute
-                        if (aIsYellowCard && bIsRedCard) return -1;
-                        if (bIsYellowCard && aIsRedCard) return 1;
+                        // Prioritize red card over yellow card at same minute
+                        if (aIsRedCard && bIsYellowCard) return -1;
+                        if (bIsRedCard && aIsYellowCard) return 1;
                       }
 
                       // Sort by total time in descending order (latest first)
@@ -1745,8 +1745,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                 </div>
 
                                 {/* Column 2: Event Icon */}
-                                <div className="match-event-home-icon-column">
-                                  <div
+                                <div className="match-event-home-icon-column">                                  <div
                                     className={`match-event-icon ${
                                       event.type === "Goal"
                                         ? "goal"
