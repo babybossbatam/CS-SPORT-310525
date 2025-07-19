@@ -1492,14 +1492,14 @@ id: fixture.teams.away.id,
                       {currentMatch.league.name}
                     </span>
 
-                    {/* Round/Bracket Status Display - Enhanced like FixedScoreboard */}
+                    {/* Round/Bracket Status Display - Enhanced with better API data usage */}
                     {(() => {
-                      // Get round info from various sources including API data
-                      let roundInfo =
-                        currentMatch.league.round ||
+                      // Get round info from multiple API sources with priority order
+                      let roundInfo = 
                         currentMatch.fixture?.round ||
-                        currentMatch.league.season?.round ||
+                        currentMatch.league?.round ||
                         currentMatch.fixture?.status?.round ||
+                        currentMatch.league?.season?.round ||
                         currentMatch.round ||
                         currentMatch.fixture?.status?.long ||
                         currentMatch.league?.season?.current;
@@ -1507,17 +1507,50 @@ id: fixture.teams.away.id,
                       // Check if we have cached rounds data for this league
                       const leagueRounds = roundsCache[`${currentMatch.league.id}-2025`];
                       
+                      // Log the API data for debugging
+                      console.log(`🎯 [Round Debug] League: ${currentMatch.league.name}, Round Info:`, {
+                        fixtureRound: currentMatch.fixture?.round,
+                        leagueRound: currentMatch.league?.round,
+                        statusRound: currentMatch.fixture?.status?.round,
+                        statusLong: currentMatch.fixture?.status?.long,
+                        cachedRounds: leagueRounds,
+                        finalRoundInfo: roundInfo
+                      });
+                      
                       // Enhanced bracket status mapping with better pattern recognition
                       const getBracketStatus = (leagueName: string, round: string, availableRounds?: string[]) => {
                         const lowerLeague = leagueName.toLowerCase();
                         const lowerRound = round?.toLowerCase() || "";
                         
-                        // Clean and normalize round string
+                        // Clean and normalize round string while preserving important info
                         const normalizedRound = lowerRound
                           .replace(/\d+(st|nd|rd|th)\s*/g, "")
                           .replace(/[-_]/g, " ")
                           .replace(/\s+/g, " ")
                           .trim();
+
+                        // For friendlies, try to extract more specific info from available rounds
+                        if ((lowerLeague.includes("friendlies") || lowerLeague.includes("friendly")) && availableRounds) {
+                          // Find the most specific round from cached data
+                          const specificRound = availableRounds.find(r => {
+                            const lowerCached = r.toLowerCase();
+                            return lowerCached.includes("summer") || 
+                                   lowerCached.includes("winter") || 
+                                   lowerCached.includes("pre") ||
+                                   lowerCached.includes("season") ||
+                                   lowerCached.includes("international");
+                          });
+                          
+                          if (specificRound) {
+                            console.log(`🎯 [Round Debug] Found specific friendly round: ${specificRound}`);
+                            const lowerSpecific = specificRound.toLowerCase();
+                            if (lowerSpecific.includes("summer")) return "Summer Friendlies";
+                            if (lowerSpecific.includes("winter")) return "Winter Friendlies";
+                            if (lowerSpecific.includes("pre") || lowerSpecific.includes("season")) return "Pre-Season";
+                            if (lowerSpecific.includes("international")) return "International Friendlies";
+                            return specificRound; // Return the specific round as-is
+                          }
+                        }
 
                         // Exact matches for common tournament stages
                         const exactMatches = {
@@ -1593,8 +1626,9 @@ id: fixture.teams.away.id,
                           }
                         }
 
-                        // Enhanced Friendlies handling
+                        // Enhanced Friendlies handling with specific round detection
                         if (lowerLeague.includes("friendlies") || lowerLeague.includes("friendly")) {
+                          // Try to extract specific information from the round string
                           if (normalizedRound.includes("summer") || normalizedRound.includes("club friendlies 4")) {
                             return "Summer Friendlies";
                           }
@@ -1607,6 +1641,12 @@ id: fixture.teams.away.id,
                           if (normalizedRound.includes("international")) {
                             return "International Friendlies";
                           }
+                          
+                          // If we have a specific round name, use it directly
+                          if (round && round.length > 5 && round !== "Club Friendlies" && !round.includes("TBD")) {
+                            return round;
+                          }
+                          
                           return "Club Friendlies";
                         }
 
