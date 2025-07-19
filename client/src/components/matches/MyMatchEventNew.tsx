@@ -1106,7 +1106,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
 
                       // Sort by total time in descending order (latest first)
-                      return bTotalTime - aTotalTime;
+                      if (bTotalTime !== aTotalTime) {
+                        return bTotalTime - aTotalTime;
+                      }
+
+                      // If times are equal, maintain stable sort order
+                      return 0;
                     },
                   );
 
@@ -1626,7 +1631,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
 
                       // Sort by total time in descending order (latest first)
-                      return bTotalTime - aTotalTime;
+                      if (bTotalTime !== aTotalTime) {
+                        return bTotalTime - aTotalTime;
+                      }
+
+                      // If times are equal, maintain stable sort order
+                      return 0;
                     },
                   );
 
@@ -1738,7 +1748,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         {event.type === "foul" ||
                                         event.detail?.toLowerCase().includes("foul")
                                           ? `Foul by ${event.player?.name || "Unknown Player"}`
-                                          : event.detail || event.type}
+                                                                         : event.detail || event.type}
                                       </div>
                                     )}
                                   </div>
