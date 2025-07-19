@@ -24,6 +24,86 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import FixedScoreboard from "./FixedScoreboard";
 
+// Helper function to shorten team names
+const shortenTeamName = (teamName: string): string => {
+  if (!teamName) return teamName;
+
+  // Remove common suffixes that make names too long
+  const suffixesToRemove = [
+    "-sc",
+    "-SC",
+    " SC",
+    " FC",
+    " CF",
+    " United",
+    " City",
+    " Islands",
+    " Republic",
+    " National Team",
+    " U23",
+    " U21",
+    " U20",
+    " U19",
+  ];
+
+  let shortened = teamName;
+  for (const suffix of suffixesToRemove) {
+    if (shortened.endsWith(suffix)) {
+      shortened = shortened.replace(suffix, "");
+      break;
+    }
+  }
+
+  // Handle specific country name shortenings
+  const countryMappings: { [key: string]: string } = {
+    "Cape Verde Islands": "Cape Verde",
+    "Central African Republic": "CAR",
+    "Dominican Republic": "Dominican Rep",
+    "Bosnia and Herzegovina": "Bosnia",
+    "Trinidad and Tobago": "Trinidad",
+    "Papua New Guinea": "Papua NG",
+    "United Arab Emirates": "UAE",
+    "Saudi Arabia": "Saudi",
+    "South Africa": "S. Africa",
+    "New Zealand": "New Zealand",
+    "Costa Rica": "Costa Rica",
+    "Puerto Rico": "Puerto Rico",
+  };
+
+  // Check if the team name matches any country mappings
+  if (countryMappings[shortened]) {
+    shortened = countryMappings[shortened];
+  }
+
+  // If still too long (more than 12 characters), intelligently shorten multi-word names
+  if (shortened.length > 12) {
+    const words = shortened.split(" ");
+
+    if (words.length > 1) {
+      // For multi-word names, shorten the last word progressively
+      const lastWordIndex = words.length - 1;
+      const lastWord = words[lastWordIndex];
+
+      if (lastWord.length > 4) {
+        // First try 3 characters
+        words[lastWordIndex] = lastWord.substring(0, 3);
+        shortened = words.join(" ");
+
+        // If still too long, try 2 characters for last word
+        if (shortened.length > 12 && lastWord.length > 3) {
+          words[lastWordIndex] = lastWord.substring(0, 2);
+          shortened = words.join(" ");
+        }
+      }
+    } else {
+      // Single word - truncate to 12 characters
+      shortened = shortened.substring(0, 12);
+    }
+  }
+
+  return shortened.trim();
+};
+
 // Import popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
   { id: 33, name: 'Manchester United', country: 'England' },
@@ -2280,7 +2360,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             fontWeight: "normal",
                           }}
                         >
-                          {currentMatch?.teams?.home?.name || "TBD"}
+                          {shortenTeamName(currentMatch?.teams?.home?.name || "TBD")}
                         </div>
 
                         {/* VS circle */}
@@ -2378,7 +2458,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             fontWeight: "normal",
                           }}
                         >
-                          {currentMatch?.teams?.away?.name || "Away Team"}
+                          {shortenTeamName(currentMatch?.teams?.away?.name || "Away Team")}
                         </div>
 
                         <div
