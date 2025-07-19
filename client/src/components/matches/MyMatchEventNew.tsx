@@ -1093,6 +1093,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       const aTotalTime = a.time.elapsed + (a.time.extra || 0);
                       const bTotalTime = b.time.elapsed + (b.time.extra || 0);
 
+                      // If events happen at the same time, prioritize card events with yellow cards first
+                      if (aTotalTime === bTotalTime) {
+                        const aIsYellowCard = a.type === "Card" && a.detail?.toLowerCase().includes("yellow");
+                        const bIsYellowCard = b.type === "Card" && b.detail?.toLowerCase().includes("yellow");
+                        const aIsRedCard = a.type === "Card" && a.detail?.toLowerCase().includes("red");
+                        const bIsRedCard = b.type === "Card" && b.detail?.toLowerCase().includes("red");
+
+                        // Prioritize yellow card over red card at same minute
+                        if (aIsYellowCard && bIsRedCard) return -1;
+                        if (bIsYellowCard && aIsRedCard) return 1;
+                      }
+
                       // Sort by total time in descending order (latest first)
                       return bTotalTime - aTotalTime;
                     },
@@ -1600,6 +1612,18 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       // Calculate total time including extra time for proper sorting
                       const aTotalTime = a.time.elapsed + (a.time.extra || 0);
                       const bTotalTime = b.time.elapsed + (b.time.extra || 0);
+
+                      // If events happen at the same time, prioritize card events with yellow cards first
+                      if (aTotalTime === bTotalTime) {
+                        const aIsYellowCard = a.type === "Card" && a.detail?.toLowerCase().includes("yellow");
+                        const bIsYellowCard = b.type === "Card" && b.detail?.toLowerCase().includes("yellow");
+                        const aIsRedCard = a.type === "Card" && a.detail?.toLowerCase().includes("red");
+                        const bIsRedCard = b.type === "Card" && b.detail?.toLowerCase().includes("red");
+
+                        // Prioritize yellow card over red card at same minute
+                        if (aIsYellowCard && bIsRedCard) return -1;
+                        if (bIsYellowCard && aIsRedCard) return 1;
+                      }
 
                       // Sort by total time in descending order (latest first)
                       return bTotalTime - aTotalTime;
