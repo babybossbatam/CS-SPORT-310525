@@ -105,14 +105,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     return new Date().getFullYear();
   })();
 
-  // Create more targeted search queries with correct home vs away order and esports exclusion
-  const primarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esoccer -virtual -fifa -gaming`.trim();
-  const secondarySearchQuery = `"${home}" "${away}" ${league} highlights ${matchYear} -esports -simulation`.trim();
-  const tertiarySearchQuery = `${home} vs ${away} ${matchYear} highlights -cyber -ebet -online`.trim();
+  // Create more targeted search queries with better team name handling
+  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esoccer -virtual -fifa -gaming`.trim();
+  const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esports -simulation`.trim();
+  const tertiarySearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} -cyber -ebet -online`.trim();
   const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer`.trim();
-  
+
   // Additional specific search for exact order with esports exclusion
-  const exactOrderQuery = `${home} v ${away} highlights ${matchYear} -esports -fifa -virtual`.trim();
+  const exactOrderQuery = `${rawHome} v ${rawAway} highlights ${matchYear} -esports -fifa -virtual`.trim();
 
   // Debug logging to verify correct team names and order
   console.log(`🎬 [Highlights] Match data extraction with correct home/away order:`, {
@@ -186,16 +186,16 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     const titleLower = title.toLowerCase();
     const homeLower = homeTeam.toLowerCase();
     const awayLower = awayTeam.toLowerCase();
-    
+
     // Find positions of team names in title
     const homePos = titleLower.indexOf(homeLower);
     const awayPos = titleLower.indexOf(awayLower);
-    
+
     // If both teams found, check if home comes before away
     if (homePos !== -1 && awayPos !== -1) {
       return homePos < awayPos;
     }
-    
+
     // If only one team found or neither found, return true (don't filter out)
     return true;
   };
@@ -205,9 +205,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     const titleLower = title.toLowerCase();
     const homeLower = homeTeam.toLowerCase();
     const awayLower = awayTeam.toLowerCase();
-    
+
     let score = 0;
-    
+
     // Check for esports/virtual match terms - heavily penalize these
     const esportsTerms = [
       'esoccer', 'ebet', 'cyber', 'esports', 'e-sports', 'virtual', 'fifa', 
@@ -219,12 +219,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       'eafc', 'ea fc', 'ea sports fc', 'console', 'playstation', 'xbox',
       'pc gaming', 'stream', 'twitch', 'youtube gaming'
     ];
-    
+
     // Heavy penalty for esports content
     if (esportsTerms.some(term => titleLower.includes(term))) {
       score -= 50; // Massive penalty to push esports content to bottom
     }
-    
+
     // Bonus for real football indicators
     const realFootballTerms = [
       'official', 'stadium', 'live', 'match day', 'full time', 'half time',
@@ -233,20 +233,20 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       'liverpool', 'arsenal', 'chelsea', 'psg', 'bayern', 'juventus', 'milan',
       'dortmund', 'atletico', 'tottenham', 'inter', 'napoli', 'roma', 'sevilla'
     ];
-    
+
     // Bonus for real football content
     if (realFootballTerms.some(term => titleLower.includes(term))) {
       score += 15;
     }
-    
+
     // Check for exact team name matches
     const homePos = titleLower.indexOf(homeLower);
     const awayPos = titleLower.indexOf(awayLower);
-    
+
     if (homePos !== -1 && awayPos !== -1) {
       // Both teams found
       score += 10;
-      
+
       // Bonus for correct order (home before away)
       if (homePos < awayPos) {
         score += 5;
@@ -254,20 +254,20 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         // Penalty for wrong order
         score -= 3;
       }
-      
+
       // Check for "vs" between teams
       const vsKeywords = ['vs', 'v ', 'versus', '-', 'against'];
       const teamSection = titleLower.substring(homePos, awayPos + awayLower.length);
       if (vsKeywords.some(keyword => teamSection.includes(keyword))) {
         score += 3;
       }
-      
+
       // Bonus for highlights-related keywords
       const highlightKeywords = ['highlights', 'goals', 'best moments', 'summary', 'extended'];
       if (highlightKeywords.some(keyword => titleLower.includes(keyword))) {
         score += 2;
       }
-      
+
       // Bonus for exact match format "Team1 vs Team2"
       const exactPattern = new RegExp(`${homeLower}\\s*(vs?|v|-)\\s*${awayLower}`, 'i');
       if (exactPattern.test(titleLower)) {
@@ -277,7 +277,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       // Only one team found - lower score
       score += 2;
     }
-    
+
     return score;
   };
 
@@ -288,7 +288,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         const title = video.snippet?.title || '';
         const relevanceScore = calculateRelevanceScore(title, homeTeam, awayTeam);
         const correctOrder = validateTitleOrder(title, homeTeam, awayTeam);
-        
+
         return {
           ...video,
           relevanceScore,
@@ -310,13 +310,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           'eafc', 'ea fc', 'ea sports fc', 'console', 'playstation', 'xbox',
           'pc gaming', 'stream', 'twitch', 'youtube gaming'
         ];
-        
+
         // Exclude if contains esports terms
         if (esportsTerms.some(term => title.includes(term))) {
           console.log(`🚫 [Highlights] Filtering out esports content: ${title}`);
           return false;
         }
-        
+
         // Only keep videos with positive relevance score (adjusted for esports penalty)
         return video.relevanceScore > 0;
       })
@@ -396,12 +396,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         // Try multiple search queries for better match accuracy
         const queries = [primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
         let data;
-        
+
         for (const query of queries) {
           try {
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${concacafChannelId}&order=relevance`);
             data = await response.json();
-            
+
             if (data.items && data.items.length > 0) {
               // Filter and sort by title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
@@ -446,12 +446,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           secondarySearchQuery
         ];
         let data;
-        
+
         for (const query of brazilQueries) {
           try {
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${desimpedidosChannelId}&order=relevance`);
             data = await response.json();
-            
+
             if (data.items && data.items.length > 0) {
               // Filter and sort by title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
@@ -491,12 +491,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         const searchTerm = isPalmeirasChelsea ? 'Chelsea highlights FIFA Club World Cup' : primarySearchQuery;
         const queries = isPalmeirasChelsea ? [searchTerm] : [primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
         let data;
-        
+
         for (const query of queries) {
           try {
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${fifaChannelId}&order=relevance`);
             data = await response.json();
-            
+
             if (data.items && data.items.length > 0) {
               // Filter and sort by title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
@@ -532,7 +532,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         // Try multiple search queries in order of specificity, including exact order
         const queries = [exactOrderQuery, primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
-        
+
         for (const query of queries) {
           try {
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=10&order=relevance`);
@@ -545,14 +545,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             if (data.items && data.items.length > 0) {
               // Filter and sort by relevance and title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
-              
+
               console.log(`🎬 [Highlights] YouTube search results for "${query}":`, sortedVideos.map(v => ({
                 title: v.snippet?.title,
                 relevanceScore: v.relevanceScore,
                 correctOrder: v.correctOrder,
                 combinedScore: v.combinedScore
               })));
-              
+
               if (sortedVideos.length > 0) {
                 const video = sortedVideos[0];
                 return {
