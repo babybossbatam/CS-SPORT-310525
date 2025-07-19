@@ -39,7 +39,7 @@ const POPULAR_TEAMS_DATA = [
   { id: 492, name: 'Inter', country: 'Italy' },
   { id: 496, name: 'Juventus', country: 'Italy' },
   { id: 165, name: 'Borussia Dortmund', country: 'Germany' },
- 
+
   { id: 168, name: 'Bayer Leverkusen', country: 'Germany' },
   { id: 81, name: 'PSG', country: 'France' },
   { id: 85, name: 'Lyon', country: 'France' },
@@ -812,7 +812,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           logo: fixture.teams.home.logo,
                         },
                         away: {
-                          id: fixture.teams.away.id,
+                          ```text
+id: fixture.teams.away.id,
                           name: fixture.teams.away.name,
                           logo: fixture.teams.away.logo,
                         },
@@ -1726,7 +1727,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               lowerName.includes("ajax") ||
                               lowerName.includes("feyenoord") ||
                               lowerName.includes("psv") ||
-                              lowerName.includes("porto") ||
+                              lowerName<previous_generation>s("porto") ||
                               lowerName.includes("benfica") ||
                               lowerName.includes("sporting")
                             ) {
@@ -2071,7 +2072,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     </Badge>
                     )}
                   </div>
-                  
+
 
                   {/* Match day indicator */}
                   <div className="text-center mb-4 ">
