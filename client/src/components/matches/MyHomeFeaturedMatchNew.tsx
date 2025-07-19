@@ -23,6 +23,7 @@ import {
 } from "@/lib/colorExtractor";
 import { motion, AnimatePresence } from "framer-motion";
 import FixedScoreboard from "./FixedScoreboard";
+import { RoundBadge } from "@/components/ui/round-badge";
 
 // Import popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
@@ -1506,7 +1507,7 @@ id: fixture.teams.away.id,
 
                       // Check if we have cached rounds data for this league
                       const leagueRounds = roundsCache[`${currentMatch.league.id}-2025`];
-                      
+
                       // Log the API data for debugging
                       console.log(`🎯 [Round Debug] League: ${currentMatch.league.name}, Round Info:`, {
                         fixtureRound: currentMatch.fixture?.round,
@@ -1516,12 +1517,12 @@ id: fixture.teams.away.id,
                         cachedRounds: leagueRounds,
                         finalRoundInfo: roundInfo
                       });
-                      
+
                       // Enhanced bracket status mapping with better pattern recognition
                       const getBracketStatus = (leagueName: string, round: string, availableRounds?: string[]) => {
                         const lowerLeague = leagueName.toLowerCase();
                         const lowerRound = round?.toLowerCase() || "";
-                        
+
                         // Clean and normalize round string while preserving important info
                         const normalizedRound = lowerRound
                           .replace(/\d+(st|nd|rd|th)\s*/g, "")
@@ -1540,7 +1541,7 @@ id: fixture.teams.away.id,
                                    lowerCached.includes("season") ||
                                    lowerCached.includes("international");
                           });
-                          
+
                           if (specificRound) {
                             console.log(`🎯 [Round Debug] Found specific friendly round: ${specificRound}`);
                             const lowerSpecific = specificRound.toLowerCase();
@@ -1641,12 +1642,12 @@ id: fixture.teams.away.id,
                           if (normalizedRound.includes("international")) {
                             return "International Friendlies";
                           }
-                          
+
                           // If we have a specific round name, use it directly
                           if (round && round.length > 5 && round !== "Club Friendlies" && !round.includes("TBD")) {
                             return round;
                           }
-                          
+
                           return "Club Friendlies";
                         }
 
