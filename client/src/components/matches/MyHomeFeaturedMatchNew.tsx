@@ -1963,78 +1963,265 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       <Badge
                         variant="outline"
                         className={`text-[10px] px-1.5 py-0 border ml-[3px] ${
-                          currentMatch?.fixture?.status?.short === "FT"
+                          getStatusDisplay(currentMatch).text === "Full Time"
                             ? "border-gray-500 text-gray-500"
                             : "border-blue-500 text-blue-500"
                         }`}
                       >
+                        {getStatusDisplay(currentMatch).text}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Match status and time display */}
+                  <div className="text-center space-y-2 mb-6">
+                    <div className="text-lg font-bold text-gray-900">
                       {(() => {
-                        // Handle status based display first
-                        if (currentMatch?.fixture?.status?.short === "FT") {
-                          return "FINISHED";
+                        const statusInfo = getStatusDisplay(currentMatch);
+                        
+                        if (statusInfo.isLive) {
+                          return statusInfo.text;
                         }
+                        
+                        if (statusInfo.isUpcoming) {
+                          return statusInfo.text;
+                        }
+                        
+                        if (currentMatch?.fixture?.status?.short === "FT") {
+                          return "Full Time";
+                        }
+                        
+                        return statusInfo.text;
+                      })()}
+                    </div>
 
-                        // Enhanced round data extraction with comprehensive processing
-                        let roundInfo =
-                          currentMatch.league.round ||
-                          currentMatch.fixture?.round ||
-                          currentMatch.league.season?.round ||
-                          currentMatch.fixture?.status?.round ||
-                          currentMatch.round ||
-                          currentMatch.fixture?.status?.long ||
-                          currentMatch.league?.season?.current;
+                    {/* Score display for live and finished matches */}
+                    {currentMatch?.fixture?.status?.short &&
+                      (["1H", "2H", "HT", "ET", "P", "FT", "AET", "PEN"].includes(
+                        currentMatch.fixture.status.short,
+                      )) && (
+                        <div className="text-3xl font-bold text-gray-900 flex items-center justify-center gap-2">
+                          <span>{currentMatch?.goals?.home ?? 0}</span>
+                          <span className="text-2xl text-gray-400">-</span>
+                          <span>{currentMatch?.goals?.away ?? 0}</span>
+                        </div>
+                      )}
 
-                        // Enhanced bracket status mapping with comprehensive patterns
-                        const getBracketStatus = (leagueName: string, round: string) => {
-                          const lowerLeague = leagueName.toLowerCase();
-                          const lowerRound = round?.toLowerCase() || "";
+                    {/* Countdown timer for upcoming matches */}
+                    {getStatusDisplay(currentMatch).isUpcoming && countdownTimer && countdownTimer !== "Loading..." && countdownTimer !== "" && (
+                      <div className="text-sm text-blue-600 font-medium">
+                        Starts in: {countdownTimer}
+                      </div>
+                    )}
+                  </div>
 
-                          // Normalize common variations
-                          const normalizedRound = lowerRound
-                            .replace(/\d+st|\d+nd|\d+rd|\d+th/g, "") // Remove ordinal suffixes
-                            .replace(/[-_]/g, " ") // Replace dashes/underscores with spaces
-                            .replace(/\s+/g, " ") // Normalize multiple spaces
-                            .trim();
+                  {/* Teams display */}
+                  <div className="relative mb-8">
+                    <div className="flex items-center justify-between h-16">
+                      {/* Home team */}
+                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                        <div
+                          className="w-12 h-12 rounded-full p-2 flex items-center justify-center"
+                          style={{
+                            background: getEnhancedTeamColor(
+                              currentMatch?.teams?.home?.name || "",
+                              true,
+                            ),
+                          }}
+                        >
+                          <MyWorldTeamLogo
+                            src={currentMatch?.teams?.home?.logo || ""}
+                            alt={currentMatch?.teams?.home?.name || "Home Team"}
+                            countryName={currentMatch?.teams?.home?.name || ""}
+                            className="w-8 h-8 object-contain"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {currentMatch?.teams?.home?.name || "Home Team"}
+                          </p>
+                        </div>
+                      </div>
 
-                          // Universal tournament stage patterns
-                          if (normalizedRound.includes("final") && !normalizedRound.includes("semi") && !normalizedRound.includes("quarter") && !normalizedRound.includes("3rd")) {
-                            return "Final";
-                          }
-                          if (normalizedRound.includes("semi final") || normalizedRound.includes("semi-final") || normalizedRound.includes("semifinal")) {
-                            return "Semi Finals";
-                          }
-                          if (normalizedRound.includes("quarter final") || normalizedRound.includes("quarter-final") || normalizedRound.includes("quarterfinal")) {
-                            return "Quarter Finals";
-                          }
-                          if (normalizedRound.includes("3rd place") || normalizedRound.includes("third place") || normalizedRound.includes("bronze")) {
-                            return "3rd Place Playoff";
-                          }
+                      {/* VS separator */}
+                      <div className="mx-4 text-sm font-medium text-gray-500">
+                        VS
+                      </div>
 
-                          // Round-based patterns
-                          if (normalizedRound.includes("round of 32") || normalizedRound.includes("r32")) return "Round of 32";
-                          if (normalizedRound.includes("round of 16") || normalizedRound.includes("r16") || normalizedRound.includes("last 16")) return "Round of 16";
-                          if (normalizedRound.includes("round of 8") || normalizedRound.includes("r8") || normalizedRound.includes("last 8")) return "Quarter Finals";
-                          if (normalizedRound.includes("round of 4") || normalizedRound.includes("r4") || normalizedRound.includes("last 4")) return "Semi Finals";
+                      {/* Away team */}
+                      <div className="flex items-center space-x-3 flex-1 min-w-0 flex-row-reverse">
+                        <div
+                          className="w-12 h-12 rounded-full p-2 flex items-center justify-center"
+                          style={{
+                            background: getEnhancedTeamColor(
+                              currentMatch?.teams?.away?.name || "",
+                              false,
+                            ),
+                          }}
+                        >
+                          <MyWorldTeamLogo
+                            src={currentMatch?.teams?.away?.logo || ""}
+                            alt={currentMatch?.teams?.away?.name || "Away Team"}
+                            countryName={currentMatch?.teams?.away?.name || ""}
+                            className="w-8 h-8 object-contain"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate text-right">
+                            {currentMatch?.teams?.away?.name || "Away Team"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
 
-                          // Group stage patterns
-                          if (normalizedRound.includes("group") || normalizedRound.includes("league phase")) return "Group Stage";
+                    {/* Match details */}
+                    <div className="text-center mt-4 text-xs text-gray-500">
+                      {(() => {
+                        try {
+                          const matchDate = parseISO(currentMatch.fixture.date);
+                          const formattedDate = format(matchDate, "EEEE, do MMM");
+                          const timeOnly = format(matchDate, "HH:mm");
 
-                          // Qualifying patterns
-                          if (normalizedRound.includes("qualifying") || normalizedRound.includes("qualifier") || normalizedRound.includes("preliminary")) {
-                            if (normalizedRound.includes("final")) return "Qualifying Final";
-                            return "Qualifying Round";
-                          }
-                          if (normalizedRound.includes("play off") || normalizedRound.includes("playoff") || normalizedRound.includes("play-off")) {
-                            return "Play-off Round";
-                          }
+                          return (
+                            <>
+                              {formattedDate} | {timeOnly}
+                              {currentMatch.fixture.venue?.name
+                                ? ` | ${currentMatch.fixture.venue.name}`
+                                : ""}
+                            </>
+                          );
+                        } catch (e) {
+                          return currentMatch.fixture.venue?.name || "";
+                        }
+                      })()}
+                    </div>
+                  </div>
 
-                          // Knockout stage patterns
-                          if (normalizedRound.includes("knockout")) return "Knockout Stage";
+                  {/* Action buttons */}
+                  <div className="flex justify-around border-t border-gray-200 pt-4">
+                    <button
+                      className="flex flex-col items-center text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/match/${currentMatch?.fixture?.id}`);
+                      }}
+                    >
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        className="mb-1"
+                      >
+                        <path
+                          d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      Match Page
+                    </button>
+                    <button
+                      className="flex flex-col items-center text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/match/${currentMatch?.fixture?.id}/lineups`);
+                      }}
+                    >
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        className="mb-1"
+                      >
+                        <path
+                          d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM11 19H5V15H11V19ZM11 13H5V9H11V13ZM11 7H5V5H11V7ZM13 19V5H19V19H13Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      Lineups
+                    </button>
+                    <button
+                      className="flex flex-col items-center text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/match/${currentMatch?.fixture?.id}/h2h`);
+                      }}
+                    >
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        className="mb-1"
+                      >
+                        <path
+                          d="M14.06 9.02L16.66 11.62L14.06 14.22L15.48 15.64L18.08 13.04L20.68 15.64L19.26 17.06L21.86 19.66L20.44 21.08L17.84 18.48L15.24 21.08L13.82 19.66L16.42 17.06L15.06 15.64L12.46 13.04L15.06 10.44L13.64 9.02L11.04 11.62L8.44 9.02L9.86 7.6L7.26 5L4.66 7.6L6.08 9.02L3.48 11.62L6.08 14.22L4.66 15.64L2.06 13.04L4.66 10.44L6.08 9.02L3.48 6.42L4.9 5L7.5 7.6L10.1 5L11.52 6.42L8.92 9.02L11.52 11.62L14.06 9.02M12 2C6.47 2 2 6.47 2 12C2 17.53 6.47 22 12 22C17.53 22 22 17.53 22 12C22 6.47 17.53 2 2 12Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      H2H
+                    </button>
+                    <button
+                      className="flex flex-col items-center text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/match/${currentMatch?.fixture?.id}/standings`);
+                      }}
+                    >
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        className="mb-1"
+                      >
+                        <path
+                          d="M12 4C11.17 4 10.36 4.16 9.59 4.47L7.75 6.32L16.68 15.25L18.53 13.4C18.84 12.64 19 11.83 19 11C19 7.13 15.87 4 12 4M5.24 8.66L6.66 7.24L7.93 8.51C8.74 8.2 9.56 8 10.4 7.83L12.24 5.96L3.31 14.89L5.24 8.66M13.6 16.6L5.33 21.88C5.72 22.4 6.29 22.88 6.93 23.17L8.77 21.33L16.36 13.74L13.6 16.6M15.25 17.75L13.4 19.6C12.64 19.84 11.83 20 11 20C7.13 20 4 16.87 4 13C4 12.17 4.16 11.36 4.47 10.59L6.32 8.75L15.25 17.75Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      Standings
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-                          // Default: return cleaned up round info if it doesn't match patterns
-                          if (round && round.length > 0 && round !== "TBD" && round !== "N/A") {
-                            // Capitalize first letter of each word
-                            return round.split(" ").map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(" ");
+            {/* Navigation dots */}
+            {allMatches.length > 1 && (
+              <div className="flex justify-center gap-2 mt-4">
+                {allMatches.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentMatchIndex(index)}
+                    className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                      index === currentMatchIndex ? "bg-gray-900" : "bg-gray-300"
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+    </>
+  );
+};
+
+// Helper function to get match status label - matches FixedScoreboard implementation
+const getMatchStatusLabel = (match: any) => {
+  const status = match?.fixture?.status?.short;
+  
+  if (status === "FT") return "FINISHED";
+  if (status === "1H" || status === "2H") return `${match?.fixture?.status?.elapsed || 0}'`;
+  if (status === "HT") return "HALF TIME";
+  if (status === "NS") return "NOT STARTED";
+  if (status === "PST") return "POSTPONED";
+  if (status === "CANC") return "CANCELLED";
+  
+  return status || "UNKNOWN";
+};
+
+export default MyHomeFeaturedMatchNew;
                           }
 
                           return null;
@@ -2091,8 +2278,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         // Only return processed round if it exists, no fallback
                         return processedRound;
                       })()}
-                    </Badge>
-                    ) : null}
+                    )}
                   </div>
                   
 
