@@ -1729,6 +1729,10 @@ id: fixture.teams.away.id,
                             return profiles;
                           };
 
+                          const teamNames = [
+                            currentMatch.teams.home.name,
+                            currentMatch.teams.away.name,
+                          ];
                           const teamProfiles = analyzeTeamProfile(teamNames);
                           if (teamProfiles.bigClubProfile >= 1) {
                             // Use timing to infer friendly type
