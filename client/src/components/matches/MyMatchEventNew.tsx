@@ -889,6 +889,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         className={`pb-3 ${isDarkTheme ? "bg-gray-700" : "mb-2"} border-b`}
       >
         <div className="flex items-center justify-between">
+          ```text
           <div className="flex items-center gap-2">
             <h3
  className="text-md font-semibold">Match Events</h3>
@@ -1106,6 +1107,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
 
                       // Sort by total time in descending order (latest first)
+                      // Special case: 46' (second half start) should come before 45' + extra time
+                      if (a.time.elapsed === 46 && b.time.elapsed === 45 && b.time.extra) {
+                        return -1; // 46' comes first
+                      }
+                      if (b.time.elapsed === 46 && a.time.elapsed === 45 && a.time.extra) {
+                        return 1; // 46' comes first
+                      }
+
                       return bTotalTime - aTotalTime;
                     },
                   );
@@ -1626,6 +1635,14 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
 
                       // Sort by total time in descending order (latest first)
+                      // Special case: 46' (second half start) should come before 45' + extra time
+                      if (a.time.elapsed === 46 && b.time.elapsed === 45 && b.time.extra) {
+                        return -1; // 46' comes first
+                      }
+                      if (b.time.elapsed === 46 && a.time.elapsed === 45 && a.time.extra) {
+                        return 1; // 46' comes first
+                      }
+
                       return bTotalTime - aTotalTime;
                     },
                   );
