@@ -818,10 +818,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             country: {
               name: "Germany",
               code: "DE",
-              flag: "https://media.api-sports.io/flags/de.svg",
+              flag: "https://media.api-sports.io/flags/de.svg",```text
             },
 
-          
+
           },
           {
             league: {
@@ -1717,6 +1717,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     },
   );
+
+  //```text
 
   // New endpoint for shot data (fixtures/players)
   apiRouter.get(
@@ -2669,7 +2671,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           res.status(404).json({
             success: false,
             error: "Match not found",
-          });
+          });```text
         }
       } catch (
 error) {
@@ -3288,6 +3290,67 @@ error) {
   app.use('/api', playersRoutes);
   app.use('/api', youtubeRoutes);
   app.use('/api/fixtures', selectiveLiveRoutes);
+
+// Test route for debugging
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'Server is running!' });
+});
+
+// Shots endpoint for match shot data
+app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
+  try {
+    const { fixtureId } = req.params;
+
+    if (!fixtureId || isNaN(Number(fixtureId))) {
+      return res.status(400).json({ 
+        error: 'Invalid fixture ID provided' 
+      });
+    }
+
+    // Try to fetch from RapidAPI
+    const response = await fetch(
+      `https://api-football-v1.p.rapidapi.com/v3/fixtures/statistics?fixture=${fixtureId}`,
+      {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': process.env.RAPIDAPI_KEY || '',
+          'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
+        }
+      }
+    );
+
+    if (!response.ok) {
+      console.error(`RapidAPI shots error for fixture ${fixtureId}:`, response.status);
+      return res.status(500).json({ 
+        error: 'Failed to fetch shot data',
+        details: `API responded with status ${response.status}`
+      });
+    }
+
+    const data = await response.json();
+
+    // Transform the statistics data to extract shot information
+    const shotsData = data.response?.map((team: any) => ({
+      team: team.team,
+      statistics: team.statistics?.filter((stat: any) => 
+        stat.type?.toLowerCase().includes('shot') ||
+        stat.type?.toLowerCase().includes('goal')
+      ) || []
+    })) || [];
+
+    res.json({
+      fixture: fixtureId,
+      shots: shotsData
+    });
+
+  } catch (error) {
+    console.error(`Error fetching shots for fixture ${fixtureId}:`, error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
 
   return httpServer;
 }

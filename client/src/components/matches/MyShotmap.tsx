@@ -41,12 +41,12 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
   const fetchRealShotData = useCallback(async () => {
     try {
       console.log(`🎯 [MyShotmap] Fetching real shot data for fixture: ${fixtureId}`);
-      
+
       const shotResponse = await fetch(`/api/fixtures/${fixtureId}/shots`);
-      
+
       if (shotResponse.ok) {
         const realShots = await shotResponse.json();
-        
+
         if (realShots && realShots.length > 0) {
           const convertedShots: ShotData[] = realShots.map((shot: any, index: number) => ({
             id: shot.id || index + 1,
@@ -71,7 +71,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
           return true;
         }
       }
-      
+
       return false;
     } catch (error) {
       console.error(`❌ [MyShotmap] Real shot data API error:`, error);
@@ -144,7 +144,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
 
       // First try to get real shot data with coordinates
       const hasRealShotData = await fetchRealShotData();
-      
+
       if (hasRealShotData) {
         setError(null);
         return;
@@ -270,8 +270,47 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
   }, [fixtureId, homeTeam, awayTeam, fetchFromSofaScore, mapSofaScoreShotType]);
 
   useEffect(() => {
-    fetchShotData();
-  }, [fetchShotData]);
+    const controller = new AbortController();
+
+    const fetchShots = async () => {
+      if (!fixtureId) return;
+
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/fixtures/${fixtureId}/shots`, {
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data && !controller.signal.aborted) {
+          setShotData(data);
+        }
+      } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          console.log('Shots fetch aborted');
+          return;
+        }
+        console.error('Error fetching shots:', error);
+        setShotData([]); // Set empty array on error
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchShots();
+
+    // Cleanup function to abort fetch on unmount
+    return () => {
+      controller.abort();
+    };
+  }, [fixtureId]);
 
   // Memoize expensive calculations
   const getShotColor = useCallback((team: string) => {
@@ -540,7 +579,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
                 >
                 <div className="event-detail-card">
                   <div className="event-card-main whitespace-nowrap pr-4"
-                    
+
                     >{currentShot?.situation || 'Regular Play'}</div>
                   <div className="event-card-sub ">Situation</div>
                 </div>
@@ -563,7 +602,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
 
 
 
-     
+
       </CardContent>
     </Card>
   );
