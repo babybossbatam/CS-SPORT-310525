@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Star, Trophy, Activity, Calendar, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,7 +18,6 @@ interface MyScoresCardProps {
 
 const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange }) => {
   const [showTeamSelection, setShowTeamSelection] = useState(false);
-  const [liveFilterActive, setLiveFilterActive] = useState(false);
 
   // Fetch suggested games (live and upcoming matches)
   const suggestedGamesQuery = useQuery({
@@ -31,8 +31,6 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  // Fetch live fixtures when live filter is active
-
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       <div className="mb-6 relative">
@@ -43,7 +41,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
           </div>
         </div>
       </div>
-
+      
       <Button 
         onClick={() => setShowTeamSelection(true)}
         className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full text-base font-medium"
@@ -72,7 +70,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
                       {format(new Date(fixture.fixture.date), 'h:mm a')}
                     </div>
                   </div>
-
+                  
                   <div className="flex items-center space-x-3 flex-1">
                     <div className="flex items-center space-x-2">
                       <MyWorldTeamLogo 
@@ -82,7 +80,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
                       />
                       <span className="font-medium">{fixture.teams.home.name}</span>
                     </div>
-
+                    
                     <div className="flex items-center space-x-2">
                       {fixture.fixture.status.short === 'NS' ? (
                         <span className="text-gray-400">vs</span>
@@ -99,7 +97,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
                         </div>
                       )}
                     </div>
-
+                    
                     <div className="flex items-center space-x-2">
                       <MyWorldTeamLogo 
                         teamId={fixture.teams.away.id}
@@ -110,7 +108,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
                     </div>
                   </div>
                 </div>
-
+                
                 <div className="text-right ml-4">
                   <div className="text-sm text-gray-600">{fixture.league.name}</div>
                   <div className="text-xs text-gray-500">{fixture.league.country}</div>
@@ -129,7 +127,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
         open={showTeamSelection} 
         onOpenChange={setShowTeamSelection} 
       />
-
+      
       <CardContent className="p-6">
         {/* Header with Tabs */}
         <Tabs value={selectedTab} onValueChange={onTabChange} className="w-full mb-8">
@@ -148,29 +146,10 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
                 My Selections
               </TabsTrigger>
             </TabsList>
-
-            {/* Live button */}
-            <button
-              onClick={() => {
-                setLiveFilterActive(!liveFilterActive);
-              }}
-              className={`flex items-center justify-center gap-1 px-0.5 py-0.5 rounded-full text-xs font-medium w-fit transition-colors duration-200 ${
-                liveFilterActive
-                  ? "bg-red-500 text-white hover:bg-red-600"
-                  : "bg-gray-300 text-black hover:bg-gray-400"
-              }`}
-              style={{ minWidth: "calc(2rem + 15px)" }}
-            >
-              <span className="relative flex h-2 w-2">
-                <span
-                  className={`animate-ping absolute inline-flex h-full w-full rounded-full ${liveFilterActive ? "bg-white" : "bg-red-400"} opacity-75`}
-                ></span>
-                <span
-                  className={`relative inline-flex rounded-full h-2 w-2 ${liveFilterActive ? "bg-white" : "bg-red-500"}`}
-                ></span>
-              </span>
+            
+            <Badge variant="secondary" className="bg-gray-800 text-white px-3 py-1 rounded-full">
               Live
-            </button>
+            </Badge>
           </div>
 
           {/* Tab Contents */}
@@ -178,7 +157,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
             <EmptyState />
             <SuggestedGames />
           </TabsContent>
-
+          
           <TabsContent value="my-selections" className="mt-0">
             <EmptyState />
             <div className="mt-12 text-center text-gray-500">
@@ -193,4 +172,3 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
 };
 
 export default MyScoresCard;
-`
