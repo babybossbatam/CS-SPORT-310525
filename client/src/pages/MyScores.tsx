@@ -10,6 +10,7 @@ import { enhancedApiWrapper } from '@/lib/enhancedApiWrapper';
 import { format } from 'date-fns';
 import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
 import TeamSelectionModal from '@/components/modals/TeamSelectionModal';
+import Header from '@/components/layout/Header';
 
 const MyScores: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('my-scores');
@@ -120,7 +121,9 @@ const MyScores: React.FC = () => {
   );
 
   return (
-    <div className="container mx-auto px-4 py-6 max-w-5xl">
+    <>
+      <Header />
+      <div className="container mx-auto px-4 py-6 max-w-5xl mt-[77px]">
       <TeamSelectionModal 
         open={showTeamSelection} 
         onOpenChange={setShowTeamSelection} 
@@ -165,6 +168,7 @@ const MyScores: React.FC = () => {
         </Tabs>
       </div>
     </div>
+    </>
   );
 };
 
