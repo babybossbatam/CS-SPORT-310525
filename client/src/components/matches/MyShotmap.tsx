@@ -273,36 +273,53 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
     const controller = new AbortController();
 
     const fetchShots = async () => {
-      if (!fixtureId) return;
+    if (!fixtureId) return;
 
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/fixtures/${fixtureId}/shots`, {
-          signal: controller.signal
-        });
+    setIsLoading(true);
+    try {
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await fetch(`/api/fixtures/${fixtureId}/shots`, {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
         }
+      });
 
-        const data = await response.json();
+      clearTimeout(timeoutId);
 
-        if (data && !controller.signal.aborted) {
-          setShotData(data);
-        }
-      } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
-          console.log('Shots fetch aborted');
-          return;
-        }
-        console.error('Error fetching shots:', error);
-        setShotData([]); // Set empty array on error
-      } finally {
-        if (!controller.signal.aborted) {
-          setIsLoading(false);
-        }
+      if (!response.ok) {
+        console.warn(`⚠️ [MyShotmap] Shots API returned ${response.status} for fixture ${fixtureId}`);
+        setShotData([]);
+        return;
       }
-    };
+
+      const responseText = await response.text();
+      let data;
+
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error(`❌ [MyShotmap] JSON parse error:`, parseError);
+        setShotData([]);
+        return;
+      }
+
+      setShotData(data || []);
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.warn('⏰ [MyShotmap] Request timeout for shots');
+      } else {
+        console.error('❌ [MyShotmap] Error fetching shots:', error);
+      }
+      setShotData([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
     fetchShots();
 

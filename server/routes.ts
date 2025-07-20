@@ -1717,52 +1717,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     },
   );
 
-  // New endpoint for shot data (fixtures/players)
+  // Shot data endpoint
   apiRouter.get(
     "/fixtures/:fixtureId/shots",
     async (req: Request, res: Response) => {
       try {
         const { fixtureId } = req.params;
 
-        const response = await rapidApi.get('/fixtures/players', {
-          params: { fixture: fixtureId }
-        });
-
-        // Extract shot data from player statistics
-        const shots: any[] = [];
-
-        response.data.response.forEach((team: any) => {
-          team.players?.forEach((playerData: any) => {
-            const player = playerData.player;
-            const statistics = playerData.statistics[0]; // First statistics object
-
-            // Check if player has shot data
-            if (statistics.shots && statistics.shots.total > 0) {
-              // For each shot (you'd need more detailed shot data from API)
-              for (let i = 0; i < statistics.shots.total; i++) {
-                shots.push({
-                  id: `${player.id}-${i}`,
-                  x: Math.random() * 40 + (team.team.id === 'home' ? 60 : 20), // Placeholder - need real coordinates
-                  y: Math.random() * 60 + 20,
-                  type: statistics.goals.total > 0 ? 'goal' : 'shot',
-                  player: {
-                    id: player.id,
-                    name: player.name,
-                    photo: player.photo
-                  },
-                  team: team.team,
-                  minute: Math.floor(Math.random() * 90), // Placeholder
-                  bodyPart: 'Right foot', // Placeholder
-                  situation: 'Regular Play', // Placeholder
-                  xG: Math.random() * 0.8 + 0.05,
-                  onTarget: statistics.shots.on || 0
-                });
-              }
-            }
-          });
-        });
-
-        res.json(shots);
+        // For now, return empty array since this feature requires more detailed API data
+        console.log(`📊 [Shots API] Requested shots for fixture: ${fixtureId}`);
+        
+        // Return empty shots array to prevent 500 errors
+        res.json([]);
       } catch (error) {
         console.error('Error fetching shot data:', error);
         res.status(500).json({ error: 'Failed to fetch shot data' });

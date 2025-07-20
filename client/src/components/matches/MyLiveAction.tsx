@@ -141,6 +141,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     fixtureStatus: displayMatch?.fixture?.status,
   });
 
+  // Initialize ball movement and target
+  useEffect(() => {
+    if (isLive) {
+      // Set initial ball target for immediate movement
+      setBallTarget({ x: 45 + Math.random() * 10, y: 45 + Math.random() * 10 });
+      setBallMovementActive(true);
+    }
+  }, [isLive]);
+
   // Fetch initial match data and set up real-time updates
   useEffect(() => {
     if (!matchId) {
@@ -229,90 +238,89 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     };
   }, [matchId]);
 
-  // Event-driven ball movement with purposeful patterns
+  // Event-driven ball movement with historical trails
   const [ballTrail, setBallTrail] = useState<
-    Array<{ x: number; y: number; timestamp: number }>
+    Array<{ x: number; y: number; timestamp: number; eventId: string }>
   >([]);
   const [currentBallEvent, setCurrentBallEvent] = useState<string | null>(null);
   const [ballMovementActive, setBallMovementActive] = useState(false);
+  const [eventInProgress, setEventInProgress] = useState(false);
 
+  // Event-based ball movement effect - only moves during events
   useEffect(() => {
-    if (!isLive || !ballMovementActive) return;
+    if (!isLive || !ballMovementActive || !ballTarget || !eventInProgress) return;
 
     const ballInterval = setInterval(() => {
       setBallPosition((prev) => {
-        // Move towards target in straight line with fast, precise movement
         const deltaX = ballTarget.x - prev.x;
         const deltaY = ballTarget.y - prev.y;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        // If close to target, snap to it and stop movement
-        if (distance < 1.5) {
+        if (distance > 2) {
+          // Move towards target during event
+          const moveSpeed = 2.5;
+          const directionX = deltaX / distance;
+          const directionY = deltaY / distance;
+
+          const newX = Math.max(8, Math.min(92, prev.x + directionX * moveSpeed));
+          const newY = Math.max(8, Math.min(92, prev.y + directionY * moveSpeed));
+
+          // Add to current event trail
+          setBallTrail((currentTrail) => {
+            const eventId = currentBallEvent || 'default';
+            return [
+              ...currentTrail,
+              { x: prev.x, y: prev.y, timestamp: Date.now(), eventId },
+            ].slice(-50); // Keep last 50 points
+          });
+
+          return { x: newX, y: newY };
+        } else {
+          // Reached target - stop movement and finalize trail
           setBallMovementActive(false);
-          setCurrentBallEvent(null);
+          setEventInProgress(false);
+
+          // Add final position to trail
+          setBallTrail((currentTrail) => {
+            const eventId = currentBallEvent || 'default';
+            return [
+              ...currentTrail,
+              { x: ballTarget.x, y: ballTarget.y, timestamp: Date.now(), eventId },
+            ].slice(-50);
+          });
+
+          // Update possession based on final position
+          if (currentBallEvent === "dangerous_attack") {
+            setBallPossession(ballTarget.x > 50 ? "away" : "home");
+          } else if (currentBallEvent === "ball_safe") {
+            setBallPossession(ballTarget.x < 50 ? "home" : "away");
+          } else {
+            setBallPossession(ballTarget.x < 35 ? "home" : ballTarget.x > 65 ? "away" : ballPossession);
+          }
+
           return { x: ballTarget.x, y: ballTarget.y };
         }
-
-        const moveSpeed = 2; // Faster movement for 365scores style
-
-        // Calculate precise direction vector (no randomness)
-        const directionX = deltaX / distance;
-        const directionY = deltaY / distance;
-
-        let newX = prev.x + directionX * moveSpeed;
-        let newY = prev.y + directionY * moveSpeed;
-
-        // Keep ball within field bounds
-        newX = Math.max(10, Math.min(90, newX));
-        newY = Math.max(20, Math.min(80, newY));
-
-        // Update possession based on ball position and event type
-        if (currentBallEvent === "dangerous_attack") {
-          setBallPossession(newX > 50 ? "away" : "home");
-        } else if (currentBallEvent === "ball_safe") {
-          setBallPossession(newX < 50 ? "home" : "away");
-        } else {
-          setBallPossession(
-            newX < 35
-              ? "home"
-              : newX > 65
-                ? "away"
-                : Math.random() > 0.5
-                  ? "home"
-                  : "away",
-          );
-        }
-
-        // Add to trail for straight line visualization
-        setBallTrail((currentTrail) => {
-          const newTrail = [
-            ...currentTrail,
-            { x: prev.x, y: prev.y, timestamp: Date.now() },
-          ];
-          return newTrail.slice(-6); // Shorter trail for cleaner look
-        });
-
-        return { x: newX, y: newY };
       });
-    }, 60); // Smoother movement
+    }, 60);
 
     return () => clearInterval(ballInterval);
-  }, [isLive, ballTarget, ballMovementActive, currentBallEvent]);
+  }, [isLive, ballTarget, ballMovementActive, currentBallEvent, ballPossession, eventInProgress]);
 
-  // Event-driven ball target setting
+  // Event-driven ball target setting - creates new trail for each event
   const triggerBallMovement = (eventType: string, team: "home" | "away") => {
-    // Clear previous trail when starting a new event
+    // Clear previous trail and start new event trail
+    const eventId = `${eventType}_${team}_${Date.now()}`;
     setBallTrail([]);
 
     let targetPosition;
 
     switch (eventType) {
       case "dangerous_attack":
-        // Move toward opponent's goal area
+        // Move toward opponent's goal area - full field height
         targetPosition =
           team === "home"
-            ? { x: 85, y: 45 + Math.random() * 10 } // Attack right goal
-            : { x: 15, y: 45 + Math.random() * 10 }; // Attack left goal
+            ? { x: 85, y: 5 + Math.random() * 90 } // Attack right goal - full field height
+            : { x: 15, y: 5 + Math.random() * 90 }; // Attack left goal - full field height
         break;
 
       case "shot":
@@ -328,12 +336,12 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         const corners =
           team === "home"
             ? [
-                { x: 98, y: 10 },
-                { x: 98, y: 90 },
-              ] // Right corners - outside penalty area
+                { x: 95, y: 1 }, // Top-right corner flag
+                { x: 95, y: 95 }, // Bottom-right corner flag
+              ] // Right corners - at actual corner flags
             : [
-                { x: 2, y: 10 },
-                { x: 2, y: 90 },
+                { x: 1, y: 1 }, // Top-left corner flag
+                { x: 1, y: 95 }, // Bottom-left corner flag
               ]; // Left corners - outside penalty area
         targetPosition = corners[Math.floor(Math.random() * corners.length)];
         break;
@@ -347,24 +355,25 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         break;
 
       case "ball_safe":
-        // Move to midfield or defensive areas
+        // Move to midfield or defensive areas - full field height
         targetPosition =
           team === "home"
-            ? { x: 25 + Math.random() * 20, y: 35 + Math.random() * 30 } // Home half
-            : { x: 55 + Math.random() * 20, y: 35 + Math.random() * 30 }; // Away half
+            ? { x: 25 + Math.random() * 20, y: 5 + Math.random() * 90 } // Home half - full field height
+            : { x: 55 + Math.random() * 20, y: 5 + Math.random() * 90 }; // Away half - full field height
         break;
 
       default:
-        // Default attacking movement
+        // Default attacking movement - full field height
         targetPosition =
           team === "home"
-            ? { x: 70 + Math.random() * 15, y: 35 + Math.random() * 30 } // Forward movement
-            : { x: 15 + Math.random() * 15, y: 35 + Math.random() * 30 }; // Forward movement
+            ? { x: 70 + Math.random() * 15, y: 5 + Math.random() * 90 } // Forward movement - full field height
+            : { x: 15 + Math.random() * 15, y: 5 + Math.random() * 90 }; // Forward movement - full field height
     }
 
-    setCurrentBallEvent(eventType);
+    setCurrentBallEvent(eventId);
     setBallTarget(targetPosition);
     setBallMovementActive(true);
+    setEventInProgress(true);
   };
 
   // Update live commentary like 365scores
@@ -397,7 +406,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   // Clean up old events and effects
   useEffect(() => {
     const cleanup = setInterval(() => {
-      // Don't auto-clear ball trail - only clear when new event starts
+      // Clean up old trail points (keep for 15 seconds to show historical movement)
+      setBallTrail((current) =>
+        current.filter((point) => Date.now() - point.timestamp < 15000)
+      );
 
       setShotEvents((current) =>
         current.filter((event) => Date.now() - event.timestamp < 4000),
@@ -462,7 +474,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     // Generate events based on probability and game situation
     const eventProbability = Math.random();
 
-    if (eventProbability > 0.88) {
+    if (eventProbability > 0.3) {
       // Dangerous attack (12% chance)
       eventType = Math.random() > 0.7 ? "shot" : "attack";
       randomType = "dangerous_attack";
@@ -502,10 +514,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       setMatchIntensity("medium");
 
       const cornerPositions = [
-        { corner: "top-left" as const, x: 2, y: 10 },
-        { corner: "top-right" as const, x: 98, y: 10 },
-        { corner: "bottom-left" as const, x: 2, y: 90 },
-        { corner: "bottom-right" as const, x: 98, y: 90 },
+        { corner: "top-left" as const, x: 1, y: 1 },
+        { corner: "top-right" as const, x: 95, y: 1 },
+        { corner: "bottom-left" as const, x: 1, y: 90 },
+        { corner: "bottom-right" as const, x: 95, y: 95 },
       ];
 
       const selectedCorner =
@@ -552,6 +564,21 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       setMatchIntensity("low");
 
       triggerBallMovement("ball_safe", randomTeam);
+    } else if (eventProbability > 0.48) {
+      // Substitution (5% chance)
+      eventType = "substitution";
+      randomType = "ball_safe";
+      setMatchIntensity("medium");
+
+      const substitutionEvent = {
+        id: `substitution_${Date.now()}`,
+        team: randomTeam,
+        playerOut: `Player ${Math.floor(Math.random() * 23) + 1}`,
+        playerIn: `Player ${Math.floor(Math.random() * 23) + 1}`,
+        timestamp: Date.now(),
+      };
+
+      setSubstitutionEvents((prev) => [...prev.slice(-4), substitutionEvent]);
     } else {
       // No major event - return early
       return;
@@ -581,7 +608,12 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           : eventType === "corner"
             ? "Corner kick"
             : "Attacking Move",
-      ball_safe: eventType === "goalkick" ? "Goal kick" : "Safe Possession",
+      ball_safe: 
+        eventType === "goalkick" 
+          ? "Goal kick" 
+          : eventType === "substitution"
+            ? "Substitution"
+            : "Safe Possession",
       dangerous_attack:
         eventType === "goal"
           ? "GOAL!"
@@ -596,12 +628,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       team: randomTeam,
       type: eventType as any,
       player:
-        randomTeam === "home"
-          ? homeTeamData?.name || "Home Team"
-          : awayTeamData?.name || "Away Team",
+        eventType === "substitution"
+          ? `Player ${Math.floor(Math.random() * 23) + 1}`
+          : randomTeam === "home"
+            ? homeTeamData?.name || "Home Team"
+            : awayTeamData?.name || "Away Team",
       description: eventDescriptions[randomType],
       timestamp: Date.now(),
       isRecent: true,
+      playerOut: eventType === "substitution" ? `Player ${Math.floor(Math.random() * 23) + 1}` : undefined,
+      playerIn: eventType === "substitution" ? `Player ${Math.floor(Math.random() * 23) + 1}` : undefined,
     };
 
     setCurrentEvent(newEvent);
@@ -619,14 +655,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       )[] = ["stats", "history", "corners", "shotmap", "commentary"];
       const randomView = views[Math.floor(Math.random() * views.length)];
       setCurrentView(randomView);
-    }, 3500);
+    }, 5000);
 
     // Clear zone and reset view
     setTimeout(() => {
       setAttackZones((prev) => prev.filter((z) => z.id !== newZone.id));
       setCurrentView("event");
       setCurrentEvent(null);
-    }, 7000);
+    }, 10000);
   };
 
   const generatePlayByPlayEvents = async (matchData: any) => {
@@ -837,7 +873,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         return "border-red-500 bg-red-50";
       case "medium":
         return "border-yellow-500 bg-yellow-50";
-      case "low":
+      case "low":```text
         return "border-green-500 bg-green-50";
       default:
         return "border-gray-300 bg-gray-50";
@@ -900,49 +936,138 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             minHeight: "400px",
           }}
         >
-          {/* Enhanced attack zones with 365scores style */}
-          {attackZones.map((zone) => (
-            <div key={zone.id} className="absolute inset-0 pointer-events-none">
-              <div
-                className={`absolute transition-all duration-1000 attack-zone ${
-                  zone.type === "dangerous_attack"
-                    ? zone.team === "home"
-                      ? "bg-gradient-to-r from-blue-600/70 via-blue-700/80 to-blue-500/50"
-                      : "bg-gradient-to-l from-red-600/70 via-red-700/80 to-red-500/50"
-                    : zone.team === "home"
-                      ? "bg-gradient-to-r from-blue-500/50 via-blue-600/60 to-transparent"
-                      : "bg-gradient-to-l from-red-500/50 via-red-600/60 to-transparent"
-                }`}
-                style={{
-                  top: zone.type === "dangerous_attack" ? "25%" : "20%",
-                  bottom: zone.type === "dangerous_attack" ? "25%" : "20%",
-                  left:
-                    zone.team === "home"
-                      ? zone.type === "dangerous_attack"
-                        ? "5%"
-                        : "10%"
-                      : "35%",
-                  right:
-                    zone.team === "home"
-                      ? "35%"
-                      : zone.type === "dangerous_attack"
-                        ? "5%"
-                        : "10%",
-                  clipPath:
-                    zone.team === "home"
-                      ? zone.type === "dangerous_attack"
-                        ? "polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%)"
-                        : "polygon(0% 0%, 70% 0%, 100% 50%, 70% 100%, 0% 100%)"
-                      : zone.type === "dangerous_attack"
-                        ? "polygon(15% 0%, 100% 0%, 100% 100%, 15% 100%, 0% 50%)"
-                        : "polygon(30% 0%, 100% 0%, 100% 100%, 30% 100%, 0% 50%)",
-                  opacity: zone.opacity,
-                }}
-              />
-            </div>
-          ))}
+          {/* Enhanced attack zones with curved overlays and text labels like the reference image */}
+          {attackZones.map((zone) => {
+            const teamName = zone.team === "home" ? homeTeamData?.name?.toUpperCase() : awayTeamData?.name?.toUpperCase();
+            const zoneText = zone.type === "ball_safe" 
+              ? "Ball Possession" 
+              : zone.type === "dangerous_attack" 
+                ? "Dangerous Attack" 
+                : "Attack";
 
-          {/* Enhanced ball trail with 365scores precision */}
+            return (
+              <div key={zone.id} className="absolute inset-0 pointer-events-none">
+                {/* Curved organic attack zone overlay */}
+                <svg
+                  className="absolute inset-0 w-full h-full"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                >
+                  <defs>
+                    <radialGradient
+                      id={`attackGradient-${zone.id}`}
+                      cx="50%"
+                      cy="50%"
+                      r="60%"
+                    >
+                      <stop
+                        offset="0%"
+                        stopColor={
+                          zone.team === "home"
+                            ? zone.type === "dangerous_attack"
+                              ? "#1e40af"
+                              : zone.type === "ball_safe"
+                                ? "#059669"
+                                : "#3b82f6"
+                            : zone.type === "dangerous_attack"
+                              ? "#dc2626"
+                              : zone.type === "ball_safe"
+                                ? "#059669"
+                                : "#ef4444"
+                        }
+                        stopOpacity={zone.type === "dangerous_attack" ? "0.75" : zone.type === "ball_safe" ? "0.6" : "0.65"}
+                      />
+                      <stop
+                        offset="70%"
+                        stopColor={
+                          zone.team === "home"
+                            ? zone.type === "dangerous_attack"
+                              ? "#1e40af"
+                              : zone.type === "ball_safe"
+                                ? "#059669"
+                                : "#3b82f6"
+                            : zone.type === "dangerous_attack"
+                              ? "#dc2626"
+                              : zone.type === "ball_safe"
+                                ? "#059669"
+                                : "#ef4444"
+                        }
+                        stopOpacity={zone.type === "dangerous_attack" ? "0.4" : zone.type === "ball_safe" ? "0.3" : "0.35"}
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor="transparent"
+                        stopOpacity="0"
+                      />
+                    </radialGradient>
+                  </defs>
+
+                  {/* Curved attack zone shape - wider and more organic */}
+                  <path
+                    d={
+                      zone.team === "home"
+                        ? zone.type === "dangerous_attack"
+                          ? "M 5 15 Q 30 5, 50 20 Q 70 8, 90 25 Q 95 50, 90 75 Q 70 92, 50 80 Q 30 95, 5 85 Q 0 50, 5 15 Z"
+                          : zone.type === "ball_safe"
+                            ? "M 5 25 Q 25 10, 45 30 Q 65 15, 85 35 Q 90 50, 85 65 Q 65 85, 45 70 Q 25 90, 5 75 Q 0 50, 5 25 Z"
+                            : "M 8 20 Q 28 8, 48 25 Q 68 12, 88 30 Q 92 50, 88 70 Q 68 88, 48 75 Q 28 92, 8 80 Q 2 50, 8 20 Z"
+                        : zone.type === "dangerous_attack"
+                          ? "M 10 25 Q 30 8, 50 20 Q 70 5, 95 15 Q 100 50, 95 85 Q 70 95, 50 80 Q 30 92, 10 75 Q 5 50, 10 25 Z"
+                          : zone.type === "ball_safe"
+                            ? "M 15 35 Q 35 15, 55 30 Q 75 10, 95 25 Q 100 50, 95 75 Q 75 90, 55 70 Q 35 85, 15 65 Q 10 50, 15 35 Z"
+                            : "M 12 30 Q 32 12, 52 25 Q 72 8, 92 20 Q 98 50, 92 80 Q 72 92, 52 75 Q 32 88, 12 70 Q 7 50, 12 30 Z"
+                    }
+                    fill={`url(#attackGradient-${zone.id})`}
+                    className="transition-all duration-1000"
+                  />
+                </svg>
+
+                {/* Zone text label with jersey icon */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center text-white drop-shadow-2xl">
+                    <div className="text-sm font-medium mb-1 opacity-90">
+                      {zoneText}
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-lg font-bold tracking-wide">
+                        {teamName}
+                      </span>
+                      <div className={`w-6 h-6 rounded flex items-center justify-center text-white text-sm font-bold ${
+                        zone.team === "home" ? "bg-blue-500" : "bg-red-500"
+                      }`}>
+                        👕
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Team possession display on field with jerseys */}
+          {ballPossession && (
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 pointer-events-none">
+              <div className="bg-black/70 backdrop-blur-sm rounded-lg px-4 py-2 flex items-center gap-3">
+                <div
+                  className={`w-6 h-6 rounded ${
+                    ballPossession === "home" ? "bg-blue-500" : "bg-red-500"
+                  } flex items-center justify-center text-white text-xs font-bold`}
+                >
+                  👕
+                </div>
+                <span className="text-white text-sm font-semibold">
+                  Ball Possession
+                </span>
+                <span className="text-white text-sm font-bold uppercase">
+                  {ballPossession === "home"
+                    ? homeTeamData?.name?.toUpperCase()
+                    : awayTeamData?.name?.toUpperCase()}
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Historical ball trail - shows completed event paths */}
           {ballTrail.length > 1 && (
             <svg
               className="absolute inset-0 w-full h-full z-35 pointer-events-none"
@@ -951,16 +1076,27 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             >
               {ballTrail.slice(0, -1).map((pos, index) => {
                 const nextPos = ballTrail[index + 1];
-                const opacity = 1 - (index / ballTrail.length) * 2.8;
+                const age = Date.now() - pos.timestamp;
+                const maxAge = 15000; // 15 seconds
+                const ageProgress = Math.min(age / maxAge, 1);
+                const opacity = (1 - ageProgress) * 0.9; // Fade out over time
+                const strokeWidth = (1 - ageProgress) * 1.5 + 0.3; // Thinner over time
+
+                // Different colors for different event types
+                const isCurrentEvent = pos.eventId === currentBallEvent;
+                const trailColor = isCurrentEvent 
+                  ? (ballPossession === "home" ? "rgba(59,130,246,0.8)" : "rgba(239,68,68,0.8)")
+                  : "rgba(156,163,175,0.5)"; // Gray for old events
+
                 return (
-                  <g key={`trail-${index}`}>
+                  <g key={`trail-${pos.eventId}-${index}`}>
                     <line
                       x1={pos.x}
                       y1={pos.y}
                       x2={nextPos.x}
                       y2={nextPos.y}
-                      stroke="rgba(255,255,255,0.95)"
-                      strokeWidth="1"
+                      stroke="rgba(255,255,255,0.6)"
+                      strokeWidth={strokeWidth + 0.5}
                       strokeLinecap="round"
                       opacity={opacity}
                     />
@@ -969,10 +1105,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       y1={pos.y}
                       x2={nextPos.x}
                       y2={nextPos.y}
-                      stroke="rgba(255,255,255,0.5)"
-                      strokeWidth="0.5"
+                      stroke={trailColor}
+                      strokeWidth={strokeWidth}
                       strokeLinecap="round"
-                      opacity={opacity * 0.6}
+                      opacity={opacity}
                     />
                   </g>
                 );
@@ -982,18 +1118,13 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
           {/* Enhanced professional ball with 365scores style */}
           <div
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-30 ease-out z-50"
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-3000 ease-out z-50"
             style={{
               left: `${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
             }}
           >
             <div className="relative">
-              {/* Sharp ball shadow */}
-              <div
-                className="absolute w-6 h-2.5 bg-black/40 rounded-full"
-                style={{ left: "-12px", top: "18px" }}
-              ></div>
               {/* Professional ball - sharp and crisp */}
               <div className="w-4 h-4 relative">
                 <img
@@ -1008,8 +1139,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               {ballPossession && (
                 <div className="absolute -inset-4">
                   <div
-                    className={`w-14 h-14 rounded-full animate-ping opacity-60 ${
-                      ballPossession === "home" ? "bg-blue-400" : "bg-red-400"
+                    className={`w-10 h-10 rounded-full animate-ping opacity-50 ${
+                      ballPossession === "home" ? "bg-blue-300" : "bg-red-300"
                     }`}
                   ></div>
                   <div
@@ -1021,6 +1152,39 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               )}
             </div>
           </div>
+        {/* Statistics and trends display at bottom of field - only show when currentView is "history" */}
+          {currentView === "history" && (
+            <div className="absolute bottom-4 left-0 right-0 z-30 px-4">
+              <div className="bg-white/95 backdrop-blur-sm rounded-lg border border-gray-200 p-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-center w-full">
+                    <div className="text-xs text-gray-500 mb-1">HEAD TO HEAD RECORD</div>
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs font-bold">
+                          👕
+                        </div>
+                        <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
+                          {teamStats.previousMeetings.homeWins} WINS
+                        </div>
+                      </div>
+                      <div className="bg-gray-400 text-white px-2 py-1 rounded text-xs font-bold">
+                        {teamStats.previousMeetings.draws} DRAWS
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                          {teamStats.previousMeetings.awayWins} WINS
+                        </div>
+                        <div className="w-6 h-6 bg-red-500 rounded flex items-center justify-center text-white text-xs font-bold">
+                          👕
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Enhanced shot events visualization */}
@@ -1036,10 +1200,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <div
               className={`w-4 h-4 rounded-full ${
                 shot.isGoal
-                  ? "bg-green-500 ring-4 ring-green-300 ring-opacity-60"
+                  ? "bg-green-300 ring-4 ring-green-300 ring-opacity-60"
                   : shot.team === "home"
-                    ? "bg-blue-500 ring-4 ring-blue-300 ring-opacity-60"
-                    : "bg-red-500 ring-4 ring-red-300 ring-opacity-60"
+                    ? "bg-blue-300 ring-4 ring-blue-300 ring-opacity-60"
+                    : "bg-red-300 ring-4 ring-red-300 ring-opacity-60"
               } animate-ping`}
               style={{ animationDuration: "2s" }}
             ></div>
@@ -1049,22 +1213,73 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         {/* Current event display - enhanced 365scores style */}
         {currentEvent && currentView === "event" && currentStatus !== "P" && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none">
-            <div className="text-center text-white">
-              <div className="text-3xl font-bold mb-2 drop-shadow-2xl text-shadow-lg">
-                {currentEvent.description}
+            {currentEvent.type === "substitution" ? (
+              /* Substitution banner display */
+              <div className="w-96 bg-white/95 backdrop-blur-sm rounded-lg shadow-xl border border-gray-200 overflow-hidden">
+                {/* Player Out */}
+                <div className="flex items-center justify-between p-3 bg-gray-50 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="text-sm font-medium text-gray-600">
+                      {currentEvent.minute || elapsed}'
+                    </div>
+                    <div className="text-sm font-medium text-gray-700">
+                      {currentEvent.playerOut || currentEvent.player}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-500 font-bold">➡️</span>
+                    <span className="text-xs font-medium text-gray-500 bg-red-50 px-2 py-1 rounded">
+                      OFF
+                    </span>
+                  </div>
+                </div>
+
+                {/* Replacement Banner */}
+                <div className="bg-white px-6 py-4">
+                  <div className="text-center">
+                    <span className="text-gray-700 font-bold text-lg tracking-wide">
+                      SUBSTITUTION
+                    </span>
+                  </div>
+                </div>
+
+                {/* Player In */}
+                <div className="flex items-center justify-between p-3 bg-gray-50 border-t border-gray-200">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-gray-500 bg-green-50 px-2 py-1 rounded">
+                      ON
+                    </span>
+                    <span className="text-green-500 font-bold">⬅️</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-sm font-medium text-gray-700">
+                      {currentEvent.playerIn || "New Player"}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {currentEvent.team === "home" ? homeTeamData?.name?.slice(0, 3) : awayTeamData?.name?.slice(0, 3)}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="text-lg font-semibold opacity-90 drop-shadow-lg">
-                {currentEvent.team === "home"
-                  ? homeTeamData?.name?.toUpperCase()
-                  : awayTeamData?.name?.toUpperCase()}
+            ) : (
+              /* Regular event display */
+              <div className="text-center text-white">
+                <div className="text-3xl font-bold mb-2 drop-shadow-2xl text-shadow-lg">
+                  {currentEvent.description}
+                </div>
+                <div className="text-lg font-semibold opacity-90 drop-shadow-lg">
+                  {currentEvent.team === "home"
+                    ? homeTeamData?.name?.toUpperCase()
+                    : awayTeamData?.name?.toUpperCase()}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
         {/* Live Commentary Overlay on Field */}
         {currentView === "commentary" && (
-          <div className="absolute bottom-16 left-4 right-4 z-30 bg-black/80 backdrop-blur-sm rounded-lg border border-white/20">
+          <div className="absolute bottom-6 left-4 right-4 z-30 bg-black/80 backdrop-blur-sm rounded-lg border border-white/20">
             <div className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-white text-xs font-medium uppercase tracking-wide">
@@ -1093,211 +1308,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                         className={`w-2 h-2 rounded-full ${comment.team === "home" ? "bg-blue-400" : "bg-red-400"}`}
                       ></div>
                     )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Enhanced bottom statistics panel - 365scores style */}
-      <div className="bg-white border-t border-gray-200">
-        {currentView === "stats" && (
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-                Possession
-              </span>
-              <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
-                {elapsed}'
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                <span className="text-sm font-bold">
-                  {homeTeamData?.name?.slice(0, 3)}
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-blue-500 text-2xl font-bold">
-                  {teamStats.possession.home}%
-                </span>
-                <div className="w-16 h-16 relative">
-                  <svg className="w-16 h-16 transform -rotate-90">
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      stroke="#e5e7eb"
-                      strokeWidth="6"
-                      fill="none"
-                    />
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      stroke="#3b82f6"
-                      strokeWidth="6"
-                      fill="none"
-                      strokeDasharray={`${(teamStats.possession.home / 100) * 175.9} 175.9`}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold">⚽</span>
-                  </div>
-                </div>
-                <span className="text-red-500 text-2xl font-bold">
-                  {teamStats.possession.away}%
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold">
-                  {awayTeamData?.name?.slice(0, 3)}
-                </span>
-                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentView === "history" && (
-          <div className="p-4">
-            <div className="text-center mb-3">
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-                Last 5 Matches
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                <div className="flex gap-1">
-                  {teamStats.lastFiveMatches.home.map((result, i) => (
-                    <div
-                      key={i}
-                      className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}
-                    >
-                      {result}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  {teamStats.lastFiveMatches.away.map((result, i) => (
-                    <div
-                      key={i}
-                      className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}
-                    >
-                      {result}
-                    </div>
-                  ))}
-                </div>
-                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentView === "corners" && (
-          <div className="p-4">
-            <div className="text-center mb-3">
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-                Corners
-              </span>
-            </div>
-            <div className="flex items-center justify-center gap-12">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                <span className="text-blue-500 text-3xl font-bold">
-                  {teamStats.corners.home}
-                </span>
-              </div>
-              <div className="w-24 h-1 bg-gray-200 rounded relative">
-                <div
-                  className="h-full bg-blue-500 rounded transition-all duration-1000"
-                  style={{
-                    width: `${teamStats.corners.home > 0 ? (teamStats.corners.home / (teamStats.corners.home + teamStats.corners.away)) * 100 : 50}%`,
-                  }}
-                ></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-red-500 text-3xl font-bold">
-                  {teamStats.corners.away}
-                </span>
-                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentView === "shotmap" && (
-          <div className="p-4">
-            <div className="text-center mb-3">
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-                Shot Map
-              </span>
-            </div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                <span className="text-blue-500 text-xl font-bold">
-                  {teamStats.shots.home}
-                </span>
-                <span className="text-xs text-gray-500">shots</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">Goal</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">Home Shot</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">Away Shot</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">shots</span>
-                <span className="text-red-500 text-xl font-bold">
-                  {teamStats.shots.away}
-                </span>
-                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-              </div>
-            </div>
-
-            {/* Enhanced mini shot map */}
-            <div className="relative h-20 bg-green-600 rounded-lg overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-b from-green-500 to-green-700 opacity-95">
-                {/* Mini field markings */}
-                <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-2 h-10 border border-white/60"></div>
-                <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-2 h-10 border border-white/60"></div>
-                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/60"></div>
-
-                {/* Shot markers on mini map */}
-                {shotEvents.slice(-15).map((shot) => (
-                  <div
-                    key={`mini-${shot.id}`}
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2"
-                    style={{
-                      left: `${shot.x}%`,
-                      top: `${((shot.y - 20) / 60) * 100}%`,
-                    }}
-                  >
-                    <div
-                      className={`w-2 h-2 rounded-full ${
-                        shot.isGoal
-                          ? "bg-green-400 ring-2 ring-green-200"
-                          : shot.team === "home"
-                            ? "bg-blue-400"
-                            : "bg-red-400"
-                      }`}
-                    ></div>
                   </div>
                 ))}
               </div>

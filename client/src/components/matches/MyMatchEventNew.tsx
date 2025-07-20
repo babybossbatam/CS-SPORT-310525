@@ -93,13 +93,44 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         `📊 [MyMatchEventNew] Fetching events for fixture: ${fixtureId}`,
       );
 
-      const response = await fetch(`/api/fixtures/${fixtureId}/events`);
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      const response = await fetch(`/api/fixtures/${fixtureId}/events`, {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
+        if (response.status === 500) {
+          console.warn(`⚠️ [MyMatchEventNew] Server error for fixture ${fixtureId}, using empty events`);
+          setEvents([]);
+          setLastUpdated(new Date());
+          setError(null);
+          return;
+        }
         throw new Error(`Failed to fetch events: ${response.status}`);
       }
 
-      const eventData = await response.json();
+      const responseText = await response.text();
+      let eventData;
+      
+      try {
+        eventData = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error(`❌ [MyMatchEventNew] JSON parse error:`, parseError);
+        console.error(`❌ [MyMatchEventNew] Response text:`, responseText.substring(0, 200));
+        setEvents([]);
+        setLastUpdated(new Date());
+        setError(null);
+        return;
+      }
       console.log(`✅ [MyMatchEventNew] Received ${eventData.length} events`);
 
       // Debug: Log all events to see what we're getting
