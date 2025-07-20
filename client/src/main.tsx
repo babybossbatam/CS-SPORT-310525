@@ -55,6 +55,15 @@ initializeFlagCachePersistence();
 // Initialize error handlers before rendering
 import ErrorBoundary from './components/common/ErrorBoundary';
 
+// Remove initial loader once React is ready
+const initialLoader = document.getElementById('initial-loader');
+if (initialLoader) {
+  initialLoader.classList.add('loading-fade-out');
+  setTimeout(() => {
+    initialLoader.remove();
+  }, 300);
+}
+
 createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
     <QueryClientProvider client={queryClient}>
