@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import MyHighlights from './MyHighlights';
-import '../../styles/liveaction.css';
-import '../../styles/365scores-live-action.css';
-import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
-import MyCircularFlag from '@/components/common/MyCircularFlag';
-import { isNationalTeam } from '@/lib/teamLogoSources';
+import MyHighlights from "./MyHighlights";
+import "../../styles/liveaction.css";
+import "../../styles/365scores-live-action.css";
+import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
+import MyCircularFlag from "@/components/common/MyCircularFlag";
+import { isNationalTeam } from "@/lib/teamLogoSources";
 
 interface MyLiveActionProps {
   matchId?: number;
@@ -19,8 +19,19 @@ interface MyLiveActionProps {
 interface PlayByPlayEvent {
   id: string;
   minute: number;
-  team: 'home' | 'away';
-  type: 'goal' | 'substitution' | 'card' | 'corner' | 'freekick' | 'offside' | 'foul' | 'shot' | 'save' | 'attempt' | 'attack';
+  team: "home" | "away";
+  type:
+    | "goal"
+    | "substitution"
+    | "card"
+    | "corner"
+    | "freekick"
+    | "offside"
+    | "foul"
+    | "shot"
+    | "save"
+    | "attempt"
+    | "attack";
   player: string;
   description: string;
   timestamp: number;
@@ -33,8 +44,8 @@ interface PlayByPlayEvent {
 
 interface AttackZone {
   id: string;
-  team: 'home' | 'away';
-  type: 'attacking' | 'ball_safe' | 'dangerous_attack';
+  team: "home" | "away";
+  type: "attacking" | "ball_safe" | "dangerous_attack";
   opacity: number;
   timestamp: number;
 }
@@ -45,8 +56,8 @@ interface TeamStats {
   shots: { home: number; away: number };
   fouls: { home: number; away: number };
   lastFiveMatches: {
-    home: ('W' | 'L' | 'D')[];
-    away: ('W' | 'L' | 'D')[];
+    home: ("W" | "L" | "D")[];
+    away: ("W" | "L" | "D")[];
   };
   previousMeetings: {
     homeWins: number;
@@ -59,46 +70,67 @@ interface LiveCommentary {
   id: string;
   minute: number;
   text: string;
-  team?: 'home' | 'away';
+  team?: "home" | "away";
   timestamp: number;
   isImportant?: boolean;
 }
 
-const MyLiveAction: React.FC<MyLiveActionProps> = ({ 
-  matchId, 
+const MyLiveAction: React.FC<MyLiveActionProps> = ({
+  matchId,
   homeTeam,
   awayTeam,
   status,
-  className = "" 
+  className = "",
 }) => {
   const [liveData, setLiveData] = useState<any>(null);
-  const [playByPlayEvents, setPlayByPlayEvents] = useState<PlayByPlayEvent[]>([]);
+  const [playByPlayEvents, setPlayByPlayEvents] = useState<PlayByPlayEvent[]>(
+    [],
+  );
   const [liveCommentary, setLiveCommentary] = useState<LiveCommentary[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [currentEvent, setCurrentEvent] = useState<PlayByPlayEvent | null>(null);
+  const [currentEvent, setCurrentEvent] = useState<PlayByPlayEvent | null>(
+    null,
+  );
   const [ballPosition, setBallPosition] = useState({ x: 50, y: 50 });
   const [attackZones, setAttackZones] = useState<AttackZone[]>([]);
-  const [ballPossession, setBallPossession] = useState<'home' | 'away' | null>('home');
+  const [ballPossession, setBallPossession] = useState<"home" | "away" | null>(
+    "home",
+  );
   const [teamStats, setTeamStats] = useState<TeamStats>({
     corners: { home: 0, away: 0 },
     possession: { home: 50, away: 50 },
     shots: { home: 0, away: 0 },
     fouls: { home: 0, away: 0 },
     lastFiveMatches: {
-      home: ['W', 'W', 'L', 'W', 'W'],
-      away: ['W', 'W', 'W', 'W', 'D']
+      home: ["W", "W", "L", "W", "W"],
+      away: ["W", "W", "W", "W", "D"],
     },
-    previousMeetings: { homeWins: 16, draws: 16, awayWins: 11 }
+    previousMeetings: { homeWins: 16, draws: 16, awayWins: 11 },
   });
-  const [currentView, setCurrentView] = useState<'event' | 'stats' | 'history' | 'corners' | 'shotmap' | 'commentary'>('event');
+  const [currentView, setCurrentView] = useState<
+    "event" | "stats" | "history" | "corners" | "shotmap" | "commentary"
+  >("event");
   const [ballTarget, setBallTarget] = useState({ x: 50, y: 50 });
-  const [shotEvents, setShotEvents] = useState<Array<{id: string, x: number, y: number, team: 'home' | 'away', isGoal: boolean, timestamp: number}>>([]);
-  const [matchIntensity, setMatchIntensity] = useState<'low' | 'medium' | 'high'>('medium');
+  const [shotEvents, setShotEvents] = useState<
+    Array<{
+      id: string;
+      x: number;
+      y: number;
+      team: "home" | "away";
+      isGoal: boolean;
+      timestamp: number;
+    }>
+  >([]);
+  const [matchIntensity, setMatchIntensity] = useState<
+    "low" | "medium" | "high"
+  >("medium");
 
   // Determine if match is currently live
   const displayMatch = liveData;
   const currentStatus = status || displayMatch?.fixture?.status?.short;
-  const isLive = currentStatus && ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
+  const isLive =
+    currentStatus &&
+    ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(currentStatus);
   const elapsed = displayMatch?.fixture?.status?.elapsed || 0;
 
   // Debug logging for status detection
@@ -106,13 +138,13 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     currentStatus,
     isLive,
     elapsed,
-    fixtureStatus: displayMatch?.fixture?.status
+    fixtureStatus: displayMatch?.fixture?.status,
   });
 
   // Fetch initial match data and set up real-time updates
   useEffect(() => {
     if (!matchId) {
-      console.log('❌ [Live Action] No match ID provided');
+      console.log("❌ [Live Action] No match ID provided");
       return;
     }
 
@@ -126,8 +158,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         const liveResponse = await fetch(`/api/fixtures/live?_t=${Date.now()}`);
         if (liveResponse.ok && mounted) {
           const liveFixtures = await liveResponse.json();
-          const liveMatch = liveFixtures.find((fixture: any) => 
-            fixture.fixture.id === matchId
+          const liveMatch = liveFixtures.find(
+            (fixture: any) => fixture.fixture.id === matchId,
           );
 
           if (liveMatch && mounted) {
@@ -154,7 +186,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         return null;
       } catch (error) {
         if (mounted) {
-          console.error('❌ [Live Action] Error fetching match data:', error);
+          console.error("❌ [Live Action] Error fetching match data:", error);
           setIsLoading(false);
         }
         return null;
@@ -164,7 +196,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     fetchMatchData().then((match) => {
       if (match && mounted) {
         const status = match.fixture?.status?.short;
-        const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT"].includes(status);
+        const isLive = [
+          "1H",
+          "2H",
+          "LIVE",
+          "LIV",
+          "HT",
+          "ET",
+          "P",
+          "INT",
+        ].includes(status);
 
         if (isLive) {
           updateInterval = setInterval(() => {
@@ -189,7 +230,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }, [matchId]);
 
   // Event-driven ball movement with purposeful patterns
-  const [ballTrail, setBallTrail] = useState<Array<{x: number, y: number, timestamp: number}>>([]);
+  const [ballTrail, setBallTrail] = useState<
+    Array<{ x: number; y: number; timestamp: number }>
+  >([]);
   const [currentBallEvent, setCurrentBallEvent] = useState<string | null>(null);
   const [ballMovementActive, setBallMovementActive] = useState(false);
 
@@ -197,7 +240,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     if (!isLive || !ballMovementActive) return;
 
     const ballInterval = setInterval(() => {
-      setBallPosition(prev => {
+      setBallPosition((prev) => {
         // Move towards target in straight line with fast, precise movement
         const deltaX = ballTarget.x - prev.x;
         const deltaY = ballTarget.y - prev.y;
@@ -216,25 +259,36 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         const directionX = deltaX / distance;
         const directionY = deltaY / distance;
 
-        let newX = prev.x + (directionX * moveSpeed);
-        let newY = prev.y + (directionY * moveSpeed);
+        let newX = prev.x + directionX * moveSpeed;
+        let newY = prev.y + directionY * moveSpeed;
 
         // Keep ball within field bounds
         newX = Math.max(10, Math.min(90, newX));
         newY = Math.max(20, Math.min(80, newY));
 
         // Update possession based on ball position and event type
-        if (currentBallEvent === 'dangerous_attack') {
-          setBallPossession(newX > 50 ? 'away' : 'home');
-        } else if (currentBallEvent === 'ball_safe') {
-          setBallPossession(newX < 50 ? 'home' : 'away');
+        if (currentBallEvent === "dangerous_attack") {
+          setBallPossession(newX > 50 ? "away" : "home");
+        } else if (currentBallEvent === "ball_safe") {
+          setBallPossession(newX < 50 ? "home" : "away");
         } else {
-          setBallPossession(newX < 35 ? 'home' : newX > 65 ? 'away' : (Math.random() > 0.5 ? 'home' : 'away'));
+          setBallPossession(
+            newX < 35
+              ? "home"
+              : newX > 65
+                ? "away"
+                : Math.random() > 0.5
+                  ? "home"
+                  : "away",
+          );
         }
 
         // Add to trail for straight line visualization
-        setBallTrail(currentTrail => {
-          const newTrail = [...currentTrail, { x: prev.x, y: prev.y, timestamp: Date.now() }];
+        setBallTrail((currentTrail) => {
+          const newTrail = [
+            ...currentTrail,
+            { x: prev.x, y: prev.y, timestamp: Date.now() },
+          ];
           return newTrail.slice(-6); // Shorter trail for cleaner look
         });
 
@@ -246,54 +300,66 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }, [isLive, ballTarget, ballMovementActive, currentBallEvent]);
 
   // Event-driven ball target setting
-  const triggerBallMovement = (eventType: string, team: 'home' | 'away') => {
+  const triggerBallMovement = (eventType: string, team: "home" | "away") => {
     // Clear previous trail when starting a new event
     setBallTrail([]);
 
     let targetPosition;
 
     switch (eventType) {
-      case 'dangerous_attack':
+      case "dangerous_attack":
         // Move toward opponent's goal area
-        targetPosition = team === 'home' 
-          ? { x: 85, y: 45 + Math.random() * 10 } // Attack right goal
-          : { x: 15, y: 45 + Math.random() * 10 }; // Attack left goal
+        targetPosition =
+          team === "home"
+            ? { x: 85, y: 45 + Math.random() * 10 } // Attack right goal
+            : { x: 15, y: 45 + Math.random() * 10 }; // Attack left goal
         break;
 
-      case 'shot':
+      case "shot":
         // Move directly toward goal
-        targetPosition = team === 'home'
-          ? { x: 92, y: 48 + Math.random() * 4 } // Shot at right goal
-          : { x: 8, y: 48 + Math.random() * 4 };  // Shot at left goal
+        targetPosition =
+          team === "home"
+            ? { x: 92, y: 48 + Math.random() * 4 } // Shot at right goal
+            : { x: 8, y: 48 + Math.random() * 4 }; // Shot at left goal
         break;
 
-      case 'corner':
+      case "corner":
         // Move to actual corner flag positions (outside penalty box)
-        const corners = team === 'home' 
-          ? [{ x: 98, y: 10 }, { x: 98, y: 90 }] // Right corners - outside penalty area
-          : [{ x: 2, y: 10 }, { x: 2, y: 90 }];   // Left corners - outside penalty area
+        const corners =
+          team === "home"
+            ? [
+                { x: 98, y: 10 },
+                { x: 98, y: 90 },
+              ] // Right corners - outside penalty area
+            : [
+                { x: 2, y: 10 },
+                { x: 2, y: 90 },
+              ]; // Left corners - outside penalty area
         targetPosition = corners[Math.floor(Math.random() * corners.length)];
         break;
 
-      case 'goalkick':
+      case "goalkick":
         // Move to goal area
-        targetPosition = team === 'home'
-          ? { x: 8, y: 50 } // Home goal
-          : { x: 92, y: 50 }; // Away goal
+        targetPosition =
+          team === "home"
+            ? { x: 8, y: 50 } // Home goal
+            : { x: 92, y: 50 }; // Away goal
         break;
 
-      case 'ball_safe':
+      case "ball_safe":
         // Move to midfield or defensive areas
-        targetPosition = team === 'home'
-          ? { x: 25 + Math.random() * 20, y: 35 + Math.random() * 30 } // Home half
-          : { x: 55 + Math.random() * 20, y: 35 + Math.random() * 30 }; // Away half
+        targetPosition =
+          team === "home"
+            ? { x: 25 + Math.random() * 20, y: 35 + Math.random() * 30 } // Home half
+            : { x: 55 + Math.random() * 20, y: 35 + Math.random() * 30 }; // Away half
         break;
 
       default:
         // Default attacking movement
-        targetPosition = team === 'home'
-          ? { x: 70 + Math.random() * 15, y: 35 + Math.random() * 30 } // Forward movement
-          : { x: 15 + Math.random() * 15, y: 35 + Math.random() * 30 }; // Forward movement
+        targetPosition =
+          team === "home"
+            ? { x: 70 + Math.random() * 15, y: 35 + Math.random() * 30 } // Forward movement
+            : { x: 15 + Math.random() * 15, y: 35 + Math.random() * 30 }; // Forward movement
     }
 
     setCurrentBallEvent(eventType);
@@ -313,19 +379,19 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       "Team pressing high up the pitch",
       "Tactical substitution being prepared",
       "Players calling for the ball",
-      "Good ball control under pressure"
+      "Good ball control under pressure",
     ];
 
     const newCommentary: LiveCommentary = {
       id: `commentary_${Date.now()}`,
       minute: elapsed,
       text: commentaryTexts[Math.floor(Math.random() * commentaryTexts.length)],
-      team: Math.random() > 0.5 ? 'home' : 'away',
+      team: Math.random() > 0.5 ? "home" : "away",
       timestamp: Date.now(),
-      isImportant: Math.random() > 0.8
+      isImportant: Math.random() > 0.8,
     };
 
-    setLiveCommentary(prev => [newCommentary, ...prev.slice(0, 9)]);
+    setLiveCommentary((prev) => [newCommentary, ...prev.slice(0, 9)]);
   };
 
   // Clean up old events and effects
@@ -333,12 +399,13 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     const cleanup = setInterval(() => {
       // Don't auto-clear ball trail - only clear when new event starts
 
-      setShotEvents(current => 
-        current.filter(event => Date.now() - event.timestamp < 4000)
+      setShotEvents((current) =>
+        current.filter((event) => Date.now() - event.timestamp < 4000),
       );
 
-      setLiveCommentary(current => 
-        current.filter(comment => Date.now() - comment.timestamp < 300000) // Keep for 5 minutes
+      setLiveCommentary(
+        (current) =>
+          current.filter((comment) => Date.now() - comment.timestamp < 300000), // Keep for 5 minutes
       );
     }, 1000);
 
@@ -346,67 +413,103 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }, []);
 
   // State for various effects
-  const [goalKickEvents, setGoalKickEvents] = useState<Array<{id: string, x: number, y: number, team: 'home' | 'away', timestamp: number}>>([]);
-  const [cornerKickEvents, setCornerKickEvents] = useState<Array<{id: string, x: number, y: number, team: 'home' | 'away', timestamp: number, corner: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'}>>([]);
-  const [substitutionEvents, setSubstitutionEvents] = useState<Array<{id: string, team: 'home' | 'away', playerOut: string, playerIn: string, timestamp: number}>>([]);
+  const [goalKickEvents, setGoalKickEvents] = useState<
+    Array<{
+      id: string;
+      x: number;
+      y: number;
+      team: "home" | "away";
+      timestamp: number;
+    }>
+  >([]);
+  const [cornerKickEvents, setCornerKickEvents] = useState<
+    Array<{
+      id: string;
+      x: number;
+      y: number;
+      team: "home" | "away";
+      timestamp: number;
+      corner: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+    }>
+  >([]);
+  const [substitutionEvents, setSubstitutionEvents] = useState<
+    Array<{
+      id: string;
+      team: "home" | "away";
+      playerOut: string;
+      playerIn: string;
+      timestamp: number;
+    }>
+  >([]);
 
   // Generate dynamic events
   const generateDynamicEvent = () => {
-    const teams = ['home', 'away'];
-    const randomTeam = teams[Math.floor(Math.random() * teams.length)] as 'home' | 'away';
+    const teams = ["home", "away"];
+    const randomTeam = teams[Math.floor(Math.random() * teams.length)] as
+      | "home"
+      | "away";
 
     // Determine event type and intensity based on current game flow
-    let randomType: 'attacking' | 'ball_safe' | 'dangerous_attack';
-    let eventType: 'attack' | 'shot' | 'goal' | 'goalkick' | 'corner' | 'substitution' = 'attack';
+    let randomType: "attacking" | "ball_safe" | "dangerous_attack";
+    let eventType:
+      | "attack"
+      | "shot"
+      | "goal"
+      | "goalkick"
+      | "corner"
+      | "substitution" = "attack";
 
     // Generate events based on probability and game situation
     const eventProbability = Math.random();
 
     if (eventProbability > 0.88) {
       // Dangerous attack (12% chance)
-      eventType = Math.random() > 0.7 ? 'shot' : 'attack';
-      randomType = 'dangerous_attack';
-      setMatchIntensity('high');
+      eventType = Math.random() > 0.7 ? "shot" : "attack";
+      randomType = "dangerous_attack";
+      setMatchIntensity("high");
 
-      if (eventType === 'shot') {
+      if (eventType === "shot") {
         // Create shot event
         const shotEvent = {
           id: `shot_${Date.now()}`,
-          x: randomTeam === 'home' ? 80 + Math.random() * 10 : 10 + Math.random() * 10,
+          x:
+            randomTeam === "home"
+              ? 80 + Math.random() * 10
+              : 10 + Math.random() * 10,
           y: 40 + Math.random() * 20,
           team: randomTeam,
           isGoal: Math.random() > 0.87, // 13% chance of goal
-          timestamp: Date.now()
+          timestamp: Date.now(),
         };
 
-        setShotEvents(prev => [...prev.slice(-9), shotEvent]);
+        setShotEvents((prev) => [...prev.slice(-9), shotEvent]);
 
-        setTeamStats(prev => ({
+        setTeamStats((prev) => ({
           ...prev,
           shots: {
             ...prev.shots,
-            [randomTeam]: prev.shots[randomTeam] + 1
-          }
+            [randomTeam]: prev.shots[randomTeam] + 1,
+          },
         }));
       }
 
       // Trigger ball movement for dangerous attack
-      triggerBallMovement('dangerous_attack', randomTeam);
-
+      triggerBallMovement("dangerous_attack", randomTeam);
     } else if (eventProbability > 0.78) {
       // Corner kick (10% chance)
-      eventType = 'corner';
-      randomType = 'attacking';
-      setMatchIntensity('medium');
+      eventType = "corner";
+      randomType = "attacking";
+      setMatchIntensity("medium");
 
       const cornerPositions = [
-        { corner: 'top-left' as const, x: 2, y: 10 },
-        { corner: 'top-right' as const, x: 98, y: 10 },
-        { corner: 'bottom-left' as const, x: 2, y: 90 },
-        { corner: 'bottom-right' as const, x: 98, y: 90 }
+        { corner: "top-left" as const, x: 2, y: 10 },
+        { corner: "top-right" as const, x: 98, y: 10 },
+        { corner: "bottom-left" as const, x: 2, y: 90 },
+        { corner: "bottom-right" as const, x: 98, y: 90 },
       ];
 
-      const selectedCorner = cornerPositions[Math.floor(Math.random() * cornerPositions.length)];
+      const selectedCorner =
+        cornerPositions[Math.floor(Math.random() * cornerPositions.length)];
 
       const cornerKickEvent = {
         id: `corner_${Date.now()}`,
@@ -414,45 +517,41 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         y: selectedCorner.y,
         team: randomTeam,
         corner: selectedCorner.corner,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
 
-      setCornerKickEvents(prev => [...prev.slice(-4), cornerKickEvent]);
-      triggerBallMovement('corner', randomTeam);
-
+      setCornerKickEvents((prev) => [...prev.slice(-4), cornerKickEvent]);
+      triggerBallMovement("corner", randomTeam);
     } else if (eventProbability > 0.68) {
       // Goal kick (10% chance)
-      eventType = 'goalkick';
-      randomType = 'ball_safe';
-      setMatchIntensity('low');
+      eventType = "goalkick";
+      randomType = "ball_safe";
+      setMatchIntensity("low");
 
       const goalKickEvent = {
         id: `goalkick_${Date.now()}`,
-        x: randomTeam === 'home' ? 8 : 92,
+        x: randomTeam === "home" ? 8 : 92,
         y: 50,
         team: randomTeam,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
 
-      setGoalKickEvents(prev => [...prev.slice(-4), goalKickEvent]);
-      triggerBallMovement('goalkick', randomTeam);
-
+      setGoalKickEvents((prev) => [...prev.slice(-4), goalKickEvent]);
+      triggerBallMovement("goalkick", randomTeam);
     } else if (eventProbability > 0.58) {
       // Regular attack (10% chance)
-      eventType = 'attack';
-      randomType = 'attacking';
-      setMatchIntensity('medium');
+      eventType = "attack";
+      randomType = "attacking";
+      setMatchIntensity("medium");
 
-      triggerBallMovement('attack', randomTeam);
-
+      triggerBallMovement("attack", randomTeam);
     } else if (eventProbability > 0.53) {
       // Ball safe / possession (5% chance)
-      eventType = 'attack';
-      randomType = 'ball_safe';
-      setMatchIntensity('low');
+      eventType = "attack";
+      randomType = "ball_safe";
+      setMatchIntensity("low");
 
-      triggerBallMovement('ball_safe', randomTeam);
-
+      triggerBallMovement("ball_safe", randomTeam);
     } else {
       // No major event - return early
       return;
@@ -463,17 +562,32 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       id: `zone_${Date.now()}`,
       team: randomTeam,
       type: randomType,
-      opacity: matchIntensity === 'high' ? 0.4 : matchIntensity === 'medium' ? 0.3 : 0.2,
-      timestamp: Date.now()
+      opacity:
+        matchIntensity === "high"
+          ? 0.4
+          : matchIntensity === "medium"
+            ? 0.3
+            : 0.2,
+      timestamp: Date.now(),
     };
 
-    setAttackZones(prev => [newZone, ...prev.slice(0, 1)]);
+    setAttackZones((prev) => [newZone, ...prev.slice(0, 1)]);
 
     // Create corresponding event
     const eventDescriptions = {
-      attacking: eventType === 'shot' ? 'Shot Attempt' : eventType === 'corner' ? 'Corner kick' : 'Attacking Move',
-      ball_safe: eventType === 'goalkick' ? 'Goal kick' : 'Safe Possession',
-      dangerous_attack: eventType === 'goal' ? 'GOAL!' : eventType === 'shot' ? 'Shot on Target' : 'Dangerous Attack'
+      attacking:
+        eventType === "shot"
+          ? "Shot Attempt"
+          : eventType === "corner"
+            ? "Corner kick"
+            : "Attacking Move",
+      ball_safe: eventType === "goalkick" ? "Goal kick" : "Safe Possession",
+      dangerous_attack:
+        eventType === "goal"
+          ? "GOAL!"
+          : eventType === "shot"
+            ? "Shot on Target"
+            : "Dangerous Attack",
     };
 
     const newEvent: PlayByPlayEvent = {
@@ -481,33 +595,45 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       minute: elapsed,
       team: randomTeam,
       type: eventType as any,
-      player: randomTeam === 'home' ? homeTeamData?.name || 'Home Team' : awayTeamData?.name || 'Away Team',
+      player:
+        randomTeam === "home"
+          ? homeTeamData?.name || "Home Team"
+          : awayTeamData?.name || "Away Team",
       description: eventDescriptions[randomType],
       timestamp: Date.now(),
-      isRecent: true
+      isRecent: true,
     };
 
     setCurrentEvent(newEvent);
-    setPlayByPlayEvents(prev => [newEvent, ...prev.slice(0, 4)]);
+    setPlayByPlayEvents((prev) => [newEvent, ...prev.slice(0, 4)]);
 
     // Cycle through different views including commentary
     setTimeout(() => {
-      const views: ('event' | 'stats' | 'history' | 'corners' | 'shotmap' | 'commentary')[] = ['stats', 'history', 'corners', 'shotmap', 'commentary'];
+      const views: (
+        | "event"
+        | "stats"
+        | "history"
+        | "corners"
+        | "shotmap"
+        | "commentary"
+      )[] = ["stats", "history", "corners", "shotmap", "commentary"];
       const randomView = views[Math.floor(Math.random() * views.length)];
       setCurrentView(randomView);
     }, 3500);
 
     // Clear zone and reset view
     setTimeout(() => {
-      setAttackZones(prev => prev.filter(z => z.id !== newZone.id));
-      setCurrentView('event');
+      setAttackZones((prev) => prev.filter((z) => z.id !== newZone.id));
+      setCurrentView("event");
       setCurrentEvent(null);
     }, 7000);
   };
 
   const generatePlayByPlayEvents = async (matchData: any) => {
     try {
-      const response = await fetch(`/api/fixtures/${matchData.fixture.id}/events`);
+      const response = await fetch(
+        `/api/fixtures/${matchData.fixture.id}/events`,
+      );
       let realEvents: any[] = [];
 
       if (response.ok) {
@@ -521,23 +647,23 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
       if (realEvents.length > 0) {
         const recentEvents = realEvents
-          .filter(event => event.time?.elapsed <= elapsed)
+          .filter((event) => event.time?.elapsed <= elapsed)
           .slice(-3)
           .reverse();
 
         recentEvents.forEach((event, index) => {
           const isHomeTeam = event.team?.id === homeTeam?.id;
-          const team = isHomeTeam ? 'home' : 'away';
+          const team = isHomeTeam ? "home" : "away";
 
-          let eventType = 'attempt';
-          let description = event.detail || 'Match event';
+          let eventType = "attempt";
+          let description = event.detail || "Match event";
 
-          if (event.type === 'Goal') {
-            eventType = 'goal';
-            description = 'Goal scored';
-          } else if (event.detail?.toLowerCase().includes('corner')) {
-            eventType = 'corner';
-            description = 'Corner kick';
+          if (event.type === "Goal") {
+            eventType = "goal";
+            description = "Goal scored";
+          } else if (event.detail?.toLowerCase().includes("corner")) {
+            eventType = "corner";
+            description = "Corner kick";
           }
 
           events.push({
@@ -545,30 +671,34 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             minute: event.time?.elapsed || elapsed,
             team,
             type: eventType as any,
-            player: event.player?.name || 'Player',
+            player: event.player?.name || "Player",
             description,
-            timestamp: Date.now() - (index * 10000),
-            isRecent: index === 0
+            timestamp: Date.now() - index * 10000,
+            isRecent: index === 0,
           });
         });
 
         // Update team stats from real events
-        const homeCorners = realEvents.filter(e => 
-          e.team?.id === homeTeam?.id && e.detail?.toLowerCase().includes('corner')
+        const homeCorners = realEvents.filter(
+          (e) =>
+            e.team?.id === homeTeam?.id &&
+            e.detail?.toLowerCase().includes("corner"),
         ).length;
-        const awayCorners = realEvents.filter(e => 
-          e.team?.id === awayTeam?.id && e.detail?.toLowerCase().includes('corner')
+        const awayCorners = realEvents.filter(
+          (e) =>
+            e.team?.id === awayTeam?.id &&
+            e.detail?.toLowerCase().includes("corner"),
         ).length;
 
-        setTeamStats(prev => ({
+        setTeamStats((prev) => ({
           ...prev,
-          corners: { home: homeCorners, away: awayCorners }
+          corners: { home: homeCorners, away: awayCorners },
         }));
       }
 
       setPlayByPlayEvents(events);
     } catch (error) {
-      console.error('❌ [Live Action] Error fetching real events:', error);
+      console.error("❌ [Live Action] Error fetching real events:", error);
     }
   };
 
@@ -582,7 +712,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-gray-800 text-sm font-semibold">Live Action</span>
+              <span className="text-gray-800 text-sm font-semibold">
+                Live Action
+              </span>
             </div>
           </div>
           <div className="h-80 flex items-center justify-center text-gray-500 text-sm">
@@ -597,8 +729,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   }
 
   // Don't render anything for finished matches
-  if (currentStatus === "FT" || currentStatus === "AET" || currentStatus === "PEN") {
-    console.log(`🏁 [Live Action] Match ${matchId} is finished (status: ${currentStatus}), not rendering Live Action`);
+  if (
+    currentStatus === "FT" ||
+    currentStatus === "AET" ||
+    currentStatus === "PEN"
+  ) {
+    console.log(
+      `🏁 [Live Action] Match ${matchId} is finished (status: ${currentStatus}), not rendering Live Action`,
+    );
     return null;
   }
 
@@ -607,18 +745,31 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       <div className={`w-full ${className}`}>
         <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
           <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
-            <span className="text-gray-800 text-sm font-semibold">Live Action</span>
+            <span className="text-gray-800 text-sm font-semibold">
+              Live Action
+            </span>
           </div>
           <div className="h-80 flex items-center justify-center text-gray-500 text-sm">
             <div className="text-center">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3 mx-auto">
-                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <svg
+                  className="w-6 h-6 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
                 </svg>
               </div>
               <p className="mb-1 font-medium">Match data not available</p>
               <p className="text-xs opacity-60 mb-2">
-                {homeTeamData?.name || homeTeam?.name || homeTeam} vs {awayTeamData?.name || awayTeamData?.name || awayTeam}
+                {homeTeamData?.name || homeTeam?.name || homeTeam} vs{" "}
+                {awayTeamData?.name || awayTeamData?.name || awayTeam}
               </p>
               <p className="text-xs text-gray-400">
                 Live tracking is only available during active matches
@@ -635,13 +786,25 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       <div className={`w-full ${className}`}>
         <div className="bg-white rounded-xl overflow-hidden shadow-lg border border-gray-100">
           <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
-            <span className="text-gray-800 text-sm font-semibold">Live Action</span>
+            <span className="text-gray-800 text-sm font-semibold">
+              Live Action
+            </span>
           </div>
           <div className="h-80 flex items-center justify-center text-gray-500 text-sm">
             <div className="text-center">
               <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3 mx-auto">
-                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-6 h-6 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <p className="mb-1 font-medium">Match not live</p>
@@ -649,7 +812,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 {homeTeamData?.name} vs {awayTeamData?.name}
               </p>
               <p className="text-xs text-gray-400">
-                Status: {currentStatus || 'Unknown'} • Live action will appear when match is in progress
+                Status: {currentStatus || "Unknown"} • Live action will appear
+                when match is in progress
               </p>
             </div>
           </div>
@@ -658,27 +822,36 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     );
   }
 
-  const getMatchResult = (result: 'W' | 'L' | 'D') => {
+  const getMatchResult = (result: "W" | "L" | "D") => {
     const colors = {
-      W: 'bg-blue-500 text-white',
-      L: 'bg-red-500 text-white', 
-      D: 'bg-gray-400 text-white'
+      W: "bg-blue-500 text-white",
+      L: "bg-red-500 text-white",
+      D: "bg-gray-400 text-white",
     };
     return colors[result];
   };
 
   const getIntensityColor = () => {
     switch (matchIntensity) {
-      case 'high': return 'border-red-500 bg-red-50';
-      case 'medium': return 'border-yellow-500 bg-yellow-50';
-      case 'low': return 'border-green-500 bg-green-50';
-      default: return 'border-gray-300 bg-gray-50';
+      case "high":
+        return "border-red-500 bg-red-50";
+      case "medium":
+        return "border-yellow-500 bg-yellow-50";
+      case "low":
+        return "border-green-500 bg-green-50";
+      default:
+        return "border-gray-300 bg-gray-50";
     }
   };
 
   return (
-    <div className={`w-full ${className} professional-live-action`} style={{ zIndex: 1, position: 'relative' }}>
-      <div className={`bg-white rounded-xl overflow-hidden shadow-lg border-2 transition-all duration-300 ${getIntensityColor()}`}>
+    <div
+      className={`w-full ${className} professional-live-action`}
+      style={{ zIndex: 1, position: "relative" }}
+    >
+      <div
+        className={`bg-white rounded-xl overflow-hidden shadow-lg border-2 transition-all duration-300 ${getIntensityColor()}`}
+      >
         {/* Enhanced Header with 365scores style */}
         <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 border-b border-gray-200">
           <div className="flex items-center justify-between">
@@ -687,12 +860,19 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                 <div className="absolute inset-0 w-2 h-2 bg-red-500 rounded-full animate-ping opacity-20"></div>
               </div>
-              <span className="text-gray-800 text-sm font-semibold">Live Action</span>
-              <Badge variant="outline" className={`text-xs px-2 py-1 ${
-                matchIntensity === 'high' ? 'bg-red-100 text-red-700 border-red-300' :
-                matchIntensity === 'medium' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' :
-                'bg-green-100 text-green-700 border-green-300'
-              }`}>
+              <span className="text-gray-800 text-sm font-semibold">
+                Live Action
+              </span>
+              <Badge
+                variant="outline"
+                className={`text-xs px-2 py-1 ${
+                  matchIntensity === "high"
+                    ? "bg-red-100 text-red-700 border-red-300"
+                    : matchIntensity === "medium"
+                      ? "bg-yellow-100 text-yellow-700 border-yellow-300"
+                      : "bg-green-100 text-green-700 border-green-300"
+                }`}
+              >
                 {matchIntensity.toUpperCase()}
               </Badge>
             </div>
@@ -701,57 +881,74 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 {elapsed}'
               </div>
               <div className="text-xs text-gray-600">
-                {ballPossession === 'home' ? homeTeamData?.name?.slice(0, 3) : awayTeamData?.name?.slice(0, 3)}
+                {ballPossession === "home"
+                  ? homeTeamData?.name?.slice(0, 3)
+                  : awayTeamData?.name?.slice(0, 3)}
               </div>
             </div>
           </div>
         </div>
 
         {/* Professional Football Field */}
-        <div className="relative h-96 overflow-hidden" style={{
-          backgroundImage: `url('/assets/matchdetaillogo/field.png')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          minHeight: '400px'
-        }}>
-
+        <div
+          className="relative h-96 overflow-hidden"
+          style={{
+            backgroundImage: `url('/assets/matchdetaillogo/field.png')`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            minHeight: "400px",
+          }}
+        >
           {/* Enhanced attack zones with 365scores style */}
           {attackZones.map((zone) => (
             <div key={zone.id} className="absolute inset-0 pointer-events-none">
-              <div 
+              <div
                 className={`absolute transition-all duration-1000 attack-zone ${
-                  zone.type === 'dangerous_attack'
-                    ? zone.team === 'home' 
-                      ? 'bg-gradient-to-r from-blue-600/70 via-blue-700/80 to-blue-500/50' 
-                      : 'bg-gradient-to-l from-red-600/70 via-red-700/80 to-red-500/50'
-                    : zone.team === 'home' 
-                      ? 'bg-gradient-to-r from-blue-500/50 via-blue-600/60 to-transparent' 
-                      : 'bg-gradient-to-l from-red-500/50 via-red-600/60 to-transparent'
+                  zone.type === "dangerous_attack"
+                    ? zone.team === "home"
+                      ? "bg-gradient-to-r from-blue-600/70 via-blue-700/80 to-blue-500/50"
+                      : "bg-gradient-to-l from-red-600/70 via-red-700/80 to-red-500/50"
+                    : zone.team === "home"
+                      ? "bg-gradient-to-r from-blue-500/50 via-blue-600/60 to-transparent"
+                      : "bg-gradient-to-l from-red-500/50 via-red-600/60 to-transparent"
                 }`}
                 style={{
-                  top: zone.type === 'dangerous_attack' ? '25%' : '20%',
-                  bottom: zone.type === 'dangerous_attack' ? '25%' : '20%',
-                                    zone.team === 'home' ? (zone.type === 'dangerous_attack' ? '5%' : '10%') : '35%',
-                  right: zone.team === 'home' ? '35%' : (zone.type === 'dangerous_attack' ? '5%' : '10%'),
-                  clipPath: zone.team === 'home' 
-                    ? zone.type === 'dangerous_attack' 
-                      ? 'polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%)'
-                      : 'polygon(0% 0%, 70% 0%, 100% 50%, 70% 100%, 0% 100%)'
-                    : zone.type === 'dangerous_attack'
-                      ? 'polygon(15% 0%, 100% 0%, 100% 100%, 15% 100%, 0% 50%)'
-                      : 'polygon(30% 0%, 100% 0%, 100% 100%, 30% 100%, 0% 50%)',
-                  opacity: zone.opacity
+                  top: zone.type === "dangerous_attack" ? "25%" : "20%",
+                  bottom: zone.type === "dangerous_attack" ? "25%" : "20%",
+                  left:
+                    zone.team === "home"
+                      ? zone.type === "dangerous_attack"
+                        ? "5%"
+                        : "10%"
+                      : "35%",
+                  right:
+                    zone.team === "home"
+                      ? "35%"
+                      : zone.type === "dangerous_attack"
+                        ? "5%"
+                        : "10%",
+                  clipPath:
+                    zone.team === "home"
+                      ? zone.type === "dangerous_attack"
+                        ? "polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%)"
+                        : "polygon(0% 0%, 70% 0%, 100% 50%, 70% 100%, 0% 100%)"
+                      : zone.type === "dangerous_attack"
+                        ? "polygon(15% 0%, 100% 0%, 100% 100%, 15% 100%, 0% 50%)"
+                        : "polygon(30% 0%, 100% 0%, 100% 100%, 30% 100%, 0% 50%)",
+                  opacity: zone.opacity,
                 }}
               />
             </div>
           ))}
 
-
-
           {/* Enhanced ball trail with 365scores precision */}
           {ballTrail.length > 1 && (
-            <svg className="absolute inset-0 w-full h-full z-35 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <svg
+              className="absolute inset-0 w-full h-full z-35 pointer-events-none"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+            >
               {ballTrail.slice(0, -1).map((pos, index) => {
                 const nextPos = ballTrail[index + 1];
                 const opacity = 1 - (index / ballTrail.length) * 2.8;
@@ -776,7 +973,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       strokeWidth="0.5"
                       strokeLinecap="round"
                       opacity={opacity * 0.6}
-
                     />
                   </g>
                 );
@@ -785,7 +981,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           )}
 
           {/* Enhanced professional ball with 365scores style */}
-          <div 
+          <div
             className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-30 ease-out z-50"
             style={{
               left: `${ballPosition.x}%`,
@@ -793,257 +989,323 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             }}
           >
             <div className="relative">
+              {/* Sharp ball shadow */}
+              <div
+                className="absolute w-6 h-2.5 bg-black/40 rounded-full"
+                style={{ left: "-12px", top: "18px" }}
+              ></div>
               {/* Professional ball - sharp and crisp */}
               <div className="w-4 h-4 relative">
-                <img 
-                  src="/assets/matchdetaillogo/shot-event.svg" 
-                  alt="Ball" 
+                <img
+                  src="/assets/matchdetaillogo/shot-event.svg"
+                  alt="Ball"
                   className="w-full h-full object-contain filter contrast-125 brightness-110"
-                  style={{ imageRendering: 'crisp-edges' }}
+                  style={{ imageRendering: "crisp-edges" }}
                 />
               </div>
 
-                {/* Sharp possession glow effect */}
-                {ballPossession && (
-                  <div className="absolute -inset-4">
-                    <div className={`w-14 h-14 rounded-full animate-ping opacity-60 ${
-                      ballPossession === 'home' ? 'bg-blue-400' : 'bg-red-400'
-                    }`}></div>
-                    <div className={`absolute inset-1 w-12 h-12 rounded-full animate-pulse opacity-40 ${
-                      ballPossession === 'home' ? 'bg-blue-300' : 'bg-red-300'
-                    }`}></div>
-                  </div>
-                )}
-              </div>
-
-
+              {/* Sharp possession glow effect */}
+              {ballPossession && (
+                <div className="absolute -inset-4">
+                  <div
+                    className={`w-14 h-14 rounded-full animate-ping opacity-60 ${
+                      ballPossession === "home" ? "bg-blue-400" : "bg-red-400"
+                    }`}
+                  ></div>
+                  <div
+                    className={`absolute inset-1 w-12 h-12 rounded-full animate-pulse opacity-40 ${
+                      ballPossession === "home" ? "bg-blue-300" : "bg-red-300"
+                    }`}
+                  ></div>
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Enhanced shot events visualization */}
-          {shotEvents.map((shot) => (
-            <div
-              key={shot.id}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 z-45 pointer-events-none"
-              style={{
-                left: `${shot.x}%`,
-                top: `${shot.y}%`,
-              }}
-            >
-              <div className={`w-4 h-4 rounded-full ${
-                shot.isGoal 
-                  ? 'bg-green-500 ring-4 ring-green-300 ring-opacity-60' 
-                  : shot.team === 'home' 
-                    ? 'bg-blue-500 ring-4 ring-blue-300 ring-opacity-60' 
-                    : 'bg-red-500 ring-4 ring-red-300 ring-opacity-60'
-                } animate-ping`}
-                style={{ animationDuration: '2s' }}
-              ></div>
-            </div>
-          ))}
-
-          {/* Current event display - enhanced 365scores style */}
-          {currentEvent && currentView === 'event' && currentStatus !== 'P' && (
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none">
-              <div className="text-center text-white">
-                <div className="text-3xl font-bold mb-2 drop-shadow-2xl text-shadow-lg">
-                  {currentEvent.description}
-                </div>
-                <div className="text-lg font-semibold opacity-90 drop-shadow-lg">
-                  {currentEvent.team === 'home' ? homeTeamData?.name?.toUpperCase() : awayTeamData?.name?.toUpperCase()}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Live Commentary Overlay on Field */}
-          {currentView === 'commentary' && (
-            <div className="absolute bottom-16 left-4 right-4 z-30 bg-black/80 backdrop-blur-sm rounded-lg border border-white/20">
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-white text-xs font-medium uppercase tracking-wide">Live Commentary</span>
-                  <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
-                    {elapsed}'
-                  </div>
-                </div>
-                <div className="space-y-2 max-h-32 overflow-y-auto commentary-scroll">
-                  {liveCommentary.slice(0, 4).map((comment) => (
-                    <div key={comment.id} className="flex items-start gap-3 text-sm">
-                      <div className="text-blue-400 font-semibold min-w-0">{comment.minute}'</div>
-                      <div className={`flex-1 ${comment.isImportant ? 'font-medium text-white' : 'text-gray-200'}`}>
-                        {comment.text}
-                      </div>
-                      {comment.team && (
-                        <div className={`w-2 h-2 rounded-full ${comment.team === 'home' ? 'bg-blue-400' : 'bg-red-400'}`}></div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
-        {/* Enhanced bottom statistics panel - 365scores style */}
-        <div className="bg-white border-t border-gray-200">
-          {currentView === 'stats' && (
+        {/* Enhanced shot events visualization */}
+        {shotEvents.map((shot) => (
+          <div
+            key={shot.id}
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 z-45 pointer-events-none"
+            style={{
+              left: `${shot.x}%`,
+              top: `${shot.y}%`,
+            }}
+          >
+            <div
+              className={`w-4 h-4 rounded-full ${
+                shot.isGoal
+                  ? "bg-green-500 ring-4 ring-green-300 ring-opacity-60"
+                  : shot.team === "home"
+                    ? "bg-blue-500 ring-4 ring-blue-300 ring-opacity-60"
+                    : "bg-red-500 ring-4 ring-red-300 ring-opacity-60"
+              } animate-ping`}
+              style={{ animationDuration: "2s" }}
+            ></div>
+          </div>
+        ))}
+
+        {/* Current event display - enhanced 365scores style */}
+        {currentEvent && currentView === "event" && currentStatus !== "P" && (
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none">
+            <div className="text-center text-white">
+              <div className="text-3xl font-bold mb-2 drop-shadow-2xl text-shadow-lg">
+                {currentEvent.description}
+              </div>
+              <div className="text-lg font-semibold opacity-90 drop-shadow-lg">
+                {currentEvent.team === "home"
+                  ? homeTeamData?.name?.toUpperCase()
+                  : awayTeamData?.name?.toUpperCase()}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Live Commentary Overlay on Field */}
+        {currentView === "commentary" && (
+          <div className="absolute bottom-16 left-4 right-4 z-30 bg-black/80 backdrop-blur-sm rounded-lg border border-white/20">
             <div className="p-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Possession</span>
+                <span className="text-white text-xs font-medium uppercase tracking-wide">
+                  Live Commentary
+                </span>
                 <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
                   {elapsed}'
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                  <span className="text-sm font-bold">{homeTeamData?.name?.slice(0, 3)}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-blue-500 text-2xl font-bold">{teamStats.possession.home}%</span>
-                  <div className="w-16 h-16 relative">
-                    <svg className="w-16 h-16 transform -rotate-90">
-                      <circle cx="32" cy="32" r="28" stroke="#e5e7eb" strokeWidth="6" fill="none"/>
-                      <circle cx="32" cy="32" r="28" stroke="#3b82f6" strokeWidth="6" fill="none"
-                              strokeDasharray={`${(teamStats.possession.home/100) * 175.9} 175.9`}/>
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-xs font-bold">⚽</span>
+              <div className="space-y-2 max-h-32 overflow-y-auto commentary-scroll">
+                {liveCommentary.slice(0, 4).map((comment) => (
+                  <div
+                    key={comment.id}
+                    className="flex items-start gap-3 text-sm"
+                  >
+                    <div className="text-blue-400 font-semibold min-w-0">
+                      {comment.minute}'
                     </div>
-                  </div>
-                  <span className="text-red-500 text-2xl font-bold">{teamStats.possession.away}%</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold">{awayTeamData?.name?.slice(0, 3)}</span>
-                  <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {currentView === 'history' && (
-            <div className="p-4">
-              <div className="text-center mb-3">
-                <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Last 5 Matches</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                  <div className="flex gap-1">
-                    {teamStats.lastFiveMatches.home.map((result, i) => (
-                      <div key={i} className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}>
-                        {result}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex gap-1">
-                    {teamStats.lastFiveMatches.away.map((result, i) => (
-                      <div key={i} className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}>
-                        {result}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {currentView === 'corners' && (
-            <div className="p-4">
-              <div className="text-center mb-3">
-                <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Corners</span>
-              </div>
-              <div className="flex items-center justify-center gap-12">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                  <span className="text-blue-500 text-3xl font-bold">{teamStats.corners.home}</span>
-                </div>
-                <div className="w-24 h-1 bg-gray-200 rounded relative">
-                  <div 
-                    className="h-full bg-blue-500 rounded transition-all duration-1000"
-                    style={{ 
-                      width: `${teamStats.corners.home > 0 ? (teamStats.corners.home / (teamStats.corners.home + teamStats.corners.away)) * 100 : 50}%` 
-                    }}
-                  ></div>
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-red-500 text-3xl font-bold">{teamStats.corners.away}</span>
-                  <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {currentView === 'shotmap' && (
-            <div className="p-4">
-              <div className="text-center mb-3">
-                <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">Shot Map</span>
-              </div>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                  <span className="text-blue-500 text-xl font-bold">{teamStats.shots.home}</span>
-                  <span className="text-xs text-gray-500">shots</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-xs text-gray-600">Goal</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-xs text-gray-600">Home Shot</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                    <span className="text-xs text-gray-600">Away Shot</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-500">shots</span>
-                  <span className="text-red-500 text-xl font-bold">{teamStats.shots.away}</span>
-                  <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-                </div>
-              </div>
-
-              {/* Enhanced mini shot map */}
-              <div className="relative h-20 bg-green-600 rounded-lg overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-green-500 to-green-700 opacity-95">
-                  {/* Mini field markings */}
-                  <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-2 h-10 border border-white/60"></div>
-                  <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-2 h-10 border border-white/60"></div>
-                  <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/60"></div>
-
-                  {/* Shot markers on mini map */}
-                  {shotEvents.slice(-15).map((shot) => (
                     <div
-                      key={`mini-${shot.id}`}
-                      className="absolute transform -translate-x-1/2 -translate-y-1/2"
-                      style={{
-                        left: `${shot.x}%`,
-                        top: `${((shot.y - 20) / 60) * 100}%`,
-                      }}
+                      className={`flex-1 ${comment.isImportant ? "font-medium text-white" : "text-gray-200"}`}
                     >
-                      <div className={`w-2 h-2 rounded-full ${
-                        shot.isGoal 
-                          ? 'bg-green-400 ring-2 ring-green-200' 
-                          : shot.team === 'home' 
-                            ? 'bg-blue-400' 
-                            : 'bg-red-400'
-                        }`}></div>
+                      {comment.text}
+                    </div>
+                    {comment.team && (
+                      <div
+                        className={`w-2 h-2 rounded-full ${comment.team === "home" ? "bg-blue-400" : "bg-red-400"}`}
+                      ></div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Enhanced bottom statistics panel - 365scores style */}
+      <div className="bg-white border-t border-gray-200">
+        {currentView === "stats" && (
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                Possession
+              </span>
+              <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
+                {elapsed}'
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
+                <span className="text-sm font-bold">
+                  {homeTeamData?.name?.slice(0, 3)}
+                </span>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-blue-500 text-2xl font-bold">
+                  {teamStats.possession.home}%
+                </span>
+                <div className="w-16 h-16 relative">
+                  <svg className="w-16 h-16 transform -rotate-90">
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="28"
+                      stroke="#e5e7eb"
+                      strokeWidth="6"
+                      fill="none"
+                    />
+                    <circle
+                      cx="32"
+                      cy="32"
+                      r="28"
+                      stroke="#3b82f6"
+                      strokeWidth="6"
+                      fill="none"
+                      strokeDasharray={`${(teamStats.possession.home / 100) * 175.9} 175.9`}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-xs font-bold">⚽</span>
+                  </div>
+                </div>
+                <span className="text-red-500 text-2xl font-bold">
+                  {teamStats.possession.away}%
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold">
+                  {awayTeamData?.name?.slice(0, 3)}
+                </span>
+                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentView === "history" && (
+          <div className="p-4">
+            <div className="text-center mb-3">
+              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                Last 5 Matches
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
+                <div className="flex gap-1">
+                  {teamStats.lastFiveMatches.home.map((result, i) => (
+                    <div
+                      key={i}
+                      className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}
+                    >
+                      {result}
                     </div>
                   ))}
                 </div>
               </div>
+              <div className="flex items-center gap-2">
+                <div className="flex gap-1">
+                  {teamStats.lastFiveMatches.away.map((result, i) => (
+                    <div
+                      key={i}
+                      className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}
+                    >
+                      {result}
+                    </div>
+                  ))}
+                </div>
+                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+              </div>
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        )}
 
+        {currentView === "corners" && (
+          <div className="p-4">
+            <div className="text-center mb-3">
+              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                Corners
+              </span>
+            </div>
+            <div className="flex items-center justify-center gap-12">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
+                <span className="text-blue-500 text-3xl font-bold">
+                  {teamStats.corners.home}
+                </span>
+              </div>
+              <div className="w-24 h-1 bg-gray-200 rounded relative">
+                <div
+                  className="h-full bg-blue-500 rounded transition-all duration-1000"
+                  style={{
+                    width: `${teamStats.corners.home > 0 ? (teamStats.corners.home / (teamStats.corners.home + teamStats.corners.away)) * 100 : 50}%`,
+                  }}
+                ></div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-red-500 text-3xl font-bold">
+                  {teamStats.corners.away}
+                </span>
+                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {currentView === "shotmap" && (
+          <div className="p-4">
+            <div className="text-center mb-3">
+              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                Shot Map
+              </span>
+            </div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
+                <span className="text-blue-500 text-xl font-bold">
+                  {teamStats.shots.home}
+                </span>
+                <span className="text-xs text-gray-500">shots</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-xs text-gray-600">Goal</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span className="text-xs text-gray-600">Home Shot</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span className="text-xs text-gray-600">Away Shot</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">shots</span>
+                <span className="text-red-500 text-xl font-bold">
+                  {teamStats.shots.away}
+                </span>
+                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+              </div>
+            </div>
+
+            {/* Enhanced mini shot map */}
+            <div className="relative h-20 bg-green-600 rounded-lg overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-b from-green-500 to-green-700 opacity-95">
+                {/* Mini field markings */}
+                <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-2 h-10 border border-white/60"></div>
+                <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-2 h-10 border border-white/60"></div>
+                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/60"></div>
+
+                {/* Shot markers on mini map */}
+                {shotEvents.slice(-15).map((shot) => (
+                  <div
+                    key={`mini-${shot.id}`}
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                    style={{
+                      left: `${shot.x}%`,
+                      top: `${((shot.y - 20) / 60) * 100}%`,
+                    }}
+                  >
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        shot.isGoal
+                          ? "bg-green-400 ring-2 ring-green-200"
+                          : shot.team === "home"
+                            ? "bg-blue-400"
+                            : "bg-red-400"
+                      }`}
+                    ></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
