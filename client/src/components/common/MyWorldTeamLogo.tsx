@@ -53,8 +53,6 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   const isConmebolSudamericana = leagueName.includes("conmebol sudamericana") ||
                                 leagueName.includes("copa sudamericana");
 
-  // Always use circular flag for national teams and youth teams to get glossy ball effect
-  // Only exclude for very specific club competitions where teams should look like club logos
   const shouldUseCircularFlag = (isActualNationalTeam || isYouthTeam) && 
                               !isFifaClubWorldCup && 
                               !isFriendliesClub && 
