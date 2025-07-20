@@ -41,9 +41,7 @@ const MyScoresTab: React.FC<MyScoresTabProps> = ({ selectedTab, onTabChange }) =
           </div>
         </div>
       </div>
-      <p className="text-gray-600 text-lg mb-8 max-w-md">
-        Select Games, Teams and Competitions to follow them on My Scores
-      </p>
+      
       <Button 
         onClick={() => setShowTeamSelection(true)}
         className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full text-base font-medium"
