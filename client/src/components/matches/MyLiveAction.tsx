@@ -947,73 +947,113 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             minHeight: "400px",
           }}
         >
-          {/* Enhanced attack zones with curved overlays like the reference image */}
-          {attackZones.map((zone) => (
-            <div key={zone.id} className="absolute inset-0 pointer-events-none">
-              {/* Curved organic attack zone overlay */}
-              <svg
-                className="absolute inset-0 w-full h-full"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-              >
-                <defs>
-                  <radialGradient
-                    id={`attackGradient-${zone.id}`}
-                    cx="50%"
-                    cy="50%"
-                    r="60%"
-                  >
-                    <stop
-                      offset="0%"
-                      stopColor={
-                        zone.team === "home"
-                          ? zone.type === "dangerous_attack"
-                            ? "#1e40af"
-                            : "#3b82f6"
-                          : zone.type === "dangerous_attack"
-                            ? "#dc2626"
-                            : "#ef4444"
-                      }
-                      stopOpacity={zone.type === "dangerous_attack" ? "0.8" : "0.5"}
-                    />
-                    <stop
-                      offset="70%"
-                      stopColor={
-                        zone.team === "home"
-                          ? zone.type === "dangerous_attack"
-                            ? "#1e40af"
-                            : "#3b82f6"
-                          : zone.type === "dangerous_attack"
-                            ? "#dc2626"
-                            : "#ef4444"
-                      }
-                      stopOpacity={zone.type === "dangerous_attack" ? "0.4" : "0.2"}
-                    />
-                    <stop
-                      offset="100%"
-                      stopColor="transparent"
-                      stopOpacity="0"
-                    />
-                  </radialGradient>
-                </defs>
+          {/* Enhanced attack zones with curved overlays and text labels like the reference image */}
+          {attackZones.map((zone) => {
+            const teamName = zone.team === "home" ? homeTeamData?.name?.toUpperCase() : awayTeamData?.name?.toUpperCase();
+            const zoneText = zone.type === "ball_safe" 
+              ? "Balle en défense" 
+              : zone.type === "dangerous_attack" 
+                ? "Attaque dangereuse" 
+                : "Attaque";
+            
+            return (
+              <div key={zone.id} className="absolute inset-0 pointer-events-none">
+                {/* Curved organic attack zone overlay */}
+                <svg
+                  className="absolute inset-0 w-full h-full"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                >
+                  <defs>
+                    <radialGradient
+                      id={`attackGradient-${zone.id}`}
+                      cx="50%"
+                      cy="50%"
+                      r="60%"
+                    >
+                      <stop
+                        offset="0%"
+                        stopColor={
+                          zone.team === "home"
+                            ? zone.type === "dangerous_attack"
+                              ? "#1e40af"
+                              : zone.type === "ball_safe"
+                                ? "#059669"
+                                : "#3b82f6"
+                            : zone.type === "dangerous_attack"
+                              ? "#dc2626"
+                              : zone.type === "ball_safe"
+                                ? "#059669"
+                                : "#ef4444"
+                        }
+                        stopOpacity={zone.type === "dangerous_attack" ? "0.75" : zone.type === "ball_safe" ? "0.6" : "0.65"}
+                      />
+                      <stop
+                        offset="70%"
+                        stopColor={
+                          zone.team === "home"
+                            ? zone.type === "dangerous_attack"
+                              ? "#1e40af"
+                              : zone.type === "ball_safe"
+                                ? "#059669"
+                                : "#3b82f6"
+                            : zone.type === "dangerous_attack"
+                              ? "#dc2626"
+                              : zone.type === "ball_safe"
+                                ? "#059669"
+                                : "#ef4444"
+                        }
+                        stopOpacity={zone.type === "dangerous_attack" ? "0.4" : zone.type === "ball_safe" ? "0.3" : "0.35"}
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor="transparent"
+                        stopOpacity="0"
+                      />
+                    </radialGradient>
+                  </defs>
+                  
+                  {/* Curved attack zone shape - wider and more organic */}
+                  <path
+                    d={
+                      zone.team === "home"
+                        ? zone.type === "dangerous_attack"
+                          ? "M 5 15 Q 30 5, 50 20 Q 70 8, 90 25 Q 95 50, 90 75 Q 70 92, 50 80 Q 30 95, 5 85 Q 0 50, 5 15 Z"
+                          : zone.type === "ball_safe"
+                            ? "M 5 25 Q 25 10, 45 30 Q 65 15, 85 35 Q 90 50, 85 65 Q 65 85, 45 70 Q 25 90, 5 75 Q 0 50, 5 25 Z"
+                            : "M 8 20 Q 28 8, 48 25 Q 68 12, 88 30 Q 92 50, 88 70 Q 68 88, 48 75 Q 28 92, 8 80 Q 2 50, 8 20 Z"
+                        : zone.type === "dangerous_attack"
+                          ? "M 10 25 Q 30 8, 50 20 Q 70 5, 95 15 Q 100 50, 95 85 Q 70 95, 50 80 Q 30 92, 10 75 Q 5 50, 10 25 Z"
+                          : zone.type === "ball_safe"
+                            ? "M 15 35 Q 35 15, 55 30 Q 75 10, 95 25 Q 100 50, 95 75 Q 75 90, 55 70 Q 35 85, 15 65 Q 10 50, 15 35 Z"
+                            : "M 12 30 Q 32 12, 52 25 Q 72 8, 92 20 Q 98 50, 92 80 Q 72 92, 52 75 Q 32 88, 12 70 Q 7 50, 12 30 Z"
+                    }
+                    fill={`url(#attackGradient-${zone.id})`}
+                    className="transition-all duration-1000"
+                  />
+                </svg>
                 
-                {/* Curved attack zone shape */}
-                <path
-                  d={
-                    zone.team === "home"
-                      ? zone.type === "dangerous_attack"
-                        ? "M 5 20 Q 25 10, 45 25 Q 65 15, 85 30 Q 90 50, 85 70 Q 65 85, 45 75 Q 25 90, 5 80 Q 0 50, 5 20 Z"
-                        : "M 10 25 Q 20 15, 35 30 Q 50 20, 65 35 Q 70 50, 65 65 Q 50 80, 35 70 Q 20 85, 10 75 Q 5 50, 10 25 Z"
-                      : zone.type === "dangerous_attack"
-                        ? "M 15 30 Q 35 15, 55 25 Q 75 10, 95 20 Q 100 50, 95 80 Q 75 90, 55 75 Q 35 85, 15 70 Q 10 50, 15 30 Z"
-                        : "M 35 35 Q 50 20, 65 30 Q 80 15, 90 25 Q 95 50, 90 75 Q 80 85, 65 70 Q 50 80, 35 65 Q 30 50, 35 35 Z"
-                  }
-                  fill={`url(#attackGradient-${zone.id})`}
-                  className="transition-all duration-1000"
-                />
-              </svg>
-            </div>
-          ))}
+                {/* Zone text label with jersey icon */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center text-white drop-shadow-2xl">
+                    <div className="text-sm font-medium mb-1 opacity-90">
+                      {zoneText}
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-lg font-bold tracking-wide">
+                        {teamName}
+                      </span>
+                      <div className={`w-6 h-6 rounded flex items-center justify-center text-white text-sm font-bold ${
+                        zone.team === "home" ? "bg-blue-500" : "bg-red-500"
+                      }`}>
+                        👕
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
 
           {/* Team possession display on field with jerseys */}
           {ballPossession && (
