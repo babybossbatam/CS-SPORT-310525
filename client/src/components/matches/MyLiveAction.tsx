@@ -819,15 +819,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 )}
               </div>
 
-              {/* Sharp speed lines effect */}
-              <div className="absolute -inset-3 pointer-events-none">
-                <div className="w-10 h-0.5 bg-white/60 rounded-full animate-pulse" 
-                     style={{ transform: 'rotate(-15deg)', left: '-8px', top: '11px' }}></div>
-                <div className="w-8 h-0.5 bg-white/50 rounded-full animate-pulse" 
-                     style={{ transform: 'rotate(-25deg)', left: '-4px', top: '13px' }}></div>
-                <div className="w-6 h-0.5 bg-white/40 rounded-full animate-pulse" 
-                     style={{ transform: 'rotate(-35deg)', left: '-1px', top: '15px' }}></div>
-              </div>
+              
             </div>
           </div>
 
