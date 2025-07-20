@@ -128,28 +128,25 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
         onOpenChange={setShowTeamSelection} 
       />
       
-      <CardContent className="p-6">
+      <CardContent className="">
         {/* Header with Tabs */}
-        <Tabs value={selectedTab} onValueChange={onTabChange} className="w-full mb-8">
-          <div className="flex items-center justify-between mb-6">
+        <Tabs value={selectedTab} onValueChange={onTabChange} className="w-full ">
+          <div className="flex items-center justify-between">
             <TabsList className="bg-transparent border-b border-gray-200 rounded-none h-auto p-0">
               <TabsTrigger 
                 value="my-scores" 
-                className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 rounded-none bg-transparent px-6 py-3 font-medium"
+                className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 rounded-none   font-medium"
               >
                 My Scores
               </TabsTrigger>
               <TabsTrigger 
                 value="my-selections" 
-                className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 rounded-none bg-transparent px-6 py-3 font-medium"
+                className=" border-b-2 data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 rounded-none font-medium"
               >
                 My Selections
               </TabsTrigger>
             </TabsList>
-            
-            <Badge variant="secondary" className="bg-gray-800 text-white px-3 py-1 rounded-full">
-              Live
-            </Badge>
+           
           </div>
 
           {/* Tab Contents */}
