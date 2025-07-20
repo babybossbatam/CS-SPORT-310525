@@ -289,7 +289,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             ...currentTrail,
             { x: prev.x, y: prev.y, timestamp: Date.now() },
           ];
-          return newTrail.slice(-6); // Shorter trail for cleaner look
+          return newTrail.slice(-15); // Longer trail like in the image
         });
 
         return { x: newX, y: newY };
@@ -921,21 +921,21 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       ? zone.type === "dangerous_attack"
                         ? "5%"
                         : "10%"
-                      : "35%",
+                      : "40%",
                   right:
                     zone.team === "home"
-                      ? "35%"
+                      ? "40%"
                       : zone.type === "dangerous_attack"
                         ? "5%"
                         : "10%",
                   clipPath:
                     zone.team === "home"
                       ? zone.type === "dangerous_attack"
-                        ? "polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%)"
-                        : "polygon(0% 0%, 70% 0%, 100% 50%, 70% 100%, 0% 100%)"
+                        ? "polygon(0% 0%, 95% 0%, 100% 50%, 95% 100%, 0% 100%)"
+                        : "polygon(0% 0%, 60% 0%, 70% 50%, 60% 100%, 0% 100%)"
                       : zone.type === "dangerous_attack"
-                        ? "polygon(15% 0%, 100% 0%, 100% 100%, 15% 100%, 0% 50%)"
-                        : "polygon(30% 0%, 100% 0%, 100% 100%, 30% 100%, 0% 50%)",
+                        ? "polygon(5% 0%, 100% 0%, 100% 100%, 5% 100%, 0% 50%)"
+                        : "polygon(40% 0%, 100% 0%, 100% 100%, 40% 100%, 30% 50%)",
                   opacity: zone.opacity,
                 }}
               />
