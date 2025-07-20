@@ -4,8 +4,7 @@ import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
-import MyCircularFlag from '@/components/common/MyCircularFlag';
+
 
 interface TeamSelectionModalProps {
   open: boolean;
@@ -118,21 +117,18 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
             </button>
 
           <div className="w-12 h-12 mb-2 flex items-center justify-center">
-            {team.type === 'country' ? (
-              <MyCircularFlag 
-                countryCode={team.flag} 
-                teamName={team.name}
-                size={48} 
-              />
-            ) : (
-              <MyWorldTeamLogo 
-                teamName={team.name} 
-                teamLogo={`/api/team-logo/square/${team.id}?size=48`}
-                alt={team.name}
-                size="48px"
-                className="w-12 h-12 object-contain"
-              />
-            )}
+            <img
+              src={team.type === 'country' 
+                ? `https://hatscripts.github.io/circle-flags/flags/${team.flag}.svg`
+                : `/api/team-logo/square/${team.id}?size=48`
+              }
+              alt={team.name}
+              className="w-12 h-12 object-contain rounded-full"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/assets/fallback-logo.svg";
+              }}
+            />
           </div>
 
           <span className="text-xs text-center text-gray-700 font-medium mb-1">
