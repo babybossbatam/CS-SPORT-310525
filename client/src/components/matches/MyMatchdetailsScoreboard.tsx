@@ -320,16 +320,12 @@ const MyMatchdetailsScoreboard = ({
           variant="destructive"
           className="bg-red-500 text-white font-normal text-[11px] animate-pulse shadow-lg"
           style={{
-            animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite, glow 2s ease-in-out infinite alternate",
+            animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
             boxShadow: "0 0 10px rgba(239, 68, 68, 0.5)"
           }}
         >
           <span className="relative">
             {displayText}
-            <span 
-              className="absolute -top-1 -right-1 w-2 h-2 bg-red-300 rounded-full animate-ping"
-              style={{ animationDuration: "1s" }}
-            />
           </span>
         </Badge>
       );
