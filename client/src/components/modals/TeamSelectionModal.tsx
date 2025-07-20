@@ -19,10 +19,17 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
 
   // Popular teams data with correct API-Sports team IDs
   const popularTeams = [
+    // Countries first
     { id: 'brazil', name: 'Brazil', type: 'country', flag: 'br' },
     { id: 'england', name: 'England', type: 'country', flag: 'gb' },
     { id: 'spain', name: 'Spain', type: 'country', flag: 'es' },
     { id: 'italy', name: 'Italy', type: 'country', flag: 'it' },
+    { id: 'portugal', name: 'Portugal', type: 'country', flag: 'pt' },
+    { id: 'germany', name: 'Germany', type: 'country', flag: 'de' },
+    { id: 'argentina', name: 'Argentina', type: 'country', flag: 'ar' },
+    { id: 'france', name: 'France', type: 'country', flag: 'fr' },
+    
+    // Teams - ensuring no duplicates and correct Napoli ID (481)
     { id: 481, name: 'Napoli', type: 'team' },
     { id: 497, name: 'AS Roma', type: 'team' },
     { id: 720, name: 'Sevilla', type: 'team' },
@@ -45,12 +52,6 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
     { id: 505, name: 'Inter Milan', type: 'team' },
     { id: 47, name: 'Tottenham', type: 'team' },
     { id: 165, name: 'Borussia Dortmund', type: 'team' },
-
-    { id: 'portugal', name: 'Portugal', type: 'country', flag: 'pt' },
-    { id: 'germany', name: 'Germany', type: 'country', flag: 'de' },
-    { id: 'argentina', name: 'Argentina', type: 'country', flag: 'ar' },
-    { id: 'france', name: 'France', type: 'country', flag: 'fr' },
-   
   ];
 
   const handleTeamClick = (teamId: string | number) => {
@@ -75,11 +76,13 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
 
   const renderTeamGrid = (teams: typeof popularTeams, tabPrefix: string) => (
     <div className="grid grid-cols-5 gap-4 p-4 max-h-96 overflow-y-auto">
-      {teams.map((team) => {
+      {teams.map((team, index) => {
         const isSelected = selectedTeams.has(team.id);
+        // Use combination of tab prefix, team id, and index to ensure uniqueness
+        const uniqueKey = `${tabPrefix}-${team.type}-${team.id}-${index}`;
         return (
           <div
-            key={`${tabPrefix}-${team.id}`}
+            key={uniqueKey}
             onClick={() => handleTeamClick(team.id)}
             className={`group relative flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
               isSelected 
