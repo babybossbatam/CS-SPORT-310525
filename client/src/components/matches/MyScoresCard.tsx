@@ -60,7 +60,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
   const SuggestedGames = () => (
     <div className="mt-12">
       <h2 className="text-xl font-semibold text-center mb-8 text-gray-800">
-        – Suggested Games –
+     
       </h2>
       <div className="space-y-4 max-w-2xl mx-auto">
         {suggestedGamesQuery.data?.map((fixture: any) => (
@@ -178,11 +178,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
 
           <TabsContent value="my-selections" className="mt-0">
             <EmptyState />
-            <div className="mt-12 text-center text-gray-500">
-              <p className="text-sm mt-2">
-                Start following your favorite teams and competitions!
-              </p>
-            </div>
+           
           </TabsContent>
         </Tabs>
       </CardContent>
