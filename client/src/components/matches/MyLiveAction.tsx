@@ -1075,6 +1075,210 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               )}
             </div>
           </div>
+        {/* Enhanced bottom statistics panel - 365scores style - moved inside field */}
+          <div className="absolute bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-t border-gray-200">
+            {currentView === "stats" && (
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                    Possession
+                  </span>
+                  <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
+                    {elapsed}'
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
+                    <span className="text-sm font-bold">
+                      {homeTeamData?.name?.slice(0, 3)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <span className="text-blue-500 text-2xl font-bold">
+                      {teamStats.possession.home}%
+                    </span>
+                    <div className="w-16 h-16 relative">
+                      <svg className="w-16 h-16 transform -rotate-90">
+                        <circle
+                          cx="32"
+                          cy="32"
+                          r="28"
+                          stroke="#e5e7eb"
+                          strokeWidth="6"
+                          fill="none"
+                        />
+                        <circle
+                          cx="32"
+                          cy="32"
+                          r="28"
+                          stroke="#3b82f6"
+                          strokeWidth="6"
+                          fill="none"
+                          strokeDasharray={`${(teamStats.possession.home / 100) * 175.9} 175.9`}
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <span className="text-xs font-bold">⚽</span>
+                      </div>
+                    </div>
+                    <span className="text-red-500 text-2xl font-bold">
+                      {teamStats.possession.away}%
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold">
+                      {awayTeamData?.name?.slice(0, 3)}
+                    </span>
+                    <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentView === "history" && (
+              <div className="p-4">
+                <div className="text-center mb-3">
+                  <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                    Last 5 Matches
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
+                    <div className="flex gap-1">
+                      {teamStats.lastFiveMatches.home.map((result, i) => (
+                        <div
+                          key={i}
+                          className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}
+                        >
+                          {result}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1">
+                      {teamStats.lastFiveMatches.away.map((result, i) => (
+                        <div
+                          key={i}
+                          className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}
+                        >
+                          {result}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentView === "corners" && (
+              <div className="p-4">
+                <div className="text-center mb-3">
+                  <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                    Corners
+                  </span>
+                </div>
+                <div className="flex items-center justify-center gap-12">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
+                    <span className="text-blue-500 text-3xl font-bold">
+                      {teamStats.corners.home}
+                    </span>
+                  </div>
+                  <div className="w-24 h-1 bg-gray-200 rounded relative">
+                    <div
+                      className="h-full bg-blue-500 rounded transition-all duration-1000"
+                      style={{
+                        width: `${teamStats.corners.home > 0 ? (teamStats.corners.home / (teamStats.corners.home + teamStats.corners.away)) * 100 : 50}%`,
+                      }}
+                    ></div>
+                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-500 text-3xl font-bold">
+                      {teamStats.corners.away}
+                    </span>
+                    <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {currentView === "shotmap" && (
+              <div className="p-4">
+                <div className="text-center mb-3">
+                  <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
+                    Shot Map
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
+                    <span className="text-blue-500 text-xl font-bold">
+                      {teamStats.shots.home}
+                    </span>
+                    <span className="text-xs text-gray-500">shots</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <span className="text-xs text-gray-600">Goal</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <span className="text-xs text-gray-600">Home Shot</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                      <span className="text-xs text-gray-600">Away Shot</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-gray-500">shots</span>
+                    <span className="text-red-500 text-xl font-bold">
+                      {teamStats.shots.away}
+                    </span>
+                    <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
+                  </div>
+                </div>
+
+                {/* Enhanced mini shot map */}
+                <div className="relative h-20 bg-green-600 rounded-lg overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-b from-green-500 to-green-700 opacity-95">
+                    {/* Mini field markings */}
+                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-2 h-10 border border-white/60"></div>
+                    <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-2 h-10 border border-white/60"></div>
+                    <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/60"></div>
+
+                    {/* Shot markers on mini map */}
+                    {shotEvents.slice(-15).map((shot) => (
+                      <div
+                        key={`mini-${shot.id}`}
+                        className="absolute transform -translate-x-1/2 -translate-y-1/2"
+                        style={{
+                          left: `${shot.x}%`,
+                          top: `${((shot.y - 20) / 60) * 100}%`,
+                        }}
+                      >
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            shot.isGoal
+                              ? "bg-green-400 ring-2 ring-green-200"
+                              : shot.team === "home"
+                                ? "bg-blue-400"
+                                : "bg-red-400"
+                          }`}
+                        ></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Enhanced shot events visualization */}
@@ -1154,211 +1358,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
         )}
       </div>
-
-      {/* Enhanced bottom statistics panel - 365scores style */}
-      <div className="bg-white border-t border-gray-200">
-        {currentView === "stats" && (
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-                Possession
-              </span>
-              <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
-                {elapsed}'
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                <span className="text-sm font-bold">
-                  {homeTeamData?.name?.slice(0, 3)}
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-blue-500 text-2xl font-bold">
-                  {teamStats.possession.home}%
-                </span>
-                <div className="w-16 h-16 relative">
-                  <svg className="w-16 h-16 transform -rotate-90">
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      stroke="#e5e7eb"
-                      strokeWidth="6"
-                      fill="none"
-                    />
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      stroke="#3b82f6"
-                      strokeWidth="6"
-                      fill="none"
-                      strokeDasharray={`${(teamStats.possession.home / 100) * 175.9} 175.9`}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold">⚽</span>
-                  </div>
-                </div>
-                <span className="text-red-500 text-2xl font-bold">
-                  {teamStats.possession.away}%
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold">
-                  {awayTeamData?.name?.slice(0, 3)}
-                </span>
-                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentView === "history" && (
-          <div className="p-4">
-            <div className="text-center mb-3">
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-                Last 5 Matches
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                <div className="flex gap-1">
-                  {teamStats.lastFiveMatches.home.map((result, i) => (
-                    <div
-                      key={i}
-                      className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}
-                    >
-                      {result}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  {teamStats.lastFiveMatches.away.map((result, i) => (
-                    <div
-                      key={i}
-                      className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}
-                    >
-                      {result}
-                    </div>
-                  ))}
-                </div>
-                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentView === "corners" && (
-          <div className="p-4">
-            <div className="text-center mb-3">
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-                Corners
-              </span>
-            </div>
-            <div className="flex items-center justify-center gap-12">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                <span className="text-blue-500 text-3xl font-bold">
-                  {teamStats.corners.home}
-                </span>
-              </div>
-              <div className="w-24 h-1 bg-gray-200 rounded relative">
-                <div
-                  className="h-full bg-blue-500 rounded transition-all duration-1000"
-                  style={{
-                    width: `${teamStats.corners.home > 0 ? (teamStats.corners.home / (teamStats.corners.home + teamStats.corners.away)) * 100 : 50}%`,
-                  }}
-                ></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-red-500 text-3xl font-bold">
-                  {teamStats.corners.away}
-                </span>
-                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentView === "shotmap" && (
-          <div className="p-4">
-            <div className="text-center mb-3">
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-                Shot Map
-              </span>
-            </div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                <span className="text-blue-500 text-xl font-bold">
-                  {teamStats.shots.home}
-                </span>
-                <span className="text-xs text-gray-500">shots</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">Goal</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">Home Shot</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">Away Shot</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">shots</span>
-                <span className="text-red-500 text-xl font-bold">
-                  {teamStats.shots.away}
-                </span>
-                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-              </div>
-            </div>
-
-            {/* Enhanced mini shot map */}
-            <div className="relative h-20 bg-green-600 rounded-lg overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-b from-green-500 to-green-700 opacity-95">
-                {/* Mini field markings */}
-                <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-2 h-10 border border-white/60"></div>
-                <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-2 h-10 border border-white/60"></div>
-                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/60"></div>
-
-                {/* Shot markers on mini map */}
-                {shotEvents.slice(-15).map((shot) => (
-                  <div
-                    key={`mini-${shot.id}`}
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2"
-                    style={{
-                      left: `${shot.x}%`,
-                      top: `${((shot.y - 20) / 60) * 100}%`,
-                    }}
-                  >
-                    <div
-                      className={`w-2 h-2 rounded-full ${
-                        shot.isGoal
-                          ? "bg-green-400 ring-2 ring-green-200"
-                          : shot.team === "home"
-                            ? "bg-blue-400"
-                            : "bg-red-400"
-                      }`}
-                    ></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+        
     </div>
   );
 };
