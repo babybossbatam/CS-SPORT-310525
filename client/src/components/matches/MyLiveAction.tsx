@@ -666,14 +666,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       )[] = ["stats", "history", "corners", "shotmap", "commentary"];
       const randomView = views[Math.floor(Math.random() * views.length)];
       setCurrentView(randomView);
-    }, 3500);
+    }, 5000);
 
     // Clear zone and reset view
     setTimeout(() => {
       setAttackZones((prev) => prev.filter((z) => z.id !== newZone.id));
       setCurrentView("event");
       setCurrentEvent(null);
-    }, 7000);
+    }, 10000);
   };
 
   const generatePlayByPlayEvents = async (matchData: any) => {
@@ -1114,37 +1114,39 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               )}
             </div>
           </div>
-        {/* Statistics and trends display at bottom of field */}
-          <div className="absolute bottom-4 left-0 right-0 z-30 px-4">
-            <div className="bg-white/95 backdrop-blur-sm rounded-lg border border-gray-200 p-3">
-              <div className="flex items-center justify-between">
-                <div className="text-center w-full">
-                  <div className="text-xs text-gray-500 mb-1">HEAD TO HEAD RECORD</div>
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="flex items-center gap-1">
-                      <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs font-bold">
-                        👕
+        {/* Statistics and trends display at bottom of field - only show when currentView is "history" */}
+          {currentView === "history" && (
+            <div className="absolute bottom-4 left-0 right-0 z-30 px-4">
+              <div className="bg-white/95 backdrop-blur-sm rounded-lg border border-gray-200 p-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-center w-full">
+                    <div className="text-xs text-gray-500 mb-1">HEAD TO HEAD RECORD</div>
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs font-bold">
+                          👕
+                        </div>
+                        <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
+                          {teamStats.previousMeetings.homeWins} WIN{teamStats.previousMeetings.homeWins !== 1 ? 'S' : ''}
+                        </div>
                       </div>
-                      <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
-                        {teamStats.previousMeetings.homeWins} WIN{teamStats.previousMeetings.homeWins !== 1 ? 'S' : ''}
+                      <div className="bg-gray-400 text-white px-2 py-1 rounded text-xs font-bold">
+                        {teamStats.previousMeetings.draws} DRAW{teamStats.previousMeetings.draws !== 1 ? 'S' : ''}
                       </div>
-                    </div>
-                    <div className="bg-gray-400 text-white px-2 py-1 rounded text-xs font-bold">
-                      {teamStats.previousMeetings.draws} DRAW{teamStats.previousMeetings.draws !== 1 ? 'S' : ''}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <div className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                        {teamStats.previousMeetings.awayWins} WIN{teamStats.previousMeetings.awayWins !== 1 ? 'S' : ''}
-                      </div>
-                      <div className="w-6 h-6 bg-red-500 rounded flex items-center justify-center text-white text-xs font-bold">
-                        👕
+                      <div className="flex items-center gap-1">
+                        <div className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                          {teamStats.previousMeetings.awayWins} WIN{teamStats.previousMeetings.awayWins !== 1 ? 'S' : ''}
+                        </div>
+                        <div className="w-6 h-6 bg-red-500 rounded flex items-center justify-center text-white text-xs font-bold">
+                          👕
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Enhanced shot events visualization */}
