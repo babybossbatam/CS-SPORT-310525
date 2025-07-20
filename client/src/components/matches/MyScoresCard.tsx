@@ -3,7 +3,7 @@ import { Trophy, Activity, Calendar, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { useQuery } from "@tanstack/react-query";
 import { enhancedApiWrapper } from "@/lib/enhancedApiWrapper";
 import { format } from "date-fns";
@@ -147,40 +147,8 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
       />
 
       <CardContent className="">
-        {/* Header with Tabs */}
-        <Tabs
-          value={selectedTab}
-          onValueChange={onTabChange}
-          className="w-full "
-        >
-          <div className="flex items-center justify-between">
-            <TabsList className="bg-transparent border-b border-gray-200 rounded-none h-auto p-0 w-full flex">
-              <TabsTrigger
-                value="my-scores"
-                className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 rounded-none font-medium flex-1"
-              >
-                My Scores
-              </TabsTrigger>
-              <TabsTrigger
-                value="my-selections"
-                className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 rounded-none font-medium flex-1"
-              >
-                My Selections
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          {/* Tab Contents */}
-          <TabsContent value="my-scores" className="mt-0">
-            <EmptyState />
-            <SuggestedGames />
-          </TabsContent>
-
-          <TabsContent value="my-selections" className="mt-0">
-            <EmptyState />
-           
-          </TabsContent>
-        </Tabs>
+        <EmptyState />
+        <SuggestedGames />
       </CardContent>
     </Card>
   );
