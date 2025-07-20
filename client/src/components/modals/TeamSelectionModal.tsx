@@ -76,7 +76,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
   const countries = popularTeams.filter(team => team.type === 'country');
 
   const renderTeamGrid = (teams: typeof popularTeams, tabPrefix: string) => (
-    <div className="grid grid-cols-5 gap-4 p-4 max-h-96 overflow-y-auto">
+    <div className="grid grid-cols-5 gap-4 p-4">
       {teams.map((team, index) => {
         const isSelected = selectedTeams.has(team.id);
         // Use combination of tab prefix, team id, and index to ensure uniqueness
@@ -154,22 +154,15 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] p-0 overflow-hidden">
-        <DialogHeader className="flex flex-row items-center justify-between p-4 border-b">
+      <DialogContent className="max-w-2xl max-h-[80vh] p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="flex flex-row items-center justify-between p-4 border-b flex-shrink-0">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-500">STEP 1 OF 2</span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onOpenChange(false)}
-            className="h-6 w-6 p-0"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+         
         </DialogHeader>
 
-        <div className="p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <h2 className="text-lg font-semibold">SELECT TEAMS TO FOLLOW</h2>
 
           <div className="relative">
@@ -227,7 +220,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
           </Tabs>
         </div>
 
-        <div className="border-t p-4 flex justify-between items-center">
+        <div className="border-t p-4 flex justify-between items-center flex-shrink-0">
           <div className="text-sm text-gray-600">
             My Selections: <span className="font-medium">{selectedTeams.size}</span>
           </div>
