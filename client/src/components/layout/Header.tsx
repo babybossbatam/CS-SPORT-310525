@@ -85,13 +85,13 @@ const Header = () => {
                 <Star className="h-4 w-4 mr-2 fill-current" />
                 Go to My Scores
               </DropdownMenuItem>
-              
+
               <DropdownMenuSeparator className="bg-slate-700" />
-              
+
               <DropdownMenuLabel className="text-slate-300 font-medium">
                 THEMES
               </DropdownMenuLabel>
-              
+
               <DropdownMenuItem className="flex items-center justify-between hover:bg-slate-700 cursor-pointer">
                 <span>Set Dark Theme</span>
                 <Switch
@@ -100,13 +100,13 @@ const Header = () => {
                   className="data-[state=checked]:bg-blue-500"
                 />
               </DropdownMenuItem>
-              
+
               <DropdownMenuSeparator className="bg-slate-700" />
-              
+
               <DropdownMenuLabel className="text-slate-300 font-medium">
                 LANGUAGE
               </DropdownMenuLabel>
-              
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <DropdownMenuItem className="flex items-center justify-between hover:bg-slate-700 cursor-pointer">
@@ -146,11 +146,25 @@ const Header = () => {
                     <span className="mr-2 text-lg">🇫🇷</span>
                     Français
                   </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="hover:bg-slate-700 cursor-pointer"
+                    onClick={() => setSelectedLanguage('中文 (简体)')}
+                  >
+                    <span className="mr-2 text-lg">🇨🇳</span>
+                    中文 (简体)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="hover:bg-slate-700 cursor-pointer"
+                    onClick={() => setSelectedLanguage('中文 (繁體)')}
+                  >
+                    <span className="mr-2 text-lg">🇭🇰</span>
+                    中文 (繁體)
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              
+
               <DropdownMenuSeparator className="bg-slate-700" />
-              
+
               <DropdownMenuItem 
                 className="hover:bg-slate-700 cursor-pointer text-slate-300"
                 onClick={() => navigate('/privacy')}
@@ -177,7 +191,7 @@ const Header = () => {
               <DropdownMenuLabel className="text-slate-300 font-medium">
                 NOTIFICATIONS
               </DropdownMenuLabel>
-              
+
               <DropdownMenuItem className="flex items-center justify-between hover:bg-slate-700 cursor-pointer">
                 <span>Enable all Notifications</span>
                 <Switch
@@ -186,13 +200,13 @@ const Header = () => {
                   className="data-[state=checked]:bg-blue-500"
                 />
               </DropdownMenuItem>
-              
+
               <DropdownMenuSeparator className="bg-slate-700" />
-              
+
               <DropdownMenuLabel className="text-slate-300 font-medium">
                 THEMES
               </DropdownMenuLabel>
-              
+
               <DropdownMenuItem className="flex items-center justify-between hover:bg-slate-700 cursor-pointer">
                 <span>Set Dark Theme</span>
                 <Switch
@@ -201,13 +215,13 @@ const Header = () => {
                   className="data-[state=checked]:bg-blue-500"
                 />
               </DropdownMenuItem>
-              
+
               <DropdownMenuSeparator className="bg-slate-700" />
-              
+
               <DropdownMenuLabel className="text-slate-300 font-medium">
                 LANGUAGE
               </DropdownMenuLabel>
-              
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <DropdownMenuItem className="flex items-center justify-between hover:bg-slate-700 cursor-pointer">
@@ -247,11 +261,25 @@ const Header = () => {
                     <span className="mr-2 text-lg">🇫🇷</span>
                     Français
                   </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="hover:bg-slate-700 cursor-pointer"
+                    onClick={() => setSelectedLanguage('中文 (简体)')}
+                  >
+                    <span className="mr-2 text-lg">🇨🇳</span>
+                    中文 (简体)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="hover:bg-slate-700 cursor-pointer"
+                    onClick={() => setSelectedLanguage('中文 (繁體)')}
+                  >
+                    <span className="mr-2 text-lg">🇭🇰</span>
+                    中文 (繁體)
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              
+
               <DropdownMenuSeparator className="bg-slate-700" />
-              
+
               <DropdownMenuItem 
                 className="hover:bg-slate-700 cursor-pointer text-slate-300"
                 onClick={() => setPrivacyModalOpen(true)}
