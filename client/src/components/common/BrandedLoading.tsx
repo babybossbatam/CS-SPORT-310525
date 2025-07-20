@@ -10,7 +10,7 @@ interface BrandedLoadingProps {
 
 const BrandedLoading: React.FC<BrandedLoadingProps> = ({ 
    
-  size = "64px",
+  size = "50px",
   className = "" 
 }) => {
   return (
