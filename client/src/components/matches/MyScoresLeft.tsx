@@ -15,6 +15,7 @@ import MyNewPopularLeague from "./MyNewPopularLeague";
 import EnhancementLeague from "./EnhancementLeague";
 import MyNewLeague from "./MyNewLeague";
 import MyScoresTab from "./MyScoresTab";
+import MyScoresCard from "./MyScoresCard";
 import { useCachedQuery } from "@/lib/cachingHelper";
 
 import { format, parseISO, addDays, subDays } from "date-fns";
@@ -359,6 +360,12 @@ export const MyScoresLeft = ({
           </div>
         </div>
       </Card>
+
+      {/* MyScoresCard component */}
+      <MyScoresCard 
+        selectedTab="my-scores"
+        onTabChange={() => {}}
+      />
 
       {liveFilterActive && timeFilterActive ? (
         // Combined state: Show live matches grouped by time
