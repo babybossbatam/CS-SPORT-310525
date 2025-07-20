@@ -345,6 +345,21 @@ export const MyScoresLeft = ({
         </div>
       </Card>
 
+      {/* New card below the Live/By time card */}
+      <Card className="shadow-md w-full">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="text-sm font-medium text-gray-700">Additional Controls</div>
+          <div className="flex items-center gap-2">
+            <button className="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors">
+              Filter
+            </button>
+            <button className="px-3 py-1 text-xs bg-gray-100 text-gray-600 rounded-full hover:bg-gray-200 transition-colors">
+              Sort
+            </button>
+          </div>
+        </div>
+      </Card>
+
       {liveFilterActive && timeFilterActive ? (
         // Combined state: Show live matches grouped by time
         <LiveMatchByTime
