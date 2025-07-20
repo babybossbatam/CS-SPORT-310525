@@ -121,7 +121,6 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
               />
             ) : (
               <MyWorldTeamLogo 
-                teamId={team.id as number} 
                 teamName={team.name} 
                 teamLogo={`/api/team-logo/square/${team.id}?size=48`}
                 size="48px" 
