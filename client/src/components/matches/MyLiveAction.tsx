@@ -279,7 +279,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           // Reached target - stop movement and finalize trail
           setBallMovementActive(false);
           setEventInProgress(false);
-          
+
           // Add final position to trail
           setBallTrail((currentTrail) => {
             const eventId = currentBallEvent || 'default';
@@ -311,7 +311,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     // Clear previous trail and start new event trail
     const eventId = `${eventType}_${team}_${Date.now()}`;
     setBallTrail([]);
-    
+
     let targetPosition;
 
     switch (eventType) {
@@ -873,7 +873,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         return "border-red-500 bg-red-50";
       case "medium":
         return "border-yellow-500 bg-yellow-50";
-      case "low":
+      case "low":```text
         return "border-green-500 bg-green-50";
       default:
         return "border-gray-300 bg-gray-50";
@@ -940,11 +940,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           {attackZones.map((zone) => {
             const teamName = zone.team === "home" ? homeTeamData?.name?.toUpperCase() : awayTeamData?.name?.toUpperCase();
             const zoneText = zone.type === "ball_safe" 
-              ? "Balle en défense" 
+              ? "Ball Possession" 
               : zone.type === "dangerous_attack" 
-                ? "Attaque dangereuse" 
-                : "Attaque";
-            
+                ? "Dangerous Attack" 
+                : "Attack";
+
             return (
               <div key={zone.id} className="absolute inset-0 pointer-events-none">
                 {/* Curved organic attack zone overlay */}
@@ -1001,7 +1001,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       />
                     </radialGradient>
                   </defs>
-                  
+
                   {/* Curved attack zone shape - wider and more organic */}
                   <path
                     d={
@@ -1021,7 +1021,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                     className="transition-all duration-1000"
                   />
                 </svg>
-                
+
                 {/* Zone text label with jersey icon */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="text-center text-white drop-shadow-2xl">
@@ -1081,13 +1081,13 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 const ageProgress = Math.min(age / maxAge, 1);
                 const opacity = (1 - ageProgress) * 0.9; // Fade out over time
                 const strokeWidth = (1 - ageProgress) * 1.5 + 0.3; // Thinner over time
-                
+
                 // Different colors for different event types
                 const isCurrentEvent = pos.eventId === currentBallEvent;
                 const trailColor = isCurrentEvent 
                   ? (ballPossession === "home" ? "rgba(59,130,246,0.8)" : "rgba(239,68,68,0.8)")
                   : "rgba(156,163,175,0.5)"; // Gray for old events
-                
+
                 return (
                   <g key={`trail-${pos.eventId}-${index}`}>
                     <line
@@ -1165,15 +1165,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                           👕
                         </div>
                         <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
-                          {teamStats.previousMeetings.homeWins} WIN{teamStats.previousMeetings.homeWins !== 1 ? 'S' : ''}
+                          {teamStats.previousMeetings.homeWins} WINS
                         </div>
                       </div>
                       <div className="bg-gray-400 text-white px-2 py-1 rounded text-xs font-bold">
-                        {teamStats.previousMeetings.draws} DRAW{teamStats.previousMeetings.draws !== 1 ? 'S' : ''}
+                        {teamStats.previousMeetings.draws} DRAWS
                       </div>
                       <div className="flex items-center gap-1">
                         <div className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-                          {teamStats.previousMeetings.awayWins} WIN{teamStats.previousMeetings.awayWins !== 1 ? 'S' : ''}
+                          {teamStats.previousMeetings.awayWins} WINS
                         </div>
                         <div className="w-6 h-6 bg-red-500 rounded flex items-center justify-center text-white text-xs font-bold">
                           👕
@@ -1233,7 +1233,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                     </span>
                   </div>
                 </div>
-                
+
                 {/* Replacement Banner */}
                 <div className="bg-white px-6 py-4">
                   <div className="text-center">
@@ -1242,7 +1242,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                     </span>
                   </div>
                 </div>
-                
+
                 {/* Player In */}
                 <div className="flex items-center justify-between p-3 bg-gray-50 border-t border-gray-200">
                   <div className="flex items-center gap-2">
@@ -1315,8 +1315,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
         )}
       </div>
-
-      
     </div>
   );
 };

@@ -1,0 +1,35 @@
+framework-d6ce62f547324137.js:1 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+_ @ framework-d6ce62f547324137.js:1Understand this error
+workspace_iframe.html:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.Understand this error
+workspace_iframe.html:32 Unrecognized feature: 'ambient-light-sensor'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'battery'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-not-rendered'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-out-of-viewport'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'layout-animations'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'legacy-image-formats'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'navigation-override'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'oversized-images'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'publickey-credentials'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'speaker-selection'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'unoptimized-images'.Understand this warning
+workspace_iframe.html:32 Unrecognized feature: 'unsized-media'.Understand this warning
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowfullscreen'.Understand this warning
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowpaymentrequest'.Understand this warning
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/1351186/shots:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
+hook.js:608 The data provided has been truncated as it is over the limit of 225280 characters: Object
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 The data provided has been truncated as it is over the limit of 225280 characters: Object
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 The data provided has been truncated as it is over the limit of 225280 characters: Object
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 The data provided has been truncated as it is over the limit of 225280 characters: Object
+overrideMethod @ hook.js:608Understand this warning
+hook.js:608 The data provided has been truncated as it is over the limit of 225280 characters: Object
+overrideMethod @ hook.js:608Understand this warning
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/date/2025-07-20?all=true:1  Failed to load resource: net::ERR_HTTP2_SERVER_REFUSED_STREAMUnderstand this error
+stallwart.build.js:1 stallwart: failed ping 2
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/selective-updates:1  Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILEDUnderstand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/1392360/shots:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/1353080/shots:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:8080/api/fixtures/1390650/shots:1  Failed to load resource: the server responded with a status of 500 (Internal Server Error)Understand this error
+Console.js:61 🔍 [TIMEZONE-AWARE DATE
