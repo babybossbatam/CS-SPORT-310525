@@ -289,7 +289,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             ...currentTrail,
             { x: prev.x, y: prev.y, timestamp: Date.now() },
           ];
-          return newTrail.slice(-6); // Shorter trail for cleaner look
+          return newTrail.slice(-20); // Shorter trail for cleaner look
         });
 
         return { x: newX, y: newY };
