@@ -84,21 +84,47 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     queryFn: async () => {
       try {
         console.log(`🔴 [CentralDataProvider] Fetching live fixtures`);
-        const response = await fetch('/api/fixtures/live');
-        if (!response.ok) {
-          console.warn(`Live fixtures API returned ${response.status}`);
-          return [];
+        
+        // Try different base URLs in case of port issues
+        const baseUrls = [
+          '/api/fixtures/live',
+          `${window.location.origin}/api/fixtures/live`,
+          'http://localhost:5000/api/fixtures/live'
+        ];
+        
+        let lastError;
+        for (const url of baseUrls) {
+          try {
+            const response = await fetch(url, {
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+              }
+            });
+            
+            if (!response.ok) {
+              console.warn(`Live fixtures API returned ${response.status} for ${url}`);
+              continue;
+            }
+            
+            const data: FixtureResponse[] = await response.json();
+            console.log(`Central cache: Received ${data.length} live fixtures from ${url}`);
+
+            // Update Redux store
+            dispatch(fixturesActions.setLiveFixtures(data as any));
+            return data;
+            
+          } catch (fetchError) {
+            console.warn(`Failed to fetch from ${url}:`, fetchError);
+            lastError = fetchError;
+            continue;
+          }
         }
-        const data: FixtureResponse[] = await response.json();
-
-        console.log(`Central cache: Received ${data.length} live fixtures`);
-
-        // Update Redux store
-        dispatch(fixturesActions.setLiveFixtures(data as any));
-
-        return data;
+        
+        throw lastError || new Error('All fetch attempts failed');
+        
       } catch (error) {
-        console.error(`❌ [Live Timer] Failed to fetch live match updates:`, error);
+        console.error(`❌ [CentralDataProvider] Failed to fetch live fixtures:`, error);
         return [];
       }
     },
@@ -106,7 +132,8 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     gcTime: 10 * 60 * 1000, // 10 minutes
     refetchInterval: 300000, // Refetch every 5 minutes (much less aggressive)
     refetchOnWindowFocus: false, // Disable to prevent memory leaks
-    retry: false, // Disable retries to prevent cascading errors
+    retry: 3, // Enable retries with exponential backoff
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     throwOnError: false, // Don't throw errors to prevent unhandled rejections
   });
 
