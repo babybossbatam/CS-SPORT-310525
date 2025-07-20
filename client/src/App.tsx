@@ -12,9 +12,9 @@ import { Provider } from "react-redux";
 import { store } from "@/lib/store";
 import { setupGlobalErrorHandlers } from "./lib/errorHandler";
 import { CentralDataProvider } from "./providers/CentralDataProvider";
+import MyMainLayout from '@/components/layout/MyMainLayout';
 
 const NotFound = lazy(() => import("@/pages/not-found"));
-const Home = lazy(() => import("@/pages/Home"));
 const Football = lazy(() => import("@/pages/Football"));
 const Basketball = lazy(() => import("@/pages/Basketball"));
 const Baseball = lazy(() => import("@/pages/Baseball"));
@@ -32,10 +32,17 @@ const NewsPage = lazy(() => import("@/pages/NewsPage"));
 const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
 import Scores365Page from './pages/Scores365Page';
 
+import Header from '@/components/layout/Header';
+import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
+import TournamentHeader from '@/components/layout/TournamentHeader';
+import Footer from '@/components/layout/Footer';
+import RegionModal from '@/components/modals/RegionModal';
+import { Trophy } from 'lucide-react';
+
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={MyMainLayout} />
       <Route path="/football" component={Football} />
       <Route path="/basketball" component={Basketball} />
       <Route path="/baseball" component={Baseball} />
@@ -92,7 +99,7 @@ function App() {
   // Initialize global error handlers
   React.useEffect(() => {
     setupGlobalErrorHandlers();
-    
+
     // Add additional error handling for dynamic imports and runtime errors
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       if (
