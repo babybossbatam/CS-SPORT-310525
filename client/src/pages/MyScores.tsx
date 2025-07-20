@@ -123,7 +123,6 @@ const MyScores: React.FC = () => {
   return (
     <>
       <Header />
-      <div className="container mx-auto px-4 py-6 max-w-5xl mt-[77px]">
       <TeamSelectionModal 
         open={showTeamSelection} 
         onOpenChange={setShowTeamSelection} 
@@ -165,7 +164,6 @@ const MyScores: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
     </>
   );
 };
