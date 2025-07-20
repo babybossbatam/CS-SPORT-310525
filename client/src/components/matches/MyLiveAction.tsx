@@ -328,12 +328,12 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         const corners =
           team === "home"
             ? [
-                { x: 98, y: 10 },
-                { x: 98, y: 90 },
-              ] // Right corners - outside penalty area
+                { x: 95, y: 1 }, // Top-right corner flag
+                { x: 95, y: 95 }, // Bottom-right corner flag
+              ] // Right corners - at actual corner flags
             : [
-                { x: 2, y: 10 },
-                { x: 2, y: 90 },
+                { x: 1, y: 1 }, // Top-left corner flag
+                { x: 1, y: 95 }, // Bottom-left corner flag
               ]; // Left corners - outside penalty area
         targetPosition = corners[Math.floor(Math.random() * corners.length)];
         break;
@@ -462,7 +462,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     // Generate events based on probability and game situation
     const eventProbability = Math.random();
 
-    if (eventProbability > 0.88) {
+    if (eventProbability > 0.3) {
       // Dangerous attack (12% chance)
       eventType = Math.random() > 0.7 ? "shot" : "attack";
       randomType = "dangerous_attack";
@@ -502,10 +502,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       setMatchIntensity("medium");
 
       const cornerPositions = [
-        { corner: "top-left" as const, x: 2, y: 10 },
-        { corner: "top-right" as const, x: 98, y: 10 },
-        { corner: "bottom-left" as const, x: 2, y: 90 },
-        { corner: "bottom-right" as const, x: 98, y: 90 },
+        { corner: "top-left" as const, x: 1, y: 1 },
+        { corner: "top-right" as const, x: 95, y: 1 },
+        { corner: "bottom-left" as const, x: 1, y: 90 },
+        { corner: "bottom-right" as const, x: 95, y: 95 },
       ];
 
       const selectedCorner =
@@ -989,7 +989,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             }}
           >
             <div className="relative">
-             
               {/* Professional ball - sharp and crisp */}
               <div className="w-4 h-4 relative">
                 <img
