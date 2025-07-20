@@ -247,6 +247,9 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
   // Event-driven ball target setting
   const triggerBallMovement = (eventType: string, team: 'home' | 'away') => {
+    // Clear previous trail when starting a new event
+    setBallTrail([]);
+    
     let targetPosition;
 
     switch (eventType) {
@@ -328,10 +331,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   // Clean up old events and effects
   useEffect(() => {
     const cleanup = setInterval(() => {
-      setBallTrail(currentTrail => 
-        currentTrail.filter(pos => Date.now() - pos.timestamp < 8000)
-      );
-
+      // Don't auto-clear ball trail - only clear when new event starts
+      
       setShotEvents(current => 
         current.filter(event => Date.now() - event.timestamp < 4000)
       );
