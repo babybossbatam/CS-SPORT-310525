@@ -8,6 +8,7 @@ import MyRightContent, {
 } from "@/components/layout/MyRightContent";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
+import MyScoresCard from "@/components/matches/MyScoresCard";
 
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -27,6 +28,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
+  const [selectedTab, setSelectedTab] = useState<string>("my-scores");
 
   // Apply smart time filtering to fixtures
   const filteredFixtures = useMemo(() => {
@@ -146,11 +148,15 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         {/* Left column (5 columns) */}
         <div className="lg:col-span-5 space-y-4">
-          {/* Render children if provided, otherwise show TodayMatchPageCard */}
+          {/* Render children if provided, otherwise show MyScoresCard and MyScoresLeft */}
           {children ? (
             <div>{children}</div>
           ) : (
             <div>
+              <MyScoresCard
+                selectedTab={selectedTab}
+                onTabChange={setSelectedTab}
+              />
               <MyScoresLeft
                 fixtures={filteredFixtures}
                 onMatchClick={handleMatchClick}
