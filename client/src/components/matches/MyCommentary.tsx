@@ -672,7 +672,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                 return (
                   <div
                     key={`commentary-${index}`}
-                    className="commentary-event-container "
+                    className="commentary-event-container"
                   >
                     <div className="flex gap-3">
                       {/* Time Column */}
