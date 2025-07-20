@@ -125,8 +125,12 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
                 : `/api/team-logo/square/${team.id}?size=48`
               }
               size="48px"
-              className="rounded-full"
+              className={team.type === 'country' 
+                ? "flag-circle rounded-full" 
+                : "rounded-full shadow-md hover:shadow-lg transition-shadow duration-200"
+              }
               alt={team.name}
+              leagueContext={team.type === 'country' ? { name: 'International', country: 'World' } : undefined}
             />
           </div>
 
