@@ -12,9 +12,6 @@ import { Provider } from "react-redux";
 import { store } from "@/lib/store";
 import { setupGlobalErrorHandlers } from "./lib/errorHandler";
 import { CentralDataProvider } from "./providers/CentralDataProvider";
-import Header from "@/components/layout/Header";
-import SportsCategoryTabs from "@/components/layout/SportsCategoryTabs";
-import MyMainLayout from "@/components/layout/MyMainLayout";
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -84,16 +81,7 @@ const preloadData = () => {
 
 function AppContent() {
   try {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <Header />
-        <SportsCategoryTabs />
-        <div className="flex-1">
-          <MyMainLayout fixtures={[]} />
-          <Router />
-        </div>
-      </div>
-    );
+    return <Router />;
   } catch (error) {
     console.error('Router error:', error);
     return <div>Router Error: {error instanceof Error ? error.message : 'Unknown error'}</div>;
