@@ -1015,7 +1015,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       y1={pos.y}
                       x2={nextPos.x}
                       y2={nextPos.y}
-                      stroke="rgba(255,255,255,0.95)"
+                      stroke="rgb(229, 231, 235)"
                       strokeWidth={strokeWidth}
                       strokeLinecap="round"
                       opacity={opacity}
@@ -1025,10 +1025,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       y1={pos.y}
                       x2={nextPos.x}
                       y2={nextPos.y}
-                      stroke="rgba(255,255,255,0.5)"
+                      stroke="rgb(229, 231, 235)"
                       strokeWidth={strokeWidth * 0.5}
                       strokeLinecap="round"
-                      opacity={opacity * 0.6}
+                      opacity={opacity * 0.3}
                     />
                   </g>
                 );
