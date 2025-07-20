@@ -458,10 +458,7 @@
   animation: commentaryFadeIn 0.6s ease-out;
 }
 
-.commentary-event-container:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
+
 
 /* Goal event animations */
 .goal-celebration {
