@@ -109,7 +109,7 @@ const Header = () => {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <DropdownMenuItem className="flex items-center justify-between hover:bg-slate-700 cursor-pointer">
+                  <DropdownMenuItem className="flex items-center justify-between hover:bg-gray-100 cursor-pointer">
                     <div className="flex items-center">
                       <span className="mr-2 text-lg">🇺🇸</span>
                       <span>{selectedLanguage}</span>
@@ -117,44 +117,44 @@ const Header = () => {
                     <ChevronDown className="h-3 w-3" />
                   </DropdownMenuItem>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-48 bg-slate-800 border-slate-700 text-white" side="left">
+                <DropdownMenuContent className="w-48 bg-white border-gray-200 text-black" side="left">
                   <DropdownMenuItem 
-                    className="hover:bg-slate-700 cursor-pointer"
+                    className="hover:bg-gray-100 cursor-pointer"
                     onClick={() => setSelectedLanguage('English (US)')}
                   >
                     <span className="mr-2 text-lg">🇺🇸</span>
                     English (US)
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    className="hover:bg-slate-700 cursor-pointer"
+                    className="hover:bg-gray-100 cursor-pointer"
                     onClick={() => setSelectedLanguage('English (UK)')}
                   >
                     <span className="mr-2 text-lg">🇬🇧</span>
                     English (UK)
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    className="hover:bg-slate-700 cursor-pointer"
+                    className="hover:bg-gray-100 cursor-pointer"
                     onClick={() => setSelectedLanguage('Español')}
                   >
                     <span className="mr-2 text-lg">🇪🇸</span>
                     Español
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    className="hover:bg-slate-700 cursor-pointer"
+                    className="hover:bg-gray-100 cursor-pointer"
                     onClick={() => setSelectedLanguage('Français')}
                   >
                     <span className="mr-2 text-lg">🇫🇷</span>
                     Français
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    className="hover:bg-slate-700 cursor-pointer"
+                    className="hover:bg-gray-100 cursor-pointer"
                     onClick={() => setSelectedLanguage('中文 (简体)')}
                   >
                     <span className="mr-2 text-lg">🇨🇳</span>
                     中文 (简体)
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    className="hover:bg-slate-700 cursor-pointer"
+                    className="hover:bg-gray-100 cursor-pointer"
                     onClick={() => setSelectedLanguage('中文 (繁體)')}
                   >
                     <span className="mr-2 text-lg">🇭🇰</span>
@@ -224,7 +224,7 @@ const Header = () => {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <DropdownMenuItem className="flex items-center justify-between hover:bg-slate-700 cursor-pointer">
+                  <DropdownMenuItem className="flex items-center justify-between hover:bg-gray-100 cursor-pointer">
                     <div className="flex items-center">
                       <span className="mr-2 text-lg">🇺🇸</span>
                       <span>{selectedLanguage}</span>
@@ -232,44 +232,44 @@ const Header = () => {
                     <ChevronDown className="h-3 w-3" />
                   </DropdownMenuItem>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-48 bg-slate-800 border-slate-700 text-white" side="left">
+                <DropdownMenuContent className="w-48 bg-white border-gray-200 text-black" side="left">
                   <DropdownMenuItem 
-                    className="hover:bg-slate-700 cursor-pointer"
+                    className="hover:bg-gray-100 cursor-pointer"
                     onClick={() => setSelectedLanguage('English (US)')}
                   >
                     <span className="mr-2 text-lg">🇺🇸</span>
                     English (US)
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    className="hover:bg-slate-700 cursor-pointer"
+                    className="hover:bg-gray-100 cursor-pointer"
                     onClick={() => setSelectedLanguage('English (UK)')}
                   >
                     <span className="mr-2 text-lg">🇬🇧</span>
                     English (UK)
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    className="hover:bg-slate-700 cursor-pointer"
+                    className="hover:bg-gray-100 cursor-pointer"
                     onClick={() => setSelectedLanguage('Español')}
                   >
                     <span className="mr-2 text-lg">🇪🇸</span>
                     Español
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    className="hover:bg-slate-700 cursor-pointer"
+                    className="hover:bg-gray-100 cursor-pointer"
                     onClick={() => setSelectedLanguage('Français')}
                   >
                     <span className="mr-2 text-lg">🇫🇷</span>
                     Français
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    className="hover:bg-slate-700 cursor-pointer"
+                    className="hover:bg-gray-100 cursor-pointer"
                     onClick={() => setSelectedLanguage('中文 (简体)')}
                   >
                     <span className="mr-2 text-lg">🇨🇳</span>
                     中文 (简体)
                   </DropdownMenuItem>
                   <DropdownMenuItem 
-                    className="hover:bg-slate-700 cursor-pointer"
+                    className="hover:bg-gray-100 cursor-pointer"
                     onClick={() => setSelectedLanguage('中文 (繁體)')}
                   >
                     <span className="mr-2 text-lg">🇭🇰</span>
