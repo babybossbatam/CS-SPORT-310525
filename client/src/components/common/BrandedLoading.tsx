@@ -16,7 +16,7 @@ const BrandedLoading: React.FC<BrandedLoadingProps> = ({
   return (
     <div className={`flex flex-col items-center justify-center space-y-4 ${className}`}>
       <div className="animate-pulse">
-       <img src="/CSSPORT_1_updated.png" alt="CS Sport Logo" />
+       <img src="/CSSPORT_1_updated.png" alt="CS Sport Logo" className="w-[35px] h-[35px]" />
       </div>
       <div className="text-center">
        
