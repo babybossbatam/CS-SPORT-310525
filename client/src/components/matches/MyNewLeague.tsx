@@ -12,6 +12,7 @@ import {
   formatMatchTimeWithTimezone 
 } from "@/lib/timezoneApiService";
 import { MyAdvancedTimeClassifier } from "@/lib/MyAdvancedTimeClassifier";
+import { useSelectiveMatchUpdate } from "@/lib/selectiveMatchUpdates";
 import "../../styles/MyLogoPositioning.css";
 import "../../styles/flasheffect.css";
 
@@ -731,61 +732,9 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
   useEffect(() => {
     fetchLeagueData(false);
-
-    // Optimized update strategy - only update what needs updating
-    const liveMatches = fixtures.filter(fixture => 
-      ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT'].includes(fixture.fixture.status.short)
-    );
-
-    const upcomingMatches = fixtures.filter(fixture => 
-      ['NS', 'TBD'].includes(fixture.fixture.status.short)
-    );
-
-    const endedMatches = fixtures.filter(fixture => 
-      ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(fixture.fixture.status.short)
-    );
-
-    console.log(`🔄 [MyNewLeague] Update strategy:`, {
-      liveMatches: liveMatches.length,
-      upcomingMatches: upcomingMatches.length,
-      endedMatches: endedMatches.length
-    });
-
-    let liveUpdateInterval: NodeJS.Timeout | null = null;
-    let upcomingUpdateInterval: NodeJS.Timeout | null = null;
-
-    // Only update live matches frequently
-    if (liveMatches.length > 0) {
-      console.log(`🔴 [MyNewLeague] Starting live updates for ${liveMatches.length} live matches`);
-      liveUpdateInterval = setInterval(() => {
-        updateLiveMatchData();
-      }, 15000); // 15 seconds for live matches
-    }
-
-    // Update upcoming matches less frequently (they might change to live)
-    if (upcomingMatches.length > 0) {
-      console.log(`⏰ [MyNewLeague] Starting upcoming match updates for ${upcomingMatches.length} matches`);
-      upcomingUpdateInterval = setInterval(() => {
-        fetchLeagueData(true);
-      }, 300000); // 5 minutes for upcoming matches
-    }
-
-    // No updates for ended matches - they won't change
-    if (endedMatches.length > 0) {
-      console.log(`💾 [MyNewLeague] ${endedMatches.length} ended matches - no updates needed`);
-    }
-
-    return () => {
-      if (liveUpdateInterval) {
-        clearInterval(liveUpdateInterval);
-        console.log(`🛑 [MyNewLeague] Cleared live update interval`);
-      }
-      if (upcomingUpdateInterval) {
-        clearInterval(upcomingUpdateInterval);
-        console.log(`🛑 [MyNewLeague] Cleared upcoming update interval`);
-      }
-    };
-  }, [fetchLeagueData, updateLiveMatchData, selectedDate, fixtures.length]);
+    
+    console.log(`🎯 [MyNewLeague] Data fetched for ${selectedDate}, selective updates will handle live matches`);
+  }, [fetchLeagueData, selectedDate]);
 
   // Debug logging
   console.log("MyNewLeague - All fixtures:", fixtures.length);
@@ -1118,17 +1067,14 @@ b.fixture.status.elapsed) || 0;
     </Card>
   );
 
-  // Optimized match card component - no React.memo, selective updates only
+  // Optimized MatchCard component with selective updates - no memoization needed
   const MatchCard = ({ 
     matchId,
     homeTeamName,
     awayTeamName,
     homeTeamId,
     awayTeamId,
-    homeScore,
-    awayScore,
-    status,
-    elapsed,
+    initialMatch,
     matchDate,
     penaltyHome,
     penaltyAway,
@@ -1144,10 +1090,7 @@ b.fixture.status.elapsed) || 0;
     awayTeamName: string;
     homeTeamId: number;
     awayTeamId: number;
-    homeScore: number | null;
-    awayScore: number | null;
-    status: string;
-    elapsed: number | undefined;
+    initialMatch: any;
     matchDate: string;
     penaltyHome: number | null;
     penaltyAway: number | null;
@@ -1158,6 +1101,14 @@ b.fixture.status.elapsed) || 0;
     onStarToggle: (matchId: number) => void;
     onMatchClick?: (matchId: number, homeTeamName: string, awayTeamName: string) => void;
   }) => {
+    // Use selective updates only for live matches
+    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(initialMatch.fixture.status.short);
+    const matchState = useSelectiveMatchUpdate(matchId, initialMatch);
+    
+    // Use live data if available, otherwise use initial data
+    const currentGoals = isLiveMatch ? matchState.goals : initialMatch.goals;
+    const currentStatus = isLiveMatch ? matchState.status : initialMatch.fixture.status;
+    
     const handleMatchClick = () => {
       if (onMatchClick) {
         onMatchClick(matchId, homeTeamName, awayTeamName);
@@ -1212,6 +1163,9 @@ b.fixture.status.elapsed) || 0;
             {/* Top Grid: Match Status */}
             <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               {(() => {
+                const status = currentStatus.short;
+                const elapsed = currentStatus.elapsed;
+                
                 if (
                   [
                     "LIVE",
@@ -1309,9 +1263,9 @@ b.fixture.status.elapsed) || 0;
               {/* Home Team Name */}
               <div
                 className={`home-team-name ${
-                  homeScore !== null &&
-                  awayScore !== null &&
-                  homeScore > awayScore
+                  currentGoals.home !== null &&
+                  currentGoals.away !== null &&
+                  currentGoals.home > currentGoals.away
                     ? "winner"
                     : ""
                 }`}
@@ -1360,11 +1314,11 @@ b.fixture.status.elapsed) || 0;
                     return (
                       <div className="match-score-display">
                         <span className="score-number">
-                          {homeScore ?? 0}
+                          {currentGoals.home ?? 0}
                         </span>
                         <span className="score-separator">-</span>
                         <span className="score-number">
-                          {awayScore ?? 0}
+                          {currentGoals.away ?? 0}
                         </span>
                       </div>
                     );
@@ -1383,22 +1337,22 @@ b.fixture.status.elapsed) || 0;
                     ].includes(status)
                   ) {
                     const hasValidScores =
-                      homeScore !== null &&
-                      homeScore !== undefined &&
-                      awayScore !== null &&
-                      awayScore !== undefined &&
-                      !isNaN(Number(homeScore)) &&
-                      !isNaN(Number(awayScore));
+                      currentGoals.home !== null &&
+                      currentGoals.home !== undefined &&
+                      currentGoals.away !== null &&
+                      currentGoals.away !== undefined &&
+                      !isNaN(Number(currentGoals.home)) &&
+                      !isNaN(Number(currentGoals.away));
 
                     if (hasValidScores) {
                       return (
                         <div className="match-score-display">
                           <span className="score-number">
-                            {homeScore}
+                            {currentGoals.home}
                           </span>
                           <span className="score-separator">-</span>
                           <span className="score-number">
-                            {awayScore}
+                            {currentGoals.away}
                           </span>
                         </div>
                       );
@@ -1446,9 +1400,9 @@ b.fixture.status.elapsed) || 0;
               {/* Away Team Name */}
               <div
                 className={`away-team-name ${
-                  homeScore !== null &&
-                  awayScore !== null &&
-                  awayScore > homeScore
+                  currentGoals.home !== null &&
+                  currentGoals.away !== null &&
+                  currentGoals.away > currentGoals.home
                     ? "winner"
                     : ""
                 }`}
@@ -1790,10 +1744,7 @@ b.fixture.status.elapsed) || 0;
                       awayTeamName={match.teams.away.name}
                       homeTeamId={match.teams.home.id}
                       awayTeamId={match.teams.away.id}
-                      homeScore={match.goals.home}
-                      awayScore={match.goals.away}
-                      status={match.fixture.status.short}
-                      elapsed={match.fixture.status.elapsed}
+                      initialMatch={match}
                       matchDate={match.fixture.date}
                       penaltyHome={match.score?.penalty?.home}
                       penaltyAway={match.score?.penalty?.away}

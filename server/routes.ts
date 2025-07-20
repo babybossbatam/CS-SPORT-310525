@@ -33,6 +33,7 @@ import scores365StatsRoutes from './routes/365scoresStatsRoutes';
 import keyPlayersRoutes from './routes/365scoresKeyPlayersRoutes';
 import playersRoutes from './routes/playersRoutes';
 import selectiveLiveRoutes from './routes/selectiveLiveRoutes';
+import selectiveUpdatesRoutes from './routes/selectiveUpdatesRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -818,10 +819,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             country: {
               name: "Germany",
               code: "DE",
-              flag: "https://media.api-sports.io/flags/de.svg",```text
+              flag: "https://media.api-sports.io/flags/de.svg",
             },
-
-
           },
           {
             league: {
@@ -1714,11 +1713,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           error,
         );
         res.status(500).json({ error: "Failed to fetch league logo" });
-      }
+            }
     },
   );
-
-  //```text
 
   // New endpoint for shot data (fixtures/players)
   apiRouter.get(
@@ -2671,13 +2668,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           res.status(404).json({
             success: false,
             error: "Match not found",
-          });```text
+          });
         }
       } catch (
 error) {
         console.error("❌ [SoccersAPI] Error fetching match details:", error);
         res.status(500).json({
-          success: false,        error: "Failed to fetch SoccersAPI match details",
+          success: false,
+          error: "Failed to fetch SoccersAPI match details",
         });
       }
     },
@@ -2738,10 +2736,12 @@ error) {
     async (req: Request, res: Response) => {
       try {
         const { id } = req.params;
-        console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);        const lineups = await soccersApi.getMatchLineups(id);
+        console.log(`👥 [SoccersAPI] Fetching lineups for match: ${id}`);
+        const lineups = await soccersApi.getMatchLineups(id);
         res.json({
           success: true,
-          lineups: lineups,        });
+          lineups: lineups,
+        });
       } catch (error) {
         console.error("❌ [SoccersAPI] Error fetching match lineups:", error);
         res.status(500).json({
@@ -2772,7 +2772,7 @@ error) {
           fixture.lastUpdated = Date.now();
         });
 
-                //        // Only cache ended matches from the live response
+        //        // Only cache ended matches from the live response
         const endedMatches = fixtures.filter((fixture) =>
           ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC"].includes(
             fixture.fixture.status.short,
@@ -3290,6 +3290,7 @@ error) {
   app.use('/api', playersRoutes);
   app.use('/api', youtubeRoutes);
   app.use('/api/fixtures', selectiveLiveRoutes);
+  app.use('/api/fixtures', selectiveUpdatesRoutes);
 
 // Test route for debugging
 app.get('/api/test', (req, res) => {
