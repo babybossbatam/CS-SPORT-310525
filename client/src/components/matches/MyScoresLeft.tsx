@@ -46,6 +46,7 @@ export const MyScoresLeft = ({
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
+  const [selectedTab, setSelectedTab] = useState('my-scores');
   const calendarRef = useRef<HTMLDivElement>(null);
 
 
@@ -237,13 +238,27 @@ export const MyScoresLeft = ({
           </button>
         </div>
         
-        {/* Tabs section copied from MyScoresCard */}
+        {/* Functioning Tabs section similar to MyScoresTab */}
         <div className="flex items-center justify-between px-4 pb-2">
           <div className="bg-transparent border-b border-gray-200 rounded-none h-auto p-0 w-full flex">
-            <button className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 rounded-none font-medium flex-1 py-2 text-center">
+            <button 
+              onClick={() => setSelectedTab('my-scores')}
+              className={`border-b-2 rounded-none font-medium flex-1 py-2 text-center transition-colors duration-200 ${
+                selectedTab === 'my-scores' 
+                  ? 'border-blue-500 text-blue-600' 
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
               My Scores
             </button>
-            <button className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 rounded-none font-medium flex-1 py-2 text-center">
+            <button 
+              onClick={() => setSelectedTab('my-selections')}
+              className={`border-b-2 rounded-none font-medium flex-1 py-2 text-center transition-colors duration-200 ${
+                selectedTab === 'my-selections' 
+                  ? 'border-blue-500 text-blue-600' 
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
               My Selections
             </button>
           </div>
