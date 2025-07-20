@@ -900,47 +900,96 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             minHeight: "400px",
           }}
         >
-          {/* Enhanced attack zones with 365scores style */}
+          {/* Enhanced attack zones with curved overlays like the reference image */}
           {attackZones.map((zone) => (
             <div key={zone.id} className="absolute inset-0 pointer-events-none">
-              <div
-                className={`absolute transition-all duration-1000 attack-zone ${
-                  zone.type === "dangerous_attack"
-                    ? zone.team === "home"
-                      ? "bg-gradient-to-r from-blue-600/70 via-blue-700/80 to-blue-500/50"
-                      : "bg-gradient-to-l from-red-600/70 via-red-700/80 to-red-500/50"
-                    : zone.team === "home"
-                      ? "bg-gradient-to-r from-blue-500/50 via-blue-600/60 to-transparent"
-                      : "bg-gradient-to-l from-red-500/50 via-red-600/60 to-transparent"
-                }`}
-                style={{
-                  top: zone.type === "dangerous_attack" ? "25%" : "20%",
-                  bottom: zone.type === "dangerous_attack" ? "25%" : "20%",
-                  left:
+              {/* Curved organic attack zone overlay */}
+              <svg
+                className="absolute inset-0 w-full h-full"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+              >
+                <defs>
+                  <radialGradient
+                    id={`attackGradient-${zone.id}`}
+                    cx="50%"
+                    cy="50%"
+                    r="60%"
+                  >
+                    <stop
+                      offset="0%"
+                      stopColor={
+                        zone.team === "home"
+                          ? zone.type === "dangerous_attack"
+                            ? "#1e40af"
+                            : "#3b82f6"
+                          : zone.type === "dangerous_attack"
+                            ? "#dc2626"
+                            : "#ef4444"
+                      }
+                      stopOpacity={zone.type === "dangerous_attack" ? "0.8" : "0.5"}
+                    />
+                    <stop
+                      offset="70%"
+                      stopColor={
+                        zone.team === "home"
+                          ? zone.type === "dangerous_attack"
+                            ? "#1e40af"
+                            : "#3b82f6"
+                          : zone.type === "dangerous_attack"
+                            ? "#dc2626"
+                            : "#ef4444"
+                      }
+                      stopOpacity={zone.type === "dangerous_attack" ? "0.4" : "0.2"}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="transparent"
+                      stopOpacity="0"
+                    />
+                  </radialGradient>
+                </defs>
+                
+                {/* Curved attack zone shape */}
+                <path
+                  d={
                     zone.team === "home"
                       ? zone.type === "dangerous_attack"
-                        ? "5%"
-                        : "10%"
-                      : "35%",
-                  right:
-                    zone.team === "home"
-                      ? "35%"
+                        ? "M 5 20 Q 25 10, 45 25 Q 65 15, 85 30 Q 90 50, 85 70 Q 65 85, 45 75 Q 25 90, 5 80 Q 0 50, 5 20 Z"
+                        : "M 10 25 Q 20 15, 35 30 Q 50 20, 65 35 Q 70 50, 65 65 Q 50 80, 35 70 Q 20 85, 10 75 Q 5 50, 10 25 Z"
                       : zone.type === "dangerous_attack"
-                        ? "5%"
-                        : "10%",
-                  clipPath:
-                    zone.team === "home"
-                      ? zone.type === "dangerous_attack"
-                        ? "polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%)"
-                        : "polygon(0% 0%, 70% 0%, 100% 50%, 70% 100%, 0% 100%)"
-                      : zone.type === "dangerous_attack"
-                        ? "polygon(15% 0%, 100% 0%, 100% 100%, 15% 100%, 0% 50%)"
-                        : "polygon(30% 0%, 100% 0%, 100% 100%, 30% 100%, 0% 50%)",
-                  opacity: zone.opacity,
-                }}
-              />
+                        ? "M 15 30 Q 35 15, 55 25 Q 75 10, 95 20 Q 100 50, 95 80 Q 75 90, 55 75 Q 35 85, 15 70 Q 10 50, 15 30 Z"
+                        : "M 35 35 Q 50 20, 65 30 Q 80 15, 90 25 Q 95 50, 90 75 Q 80 85, 65 70 Q 50 80, 35 65 Q 30 50, 35 35 Z"
+                  }
+                  fill={`url(#attackGradient-${zone.id})`}
+                  className="transition-all duration-1000"
+                />
+              </svg>
             </div>
           ))}
+
+          {/* Team possession display on field with jerseys */}
+          {ballPossession && (
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-40 pointer-events-none">
+              <div className="bg-black/70 backdrop-blur-sm rounded-lg px-4 py-2 flex items-center gap-3">
+                <div
+                  className={`w-6 h-6 rounded ${
+                    ballPossession === "home" ? "bg-blue-500" : "bg-red-500"
+                  } flex items-center justify-center text-white text-xs font-bold`}
+                >
+                  👕
+                </div>
+                <span className="text-white text-sm font-semibold">
+                  Balle en défense
+                </span>
+                <span className="text-white text-sm font-bold uppercase">
+                  {ballPossession === "home"
+                    ? homeTeamData?.name?.toUpperCase()
+                    : awayTeamData?.name?.toUpperCase()}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Enhanced ball trail with 365scores precision */}
           {ballTrail.length > 1 && (
@@ -1014,6 +1063,37 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                   ></div>
                 </div>
               )}
+            </div>
+          </div>
+        {/* Statistics and trends display at bottom of field */}
+          <div className="absolute bottom-4 left-0 right-0 z-30 px-4">
+            <div className="bg-white/95 backdrop-blur-sm rounded-lg border border-gray-200 p-3">
+              <div className="flex items-center justify-between">
+                <div className="text-center">
+                  <div className="text-xs text-gray-500 mb-1">RENCONTRES PRÉCÉDENTES</div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs font-bold">
+                        👕
+                      </div>
+                      <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
+                        {teamStats.previousMeetings.homeWins} VICTOIRE(S)
+                      </div>
+                    </div>
+                    <div className="bg-gray-400 text-white px-2 py-1 rounded text-xs font-bold">
+                      {teamStats.previousMeetings.draws} MATCHS NULS
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <div className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                        {teamStats.previousMeetings.awayWins} VICTOIRE(S)
+                      </div>
+                      <div className="w-6 h-6 bg-red-500 rounded flex items-center justify-center text-white text-xs font-bold">
+                        👕
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1096,210 +1176,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         )}
       </div>
 
-      {/* Enhanced bottom statistics panel - 365scores style */}
-      <div className="bg-white border-t border-gray-200">
-        {currentView === "stats" && (
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-                Possession
-              </span>
-              <div className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-bold">
-                {elapsed}'
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                <span className="text-sm font-bold">
-                  {homeTeamData?.name?.slice(0, 3)}
-                </span>
-              </div>
-              <div className="flex items-center gap-4">
-                <span className="text-blue-500 text-2xl font-bold">
-                  {teamStats.possession.home}%
-                </span>
-                <div className="w-16 h-16 relative">
-                  <svg className="w-16 h-16 transform -rotate-90">
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      stroke="#e5e7eb"
-                      strokeWidth="6"
-                      fill="none"
-                    />
-                    <circle
-                      cx="32"
-                      cy="32"
-                      r="28"
-                      stroke="#3b82f6"
-                      strokeWidth="6"
-                      fill="none"
-                      strokeDasharray={`${(teamStats.possession.home / 100) * 175.9} 175.9`}
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-xs font-bold">⚽</span>
-                  </div>
-                </div>
-                <span className="text-red-500 text-2xl font-bold">
-                  {teamStats.possession.away}%
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold">
-                  {awayTeamData?.name?.slice(0, 3)}
-                </span>
-                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentView === "history" && (
-          <div className="p-4">
-            <div className="text-center mb-3">
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-                Last 5 Matches
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                <div className="flex gap-1">
-                  {teamStats.lastFiveMatches.home.map((result, i) => (
-                    <div
-                      key={i}
-                      className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}
-                    >
-                      {result}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex gap-1">
-                  {teamStats.lastFiveMatches.away.map((result, i) => (
-                    <div
-                      key={i}
-                      className={`w-6 h-6 rounded text-xs font-bold flex items-center justify-center ${getMatchResult(result)}`}
-                    >
-                      {result}
-                    </div>
-                  ))}
-                </div>
-                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentView === "corners" && (
-          <div className="p-4">
-            <div className="text-center mb-3">
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-                Corners
-              </span>
-            </div>
-            <div className="flex items-center justify-center gap-12">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                <span className="text-blue-500 text-3xl font-bold">
-                  {teamStats.corners.home}
-                </span>
-              </div>
-              <div className="w-24 h-1 bg-gray-200 rounded relative">
-                <div
-                  className="h-full bg-blue-500 rounded transition-all duration-1000"
-                  style={{
-                    width: `${teamStats.corners.home > 0 ? (teamStats.corners.home / (teamStats.corners.home + teamStats.corners.away)) * 100 : 50}%`,
-                  }}
-                ></div>
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full"></div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-red-500 text-3xl font-bold">
-                  {teamStats.corners.away}
-                </span>
-                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {currentView === "shotmap" && (
-          <div className="p-4">
-            <div className="text-center mb-3">
-              <span className="text-gray-500 text-xs font-medium uppercase tracking-wide">
-                Shot Map
-              </span>
-            </div>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-sm"></div>
-                <span className="text-blue-500 text-xl font-bold">
-                  {teamStats.shots.home}
-                </span>
-                <span className="text-xs text-gray-500">shots</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">Goal</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">Home Shot</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">Away Shot</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">shots</span>
-                <span className="text-red-500 text-xl font-bold">
-                  {teamStats.shots.away}
-                </span>
-                <div className="w-4 h-4 bg-red-500 rounded-sm"></div>
-              </div>
-            </div>
-
-            {/* Enhanced mini shot map */}
-            <div className="relative h-20 bg-green-600 rounded-lg overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-b from-green-500 to-green-700 opacity-95">
-                {/* Mini field markings */}
-                <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-2 h-10 border border-white/60"></div>
-                <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-2 h-10 border border-white/60"></div>
-                <div className="absolute left-1/2 top-0 bottom-0 w-px bg-white/60"></div>
-
-                {/* Shot markers on mini map */}
-                {shotEvents.slice(-15).map((shot) => (
-                  <div
-                    key={`mini-${shot.id}`}
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2"
-                    style={{
-                      left: `${shot.x}%`,
-                      top: `${((shot.y - 20) / 60) * 100}%`,
-                    }}
-                  >
-                    <div
-                      className={`w-2 h-2 rounded-full ${
-                        shot.isGoal
-                          ? "bg-green-400 ring-2 ring-green-200"
-                          : shot.team === "home"
-                            ? "bg-blue-400"
-                            : "bg-red-400"
-                      }`}
-                    ></div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      
     </div>
   );
 };
