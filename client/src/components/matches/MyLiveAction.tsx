@@ -914,28 +914,28 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       : "bg-gradient-to-l from-red-500/50 via-red-600/60 to-transparent"
                 }`}
                 style={{
-                  top: zone.type === "dangerous_attack" ? "25%" : "20%",
-                  bottom: zone.type === "dangerous_attack" ? "25%" : "20%",
+                  top: zone.type === "dangerous_attack" ? "10%" : "15%",
+                  bottom: zone.type === "dangerous_attack" ? "10%" : "15%",
                   left:
                     zone.team === "home"
                       ? zone.type === "dangerous_attack"
-                        ? "5%"
-                        : "10%"
-                      : "40%",
+                        ? "0%"
+                        : "5%"
+                      : "30%",
                   right:
                     zone.team === "home"
-                      ? "40%"
+                      ? "30%"
                       : zone.type === "dangerous_attack"
-                        ? "5%"
-                        : "10%",
+                        ? "0%"
+                        : "5%",
                   clipPath:
                     zone.team === "home"
                       ? zone.type === "dangerous_attack"
-                        ? "polygon(0% 0%, 95% 0%, 100% 50%, 95% 100%, 0% 100%)"
-                        : "polygon(0% 0%, 60% 0%, 70% 50%, 60% 100%, 0% 100%)"
+                        ? "polygon(0% 0%, 80% 0%, 85% 50%, 80% 100%, 0% 100%)"
+                        : "polygon(0% 0%, 70% 0%, 75% 50%, 70% 100%, 0% 100%)"
                       : zone.type === "dangerous_attack"
-                        ? "polygon(5% 0%, 100% 0%, 100% 100%, 5% 100%, 0% 50%)"
-                        : "polygon(40% 0%, 100% 0%, 100% 100%, 40% 100%, 30% 50%)",
+                        ? "polygon(20% 0%, 100% 0%, 100% 100%, 20% 100%, 15% 50%)"
+                        : "polygon(30% 0%, 100% 0%, 100% 100%, 30% 100%, 25% 50%)",
                   opacity: zone.opacity,
                 }}
               />
