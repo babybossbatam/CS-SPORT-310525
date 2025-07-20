@@ -141,7 +141,7 @@ function App() {
   return (
     <TooltipProvider>
       <Toaster />
-      <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[130px]">
+      <main className="bg-stone-50 pt-[0px] pb-[0px] mt-[81px]">
         <QueryClientProvider client={queryClient}>
           <CentralDataProvider
             selectedDate={new Date().toISOString().slice(0, 10)}
