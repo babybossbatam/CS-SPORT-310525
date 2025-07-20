@@ -552,6 +552,21 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       setMatchIntensity("low");
 
       triggerBallMovement("ball_safe", randomTeam);
+    } else if (eventProbability > 0.48) {
+      // Substitution (5% chance)
+      eventType = "substitution";
+      randomType = "ball_safe";
+      setMatchIntensity("medium");
+
+      const substitutionEvent = {
+        id: `substitution_${Date.now()}`,
+        team: randomTeam,
+        playerOut: `Player ${Math.floor(Math.random() * 23) + 1}`,
+        playerIn: `Player ${Math.floor(Math.random() * 23) + 1}`,
+        timestamp: Date.now(),
+      };
+
+      setSubstitutionEvents((prev) => [...prev.slice(-4), substitutionEvent]);
     } else {
       // No major event - return early
       return;
@@ -581,7 +596,12 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           : eventType === "corner"
             ? "Corner kick"
             : "Attacking Move",
-      ball_safe: eventType === "goalkick" ? "Goal kick" : "Safe Possession",
+      ball_safe: 
+        eventType === "goalkick" 
+          ? "Goal kick" 
+          : eventType === "substitution"
+            ? "Substitution"
+            : "Safe Possession",
       dangerous_attack:
         eventType === "goal"
           ? "GOAL!"
@@ -596,12 +616,16 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       team: randomTeam,
       type: eventType as any,
       player:
-        randomTeam === "home"
-          ? homeTeamData?.name || "Home Team"
-          : awayTeamData?.name || "Away Team",
+        eventType === "substitution"
+          ? `Player ${Math.floor(Math.random() * 23) + 1}`
+          : randomTeam === "home"
+            ? homeTeamData?.name || "Home Team"
+            : awayTeamData?.name || "Away Team",
       description: eventDescriptions[randomType],
       timestamp: Date.now(),
       isRecent: true,
+      playerOut: eventType === "substitution" ? `Player ${Math.floor(Math.random() * 23) + 1}` : undefined,
+      playerIn: eventType === "substitution" ? `Player ${Math.floor(Math.random() * 23) + 1}` : undefined,
     };
 
     setCurrentEvent(newEvent);
@@ -1124,16 +1148,67 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         {/* Current event display - enhanced 365scores style */}
         {currentEvent && currentView === "event" && currentStatus !== "P" && (
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none">
-            <div className="text-center text-white">
-              <div className="text-3xl font-bold mb-2 drop-shadow-2xl text-shadow-lg">
-                {currentEvent.description}
+            {currentEvent.type === "substitution" ? (
+              /* Substitution banner display */
+              <div className="w-96 bg-white/95 backdrop-blur-sm rounded-lg shadow-xl border border-gray-200 overflow-hidden">
+                {/* Player Out */}
+                <div className="flex items-center justify-between p-3 bg-gray-50 border-b border-gray-200">
+                  <div className="flex items-center gap-3">
+                    <div className="text-sm font-medium text-gray-600">
+                      {currentEvent.minute || elapsed}'
+                    </div>
+                    <div className="text-sm font-medium text-gray-700">
+                      {currentEvent.playerOut || currentEvent.player}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-500 font-bold">➡️</span>
+                    <span className="text-xs font-medium text-gray-500 bg-red-50 px-2 py-1 rounded">
+                      SORTIE
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Replacement Banner */}
+                <div className="bg-white px-6 py-4">
+                  <div className="text-center">
+                    <span className="text-gray-700 font-bold text-lg tracking-wide">
+                      REMPLACEMENT
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Player In */}
+                <div className="flex items-center justify-between p-3 bg-gray-50 border-t border-gray-200">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-gray-500 bg-green-50 px-2 py-1 rounded">
+                      ENTRÉE
+                    </span>
+                    <span className="text-green-500 font-bold">⬅️</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-sm font-medium text-gray-700">
+                      {currentEvent.playerIn || "Nouveau joueur"}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {currentEvent.team === "home" ? homeTeamData?.name?.slice(0, 3) : awayTeamData?.name?.slice(0, 3)}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="text-lg font-semibold opacity-90 drop-shadow-lg">
-                {currentEvent.team === "home"
-                  ? homeTeamData?.name?.toUpperCase()
-                  : awayTeamData?.name?.toUpperCase()}
+            ) : (
+              /* Regular event display */
+              <div className="text-center text-white">
+                <div className="text-3xl font-bold mb-2 drop-shadow-2xl text-shadow-lg">
+                  {currentEvent.description}
+                </div>
+                <div className="text-lg font-semibold opacity-90 drop-shadow-lg">
+                  {currentEvent.team === "home"
+                    ? homeTeamData?.name?.toUpperCase()
+                    : awayTeamData?.name?.toUpperCase()}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
