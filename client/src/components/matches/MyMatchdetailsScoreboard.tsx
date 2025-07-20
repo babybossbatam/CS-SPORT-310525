@@ -260,8 +260,8 @@ const MyMatchdetailsScoreboard = ({
   };
 
   const getStatusBadge = (status: string) => {
-    // Use the passed match data directly
-    const currentStatus = displayMatch.fixture.status.short;
+    // Use live status if available, otherwise use the passed match data
+    const currentStatus = liveStatus || currentLiveStatus || displayMatch.fixture.status.short;
     const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(currentStatus);
 
     // Check if it's a finished match and determine the appropriate label
@@ -318,7 +318,7 @@ const MyMatchdetailsScoreboard = ({
       return (
         <Badge
           variant="destructive"
-          className="bg-red-500 text-white font-normal text-[11px]"
+          className="bg-red-500 text-white font-normal text-[11px] animate-pulse"
         >
           <span className="relative">
             {displayText}
