@@ -852,7 +852,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
                       const matchDate = parseISO(match.fixture.date);
                       const localDate = format(matchDate, "yyyy-MM-dd");
 
-                      console.log(`[TROPHY] [${competition.name}] Match found:`, {
+                      console.log(`🏆 [${competition.name}] Match found:`, {
                         id: match.fixture.id,
                         originalDate: match.fixture.date,
                         utcDate: matchDate.toISOString(),
@@ -872,7 +872,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
 
                     // Additional debugging for Euro U21 specifically
                     if (match.league.id === 38) {
-                      console.log(`[EURO U21] Found match:`, {
+                      console.log(`🇪🇺 [Euro U21] Found match:`, {
                         id: match.fixture.id,
                         home: match.teams.home.name,
                         away: match.teams.away.name,
@@ -883,7 +883,7 @@ const MyNewPopularLeague: React.FC<MyNewPopularLeagueProps> = ({
 
                     // Additional debugging for FIFA Club World Cup specifically  
                     if (match.league.id === 15) {
-                      console.log(`[FIFA CLUB WORLD CUP] Found match:`, {
+                      console.log(`🏆 [FIFA Club World Cup] Found match:`, {
                         id: match.fixture.id,
                         home: match.teams.home.name,
                         away: match.teams.away.name,

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
-import MyScoresLeft from "@/components/matches/MyScoresLeft";
+import TodayMatchPageCard from "@/components/matches/TodayMatchPageCard";
 import MyRightContent, {
   MyRightDetails,
 } from "@/components/layout/MyRightContent";
@@ -151,7 +151,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
             <div>{children}</div>
           ) : (
             <div>
-              <MyScoresLeft
+              <TodayMatchPageCard
                 fixtures={filteredFixtures}
                 onMatchClick={handleMatchClick}
                 onMatchCardClick={handleMatchCardClick}
