@@ -783,14 +783,17 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     );
   }
 
-  // Don't render anything for finished matches
-  if (
-    currentStatus === "FT" ||
-    currentStatus === "AET" ||
-    currentStatus === "PEN"
-  ) {
+  // Don't render anything for finished matches - check both current status and fixture status
+  const fixtureStatus = displayMatch?.fixture?.status?.short;
+  const isFinished = [
+    "FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"
+  ].includes(currentStatus) || [
+    "FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"
+  ].includes(fixtureStatus);
+
+  if (isFinished) {
     console.log(
-      `🏁 [Live Action] Match ${matchId} is finished (status: ${currentStatus}), not rendering Live Action`,
+      `🏁 [Live Action] Match ${matchId} is finished (status: ${currentStatus} / fixture: ${fixtureStatus}), not rendering Live Action`,
     );
     return null;
   }
