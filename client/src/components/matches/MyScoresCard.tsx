@@ -32,25 +32,11 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
   });
 
   const EmptyState = () => (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div className="mb-6 relative">
-        <img 
-          src="/assets/matchdetaillogo/favorite icon.svg" 
-          alt="Favorite" 
-          className="h-16 w-16 text-blue-500" 
-          style={{ filter: 'brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(4927%) hue-rotate(215deg) brightness(98%) contrast(98%)' }}
-        />
-        
-      </div>
+    <div className="flex flex-col items-center justify-center py-2  text-center">
       
-      <Button 
-        onClick={() => setShowTeamSelection(true)}
-        className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full text-base font-medium"
-      >
-        Select Teams and Leagues
-      </Button>
     </div>
   );
+  
 
   const SuggestedGames = () => (
     <div className="mt-12">
@@ -60,7 +46,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
       <div className="space-y-4 max-w-2xl mx-auto">
         {suggestedGamesQuery.data?.map((fixture: any) => (
           <Card key={fixture.fixture.id} className="shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
+            <CardContent className="">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4 flex-1">
                   <div className="text-center">
@@ -159,7 +145,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
           <TabsContent value="my-selections" className="mt-0">
             <EmptyState />
             <div className="mt-12 text-center text-gray-500">
-              <p>No teams or leagues selected yet.</p>
+   
               <p className="text-sm mt-2">Start following your favorite teams and competitions!</p>
             </div>
           </TabsContent>
