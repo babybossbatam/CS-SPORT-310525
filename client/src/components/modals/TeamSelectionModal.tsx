@@ -71,13 +71,13 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
   const soccerTeams = popularTeams.filter(team => team.type === 'team');
   const countries = popularTeams.filter(team => team.type === 'country');
 
-  const renderTeamGrid = (teams: typeof popularTeams) => (
+  const renderTeamGrid = (teams: typeof popularTeams, tabPrefix: string) => (
     <div className="grid grid-cols-5 gap-4 p-4 max-h-96 overflow-y-auto">
       {teams.map((team) => {
         const isSelected = selectedTeams.has(team.id);
         return (
           <div
-            key={team.id}
+            key={`${tabPrefix}-${team.id}`}
             onClick={() => handleTeamClick(team.id)}
             className={`group relative flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
               isSelected 
@@ -188,11 +188,11 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
             </TabsList>
 
             <TabsContent value="top" className="mt-4">
-              {renderTeamGrid(popularTeams)}
+              {renderTeamGrid(popularTeams, 'top')}
             </TabsContent>
 
             <TabsContent value="soccer" className="mt-4">
-              {renderTeamGrid(soccerTeams)}
+              {renderTeamGrid(soccerTeams, 'soccer')}
             </TabsContent>
 
             <TabsContent value="basketball" className="mt-4">
