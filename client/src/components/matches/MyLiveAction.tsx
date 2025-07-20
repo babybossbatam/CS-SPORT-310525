@@ -141,6 +141,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     fixtureStatus: displayMatch?.fixture?.status,
   });
 
+  // Initialize ball movement and target
+  useEffect(() => {
+    if (isLive) {
+      // Set initial ball target for immediate movement
+      setBallTarget({ x: 45 + Math.random() * 10, y: 45 + Math.random() * 10 });
+      setBallMovementActive(true);
+    }
+  }, [isLive]);
+
   // Fetch initial match data and set up real-time updates
   useEffect(() => {
     if (!matchId) {
@@ -234,39 +243,51 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     Array<{ x: number; y: number; timestamp: number }>
   >([]);
   const [currentBallEvent, setCurrentBallEvent] = useState<string | null>(null);
-  const [ballMovementActive, setBallMovementActive] = useState(false);
+  const [ballMovementActive, setBallMovementActive] = useState(true); // Always keep ball moving
 
+  // Continuous ball movement effect
   useEffect(() => {
-    if (!isLive || !ballMovementActive) return;
+    if (!isLive) return;
 
     const ballInterval = setInterval(() => {
       setBallPosition((prev) => {
-        // Move towards target in straight line with fast, precise movement
-        const deltaX = ballTarget.x - prev.x;
-        const deltaY = ballTarget.y - prev.y;
-        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        let newX = prev.x;
+        let newY = prev.y;
 
-        // If close to target, snap to it and stop movement
-        if (distance < 1.5) {
-          setBallMovementActive(false);
-          setCurrentBallEvent(null);
-          return { x: ballTarget.x, y: ballTarget.y };
+        if (ballMovementActive && ballTarget) {
+          // Move towards target when active
+          const deltaX = ballTarget.x - prev.x;
+          const deltaY = ballTarget.y - prev.y;
+          const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+          if (distance > 1.5) {
+            const moveSpeed = 1.8; // Smooth movement speed
+            const directionX = deltaX / distance;
+            const directionY = deltaY / distance;
+
+            newX = prev.x + directionX * moveSpeed;
+            newY = prev.y + directionY * moveSpeed;
+          } else {
+            // Reached target, generate new random target for continuous movement
+            const randomTargets = [
+              { x: 25 + Math.random() * 50, y: 25 + Math.random() * 50 },
+              { x: 20 + Math.random() * 60, y: 20 + Math.random() * 60 },
+              { x: 30 + Math.random() * 40, y: 30 + Math.random() * 40 }
+            ];
+            setBallTarget(randomTargets[Math.floor(Math.random() * randomTargets.length)]);
+          }
+        } else {
+          // Gentle random movement when no active event
+          const drift = 0.3;
+          newX = prev.x + (Math.random() - 0.5) * drift;
+          newY = prev.y + (Math.random() - 0.5) * drift;
         }
 
-        const moveSpeed = 2; // Faster movement for 365scores style
-
-        // Calculate precise direction vector (no randomness)
-        const directionX = deltaX / distance;
-        const directionY = deltaY / distance;
-
-        let newX = prev.x + directionX * moveSpeed;
-        let newY = prev.y + directionY * moveSpeed;
-
         // Keep ball within field bounds
-        newX = Math.max(10, Math.min(90, newX));
-        newY = Math.max(20, Math.min(80, newY));
+        newX = Math.max(8, Math.min(92, newX));
+        newY = Math.max(8, Math.min(92, newY));
 
-        // Update possession based on ball position and event type
+        // Update possession based on ball position
         if (currentBallEvent === "dangerous_attack") {
           setBallPossession(newX > 50 ? "away" : "home");
         } else if (currentBallEvent === "ball_safe") {
@@ -277,33 +298,35 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               ? "home"
               : newX > 65
                 ? "away"
-                : Math.random() > 0.5
-                  ? "home"
-                  : "away",
+                : Math.random() > 0.7
+                  ? (Math.random() > 0.5 ? "home" : "away")
+                  : ballPossession // Keep current possession more often
           );
         }
 
-        // Add to trail for straight line visualization
+        // Always add to trail (never clear it abruptly)
         setBallTrail((currentTrail) => {
+          const now = Date.now();
+          // Filter out old trail points while adding new one
+          const filteredTrail = currentTrail.filter(point => now - point.timestamp < 8000);
           const newTrail = [
-            ...currentTrail,
-            { x: prev.x, y: prev.y, timestamp: Date.now() },
+            ...filteredTrail,
+            { x: prev.x, y: prev.y, timestamp: now },
           ];
-          return newTrail.slice(-20); // Shorter trail for cleaner look
+          return newTrail.slice(-25); // Longer trail for better visibility
         });
 
         return { x: newX, y: newY };
       });
-    }, 60); // Smoother movement
+    }, 80); // Slightly slower for smoother movement
 
     return () => clearInterval(ballInterval);
-  }, [isLive, ballTarget, ballMovementActive, currentBallEvent]);
+  }, [isLive, ballTarget, ballMovementActive, currentBallEvent, ballPossession]);
 
   // Event-driven ball target setting
   const triggerBallMovement = (eventType: string, team: "home" | "away") => {
-    // Clear previous trail when starting a new event
-    setBallTrail([]);
-
+    // Don't clear trail - keep it continuous for better visual flow
+    
     let targetPosition;
 
     switch (eventType) {
@@ -1024,16 +1047,18 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             >
               {ballTrail.slice(0, -1).map((pos, index) => {
                 const nextPos = ballTrail[index + 1];
-                const opacity = 1 - (index / ballTrail.length) * 2.8;
+                const progress = index / Math.max(ballTrail.length - 1, 1);
+                const opacity = 1 - progress * 0.8; // Smoother opacity gradient
+                const strokeWidth = 1.5 - progress * 0.8; // Thicker at start, thinner at end
                 return (
-                  <g key={`trail-${index}`}>
+                  <g key={`trail-${index}-${pos.timestamp}`}>
                     <line
                       x1={pos.x}
                       y1={pos.y}
                       x2={nextPos.x}
                       y2={nextPos.y}
-                      stroke="rgba(255,255,255,0.95)"
-                      strokeWidth="1"
+                      stroke="rgba(255,255,255,0.9)"
+                      strokeWidth={strokeWidth}
                       strokeLinecap="round"
                       opacity={opacity}
                     />
@@ -1042,10 +1067,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       y1={pos.y}
                       x2={nextPos.x}
                       y2={nextPos.y}
-                      stroke="rgba(255,255,255,0.5)"
-                      strokeWidth="0.5"
+                      stroke={ballPossession === "home" ? "rgba(59,130,246,0.7)" : "rgba(239,68,68,0.7)"}
+                      strokeWidth={strokeWidth * 0.6}
                       strokeLinecap="round"
-                      opacity={opacity * 0.6}
+                      opacity={opacity * 0.8}
                     />
                   </g>
                 );
