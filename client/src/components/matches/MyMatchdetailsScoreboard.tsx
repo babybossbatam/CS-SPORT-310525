@@ -318,11 +318,7 @@ const MyMatchdetailsScoreboard = ({
       return (
         <Badge
           variant="destructive"
-          className="bg-red-500 text-white font-normal text-[11px] animate-pulse shadow-lg"
-          style={{
-            animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-            boxShadow: "0 0 10px rgba(239, 68, 68, 0.5)"
-          }}
+          className="bg-red-500 text-white font-normal text-[11px] animate-pulse"
         >
           <span className="relative">
             {displayText}
