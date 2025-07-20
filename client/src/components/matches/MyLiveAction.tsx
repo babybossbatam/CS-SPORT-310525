@@ -265,10 +265,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         break;
 
       case 'corner':
-        // Move to corner areas
+        // Move to actual corner flag positions (outside penalty box)
         const corners = team === 'home' 
-          ? [{ x: 95, y: 15 }, { x: 95, y: 85 }] // Right corners
-          : [{ x: 5, y: 15 }, { x: 5, y: 85 }];   // Left corners
+          ? [{ x: 98, y: 10 }, { x: 98, y: 90 }] // Right corners - outside penalty area
+          : [{ x: 2, y: 10 }, { x: 2, y: 90 }];   // Left corners - outside penalty area
         targetPosition = corners[Math.floor(Math.random() * corners.length)];
         break;
 
@@ -399,10 +399,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       setMatchIntensity('medium');
 
       const cornerPositions = [
-        { corner: 'top-left' as const, x: 5, y: 15 },
-        { corner: 'top-right' as const, x: 95, y: 15 },
-        { corner: 'bottom-left' as const, x: 5, y: 85 },
-        { corner: 'bottom-right' as const, x: 95, y: 85 }
+        { corner: 'top-left' as const, x: 2, y: 10 },
+        { corner: 'top-right' as const, x: 98, y: 10 },
+        { corner: 'bottom-left' as const, x: 2, y: 90 },
+        { corner: 'bottom-right' as const, x: 98, y: 90 }
       ];
 
       const selectedCorner = cornerPositions[Math.floor(Math.random() * cornerPositions.length)];
@@ -792,39 +792,40 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             }}
           >
             <div className="relative">
-              {/* Enhanced ball shadow */}
-              <div className="absolute w-6 h-2.5 bg-black/50 rounded-full blur-md animate-pulse" 
+              {/* Sharp ball shadow */}
+              <div className="absolute w-6 h-2.5 bg-black/40 rounded-full" 
                    style={{ left: '-12px', top: '18px' }}></div>
 
-              {/* Professional ball - enhanced */}
-              <div className="w-6 h-6 relative">
+              {/* Professional ball - sharp and crisp */}
+              <div className="w-7 h-7 relative">
                 <img 
                   src="/assets/matchdetaillogo/shot-event.svg" 
                   alt="Ball" 
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain filter contrast-125 brightness-110"
+                  style={{ imageRendering: 'crisp-edges' }}
                 />
               </div>
 
-                {/* Enhanced possession glow effect */}
+                {/* Sharp possession glow effect */}
                 {ballPossession && (
                   <div className="absolute -inset-4">
-                    <div className={`w-14 h-14 rounded-full animate-ping opacity-50 ${
+                    <div className={`w-14 h-14 rounded-full animate-ping opacity-60 ${
                       ballPossession === 'home' ? 'bg-blue-400' : 'bg-red-400'
                     }`}></div>
-                    <div className={`absolute inset-1 w-12 h-12 rounded-full animate-pulse opacity-30 ${
+                    <div className={`absolute inset-1 w-12 h-12 rounded-full animate-pulse opacity-40 ${
                       ballPossession === 'home' ? 'bg-blue-300' : 'bg-red-300'
                     }`}></div>
                   </div>
                 )}
               </div>
 
-              {/* Enhanced speed lines effect */}
+              {/* Sharp speed lines effect */}
               <div className="absolute -inset-3 pointer-events-none">
-                <div className="w-10 h-0.5 bg-white/40 rounded-full blur-sm animate-pulse" 
+                <div className="w-10 h-0.5 bg-white/60 rounded-full animate-pulse" 
                      style={{ transform: 'rotate(-15deg)', left: '-8px', top: '11px' }}></div>
-                <div className="w-8 h-0.5 bg-white/35 rounded-full blur-sm animate-pulse" 
+                <div className="w-8 h-0.5 bg-white/50 rounded-full animate-pulse" 
                      style={{ transform: 'rotate(-25deg)', left: '-4px', top: '13px' }}></div>
-                <div className="w-6 h-0.5 bg-white/30 rounded-full blur-sm animate-pulse" 
+                <div className="w-6 h-0.5 bg-white/40 rounded-full animate-pulse" 
                      style={{ transform: 'rotate(-35deg)', left: '-1px', top: '15px' }}></div>
               </div>
             </div>
