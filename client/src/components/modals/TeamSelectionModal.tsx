@@ -159,14 +159,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-500">STEP 1 OF 2</span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onOpenChange(false)}
-            className="h-6 w-6 p-0"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+         
         </DialogHeader>
 
         <div className="p-4 space-y-4">
