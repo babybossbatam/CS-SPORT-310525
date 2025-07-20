@@ -1,15 +1,17 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import Header from '@/components/layout/Header';
-import MyScoresTab from '@/components/matches/MyScoresTab';
 
 const MyScores: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState('my-scores');
-
   return (
     <>
       <Header />
-      <MyScoresTab selectedTab={selectedTab} onTabChange={setSelectedTab} />
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">My Scores</h1>
+          <p className="text-gray-600">This page is under development.</p>
+        </div>
+      </div>
     </>
   );
 };
