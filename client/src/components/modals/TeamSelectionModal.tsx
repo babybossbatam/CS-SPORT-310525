@@ -61,9 +61,9 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
           key={team.id}
           className="group relative flex flex-col items-center justify-center p-3 rounded-lg hover:bg-blue-50 cursor-pointer transition-all duration-200 border border-transparent hover:border-blue-200"
         >
-          {/* Star toggle button - appears on hover */}
+          {/* Star toggle button - slides in on hover */}
           <button
-            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-blue-50"
+            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white shadow-md opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300 ease-out flex items-center justify-center hover:bg-blue-50"
             onClick={(e) => {
               e.stopPropagation();
               // Handle star toggle logic here
