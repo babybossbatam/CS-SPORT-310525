@@ -132,16 +132,16 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
         {/* Header with Tabs */}
         <Tabs value={selectedTab} onValueChange={onTabChange} className="w-full ">
           <div className="flex items-center justify-between">
-            <TabsList className="bg-transparent border-b border-gray-200 rounded-none h-auto p-0">
+            <TabsList className="bg-transparent border-b border-gray-200 rounded-none h-auto p-0 w-full flex">
               <TabsTrigger 
                 value="my-scores" 
-                className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 rounded-none   font-medium"
+                className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 rounded-none font-medium flex-1"
               >
                 My Scores
               </TabsTrigger>
               <TabsTrigger 
                 value="my-selections" 
-                className=" border-b-2 data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 rounded-none font-medium"
+                className="border-b-2 border-transparent data-[state=active]:border-blue-500 data-[state=active]:text-blue-600 rounded-none font-medium flex-1"
               >
                 My Selections
               </TabsTrigger>
