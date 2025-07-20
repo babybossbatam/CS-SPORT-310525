@@ -230,10 +230,8 @@ export const setupGlobalErrorHandlers = () => {
           error.message?.includes('not 2xx response') ||
           error.message?.includes('Network Error') ||
           error.message?.includes('NetworkError') ||
-          error.message?.includes('ERR_TUNNEL_CONNECTION_FAILED') ||
-          error.message?.includes('ERR_HTTP2_SERVER_REFUSED_STREAM') ||
           error.message?.includes('dynamically imported module')) {
-        console.log('🌐 Network/tunnel connectivity issue detected, attempting recovery...');
+        console.log('🌐 Network/import connectivity issue detected, attempting recovery...');
         handleNetworkRecovery();
         event.preventDefault();
         return;
