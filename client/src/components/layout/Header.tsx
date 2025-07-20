@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
+import PrivacySettingsModal from '@/components/modals/PrivacySettingsModal';
 import { useToast } from '@/hooks/use-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, userActions } from '@/lib/store';
@@ -17,6 +18,8 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [darkTheme, setDarkTheme] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('English (US)');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
   const { toast } = useToast();
   const dispatch = useDispatch();
 
@@ -164,12 +167,99 @@ const Header = () => {
             <Search className="h-4 w-4" />
           </div>
 
-          <div 
-            className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
-            onClick={() => navigate('/settings')}
-          >
-            <Settings className="h-4 w-4" />
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer">
+                <Settings className="h-4 w-4" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-80 bg-slate-800 border-slate-700 text-white" align="end">
+              <DropdownMenuLabel className="text-slate-300 font-medium">
+                NOTIFICATIONS
+              </DropdownMenuLabel>
+              
+              <DropdownMenuItem className="flex items-center justify-between hover:bg-slate-700 cursor-pointer">
+                <span>Enable all Notifications</span>
+                <Switch
+                  checked={notificationsEnabled}
+                  onCheckedChange={setNotificationsEnabled}
+                  className="data-[state=checked]:bg-blue-500"
+                />
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator className="bg-slate-700" />
+              
+              <DropdownMenuLabel className="text-slate-300 font-medium">
+                THEMES
+              </DropdownMenuLabel>
+              
+              <DropdownMenuItem className="flex items-center justify-between hover:bg-slate-700 cursor-pointer">
+                <span>Set Dark Theme</span>
+                <Switch
+                  checked={darkTheme}
+                  onCheckedChange={setDarkTheme}
+                  className="data-[state=checked]:bg-blue-500"
+                />
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator className="bg-slate-700" />
+              
+              <DropdownMenuLabel className="text-slate-300 font-medium">
+                LANGUAGE
+              </DropdownMenuLabel>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <DropdownMenuItem className="flex items-center justify-between hover:bg-slate-700 cursor-pointer">
+                    <div className="flex items-center">
+                      <span className="mr-2 text-lg">🇺🇸</span>
+                      <span>{selectedLanguage}</span>
+                    </div>
+                    <ChevronDown className="h-3 w-3" />
+                  </DropdownMenuItem>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-48 bg-slate-800 border-slate-700 text-white" side="left">
+                  <DropdownMenuItem 
+                    className="hover:bg-slate-700 cursor-pointer"
+                    onClick={() => setSelectedLanguage('English (US)')}
+                  >
+                    <span className="mr-2 text-lg">🇺🇸</span>
+                    English (US)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="hover:bg-slate-700 cursor-pointer"
+                    onClick={() => setSelectedLanguage('English (UK)')}
+                  >
+                    <span className="mr-2 text-lg">🇬🇧</span>
+                    English (UK)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="hover:bg-slate-700 cursor-pointer"
+                    onClick={() => setSelectedLanguage('Español')}
+                  >
+                    <span className="mr-2 text-lg">🇪🇸</span>
+                    Español
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="hover:bg-slate-700 cursor-pointer"
+                    onClick={() => setSelectedLanguage('Français')}
+                  >
+                    <span className="mr-2 text-lg">🇫🇷</span>
+                    Français
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              <DropdownMenuSeparator className="bg-slate-700" />
+              
+              <DropdownMenuItem 
+                className="hover:bg-slate-700 cursor-pointer text-slate-300"
+                onClick={() => setPrivacyModalOpen(true)}
+              >
+                Privacy Settings
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {isAuthenticated && (
             <>
@@ -205,6 +295,12 @@ const Header = () => {
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Privacy Settings Modal */}
+      <PrivacySettingsModal 
+        isOpen={privacyModalOpen} 
+        onClose={() => setPrivacyModalOpen(false)} 
+      />
     </header>
   );
 };
