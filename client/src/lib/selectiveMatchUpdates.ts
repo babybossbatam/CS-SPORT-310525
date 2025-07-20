@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 /**
  * Selective Match Updates System
  * Only updates specific fields (scores, status, elapsed time) without full component re-renders
