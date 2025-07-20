@@ -63,14 +63,14 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
         >
           {/* Star toggle button - slides in on hover */}
           <button
-            className="absolute top-1 right-1 w-5 h-5 rounded-full bg-white shadow-md opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300 ease-out flex items-center justify-center hover:bg-blue-50"
+            className="absolute top-1 right-1 w-6 h-6 rounded-full shadow-md opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0 transition-all duration-300 ease-out flex items-center justify-center hover:bg-blue-50"
             onClick={(e) => {
               e.stopPropagation();
               // Handle star toggle logic here
             }}
           >
             <svg
-              className="w-3 h-3 text-blue-500"
+              className="w-4 h-4 text-blue-500"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
