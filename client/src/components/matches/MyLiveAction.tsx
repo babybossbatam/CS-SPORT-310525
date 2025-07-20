@@ -754,7 +754,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <svg className="absolute inset-0 w-full h-full z-35 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
               {ballTrail.slice(0, -1).map((pos, index) => {
                 const nextPos = ballTrail[index + 1];
-                const opacity = 1 - (index / ballTrail.length) * 0.8;
+                const opacity = 1 - (index / ballTrail.length) * 2.8;
                 return (
                   <g key={`trail-${index}`}>
                     <line
@@ -773,10 +773,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       x2={nextPos.x}
                       y2={nextPos.y}
                       stroke="rgba(255,255,255,0.5)"
-                      strokeWidth="1.5"
+                      strokeWidth="0.5"
                       strokeLinecap="round"
                       opacity={opacity * 0.6}
-                      filter="blur(0.5px)"
+                      
                     />
                   </g>
                 );
@@ -786,7 +786,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
           {/* Enhanced professional ball with 365scores style */}
           <div 
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ease-out z-50"
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-30 ease-out z-50"
             style={{
               left: `${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
@@ -798,7 +798,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                    style={{ left: '-12px', top: '18px' }}></div>
 
               {/* Professional ball - sharp and crisp */}
-              <div className="w-7 h-7 relative">
+              <div className="w-4 h-4 relative">
                 <img 
                   src="/assets/matchdetaillogo/shot-event.svg" 
                   alt="Ball" 
