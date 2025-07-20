@@ -78,16 +78,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   };
 
   if (shouldUseCircularFlag) {
-    // Extract country code from teamLogo URL if it's a flag URL
-    let countryCode = '';
-    if (teamLogo && teamLogo.includes('circle-flags/flags/')) {
-      const match = teamLogo.match(/flags\/([^.]+)\.svg/);
-      countryCode = match ? match[1] : '';
-    }
-
     return (
       <MyCircularFlag
-        countryCode={countryCode}
         teamName={teamName}
         fallbackUrl={teamLogo}
         alt={alt || teamName}
