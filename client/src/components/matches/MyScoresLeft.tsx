@@ -14,6 +14,7 @@ import TodayMatchByTime from "./TodayMatchByTime";
 import MyNewPopularLeague from "./MyNewPopularLeague";
 import EnhancementLeague from "./EnhancementLeague";
 import MyNewLeague from "./MyNewLeague";
+import MyScoresTab from "./MyScoresTab";
 import { useCachedQuery } from "@/lib/cachingHelper";
 
 import { format, parseISO, addDays, subDays } from "date-fns";
@@ -108,23 +109,7 @@ export const TodayMatchPageCard = ({
     setIsCalendarOpen(false);
   };
 
-  // Dedicated date display function for TodayMatchPageCard
-  const getTodayMatchPageDisplayName = () => {
-    const today = getCurrentUTCDateString();
-    const yesterday = format(subDays(parseISO(today), 1), "yyyy-MM-dd");
-    const tomorrow = format(addDays(parseISO(today), 1), "yyyy-MM-dd");
-
-    if (selectedDate === today) {
-      return "Today's Matches";
-    } else if (selectedDate === yesterday) {
-      return "Yesterday's Matches";
-    } else if (selectedDate === tomorrow) {
-      return "Tomorrow's Matches";
-    } else {
-      // For any other date, show the formatted date
-      return format(parseISO(selectedDate), "EEE, do MMM");
-    }
-  };
+  
 
   // Fetch live fixtures once when either live filter is active
   const { data: sharedLiveFixtures = [], isLoading: isLoadingLive } = useQuery({
@@ -185,23 +170,10 @@ export const TodayMatchPageCard = ({
             <ChevronLeft className="h-5 w-5" />
           </button>
           <div className="relative h-full flex items-center" ref={calendarRef}>
-            <button
-              onClick={() => {
-                console.log(
-                  "Calendar button clicked, current state:",
-                  isCalendarOpen,
-                );
-                setIsCalendarOpen(!isCalendarOpen);
-              }}
-              className="flex items-center gap-2 px-3 py-1 hover:bg-gray-100 rounded-md h-full"
-            >
-              <span className="font-medium">
-                {getTodayMatchPageDisplayName()}
-              </span>
-              <ChevronDown
-                className={`h-4 w-4 transition-transform ${isCalendarOpen ? "rotate-180" : ""}`}
-              />
-            </button>
+            <MyScoresTab 
+              selectedTab="my-scores" 
+              onTabChange={() => {}}
+            />
 
             {isCalendarOpen && (
               <div
