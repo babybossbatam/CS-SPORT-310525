@@ -308,11 +308,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
     switch (eventType) {
       case "dangerous_attack":
-        // Move toward opponent's goal area
+        // Move toward opponent's goal area - full field height
         targetPosition =
           team === "home"
-            ? { x: 85, y: 45 + Math.random() * 10 } // Attack right goal
-            : { x: 15, y: 45 + Math.random() * 10 }; // Attack left goal
+            ? { x: 85, y: 5 + Math.random() * 90 } // Attack right goal - full field height
+            : { x: 15, y: 5 + Math.random() * 90 }; // Attack left goal - full field height
         break;
 
       case "shot":
@@ -347,19 +347,19 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         break;
 
       case "ball_safe":
-        // Move to midfield or defensive areas
+        // Move to midfield or defensive areas - full field height
         targetPosition =
           team === "home"
-            ? { x: 25 + Math.random() * 20, y: 35 + Math.random() * 30 } // Home half
-            : { x: 55 + Math.random() * 20, y: 35 + Math.random() * 30 }; // Away half
+            ? { x: 25 + Math.random() * 20, y: 5 + Math.random() * 90 } // Home half - full field height
+            : { x: 55 + Math.random() * 20, y: 5 + Math.random() * 90 }; // Away half - full field height
         break;
 
       default:
-        // Default attacking movement
+        // Default attacking movement - full field height
         targetPosition =
           team === "home"
-            ? { x: 70 + Math.random() * 15, y: 35 + Math.random() * 30 } // Forward movement
-            : { x: 15 + Math.random() * 15, y: 35 + Math.random() * 30 }; // Forward movement
+            ? { x: 70 + Math.random() * 15, y: 5 + Math.random() * 90 } // Forward movement - full field height
+            : { x: 15 + Math.random() * 15, y: 5 + Math.random() * 90 }; // Forward movement - full field height
     }
 
     setCurrentBallEvent(eventType);
