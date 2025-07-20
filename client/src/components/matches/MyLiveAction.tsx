@@ -345,6 +345,26 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             ? { x: 8, y: 50 } // Home goal
             : { x: 92, y: 50 }; // Away goal
         break;
+      case "foul":
+        // Move to a random position in the middle of the field
+        targetPosition = { x: 50 + Math.random() * 20 - 10, y: 50 + Math.random() * 20 - 10 };
+        break;
+
+      case "freekick":
+        // Move to a position closer to the opponent's goal
+        targetPosition =
+          team === "home"
+            ? { x: 70 + Math.random() * 20, y: 30 + Math.random() * 40 }
+            : { x: 10 + Math.random() * 20, y: 30 + Math.random() * 40 };
+        break;
+
+      case "throwin":
+        // Move to a position on the side of the field
+        targetPosition =
+          team === "home"
+            ? { x: 90, y: 20 + Math.random() * 60 }
+            : { x: 10, y: 20 + Math.random() * 60 };
+        break;
 
       case "ball_safe":
         // Move to midfield or defensive areas
@@ -380,6 +400,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       "Tactical substitution being prepared",
       "Players calling for the ball",
       "Good ball control under pressure",
+      "Foul committed, free kick awarded",
+      "Throw-in opportunity for the team",
     ];
 
     const newCommentary: LiveCommentary = {
@@ -457,13 +479,22 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
       | "goal"
       | "goalkick"
       | "corner"
-      | "substitution" = "attack";
+      | "substitution"
+      | "foul"
+      | "freekick"
+      | "throwin" = "attack";
 
     // Generate events based on probability and game situation
     const eventProbability = Math.random();
 
-    if (eventProbability > 0.88) {
-      // Dangerous attack (12% chance)
+    if (eventProbability > 0.93) {
+      // Foul (7% chance)
+      eventType = "foul";
+      randomType = "ball_safe";
+      setMatchIntensity("medium");
+      triggerBallMovement("foul", randomTeam);
+    } else if (eventProbability > 0.88) {
+      // Dangerous attack (5% chance)
       eventType = Math.random() > 0.7 ? "shot" : "attack";
       randomType = "dangerous_attack";
       setMatchIntensity("high");
@@ -538,13 +569,18 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
       setGoalKickEvents((prev) => [...prev.slice(-4), goalKickEvent]);
       triggerBallMovement("goalkick", randomTeam);
-    } else if (eventProbability > 0.58) {
-      // Regular attack (10% chance)
-      eventType = "attack";
+    } else if (eventProbability > 0.63) {
+      // Free kick (5% chance)
+      eventType = "freekick";
       randomType = "attacking";
       setMatchIntensity("medium");
-
-      triggerBallMovement("attack", randomTeam);
+      triggerBallMovement("freekick", randomTeam);
+    } else if (eventProbability > 0.58) {
+      // Throw in (5% chance)
+      eventType = "throwin";
+      randomType = "ball_safe";
+      setMatchIntensity("low");
+      triggerBallMovement("throwin", randomTeam);
     } else if (eventProbability > 0.53) {
       // Ball safe / possession (5% chance)
       eventType = "attack";
@@ -553,8 +589,11 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
       triggerBallMovement("ball_safe", randomTeam);
     } else {
-      // No major event - return early
-      return;
+      // Regular attack (5% chance)
+      eventType = "attack";
+      randomType = "attacking";
+      setMatchIntensity("medium");
+      triggerBallMovement("attack", randomTeam);
     }
 
     // Create attack zone
@@ -580,8 +619,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           ? "Shot Attempt"
           : eventType === "corner"
             ? "Corner kick"
-            : "Attacking Move",
-      ball_safe: eventType === "goalkick" ? "Goal kick" : "Safe Possession",
+            : eventType === "freekick"
+              ? "Free kick"
+              : "Attacking Move",
+      ball_safe:
+        eventType === "goalkick"
+          ? "Goal kick"
+          : eventType === "throwin"
+            ? "Throw-in"
+            : "Safe Possession",
       dangerous_attack:
         eventType === "goal"
           ? "GOAL!"
@@ -599,7 +645,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         randomTeam === "home"
           ? homeTeamData?.name || "Home Team"
           : awayTeamData?.name || "Away Team",
-      description: eventDescriptions[randomType],
+      description: eventDescriptions[randomType] || "Match Event",
       timestamp: Date.now(),
       isRecent: true,
     };
@@ -664,6 +710,15 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           } else if (event.detail?.toLowerCase().includes("corner")) {
             eventType = "corner";
             description = "Corner kick";
+          } else if (event.detail?.toLowerCase().includes("foul")) {
+            eventType = "foul";
+            description = "Foul committed";
+          } else if (event.detail?.toLowerCase().includes("free kick")) {
+            eventType = "freekick";
+            description = "Free kick";
+          } else if (event.detail?.toLowerCase().includes("throw-in")) {
+            eventType = "throwin";
+            description = "Throw-in";
           }
 
           events.push({
@@ -883,7 +938,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               <div className="text-xs text-gray-600">
                 {ballPossession === "home"
                   ? homeTeamData?.name?.slice(0, 3)
-                                    : awayTeamData?.name?.slice(0, 3)}
+                  : awayTeamData?.name?.slice(0, 3)}
               </div>
             </div>
           </div>
@@ -942,7 +997,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           ))}
 
-          {/* Enhanced ball trail with 365scores precision */}
+          {/* Enhanced ball trail with longer history */}
           {ballTrail.length > 1 && (
             <svg
               className="absolute inset-0 w-full h-full z-35 pointer-events-none"
@@ -951,7 +1006,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             >
               {ballTrail.slice(0, -1).map((pos, index) => {
                 const nextPos = ballTrail[index + 1];
-                const opacity = 1 - (index / ballTrail.length) * 2.8;
+                const opacity = Math.max(0.1, 1 - (index / ballTrail.length) * 1.5);
+                const strokeWidth = Math.max(0.3, 1.5 - (index / ballTrail.length) * 0.8);
                 return (
                   <g key={`trail-${index}`}>
                     <line
@@ -960,7 +1016,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       x2={nextPos.x}
                       y2={nextPos.y}
                       stroke="rgba(255,255,255,0.95)"
-                      strokeWidth="1"
+                      strokeWidth={strokeWidth}
                       strokeLinecap="round"
                       opacity={opacity}
                     />
@@ -970,7 +1026,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       x2={nextPos.x}
                       y2={nextPos.y}
                       stroke="rgba(255,255,255,0.5)"
-                      strokeWidth="0.5"
+                      strokeWidth={strokeWidth * 0.5}
                       strokeLinecap="round"
                       opacity={opacity * 0.6}
                     />
