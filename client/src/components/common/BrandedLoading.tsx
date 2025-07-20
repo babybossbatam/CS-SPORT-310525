@@ -1,6 +1,5 @@
-
-import React from 'react';
-import MyWorldTeamLogo from './MyWorldTeamLogo';
+import React from "react";
+import MyWorldTeamLogo from "./MyWorldTeamLogo";
 
 interface BrandedLoadingProps {
   text?: string;
@@ -8,19 +7,22 @@ interface BrandedLoadingProps {
   className?: string;
 }
 
-const BrandedLoading: React.FC<BrandedLoadingProps> = ({ 
-   
+const BrandedLoading: React.FC<BrandedLoadingProps> = ({
   size = "50px",
-  className = "" 
+  className = "",
 }) => {
   return (
-    <div className={`flex flex-col items-center justify-center space-y-4 ${className}`}>
+    <div
+      className={`flex flex-col items-center justify-center space-y-4 ${className}`}
+    >
       <div className="animate-pulse">
-       <img src="/CSSPORT_1_updated.png" alt="CS Sport Logo" className="w-[35px] h-[35px]" />
+        <img
+          src="/CSSPORT_1_updated.png"
+          alt="CS Sport Logo"
+          className="w-[75px] h-[55px]"
+        />
       </div>
-      <div className="text-center">
-       
-      </div>
+      <div className="text-center"></div>
     </div>
   );
 };
