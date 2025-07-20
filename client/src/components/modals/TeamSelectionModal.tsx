@@ -119,20 +119,16 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
 
           <div className="w-12 h-12 mb-2 flex items-center justify-center">
             {team.type === 'country' ? (
-              <MyWorldTeamLogo 
+              <MyCircularFlag 
+                countryCode={team.flag} 
                 teamName={team.name}
-                teamLogo={`https://hatscripts.github.io/circle-flags/flags/${team.flag}.svg`}
-                alt={team.name}
-                size="48px"
-                className="w-12 h-12 object-contain"
+                size={48} 
               />
             ) : (
               <MyWorldTeamLogo 
                 teamName={team.name} 
                 teamLogo={`/api/team-logo/square/${team.id}?size=48`}
-                alt={team.name}
-                size="48px"
-                className="w-12 h-12 object-contain"
+                size="48px" 
               />
             )}
           </div>
