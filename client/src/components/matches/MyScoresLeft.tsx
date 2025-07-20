@@ -172,11 +172,6 @@ export const MyScoresLeft = ({
             <ChevronLeft className="h-5 w-5" />
           </button>
           <div className="relative h-full flex items-center" ref={calendarRef}>
-            <MyScoresTab 
-              selectedTab="my-scores" 
-              onTabChange={() => {}}
-            />
-
             {isCalendarOpen && (
               <div
                 className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 z-[9999] bg-white shadow-xl border border-gray-200 p-1 w-[320px ]"
