@@ -1000,7 +1000,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           ))}
 
-          {/* Enhanced ball trail with longer history */}
+          {/* Enhanced ball trail that connects to ball properly */}
           {ballTrail.length > 1 && (
             <svg
               className="absolute inset-0 w-full h-full z-35 pointer-events-none"
@@ -1009,29 +1009,55 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             >
               {ballTrail.slice(0, -1).map((pos, index) => {
                 const nextPos = ballTrail[index + 1];
-                const opacity = Math.max(0.1, 1 - (index / ballTrail.length) * 1.5);
-                const strokeWidth = Math.max(0.3, 1.5 - (index / ballTrail.length) * 0.8);
+                const isLastSegment = index === ballTrail.length - 2;
+                
+                // Calculate trail opacity and width based on position in trail
+                const opacity = Math.max(0.1, 1 - (index / ballTrail.length) * 1.2);
+                const strokeWidth = Math.max(0.4, 1.8 - (index / ballTrail.length) * 0.9);
+                
+                // For the last segment, connect to ball center but stop just before it
+                let endX = nextPos.x;
+                let endY = nextPos.y;
+                
+                if (isLastSegment) {
+                  // Calculate direction vector from current to next position
+                  const dx = nextPos.x - pos.x;
+                  const dy = nextPos.y - pos.y;
+                  const distance = Math.sqrt(dx * dx + dy * dy);
+                  
+                  if (distance > 0) {
+                    // Stop the trail 2% short of the ball center to avoid overlap
+                    const shortenBy = 2;
+                    const normalizedDx = dx / distance;
+                    const normalizedDy = dy / distance;
+                    endX = nextPos.x - (normalizedDx * shortenBy);
+                    endY = nextPos.y - (normalizedDy * shortenBy);
+                  }
+                }
+                
                 return (
                   <g key={`trail-${index}`}>
+                    {/* Main trail line */}
                     <line
                       x1={pos.x}
                       y1={pos.y}
-                      x2={nextPos.x}
-                      y2={nextPos.y}
+                      x2={endX}
+                      y2={endY}
                       stroke="#d1d5db"
                       strokeWidth={strokeWidth}
                       strokeLinecap="round"
                       opacity={opacity}
                     />
+                    {/* Inner glow effect */}
                     <line
                       x1={pos.x}
                       y1={pos.y}
-                      x2={nextPos.x}
-                      y2={nextPos.y}
-                      stroke="#d1d5db"
-                      strokeWidth={strokeWidth * 0.5}
+                      x2={endX}
+                      y2={endY}
+                      stroke="#ffffff"
+                      strokeWidth={strokeWidth * 0.4}
                       strokeLinecap="round"
-                      opacity={opacity * 0.3}
+                      opacity={opacity * 0.4}
                     />
                   </g>
                 );
