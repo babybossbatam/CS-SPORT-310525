@@ -284,48 +284,64 @@ export const MyScoresLeft = ({
           {/* Spacer to maintain layout */}
           <div className="flex items-center gap-2"></div>
 
-          {/* By time button */}
-          <button
-            onClick={() => {
-              // Check if Live is active but no live matches exist - disable functionality
-              if (liveFilterActive && (!sharedLiveFixtures || sharedLiveFixtures.length === 0)) {
-                return; // Do nothing if Live is active but no live matches
-              }
+          {/* By time button with navigation */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={goToPreviousDay}
+              className="p-1.5 hover:bg-gray-100 rounded-full flex items-center"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+            </button>
+            
+            <button
+              onClick={() => {
+                // Check if Live is active but no live matches exist - disable functionality
+                if (liveFilterActive && (!sharedLiveFixtures || sharedLiveFixtures.length === 0)) {
+                  return; // Do nothing if Live is active but no live matches
+                }
 
-              if (!timeFilterActive) {
-                // Activating by time filter
-                setTimeFilterActive(true);
-                // If live filter is active, keep it active for combined state
-                // Otherwise reset it
-                if (!liveFilterActive) {
-                  setLiveFilterActive(false);
-                }
-              } else {
-                // Deactivating by time filter
-                setTimeFilterActive(false);
-                // Only activate live if it wasn't already active
-                if (!liveFilterActive) {
-                  // Return to default view (TodayPopularFootballLeaguesNew)
-                  setLiveFilterActive(false);
+                if (!timeFilterActive) {
+                  // Activating by time filter
+                  setTimeFilterActive(true);
+                  // If live filter is active, keep it active for combined state
+                  // Otherwise reset it
+                  if (!liveFilterActive) {
+                    setLiveFilterActive(false);
+                  }
                 } else {
-                  // Keep live active if it was already active
-                  const today = getCurrentUTCDateString();
-                  setSelectedDate(today);
+                  // Deactivating by time filter
+                  setTimeFilterActive(false);
+                  // Only activate live if it wasn't already active
+                  if (!liveFilterActive) {
+                    // Return to default view (TodayPopularFootballLeaguesNew)
+                    setLiveFilterActive(false);
+                  } else {
+                    // Keep live active if it was already active
+                    const today = getCurrentUTCDateString();
+                    setSelectedDate(today);
+                  }
                 }
-              }
-            }}
-            className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
-              // Disable button appearance when Live is active but no live matches
-              liveFilterActive && (!sharedLiveFixtures || sharedLiveFixtures.length === 0)
-                ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                : timeFilterActive
-                ? "bg-blue-400 text-white hover:bg-blue-500"
-                : "bg-gray-300 text-black hover:bg-gray-400"
-            }`}
-          >
-            <Clock className="h-3.5 w-3.5" />
-            By time
-          </button>
+              }}
+              className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
+                // Disable button appearance when Live is active but no live matches
+                liveFilterActive && (!sharedLiveFixtures || sharedLiveFixtures.length === 0)
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : timeFilterActive
+                  ? "bg-blue-400 text-white hover:bg-blue-500"
+                  : "bg-gray-300 text-black hover:bg-gray-400"
+              }`}
+            >
+              <Clock className="h-3.5 w-3.5" />
+              By time
+            </button>
+            
+            <button
+              onClick={goToNextDay}
+              className="p-1.5 hover:bg-gray-100 rounded-full flex items-center"
+            >
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </div>
       </Card>
 
