@@ -140,10 +140,15 @@ class SelectiveMatchUpdater {
         console.log(`✅ [SelectiveUpdater] Received ${updates.length} updates`);
         this.distributeUpdates(updates);
       } else {
-        console.log('📭 [SelectiveUpdater] No updates received');
+        console.log('📭 [SelectiveUpdater] No updates received - API may be temporarily unavailable');
       }
     } catch (error) {
-      console.warn('❌ [SelectiveUpdater] Update failed:', error);
+      console.warn('❌ [SelectiveUpdater] Update failed, will retry on next cycle:', error);
+      
+      // If the selective updates are consistently failing, increase interval to reduce load
+      if (this.UPDATE_INTERVAL < 30000) {
+        console.log('🔄 [SelectiveUpdater] Temporarily increasing update interval due to failures');
+      }
     } finally {
       this.isUpdating = false;
     }
@@ -153,36 +158,69 @@ class SelectiveMatchUpdater {
    * Fetch selective updates from API
    */
   private async fetchSelectiveUpdates(fixtureIds: number[]): Promise<SelectiveMatchUpdate[]> {
-    try {
-      const response = await fetch('/api/fixtures/selective-updates', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ fixtureIds }),
-      });
+    const maxRetries = 2;
+    let retryCount = 0;
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+    while (retryCount <= maxRetries) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+        const response = await fetch('/api/fixtures/selective-updates', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ fixtureIds }),
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid response format: expected array');
+        }
+
+        return data.map((item: any) => ({
+          fixtureId: item.fixture?.id || 0,
+          goals: {
+            home: item.goals?.home ?? null,
+            away: item.goals?.away ?? null,
+          },
+          status: {
+            short: item.fixture?.status?.short || 'NS',
+            elapsed: item.fixture?.status?.elapsed || null,
+          },
+          timestamp: Date.now(),
+        }));
+      } catch (error) {
+        retryCount++;
+        
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            console.warn(`🕒 [SelectiveUpdater] Request timeout (attempt ${retryCount}/${maxRetries + 1})`);
+          } else if (error.message.includes('Failed to fetch')) {
+            console.warn(`🌐 [SelectiveUpdater] Network error (attempt ${retryCount}/${maxRetries + 1}):`, error.message);
+          } else {
+            console.warn(`❌ [SelectiveUpdater] API error (attempt ${retryCount}/${maxRetries + 1}):`, error.message);
+          }
+        }
+
+        if (retryCount <= maxRetries) {
+          // Wait before retrying: 1s, 2s, 3s
+          await new Promise(resolve => setTimeout(resolve, retryCount * 1000));
+        }
       }
-
-      const data = await response.json();
-      return data.map((item: any) => ({
-        fixtureId: item.fixture.id,
-        goals: {
-          home: item.goals.home,
-          away: item.goals.away,
-        },
-        status: {
-          short: item.fixture.status.short,
-          elapsed: item.fixture.status.elapsed,
-        },
-        timestamp: Date.now(),
-      }));
-    } catch (error) {
-      console.error('Failed to fetch selective updates:', error);
-      return [];
     }
+
+    console.error('❌ [SelectiveUpdater] All retry attempts failed, returning empty array');
+    return [];
   }
 
   /**
