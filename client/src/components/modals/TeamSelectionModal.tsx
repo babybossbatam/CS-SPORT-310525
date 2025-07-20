@@ -23,15 +23,15 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
     { id: 'england', name: 'England', type: 'country', flag: 'gb' },
     { id: 'spain', name: 'Spain', type: 'country', flag: 'es' },
     { id: 529, name: 'AS Roma', type: 'team' },
-    { id: 113, name: 'Napoli', type: 'team' }, // Correct Napoli ID
+    { id: 113, name: 'Napoli', type: 'team' },
     { id: 720, name: 'Sevilla', type: 'team' },
-    { id: 2381, name: 'Al Hilal Riyadh', type: 'team' }, // Correct Al Hilal ID
+    { id: 2381, name: 'Al Hilal Riyadh', type: 'team' },
     { id: 532, name: 'Valencia', type: 'team' },
     { id: 'italy', name: 'Italy', type: 'country', flag: 'it' },
     { id: 2385, name: 'Al Nassr FC Riyadh', type: 'team' },
     { id: 26, name: 'Leicester City', type: 'team' },
     { id: 541, name: 'Real Madrid', type: 'team' },
-    { id: 81, name: 'FC Barcelona', type: 'team' }, // Correct Barcelona API-Sports ID
+    { id: 81, name: 'FC Barcelona', type: 'team' },
     { id: 33, name: 'Manchester United', type: 'team' },
     { id: 40, name: 'Liverpool', type: 'team' },
     { id: 50, name: 'Manchester City', type: 'team' },
@@ -41,9 +41,9 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
     { id: 496, name: 'Juventus', type: 'team' },
     { id: 85, name: 'PSG', type: 'team' },
     { id: 530, name: 'Atletico Madrid', type: 'team' },
-    { id: 489, name: 'AC Milan', type: 'team' }, // Correct AC Milan ID
+    { id: 489, name: 'AC Milan', type: 'team' },
     { id: 47, name: 'Tottenham', type: 'team' },
-    { id: 165, name: 'Borussia Dortmund', type: 'team' }, // Correct Dortmund ID
+    { id: 165, name: 'Borussia Dortmund', type: 'team' },
     { id: 'portugal', name: 'Portugal', type: 'country', flag: 'pt' },
     { id: 'germany', name: 'Germany', type: 'country', flag: 'de' },
     { id: 'argentina', name: 'Argentina', type: 'country', flag: 'ar' },
