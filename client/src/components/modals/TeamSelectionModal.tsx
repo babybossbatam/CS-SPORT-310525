@@ -24,19 +24,15 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
     { id: 'england', name: 'England', type: 'country', flag: 'gb' },
     { id: 'spain', name: 'Spain', type: 'country', flag: 'es' },
     { id: 'italy', name: 'Italy', type: 'country', flag: 'it' },
-    { id: 'portugal', name: 'Portugal', type: 'country', flag: 'pt' },
-    { id: 'germany', name: 'Germany', type: 'country', flag: 'de' },
-    { id: 'argentina', name: 'Argentina', type: 'country', flag: 'ar' },
-    { id: 'france', name: 'France', type: 'country', flag: 'fr' },
-    
+  
     // Teams - ensuring no duplicates and correct Napoli ID (481)
-    { id: 481, name: 'Napoli', type: 'team' },
+    { id: 492, name: 'Napoli', type: 'team' },
     { id: 497, name: 'AS Roma', type: 'team' },
-    { id: 720, name: 'Sevilla', type: 'team' },
+    { id: 536, name: 'Sevilla', type: 'team' },
     { id: 532, name: 'Valencia', type: 'team' },
-    { id: 26, name: 'Leicester City', type: 'team' },
-    { id: 2381, name: 'Al Hilal Riyadh', type: 'team' },
-    { id: 2385, name: 'Al Nassr FC Riyadh', type: 'team' },
+    { id: 46, name: 'Leicester City', type: 'team' },
+    
+    { id: 24884, name: 'Al Nassr FC Riyadh', type: 'team' },
     { id: 541, name: 'Real Madrid', type: 'team' },
     { id: 529, name: 'FC Barcelona', type: 'team' },
     { id: 33, name: 'Manchester United', type: 'team' },
@@ -52,6 +48,11 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
     { id: 505, name: 'Inter Milan', type: 'team' },
     { id: 47, name: 'Tottenham', type: 'team' },
     { id: 165, name: 'Borussia Dortmund', type: 'team' },
+    { id: 'portugal', name: 'Portugal', type: 'country', flag: 'pt' },
+      { id: 'germany', name: 'Germany', type: 'country', flag: 'de' },
+      { id: 'argentina', name: 'Argentina', type: 'country', flag: 'ar' },
+      { id: 'france', name: 'France', type: 'country', flag: 'fr' },
+
   ];
 
   const handleTeamClick = (teamId: string | number) => {
