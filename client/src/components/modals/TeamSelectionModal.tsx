@@ -22,7 +22,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
     { id: 'brazil', name: 'Brazil', type: 'country', flag: 'br' },
     { id: 'england', name: 'England', type: 'country', flag: 'gb' },
     { id: 'spain', name: 'Spain', type: 'country', flag: 'es' },
-    { id: 529, name: 'AS Roma', type: 'team' },
+    { id: 497, name: 'AS Roma', type: 'team' },
     { id: 113, name: 'Napoli', type: 'team' },
     { id: 720, name: 'Sevilla', type: 'team' },
     { id: 2381, name: 'Al Hilal Riyadh', type: 'team' },
