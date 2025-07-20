@@ -287,7 +287,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
         setBallTrail((currentTrail) => {
           const newTrail = [
             ...currentTrail,
-            { x: prev.x, y: prev.y, timestamp: Date.now() },
+            { x: newX, y: newY, timestamp: Date.now() },
           ];
           return newTrail.slice(-15); // Longer trail like in the image
         });
@@ -301,8 +301,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
   // Event-driven ball target setting
   const triggerBallMovement = (eventType: string, team: "home" | "away") => {
-    // Clear previous trail when starting a new event
-    setBallTrail([]);
+    // Clear previous trail when starting a new event and add current ball position
+    setBallTrail([{ x: ballPosition.x, y: ballPosition.y, timestamp: Date.now() }]);
 
     let targetPosition;
 
