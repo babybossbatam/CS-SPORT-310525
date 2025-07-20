@@ -63,7 +63,11 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
         >
           <div className="w-12 h-12 mb-2 flex items-center justify-center">
             {team.type === 'country' ? (
-              <MyCircularFlag countryCode={team.flag} size={48} />
+              <MyCircularFlag 
+                countryCode={team.flag} 
+                teamName={team.name}
+                size={48} 
+              />
             ) : (
               <MyWorldTeamLogo 
                 teamId={team.id as number} 
