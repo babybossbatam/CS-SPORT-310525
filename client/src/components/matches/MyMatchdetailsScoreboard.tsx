@@ -20,7 +20,7 @@ const pulseStyles = `
     font-weight: 500;
     padding: 2px 8px;
     border-radius: 4px;
-    animation: truePulse 2s infinite;
+    animation: smoothPulse 2s infinite ease-in-out;
   }
   
   .status-halftime {
@@ -30,15 +30,17 @@ const pulseStyles = `
     font-weight: 500;
     padding: 2px 8px;
     border-radius: 4px;
-    animation: truePulse 2s infinite;
+    animation: smoothPulse 2s infinite ease-in-out;
   }
   
-  @keyframes truePulse {
+  @keyframes smoothPulse {
     0%, 100% {
       opacity: 1;
+      transform: scale(1);
     }
     50% {
-      opacity: 0.5;
+      opacity: 0.6;
+      transform: scale(1);
     }
   }
 `;
