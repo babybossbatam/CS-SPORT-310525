@@ -1,6 +1,6 @@
 
 import express from 'express';
-import { apiRequest } from '../services/rapidApi';
+import { rapidApiService } from '../services/rapidApi';
 
 const router = express.Router();
 
@@ -20,16 +20,14 @@ router.post('/selective-updates', async (req, res) => {
     console.log(`🎯 [SelectiveUpdates] Fetching updates for ${fixtureIds.length} fixtures`);
 
     // Fetch live fixtures from API
-    const response = await apiRequest('GET', '/fixtures', {
-      live: 'all'
-    });
+    const response = await rapidApiService.getLiveFixtures();
 
-    if (!response.response || !Array.isArray(response.response)) {
+    if (!response || !Array.isArray(response)) {
       return res.status(500).json({ error: 'Invalid API response' });
     }
 
     // Filter to only requested fixtures and return minimal data
-    const updates = response.response
+    const updates = response
       .filter((fixture: any) => fixtureIds.includes(fixture.fixture.id))
       .map((fixture: any) => ({
         fixture: {
