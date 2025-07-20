@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
 import MyLiveAction from '@/components/matches/MyLiveAction';
-import MyLiveMatchTracker from '@/components/matches/MyLiveMatchTracker';
 import MyLiveTrackerNew from '@/components/matches/MyLiveTrackerNew';
 import MyMatchTabCard from '@/components/matches/MyMatchTabCard';
 import MyLineupsTabsCard from '@/components/matches/MyLineupsTabsCard';
@@ -61,17 +60,6 @@ const MyScoresMain: React.FC<MyScoresMainProps> = ({
       {/* MyLiveTrackerNew component - enhanced live tracker for live matches */}
       {isLive && selectedMatchId && (
         <MyLiveTrackerNew
-          matchId={selectedMatchId}
-          homeTeam={selectedMatch?.teams?.home}
-          awayTeam={selectedMatch?.teams?.away}
-          isLive={isLive}
-          className=""
-        />
-      )}
-
-      {/* MyLiveMatchTracker component - show below MyLiveAction for live matches */}
-      {isLive && selectedMatchId && (
-        <MyLiveMatchTracker
           matchId={selectedMatchId}
           homeTeam={selectedMatch?.teams?.home}
           awayTeam={selectedMatch?.teams?.away}
