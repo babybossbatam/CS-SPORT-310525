@@ -31,7 +31,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
     { id: 2385, name: 'Al Nassr FC Riyadh', type: 'team' },
     { id: 26, name: 'Leicester City', type: 'team' },
     { id: 541, name: 'Real Madrid', type: 'team' },
-    { id: 81, name: 'FC Barcelona', type: 'team' },
+    { id: 529, name: 'FC Barcelona', type: 'team' },
     { id: 33, name: 'Manchester United', type: 'team' },
     { id: 40, name: 'Liverpool', type: 'team' },
     { id: 50, name: 'Manchester City', type: 'team' },
