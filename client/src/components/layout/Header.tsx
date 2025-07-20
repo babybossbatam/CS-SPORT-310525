@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useLocation, Link } from 'wouter';
 import LeagueTabs from './LeagueTabs';
-import { Search, Star, Settings } from 'lucide-react';
+import { Search, Star, Settings, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, userActions } from '@/lib/store';
@@ -13,6 +15,8 @@ const Header = () => {
   const [location, navigate] = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [darkTheme, setDarkTheme] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('English (US)');
   const { toast } = useToast();
   const dispatch = useDispatch();
 
@@ -62,13 +66,96 @@ const Header = () => {
         <LeagueTabs />
         <LeagueTabs />
         <div className="flex items-center gap-[1.05rem]">
-          <div 
-            className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
-            onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
-          >
-            <Star className="h-4 w-4 mr-1 fill-current" />
-            <span>My Scores</span>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer">
+                <Star className="h-4 w-4 mr-1 fill-current" />
+                <span>My Scores</span>
+                <ChevronDown className="h-3 w-3" />
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-64 bg-slate-800 border-slate-700 text-white" align="end">
+              <DropdownMenuItem 
+                className="hover:bg-slate-700 cursor-pointer"
+                onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
+              >
+                <Star className="h-4 w-4 mr-2 fill-current" />
+                Go to My Scores
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator className="bg-slate-700" />
+              
+              <DropdownMenuLabel className="text-slate-300 font-medium">
+                THEMES
+              </DropdownMenuLabel>
+              
+              <DropdownMenuItem className="flex items-center justify-between hover:bg-slate-700 cursor-pointer">
+                <span>Set Dark Theme</span>
+                <Switch
+                  checked={darkTheme}
+                  onCheckedChange={setDarkTheme}
+                  className="data-[state=checked]:bg-blue-500"
+                />
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator className="bg-slate-700" />
+              
+              <DropdownMenuLabel className="text-slate-300 font-medium">
+                LANGUAGE
+              </DropdownMenuLabel>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <DropdownMenuItem className="flex items-center justify-between hover:bg-slate-700 cursor-pointer">
+                    <div className="flex items-center">
+                      <span className="mr-2 text-lg">🇺🇸</span>
+                      <span>{selectedLanguage}</span>
+                    </div>
+                    <ChevronDown className="h-3 w-3" />
+                  </DropdownMenuItem>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-48 bg-slate-800 border-slate-700 text-white" side="left">
+                  <DropdownMenuItem 
+                    className="hover:bg-slate-700 cursor-pointer"
+                    onClick={() => setSelectedLanguage('English (US)')}
+                  >
+                    <span className="mr-2 text-lg">🇺🇸</span>
+                    English (US)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="hover:bg-slate-700 cursor-pointer"
+                    onClick={() => setSelectedLanguage('English (UK)')}
+                  >
+                    <span className="mr-2 text-lg">🇬🇧</span>
+                    English (UK)
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="hover:bg-slate-700 cursor-pointer"
+                    onClick={() => setSelectedLanguage('Español')}
+                  >
+                    <span className="mr-2 text-lg">🇪🇸</span>
+                    Español
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="hover:bg-slate-700 cursor-pointer"
+                    onClick={() => setSelectedLanguage('Français')}
+                  >
+                    <span className="mr-2 text-lg">🇫🇷</span>
+                    Français
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              
+              <DropdownMenuSeparator className="bg-slate-700" />
+              
+              <DropdownMenuItem 
+                className="hover:bg-slate-700 cursor-pointer text-slate-300"
+                onClick={() => navigate('/privacy')}
+              >
+                Privacy Settings
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <div 
             className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
