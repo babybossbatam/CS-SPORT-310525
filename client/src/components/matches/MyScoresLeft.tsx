@@ -30,17 +30,17 @@ import {
 
 
 
-interface TodayMatchPageCardProps {
+interface MyScoresLeftProps {
   fixtures: any[];
   onMatchClick: (matchId: number) => void;
   onMatchCardClick?: (fixture: any) => void;
 }
 
-export const TodayMatchPageCard = ({
+export const MyScoresLeft = ({
   fixtures,
   onMatchClick,
   onMatchCardClick,
-}: TodayMatchPageCardProps) => {
+}: MyScoresLeftProps) => {
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -130,21 +130,21 @@ export const TodayMatchPageCard = ({
     refetchInterval: 30000,
   });
 
-  console.log(`📊 [TodayMatchPageCard] Rendering for date: ${selectedDate}`);
+  console.log(`📊 [MyScoresLeft] Rendering for date: ${selectedDate}`);
 
   const handleMatchCardClick = (fixture: any) => {
-    console.log('🎯 [TodayMatchPageCard] Match card clicked:', {
+    console.log('🎯 [MyScoresLeft] Match card clicked:', {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
       league: fixture.league?.name,
       country: fixture.league?.country,
-      source: 'TodayMatchPageCard'
+      source: 'MyScoresLeft'
     });
     onMatchCardClick?.(fixture);
   };
 
   const handleLiveMatchClick = (fixture: any) => {
-    console.log('🔴 [TodayMatchPageCard] LIVE Match card clicked from LiveMatchForAllCountry:', {
+    console.log('🔴 [MyScoresLeft] LIVE Match card clicked from LiveMatchForAllCountry:', {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
       league: fixture.league?.name,
@@ -374,4 +374,4 @@ export const TodayMatchPageCard = ({
   );
 };
 
-export default TodayMatchPageCard;
+export default MyScoresLeft;
