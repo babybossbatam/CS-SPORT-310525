@@ -883,7 +883,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               <div className="text-xs text-gray-600">
                 {ballPossession === "home"
                   ? homeTeamData?.name?.slice(0, 3)
-                  : awayTeamData?.name?.slice(0, 3)}
+                                    : awayTeamData?.name?.slice(0, 3)}
               </div>
             </div>
           </div>
@@ -1004,17 +1004,12 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 />
               </div>
 
-              {/* Sharp possession glow effect */}
+              {/* Sharp possession ping effect */}
               {ballPossession && (
                 <div className="absolute -inset-4">
                   <div
                     className={`w-14 h-14 rounded-full animate-ping opacity-60 ${
                       ballPossession === "home" ? "bg-blue-400" : "bg-red-400"
-                    }`}
-                  ></div>
-                  <div
-                    className={`absolute inset-1 w-12 h-12 rounded-full animate-pulse opacity-40 ${
-                      ballPossession === "home" ? "bg-blue-300" : "bg-red-300"
                     }`}
                   ></div>
                 </div>
