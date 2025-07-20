@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, Search } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
@@ -18,7 +17,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
   const [selectedTab, setSelectedTab] = useState('top');
   const [selectedTeams, setSelectedTeams] = useState<Set<string | number>>(new Set());
 
-  // Popular teams data with unique IDs
+  // Popular teams data with correct API-Sports team IDs
   const popularTeams = [
     { id: 'brazil', name: 'Brazil', type: 'country', flag: 'br' },
     { id: 'england', name: 'England', type: 'country', flag: 'gb' },
@@ -26,13 +25,13 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
     { id: 529, name: 'AS Roma', type: 'team' },
     { id: 489, name: 'Napoli', type: 'team' },
     { id: 720, name: 'Sevilla', type: 'team' },
-    { id: 1165, name: 'Al Hilal Riyadh', type: 'team' }, // Changed from 165 to avoid duplicate
+    { id: 165, name: 'Al Hilal Riyadh', type: 'team' },
     { id: 532, name: 'Valencia', type: 'team' },
     { id: 'italy', name: 'Italy', type: 'country', flag: 'it' },
     { id: 2385, name: 'Al Nassr FC Riyadh', type: 'team' },
     { id: 26, name: 'Leicester City', type: 'team' },
     { id: 541, name: 'Real Madrid', type: 'team' },
-    { id: 1529, name: 'FC Barcelona', type: 'team' }, // Changed from 529 to avoid duplicate
+    { id: 81, name: 'FC Barcelona', type: 'team' }, // Correct Barcelona API-Sports ID
     { id: 33, name: 'Manchester United', type: 'team' },
     { id: 40, name: 'Liverpool', type: 'team' },
     { id: 50, name: 'Manchester City', type: 'team' },
@@ -42,9 +41,9 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
     { id: 496, name: 'Juventus', type: 'team' },
     { id: 85, name: 'PSG', type: 'team' },
     { id: 530, name: 'Atletico Madrid', type: 'team' },
-    { id: 1489, name: 'AC Milan', type: 'team' }, // Changed from 489 to avoid duplicate
+    { id: 489, name: 'AC Milan', type: 'team' }, // AC Milan uses 489
     { id: 47, name: 'Tottenham', type: 'team' },
-    { id: 1650, name: 'Borussia Dortmund', type: 'team' }, // Changed from 165 to avoid duplicate
+    { id: 165, name: 'Borussia Dortmund', type: 'team' }, // Dortmund uses 165
     { id: 'portugal', name: 'Portugal', type: 'country', flag: 'pt' },
     { id: 'germany', name: 'Germany', type: 'country', flag: 'de' },
     { id: 'argentina', name: 'Argentina', type: 'country', flag: 'ar' },
@@ -127,7 +126,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
               />
             )}
           </div>
-          
+
           <span className="text-xs text-center text-gray-700 font-medium mb-1">
             {team.name}
           </span>
@@ -166,7 +165,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
 
         <div className="p-4 space-y-4">
           <h2 className="text-lg font-semibold">SELECT TEAMS TO FOLLOW</h2>
-          
+
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
