@@ -29,8 +29,6 @@ import {
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
 
-
-
 interface MyScoresLeftProps {
   fixtures: any[];
   onMatchClick: (matchId: number) => void;
@@ -46,11 +44,8 @@ export const MyScoresLeft = ({
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
-  const [selectedTab, setSelectedTab] = useState('my-scores');
+  const [selectedTab, setSelectedTab] = useState("my-scores");
   const calendarRef = useRef<HTMLDivElement>(null);
-
-
-
 
   // Close calendar when clicking outside
   useEffect(() => {
@@ -111,8 +106,6 @@ export const MyScoresLeft = ({
     setIsCalendarOpen(false);
   };
 
-  
-
   // Fetch live fixtures once when either live filter is active
   const { data: sharedLiveFixtures = [], isLoading: isLoadingLive } = useQuery({
     queryKey: ["shared-live-fixtures"],
@@ -135,34 +128,33 @@ export const MyScoresLeft = ({
   console.log(`📊 [MyScoresLeft] Rendering for date: ${selectedDate}`);
 
   const handleMatchCardClick = (fixture: any) => {
-    console.log('🎯 [MyScoresLeft] Match card clicked:', {
+    console.log("🎯 [MyScoresLeft] Match card clicked:", {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
       league: fixture.league?.name,
       country: fixture.league?.country,
-      source: 'MyScoresLeft'
+      source: "MyScoresLeft",
     });
     onMatchCardClick?.(fixture);
   };
 
   const handleLiveMatchClick = (fixture: any) => {
-    console.log('🔴 [MyScoresLeft] LIVE Match card clicked from LiveMatchForAllCountry:', {
-      fixtureId: fixture.fixture?.id,
-      teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
-      league: fixture.league?.name,
-      country: fixture.league?.country,
-      status: fixture.fixture?.status?.short,
-      source: 'LiveMatchForAllCountry'
-    });
+    console.log(
+      "🔴 [MyScoresLeft] LIVE Match card clicked from LiveMatchForAllCountry:",
+      {
+        fixtureId: fixture.fixture?.id,
+        teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+        league: fixture.league?.name,
+        country: fixture.league?.country,
+        status: fixture.fixture?.status?.short,
+        source: "LiveMatchForAllCountry",
+      },
+    );
     onMatchCardClick?.(fixture);
   };
 
-
-
   return (
     <>
-
-
       <Card className="shadow-md w-full">
         <div className="flex items-center justify-between h-9 p-4">
           <button
@@ -232,33 +224,33 @@ export const MyScoresLeft = ({
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
-        
+
         {/* Functioning Tabs section similar to MyScoresTab */}
         <div className="flex items-center justify-between px-4 pb-2">
           <div className="bg-transparent border-b border-gray-200 rounded-none h-auto p-0 w-full flex">
-            <button 
-              onClick={() => setSelectedTab('my-scores')}
+            <button
+              onClick={() => setSelectedTab("my-scores")}
               className={`border-b-2 rounded-none font-medium flex-1 py-2 text-center transition-colors duration-200 ${
-                selectedTab === 'my-scores' 
-                  ? 'border-blue-500 text-blue-600' 
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                selectedTab === "my-scores"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
               }`}
             >
               My Scores
             </button>
-            <button 
-              onClick={() => setSelectedTab('my-selections')}
+            <button
+              onClick={() => setSelectedTab("my-selections")}
               className={`border-b-2 rounded-none font-medium flex-1 py-2 text-center transition-colors duration-200 ${
-                selectedTab === 'my-selections' 
-                  ? 'border-blue-500 text-blue-600' 
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                selectedTab === "my-selections"
+                  ? "border-blue-500 text-blue-600"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
               }`}
             >
               My Selections
             </button>
           </div>
         </div>
-        
+
         <div className="flex items-center justify-between px-4 pb-4 mt-[20px] text-[110.25%] h-9">
           {/* Live button */}
           <button
@@ -316,11 +308,14 @@ export const MyScoresLeft = ({
             >
               <ChevronLeft className="h-3.5 w-3.5" />
             </button>
-            
+
             <button
               onClick={() => {
                 // Check if Live is active but no live matches exist - disable functionality
-                if (liveFilterActive && (!sharedLiveFixtures || sharedLiveFixtures.length === 0)) {
+                if (
+                  liveFilterActive &&
+                  (!sharedLiveFixtures || sharedLiveFixtures.length === 0)
+                ) {
                   return; // Do nothing if Live is active but no live matches
                 }
 
@@ -348,17 +343,18 @@ export const MyScoresLeft = ({
               }}
               className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium w-fit transition-all duration-200 ${
                 // Disable button appearance when Live is active but no live matches
-                liveFilterActive && (!sharedLiveFixtures || sharedLiveFixtures.length === 0)
+                liveFilterActive &&
+                (!sharedLiveFixtures || sharedLiveFixtures.length === 0)
                   ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                   : timeFilterActive
-                  ? "bg-blue-400 text-white hover:bg-blue-500"
-                  : "bg-gray-300 text-black hover:bg-gray-400"
+                    ? "bg-blue-400 text-white hover:bg-blue-500"
+                    : "bg-gray-300 text-black hover:bg-gray-400"
               }`}
             >
               <Clock className="h-3.5 w-3.5" />
               By time
             </button>
-            
+
             <button
               onClick={goToNextDay}
               className="p-1.5 hover:bg-gray-100 rounded-full flex items-center"
@@ -372,19 +368,12 @@ export const MyScoresLeft = ({
       {/* New card below the Live/By time card */}
       <Card className="shadow-md w-full">
         <div className="flex items-center justify-between ">
-         
-          <div className="mb-4 flex items-center gap-2">
-         
-           
-          </div>
+          <div className="mb-4 flex items-center gap-2"></div>
         </div>
       </Card>
 
       {/* MyScoresCard component */}
-      <MyScoresCard 
-        selectedTab="my-scores"
-        onTabChange={() => {}}
-      />
+      <MyScoresCard selectedTab="my-scores" onTabChange={() => {}} />
 
       {liveFilterActive && timeFilterActive ? (
         // Combined state: Show live matches grouped by time
@@ -421,13 +410,9 @@ export const MyScoresLeft = ({
             onMatchCardClick={handleMatchCardClick}
             useUTCOnly={true}
           />
-          
-       
-
         </>
-      )
-    }
-</>
+      )}
+    </>
   );
 };
 
