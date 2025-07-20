@@ -46,7 +46,6 @@ const MyScoresTab: React.FC<MyScoresTabProps> = ({ selectedTab, onTabChange }) =
         onClick={() => setShowTeamSelection(true)}
         className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full text-base font-medium"
       >
-        Select Teams and Leagues
       </Button>
     </div>
   );
