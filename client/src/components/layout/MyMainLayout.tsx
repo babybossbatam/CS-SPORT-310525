@@ -1,4 +1,10 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from 'react';
+import Header from '@/components/layout/Header';
+import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
+import TournamentHeader from '@/components/layout/TournamentHeader';
+import Footer from '@/components/layout/Footer';
+import RegionModal from '@/components/modals/RegionModal';
+import { Trophy } from 'lucide-react';
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
@@ -137,8 +143,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   };
 
   return (
-    <div
-      className="bg-[#FDFBF7] rounded-lg py-4"
+    <div className="bg-[#FDFBF7] rounded-lg py-4"
       style={{ marginLeft: "150px", marginRight: "150px" }}
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
