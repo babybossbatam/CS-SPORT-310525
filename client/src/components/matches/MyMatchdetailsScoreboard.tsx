@@ -11,6 +11,38 @@ import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
 
+// Add CSS for cleaner pulse effect
+const pulseStyles = `
+  .status-live-elapsed {
+    background-color: #ef4444;
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+    animation: truePulse 2s infinite;
+  }
+  
+  .status-halftime {
+    background-color: #f97316;
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+    animation: truePulse 2s infinite;
+  }
+  
+  @keyframes truePulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+`;
+
 interface MyMatchdetailsScoreboardProps {
   match?: any;
   className?: string;
@@ -316,14 +348,9 @@ const MyMatchdetailsScoreboard = ({
                               }
 
       return (
-        <Badge
-          variant="destructive"
-          className="bg-red-500 text-white font-normal text-[11px] animate-pulse"
-        >
-          <span className="relative">
-            {displayText}
-          </span>
-        </Badge>
+        <div className={`match-status-label ${currentStatus === "HT" ? "status-halftime" : "status-live-elapsed"}`}>
+          {displayText}
+        </div>
       );
     }
 
@@ -359,9 +386,11 @@ const MyMatchdetailsScoreboard = ({
   // Component now simply displays the passed match data without complex updates
 
   return (
-    <Card
-      className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 `}
-    >
+    <>
+      <style dangerouslySetInnerHTML={{ __html: pulseStyles }} />
+      <Card
+        className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 `}
+      >
       {onClose && (
         <button
           onClick={onClose}
@@ -615,7 +644,8 @@ const MyMatchdetailsScoreboard = ({
       {/* Tab content will be rendered by parent component */}
 
 
-    </Card>
+      </Card>
+    </>
   );
 };
 
