@@ -238,94 +238,79 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
     };
   }, [matchId]);
 
-  // Event-driven ball movement with purposeful patterns
+  // Event-driven ball movement with historical trails
   const [ballTrail, setBallTrail] = useState<
-    Array<{ x: number; y: number; timestamp: number }>
+    Array<{ x: number; y: number; timestamp: number; eventId: string }>
   >([]);
   const [currentBallEvent, setCurrentBallEvent] = useState<string | null>(null);
-  const [ballMovementActive, setBallMovementActive] = useState(true); // Always keep ball moving
+  const [ballMovementActive, setBallMovementActive] = useState(false);
+  const [eventInProgress, setEventInProgress] = useState(false);
 
-  // Continuous ball movement effect
+  // Event-based ball movement effect - only moves during events
   useEffect(() => {
-    if (!isLive) return;
+    if (!isLive || !ballMovementActive || !ballTarget || !eventInProgress) return;
 
     const ballInterval = setInterval(() => {
       setBallPosition((prev) => {
-        let newX = prev.x;
-        let newY = prev.y;
+        const deltaX = ballTarget.x - prev.x;
+        const deltaY = ballTarget.y - prev.y;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        if (ballMovementActive && ballTarget) {
-          // Move towards target when active
-          const deltaX = ballTarget.x - prev.x;
-          const deltaY = ballTarget.y - prev.y;
-          const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        if (distance > 2) {
+          // Move towards target during event
+          const moveSpeed = 2.5;
+          const directionX = deltaX / distance;
+          const directionY = deltaY / distance;
 
-          if (distance > 1.5) {
-            const moveSpeed = 1.8; // Smooth movement speed
-            const directionX = deltaX / distance;
-            const directionY = deltaY / distance;
+          const newX = Math.max(8, Math.min(92, prev.x + directionX * moveSpeed));
+          const newY = Math.max(8, Math.min(92, prev.y + directionY * moveSpeed));
 
-            newX = prev.x + directionX * moveSpeed;
-            newY = prev.y + directionY * moveSpeed;
+          // Add to current event trail
+          setBallTrail((currentTrail) => {
+            const eventId = currentBallEvent || 'default';
+            return [
+              ...currentTrail,
+              { x: prev.x, y: prev.y, timestamp: Date.now(), eventId },
+            ].slice(-50); // Keep last 50 points
+          });
+
+          return { x: newX, y: newY };
+        } else {
+          // Reached target - stop movement and finalize trail
+          setBallMovementActive(false);
+          setEventInProgress(false);
+          
+          // Add final position to trail
+          setBallTrail((currentTrail) => {
+            const eventId = currentBallEvent || 'default';
+            return [
+              ...currentTrail,
+              { x: ballTarget.x, y: ballTarget.y, timestamp: Date.now(), eventId },
+            ].slice(-50);
+          });
+
+          // Update possession based on final position
+          if (currentBallEvent === "dangerous_attack") {
+            setBallPossession(ballTarget.x > 50 ? "away" : "home");
+          } else if (currentBallEvent === "ball_safe") {
+            setBallPossession(ballTarget.x < 50 ? "home" : "away");
           } else {
-            // Reached target, generate new random target for continuous movement
-            const randomTargets = [
-              { x: 25 + Math.random() * 50, y: 25 + Math.random() * 50 },
-              { x: 20 + Math.random() * 60, y: 20 + Math.random() * 60 },
-              { x: 30 + Math.random() * 40, y: 30 + Math.random() * 40 }
-            ];
-            setBallTarget(randomTargets[Math.floor(Math.random() * randomTargets.length)]);
+            setBallPossession(ballTarget.x < 35 ? "home" : ballTarget.x > 65 ? "away" : ballPossession);
           }
-        } else {
-          // Gentle random movement when no active event
-          const drift = 0.3;
-          newX = prev.x + (Math.random() - 0.5) * drift;
-          newY = prev.y + (Math.random() - 0.5) * drift;
+
+          return { x: ballTarget.x, y: ballTarget.y };
         }
-
-        // Keep ball within field bounds
-        newX = Math.max(8, Math.min(92, newX));
-        newY = Math.max(8, Math.min(92, newY));
-
-        // Update possession based on ball position
-        if (currentBallEvent === "dangerous_attack") {
-          setBallPossession(newX > 50 ? "away" : "home");
-        } else if (currentBallEvent === "ball_safe") {
-          setBallPossession(newX < 50 ? "home" : "away");
-        } else {
-          setBallPossession(
-            newX < 35
-              ? "home"
-              : newX > 65
-                ? "away"
-                : Math.random() > 0.7
-                  ? (Math.random() > 0.5 ? "home" : "away")
-                  : ballPossession // Keep current possession more often
-          );
-        }
-
-        // Always add to trail (never clear it abruptly)
-        setBallTrail((currentTrail) => {
-          const now = Date.now();
-          // Filter out old trail points while adding new one
-          const filteredTrail = currentTrail.filter(point => now - point.timestamp < 8000);
-          const newTrail = [
-            ...filteredTrail,
-            { x: prev.x, y: prev.y, timestamp: now },
-          ];
-          return newTrail.slice(-25); // Longer trail for better visibility
-        });
-
-        return { x: newX, y: newY };
       });
-    }, 80); // Slightly slower for smoother movement
+    }, 60);
 
     return () => clearInterval(ballInterval);
-  }, [isLive, ballTarget, ballMovementActive, currentBallEvent, ballPossession]);
+  }, [isLive, ballTarget, ballMovementActive, currentBallEvent, ballPossession, eventInProgress]);
 
-  // Event-driven ball target setting
+  // Event-driven ball target setting - creates new trail for each event
   const triggerBallMovement = (eventType: string, team: "home" | "away") => {
-    // Don't clear trail - keep it continuous for better visual flow
+    // Clear previous trail and start new event trail
+    const eventId = `${eventType}_${team}_${Date.now()}`;
+    setBallTrail([]);
     
     let targetPosition;
 
@@ -385,9 +370,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             : { x: 15 + Math.random() * 15, y: 5 + Math.random() * 90 }; // Forward movement - full field height
     }
 
-    setCurrentBallEvent(eventType);
+    setCurrentBallEvent(eventId);
     setBallTarget(targetPosition);
     setBallMovementActive(true);
+    setEventInProgress(true);
   };
 
   // Update live commentary like 365scores
@@ -420,7 +406,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   // Clean up old events and effects
   useEffect(() => {
     const cleanup = setInterval(() => {
-      // Don't auto-clear ball trail - only clear when new event starts
+      // Clean up old trail points (keep for 15 seconds to show historical movement)
+      setBallTrail((current) =>
+        current.filter((point) => Date.now() - point.timestamp < 15000)
+      );
 
       setShotEvents((current) =>
         current.filter((event) => Date.now() - event.timestamp < 4000),
@@ -1078,7 +1067,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           )}
 
-          {/* Enhanced ball trail with 365scores precision */}
+          {/* Historical ball trail - shows completed event paths */}
           {ballTrail.length > 1 && (
             <svg
               className="absolute inset-0 w-full h-full z-35 pointer-events-none"
@@ -1087,18 +1076,27 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             >
               {ballTrail.slice(0, -1).map((pos, index) => {
                 const nextPos = ballTrail[index + 1];
-                const progress = index / Math.max(ballTrail.length - 1, 1);
-                const opacity = 1 - progress * 0.8; // Smoother opacity gradient
-                const strokeWidth = 1.5 - progress * 0.8; // Thicker at start, thinner at end
+                const age = Date.now() - pos.timestamp;
+                const maxAge = 15000; // 15 seconds
+                const ageProgress = Math.min(age / maxAge, 1);
+                const opacity = (1 - ageProgress) * 0.9; // Fade out over time
+                const strokeWidth = (1 - ageProgress) * 1.5 + 0.3; // Thinner over time
+                
+                // Different colors for different event types
+                const isCurrentEvent = pos.eventId === currentBallEvent;
+                const trailColor = isCurrentEvent 
+                  ? (ballPossession === "home" ? "rgba(59,130,246,0.8)" : "rgba(239,68,68,0.8)")
+                  : "rgba(156,163,175,0.5)"; // Gray for old events
+                
                 return (
-                  <g key={`trail-${index}-${pos.timestamp}`}>
+                  <g key={`trail-${pos.eventId}-${index}`}>
                     <line
                       x1={pos.x}
                       y1={pos.y}
                       x2={nextPos.x}
                       y2={nextPos.y}
-                      stroke="rgba(255,255,255,0.9)"
-                      strokeWidth={strokeWidth}
+                      stroke="rgba(255,255,255,0.6)"
+                      strokeWidth={strokeWidth + 0.5}
                       strokeLinecap="round"
                       opacity={opacity}
                     />
@@ -1107,10 +1105,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       y1={pos.y}
                       x2={nextPos.x}
                       y2={nextPos.y}
-                      stroke={ballPossession === "home" ? "rgba(59,130,246,0.7)" : "rgba(239,68,68,0.7)"}
-                      strokeWidth={strokeWidth * 0.6}
+                      stroke={trailColor}
+                      strokeWidth={strokeWidth}
                       strokeLinecap="round"
-                      opacity={opacity * 0.8}
+                      opacity={opacity}
                     />
                   </g>
                 );
