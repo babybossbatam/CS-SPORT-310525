@@ -982,18 +982,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
           {/* Enhanced professional ball with 365scores style */}
           <div
-            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-30 ease-out z-50"
+            className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-3000 ease-out z-50"
             style={{
               left: `${ballPosition.x}%`,
               top: `${ballPosition.y}%`,
             }}
           >
             <div className="relative">
-              {/* Sharp ball shadow */}
-              <div
-                className="absolute w-6 h-2.5 bg-black/40 rounded-full"
-                style={{ left: "-12px", top: "18px" }}
-              ></div>
+             
               {/* Professional ball - sharp and crisp */}
               <div className="w-4 h-4 relative">
                 <img
@@ -1008,8 +1004,8 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
               {ballPossession && (
                 <div className="absolute -inset-4">
                   <div
-                    className={`w-14 h-14 rounded-full animate-ping opacity-60 ${
-                      ballPossession === "home" ? "bg-blue-400" : "bg-red-400"
+                    className={`w-10 h-10 rounded-full animate-ping opacity-50 ${
+                      ballPossession === "home" ? "bg-blue-300" : "bg-red-300"
                     }`}
                   ></div>
                   <div
@@ -1036,10 +1032,10 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             <div
               className={`w-4 h-4 rounded-full ${
                 shot.isGoal
-                  ? "bg-green-500 ring-4 ring-green-300 ring-opacity-60"
+                  ? "bg-green-300 ring-4 ring-green-300 ring-opacity-60"
                   : shot.team === "home"
-                    ? "bg-blue-500 ring-4 ring-blue-300 ring-opacity-60"
-                    : "bg-red-500 ring-4 ring-red-300 ring-opacity-60"
+                    ? "bg-blue-300 ring-4 ring-blue-300 ring-opacity-60"
+                    : "bg-red-300 ring-4 ring-red-300 ring-opacity-60"
               } animate-ping`}
               style={{ animationDuration: "2s" }}
             ></div>
@@ -1064,7 +1060,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 
         {/* Live Commentary Overlay on Field */}
         {currentView === "commentary" && (
-          <div className="absolute bottom-16 left-4 right-4 z-30 bg-black/80 backdrop-blur-sm rounded-lg border border-white/20">
+          <div className="absolute bottom-6 left-4 right-4 z-30 bg-black/80 backdrop-blur-sm rounded-lg border border-white/20">
             <div className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-white text-xs font-medium uppercase tracking-wide">
