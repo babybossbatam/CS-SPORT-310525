@@ -9,9 +9,11 @@ import { useQuery } from '@tanstack/react-query';
 import { enhancedApiWrapper } from '@/lib/enhancedApiWrapper';
 import { format } from 'date-fns';
 import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
+import TeamSelectionModal from '@/components/modals/TeamSelectionModal';
 
 const MyScores: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('my-scores');
+  const [showTeamSelection, setShowTeamSelection] = useState(false);
 
   // Fetch suggested games (live and upcoming matches)
   const suggestedGamesQuery = useQuery({
@@ -38,7 +40,10 @@ const MyScores: React.FC = () => {
       <p className="text-gray-600 text-lg mb-8 max-w-md">
         Select Games, Teams and Competitions to follow them on My Scores
       </p>
-      <Button className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full text-base font-medium">
+      <Button 
+        onClick={() => setShowTeamSelection(true)}
+        className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full text-base font-medium"
+      >
         Select Teams and Leagues
       </Button>
     </div>
@@ -116,6 +121,10 @@ const MyScores: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-5xl">
+      <TeamSelectionModal 
+        open={showTeamSelection} 
+        onOpenChange={setShowTeamSelection} 
+      />
       {/* Header with Tabs */}
       <div className="mb-8">
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
