@@ -706,73 +706,14 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
           </div>
         </div>
 
-        {/* Professional Football Field with Enhanced Graphics */}
+        {/* Professional Football Field */}
         <div className="relative h-96 overflow-hidden" style={{
           backgroundImage: `url('/assets/matchdetaillogo/field.png')`,
-          backgroundSize: '80%',
+          backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           minHeight: '400px'
         }}>
-
-          {/* Enhanced grass texture overlay */}
-          <div className="absolute inset-0" style={{
-            background: `
-              repeating-linear-gradient(
-                0deg,
-                transparent 0px,
-                rgba(40, 80, 20, 0.15) 1px,
-                transparent 2px
-              ),
-              repeating-linear-gradient(
-                90deg,
-                transparent 0px,
-                rgba(60, 100, 40, 0.2) 1px,
-                transparent 3px
-              )
-            `,
-            opacity: 0.8
-          }} />
-
-          {/* Enhanced mowing pattern stripes */}
-          <div className="absolute inset-0">
-            {Array.from({ length: 24 }).map((_, i) => (
-              <div
-                key={i}
-                className="absolute h-full transition-all duration-500"
-                style={{
-                  width: '4.16%',
-                  left: `${i * 4.16}%`,
-                  background: i % 2 === 0 
-                    ? 'linear-gradient(0deg, rgba(85, 135, 55, 0.5) 0%, rgba(95, 145, 65, 0.4) 50%, rgba(85, 135, 55, 0.5) 100%)'
-                    : 'linear-gradient(0deg, rgba(65, 115, 35, 0.6) 0%, rgba(75, 125, 45, 0.5) 50%, rgba(65, 115, 35, 0.6) 100%)',
-                  opacity: 0.9,
-                  boxShadow: i % 2 === 0 
-                    ? 'inset 1px 0 2px rgba(40, 80, 20, 0.4)'
-                    : 'inset -1px 0 2px rgba(40, 80, 20, 0.4)'
-                }}
-              />
-            ))}
-          </div>
-
-          {/* Enhanced field wear patterns */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute" style={{
-              left: '5%', top: '35%', width: '16%', height: '30%',
-              background: 'radial-gradient(ellipse, rgba(60, 100, 30, 0.4) 0%, transparent 70%)',
-              opacity: 0.7
-            }} />
-            <div className="absolute" style={{
-              right: '5%', top: '35%', width: '16%', height: '30%',
-              background: 'radial-gradient(ellipse, rgba(60, 100, 30, 0.4) 0%, transparent 70%)',
-              opacity: 0.7
-            }} />
-            <div className="absolute" style={{
-              left: '38%', top: '38%', width: '24%', height: '24%',
-              background: 'radial-gradient(circle, rgba(70, 110, 40, 0.3) 0%, transparent 60%)',
-              opacity: 0.6
-            }} />
-          </div>
 
           {/* Enhanced attack zones with 365scores style */}
           {attackZones.map((zone) => (
