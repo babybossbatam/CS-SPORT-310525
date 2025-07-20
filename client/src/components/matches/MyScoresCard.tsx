@@ -40,11 +40,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({ selectedTab, onTabChange })
           className="h-16 w-16 text-blue-500" 
           style={{ filter: 'brightness(0) saturate(100%) invert(42%) sepia(93%) saturate(4927%) hue-rotate(215deg) brightness(98%) contrast(98%)' }}
         />
-        <div className="absolute -top-1 -right-1">
-          <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-            <div className="w-2 h-2 bg-white rounded-full"></div>
-          </div>
-        </div>
+        
       </div>
       
       <Button 
