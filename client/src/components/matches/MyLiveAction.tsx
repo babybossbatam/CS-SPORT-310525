@@ -249,7 +249,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   const triggerBallMovement = (eventType: string, team: 'home' | 'away') => {
     // Clear previous trail when starting a new event
     setBallTrail([]);
-    
+
     let targetPosition;
 
     switch (eventType) {
@@ -332,7 +332,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
   useEffect(() => {
     const cleanup = setInterval(() => {
       // Don't auto-clear ball trail - only clear when new event starts
-      
+
       setShotEvents(current => 
         current.filter(event => Date.now() - event.timestamp < 4000)
       );
@@ -732,7 +732,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 style={{
                   top: zone.type === 'dangerous_attack' ? '25%' : '20%',
                   bottom: zone.type === 'dangerous_attack' ? '25%' : '20%',
-                  left: zone.team === 'home' ? (zone.type === 'dangerous_attack' ? '5%' : '10%') : '35%',
+                                    zone.team === 'home' ? (zone.type === 'dangerous_attack' ? '5%' : '10%') : '35%',
                   right: zone.team === 'home' ? '35%' : (zone.type === 'dangerous_attack' ? '5%' : '10%'),
                   clipPath: zone.team === 'home' 
                     ? zone.type === 'dangerous_attack' 
@@ -747,7 +747,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             </div>
           ))}
 
-          
+
 
           {/* Enhanced ball trail with 365scores precision */}
           {ballTrail.length > 1 && (
@@ -776,7 +776,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                       strokeWidth="0.5"
                       strokeLinecap="round"
                       opacity={opacity * 0.6}
-                      
+
                     />
                   </g>
                 );
@@ -793,10 +793,6 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
             }}
           >
             <div className="relative">
-              {/* Sharp ball shadow */}
-              <div className="absolute w-6 h-2.5 bg-black/40 rounded-full" 
-                   style={{ left: '-12px', top: '18px' }}></div>
-
               {/* Professional ball - sharp and crisp */}
               <div className="w-4 h-4 relative">
                 <img 
@@ -820,7 +816,7 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
                 )}
               </div>
 
-              
+
             </div>
           </div>
 
@@ -1052,4 +1048,3 @@ const MyLiveAction: React.FC<MyLiveActionProps> = ({
 };
 
 export default MyLiveAction;
-
