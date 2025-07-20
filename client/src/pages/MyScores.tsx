@@ -1,14 +1,13 @@
 
 import React from 'react';
 import Header from '@/components/layout/Header';
+import MyScoresMain from '@/components/layout/MyScoresMain';
 
 const MyScores: React.FC = () => {
   return (
     <>
       <Header />
-      <div className="container mx-auto px-4 py-8">
-      
-      </div>
+      <MyScoresMain />
     </>
   );
 };
