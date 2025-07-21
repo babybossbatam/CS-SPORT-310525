@@ -63,6 +63,9 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
         Select Games, Teams and Competitions to
         <br />
         follow them on My Scores
+        <br />
+        Select Teams and Leagues
+        <br />
       </p>
       <Button
         onClick={() => setShowTeamSelection(true)}
@@ -75,9 +78,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
 
   const SuggestedGames = () => (
     <div className="mt-12">
-      <h2 className="text-xl font-semibold text-center mb-8 text-gray-800">
-
-      </h2>
+      <h2 className="text-xl font-semibold text-center mb-8 text-gray-800"></h2>
       <div className="space-y-4 max-w-2xl mx-auto">
         {suggestedGamesQuery.data?.map((fixture: any) => (
           <Card
@@ -163,11 +164,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
       />
 
       <CardContent className="pt-4 mt-4">
-        {selectedTeams.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <SuggestedGames />
-        )}
+        {selectedTeams.length === 0 ? <EmptyState /> : <SuggestedGames />}
       </CardContent>
     </Card>
   );
