@@ -67,9 +67,9 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
           <div className="flex flex-col items-center">
             <button
               onClick={onShowTeamSelection}
-              className="w-12 h-12 border-2 border-dashed border-gray-500 rounded-full flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
+              className="w-10 h-10 border-2 border-dashed border-gray-500 rounded-full flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
             >
-              <Plus className="h-6 w-6 text-gray-500 hover:text-blue-500" />
+              <Plus className="h-5 w-5 text-gray-500 hover:text-blue-500" />
             </button>
 
             {/* Add More text below the button */}
@@ -82,14 +82,14 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
           {selectedTeams.map((team, index) => (
             <div key={`${team.id}-${index}`} className="flex flex-col items-center">
               <div className="relative group">
-                <div className="w-12 h-12 flex items-center justify-center">
+                <div className="w-10 h-10 flex items-center justify-center">
                   <MyWorldTeamLogo
                     teamName={team.name}
                     teamLogo={team.type === 'country' 
                       ? `https://hatscripts.github.io/circle-flags/flags/${team.flag}.svg`
-                      : `/api/team-logo/square/${team.id}?size=48`
+                      : `/api/team-logo/square/${team.id}?size=40`
                     }
-                    size="48px"
+                    size="40px"
                     className={team.type === 'country' 
                       ? "flag-circle rounded-full" 
                       : "rounded-full shadow-md hover:shadow-lg transition-shadow duration-200"
@@ -159,9 +159,9 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                 <div className="flex flex-col items-center">
                   <button
                     onClick={onShowLeagueSelection}
-                    className="w-12 h-12 border-2 border-dashed border-gray-500 rounded-full flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
+                    className="w-10 h-10 border-2 border-dashed border-gray-500 rounded-full flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
                   >
-                    <Plus className="h-6 w-6 text-gray-500 hover:text-blue-500" />
+                    <Plus className="h-5 w-5 text-gray-500 hover:text-blue-500" />
                   </button>
 
                   {/* Add More text below the button */}
@@ -174,7 +174,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                 {selectedLeagues.map((league, index) => (
                   <div key={`${league.id}-${index}`} className="flex flex-col items-center">
                     <div className="relative group">
-                      <div className="w-6 h-6 flex items-center justify-center">
+                      <div className="w-5 h-5 flex items-center justify-center">
                         <img
                           src={league.logo}
                           alt={league.name}
