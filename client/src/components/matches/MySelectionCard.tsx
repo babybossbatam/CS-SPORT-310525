@@ -130,7 +130,23 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
 
   const MyLeaguesSection = () => (
     <div className="space-y-4">
-   
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-gray-800">My Leagues</h3>
+          {selectedLeagues.length > 0 && (
+            <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
+              {selectedLeagues.length}
+            </span>
+          )}
+        </div>
+        <button 
+          className="p-1 hover:bg-gray-100 rounded"
+          onClick={toggleEditMode}
+        >
+          <Edit className="h-4 w-4 text-gray-600" />
+        </button>
+      </div>
 
       {/* Leagues Section */}
       <div className="space-y-3">
@@ -156,11 +172,16 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
               <div className="relative group">
                 <div className="w-9 h-9 flex items-center justify-center">
                   <img
-                    src={league.logo}
+                    src={`/api/league-logo/square/${league.id}?size=36`}
                     alt={league.name}
                     className="w-full h-full object-contain rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
                     onError={(e) => {
-                      e.currentTarget.src = '/assets/fallback-logo.png';
+                      // Try fallback sources
+                      if (e.currentTarget.src.includes('/api/league-logo/')) {
+                        e.currentTarget.src = league.logo || '/assets/fallback-logo.png';
+                      } else {
+                        e.currentTarget.src = '/assets/fallback-logo.png';
+                      }
                     }}
                   />
                 </div>
