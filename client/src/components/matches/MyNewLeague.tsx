@@ -44,7 +44,7 @@ const useIntersectionObserver = (
     const observer = new IntersectionObserver(([entry]) => {
       const isElementIntersecting = entry.isIntersecting;
       setIsIntersecting(isElementIntersecting);
-      
+
       if (isElementIntersecting && !hasIntersected) {
         setHasIntersected(true);
       }
@@ -260,7 +260,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   // Check if a match requires fresh data (live, recent ended, or upcoming nearby)
   const requiresFreshData = useCallback((fixture: FixtureData): boolean => {
     const status = fixture.fixture.status.short;
-    
+
     // Always fresh for live matches
     const isLive = ["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
     if (isLive) return true;
@@ -313,10 +313,10 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         const cacheableFixtures = fixtures.filter((fixture: any) => {
           const fixtureDate = new Date(fixture.fixture.date);
           const fixtureDateString = fixtureDate.toISOString().slice(0, 10);
-          
+
           // Must match the requested date
           if (fixtureDateString !== date) return false;
-          
+
           // Must not require fresh data
           return !requiresFreshData(fixture);
         });
@@ -324,7 +324,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         if (cacheableFixtures.length > 0) {
           console.log(`✅ [MyNewLeague] Using ${cacheableFixtures.length} cached matches for league ${leagueId} on ${date} (excluding fresh-required matches)`);
         }
-        
+
         return cacheableFixtures;
       } else {
         // Remove expired cache
@@ -766,7 +766,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
   useEffect(() => {
     fetchLeagueData(false);
-    
+
     console.log(`🎯 [MyNewLeague] Data fetched for ${selectedDate}, selective updates will handle live matches`);
   }, [fetchLeagueData, selectedDate]);
 
@@ -1138,11 +1138,11 @@ b.fixture.status.elapsed) || 0;
     // Use selective updates only for live matches
     const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(initialMatch.fixture.status.short);
     const matchState = useSelectiveMatchUpdate(matchId, initialMatch);
-    
+
     // Use live data if available, otherwise use initial data
     const currentGoals = isLiveMatch ? matchState.goals : initialMatch.goals;
     const currentStatus = isLiveMatch ? matchState.status : initialMatch.fixture.status;
-    
+
     const handleMatchClick = () => {
       if (onMatchClick) {
         onMatchClick(matchId, homeTeamName, awayTeamName);
@@ -1199,7 +1199,7 @@ b.fixture.status.elapsed) || 0;
               {(() => {
                 const status = currentStatus.short;
                 const elapsed = currentStatus.elapsed;
-                
+
                 if (
                   [
                     "LIVE",
@@ -1234,7 +1234,7 @@ b.fixture.status.elapsed) || 0;
                   }
 
                   return (
-                    
+
                       <div className={`match-status-label ${status === "HT" ? "status-halftime" : "status-live-elapsed"}`}>
                         {displayText}
                       </div>
@@ -1715,8 +1715,7 @@ b.fixture.status.elapsed) || 0;
                           "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                         fontSize: "13.3px",
                       }}
-                    >
-                      {safeSubstring(leagueGroup.league.name, 0) ||
+                                          {safeSubstring(leagueGroup.league.name, 0) ||
                         "Unknown League"}
                     </span>
 
