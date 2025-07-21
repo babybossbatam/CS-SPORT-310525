@@ -53,7 +53,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
         <div className="flex items-start gap-3">
           {/* Show all selected teams horizontally first */}
           {selectedTeams.map((team, index) => (
-            <div key={`${team.id}-${index}`} className="flex flex-col items-center">
+            <div key={`${team.id}-${index}`} className="flex flex-row items-center">
               <div className="relative group">
 
                 {/* Add More button and text - now positioned after selected teams */}
