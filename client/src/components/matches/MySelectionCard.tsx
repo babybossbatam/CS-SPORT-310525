@@ -112,24 +112,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
         </div>
       </div>
 
-      {/* Leagues Section */}
-      <div className="space-y-4 pt-2 border-t border-gray-400">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={onShowTeamSelection}
-            className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200"
-          >
-            <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
-          </button>
-          <div className="text-center">
-            <span className="text-xs text-gray-600">Add More</span>
-          </div>
-        </div>
-        
-        <div className="text-sm text-gray-600">
-          Select your favorite leagues to follow them here
-        </div>
-      </div>
+      
     </div>
   );
 
