@@ -70,7 +70,7 @@ const Header = () => {
         <LeagueTabs />
         <div className="flex items-center gap-[1.05rem]">
           <div 
-            className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
+            className="text-sm flex items-center  text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
             onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
           >
             <Star className="h-4 w-4 mr-1 fill-current" />
@@ -78,7 +78,7 @@ const Header = () => {
           </div>
 
           <div 
-            className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
+            className="text-sm flex items-center  text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
             onClick={() => setSearchOpen(true)}
           >
             <Search className="h-4 w-4" />
@@ -86,7 +86,7 @@ const Header = () => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <div className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer">
+              <div className="text-sm flex items-center  text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer">
                 <Settings className="h-4 w-4" />
               </div>
             </DropdownMenuTrigger>
@@ -191,21 +191,26 @@ const Header = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
+        </div>
           {isAuthenticated && (
             <>
+               <div className="flex -mt-8  -ml-24 -mr-26 text-sm font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer underline">{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}
               <div 
                 className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
                 onClick={handleLogout}
               >
-                <span>Logout</span>
+                
+                <span>
+                  Logout
+                </span>
+              
               </div>
-              <div className="text-sm font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer underline">{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}</div>
+                 </div>
             </>
           )}
         </div>
-      </div>
-
+      
+      
       {/* Search Dialog */}
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
         <DialogContent className="max-w-md">
