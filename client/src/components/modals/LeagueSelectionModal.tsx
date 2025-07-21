@@ -132,7 +132,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
             className={`group relative flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
               isSelected 
                 ? 'border-blue-500 bg-blue-50' 
-                : 'border-transparent hover:border-blue-200 hover:border-blue-500'
+                : 'border-transparent hover:border-blue-300 hover:bg-blue-50'
             }`}
           >
             
