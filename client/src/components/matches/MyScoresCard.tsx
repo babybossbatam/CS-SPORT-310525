@@ -43,8 +43,15 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
   const EmptyState = () => {
     if (selectedTab === "my-selections") {
       return (
-        <div className="flex flex-col items-center justify-center  text-center">
-          My Teams and Leagues
+        <>
+          <Card className="mb-4">
+            <CardContent>
+              <p>
+                My Teams and Leagues
+              </p>
+            </CardContent>
+          </Card>
+
           <div className=" relative">
             <img
               src="/assets/matchdetaillogo/favorite icon.svg"
@@ -54,16 +61,17 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
               className="mx-auto"
             />
           </div>
-          <p className="mb-8 text-sm text-gray-600 max-w-xs">
+          <p className="mb-4 text-sm text-center text-gray-600 max-w-xs">
             Select Teams and Competitions to follow them here
           </p>
+
           <Button
             onClick={() => setShowTeamSelection(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full text-sm font-medium"
+            className="bg-blue-500 hover:bg-blue-600 text-white mx-8 px-8 py-3 rounded-full text-sm font-medium"
           >
             Browse
           </Button>
-        </div>
+        </>
       );
     }
 
