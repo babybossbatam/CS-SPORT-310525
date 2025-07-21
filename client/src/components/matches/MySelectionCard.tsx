@@ -106,7 +106,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
             
             {/* Add More text below the button */}
             <div className="text-center mt-1">
-              <span className="text-xs text-gray-600">Add More</span>
+              <span className="text-xs text-gray-600 whitespace-nowrap">Add More</span>
             </div>
           </div>
         </div>
