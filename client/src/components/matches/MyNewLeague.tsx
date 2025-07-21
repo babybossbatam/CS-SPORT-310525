@@ -1336,13 +1336,10 @@ b.fixture.status.elapsed) || 0;
                       "SUSP",
                     ].includes(status)
                   ) {
+                    // More lenient score validation - accept 0 as valid score
                     const hasValidScores =
-                      currentGoals.home !== null &&
-                      currentGoals.home !== undefined &&
-                      currentGoals.away !== null &&
-                      currentGoals.away !== undefined &&
-                      !isNaN(Number(currentGoals.home)) &&
-                      !isNaN(Number(currentGoals.away));
+                      (currentGoals.home !== null && currentGoals.home !== undefined && !isNaN(Number(currentGoals.home))) &&
+                      (currentGoals.away !== null && currentGoals.away !== undefined && !isNaN(Number(currentGoals.away)));
 
                     if (hasValidScores) {
                       return (
@@ -1382,7 +1379,7 @@ b.fixture.status.elapsed) || 0;
                         </div>
                       );
                     }
-                  }
+                  }</old_str>
 
                   return (
                     <div
