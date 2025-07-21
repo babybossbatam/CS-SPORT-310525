@@ -98,16 +98,17 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                 >
                   <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
                 </button>
+                
+                {/* Add More text below the button */}
+                {selectedTeams.length > 0 && (
+                  <div className="text-center">
+                    <span className="text-xs text-gray-600">Add More</span>
+                  </div>
+                )}
               </div>
             ) : null}
           </div>
         </div>
-
-        {selectedTeams.length > 0 && (
-          <div className="text-center">
-            <span className="text-xs text-gray-600">Add More</span>
-          </div>
-        )}
       </div>
 
       {/* Leagues Section */}
