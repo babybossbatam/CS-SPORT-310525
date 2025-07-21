@@ -332,12 +332,12 @@ export const MyScoresLeft = ({
         ) : (
           <>
             <Card className="mx-auto text-sm">
-              <CardContent className="text-left flex items-center  pt-2 pb-2">
+              <CardContent className="text-center flex items-center justify-center pt-2 pb-2">
                 <span>My Teams and Leagues</span>
               </CardContent>
             </Card>
 
-            <div className=" relative mt-16">
+            <div className="relative mt-16">
               <img
                 src="/assets/matchdetaillogo/favorite icon.svg"
                 alt="Favorite"
@@ -346,13 +346,13 @@ export const MyScoresLeft = ({
                 className="mx-auto"
               />
             </div>
-            <p className="mb-2  mt-4 text-sm text-center text-gray-600 mx-auto max-w-xs">
+            <p className="mb-2 mt-4 text-sm text-center text-gray-600 mx-auto max-w-xs">
               Select Teams and Competitions to follow them here
             </p>
 
             <Button
               onClick={() => setShowTeamSelection(true)}
-              className="bg-blue-500  text-white px-24 py-3 rounded-full text-sm font-medium mx-auto block"
+              className="bg-blue-500 text-white px-24 py-3 rounded-full text-sm font-medium mx-auto block"
             >
               Browse
             </Button>
