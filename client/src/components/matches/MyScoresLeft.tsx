@@ -160,6 +160,7 @@ export const MyScoresLeft = ({
 
   const handleTeamSelectionComplete = (teams: any[]) => {
     console.log("🎯 [MyScoresLeft] Team selection completed:", teams);
+    console.log("🎯 [MyScoresLeft] Number of teams received:", teams.length);
     setSelectedTeams(teams);
     setShowTeamSelection(false);
   };
@@ -323,7 +324,11 @@ export const MyScoresLeft = ({
 
 
       {/* Debug info */}
-      {console.log("🔍 [MyScoresLeft] Current state:", { selectedTab, selectedTeamsCount: selectedTeams.length, selectedTeams })}
+      {console.log("🔍 [MyScoresLeft] Current state:", { 
+        selectedTab, 
+        selectedTeamsCount: selectedTeams.length, 
+        selectedTeams: selectedTeams.map(team => ({ id: team.id, name: team.name }))
+      })}
       
       {/* Conditional rendering based on selected tab */}
       {selectedTab === "my-selections" ? (

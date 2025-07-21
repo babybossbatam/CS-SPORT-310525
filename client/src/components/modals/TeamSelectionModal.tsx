@@ -22,6 +22,14 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
   const [selectedTab, setSelectedTab] = useState('top');
   const [selectedTeams, setSelectedTeams] = useState<Set<string | number>>(new Set());
 
+  // Reset selections when modal opens
+  React.useEffect(() => {
+    if (open) {
+      console.log("🎯 [TeamSelectionModal] Modal opened, resetting selections");
+      setSelectedTeams(new Set());
+    }
+  }, [open]);
+
   // Popular teams data with correct API-Sports team IDs
   const popularTeams = [
     // Countries first
@@ -79,13 +87,16 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
 
   const handleNextStep = () => {
     console.log("🎯 [TeamSelectionModal] Next step clicked, selectedTeams size:", selectedTeams.size);
+    console.log("🎯 [TeamSelectionModal] Selected team IDs:", Array.from(selectedTeams));
     if (onTeamSelectionComplete && selectedTeams.size > 0) {
       const selectedTeamsArray = Array.from(selectedTeams).map((teamId) => {
         const team = popularTeams.find(t => t.id === teamId);
+        console.log("🎯 [TeamSelectionModal] Found team for ID", teamId, ":", team?.name);
         return team;
       }).filter(Boolean);
       
-      console.log("🎯 [TeamSelectionModal] Calling onTeamSelectionComplete with:", selectedTeamsArray);
+      console.log("🎯 [TeamSelectionModal] Final selectedTeamsArray length:", selectedTeamsArray.length);
+      console.log("🎯 [TeamSelectionModal] Calling onTeamSelectionComplete with:", selectedTeamsArray.map(t => t?.name));
       onTeamSelectionComplete(selectedTeamsArray);
     }
     onOpenChange(false);
