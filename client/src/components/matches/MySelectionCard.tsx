@@ -135,7 +135,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
 
   return (
     <>
-      <Card className="shadow-md w-full mb-4">
+      <Card className="shadow-md w-full mb-1">
         <CardContent className="pt-4 mt-4">
           <MyTeamsSection />
         </CardContent>
@@ -143,23 +143,10 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
       
       {/* New card below */}
       <Card className="shadow-md w-full mb-4">
-        <CardContent className="pt-4 mt-4">
+        <CardContent className="pt-2 mt-2">
           <div className="space-y-4">
             {/* Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <h3 className="text-lg font-semibold text-gray-800">My Favorite Competitions</h3>
-                <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
-                  0
-                </span>
-              </div>
-              <button 
-                className="p-1 hover:bg-gray-100 rounded"
-                onClick={toggleEditMode}
-              >
-                <Edit className="h-4 w-4 text-gray-600" />
-              </button>
-            </div>
+          
 
             {/* Competitions Section */}
             <div className="space-y-3">
