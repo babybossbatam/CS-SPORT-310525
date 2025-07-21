@@ -22,6 +22,7 @@ const Header = () => {
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
   const { toast } = useToast();
   const dispatch = useDispatch();
+  const [activeHover, setActiveHover] = useState<string | null>(null);
 
   const isAuthenticated = useSelector((state: RootState) => state.user.isAuthenticated);
   const username = useSelector((state: RootState) => state.user.username);
@@ -193,12 +194,26 @@ const Header = () => {
           </DropdownMenu>
 
           {isAuthenticated && (
-            <div className="re items-center text-sm font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer underline ml-4">
-              <span>{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}</span>
+            <div className="flex items-center text-sm font-semibold text-white transition-colors duration-200 cursor-pointer underline ml-4">
+              <span 
+                className={`transition-colors duration-200 ${
+                  activeHover === 'username' ? 'text-amber-400' : 
+                  activeHover === 'logout' ? 'text-white' : 'hover:text-amber-400'
+                }`}
+                onMouseEnter={() => setActiveHover('username')}
+                onMouseLeave={() => setActiveHover(null)}
+              >
+                {username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}
+              </span>
               <span>, </span>
               <span 
-                className="hover:text-amber-300 cursor-pointer"
+                className={`cursor-pointer transition-colors duration-200 ${
+                  activeHover === 'logout' ? 'text-amber-300' : 
+                  activeHover === 'username' ? 'text-white' : 'hover:text-amber-300'
+                }`}
                 onClick={handleLogout}
+                onMouseEnter={() => setActiveHover('logout')}
+                onMouseLeave={() => setActiveHover(null)}
               >
                 Logout
               </span>
@@ -206,8 +221,8 @@ const Header = () => {
           )}
         </div>
       </div>
-      
-      
+
+
       {/* Search Dialog */}
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
         <DialogContent className="max-w-md">
