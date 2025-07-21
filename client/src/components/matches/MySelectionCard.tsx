@@ -51,27 +51,26 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
       {/* Teams Section */}
       <div className="space-y-3">
         <div className="flex items-start gap-3">
-          {/* Show all selected teams horizontally first */}
+          {/* Add More button first */}
+          <div className="flex flex-col items-center">
+            <button
+              onClick={onShowTeamSelection}
+              className="w-12 h-12 border-2 border-dashed border-gray-500 rounded-full flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
+            >
+              <Plus className="h-6 w-6 text-gray-500 hover:text-blue-500" />
+            </button>
+
+            {/* Add More text below the button */}
+            <div className="text-center mt-1">
+              <span className="text-xs text-gray-600 whitespace-nowrap">Add More</span>
+            </div>
+          </div>
+
+          {/* Show all selected teams horizontally after Add More button */}
           {selectedTeams.map((team, index) => (
-            <div key={`${team.id}-${index}`} className="flex flex-row items-center">
+            <div key={`${team.id}-${index}`} className="flex flex-col items-center">
               <div className="relative group">
-
-                {/* Add More button and text - now positioned after selected teams */}
-                <div className="flex flex-col items-center">
-                  <button
-                    onClick={onShowTeamSelection}
-                    className="w-12 h-12 border-2 border-dashed border-gray-500 rounded-full flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
-                  >
-                    <Plus className="h-6 w-6 text-gray-500 hover:text-blue-500" />
-                  </button>
-
-                  {/* Add More text below the button */}
-                  <div className="text-center mt-1">
-                    <span className="text-xs text-gray-600 whitespace-nowrap">Add More</span>
-                  </div>
-                </div>
                 <div className="w-12 h-12 flex items-center justify-center">
-                  
                   <MyWorldTeamLogo
                     teamName={team.name}
                     teamLogo={team.type === 'country' 
@@ -106,11 +105,10 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
               
               {/* Team name below logo */}
               <div className="text-center mt-1">
-                <span className="text-xs text-gray-600">{team.name}</span>
+                <span className="text-xs text-gray-600 whitespace-nowrap">{team.name}</span>
               </div>
             </div>
           ))}
-         
         </div>
       </div>
 
