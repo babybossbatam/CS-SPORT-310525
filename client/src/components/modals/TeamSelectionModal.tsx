@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
+import LeagueSelectionModal from './LeagueSelectionModal';
 
 
 interface TeamSelectionModalProps {
@@ -23,6 +24,8 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState('top');
   const [selectedTeams, setSelectedTeams] = useState<Set<string | number>>(new Set());
+  const [showLeagueSelection, setShowLeagueSelection] = useState(false);
+  const [selectedLeagues, setSelectedLeagues] = useState<any[]>([]);
 
   // Sync internal state with initialSelectedTeams when modal opens
   React.useEffect(() => {
@@ -114,7 +117,21 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
       console.log("🎯 [TeamSelectionModal] Calling onTeamSelectionComplete with:", selectedTeamsArray.map(t => t?.name));
       onTeamSelectionComplete(selectedTeamsArray);
     }
-    // Don't close the modal - keep it open for further selections
+    // Open league selection modal
+    setShowLeagueSelection(true);
+  };
+
+  const handleLeagueSelectionComplete = (leagues: any[]) => {
+    console.log("🎯 [TeamSelectionModal] League selection completed:", leagues);
+    setSelectedLeagues(leagues);
+  };
+
+  const handleLeagueSelectionClose = (open: boolean) => {
+    setShowLeagueSelection(open);
+    if (!open) {
+      // Close the team selection modal as well when league selection is done
+      onOpenChange(false);
+    }
   };
 
   const soccerTeams = popularTeams.filter(team => team.type === 'team');
@@ -199,6 +216,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
   );
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] p-0 overflow-hidden flex flex-col">
         <DialogHeader className="flex flex-row items-center justify-between p-4 border-b flex-shrink-0">
@@ -332,6 +350,14 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
         </div>
       </DialogContent>
     </Dialog>
+    
+    <LeagueSelectionModal
+      open={showLeagueSelection}
+      onOpenChange={handleLeagueSelectionClose}
+      onLeagueSelectionComplete={handleLeagueSelectionComplete}
+      initialSelectedLeagues={selectedLeagues}
+    />
+  </>
   );
 };
 
