@@ -185,7 +185,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
               />
             </div>
 
-            <span className="text-xs text-center text-gray-700 font-medium mb-1 group-hover:opacity-0 transition-opacity duration-200">
+            <span className="text-xs text-center text-gray-700 font-medium mb-1">
               {league.name}
             </span>
 
