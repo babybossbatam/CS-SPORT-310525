@@ -339,7 +339,7 @@ export const MyScoresLeft = ({
               </CardContent>
             </Card>
 
-            <div className=" relative">
+            <div className=" relative mt-16">
               <img
                 src="/assets/matchdetaillogo/favorite icon.svg"
                 alt="Favorite"
@@ -348,7 +348,7 @@ export const MyScoresLeft = ({
                 className="mx-auto"
               />
             </div>
-            <p className="mb-4 text-sm text-center text-gray-600 max-w-xs">
+            <p className="mb-2  mt-4 text-sm text-center text-gray-600 mx-auto max-w-xs">
               Select Teams and Competitions to follow them here
             </p>
 
