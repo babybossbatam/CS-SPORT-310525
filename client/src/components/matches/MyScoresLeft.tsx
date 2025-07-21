@@ -16,6 +16,7 @@ import EnhancementLeague from "./EnhancementLeague";
 import MyNewLeague from "./MyNewLeague";
 import MyScoresTab from "./MyScoresTab";
 import MyScoresCard from "./MyScoresCard";
+import MySelectionCard from "./MySelectionCard";
 import TeamSelectionModal from "../modals/TeamSelectionModal";
 import { useCachedQuery } from "@/lib/cachingHelper";
 
@@ -159,6 +160,10 @@ export const MyScoresLeft = ({
   const handleTeamSelectionComplete = (teams: any[]) => {
     setSelectedTeams(teams);
     setShowTeamSelection(false);
+  };
+
+  const handleRemoveTeam = (teamId: string | number) => {
+    setSelectedTeams(prev => prev.filter(team => team.id !== teamId));
   };
 
   return (
@@ -316,10 +321,9 @@ export const MyScoresLeft = ({
       {/* Conditional rendering based on selected tab */}
       {selectedTab === "my-selections" ? (
         selectedTeams.length > 0 ? (
-          <MyScoresCard 
-            selectedTab={selectedTab} 
-            onTabChange={setSelectedTab}
+          <MySelectionCard 
             selectedTeams={selectedTeams}
+            onRemoveTeam={handleRemoveTeam}
             onShowTeamSelection={() => setShowTeamSelection(true)}
           />
         ) : (
@@ -347,25 +351,12 @@ export const MyScoresLeft = ({
           </Card>
         )
       ) : (
-        <Card className="shadow-md w-full mb-4">
-          <CardContent className="pt-4 mt-4">
-            <div className="flex flex-col items-center justify-center py-2 text-center">
-              <div className="mb-4 relative">
-                <img
-                  src="/assets/matchdetaillogo/favorite icon.svg"
-                  alt="Favorite"
-                  className="h-14 w-14 text-blue-500"
-                />
-              </div>
-              <p className="mb-4 text-sm text-gray-600">
-                Select Games, Teams and Competitions to follow them on My Scores
-              </p>
-              <p className="text-sm text-gray-500 mb-4">
-                Select Teams and Leagues
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <MyScoresCard 
+          selectedTab={selectedTab} 
+          onTabChange={setSelectedTab}
+          selectedTeams={selectedTeams}
+          onShowTeamSelection={() => setShowTeamSelection(true)}
+        />
       )}
 
       {liveFilterActive && timeFilterActive ? (
