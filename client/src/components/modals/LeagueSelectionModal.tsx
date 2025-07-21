@@ -290,14 +290,14 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
 
         <div className="flex-shrink-0">
           <div className="flex justify-between items-center">
-            <div className="px-2 text-xs text-gray-700">
+            <div className="pl-4 px-2 text-xs text-gray-700">
               My Selections: <span className="font-medium">{selectedLeagues.size}</span>
             </div>
           </div>
 
           {/* Display selected league logos */}
           {selectedLeagues.size > 0 && (
-            <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto p-2">
+            <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto p-4">
               {Array.from(selectedLeagues).map((uniqueId) => {
                 // Handle qualifier leagues
                 let league;
@@ -338,7 +338,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
                     </button>
 
                     {/* League name tooltip */}
-                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-10">
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs  opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none z-50">
                       {league.name}
                     </div>
                   </div>
