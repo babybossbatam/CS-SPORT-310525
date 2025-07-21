@@ -572,7 +572,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         setLoading(false);
       }
     }
-  }, [selectedDate, getCachedEndedMatches, cacheEndedMatches]);
+  }, [selectedDate, getCachedMatches, cacheStableMatches]);
 
   useEffect(() => {
     const fetchAllLeagueFixtures = async () => {
