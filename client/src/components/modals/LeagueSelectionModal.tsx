@@ -184,14 +184,14 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
               />
             </div>
 
-            <span className="text-xs text-center text-gray-700 font-medium mb-1 transition-all duration-200">
-              <span className="group-hover:hidden">
+            <div className="relative text-xs text-center text-gray-700 font-medium mb-1 h-4 flex items-center justify-center">
+              <span className="group-hover:opacity-0 transition-opacity duration-200">
                 {league.name}
               </span>
-              <span className="hidden group-hover:inline text-blue-600 font-semibold">
+              <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-blue-600 font-semibold">
                 {league.popularity}
               </span>
-            </span>
+            </div>
           </div>
         );
       })}
