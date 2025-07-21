@@ -1403,14 +1403,12 @@ b.fixture.status.elapsed) || 0;
                       });
                     }
                     
-                    // More robust score validation
+                    // More robust score validation - simplified and fixed
                     const hasValidScores = (
-                      (homeScore !== null && homeScore !== undefined && homeScore !== '') && 
-                      (awayScore !== null && awayScore !== undefined && awayScore !== '') &&
-                      (Number.isInteger(Number(homeScore)) || homeScore === 0) && 
-                      (Number.isInteger(Number(awayScore)) || awayScore === 0) &&
-                      Number(homeScore) >= 0 && 
-                      Number(awayScore) >= 0
+                      homeScore !== null && homeScore !== undefined && 
+                      awayScore !== null && awayScore !== undefined &&
+                      !isNaN(Number(homeScore)) && !isNaN(Number(awayScore)) &&
+                      Number(homeScore) >= 0 && Number(awayScore) >= 0
                     );
 
                     console.log(`🔍 [Score Debug] Match ${matchId}: ${homeTeamName} vs ${awayTeamName}`, {
