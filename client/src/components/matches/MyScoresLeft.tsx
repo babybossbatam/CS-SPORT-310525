@@ -331,7 +331,7 @@ export const MyScoresLeft = ({
           />
         ) : (
           <>
-            <Card className="mx-auto">
+            <Card className="mx-auto text-sm text-center">
               <CardContent>
                 <span>My Teams and Leagues</span>
                   
@@ -354,7 +354,7 @@ export const MyScoresLeft = ({
 
             <Button
               onClick={() => setShowTeamSelection(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-24 py-3 rounded-full text-sm font-medium mx-auto block"
+              className="bg-blue-500  text-white px-24 py-3 rounded-full text-sm font-medium mx-auto block"
             >
               Browse
             </Button>
