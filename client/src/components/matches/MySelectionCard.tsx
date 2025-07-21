@@ -174,7 +174,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                 {selectedLeagues.map((league, index) => (
                   <div key={`${league.id}-${index}`} className="flex flex-col items-center">
                     <div className="relative group">
-                      <div className="w-12 h-12 flex items-center justify-center">
+                      <div className="w-6 h-6 flex items-center justify-center">
                         <img
                           src={league.logo}
                           alt={league.name}
