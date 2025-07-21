@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Search } from 'lucide-react';
+import { X, Search, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -221,13 +221,17 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
           </Tabs>
         </div>
 
-        <div className="border-t p-4 flex-shrink-0">
-          <div className="flex justify-between items-center mb-4">
-            <div className="text-sm text-gray-600">
+        <div className="  flex-shrink-0">
+          <div className="flex justify-between items-center ">
+            <div className="text-xs text-gray-700">
               My Selections: <span className="font-medium">{selectedTeams.size}</span>
             </div>
+            
+          </div>
+          <div>
             <Button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6">
-              →
+              <ChevronRight className="mr-2 h-4 w-4" />
+              
             </Button>
           </div>
           
@@ -240,7 +244,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
                 
                 return (
                   <div key={teamId} className="relative group">
-                    <div className="w-8 h-8 flex items-center justify-center bg-gray-50 rounded-full border">
+                    <div className="w-8 h-8 flex items-center justify-center ">
                       <MyWorldTeamLogo
                         teamName={team.name}
                         teamLogo={team.type === 'country' 
