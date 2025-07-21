@@ -1336,40 +1336,29 @@ b.fixture.status.elapsed) || 0;
                       "SUSP",
                     ].includes(status)
                   ) {
-                    // More lenient score validation - accept 0 as valid score
+                    const homeScore = currentGoals.home;
+                    const awayScore = currentGoals.away;
                     const hasValidScores =
-                      (currentGoals.home !== null && currentGoals.home !== undefined && !isNaN(Number(currentGoals.home))) &&
-                      (currentGoals.away !== null && currentGoals.away !== undefined && !isNaN(Number(currentGoals.away)));
+                      homeScore !== null &&
+                      homeScore !== undefined &&
+                      awayScore !== null &&
+                      awayScore !== undefined &&
+                      !isNaN(Number(homeScore)) &&
+                      !isNaN(Number(awayScore));
 
                     if (hasValidScores) {
                       return (
                         <div className="match-score-display">
                           <span className="score-number">
-                            {currentGoals.home}
+                            {homeScore}
                           </span>
                           <span className="score-separator">-</span>
                           <span className="score-number">
-                            {currentGoals.away}
+                            {awayScore}
                           </span>
                         </div>
                       );
                     } else {
-                      // Debug validation failure for ended matches
-                      console.log(`🚨 [SCORE VALIDATION FAILED] Match: ${homeTeamName} vs ${awayTeamName}`, {
-                        status,
-                        homeScore: currentGoals.home,
-                        awayScore: currentGoals.away,
-                        homeScoreType: typeof currentGoals.home,
-                        awayScoreType: typeof currentGoals.away,
-                        homeIsNull: currentGoals.home === null,
-                        awayIsNull: currentGoals.away === null,
-                        homeIsUndefined: currentGoals.home === undefined,
-                        awayIsUndefined: currentGoals.away === undefined,
-                        homeIsNaN: isNaN(Number(currentGoals.home)),
-                        awayIsNaN: isNaN(Number(currentGoals.away)),
-                        fallbackToTime: formatMatchTimeWithTimezone(matchDate)
-                      });
-
                       return (
                         <div
                           className="match-time-display"
