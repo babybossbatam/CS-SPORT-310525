@@ -51,6 +51,21 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
       {/* Teams Section */}
       <div className="space-y-3">
         <div className="flex items-start gap-3">
+          {/* Add More button and text */}
+          <div className="flex flex-col items-center">
+            <button
+              onClick={onShowTeamSelection}
+              className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200"
+            >
+              <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
+            </button>
+            
+            {/* Add More text below the button */}
+            <div className="text-center mt-1">
+              <span className="text-xs text-gray-600">Add More</span>
+            </div>
+          </div>
+          
           {/* Show all selected teams horizontally */}
           {selectedTeams.map((team, index) => (
             <div key={`${team.id}-${index}`} className="flex flex-col items-center">
@@ -94,21 +109,6 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
               </div>
             </div>
           ))}
-          
-          {/* Add More button and text */}
-          <div className="flex flex-col items-center">
-            <button
-              onClick={onShowTeamSelection}
-              className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200"
-            >
-              <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
-            </button>
-            
-            {/* Add More text below the button */}
-            <div className="text-center mt-1">
-              <span className="text-xs text-gray-600">Add More</span>
-            </div>
-          </div>
         </div>
       </div>
 
