@@ -155,7 +155,7 @@ export const MyScoresLeft = ({
 
   return (
     <>
-      <Card className="shadow-md w-full">
+      <Card className="shadow-md w-full mb-4">
        
 
         {/* Functioning Tabs section similar to MyScoresTab */}
