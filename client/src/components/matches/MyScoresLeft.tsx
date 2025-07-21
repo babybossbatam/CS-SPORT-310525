@@ -159,6 +159,7 @@ export const MyScoresLeft = ({
   };
 
   const handleTeamSelectionComplete = (teams: any[]) => {
+    console.log("🎯 [MyScoresLeft] Team selection completed:", teams);
     setSelectedTeams(teams);
     setShowTeamSelection(false);
   };
@@ -321,6 +322,9 @@ export const MyScoresLeft = ({
 
 
 
+      {/* Debug info */}
+      {console.log("🔍 [MyScoresLeft] Current state:", { selectedTab, selectedTeamsCount: selectedTeams.length, selectedTeams })}
+      
       {/* Conditional rendering based on selected tab */}
       {selectedTab === "my-selections" ? (
         selectedTeams.length > 0 ? (
