@@ -319,6 +319,7 @@ export const MyScoresLeft = ({
         open={showTeamSelection}
         onOpenChange={setShowTeamSelection}
         onTeamSelectionComplete={handleTeamSelectionComplete}
+        initialSelectedTeams={selectedTeams}
       />
 
 

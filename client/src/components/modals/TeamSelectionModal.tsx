@@ -11,23 +11,28 @@ interface TeamSelectionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onTeamSelectionComplete?: (selectedTeams: any[]) => void;
+  initialSelectedTeams?: any[];
 }
 
 const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ 
   open, 
   onOpenChange, 
-  onTeamSelectionComplete 
+  onTeamSelectionComplete,
+  initialSelectedTeams = []
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState('top');
   const [selectedTeams, setSelectedTeams] = useState<Set<string | number>>(new Set());
 
-  // Don't reset selections when modal opens - keep existing selections
+  // Sync internal state with initialSelectedTeams when modal opens
   React.useEffect(() => {
     if (open) {
-      console.log("🎯 [TeamSelectionModal] Modal opened, keeping existing selections");
+      console.log("🎯 [TeamSelectionModal] Modal opened, syncing with initial selected teams:", initialSelectedTeams.length);
+      // Sync internal state with parent's current selected teams
+      const initialTeamIds = new Set(initialSelectedTeams.map(team => team.id));
+      setSelectedTeams(initialTeamIds);
     }
-  }, [open]);
+  }, [open, initialSelectedTeams]);
 
   // Popular teams data with correct API-Sports team IDs
   const popularTeams = [
