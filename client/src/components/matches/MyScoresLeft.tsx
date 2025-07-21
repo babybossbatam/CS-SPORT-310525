@@ -298,8 +298,30 @@ export const MyScoresLeft = ({
         </div>
       </Card>
 
-      {/* MyScoresCard component */}
-      <MyScoresCard selectedTab="my-scores" onTabChange={() => {}} />
+      {/* Conditional rendering based on selected tab */}
+      {selectedTab === "my-selections" ? (
+        <MyScoresCard selectedTab={selectedTab} onTabChange={setSelectedTab} />
+      ) : (
+        <Card className="shadow-md w-full mb-4">
+          <CardContent className="pt-4 mt-4">
+            <div className="flex flex-col items-center justify-center py-2 text-center">
+              <div className="mb-4 relative">
+                <img
+                  src="/assets/matchdetaillogo/favorite icon.svg"
+                  alt="Favorite"
+                  className="h-14 w-14 text-blue-500"
+                />
+              </div>
+              <p className="mb-4 text-sm text-gray-600">
+                Select Games, Teams and Competitions to follow them on My Scores
+              </p>
+              <p className="text-sm text-gray-500 mb-4">
+                Select Teams and Leagues
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {liveFilterActive && timeFilterActive ? (
         // Combined state: Show live matches grouped by time
