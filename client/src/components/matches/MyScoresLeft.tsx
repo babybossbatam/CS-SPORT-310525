@@ -354,7 +354,7 @@ export const MyScoresLeft = ({
 
             <Button
               onClick={() => setShowTeamSelection(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white  px-24 py-3 rounded-full text-sm font-medium"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-24 py-3 rounded-full text-sm font-medium mx-auto block"
             >
               Browse
             </Button>
