@@ -16,10 +16,16 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
   onRemoveTeam,
   onShowTeamSelection,
 }) => {
+  const [isEditMode, setIsEditMode] = React.useState(false);
+
   const handleRemoveTeam = (teamId: string | number) => {
     if (onRemoveTeam) {
       onRemoveTeam(teamId);
     }
+  };
+
+  const toggleEditMode = () => {
+    setIsEditMode(!isEditMode);
   };
 
   const MyTeamsSection = () => (
@@ -36,7 +42,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
         </div>
         <button 
           className="p-1 hover:bg-gray-100 rounded"
-          onClick={onShowTeamSelection}
+          onClick={toggleEditMode}
         >
           <Edit className="h-4 w-4 text-gray-600" />
         </button>
@@ -68,10 +74,12 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                       />
                     </div>
                     
-                    {/* Remove button on hover */}
+                    {/* Remove button - visible in edit mode or on hover */}
                     <button
                       onClick={() => handleRemoveTeam(team.id)}
-                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-red-600"
+                      className={`absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs transition-opacity duration-200 flex items-center justify-center hover:bg-red-600 ${
+                        isEditMode ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                      }`}
                     >
                       ×
                     </button>
