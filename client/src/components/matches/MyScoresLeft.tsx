@@ -16,6 +16,7 @@ import EnhancementLeague from "./EnhancementLeague";
 import MyNewLeague from "./MyNewLeague";
 import MyScoresTab from "./MyScoresTab";
 import MyScoresCard from "./MyScoresCard";
+import TeamSelectionModal from "../modals/TeamSelectionModal";
 import { useCachedQuery } from "@/lib/cachingHelper";
 
 import { format, parseISO, addDays, subDays } from "date-fns";
@@ -45,6 +46,8 @@ export const MyScoresLeft = ({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
   const [selectedTab, setSelectedTab] = useState("my-scores");
+  const [selectedTeams, setSelectedTeams] = useState<any[]>([]);
+  const [showTeamSelection, setShowTeamSelection] = useState(false);
   const calendarRef = useRef<HTMLDivElement>(null);
 
   // Close calendar when clicking outside
@@ -151,6 +154,11 @@ export const MyScoresLeft = ({
       },
     );
     onMatchCardClick?.(fixture);
+  };
+
+  const handleTeamSelectionComplete = (teams: any[]) => {
+    setSelectedTeams(teams);
+    setShowTeamSelection(false);
   };
 
   return (
@@ -298,9 +306,46 @@ export const MyScoresLeft = ({
         </div>
       </Card>
 
+      {/* Team Selection Modal */}
+      <TeamSelectionModal
+        open={showTeamSelection}
+        onOpenChange={setShowTeamSelection}
+        onTeamSelectionComplete={handleTeamSelectionComplete}
+      />
+
       {/* Conditional rendering based on selected tab */}
       {selectedTab === "my-selections" ? (
-        <MyScoresCard selectedTab={selectedTab} onTabChange={setSelectedTab} />
+        selectedTeams.length > 0 ? (
+          <MyScoresCard 
+            selectedTab={selectedTab} 
+            onTabChange={setSelectedTab}
+            selectedTeams={selectedTeams}
+            onShowTeamSelection={() => setShowTeamSelection(true)}
+          />
+        ) : (
+          <Card className="shadow-md w-full mb-4">
+            <CardContent className="pt-4 mt-4">
+              <div className="flex flex-col items-center justify-center py-2 text-center">
+                <div className="mb-4 relative">
+                  <img
+                    src="/assets/matchdetaillogo/favorite icon.svg"
+                    alt="Favorite"
+                    className="h-14 w-14 text-blue-500"
+                  />
+                </div>
+                <p className="mb-4 text-sm text-gray-600">
+                  Select Games, Teams and Competitions to follow them on My Scores
+                </p>
+                <button
+                  onClick={() => setShowTeamSelection(true)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm"
+                >
+                  Select Teams and Leagues
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        )
       ) : (
         <Card className="shadow-md w-full mb-4">
           <CardContent className="pt-4 mt-4">

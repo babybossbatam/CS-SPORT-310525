@@ -13,14 +13,17 @@ import TeamSelectionModal from "@/components/modals/TeamSelectionModal";
 interface MyScoresCardProps {
   selectedTab: string;
   onTabChange: (tab: string) => void;
+  selectedTeams?: any[];
+  onShowTeamSelection?: () => void;
 }
 
 const MyScoresCard: React.FC<MyScoresCardProps> = ({
   selectedTab,
   onTabChange,
+  selectedTeams = [],
+  onShowTeamSelection,
 }) => {
   const [showTeamSelection, setShowTeamSelection] = useState(false);
-  const [selectedTeams, setSelectedTeams] = useState<any[]>([]);
 
   // Fetch suggested games (live and upcoming matches)
   const suggestedGamesQuery = useQuery({
@@ -37,9 +40,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
-  const handleTeamSelectionComplete = (teams: any[]) => {
-    setSelectedTeams(teams);
-  };
+  
 
   const MyTeamsSection = () => (
     <div className="mb-6">
@@ -79,7 +80,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
         
         <div className="flex flex-col items-center">
           <button 
-            onClick={() => setShowTeamSelection(true)}
+            onClick={() => onShowTeamSelection?.() || setShowTeamSelection(true)}
             className="w-12 h-12 mb-2 border-2 border-dashed border-blue-300 rounded-lg flex items-center justify-center hover:border-blue-500 transition-colors"
           >
             <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,7 +209,6 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
       <TeamSelectionModal
         open={showTeamSelection}
         onOpenChange={setShowTeamSelection}
-        onTeamSelectionComplete={handleTeamSelectionComplete}
       />
 
       <CardContent className="pt-4 mt-4">
