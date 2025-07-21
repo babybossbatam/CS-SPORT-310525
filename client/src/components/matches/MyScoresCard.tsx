@@ -60,7 +60,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
   const SuggestedGames = () => (
     <div className="mt-12">
       <h2 className="text-xl font-semibold text-center mb-8 text-gray-800">
-     
+
       </h2>
       <div className="space-y-4 max-w-2xl mx-auto">
         {suggestedGamesQuery.data?.map((fixture: any) => (

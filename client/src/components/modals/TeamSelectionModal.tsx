@@ -10,9 +10,14 @@ import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
 interface TeamSelectionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onTeamSelectionComplete?: (selectedTeams: any[]) => void;
 }
 
-const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenChange }) => {
+const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ 
+  open, 
+  onOpenChange, 
+  onTeamSelectionComplete 
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState('top');
   const [selectedTeams, setSelectedTeams] = useState<Set<string | number>>(new Set());
@@ -70,6 +75,18 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
   const handleStarClick = (e: React.MouseEvent, teamId: string | number) => {
     e.stopPropagation();
     handleTeamClick(teamId);
+  };
+
+  const handleNextStep = () => {
+    if (onTeamSelectionComplete && selectedTeams.size > 0) {
+      const selectedTeamsArray = Array.from(selectedTeams).map((teamId) => {
+        const team = popularTeams.find(t => t.id === teamId);
+        return team;
+      }).filter(Boolean);
+      
+      onTeamSelectionComplete(selectedTeamsArray);
+    }
+    onOpenChange(false);
   };
 
   const soccerTeams = popularTeams.filter(team => team.type === 'team');
@@ -275,11 +292,14 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
             </div>
           )}
         </div>
-        <div className="flex justify-center items-center gap-2 text-xs"><span> Next Step: Select Leagues</span>
+        <div className="flex justify-center items-center gap-2 text-xs">
+          <span> Next Step: Select Leagues</span>
          
-          <Button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-3">
+          <Button 
+            onClick={handleNextStep}
+            className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-3"
+          >
             <ChevronRight className=" h-4 w-4" />
-
           </Button>
         </div>
       </DialogContent>
