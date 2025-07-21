@@ -146,7 +146,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
         onOpenChange={setShowTeamSelection}
       />
 
-      <CardContent className="pt-4">
+      <CardContent className="pt-4 mt-4">
         <EmptyState />
         <SuggestedGames />
       </CardContent>
