@@ -231,7 +231,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
   const leagueIds = [38, 15, 2, 11, 71, 3, 848,  22, 72, 73, 75, 76, 233, 10, 667, 908, 1169, 23, 1077, 253, 850, 893,  531, 921, 886, 493, 239, 265, 237, 235]; // Added UEFA Champions League (2), CONMEBOL Sudamericana (11), Brazilian Serie A (71), CONCACEF Gold Cup (22), Serie B (72), Serie C (73), Serie D (75), Iraqi League (233), UEFA Europa Conference League (848), Friendlies Clubs (667), and new leagues (908, 1169, 23, 1077), MLS (253), and additional leagues (850, 893, 3, 531, 921, 886, 493)
 
-  // Check if a match ended more than 24 hours ago
+  // Check if a match ended more than 2 hours ago
   const isMatchOldEnded = useCallback((fixture: FixtureData): boolean => {
     const status = fixture.fixture.status.short;
     const isEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
@@ -241,16 +241,47 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     const matchDate = new Date(fixture.fixture.date);
     const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
 
-    return hoursAgo > 24;
+    return hoursAgo > 2; // Changed from 24 to 2 hours
   }, []);
+
+  // Check if a match is upcoming and less than 12 hours away
+  const isUpcomingNearby = useCallback((fixture: FixtureData): boolean => {
+    const status = fixture.fixture.status.short;
+    const isUpcoming = ['NS', 'TBD'].includes(status);
+
+    if (!isUpcoming) return false;
+
+    const matchDate = new Date(fixture.fixture.date);
+    const hoursAway = (matchDate.getTime() - Date.now()) / (1000 * 60 * 60);
+
+    return hoursAway < 12 && hoursAway > 0; // Less than 12 hours away and in the future
+  }, []);
+
+  // Check if a match requires fresh data (live, recent ended, or upcoming nearby)
+  const requiresFreshData = useCallback((fixture: FixtureData): boolean => {
+    const status = fixture.fixture.status.short;
+    
+    // Always fresh for live matches
+    const isLive = ["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status);
+    if (isLive) return true;
+
+    // Always fresh for recently ended matches (< 2 hours ago)
+    const isEnded = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status);
+    if (isEnded && !isMatchOldEnded(fixture)) return true;
+
+    // Always fresh for upcoming matches < 12 hours away
+    if (isUpcomingNearby(fixture)) return true;
+
+    return false;
+  }, [isMatchOldEnded, isUpcomingNearby]);
 
   // Cache key for ended matches
   const getCacheKey = useCallback((date: string, leagueId: number) => {
     return `ended_matches_${date}_${leagueId}`;
   }, []);
 
-  // Get cached ended matches with strict date validation
-  const getCachedEndedMatches = useCallback((date: string, leagueId: number): FixtureData[] => {
+  // Get cached matches with strict validation, excluding those requiring fresh data
+  const getCachedMatches = useCallback((date: string, leagueId: number): FixtureData[] => {
     try {
       const cacheKey = getCacheKey(date, leagueId);
       const cached = localStorage.getItem(cacheKey);
@@ -273,62 +304,65 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       const isToday = date === today;
       const isPastDate = date < today;
 
-      // For today: 1 hour cache max
-      // For past dates: 24 hours cache max (reduced from 7 days)
-      const maxCacheAge = isToday ? 1 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+      // For today: 30 minutes cache max for non-fresh-required matches
+      // For past dates: 2 hours cache max
+      const maxCacheAge = isToday ? 30 * 60 * 1000 : 2 * 60 * 60 * 1000;
 
       if (cacheAge < maxCacheAge) {
-        // Additional validation: check if fixtures actually match the date
-        const validFixtures = fixtures.filter((fixture: any) => {
+        // Filter out matches that require fresh data
+        const cacheableFixtures = fixtures.filter((fixture: any) => {
           const fixtureDate = new Date(fixture.fixture.date);
           const fixtureDateString = fixtureDate.toISOString().slice(0, 10);
-          return fixtureDateString === date;
+          
+          // Must match the requested date
+          if (fixtureDateString !== date) return false;
+          
+          // Must not require fresh data
+          return !requiresFreshData(fixture);
         });
 
-        if (validFixtures.length !== fixtures.length) {
-          console.log(`🚨 [MyNewLeague] Found ${fixtures.length - validFixtures.length} fixtures with wrong dates in cache, clearing`);
-          localStorage.removeItem(cacheKey);
-          return [];
+        if (cacheableFixtures.length > 0) {
+          console.log(`✅ [MyNewLeague] Using ${cacheableFixtures.length} cached matches for league ${leagueId} on ${date} (excluding fresh-required matches)`);
         }
-
-        console.log(`✅ [MyNewLeague] Using cached ended matches for league ${leagueId} on ${date}: ${validFixtures.length} matches`);
-        return validFixtures;
+        
+        return cacheableFixtures;
       } else {
         // Remove expired cache
         localStorage.removeItem(cacheKey);
         console.log(`⏰ [MyNewLeague] Removed expired cache for league ${leagueId} on ${date} (age: ${Math.round(cacheAge / 60000)}min)`);
       }
     } catch (error) {
-      console.error('Error reading cached ended matches:', error);
+      console.error('Error reading cached matches:', error);
       // Clear corrupted cache
       const cacheKey = getCacheKey(date, leagueId);
       localStorage.removeItem(cacheKey);
     }
 
     return [];
-  }, [getCacheKey]);
+  }, [getCacheKey, requiresFreshData]);
 
-  // Cache ended matches
-  const cacheEndedMatches = useCallback((date: string, leagueId: number, fixtures: FixtureData[]) => {
+  // Cache matches that don't require fresh data
+  const cacheStableMatches = useCallback((date: string, leagueId: number, fixtures: FixtureData[]) => {
     try {
-      const endedFixtures = fixtures.filter(isMatchOldEnded);
+      // Only cache matches that don't require fresh data
+      const cacheableFixtures = fixtures.filter(fixture => !requiresFreshData(fixture));
 
-      if (endedFixtures.length === 0) return;
+      if (cacheableFixtures.length === 0) return;
 
       const cacheKey = getCacheKey(date, leagueId);
       const cacheData = {
-        fixtures: endedFixtures,
+        fixtures: cacheableFixtures,
         timestamp: Date.now(),
         date,
         leagueId
       };
 
       localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-      console.log(`💾 [MyNewLeague] Cached ${endedFixtures.length} ended matches for league ${leagueId} on ${date}`);
+      console.log(`💾 [MyNewLeague] Cached ${cacheableFixtures.length} stable matches for league ${leagueId} on ${date} (excluded live/recent/upcoming)`);
     } catch (error) {
-      console.error('Error caching ended matches:', error);
+      console.error('Error caching stable matches:', error);
     }
-  }, [getCacheKey, isMatchOldEnded]);
+  }, [getCacheKey, requiresFreshData]);
 
   // Optimized live data update - only for truly live matches
   const updateLiveMatchData = useCallback(async () => {
@@ -423,9 +457,9 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         try {
           console.log(`🔍 [MyNewLeague] Processing league ${leagueId}`);
 
-          // Check cache first for ended matches
-          const cachedEndedMatches = getCachedEndedMatches(selectedDate, leagueId);
-          let leagueFixtures: FixtureData[] = [...cachedEndedMatches];
+          // Check cache first for stable matches (excluding live/recent/upcoming)
+          const cachedMatches = getCachedMatches(selectedDate, leagueId);
+          let leagueFixtures: FixtureData[] = [...cachedMatches];
 
           // Fetch fresh data for this league
           const response = await apiRequest("GET", `/api/leagues/${leagueId}/fixtures?season=2025`);
@@ -485,8 +519,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
             leagueFixtures = [...leagueFixtures, ...newFixtures];
 
-            // Cache ended matches for this league
-            cacheEndedMatches(selectedDate, leagueId, filteredFixtures);
+            // Cache stable matches for this league (excluding those requiring fresh data)
+            cacheStableMatches(selectedDate, leagueId, filteredFixtures);
           }
 
           // Add league fixtures to overall collection
