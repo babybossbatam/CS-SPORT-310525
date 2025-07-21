@@ -204,7 +204,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
               
               {/* League name below logo */}
               <div className="text-center mt-1">
-                <span className="text-xs text-gray-600 whitespace-nowrap">{league.name}</span>
+                <span className="text-xs text-gray-600 block max-w-[60px] truncate">{league.name}</span>
               </div>
             </div>
           ))}
