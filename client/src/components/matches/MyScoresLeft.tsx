@@ -156,74 +156,7 @@ export const MyScoresLeft = ({
   return (
     <>
       <Card className="shadow-md w-full">
-        <div className="flex items-center justify-between h-9 p-4">
-          <button
-            onClick={goToPreviousDay}
-            className="p-2 hover:bg-gray-100 rounded-r-full flex items-center -ml-4"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <div className="relative h-full flex items-center" ref={calendarRef}>
-            {isCalendarOpen && (
-              <div
-                className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 z-[9999] bg-white shadow-xl border border-gray-200 p-1 w-[320px ]"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Calendar
-                  mode="single"
-                  selected={selectedDate ? parseISO(selectedDate) : new Date()}
-                  onSelect={handleDateSelect}
-                  className="w-full"
-                  classNames={{
-                    months:
-                      "flex flex-row space-x-4 space-y-0 justify-between w-full",
-                    month: "space-y-1  flex-1",
-                    caption:
-                      "flex justify-center pt-0 relative items-center mb-2",
-                    caption_label: "text-sm font-medium",
-                    nav: "space-x-1 flex items-center",
-                    nav_button:
-                      "h-9 w-9 bg-transparent p-3 opacity-50 hover:opacity-100",
-                    nav_button_previous: "absolute left-1",
-                    nav_button_next: "absolute right-1",
-                    table: "w-full border-collapse space-y-1",
-                    head_row: "flex",
-                    head_cell:
-                      "text-gray-500 rounded-md w-9 font-normal text-[0.8rem]",
-                    row: "flex w-full mt-2",
-                    cell: "h-6 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                    day: "h-6 w-6 p-0 text-xs font-normal aria-selected:opacity-100 hover:bg-gray-300 rounded-full border-transparent",
-                    day_range_end: "day-range-end",
-                    day_selected:
-                      "bg-blue-500 text-white hover:bg-stone-300 hover:text-gray-900 focus:bg-blue-400 focus:text-white rounded-full",
-                    day_today:
-                      "text-blue-500 font-normal hover:text-gray-900 hover:bg-stone-300 rounded-full ",
-                    day_outside:
-                      "day-outside text-gray-400 opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-100",
-                    day_disabled: "text-gray-600 opacity-50",
-                    day_range_middle:
-                      "aria-selected:bg-accent aria-selected:text-accent-foreground",
-                    day_hidden: "invisible",
-                  }}
-                />
-                <div className="flex justify-center pt-2 ">
-                  <button
-                    onClick={goToToday}
-                    className="text-blue-500 hover:bg-stone-300 text-sm font-medium"
-                  >
-                    Today
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-          <button
-            onClick={goToNextDay}
-            className="p-2 hover:bg-gray-100 rounded-l-full flex items-center -mr-4"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
+       
 
         {/* Functioning Tabs section similar to MyScoresTab */}
         <div className="flex items-center justify-between px-4 pb-2">
@@ -372,7 +305,8 @@ export const MyScoresLeft = ({
         </div>
       </Card>
 
-      
+      {/* MyScoresCard component */}
+      <MyScoresCard selectedTab="my-scores" onTabChange={() => {}} />
 
       {liveFilterActive && timeFilterActive ? (
         // Combined state: Show live matches grouped by time
