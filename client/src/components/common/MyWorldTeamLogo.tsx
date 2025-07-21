@@ -54,7 +54,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   const isConmebolSudamericana = leagueName.includes("conmebol sudamericana") ||
                                 leagueName.includes("copa sudamericana");
 
-  const shouldUseCircularFlag = (isActualNationalTeam || isYouthTeam || isFriendliesInternational) && 
+  const isUefaNationsLeague = leagueName.includes("uefa nations league") || 
+                             leagueName.includes("nations league");
+
+  const shouldUseCircularFlag = (isActualNationalTeam || isYouthTeam || isFriendliesInternational || isUefaNationsLeague) && 
                               !isFifaClubWorldCup && 
                               !isFriendliesClub && 
                               !isUefaEuropaLeague && 
