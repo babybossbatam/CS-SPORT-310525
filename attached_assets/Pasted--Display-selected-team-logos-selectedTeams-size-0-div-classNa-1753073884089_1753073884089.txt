@@ -1,0 +1,45 @@
+ {/* Display selected team logos */}
+          {selectedTeams.size > 0 && (
+            <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto">
+              {Array.from(selectedTeams).map((teamId) => {
+                const team = popularTeams.find(t => t.id === teamId);
+                if (!team) return null;
+                
+                return (
+                  <div key={teamId} className="relative group">
+                    <div className="w-8 h-8 flex items-center justify-center ">
+                      <MyWorldTeamLogo
+                        teamName={team.name}
+                        teamLogo={team.type === 'country' 
+                          ? `https://hatscripts.github.io/circle-flags/flags/${team.flag}.svg`
+                          : `/api/team-logo/square/${team.id}?size=24`
+                        }
+                        size="24px"
+                        className={team.type === 'country' 
+                          ? "flag-circle rounded-full" 
+                          : "rounded-full"
+                        }
+                        alt={team.name}
+                      />
+                    </div>
+                    
+                    {/* Remove button on hover */}
+                    <button
+                      onClick={() => handleTeamClick(teamId)}
+                      className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-red-600"
+                    >
+                      ×
+                    </button>
+                    
+                    {/* Team name tooltip */}
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                      {team.name}
+                    </div>
+                    
+                  </div>
+                  
+                );
+              })}
+            </div>
+          )}
+        </div>
