@@ -163,11 +163,16 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
 
             <div className="w-12 h-12 mb-2 flex items-center justify-center">
               <img
-                src={league.logo}
+                src={`/api/league-logo/square/${league.id}?size=48`}
                 alt={league.name}
                 className="w-full h-full object-contain rounded-lg"
                 onError={(e) => {
-                  e.currentTarget.src = '/assets/fallback-logo.png';
+                  // Try fallback sources
+                  if (e.currentTarget.src.includes('/api/league-logo/')) {
+                    e.currentTarget.src = league.logo || '/assets/fallback-logo.png';
+                  } else {
+                    e.currentTarget.src = '/assets/fallback-logo.png';
+                  }
                 }}
               />
             </div>
@@ -276,11 +281,16 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
                   <div key={leagueId} className="relative group">
                     <div className="w-8 h-8 flex items-center justify-center">
                       <img
-                        src={league.logo}
+                        src={`/api/league-logo/square/${league.id}?size=32`}
                         alt={league.name}
                         className="w-full h-full object-contain rounded"
                         onError={(e) => {
-                          e.currentTarget.src = '/assets/fallback-logo.png';
+                          // Try fallback sources
+                          if (e.currentTarget.src.includes('/api/league-logo/')) {
+                            e.currentTarget.src = league.logo || '/assets/fallback-logo.png';
+                          } else {
+                            e.currentTarget.src = '/assets/fallback-logo.png';
+                          }
                         }}
                       />
                     </div>
