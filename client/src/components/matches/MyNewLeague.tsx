@@ -1381,9 +1381,7 @@ b.fixture.status.elapsed) || 0;
                     }
                   }
 
-                  return (
-                    <div</old_str>
-
+                  // Default case: display match time for upcoming matches
                   return (
                     <div
                       className="match-time-display"
