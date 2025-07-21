@@ -1387,91 +1387,34 @@ b.fixture.status.elapsed) || 0;
                     // For ended matches, always try to show the score first
                     const homeScore = currentGoals.home;
                     const awayScore = currentGoals.away;
-
-                    // Debug log for ended matches
-                    if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(status)) {
-                      console.log(`🔍 [Ended Match Debug] ${homeTeamName} vs ${awayTeamName}:`, {
-                        matchId,
-                        status,
-                        homeScore,
-                        awayScore,
-                        homeScoreType: typeof homeScore,
-                        awayScoreType: typeof awayScore,
-                        currentGoals,
-                        initialGoals: initialMatch.goals,
-                        isLiveMatch
-                      });
-                    }
                     
-                    // More robust score validation - simplified and fixed
+                    // More robust score validation - prioritize any valid numeric scores
                     const hasValidScores = (
+                      (homeScore === 0 || homeScore > 0) && 
+                      (awayScore === 0 || awayScore > 0) &&
+                      !isNaN(Number(homeScore)) && !isNaN(Number(awayScore))
+                    ) || (
                       homeScore !== null && homeScore !== undefined && 
                       awayScore !== null && awayScore !== undefined &&
                       !isNaN(Number(homeScore)) && !isNaN(Number(awayScore)) &&
                       Number(homeScore) >= 0 && Number(awayScore) >= 0
                     );
 
-                    console.log(`🔍 [Score Debug] Match ${matchId}: ${homeTeamName} vs ${awayTeamName}`, {
-                      status,
-                      homeScore,
-                      awayScore,
-                      hasValidScores,
-                      homeType: typeof homeScore,
-                      awayType: typeof awayScore,
-                      isLiveMatch,
-                      initialGoals: initialMatch.goals
-                    });
+                    // Always show score for ended matches, default to 0-0 if no valid scores
+                    const displayHomeScore = hasValidScores ? homeScore : 0;
+                    const displayAwayScore = hasValidScores ? awayScore : 0;
 
-                    if (hasValidScores) {
-                      return (
-                        <div className="match-score-display">
-                          <span className="score-number">
-                            {homeScore}
-                          </span>
-                          <span className="score-separator">-</span>
-                          <span className="score-number">
-                            {awayScore}
-                          </span>
-                        </div>
-                      );
-                    } else {
-                      // For ended matches, try to display 0-0 if scores are null but match is finished
-                      const shouldShowDefaultScore = ['FT', 'AET', 'PEN'].includes(status) && 
-                                                   (homeScore === null || homeScore === undefined) && 
-                                                   (awayScore === null || awayScore === undefined);
-                      
-                      if (shouldShowDefaultScore) {
-                        console.warn(`⚠️ [Score Fix] Ended match ${matchId} showing 0-0 as fallback:`, {
-                          homeScore,
-                          awayScore,
-                          status,
-                          matchData: currentGoals
-                        });
-                        return (
-                          <div className="match-score-display">
-                            <span className="score-number">0</span>
-                            <span className="score-separator">-</span>
-                            <span className="score-number">0</span>
-                          </div>
-                        );
-                      }
-
-                      // If no valid scores for ended match, something is wrong with the data
-                      console.warn(`⚠️ [Score Warning] Ended match ${matchId} has no valid scores:`, {
-                        homeScore,
-                        awayScore,
-                        status,
-                        matchData: currentGoals
-                      });
-                      return (
-                        <div
-                          className="match-time-display"
-                          style={{ fontSize: "0.882em" }}
-                        >
-                          {formatMatchTimeWithTimezone(matchDate)}
-                        </div>
-                      );
-                    }
+                    return (
+                      <div className="match-score-display">
+                        <span className="score-number">
+                          {displayHomeScore}
+                        </span>
+                        <span className="score-separator">-</span>
+                        <span className="score-number">
+                          {displayAwayScore}
+                        </span>
+                      </div>
+                    );
                   }
 
                   return (
