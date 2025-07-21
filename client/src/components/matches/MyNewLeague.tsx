@@ -797,7 +797,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         matchDateString,
         selectedDate,
         dateMatches: matchDateString === selectedDate,
-        status: f.fixture.status.short,
+        status: f.ixture.status.short,
         league: f.league.name
       });
     });
@@ -1715,7 +1715,8 @@ b.fixture.status.elapsed) || 0;
                           "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
                         fontSize: "13.3px",
                       }}
-                                          {safeSubstring(leagueGroup.league.name, 0) ||
+                  >
+                    {safeSubstring(leagueGroup.league.name, 0) ||
                         "Unknown League"}
                     </span>
 
