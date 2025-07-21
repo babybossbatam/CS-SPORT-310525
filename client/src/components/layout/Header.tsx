@@ -194,14 +194,15 @@ const Header = () => {
         </div>
           {isAuthenticated && (
             <>
-               <div className="flex -mt-8  -ml-24 -mr-26 text-sm font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer underline">{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}
+               <div className="relative -mt-8  -ml-24 -mr-26 text-sm font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer underline">{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}
+              
               <div 
-                className="text-sm flex items-center space-x-1 text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
+                className="text-sm items-center  text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
                 onClick={handleLogout}
               >
                 
-                <span>
-                  Logout
+                <span>,
+                 Logout
                 </span>
               
               </div>
