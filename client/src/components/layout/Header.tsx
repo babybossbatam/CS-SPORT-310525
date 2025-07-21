@@ -68,9 +68,9 @@ const Header = () => {
 
         <LeagueTabs />
         <LeagueTabs />
-        <div className="flex items-center gap-[1.05rem]">
+        <div className="flex items-center gap-[1.05rem] -mr-64">
           <div 
-            className="text-sm flex items-center  text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer -mr-24"
+            className="text-sm flex items-center  text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer "
             onClick={() => isAuthenticated ? navigate('/my-scores') : navigate('/login')}
           >
             <Star className="h-4 w-4 mr-1 fill-current" />
