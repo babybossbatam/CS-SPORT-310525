@@ -18,6 +18,7 @@ import MyScoresTab from "./MyScoresTab";
 import MyScoresCard from "./MyScoresCard";
 import MySelectionCard from "./MySelectionCard";
 import TeamSelectionModal from "../modals/TeamSelectionModal";
+import LeagueSelectionModal from "@/components/modals/LeagueSelectionModal";
 import { useCachedQuery } from "@/lib/cachingHelper";
 
 import { format, parseISO, addDays, subDays } from "date-fns";
@@ -50,6 +51,8 @@ export const MyScoresLeft = ({
   const [selectedTab, setSelectedTab] = useState("my-scores");
   const [selectedTeams, setSelectedTeams] = useState<any[]>([]);
   const [showTeamSelection, setShowTeamSelection] = useState(false);
+  const [showLeagueSelection, setShowLeagueSelection] = useState(false); // Added state for league selection modal
+  const [selectedLeagues, setSelectedLeagues] = useState<any[]>([]); // Added state for selected leagues
   const calendarRef = useRef<HTMLDivElement>(null);
 
   // Close calendar when clicking outside
@@ -167,6 +170,15 @@ export const MyScoresLeft = ({
 
   const handleRemoveTeam = (teamId: string | number) => {
     setSelectedTeams(prev => prev.filter(team => team.id !== teamId));
+  };
+
+  const handleLeagueSelectionComplete = (leagues: any[]) => {
+      console.log("🎯 [MyScoresLeft] League selection completed:", leagues);
+      setSelectedLeagues(leagues);
+  };
+
+  const handleRemoveLeague = (leagueId: string | number) => {
+    setSelectedLeagues(prev => prev.filter(league => league.id !== leagueId));
   };
 
   return (
@@ -328,18 +340,28 @@ export const MyScoresLeft = ({
         initialSelectedTeams={selectedTeams}
       />
 
+      {/* League Selection Modal */}
+      <LeagueSelectionModal
+        open={showLeagueSelection}
+        onOpenChange={setShowLeagueSelection}
+        onLeagueSelectionComplete={handleLeagueSelectionComplete}
+        initialSelectedLeagues={selectedLeagues}
+      />
+
 
 
       {/* Debug info */}
       {console.log("🔍 [MyScoresLeft] Current state:", { 
         selectedTab, 
         selectedTeamsCount: selectedTeams.length, 
-        selectedTeams: selectedTeams.map(team => ({ id: team.id, name: team.name }))
+        selectedTeams: selectedTeams.map(team => ({ id: team.id, name: team.name })),
+        selectedLeaguesCount: selectedLeagues.length,
+        selectedLeagues: selectedLeagues.map(league => ({id: league.id, name: league.name}))
       })}
-      
+
       {/* Conditional rendering based on selected tab */}
       {selectedTab === "my-selections" ? (
-        selectedTeams.length > 0 ? (
+        selectedTeams.length > 0 || selectedLeagues.length > 0 ? (
           // Show MySelectionCard when My Selections tab is active AND selected teams > 0
           <>
             <Card className="mx-auto text-sm">
@@ -351,6 +373,9 @@ export const MyScoresLeft = ({
               selectedTeams={selectedTeams}
               onRemoveTeam={handleRemoveTeam}
               onShowTeamSelection={() => setShowTeamSelection(true)}
+              selectedLeagues={selectedLeagues}
+              onRemoveLeague={handleRemoveLeague}
+              onShowLeagueSelection={() => setShowLeagueSelection(true)}
             />
           </>
         ) : (
@@ -382,11 +407,11 @@ export const MyScoresLeft = ({
               Browse
             </Button>
           </>
-          
+
         ) 
       ) : (
         // Show MyScoresCard when My Scores tab is active
-      
+
         <MyScoresCard 
           selectedTab={selectedTab} 
           onTabChange={setSelectedTab}
