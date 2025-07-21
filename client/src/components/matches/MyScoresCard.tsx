@@ -43,9 +43,9 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
   const EmptyState = () => {
     if (selectedTab === "my-selections") {
       return (
-        <div className="flex flex-col items-center justify-center py-8 text-center">
+        <div className="flex flex-col items-center justify-center  text-center">
           My Teams and Leagues
-          <div className="mb-8 relative">
+          <div className=" relative">
             <img
               src="/assets/matchdetaillogo/favorite icon.svg"
               alt="Favorite"

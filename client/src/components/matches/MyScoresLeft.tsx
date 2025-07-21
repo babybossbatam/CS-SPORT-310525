@@ -30,6 +30,7 @@ import {
   shouldExcludeFromPopularLeagues,
   isRestrictedUSLeague,
 } from "@/lib/MyPopularLeagueExclusion";
+import { Button } from "../ui/button";
 
 interface MyScoresLeftProps {
   fixtures: any[];
@@ -317,7 +318,9 @@ export const MyScoresLeft = ({
         onOpenChange={setShowTeamSelection}
         onTeamSelectionComplete={handleTeamSelectionComplete}
       />
+      
 
+      
       {/* Conditional rendering based on selected tab */}
       {selectedTab === "my-selections" ? (
         selectedTeams.length > 0 ? (
@@ -341,6 +344,9 @@ export const MyScoresLeft = ({
           selectedTeams={selectedTeams}
           onShowTeamSelection={() => setShowTeamSelection(true)}
         />
+   
+      
+
       )}
 
       {liveFilterActive && timeFilterActive ? (
