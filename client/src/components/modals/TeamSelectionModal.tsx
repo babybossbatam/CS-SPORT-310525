@@ -44,14 +44,14 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
     { id: 'england', name: 'England', type: 'country', flag: 'gb' },
     { id: 'spain', name: 'Spain', type: 'country', flag: 'es' },
     { id: 'italy', name: 'Italy', type: 'country', flag: 'it' },
-  
+
     // Teams - ensuring no duplicates and correct Napoli ID (481)
     { id: 492, name: 'Napoli', type: 'team' },
     { id: 497, name: 'AS Roma', type: 'team' },
     { id: 536, name: 'Sevilla', type: 'team' },
     { id: 532, name: 'Valencia', type: 'team' },
     { id: 46, name: 'Leicester City', type: 'team' },
-    
+
     { id: 24884, name: 'Al Nassr FC Riyadh', type: 'team' },
     { id: 541, name: 'Real Madrid', type: 'team' },
     { id: 529, name: 'FC Barcelona', type: 'team' },
@@ -83,17 +83,17 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
       } else {
         newSelection.add(teamId);
       }
-      
+
       // Immediately update parent component with current selections
       if (onTeamSelectionComplete) {
         const selectedTeamsArray = Array.from(newSelection).map((teamId) => {
           const team = popularTeams.find(t => t.id === teamId);
           return team;
         }).filter(Boolean);
-        
+
         onTeamSelectionComplete(selectedTeamsArray);
       }
-      
+
       return newSelection;
     });
   };
@@ -112,13 +112,16 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
         console.log("🎯 [TeamSelectionModal] Found team for ID", teamId, ":", team?.name);
         return team;
       }).filter(Boolean);
-      
+
       console.log("🎯 [TeamSelectionModal] Final selectedTeamsArray length:", selectedTeamsArray.length);
       console.log("🎯 [TeamSelectionModal] Calling onTeamSelectionComplete with:", selectedTeamsArray.map(t => t?.name));
       onTeamSelectionComplete(selectedTeamsArray);
     }
-    // Open league selection modal
-    setShowLeagueSelection(true);
+    // Close team selection modal first, then open league selection
+    onOpenChange(false);
+    setTimeout(() => {
+      setShowLeagueSelection(true);
+    }, 100); // Small delay to ensure smooth transition
   };
 
   const handleLeagueSelectionComplete = (leagues: any[]) => {
@@ -126,12 +129,9 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
     setSelectedLeagues(leagues);
   };
 
-  const handleLeagueSelectionClose = (open: boolean) => {
-    setShowLeagueSelection(open);
-    if (!open) {
-      // Close the team selection modal as well when league selection is done
-      onOpenChange(false);
-    }
+  const handleLeagueSelectionClose = () => {
+    console.log("🎯 [TeamSelectionModal] Closing league selection modal");
+    setShowLeagueSelection(false);
   };
 
   const soccerTeams = popularTeams.filter(team => team.type === 'team');
@@ -223,7 +223,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
           <div className="flex items-center space-x-2">
             <span className="text-sm text-gray-500">STEP 1 OF 2</span>
           </div>
-         
+
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -289,17 +289,17 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
             <div className="px-2 text-xs text-gray-700">
               My Selections: <span className="font-medium">{selectedTeams.size}</span>
             </div>
-            
+
           </div>
-      
-          
+
+
           {/* Display selected team logos */}
           {selectedTeams.size > 0 && (
             <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto">
               {Array.from(selectedTeams).map((teamId) => {
                 const team = popularTeams.find(t => t.id === teamId);
                 if (!team) return null;
-                
+
                 return (
                   <div key={teamId} className="relative group">
                     <div className="w-8 h-8 flex items-center justify-center ">
@@ -317,7 +317,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
                         alt={team.name}
                       />
                     </div>
-                    
+
                     {/* Remove button on hover */}
                     <button
                       onClick={() => handleTeamClick(teamId)}
@@ -325,14 +325,14 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
                     >
                       ×
                     </button>
-                    
+
                     {/* Team name tooltip */}
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
                       {team.name}
                     </div>
-                    
+
                   </div>
-                  
+
                 );
               })}
             </div>
@@ -340,7 +340,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
         </div>
         <div className="flex justify-end items-center gap-2 text-xs">
           <span> Next Step: Select Leagues</span>
-         
+
           <Button 
             onClick={handleNextStep}
             className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-3 mr-4 mb-2 "
@@ -350,7 +350,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
         </div>
       </DialogContent>
     </Dialog>
-    
+
     <LeagueSelectionModal
       open={showLeagueSelection}
       onOpenChange={handleLeagueSelectionClose}
