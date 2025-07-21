@@ -194,7 +194,7 @@ const Header = () => {
         </div>
           {isAuthenticated && (
             <>
-               <div className="relative -mt-8  -ml-24 -mr-26 text-sm font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer underline text-right">{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}
+               <div className="relative -mt-6  -ml-24 -mr-26 text-sm font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer underline text-right">{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}
               
               <div 
                 className="text-sm items-center  text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer"
