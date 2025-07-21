@@ -5,11 +5,21 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+interface League {
+  id: number;
+  name: string;
+  type: string;
+  logo: string;
+  country: string;
+  popularity: string;
+  isQualifiers?: boolean;
+}
+
 interface LeagueSelectionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onLeagueSelectionComplete?: (selectedLeagues: any[]) => void;
-  initialSelectedLeagues?: any[];
+  onLeagueSelectionComplete?: (selectedLeagues: League[]) => void;
+  initialSelectedLeagues?: League[];
 }
 
 const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({ 
@@ -34,8 +44,8 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
   // Popular leagues data organized in 3 rows as shown in images
   const popularLeagues = [
     // Row 1: Top European competitions and Premier League
-    { id: 2, name: 'UEFA Champions League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe', popularity: '37.09M' },
-    { id: 2, name: 'UEFA Champions League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe', popularity: '37.09M' }, // Duplicate for visual consistency
+    { id: 2, name: 'UEFA Champions League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe', popularity: '37.09M', isQualifiers: false },
+    { id: 2, name: 'UEFA Champions League Qualifiers', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe', popularity: '15.2M', isQualifiers: true },
     { id: 39, name: 'Premier League', type: 'league', logo: 'https://media.api-sports.io/football/leagues/39.png', country: 'England', popularity: '45.2M' },
     { id: 45, name: 'FA Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/45.png', country: 'England', popularity: '12.5M' },
     { id: 140, name: 'La Liga', type: 'league', logo: 'https://media.api-sports.io/football/leagues/140.png', country: 'Spain', popularity: '28.7M' },
@@ -76,20 +86,28 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
     { id: 205, name: 'Friendly International', type: 'friendly', logo: 'https://media.api-sports.io/football/leagues/205.png', country: 'International', popularity: '6.1M' },
   ];
 
-  const handleLeagueClick = (leagueId: string | number) => {
+  const handleLeagueClick = (league: any) => {
+    // Create unique identifier for leagues (including qualifiers)
+    const uniqueId = league.isQualifiers ? `${league.id}_qualifiers` : league.id;
+    
     setSelectedLeagues(prev => {
       const newSelection = new Set(prev);
-      if (newSelection.has(leagueId)) {
-        newSelection.delete(leagueId);
+      if (newSelection.has(uniqueId)) {
+        newSelection.delete(uniqueId);
       } else {
-        newSelection.add(leagueId);
+        newSelection.add(uniqueId);
       }
 
       // Immediately update parent component with current selections
       if (onLeagueSelectionComplete) {
-        const selectedLeaguesArray = Array.from(newSelection).map((leagueId) => {
-          const league = popularLeagues.find(l => l.id === leagueId);
-          return league;
+        const selectedLeaguesArray = Array.from(newSelection).map((uniqueId) => {
+          // Handle qualifier leagues
+          if (typeof uniqueId === 'string' && uniqueId.includes('_qualifiers')) {
+            const leagueId = parseInt(uniqueId.split('_')[0]);
+            return popularLeagues.find(l => l.id === leagueId && l.isQualifiers);
+          }
+          // Handle regular leagues
+          return popularLeagues.find(l => l.id === uniqueId && !l.isQualifiers);
         }).filter(Boolean);
 
         onLeagueSelectionComplete(selectedLeaguesArray);
@@ -99,17 +117,22 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
     });
   };
 
-  const handleStarClick = (e: React.MouseEvent, leagueId: string | number) => {
+  const handleStarClick = (e: React.MouseEvent, league: any) => {
     e.stopPropagation();
-    handleLeagueClick(leagueId);
+    handleLeagueClick(league);
   };
 
   const handleFinish = () => {
     console.log("🎯 [LeagueSelectionModal] Finish clicked, selectedLeagues size:", selectedLeagues.size);
     if (onLeagueSelectionComplete && selectedLeagues.size > 0) {
-      const selectedLeaguesArray = Array.from(selectedLeagues).map((leagueId) => {
-        const league = popularLeagues.find(l => l.id === leagueId);
-        return league;
+      const selectedLeaguesArray = Array.from(selectedLeagues).map((uniqueId) => {
+        // Handle qualifier leagues
+        if (typeof uniqueId === 'string' && uniqueId.includes('_qualifiers')) {
+          const leagueId = parseInt(uniqueId.split('_')[0]);
+          return popularLeagues.find(l => l.id === leagueId && l.isQualifiers);
+        }
+        // Handle regular leagues
+        return popularLeagues.find(l => l.id === uniqueId && !l.isQualifiers);
       }).filter(Boolean);
 
       onLeagueSelectionComplete(selectedLeaguesArray);
@@ -123,12 +146,13 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
   const renderLeagueGrid = (leagues: typeof popularLeagues, tabPrefix: string) => (
     <div className="grid grid-cols-5 gap-4 p-4">
       {leagues.map((league, index) => {
-        const isSelected = selectedLeagues.has(league.id);
-        const uniqueKey = `${tabPrefix}-${league.type}-${league.id}-${index}`;
+        const uniqueId = league.isQualifiers ? `${league.id}_qualifiers` : league.id;
+        const isSelected = selectedLeagues.has(uniqueId);
+        const uniqueKey = `${tabPrefix}-${league.type}-${league.id}-${league.isQualifiers ? 'qualifiers' : 'main'}-${index}`;
         return (
           <div
             key={uniqueKey}
-            onClick={() => handleLeagueClick(league.id)}
+            onClick={() => handleLeagueClick(league)}
             className={`group relative flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
               isSelected 
                 ? 'border-blue-500 bg-blue-50' 
@@ -144,7 +168,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
                   ? 'opacity-100 transform translate-x-0'
                   : 'opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0'
               }`}
-              onClick={(e) => handleStarClick(e, league.id)}
+              onClick={(e) => handleStarClick(e, league)}
             >
               <svg
                 className={`w-4 h-4 transition-colors duration-200 ${
@@ -271,12 +295,21 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
           {/* Display selected league logos */}
           {selectedLeagues.size > 0 && (
             <div className="flex flex-wrap gap-2 max-h-20 overflow-y-auto p-2">
-              {Array.from(selectedLeagues).map((leagueId) => {
-                const league = popularLeagues.find(l => l.id === leagueId);
+              {Array.from(selectedLeagues).map((uniqueId) => {
+                // Handle qualifier leagues
+                let league;
+                if (typeof uniqueId === 'string' && uniqueId.includes('_qualifiers')) {
+                  const leagueId = parseInt(uniqueId.split('_')[0]);
+                  league = popularLeagues.find(l => l.id === leagueId && l.isQualifiers);
+                } else {
+                  // Handle regular leagues
+                  league = popularLeagues.find(l => l.id === uniqueId && !l.isQualifiers);
+                }
+                
                 if (!league) return null;
 
                 return (
-                  <div key={leagueId} className="relative group">
+                  <div key={uniqueId} className="relative group">
                     <div className="w-8 h-8 flex items-center justify-center">
                       <img
                         src={`/api/league-logo/square/${league.id}?size=32`}
@@ -295,7 +328,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
 
                     {/* Remove button on hover */}
                     <button
-                      onClick={() => handleLeagueClick(leagueId)}
+                      onClick={() => handleLeagueClick(league)}
                       className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-red-600"
                     >
                       ×
