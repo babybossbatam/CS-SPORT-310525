@@ -318,22 +318,13 @@ export const MyScoresLeft = ({
         onTeamSelectionComplete={handleTeamSelectionComplete}
       />
 
-      {/* Conditional rendering based on selected tab */}
-      {selectedTab === "my-selections" ? (
-        selectedTeams.length > 0 ? (
-          <MySelectionCard 
-            selectedTeams={selectedTeams}
-            onRemoveTeam={handleRemoveTeam}
-            onShowTeamSelection={() => setShowTeamSelection(true)}
-          />
-        ) : (
-          <MyScoresCard 
-            selectedTab={selectedTab} 
-            onTabChange={setSelectedTab}
-            selectedTeams={selectedTeams}
-            onShowTeamSelection={() => setShowTeamSelection(true)}
-          />
-        )
+      {/* Conditional rendering based on team selection */}
+      {selectedTeams.length > 0 ? (
+        <MySelectionCard 
+          selectedTeams={selectedTeams}
+          onRemoveTeam={handleRemoveTeam}
+          onShowTeamSelection={() => setShowTeamSelection(true)}
+        />
       ) : (
         <MyScoresCard 
           selectedTab={selectedTab} 
