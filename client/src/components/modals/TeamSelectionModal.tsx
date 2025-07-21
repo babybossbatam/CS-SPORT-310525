@@ -228,12 +228,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
             </div>
             
           </div>
-          <div>
-            <Button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6">
-              <ChevronRight className="mr-2 h-4 w-4" />
-              
-            </Button>
-          </div>
+      
           
           {/* Display selected team logos */}
           {selectedTeams.size > 0 && (
@@ -272,11 +267,19 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
                       {team.name}
                     </div>
+                    
                   </div>
+                  
                 );
               })}
             </div>
           )}
+        </div>
+        <div>
+          <Button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6">
+            <ChevronRight className="mr-2 h-4 w-4" />
+
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
