@@ -35,10 +35,10 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
   const popularLeagues = [
     // Row 1: Top European competitions and Premier League
     { id: 2, name: 'UEFA Champions League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe', popularity: '37.09M' },
-    { id: 2, name: 'UEFA Champions League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe', popularity: '37.09M' }, // Duplicate for visual consistency
     { id: 39, name: 'Premier League', type: 'league', logo: 'https://media.api-sports.io/football/leagues/39.png', country: 'England', popularity: '45.2M' },
     { id: 45, name: 'FA Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/45.png', country: 'England', popularity: '12.5M' },
     { id: 140, name: 'La Liga', type: 'league', logo: 'https://media.api-sports.io/football/leagues/140.png', country: 'Spain', popularity: '28.7M' },
+    { id: 81, name: 'DFB Pokal', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/81.png', country: 'Germany', popularity: '11.4M' },
 
     // Row 2: More European leagues and competitions
     { id: 135, name: 'Serie A', type: 'league', logo: 'https://media.api-sports.io/football/leagues/135.png', country: 'Italy', popularity: '18.3M' },
@@ -65,7 +65,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
     { id: 42, name: 'League Two', type: 'league', logo: 'https://media.api-sports.io/football/leagues/42.png', country: 'England', popularity: '1.2M' },
     { id: 9, name: 'Copa America', type: 'international', logo: 'https://media.api-sports.io/football/leagues/9.png', country: 'South America', popularity: '19.4M' },
     { id: 848, name: 'UEFA Super Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/848.png', country: 'Europe', popularity: '7.6M' },
-    { id: 137, name: 'Coppa Italia', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Italy', popularity: '5.4M' },
+    { id: 136, name: 'Coppa Italia', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/136.png', country: 'Italy', popularity: '5.4M' },
     { id: 858, name: 'CONCACAF Gold Cup - Qualification', type: 'international', logo: 'https://media.api-sports.io/football/leagues/858.png', country: 'CONCACAF', popularity: '2.7M' },
 
     // Row 6: World Cup qualifications and other competitions
