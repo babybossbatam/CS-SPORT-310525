@@ -1379,7 +1379,10 @@ b.fixture.status.elapsed) || 0;
                         </div>
                       );
                     }
-                  }</old_str>
+                  }
+
+                  return (
+                    <div</old_str>
 
                   return (
                     <div
