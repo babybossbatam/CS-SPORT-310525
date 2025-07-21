@@ -76,6 +76,17 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
       } else {
         newSelection.add(teamId);
       }
+      
+      // Immediately update parent component with current selections
+      if (onTeamSelectionComplete) {
+        const selectedTeamsArray = Array.from(newSelection).map((teamId) => {
+          const team = popularTeams.find(t => t.id === teamId);
+          return team;
+        }).filter(Boolean);
+        
+        onTeamSelectionComplete(selectedTeamsArray);
+      }
+      
       return newSelection;
     });
   };
