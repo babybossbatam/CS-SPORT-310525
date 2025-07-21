@@ -134,21 +134,21 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
             {/* Competitions Section */}
             <div className="space-y-3">
               <div className="flex flex-col items-center">
-                {/* Add competition button */}
-                <button
-                  onClick={onShowTeamSelection}
-                  className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200 flex-shrink-0"
-                >
-                  <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
-                </button>
-                
-                {/* Text below the button */}
-                <div className="flex flex-col items-center text-center mt-1">
+                {/* Button and Add More text in horizontal layout */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={onShowTeamSelection}
+                    className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200 flex-shrink-0"
+                  >
+                    <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
+                  </button>
+                  
+                  {/* Add More text to the right of button */}
                   <span className="text-xs text-gray-600 font-medium">Add More</span>
                 </div>
                 
-                {/* Description text below Add More */}
-                <div className="flex flex-col items-center text-center mt-1">
+                {/* Description text below the button and Add More */}
+                <div className="flex flex-col items-center text-center mt-2">
                   <span className="text-sm text-gray-600">
                     Select your favorite leagues to follow them here
                   </span>
