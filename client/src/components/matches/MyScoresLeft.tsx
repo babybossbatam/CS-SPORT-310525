@@ -327,12 +327,28 @@ export const MyScoresLeft = ({
             onShowTeamSelection={() => setShowTeamSelection(true)}
           />
         ) : (
-          <MyScoresCard 
-            selectedTab={selectedTab} 
-            onTabChange={setSelectedTab}
-            selectedTeams={selectedTeams}
-            onShowTeamSelection={() => setShowTeamSelection(true)}
-          />
+          <Card className="shadow-md w-full mb-4">
+            <CardContent className="pt-4 mt-4">
+              <div className="flex flex-col items-center justify-center py-2 text-center">
+                <div className="mb-4 relative">
+                  <img
+                    src="/assets/matchdetaillogo/favorite icon.svg"
+                    alt="Favorite"
+                    className="h-14 w-14 text-blue-500"
+                  />
+                </div>
+                <p className="mb-4 text-sm text-gray-600">
+                  Select Games, Teams and Competitions to follow them on My Scores
+                </p>
+                <button
+                  onClick={() => setShowTeamSelection(true)}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm"
+                >
+                  Select Teams and Leagues
+                </button>
+              </div>
+            </CardContent>
+          </Card>
         )
       ) : (
         <MyScoresCard 
