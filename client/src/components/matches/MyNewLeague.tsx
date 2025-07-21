@@ -1357,6 +1357,22 @@ b.fixture.status.elapsed) || 0;
                         </div>
                       );
                     } else {
+                      // Debug validation failure for ended matches
+                      console.log(`🚨 [SCORE VALIDATION FAILED] Match: ${homeTeamName} vs ${awayTeamName}`, {
+                        status,
+                        homeScore: currentGoals.home,
+                        awayScore: currentGoals.away,
+                        homeScoreType: typeof currentGoals.home,
+                        awayScoreType: typeof currentGoals.away,
+                        homeIsNull: currentGoals.home === null,
+                        awayIsNull: currentGoals.away === null,
+                        homeIsUndefined: currentGoals.home === undefined,
+                        awayIsUndefined: currentGoals.away === undefined,
+                        homeIsNaN: isNaN(Number(currentGoals.home)),
+                        awayIsNaN: isNaN(Number(currentGoals.away)),
+                        fallbackToTime: formatMatchTimeWithTimezone(matchDate)
+                      });
+
                       return (
                         <div
                           className="match-time-display"
