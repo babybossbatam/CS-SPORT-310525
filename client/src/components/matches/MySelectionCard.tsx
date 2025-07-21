@@ -99,9 +99,9 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
           <div className="flex flex-col items-center">
             <button
               onClick={onShowTeamSelection}
-              className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200"
+              className="w-12 h-12 border-2 border-dashed border-gray-500 rounded-full flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200"
             >
-              <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
+              <Plus className="h-6 w-6 text-gray-500 hover:text-blue-500" />
             </button>
             
             {/* Add More text below the button */}
@@ -138,9 +138,9 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                 <div className="flex flex-col items-center">
                   <button
                     onClick={onShowTeamSelection}
-                    className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200 flex-shrink-0"
+                    className="w-12 h-12 border-2 border-dashed border-gray-500 rounded-full flex items-center justify-center hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200 flex-shrink-0"
                   >
-                    <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
+                    <Plus className="h-6 w-6 text-gray-500 hover:text-blue-500" />
                   </button>
                   
                   {/* Add More text below the button */}
