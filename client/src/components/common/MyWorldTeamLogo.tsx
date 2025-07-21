@@ -44,6 +44,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   const leagueName = leagueContext?.name?.toLowerCase() || "";
   const isFifaClubWorldCup = leagueName.includes("fifa club world cup");
   const isFriendliesClub = leagueName.includes("friendlies clubs");
+  const isFriendliesInternational = leagueName.includes("friendlies") && !leagueName.includes("clubs");
   const isUefaEuropaLeague = leagueName.includes("uefa europa league") || 
                             leagueName.includes("europa league");
   const isUefaConferenceLeague = leagueName.includes("uefa europa conference league") || 
@@ -53,7 +54,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   const isConmebolSudamericana = leagueName.includes("conmebol sudamericana") ||
                                 leagueName.includes("copa sudamericana");
 
-  const shouldUseCircularFlag = (isActualNationalTeam || isYouthTeam) && 
+  const shouldUseCircularFlag = (isActualNationalTeam || isYouthTeam || isFriendliesInternational) && 
                               !isFifaClubWorldCup && 
                               !isFriendliesClub && 
                               !isUefaEuropaLeague && 
