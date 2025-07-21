@@ -1143,6 +1143,18 @@ b.fixture.status.elapsed) || 0;
     const currentGoals = isLiveMatch ? matchState.goals : initialMatch.goals;
     const currentStatus = isLiveMatch ? matchState.status : initialMatch.fixture.status;
 
+    // Debug score data for ended matches
+    if (['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(currentStatus.short)) {
+      console.log(`🎯 [Ended Match Score] ${homeTeamName} vs ${awayTeamName}:`, {
+        matchId,
+        status: currentStatus.short,
+        isLiveMatch,
+        currentGoals,
+        initialGoals: initialMatch.goals,
+        liveGoals: isLiveMatch ? matchState.goals : 'N/A'
+      });
+    }
+
     const handleMatchClick = () => {
       if (onMatchClick) {
         onMatchClick(matchId, homeTeamName, awayTeamName);
@@ -1371,12 +1383,19 @@ b.fixture.status.elapsed) || 0;
                     ].includes(status)
                   ) {
                     const hasValidScores =
-                      currentGoals.home !== null &&
-                      currentGoals.home !== undefined &&
-                      currentGoals.away !== null &&
-                      currentGoals.away !== undefined &&
+                      (currentGoals.home !== null && currentGoals.home !== undefined) &&
+                      (currentGoals.away !== null && currentGoals.away !== undefined) &&
                       !isNaN(Number(currentGoals.home)) &&
                       !isNaN(Number(currentGoals.away));
+
+                    console.log(`🔍 [Score Debug] Match ${matchId}: ${homeTeamName} vs ${awayTeamName}`, {
+                      status,
+                      currentGoalsHome: currentGoals.home,
+                      currentGoalsAway: currentGoals.away,
+                      hasValidScores,
+                      homeType: typeof currentGoals.home,
+                      awayType: typeof currentGoals.away
+                    });
 
                     if (hasValidScores) {
                       return (
