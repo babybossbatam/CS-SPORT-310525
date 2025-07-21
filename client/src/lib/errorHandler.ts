@@ -290,7 +290,10 @@ export const setupGlobalErrorHandlers = () => {
     // Prevent frame-related errors from crashing the app
     if (error?.message?.includes('frame') || 
         error?.message?.includes('ErrorOverlay') ||
-        event.filename?.includes('vite/client')) {
+        error?.message?.includes('Cannot read properties of undefined (reading \'frame\')') ||
+        error?.message?.includes('reading \'frame\'') ||
+        event.filename?.includes('vite/client') ||
+        event.filename?.includes('client:')) {
       console.log('🖼️ Suppressing frame/vite overlay error');
       event.preventDefault();
       return;
