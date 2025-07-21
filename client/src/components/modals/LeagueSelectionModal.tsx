@@ -190,7 +190,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
             </span>
 
             {/* Popularity indicator */}
-            <div className="flex items-center text-blue-600">
+            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center text-blue-600">
               <span className="text-xs font-semibold">
                 {league.popularity}
               </span>
