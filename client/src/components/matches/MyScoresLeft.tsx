@@ -298,13 +298,6 @@ export const MyScoresLeft = ({
         </div>
       </Card>
 
-      {/* New card below the Live/By time card */}
-      <Card className="shadow-md w-full">
-        <div className="flex items-center justify-between ">
-          <div className="mb-4 flex items-center gap-2"></div>
-        </div>
-      </Card>
-
       {/* MyScoresCard component */}
       <MyScoresCard selectedTab="my-scores" onTabChange={() => {}} />
 
