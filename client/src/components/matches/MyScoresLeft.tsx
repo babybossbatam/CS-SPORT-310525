@@ -331,11 +331,11 @@ export const MyScoresLeft = ({
           />
         ) : (
           <>
-            <Card className="mb-4">
+            <Card className="mx-auto">
               <CardContent>
-                <p>
-                  My Teams and Leagues
-                </p>
+                <span>My Teams and Leagues</span>
+                  
+               
               </CardContent>
             </Card>
 
