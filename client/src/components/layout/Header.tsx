@@ -193,7 +193,7 @@ const Header = () => {
           </DropdownMenu>
 
           {isAuthenticated && (
-            <div className="flex items-center text-sm font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer underline ml-4">
+            <div className="re items-center text-sm font-semibold text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer underline ml-4">
               <span>{username ? username.charAt(0).toUpperCase() + username.slice(1) : ''}</span>
               <span>, </span>
               <span 
