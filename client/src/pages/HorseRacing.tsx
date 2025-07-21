@@ -7,7 +7,7 @@ import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
 import MyHorseMain from '@/components/layout/MyHorseMain';
 import NewsSection from '@/components/news/NewsSection';
-import { Horse } from 'lucide-react';
+import { HorseRacingIcon } from '@/components/icons/SportIcons';
 import { useToast } from '@/hooks/use-toast';
 
 const HorseRacing = () => {
@@ -25,7 +25,7 @@ const HorseRacing = () => {
       <SportsCategoryTabs />
       <TournamentHeader 
         title="Horse Racing - Top Races" 
-        icon={<Horse className="h-4 w-4 text-neutral-600" />} 
+        icon={<HorseRacingIcon className="h-4 w-4 text-neutral-600" />} 
       />
       
       <div className="flex-1" style={{ marginTop: "52px" }}>
