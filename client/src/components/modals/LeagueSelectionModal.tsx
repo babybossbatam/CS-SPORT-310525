@@ -225,13 +225,13 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
       <DialogContent className="max-w-2xl max-h-[80vh] p-0 overflow-hidden flex flex-col">
         <DialogHeader className="flex flex-row items-center justify-between p-4 border-b flex-shrink-0">
           <div className="flex items-center space-x-2">
-            <span className="text-xs text-gray-500">STEP 2 OF 2</span>
+            <span className="text-xs text-gray-500 uppercase">step 2 of 2</span>
           </div>
          
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto ">
-          <h3 className="text-lg font-semibold">SELECT LEAGUES TO FOLLOW</h3>
+          <h3 className="text-lg font-semibold uppercase ml-4">select leagues to follow</h3>
 
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
