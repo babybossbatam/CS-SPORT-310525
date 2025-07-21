@@ -3,8 +3,6 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/store';
 import MyHomeFeaturedMatchNew from '@/components/matches/MyHomeFeaturedMatchNew';
-import HomeTopScorersList from '@/components/leagues/HomeTopScorersList';
-import LeagueStandingsFilter from '@/components/leagues/LeagueStandingsFilter';
 import PopularLeaguesList from '@/components/leagues/PopularLeaguesList';
 import PopularTeamsList from '@/components/teams/PopularTeamsList';
 
@@ -18,10 +16,6 @@ const MyScoresRight: React.FC = () => {
         selectedDate={selectedDate} 
         maxMatches={8}
       />
-
-      <HomeTopScorersList />
-
-      <LeagueStandingsFilter />
 
       {/* Popular Leagues and Teams sections */}
       <div className="grid grid-cols-2 gap-4">
