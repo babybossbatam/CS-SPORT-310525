@@ -22,11 +22,10 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
   const [selectedTab, setSelectedTab] = useState('top');
   const [selectedTeams, setSelectedTeams] = useState<Set<string | number>>(new Set());
 
-  // Reset selections when modal opens
+  // Don't reset selections when modal opens - keep existing selections
   React.useEffect(() => {
     if (open) {
-      console.log("🎯 [TeamSelectionModal] Modal opened, resetting selections");
-      setSelectedTeams(new Set());
+      console.log("🎯 [TeamSelectionModal] Modal opened, keeping existing selections");
     }
   }, [open]);
 
@@ -110,7 +109,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
       console.log("🎯 [TeamSelectionModal] Calling onTeamSelectionComplete with:", selectedTeamsArray.map(t => t?.name));
       onTeamSelectionComplete(selectedTeamsArray);
     }
-    onOpenChange(false);
+    // Don't close the modal - keep it open for further selections
   };
 
   const soccerTeams = popularTeams.filter(team => team.type === 'team');

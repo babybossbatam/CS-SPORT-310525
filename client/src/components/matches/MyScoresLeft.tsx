@@ -162,7 +162,7 @@ export const MyScoresLeft = ({
     console.log("🎯 [MyScoresLeft] Team selection completed:", teams);
     console.log("🎯 [MyScoresLeft] Number of teams received:", teams.length);
     setSelectedTeams(teams);
-    setShowTeamSelection(false);
+    // Don't close the modal - keep it open for further selections
   };
 
   const handleRemoveTeam = (teamId: string | number) => {
