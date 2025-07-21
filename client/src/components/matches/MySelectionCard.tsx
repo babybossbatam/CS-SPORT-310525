@@ -150,8 +150,10 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                 </div>
               </div>
               
-              <div className="text-sm text-gray-600">
-                Select your favorite competitions to follow them here
+              <div className="flex justify-start ml-12">
+                <div className="text-sm text-gray-600">
+                  Select your favorite competitions to follow them here
+                </div>
               </div>
             </div>
           </div>
