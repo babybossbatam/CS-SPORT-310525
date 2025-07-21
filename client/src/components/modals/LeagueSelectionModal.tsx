@@ -35,46 +35,46 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
   // Popular leagues data organized in 3 rows as shown in images
   const popularLeagues = [
     // Row 1: Top European competitions and Premier League
-    { id: 2, name: 'UEFA Champions League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe' },
-    { id: 2, name: 'UEFA Champions League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe' }, // Duplicate for visual consistency
-    { id: 39, name: 'Premier League', type: 'league', logo: 'https://media.api-sports.io/football/leagues/39.png', country: 'England' },
-    { id: 45, name: 'FA Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/45.png', country: 'England' },
-    { id: 140, name: 'La Liga', type: 'league', logo: 'https://media.api-sports.io/football/leagues/140.png', country: 'Spain' },
+    { id: 2, name: 'UEFA Champions League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe', popularity: '37.09M' },
+    { id: 2, name: 'UEFA Champions League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/2.png', country: 'Europe', popularity: '37.09M' }, // Duplicate for visual consistency
+    { id: 39, name: 'Premier League', type: 'league', logo: 'https://media.api-sports.io/football/leagues/39.png', country: 'England', popularity: '45.2M' },
+    { id: 45, name: 'FA Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/45.png', country: 'England', popularity: '12.5M' },
+    { id: 140, name: 'La Liga', type: 'league', logo: 'https://media.api-sports.io/football/leagues/140.png', country: 'Spain', popularity: '28.7M' },
     
     // Row 2: More European leagues and competitions
-    { id: 135, name: 'Serie A', type: 'league', logo: 'https://media.api-sports.io/football/leagues/135.png', country: 'Italy' },
-    { id: 3, name: 'UEFA Europa League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/3.png', country: 'Europe' },
-    { id: 528, name: 'Community Shield', type: 'friendly', logo: 'https://media.api-sports.io/football/leagues/528.png', country: 'England' },
-    { id: 46, name: 'EFL Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/46.png', country: 'England' },
-    { id: 78, name: 'Bundesliga', type: 'league', logo: 'https://media.api-sports.io/football/leagues/78.png', country: 'Germany' },
+    { id: 135, name: 'Serie A', type: 'league', logo: 'https://media.api-sports.io/football/leagues/135.png', country: 'Italy', popularity: '18.3M' },
+    { id: 3, name: 'UEFA Europa League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/3.png', country: 'Europe', popularity: '15.8M' },
+    { id: 528, name: 'Community Shield', type: 'friendly', logo: 'https://media.api-sports.io/football/leagues/528.png', country: 'England', popularity: '3.2M' },
+    { id: 46, name: 'EFL Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/46.png', country: 'England', popularity: '8.1M' },
+    { id: 78, name: 'Bundesliga', type: 'league', logo: 'https://media.api-sports.io/football/leagues/78.png', country: 'Germany', popularity: '22.4M' },
     
     // Row 3: International and other competitions
-    { id: 40, name: 'Championship', type: 'league', logo: 'https://media.api-sports.io/football/leagues/40.png', country: 'England' },
-    { id: 61, name: 'Ligue 1', type: 'league', logo: 'https://media.api-sports.io/football/leagues/61.png', country: 'France' },
-    { id: 4, name: 'Euro Championship', type: 'international', logo: 'https://media.api-sports.io/football/leagues/4.png', country: 'Europe' },
-    { id: 137, name: 'Copa del Rey', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Spain' },
-    { id: 1, name: 'Club World Cup', type: 'international', logo: 'https://media.api-sports.io/football/leagues/1.png', country: 'World' },
+    { id: 40, name: 'Championship', type: 'league', logo: 'https://media.api-sports.io/football/leagues/40.png', country: 'England', popularity: '6.7M' },
+    { id: 61, name: 'Ligue 1', type: 'league', logo: 'https://media.api-sports.io/football/leagues/61.png', country: 'France', popularity: '14.9M' },
+    { id: 4, name: 'Euro Championship', type: 'international', logo: 'https://media.api-sports.io/football/leagues/4.png', country: 'Europe', popularity: '52.1M' },
+    { id: 137, name: 'Copa del Rey', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Spain', popularity: '9.3M' },
+    { id: 1, name: 'Club World Cup', type: 'international', logo: 'https://media.api-sports.io/football/leagues/1.png', country: 'World', popularity: '25.6M' },
     
     // Row 4: Additional leagues
-    { id: 170, name: 'League One', type: 'league', logo: 'https://media.api-sports.io/football/leagues/170.png', country: 'England' },
-    { id: 32, name: 'UEFA WC Qualification', type: 'international', logo: 'https://media.api-sports.io/football/leagues/32.png', country: 'Europe' },
-    { id: 179, name: 'Scottish Premiership', type: 'league', logo: 'https://media.api-sports.io/football/leagues/179.png', country: 'Scotland' },
-    { id: 5, name: 'UEFA Nations League', type: 'international', logo: 'https://media.api-sports.io/football/leagues/5.png', country: 'Europe' },
-    { id: 11, name: 'Africa Cup of Nations', type: 'international', logo: 'https://media.api-sports.io/football/leagues/11.png', country: 'Africa' },
+    { id: 170, name: 'League One', type: 'league', logo: 'https://media.api-sports.io/football/leagues/170.png', country: 'England', popularity: '2.1M' },
+    { id: 32, name: 'UEFA WC Qualification', type: 'international', logo: 'https://media.api-sports.io/football/leagues/32.png', country: 'Europe', popularity: '18.7M' },
+    { id: 179, name: 'Scottish Premiership', type: 'league', logo: 'https://media.api-sports.io/football/leagues/179.png', country: 'Scotland', popularity: '1.8M' },
+    { id: 5, name: 'UEFA Nations League', type: 'international', logo: 'https://media.api-sports.io/football/leagues/5.png', country: 'Europe', popularity: '12.3M' },
+    { id: 11, name: 'Africa Cup of Nations', type: 'international', logo: 'https://media.api-sports.io/football/leagues/11.png', country: 'Africa', popularity: '8.9M' },
     
     // Row 5: More international competitions
-    { id: 42, name: 'League Two', type: 'league', logo: 'https://media.api-sports.io/football/leagues/42.png', country: 'England' },
-    { id: 9, name: 'Copa America', type: 'international', logo: 'https://media.api-sports.io/football/leagues/9.png', country: 'South America' },
-    { id: 848, name: 'UEFA Super Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/848.png', country: 'Europe' },
-    { id: 137, name: 'Coppa Italia', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Italy' },
-    { id: 858, name: 'CONCACAF Gold Cup - Qualification', type: 'international', logo: 'https://media.api-sports.io/football/leagues/858.png', country: 'CONCACAF' },
+    { id: 42, name: 'League Two', type: 'league', logo: 'https://media.api-sports.io/football/leagues/42.png', country: 'England', popularity: '1.2M' },
+    { id: 9, name: 'Copa America', type: 'international', logo: 'https://media.api-sports.io/football/leagues/9.png', country: 'South America', popularity: '19.4M' },
+    { id: 848, name: 'UEFA Super Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/848.png', country: 'Europe', popularity: '7.6M' },
+    { id: 137, name: 'Coppa Italia', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Italy', popularity: '5.4M' },
+    { id: 858, name: 'CONCACAF Gold Cup - Qualification', type: 'international', logo: 'https://media.api-sports.io/football/leagues/858.png', country: 'CONCACAF', popularity: '2.7M' },
     
     // Row 6: World Cup qualifications and other competitions
-    { id: 31, name: 'World Cup - Qualification CONCACAF', type: 'international', logo: 'https://media.api-sports.io/football/leagues/31.png', country: 'CONCACAF' },
-    { id: 33, name: 'World Cup - Qualification Oceania', type: 'international', logo: 'https://media.api-sports.io/football/leagues/33.png', country: 'Oceania' },
-    { id: 34, name: 'World Cup - Qualification South America', type: 'international', logo: 'https://media.api-sports.io/football/leagues/34.png', country: 'South America' },
-    { id: 180, name: 'Super Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/180.png', country: 'Various' },
-    { id: 205, name: 'Friendly International', type: 'friendly', logo: 'https://media.api-sports.io/football/leagues/205.png', country: 'International' },
+    { id: 31, name: 'World Cup - Qualification CONCACAF', type: 'international', logo: 'https://media.api-sports.io/football/leagues/31.png', country: 'CONCACAF', popularity: '4.8M' },
+    { id: 33, name: 'World Cup - Qualification Oceania', type: 'international', logo: 'https://media.api-sports.io/football/leagues/33.png', country: 'Oceania', popularity: '0.9M' },
+    { id: 34, name: 'World Cup - Qualification South America', type: 'international', logo: 'https://media.api-sports.io/football/leagues/34.png', country: 'South America', popularity: '11.2M' },
+    { id: 180, name: 'Super Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/180.png', country: 'Various', popularity: '3.5M' },
+    { id: 205, name: 'Friendly International', type: 'friendly', logo: 'https://media.api-sports.io/football/leagues/205.png', country: 'International', popularity: '6.1M' },
   ];
 
   const handleLeagueClick = (leagueId: string | number) => {
@@ -136,6 +136,13 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
                 : 'border-transparent hover:border-blue-200 hover:border-blue-500'
             }`}
           >
+            {/* Popularity indicator - top left */}
+            <div className={`absolute top-1 left-1 bg-blue-500 text-white text-xs px-2 py-1 rounded-full transition-all duration-300 ease-out ${
+              'opacity-0 group-hover:opacity-100 transform -translate-y-1 group-hover:translate-y-0'
+            }`}>
+              {league.popularity}
+            </div>
+
             {/* Star toggle button */}
             <button
               className={`absolute top-1 right-1 w-6 h-6 shadow-md flex items-center justify-center transition-all duration-300 ease-out ${
