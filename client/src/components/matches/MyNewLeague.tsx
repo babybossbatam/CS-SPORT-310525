@@ -1140,7 +1140,9 @@ b.fixture.status.elapsed) || 0;
     const matchState = useSelectiveMatchUpdate(matchId, initialMatch);
 
     // Use live data if available, otherwise use initial data
-    const currentGoals = isLiveMatch ? matchState.goals : initialMatch.goals;
+    // For ended matches, prioritize initial match data for scores
+    const isEndedMatch = ['FT', 'AET', 'PEN', 'AWD', 'WO', 'ABD', 'CANC', 'SUSP'].includes(initialMatch.fixture.status.short);
+    const currentGoals = isLiveMatch && !isEndedMatch ? matchState.goals : initialMatch.goals;
     const currentStatus = isLiveMatch ? matchState.status : initialMatch.fixture.status;
 
     // Debug score data for ended matches
@@ -1382,34 +1384,49 @@ b.fixture.status.elapsed) || 0;
                       "SUSP",
                     ].includes(status)
                   ) {
-                    const hasValidScores =
-                      (currentGoals.home !== null && currentGoals.home !== undefined) &&
-                      (currentGoals.away !== null && currentGoals.away !== undefined) &&
-                      !isNaN(Number(currentGoals.home)) &&
-                      !isNaN(Number(currentGoals.away));
+                    // For ended matches, always try to show the score first
+                    const homeScore = currentGoals.home;
+                    const awayScore = currentGoals.away;
+                    
+                    const hasValidScores = 
+                      homeScore !== null && 
+                      homeScore !== undefined && 
+                      awayScore !== null && 
+                      awayScore !== undefined &&
+                      !isNaN(Number(homeScore)) && 
+                      !isNaN(Number(awayScore));
 
                     console.log(`🔍 [Score Debug] Match ${matchId}: ${homeTeamName} vs ${awayTeamName}`, {
                       status,
-                      currentGoalsHome: currentGoals.home,
-                      currentGoalsAway: currentGoals.away,
+                      homeScore,
+                      awayScore,
                       hasValidScores,
-                      homeType: typeof currentGoals.home,
-                      awayType: typeof currentGoals.away
+                      homeType: typeof homeScore,
+                      awayType: typeof awayScore,
+                      isLiveMatch,
+                      initialGoals: initialMatch.goals
                     });
 
                     if (hasValidScores) {
                       return (
                         <div className="match-score-display">
                           <span className="score-number">
-                            {currentGoals.home}
+                            {homeScore}
                           </span>
                           <span className="score-separator">-</span>
                           <span className="score-number">
-                            {currentGoals.away}
+                            {awayScore}
                           </span>
                         </div>
                       );
                     } else {
+                      // If no valid scores for ended match, something is wrong with the data
+                      console.warn(`⚠️ [Score Warning] Ended match ${matchId} has no valid scores:`, {
+                        homeScore,
+                        awayScore,
+                        status,
+                        matchData: currentGoals
+                      });
                       return (
                         <div
                           className="match-time-display"
