@@ -44,36 +44,37 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
     // Row 2: More European leagues and competitions
     { id: 135, name: 'Serie A', type: 'league', logo: 'https://media.api-sports.io/football/leagues/135.png', country: 'Italy' },
     { id: 3, name: 'UEFA Europa League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/3.png', country: 'Europe' },
-    { id: 667, name: 'Community Shield', type: 'friendly', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'England' },
-    { id: 667, name: 'EFL Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'England' },
+    { id: 528, name: 'Community Shield', type: 'friendly', logo: 'https://media.api-sports.io/football/leagues/528.png', country: 'England' },
+    { id: 46, name: 'EFL Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/46.png', country: 'England' },
     { id: 78, name: 'Bundesliga', type: 'league', logo: 'https://media.api-sports.io/football/leagues/78.png', country: 'Germany' },
     
     // Row 3: International and other competitions
-    { id: 667, name: 'Championship', type: 'league', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'England' },
+    { id: 40, name: 'Championship', type: 'league', logo: 'https://media.api-sports.io/football/leagues/40.png', country: 'England' },
     { id: 61, name: 'Ligue 1', type: 'league', logo: 'https://media.api-sports.io/football/leagues/61.png', country: 'France' },
     { id: 4, name: 'Euro Championship', type: 'international', logo: 'https://media.api-sports.io/football/leagues/4.png', country: 'Europe' },
     { id: 137, name: 'Copa del Rey', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Spain' },
     { id: 1, name: 'Club World Cup', type: 'international', logo: 'https://media.api-sports.io/football/leagues/1.png', country: 'World' },
     
     // Row 4: Additional leagues
-    { id: 667, name: 'League One', type: 'league', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'England' },
-    { id: 667, name: 'UEFA WC Qualification', type: 'international', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'Europe' },
-    { id: 667, name: 'Scottish Premiership', type: 'league', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'Scotland' },
+    { id: 170, name: 'League One', type: 'league', logo: 'https://media.api-sports.io/football/leagues/170.png', country: 'England' },
+    { id: 32, name: 'UEFA WC Qualification', type: 'international', logo: 'https://media.api-sports.io/football/leagues/32.png', country: 'Europe' },
+    { id: 179, name: 'Scottish Premiership', type: 'league', logo: 'https://media.api-sports.io/football/leagues/179.png', country: 'Scotland' },
     { id: 5, name: 'UEFA Nations League', type: 'international', logo: 'https://media.api-sports.io/football/leagues/5.png', country: 'Europe' },
     { id: 11, name: 'Africa Cup of Nations', type: 'international', logo: 'https://media.api-sports.io/football/leagues/11.png', country: 'Africa' },
     
     // Row 5: More international competitions
-    { id: 667, name: 'League Two', type: 'league', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'England' },
+    { id: 42, name: 'League Two', type: 'league', logo: 'https://media.api-sports.io/football/leagues/42.png', country: 'England' },
     { id: 9, name: 'Copa America', type: 'international', logo: 'https://media.api-sports.io/football/leagues/9.png', country: 'South America' },
     { id: 848, name: 'UEFA Super Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/848.png', country: 'Europe' },
-    { id: 667, name: 'Coppa Italia', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'Italy' },
-    { id: 667, name: 'European Qualifiers', type: 'international', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'Europe' },
+    { id: 137, name: 'Coppa Italia', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Italy' },
+    { id: 858, name: 'CONCACAF Gold Cup - Qualification', type: 'international', logo: 'https://media.api-sports.io/football/leagues/858.png', country: 'CONCACAF' },
     
-    // Row 6: Other sports and competitions
-    { id: 667, name: 'NBA', type: 'basketball', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'USA' },
-    { id: 667, name: 'Liga MX', type: 'league', logo: 'https://media.api-sports.io/football/leagues/307.png', country: 'Mexico' },
-    { id: 667, name: 'Super Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'Various' },
-    { id: 667, name: 'Friendly International', type: 'friendly', logo: 'https://media.api-sports.io/football/leagues/667.png', country: 'International' },
+    // Row 6: World Cup qualifications and other competitions
+    { id: 31, name: 'World Cup - Qualification CONCACAF', type: 'international', logo: 'https://media.api-sports.io/football/leagues/31.png', country: 'CONCACAF' },
+    { id: 33, name: 'World Cup - Qualification Oceania', type: 'international', logo: 'https://media.api-sports.io/football/leagues/33.png', country: 'Oceania' },
+    { id: 34, name: 'World Cup - Qualification South America', type: 'international', logo: 'https://media.api-sports.io/football/leagues/34.png', country: 'South America' },
+    { id: 180, name: 'Super Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/180.png', country: 'Various' },
+    { id: 205, name: 'Friendly International', type: 'friendly', logo: 'https://media.api-sports.io/football/leagues/205.png', country: 'International' },
   ];
 
   const handleLeagueClick = (leagueId: string | number) => {
