@@ -135,12 +135,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
                 : 'border-transparent hover:border-blue-200 hover:border-blue-500'
             }`}
           >
-            {/* Popularity indicator - top left */}
-            <div className={`absolute top-1 left-1 bg-blue-500 text-white text-xs px-2 py-1 rounded-full transition-all duration-300 ease-out ${
-              'opacity-0 group-hover:opacity-100 transform -translate-y-1 group-hover:translate-y-0'
-            }`}>
-              {league.popularity}
-            </div>
+            
 
             {/* Star toggle button */}
             <button
