@@ -170,11 +170,11 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
           {selectedLeagues.map((league, index) => (
             <div key={`${league.id}-${index}`} className="flex flex-col items-center">
               <div className="relative group">
-                <div className="w-9 h-9 flex items-center justify-center">
+                <div className="w-9 h-9 flex items-center justify-center mt-1.5">
                   <img
                     src={`/api/league-logo/square/${league.id}?size=36`}
                     alt={league.name}
-                    className="w-full h-full object-contain rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200"
+                    className="w-full h-full object-contain rounded-lg  hover:shadow-lg transition-shadow duration-200"
                     onError={(e) => {
                       // Try fallback sources
                       if (e.currentTarget.src.includes('/api/league-logo/')) {
