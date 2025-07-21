@@ -3,9 +3,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
 import MyScoresLeft from "@/components/matches/MyScoresLeft.tsx";
-import MyRightContent, {
-  MyRightDetails,
-} from "@/components/layout/MyRightContent";
+import MyScoresRight from "@/components/layout/MyScoresRight";
+import { MyRightDetails } from "@/components/layout/MyRightContent";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 import MyScoresCard from "@/components/matches/MyScoresCard";
@@ -170,7 +169,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
               onClose={handleBackToMain}
             />
           ) : (
-            <MyRightContent />
+            <MyScoresRight />
           )}
         </div>
       </div>
