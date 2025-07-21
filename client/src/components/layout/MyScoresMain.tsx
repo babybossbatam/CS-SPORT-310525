@@ -153,10 +153,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
             <div>{children}</div>
           ) : (
             <div>
-              <MyScoresCard
-                selectedTab={selectedTab}
-                onTabChange={setSelectedTab}
-              />
               <MyScoresLeft
                 fixtures={filteredFixtures}
                 onMatchClick={handleMatchClick}
