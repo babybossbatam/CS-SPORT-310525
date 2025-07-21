@@ -43,8 +43,8 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
   const EmptyState = () => {
     if (selectedTab === "my-selections") {
       return (
-        <div className="flex flex-col items-center justify-center py-12 px-6 text-center bg-gray-50 rounded-lg">
-          <div className="mb-8 text-base font-medium text-gray-900">
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="mb-4 text-sm font-medium text-gray-900">
             My Teams and Leagues
           </div>
           <div className="mb-8 relative">
