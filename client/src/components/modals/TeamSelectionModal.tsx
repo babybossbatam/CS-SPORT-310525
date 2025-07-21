@@ -78,13 +78,16 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
   };
 
   const handleNextStep = () => {
-    if (onTeamSelectionComplete && selectedTeams.size > 0) {
+    if (selectedTeams.size > 0) {
       const selectedTeamsArray = Array.from(selectedTeams).map((teamId) => {
         const team = popularTeams.find(t => t.id === teamId);
         return team;
       }).filter(Boolean);
       
-      onTeamSelectionComplete(selectedTeamsArray);
+      console.log('Calling onTeamSelectionComplete with:', selectedTeamsArray);
+      if (onTeamSelectionComplete) {
+        onTeamSelectionComplete(selectedTeamsArray);
+      }
     }
     onOpenChange(false);
   };

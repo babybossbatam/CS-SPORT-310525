@@ -9,6 +9,7 @@ import { enhancedApiWrapper } from "@/lib/enhancedApiWrapper";
 import { format } from "date-fns";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 import TeamSelectionModal from "@/components/modals/TeamSelectionModal";
+import MySelectionsCard from "@/components/matches/MySelectionsCard";
 
 interface MyScoresCardProps {
   selectedTab: string;
@@ -38,67 +39,10 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
   });
 
   const handleTeamSelectionComplete = (teams: any[]) => {
+    console.log('Teams selected:', teams);
     setSelectedTeams(teams);
+    setShowTeamSelection(false);
   };
-
-  const MyTeamsSection = () => (
-    <div className="mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">My Teams and Leagues</h2>
-        <button className="p-1">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-          </svg>
-        </button>
-      </div>
-      
-      <div className="grid grid-cols-4 gap-4">
-        {selectedTeams.map((team) => (
-          <div key={team.id} className="flex flex-col items-center">
-            <div className="w-12 h-12 mb-2 flex items-center justify-center">
-              <MyWorldTeamLogo
-                teamName={team.name}
-                teamLogo={team.type === 'country' 
-                  ? `https://hatscripts.github.io/circle-flags/flags/${team.flag}.svg`
-                  : `/api/team-logo/square/${team.id}?size=48`
-                }
-                size="48px"
-                className={team.type === 'country' 
-                  ? "flag-circle rounded-full" 
-                  : "rounded-full shadow-md hover:shadow-lg transition-shadow duration-200"
-                }
-                alt={team.name}
-                leagueContext={team.type === 'country' ? { name: 'International', country: 'World' } : undefined}
-              />
-            </div>
-            <span className="text-xs text-center text-gray-700 font-medium">
-              {team.name}
-            </span>
-          </div>
-        ))}
-        
-        <div className="flex flex-col items-center">
-          <button 
-            onClick={() => setShowTeamSelection(true)}
-            className="w-12 h-12 mb-2 border-2 border-dashed border-blue-300 rounded-lg flex items-center justify-center hover:border-blue-500 transition-colors"
-          >
-            <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
-          <span className="text-xs text-center text-gray-500 font-medium">
-            Add More
-          </span>
-        </div>
-      </div>
-      
-      <div className="mt-4">
-        <p className="text-sm text-gray-500 text-center">
-          Select your favorite leagues to follow them here
-        </p>
-      </div>
-    </div>
-  );
 
   const EmptyState = () => (
     <div className="flex flex-col items-center justify-center py-2  text-center">
@@ -212,8 +156,20 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
       />
 
       <CardContent className="pt-4 mt-4">
-        {selectedTeams.length > 0 ? <MyTeamsSection /> : <EmptyState />}
-        <SuggestedGames />
+        {selectedTeams.length > 0 ? (
+          <>
+            <MySelectionsCard 
+              selectedTeams={selectedTeams} 
+              onAddMore={() => setShowTeamSelection(true)} 
+            />
+            <SuggestedGames />
+          </>
+        ) : (
+          <>
+            <EmptyState />
+            <SuggestedGames />
+          </>
+        )}
       </CardContent>
     </Card>
   );
