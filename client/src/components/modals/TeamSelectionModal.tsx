@@ -320,7 +320,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
             </div>
           )}
         </div>
-        <div className="flex justify-center items-center gap-2 text-xs">
+        <div className="flex justify-end items-center gap-2 text-xs">
           <span> Next Step: Select Leagues</span>
          
           <Button 
