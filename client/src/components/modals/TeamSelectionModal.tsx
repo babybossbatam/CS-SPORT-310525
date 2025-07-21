@@ -227,9 +227,9 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
               <TabsTrigger value="top" className="text-xs">Top</TabsTrigger>
               <TabsTrigger value="soccer" className="text-xs">Soccer</TabsTrigger>
               <TabsTrigger value="basketball" className="text-xs">Basketball</TabsTrigger>
-              <TabsTrigger value="hockey" className="text-xs">Hockey</TabsTrigger>
-              <TabsTrigger value="baseball" className="text-xs">Baseball</TabsTrigger>
-              <TabsTrigger value="tennis" className="text-xs">Tennis</TabsTrigger>
+              <TabsTrigger value="horseracing" className="text-xs">Horse Racing</TabsTrigger>
+              <TabsTrigger value="snooker" className="text-xs">Snooker</TabsTrigger>
+              <TabsTrigger value="esports" className="text-xs">Esports</TabsTrigger>
             </TabsList>
 
             <TabsContent value="top" className="mt-4">
@@ -246,21 +246,21 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
               </div>
             </TabsContent>
 
-            <TabsContent value="hockey" className="mt-4">
+            <TabsContent value="horseracing" className="mt-4">
               <div className="text-center text-gray-500 py-8">
-                Hockey teams coming soon...
+                Horse racing coming soon...
               </div>
             </TabsContent>
 
-            <TabsContent value="baseball" className="mt-4">
+            <TabsContent value="snooker" className="mt-4">
               <div className="text-center text-gray-500 py-8">
-                Baseball teams coming soon...
+                Snooker players coming soon...
               </div>
             </TabsContent>
 
-            <TabsContent value="tennis" className="mt-4">
+            <TabsContent value="esports" className="mt-4">
               <div className="text-center text-gray-500 py-8">
-                Tennis players coming soon...
+                Esports teams coming soon...
               </div>
             </TabsContent>
           </Tabs>
