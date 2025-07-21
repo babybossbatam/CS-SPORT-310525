@@ -165,7 +165,7 @@ export const MyScoresLeft = ({
               onClick={() => setSelectedTab("my-scores")}
               className={`border-b-2 rounded-none font-medium flex-1 py-2 text-center transition-colors duration-200 ${
                 selectedTab === "my-scores"
-                  ? "border-blue-500 text-blue-600"
+                  ? "border-blue-300 text-blue-400"
                   : "border-transparent text-gray-600 hover:text-gray-900"
               }`}
             >
@@ -173,9 +173,9 @@ export const MyScoresLeft = ({
             </button>
             <button
               onClick={() => setSelectedTab("my-selections")}
-              className={`border-b-2 rounded-none font-medium flex-1 py-2 text-center transition-colors duration-200 ${
+              className={`border-b-2 rounded-none font-medium flex-1 py-4 text-center transition-colors duration-200 ${
                 selectedTab === "my-selections"
-                  ? "border-blue-500 text-blue-600"
+                  ? "border-blue-300 text-blue-400"
                   : "border-transparent text-gray-600 hover:text-gray-900"
               }`}
             >
