@@ -20,7 +20,7 @@ const MyScoresRight: React.FC = () => {
       {/* Popular Leagues and Teams sections */}
       <div className="grid grid-cols-2 gap-4">
         <PopularLeaguesList />
-        <div className="w-full shadow-md">
+        <div className="w-full shadow-md bg-white">
           <div className="p-4">
             <h3 className="text-sm font-semibold mb-2">Popular Teams</h3>
             <PopularTeamsList />
