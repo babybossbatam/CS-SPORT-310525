@@ -101,12 +101,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
           <br />
           follow them on My Scores
         </p>
-        <Button
-          onClick={() => setShowTeamSelection(true)}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md text-sm font-medium"
-        >
-          Select Teams and Leagues
-        </Button>
+       
       </div>
     );
   };

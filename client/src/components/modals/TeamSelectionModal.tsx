@@ -240,7 +240,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
 
         <div className="  flex-shrink-0">
           <div className="flex justify-between items-center ">
-            <div className="text-xs text-gray-700">
+            <div className="px-2 text-xs text-gray-700">
               My Selections: <span className="font-medium">{selectedTeams.size}</span>
             </div>
             
