@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,8 +72,9 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
             </button>
 
             {/* Add More text below the button */}
-            <div className="text-center mt-1">
+            <div className="text-center mt-1 flex items-center gap-2">
               <span className="text-xs text-gray-600 whitespace-nowrap">Add More</span>
+              <span className="text-xs text-blue-500 whitespace-nowrap">Teams</span>
             </div>
           </div>
 
@@ -98,7 +98,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                     leagueContext={team.type === 'country' ? { name: 'International', country: 'World' } : undefined}
                   />
                 </div>
-                
+
                 {/* Remove button - visible in edit mode or on hover */}
                 <button
                   onClick={() => handleRemoveTeam(team.id)}
@@ -108,13 +108,13 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                 >
                   ×
                 </button>
-                
+
                 {/* Team name tooltip on hover */}
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
                   {team.name}
                 </div>
               </div>
-              
+
               {/* Team name below logo */}
               <div className="text-center mt-1">
                 <span className="text-xs text-gray-600 whitespace-nowrap">{team.name}</span>
@@ -124,7 +124,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
         </div>
       </div>
 
-      
+
     </div>
   );
 
@@ -180,7 +180,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                     }}
                   />
                 </div>
-                
+
                 {/* Remove button - visible in edit mode or on hover */}
                 <button
                   onClick={() => handleRemoveLeague(league.id)}
@@ -190,13 +190,13 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
                 >
                   ×
                 </button>
-                
+
                 {/* League name tooltip on hover */}
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
                   {league.name}
                 </div>
               </div>
-              
+
               {/* League name below logo */}
               <div className="text-center mt-1">
                 <span className="text-xs text-gray-600 whitespace-nowrap">{league.name}</span>
@@ -215,7 +215,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
           <MyTeamsSection />
         </CardContent>
       </Card>
-      
+
       {/* New card below for leagues */}
       <Card className="shadow-md w-full mb-4">
         <CardContent className="pt-4 mt-4">
