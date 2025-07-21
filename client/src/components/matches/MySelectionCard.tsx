@@ -113,7 +113,7 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
       </div>
 
       {/* Leagues Section */}
-      <div className="space-y-3 pt-4 border-t border-gray-100">
+      <div className="space-y-2 pt-2 border-t border-gray-100">
         <div className="flex items-center gap-3">
           <button
             onClick={onShowTeamSelection}
