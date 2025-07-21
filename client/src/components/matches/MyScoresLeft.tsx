@@ -341,11 +341,18 @@ export const MyScoresLeft = ({
       {selectedTab === "my-selections" ? (
         selectedTeams.length > 0 ? (
           // Show MySelectionCard when My Selections tab is active AND selected teams > 0
-          <MySelectionCard 
-            selectedTeams={selectedTeams}
-            onRemoveTeam={handleRemoveTeam}
-            onShowTeamSelection={() => setShowTeamSelection(true)}
-          />
+          <>
+            <Card className="mx-auto text-sm">
+              <CardContent className="text-center flex items-center justify-center pt-2 pb-2">
+                <span>My Teams and Leagues</span>
+              </CardContent>
+            </Card>
+            <MySelectionCard 
+              selectedTeams={selectedTeams}
+              onRemoveTeam={handleRemoveTeam}
+              onShowTeamSelection={() => setShowTeamSelection(true)}
+            />
+          </>
         ) : (
           // Show empty state when My Selections tab is active AND selected teams === 0
           <>
