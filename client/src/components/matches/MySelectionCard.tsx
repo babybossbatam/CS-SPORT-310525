@@ -133,28 +133,22 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
 
             {/* Competitions Section */}
             <div className="space-y-3">
-              <div className="flex items-start gap-3">
+              <div className="flex items-center gap-3">
                 {/* Add competition button */}
-                <div className="flex flex-col items-center">
-                  <button
-                    onClick={onShowTeamSelection}
-                    className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200"
-                  >
-                    <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
-                  </button>
-                  
-                  {/* Add More text below the button */}
-                  <div className=" flex text-center mt-1">
-                    <span className="text-xs text-gray-600 ">Add More</span>
-                    <div className="text-sm text-gray-600">
-                      Select your favorite competitions to follow them here
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex justify-center">
+                <button
+                  onClick={onShowTeamSelection}
+                  className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200 flex-shrink-0"
+                >
+                  <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
+                </button>
                 
+                {/* Text to the right of the button */}
+                <div className="flex flex-col">
+                  <span className="text-xs text-gray-600 font-medium">Add More</span>
+                  <span className="text-sm text-gray-600">
+                    Select your favorite leagues to follow them here
+                  </span>
+                </div>
               </div>
             </div>
           </div>
