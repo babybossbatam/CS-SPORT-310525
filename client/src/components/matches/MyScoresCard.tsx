@@ -60,7 +60,9 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
         </svg>
       </div>
       <p className="mb-6 text-sm text-gray-600 px-4">
-        Select Games, Teams and Competitions to follow them on My Scores
+        Select Games, Teams and Competitions to
+        <br />
+        follow them on My Scores
       </p>
       <Button
         onClick={() => setShowTeamSelection(true)}
