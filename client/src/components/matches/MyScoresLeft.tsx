@@ -201,8 +201,8 @@ export const MyScoresLeft = ({
         </div>
 
         {selectedTab === "my-selections" ? (
-          <div className="flex items-center justify-center px-4 pb-4 mt-[20px] text-[110.25%] h-9">
-            <span className="text-sm text-gray-600">Follow your favorites to personalize your experience!</span>
+          <div className="flex items-center justify-center px-2 pb-2 mt-[10px] text-[110.25%] h-9">
+            <span className="text-sm font-medium text-gray-600">Follow your favorites to personalize your experience!</span>
           </div>
         ) : (
           <div className="flex items-center justify-between px-4 pb-4 mt-[20px] text-[110.25%] h-9">
@@ -375,9 +375,11 @@ export const MyScoresLeft = ({
               Browse
             </Button>
           </>
-        )
+          
+        ) 
       ) : (
         // Show MyScoresCard when My Scores tab is active
+      
         <MyScoresCard 
           selectedTab={selectedTab} 
           onTabChange={setSelectedTab}

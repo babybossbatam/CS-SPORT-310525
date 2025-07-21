@@ -139,7 +139,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
 
             {/* Star toggle button */}
             <button
-              className={`absolute top-1 right-1 w-6 h-6 shadow-md flex items-center justify-center transition-all duration-300 ease-out ${
+              className={`absolute top-1 right-1 w-6 h-6 flex items-center justify-center transition-all duration-300 ease-out ${
                 isSelected
                   ? 'opacity-100 transform translate-x-0'
                   : 'opacity-0 group-hover:opacity-100 transform translate-x-2 group-hover:translate-x-0'
@@ -198,15 +198,13 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
       <DialogContent className="max-w-2xl max-h-[80vh] p-0 overflow-hidden flex flex-col">
         <DialogHeader className="flex flex-row items-center justify-between p-4 border-b flex-shrink-0">
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-500">STEP 2 OF 2</span>
+            <span className="text-xs text-gray-500">STEP 2 OF 2</span>
           </div>
-          <div className="flex items-center text-blue-500 text-sm cursor-pointer hover:underline">
-            Import from App
-          </div>
+         
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <h2 className="text-lg font-semibold">SELECT LEAGUES TO FOLLOW</h2>
+        <div className="flex-1 overflow-y-auto ">
+          <h3 className="text-lg font-semibold">SELECT LEAGUES TO FOLLOW</h3>
 
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
