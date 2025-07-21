@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, Search, ChevronLeft } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog';
@@ -40,35 +39,35 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
     { id: 39, name: 'Premier League', type: 'league', logo: 'https://media.api-sports.io/football/leagues/39.png', country: 'England', popularity: '45.2M' },
     { id: 45, name: 'FA Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/45.png', country: 'England', popularity: '12.5M' },
     { id: 140, name: 'La Liga', type: 'league', logo: 'https://media.api-sports.io/football/leagues/140.png', country: 'Spain', popularity: '28.7M' },
-    
+
     // Row 2: More European leagues and competitions
     { id: 135, name: 'Serie A', type: 'league', logo: 'https://media.api-sports.io/football/leagues/135.png', country: 'Italy', popularity: '18.3M' },
     { id: 3, name: 'UEFA Europa League', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/3.png', country: 'Europe', popularity: '15.8M' },
     { id: 528, name: 'Community Shield', type: 'friendly', logo: 'https://media.api-sports.io/football/leagues/528.png', country: 'England', popularity: '3.2M' },
     { id: 46, name: 'EFL Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/46.png', country: 'England', popularity: '8.1M' },
     { id: 78, name: 'Bundesliga', type: 'league', logo: 'https://media.api-sports.io/football/leagues/78.png', country: 'Germany', popularity: '22.4M' },
-    
+
     // Row 3: International and other competitions
     { id: 40, name: 'Championship', type: 'league', logo: 'https://media.api-sports.io/football/leagues/40.png', country: 'England', popularity: '6.7M' },
     { id: 61, name: 'Ligue 1', type: 'league', logo: 'https://media.api-sports.io/football/leagues/61.png', country: 'France', popularity: '14.9M' },
     { id: 4, name: 'Euro Championship', type: 'international', logo: 'https://media.api-sports.io/football/leagues/4.png', country: 'Europe', popularity: '52.1M' },
     { id: 137, name: 'Copa del Rey', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Spain', popularity: '9.3M' },
     { id: 1, name: 'Club World Cup', type: 'international', logo: 'https://media.api-sports.io/football/leagues/1.png', country: 'World', popularity: '25.6M' },
-    
+
     // Row 4: Additional leagues
     { id: 170, name: 'League One', type: 'league', logo: 'https://media.api-sports.io/football/leagues/170.png', country: 'England', popularity: '2.1M' },
     { id: 32, name: 'UEFA WC Qualification', type: 'international', logo: 'https://media.api-sports.io/football/leagues/32.png', country: 'Europe', popularity: '18.7M' },
     { id: 179, name: 'Scottish Premiership', type: 'league', logo: 'https://media.api-sports.io/football/leagues/179.png', country: 'Scotland', popularity: '1.8M' },
     { id: 5, name: 'UEFA Nations League', type: 'international', logo: 'https://media.api-sports.io/football/leagues/5.png', country: 'Europe', popularity: '12.3M' },
     { id: 11, name: 'Africa Cup of Nations', type: 'international', logo: 'https://media.api-sports.io/football/leagues/11.png', country: 'Africa', popularity: '8.9M' },
-    
+
     // Row 5: More international competitions
     { id: 42, name: 'League Two', type: 'league', logo: 'https://media.api-sports.io/football/leagues/42.png', country: 'England', popularity: '1.2M' },
     { id: 9, name: 'Copa America', type: 'international', logo: 'https://media.api-sports.io/football/leagues/9.png', country: 'South America', popularity: '19.4M' },
     { id: 848, name: 'UEFA Super Cup', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/848.png', country: 'Europe', popularity: '7.6M' },
     { id: 137, name: 'Coppa Italia', type: 'cup', logo: 'https://media.api-sports.io/football/leagues/137.png', country: 'Italy', popularity: '5.4M' },
     { id: 858, name: 'CONCACAF Gold Cup - Qualification', type: 'international', logo: 'https://media.api-sports.io/football/leagues/858.png', country: 'CONCACAF', popularity: '2.7M' },
-    
+
     // Row 6: World Cup qualifications and other competitions
     { id: 31, name: 'World Cup - Qualification CONCACAF', type: 'international', logo: 'https://media.api-sports.io/football/leagues/31.png', country: 'CONCACAF', popularity: '4.8M' },
     { id: 33, name: 'World Cup - Qualification Oceania', type: 'international', logo: 'https://media.api-sports.io/football/leagues/33.png', country: 'Oceania', popularity: '0.9M' },
@@ -85,17 +84,17 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
       } else {
         newSelection.add(leagueId);
       }
-      
+
       // Immediately update parent component with current selections
       if (onLeagueSelectionComplete) {
         const selectedLeaguesArray = Array.from(newSelection).map((leagueId) => {
           const league = popularLeagues.find(l => l.id === leagueId);
           return league;
         }).filter(Boolean);
-        
+
         onLeagueSelectionComplete(selectedLeaguesArray);
       }
-      
+
       return newSelection;
     });
   };
@@ -112,7 +111,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
         const league = popularLeagues.find(l => l.id === leagueId);
         return league;
       }).filter(Boolean);
-      
+
       onLeagueSelectionComplete(selectedLeaguesArray);
     }
     onOpenChange(false);
@@ -185,16 +184,14 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
               />
             </div>
 
-            <span className="text-xs text-center text-gray-700 font-medium mb-1">
-              {league.name}
-            </span>
-
-            {/* Popularity indicator */}
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center text-blue-600">
-              <span className="text-xs font-semibold">
+            <span className="text-xs text-center text-gray-700 font-medium mb-1 transition-all duration-200">
+              <span className="group-hover:hidden">
+                {league.name}
+              </span>
+              <span className="hidden group-hover:inline text-blue-600 font-semibold">
                 {league.popularity}
               </span>
-            </div>
+            </span>
           </div>
         );
       })}
@@ -284,7 +281,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
               {Array.from(selectedLeagues).map((leagueId) => {
                 const league = popularLeagues.find(l => l.id === leagueId);
                 if (!league) return null;
-                
+
                 return (
                   <div key={leagueId} className="relative group">
                     <div className="w-8 h-8 flex items-center justify-center">
@@ -302,7 +299,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
                         }}
                       />
                     </div>
-                    
+
                     {/* Remove button on hover */}
                     <button
                       onClick={() => handleLeagueClick(leagueId)}
@@ -310,7 +307,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
                     >
                       ×
                     </button>
-                    
+
                     {/* League name tooltip */}
                     <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
                       {league.name}
@@ -331,7 +328,7 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
             <ChevronLeft className="h-4 w-4" />
             Previous
           </Button>
-         
+
           <Button 
             onClick={handleFinish}
             className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-6"
