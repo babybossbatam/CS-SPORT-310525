@@ -151,7 +151,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
       />
 
       <CardContent className="pt-4 mt-4">
-        <EmptyState />
+        {selectedTeams.length > 0 ? null : <EmptyState />}
         <SuggestedGames />
       </CardContent>
     </Card>
