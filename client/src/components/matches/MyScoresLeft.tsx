@@ -372,8 +372,7 @@ export const MyScoresLeft = ({
         </div>
       </Card>
 
-      {/* MyScoresCard component */}
-      <MyScoresCard selectedTab="my-scores" onTabChange={() => {}} />
+      
 
       {liveFilterActive && timeFilterActive ? (
         // Combined state: Show live matches grouped by time
