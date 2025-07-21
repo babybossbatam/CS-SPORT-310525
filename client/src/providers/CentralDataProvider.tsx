@@ -85,43 +85,32 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
       try {
         console.log(`🔴 [CentralDataProvider] Fetching live fixtures`);
         
-        // Try different base URLs in case of port issues
-        const baseUrls = [
-          '/api/fixtures/live',
-          `${window.location.origin}/api/fixtures/live`,
-          'http://localhost:5000/api/fixtures/live'
-        ];
-        
-        let lastError;
-        for (const url of baseUrls) {
-          try {
-            const response = await fetch(url, {
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-              }
-            });
-            
-            if (!response.ok) {
-              console.warn(`Live fixtures API returned ${response.status} for ${url}`);
-              continue;
-            }
-            
-            const data: FixtureResponse[] = await response.json();
-            console.log(`Central cache: Received ${data.length} live fixtures from ${url}`);
-
-            // Update Redux store
-            dispatch(fixturesActions.setLiveFixtures(data as any));
-            return data;
-            
-          } catch (fetchError) {
-            console.warn(`Failed to fetch from ${url}:`, fetchError);
-            lastError = fetchError;
-            continue;
+        try {
+          const response = await fetch('/api/fixtures/live', {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+            },
+            signal: AbortSignal.timeout(10000), // 10 second timeout
+          });
+          
+          if (!response.ok) {
+            console.warn(`Live fixtures API returned ${response.status}`);
+            return [];
           }
+          
+          const data: FixtureResponse[] = await response.json();
+          console.log(`Central cache: Received ${data.length} live fixtures`);
+
+          // Update Redux store
+          dispatch(fixturesActions.setLiveFixtures(data as any));
+          return data;
+          
+        } catch (fetchError) {
+          console.warn(`Failed to fetch live fixtures:`, fetchError);
+          // Return empty array instead of throwing
+          return [];
         }
-        
-        throw lastError || new Error('All fetch attempts failed');
         
       } catch (error) {
         console.error(`❌ [CentralDataProvider] Failed to fetch live fixtures:`, error);
