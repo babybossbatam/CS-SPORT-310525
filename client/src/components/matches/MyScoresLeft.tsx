@@ -328,12 +328,14 @@ export const MyScoresLeft = ({
       {/* Conditional rendering based on selected tab */}
       {selectedTab === "my-selections" ? (
         selectedTeams.length > 0 ? (
+          // Show MySelectionCard when My Selections tab is active AND selected teams > 0
           <MySelectionCard 
             selectedTeams={selectedTeams}
             onRemoveTeam={handleRemoveTeam}
             onShowTeamSelection={() => setShowTeamSelection(true)}
           />
         ) : (
+          // Show empty state when My Selections tab is active AND selected teams === 0
           <>
             <Card className="mx-auto text-sm">
               <CardContent className="text-center flex items-center justify-center pt-2 pb-2">
@@ -363,6 +365,7 @@ export const MyScoresLeft = ({
           </>
         )
       ) : (
+        // Show MyScoresCard when My Scores tab is active
         <MyScoresCard 
           selectedTab={selectedTab} 
           onTabChange={setSelectedTab}
