@@ -36,7 +36,10 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
   React.useEffect(() => {
     if (open) {
       console.log("🎯 [LeagueSelectionModal] Modal opened, syncing with initial selected leagues:", initialSelectedLeagues.length);
-      const initialLeagueIds = new Set(initialSelectedLeagues.map(league => league.id));
+      const initialLeagueIds = new Set(initialSelectedLeagues.map(league => {
+        // Create unique identifier for leagues (including qualifiers)
+        return league.isQualifiers ? `${league.id}_qualifiers` : league.id;
+      }));
       setSelectedLeagues(initialLeagueIds);
     }
   }, [open, initialSelectedLeagues]);
