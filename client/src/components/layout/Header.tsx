@@ -194,7 +194,7 @@ const Header = () => {
           </DropdownMenu>
 
           {isAuthenticated && (
-            <div className="flex items-center text-sm font-semibold text-white transition-colors duration-200 cursor-pointer underline ml-4">
+            <div className="flex items-center text-sm font-semibold text-white transition-colors duration-200 cursor-pointer  ml-4">
               <span 
                 className={`transition-colors duration-200 ${
                   activeHover === 'username' ? 'text-amber-400' : 
