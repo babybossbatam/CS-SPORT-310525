@@ -42,7 +42,7 @@ function Router() {
       <Route path="/basketball" component={Basketball} />
        <Route path="/horseracing" component={HorseRacing} />
       <Route path="/snooker" component={Snooker} />
-      <Route path="/esport" component={Esport} />
+      <Route path="/esports" component={Esport} />
       
       <Route path="/login" component={() => <Authentication mode="login" />} />
       <Route
