@@ -78,9 +78,7 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
             className="mx-auto"
           />
         </div>
-        <p className="mb-6 text-sm text-gray-600 max-w-xs">
-          Select Games, Teams and Competitions to follow them on My Scores
-        </p>
+        Select Games, Teams and Competitions to follow them on My Scores
       </div>
     );
   };
