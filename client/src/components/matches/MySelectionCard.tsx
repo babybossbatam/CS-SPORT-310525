@@ -1,7 +1,9 @@
 
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import MyWorldTeamLogo from '@/components/common/MyWorldTeamLogo';
+import React from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Plus, Edit } from "lucide-react";
+import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
 
 interface MySelectionCardProps {
   selectedTeams: any[];
@@ -21,69 +23,102 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
   };
 
   const MyTeamsSection = () => (
-    <div className="mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">My Teams and Leagues</h2>
-        <button className="p-1">
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-          </svg>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-gray-800">My Teams and Leagues</h3>
+          {selectedTeams.length > 0 && (
+            <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
+              {selectedTeams.length}
+            </span>
+          )}
+        </div>
+        <button 
+          className="p-1 hover:bg-gray-100 rounded"
+          onClick={onShowTeamSelection}
+        >
+          <Edit className="h-4 w-4 text-gray-600" />
         </button>
       </div>
-      
-      <div className="grid grid-cols-4 gap-4">
-        {selectedTeams.map((team) => (
-          <div key={team.id} className="relative flex flex-col items-center group">
-            <div className="w-12 h-12 mb-2 flex items-center justify-center">
-              <MyWorldTeamLogo
-                teamName={team.name}
-                teamLogo={team.type === 'country' 
-                  ? `https://hatscripts.github.io/circle-flags/flags/${team.flag}.svg`
-                  : `/api/team-logo/square/${team.id}?size=48`
-                }
-                size="48px"
-                className={team.type === 'country' 
-                  ? "flag-circle rounded-full" 
-                  : "rounded-full shadow-md hover:shadow-lg transition-shadow duration-200"
-                }
-                alt={team.name}
-                leagueContext={team.type === 'country' ? { name: 'International', country: 'World' } : undefined}
-              />
-            </div>
-            
-            {/* Remove button on hover */}
-            <button
-              onClick={() => handleRemoveTeam(team.id)}
-              className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-red-600"
-            >
-              ×
-            </button>
-            
-            <span className="text-xs text-center text-gray-700 font-medium">
-              {team.name}
-            </span>
+
+      {/* Teams Section */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {selectedTeams.length > 0 ? (
+              <div className="flex flex-wrap gap-3">
+                {/* Show all selected teams, not just first 6 */}
+                {selectedTeams.map((team, index) => (
+                  <div key={`${team.id}-${index}`} className="relative group">
+                    <div className="w-12 h-12 flex items-center justify-center">
+                      <MyWorldTeamLogo
+                        teamName={team.name}
+                        teamLogo={team.type === 'country' 
+                          ? `https://hatscripts.github.io/circle-flags/flags/${team.flag}.svg`
+                          : `/api/team-logo/square/${team.id}?size=48`
+                        }
+                        size="48px"
+                        className={team.type === 'country' 
+                          ? "flag-circle rounded-full" 
+                          : "rounded-full shadow-md hover:shadow-lg transition-shadow duration-200"
+                        }
+                        alt={team.name}
+                        leagueContext={team.type === 'country' ? { name: 'International', country: 'World' } : undefined}
+                      />
+                    </div>
+                    
+                    {/* Remove button on hover */}
+                    <button
+                      onClick={() => handleRemoveTeam(team.id)}
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center hover:bg-red-600"
+                    >
+                      ×
+                    </button>
+                    
+                    {/* Team name tooltip on hover */}
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-1 px-2 py-1 bg-black text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none">
+                      {team.name}
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Add More button */}
+                <button
+                  onClick={onShowTeamSelection}
+                  className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200"
+                >
+                  <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
+                </button>
+              </div>
+            ) : null}
           </div>
-        ))}
-        
-        <div className="flex flex-col items-center">
-          <button 
-            onClick={onShowTeamSelection}
-            className="w-12 h-12 mb-2 border-2 border-dashed border-blue-300 rounded-lg flex items-center justify-center hover:border-blue-500 transition-colors"
-          >
-            <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
-          <span className="text-xs text-center text-gray-500 font-medium">
-            Add More
-          </span>
         </div>
+
+        {selectedTeams.length > 0 && (
+          <div className="text-center">
+            <span className="text-xs text-gray-600">Add More</span>
+          </div>
+        )}
       </div>
-      
-      <div className="mt-4">
-        <p className="text-sm text-gray-500 text-center">
+
+      {/* Leagues Section */}
+      <div className="space-y-3 pt-4 border-t border-gray-100">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onShowTeamSelection}
+            className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200"
+          >
+            <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
+          </button>
+          <div className="text-center">
+            <span className="text-xs text-gray-600">Add More</span>
+          </div>
+        </div>
+        
+        <div className="text-sm text-gray-600">
           Select your favorite leagues to follow them here
-        </p>
+        </div>
       </div>
     </div>
   );
