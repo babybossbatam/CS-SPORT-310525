@@ -134,11 +134,60 @@ const MySelectionCard: React.FC<MySelectionCardProps> = ({
   );
 
   return (
-    <Card className="shadow-md w-full mb-4">
-      <CardContent className="pt-4 mt-4">
-        <MyTeamsSection />
-      </CardContent>
-    </Card>
+    <>
+      <Card className="shadow-md w-full mb-4">
+        <CardContent className="pt-4 mt-4">
+          <MyTeamsSection />
+        </CardContent>
+      </Card>
+      
+      {/* New card below */}
+      <Card className="shadow-md w-full mb-4">
+        <CardContent className="pt-4 mt-4">
+          <div className="space-y-4">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-gray-800">My Favorite Competitions</h3>
+                <span className="text-sm text-gray-600 bg-gray-100 px-2 py-1 rounded-full">
+                  0
+                </span>
+              </div>
+              <button 
+                className="p-1 hover:bg-gray-100 rounded"
+                onClick={toggleEditMode}
+              >
+                <Edit className="h-4 w-4 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Competitions Section */}
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                {/* Add competition button */}
+                <div className="flex flex-col items-center">
+                  <button
+                    onClick={onShowTeamSelection}
+                    className="w-12 h-12 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center hover:border-blue-400 hover:bg-blue-50 transition-colors duration-200"
+                  >
+                    <Plus className="h-6 w-6 text-gray-400 hover:text-blue-500" />
+                  </button>
+                  
+                  {/* Add More text below the button */}
+                  <div className="text-center mt-1">
+                    <span className="text-xs text-gray-600">Add More</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-sm text-gray-600">
+                Select your favorite competitions to follow them here
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 
