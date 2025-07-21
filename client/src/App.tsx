@@ -18,9 +18,9 @@ const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
 const Football = lazy(() => import("@/pages/Football"));
 const Basketball = lazy(() => import("@/pages/Basketball"));
-const Baseball = lazy(() => import("@/pages/Baseball"));
-const Tennis = lazy(() => import("@/pages/Tennis"));
-const Hockey = lazy(() => import("@/pages/Hockey"));
+const HorseRacing = lazy(() => import("@/pages/HorseRacing"));
+const Snooker = lazy(() => import("@/pages/Snooker"));
+const Esport = lazy(() => import("@/pages/Esport"));
 const MatchDetails = lazy(() => import("@/pages/MatchDetails"));
 const Authentication = lazy(() => import("@/pages/Authentication"));
 const LeagueDetails = lazy(() => import("@/pages/LeagueDetails"));
@@ -32,7 +32,7 @@ const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
 const NewsPage = lazy(() => import("@/pages/NewsPage"));
 const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
 import Scores365Page from './pages/Scores365Page';
-import HorseRacing from './pages/HorseRacing';
+
 
 function Router() {
   return (
@@ -40,10 +40,10 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/football" component={Football} />
       <Route path="/basketball" component={Basketball} />
-      <Route path="/baseball" component={Baseball} />
-      <Route path="/tennis" component={Tennis} />
-      <Route path="/hockey" component={Hockey} />
-      <Route path="/horseracing" component={HorseRacing} />
+       <Route path="/horseracing" component={HorseRacing} />
+      <Route path="/snooker" component={Snooker} />
+      <Route path="/esport" component={Esport} />
+      
       <Route path="/login" component={() => <Authentication mode="login" />} />
       <Route
         path="/register"
@@ -165,4 +165,3 @@ function App() {
 }
 
 export default App;
-```
