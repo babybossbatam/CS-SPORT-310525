@@ -275,7 +275,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({ open, onOpenCha
             </div>
           )}
         </div>
-        <div>
+        <div className="flex justify-end">
           <Button className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-3">
             <ChevronRight className=" h-4 w-4" />
 
