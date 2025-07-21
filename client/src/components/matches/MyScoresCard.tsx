@@ -43,25 +43,25 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
   const EmptyState = () => {
     if (selectedTab === "my-selections") {
       return (
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <div className="mb-4 text-sm font-medium text-gray-900">
+        <div className="flex flex-col items-center justify-center py-12 px-6 text-center bg-gray-50 rounded-lg">
+          <div className="mb-8 text-base font-medium text-gray-900">
             My Teams and Leagues
           </div>
-          <div className="mb-6 relative">
+          <div className="mb-8 relative">
             <img
               src="/assets/matchdetaillogo/favorite icon.svg"
               alt="Favorite"
-              width="64"
-              height="64"
+              width="80"
+              height="80"
               className="mx-auto"
             />
           </div>
-          <p className="mb-6 text-sm text-gray-600 px-4">
+          <p className="mb-8 text-sm text-gray-600 max-w-xs">
             Select Teams and Competitions to follow them here
           </p>
           <Button
             onClick={() => setShowTeamSelection(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-16 py-1 rounded-full  text-sm font-medium"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-full text-sm font-medium"
           >
             Browse
           </Button>
@@ -70,22 +70,19 @@ const MyScoresCard: React.FC<MyScoresCardProps> = ({
     }
 
     return (
-      <div className="flex flex-col items-center justify-center py-8 text-center">
-        <div className="mb-6 relative">
+      <div className="flex flex-col items-center justify-center py-12 px-6 text-center bg-gray-50 rounded-lg">
+        <div className="mb-8 relative">
           <img
             src="/assets/matchdetaillogo/favorite icon.svg"
             alt="Favorite"
-            width="64"
-            height="64"
+            width="80"
+            height="80"
             className="mx-auto"
           />
         </div>
-        <p className="mb-6 text-sm text-gray-600 px-4">
-          Select Games, Teams and Competitions to
-          <br />
-          follow them on My Scores
+        <p className="mb-6 text-sm text-gray-600 max-w-xs">
+          Select Games, Teams and Competitions to follow them on My Scores
         </p>
-        
       </div>
     );
   };
