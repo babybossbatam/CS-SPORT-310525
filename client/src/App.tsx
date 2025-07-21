@@ -32,6 +32,7 @@ const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
 const NewsPage = lazy(() => import("@/pages/NewsPage"));
 const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
 import Scores365Page from './pages/Scores365Page';
+import HorseRacing from './pages/HorseRacing';
 
 function Router() {
   return (
@@ -42,6 +43,7 @@ function Router() {
       <Route path="/baseball" component={Baseball} />
       <Route path="/tennis" component={Tennis} />
       <Route path="/hockey" component={Hockey} />
+      <Route path="/horseracing" component={HorseRacing} />
       <Route path="/login" component={() => <Authentication mode="login" />} />
       <Route
         path="/register"
@@ -93,7 +95,7 @@ function App() {
   // Initialize global error handlers
   React.useEffect(() => {
     setupGlobalErrorHandlers();
-    
+
     // Add additional error handling for dynamic imports and runtime errors
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       if (
@@ -163,3 +165,4 @@ function App() {
 }
 
 export default App;
+```
