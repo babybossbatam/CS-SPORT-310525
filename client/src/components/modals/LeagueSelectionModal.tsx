@@ -189,10 +189,10 @@ const LeagueSelectionModal: React.FC<LeagueSelectionModalProps> = ({
               {league.name}
             </span>
 
-            {/* Country indicator */}
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center text-blue-600">
+            {/* Popularity indicator */}
+            <div className="flex items-center text-blue-600">
               <span className="text-xs font-semibold">
-                {league.country}
+                {league.popularity}
               </span>
             </div>
           </div>
