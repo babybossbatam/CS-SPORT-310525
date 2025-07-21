@@ -4,6 +4,7 @@ import { uiActions } from '@/lib/store';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
+import MyEsportMain from '@/components/layout/MyEsportMain';
 import NewsSection from '@/components/news/NewsSection';
 import { Dumbbell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
