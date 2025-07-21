@@ -332,7 +332,7 @@ export const MyScoresLeft = ({
         ) : (
           <>
             <Card className="mx-auto text-sm">
-              <CardContent className="text-center flex items-center justify-center pt-2 pb-2">
+              <CardContent className="text-left flex items-center  pt-2 pb-2">
                 <span>My Teams and Leagues</span>
               </CardContent>
             </Card>
