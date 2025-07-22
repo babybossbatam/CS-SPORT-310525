@@ -50,7 +50,20 @@ export const MyScoresLeft = ({
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(getCurrentUTCDateString());
   const [selectedTab, setSelectedTab] = useState("my-scores");
-  const [selectedTeams, setSelectedTeams] = useState<any[]>([]);
+  const [selectedTeams, setSelectedTeams] = useState<any[]>(() => {
+    // Initialize from localStorage
+    try {
+      const storedTeams = localStorage.getItem('selectedTeams');
+      if (storedTeams) {
+        const parsedTeams = JSON.parse(storedTeams);
+        console.log("🎯 [MyScoresLeft] Restored teams from localStorage:", parsedTeams.length);
+        return parsedTeams;
+      }
+    } catch (error) {
+      console.error("Error restoring teams from localStorage in MyScoresLeft:", error);
+    }
+    return [];
+  });
   const [showTeamSelection, setShowTeamSelection] = useState(false);
   const [showLeagueSelection, setShowLeagueSelection] = useState(false); // Added state for league selection modal
   const [selectedLeagues, setSelectedLeagues] = useState<any[]>([]); // Added state for selected leagues

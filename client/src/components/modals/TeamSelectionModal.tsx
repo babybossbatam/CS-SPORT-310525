@@ -27,11 +27,31 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
   const [showLeagueSelection, setShowLeagueSelection] = useState(false);
   const [selectedLeagues, setSelectedLeagues] = useState<any[]>([]);
 
-  // Sync internal state with initialSelectedTeams when modal opens
+  // Sync internal state with initialSelectedTeams when modal opens and restore from localStorage
   React.useEffect(() => {
     if (open) {
       console.log("🎯 [TeamSelectionModal] Modal opened, syncing with initial selected teams:", initialSelectedTeams.length);
-      // Sync internal state with parent's current selected teams
+      
+      // Try to restore from localStorage first
+      try {
+        const storedTeams = localStorage.getItem('selectedTeams');
+        if (storedTeams) {
+          const parsedTeams = JSON.parse(storedTeams);
+          const storedTeamIds = new Set(parsedTeams.map((team: any) => team.id));
+          console.log("🎯 [TeamSelectionModal] Restored teams from localStorage:", parsedTeams.length);
+          setSelectedTeams(storedTeamIds);
+          
+          // Also update parent with restored selections
+          if (onTeamSelectionComplete && parsedTeams.length > 0) {
+            onTeamSelectionComplete(parsedTeams);
+          }
+          return;
+        }
+      } catch (error) {
+        console.error("Error restoring teams from localStorage:", error);
+      }
+      
+      // Fallback to sync internal state with parent's current selected teams
       const initialTeamIds = new Set(initialSelectedTeams.map(team => team.id));
       setSelectedTeams(initialTeamIds);
     }
@@ -84,13 +104,22 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
         newSelection.add(teamId);
       }
 
+      // Create selected teams array
+      const selectedTeamsArray = Array.from(newSelection).map((teamId) => {
+        const team = popularTeams.find(t => t.id === teamId);
+        return team;
+      }).filter(Boolean);
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('selectedTeams', JSON.stringify(selectedTeamsArray));
+        console.log("🎯 [TeamSelectionModal] Saved teams to localStorage:", selectedTeamsArray.length);
+      } catch (error) {
+        console.error("Error saving teams to localStorage:", error);
+      }
+
       // Immediately update parent component with current selections
       if (onTeamSelectionComplete) {
-        const selectedTeamsArray = Array.from(newSelection).map((teamId) => {
-          const team = popularTeams.find(t => t.id === teamId);
-          return team;
-        }).filter(Boolean);
-
         onTeamSelectionComplete(selectedTeamsArray);
       }
 
@@ -112,6 +141,14 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
         console.log("🎯 [TeamSelectionModal] Found team for ID", teamId, ":", team?.name);
         return team;
       }).filter(Boolean);
+
+      // Save to localStorage
+      try {
+        localStorage.setItem('selectedTeams', JSON.stringify(selectedTeamsArray));
+        console.log("🎯 [TeamSelectionModal] Saved teams to localStorage on next step:", selectedTeamsArray.length);
+      } catch (error) {
+        console.error("Error saving teams to localStorage:", error);
+      }
 
       console.log("🎯 [TeamSelectionModal] Final selectedTeamsArray length:", selectedTeamsArray.length);
       console.log("🎯 [TeamSelectionModal] Calling onTeamSelectionComplete with:", selectedTeamsArray.map(t => t?.name));
