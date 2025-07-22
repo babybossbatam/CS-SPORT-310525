@@ -77,7 +77,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     ];
 
     const nameLower = name.toLowerCase();
-    
+
     // Check if this team should keep its exact name
     if (keepExactNames.some(exact => nameLower.includes(exact))) {
       return name.trim(); // Keep exact name for teams prone to confusion
@@ -177,11 +177,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   // Helper function to create team-specific exclusions
   const createTeamExclusions = (homeTeam: string, awayTeam: string) => {
     const exclusions = ['-esoccer', '-virtual', '-gaming', '-fifa', '-pes', '-mobile', '-simulation'];
-    
+
     // Add specific exclusions based on team names to avoid confusion
     const homeTeamLower = homeTeam.toLowerCase();
     const awayTeamLower = awayTeam.toLowerCase();
-    
+
     // Brazilian team exclusions to avoid confusion between similar names
     if (homeTeamLower.includes('atletico') && !homeTeamLower.includes('pr')) {
       exclusions.push('-"athletico-pr"', '-"atletico-pr"');
@@ -189,18 +189,18 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     if (awayTeamLower.includes('atletico') && !awayTeamLower.includes('pr')) {
       exclusions.push('-"athletico-pr"', '-"atletico-pr"');
     }
-    
+
     // Avoid Botafogo confusion (main Botafogo vs Botafogo-SP)
     if ((homeTeamLower.includes('botafogo') || awayTeamLower.includes('botafogo')) && 
         !homeTeamLower.includes('sp') && !awayTeamLower.includes('sp')) {
       exclusions.push('-"botafogo-sp"', '-"botafogo sp"');
     }
-    
+
     // Avoid confusion with major European teams when searching for other teams
     if (!homeTeamLower.includes('psg') && !awayTeamLower.includes('psg')) {
       exclusions.push('-"paris saint germain"', '-psg');
     }
-    
+
     return exclusions.join(' ');
   };
 
@@ -208,18 +208,18 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   // Create multiple search strategies with different approaches
   const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} ${teamExclusions}`.trim();
-  
+
   // Alternative search with cleaned names
   const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} ${teamExclusions}`.trim();
-  
+
   // Search with league context for better accuracy
   const leagueSpecificQuery = league ? 
     `"${rawHome}" vs "${rawAway}" "${league}" ${matchYear} highlights ${teamExclusions}`.trim() :
     primarySearchQuery;
-  
+
   // Broader search without quotes for difficult matches
   const broadSearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} ${teamExclusions}`.trim();
-  
+
   // Year-flexible search for older matches
   const flexibleYearQuery = `"${rawHome}" vs "${rawAway}" highlights ${teamExclusions}`.trim();
 
@@ -294,9 +294,33 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     const homePos = titleLower.indexOf(homeLower);
     const awayPos = titleLower.indexOf(awayLower);
 
-    // If both teams found, check if home comes before away
-    if (homePos !== -1 && awayPos !== -1) {
-      return homePos < awayPos;
+    const homeWords = homeLower.split(' ').filter(word => word.length > 2);
+    const awayWords = awayLower.split(' ').filter(word => word.length > 2);
+
+    const homeWordMatches = homeWords.filter(word => titleLower.includes(word));
+    const awayWordMatches = awayWords.filter(word => titleLower.includes(word));
+
+    console.log(`🎬 [validateTitleOrder] Validation results:`, {
+      title: titleLower,
+      homeTeam: homeLower,
+      awayTeam: awayLower,
+      homeWordMatches: homeWordMatches.length,
+      awayWordMatches: awayWordMatches.length,
+      homePos,
+      awayPos
+    });
+
+    // Strong validation: if both teams have good matches and home is mentioned first
+    if (homeWordMatches.length >= 1 && awayWordMatches.length >= 1) {
+      if (homePos >= 0 && awayPos >= 0) {
+        return homePos < awayPos; // Home should come first for correct order
+      }
+      return homeWordMatches.length >= awayWordMatches.length; // Prefer team with more word matches
+    }
+
+    // Fallback validation
+    if (homeWordMatches.length > 0 || awayWordMatches.length > 0) {
+      return homeWordMatches.length >= awayWordMatches.length;
     }
 
     // If only one team found or neither found, return true (don't filter out)
@@ -331,17 +355,17 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     // Check for exact team name matches first (highest priority)
     const exactHomeMatch = titleLower.includes(homeLower);
     const exactAwayMatch = titleLower.includes(awayLower);
-    
+
     if (exactHomeMatch && exactAwayMatch) {
       score += 100; // Very high bonus for both teams found exactly
-      
+
       // Additional bonus for correct order
       const homePos = titleLower.indexOf(homeLower);
       const awayPos = titleLower.indexOf(awayLower);
       if (homePos < awayPos) {
         score += 15; // Bonus for correct order
       }
-      
+
       // Bonus for "vs" or similar separators between teams
       const teamSection = titleLower.substring(homePos, awayPos + awayLower.length);
       const vsKeywords = ['vs', 'v ', 'versus', ' x ', ' - ', ' against '];
@@ -355,14 +379,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     // Check for partial team name matches
     const homeWords = homeLower.split(' ').filter(word => word.length > 2);
     const awayWords = awayLower.split(' ').filter(word => word.length > 2);
-    
+
     const homeMatches = homeWords.filter(word => titleLower.includes(word));
     const awayMatches = awayWords.filter(word => titleLower.includes(word));
-    
+
     // Bonus for partial matches
     score += homeMatches.length * 5;
     score += awayMatches.length * 5;
-    
+
     // Require at least partial matches for both teams
     if (homeMatches.length === 0 || awayMatches.length === 0) {
       score -= 50; // Penalty if one team is completely missing
@@ -693,8 +717,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
             title: video.snippet.title
           };
-        }
-        throw new Error('No Canal do Futebol BR videos found');
+        }        throw new Error('No Canal do Futebol BR videos found');
       }
     }] : []),
     // FIFA Club World Cup Official Channel (priority)
@@ -748,7 +771,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         // Create dynamic query list based on league type and match characteristics
         let queries;
-        
+
         if (isBrazilianLeague) {
           // For Brazilian matches, prioritize Portuguese terms and broader search
           queries = [
@@ -789,7 +812,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           const query = queries[i];
           try {
             console.log(`🔍 [Highlights] Trying query ${i + 1}/${queries.length} for ${rawHome} vs ${rawAway}: "${query}"`);
-            
+
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=15&order=relevance`);
             const data = await response.json();
 
@@ -800,7 +823,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
             if (data.items && data.items.length > 0) {
               console.log(`📝 [Highlights] Query ${i + 1} returned ${data.items.length} raw results`);
-              
+
               // Filter and sort by relevance and title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
 
