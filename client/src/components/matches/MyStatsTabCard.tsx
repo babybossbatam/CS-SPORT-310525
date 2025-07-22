@@ -578,11 +578,6 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
             awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Passes %', ['Pass accuracy']))}
           />
         </div>
-
-        {/* Success message */}
-        <div className="mt-4 p-3 bg-green-50 rounded-lg text-xs text-green-700">
-          <p>✅ Now using real-time match statistics from the API!</p>
-        </div>
       </CardContent>
     </Card>
   );
