@@ -255,7 +255,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     return `ended_matches_${date}_${leagueId}`;
   }, []);
 
-  // Get cached ended matches with strict date validation
+  // Get cached ended matches with strict date validation and immediate cleanup
   const getCachedEndedMatches = useCallback((date: string, leagueId: number): FixtureData[] => {
     try {
       const cacheKey = getCacheKey(date, leagueId);
@@ -273,15 +273,13 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       }
 
       const cacheAge = Date.now() - timestamp;
-
-      // More aggressive cache validation for recent dates
       const today = new Date().toISOString().slice(0, 10);
       const isToday = date === today;
-      const isPastDate = date < today;
 
-      // For today: 1 hour cache max
-      // For past dates: 24 hours cache max (reduced from 7 days)
-      const maxCacheAge = isToday ? 1 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+      // Reduced cache times for better real-time accuracy
+      // For today: 5 minutes max (much shorter for live data)
+      // For past dates: 30 minutes max (much shorter to prevent stale data)
+      const maxCacheAge = isToday ? 5 * 60 * 1000 : 30 * 60 * 1000;
 
       if (cacheAge < maxCacheAge) {
         // Additional validation: check if fixtures actually match the date
@@ -611,10 +609,11 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
         setLeagueFixtures(newLeagueFixtures);
 
-        // Cache the results to avoid refetching
+        // Cache the results with date validation
         sessionStorage.setItem(`league-fixtures-${selectedDate}`, JSON.stringify({
           data: Array.from(newLeagueFixtures.entries()),
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          date: selectedDate // Include date for validation
         }));
 
       } catch (error) {
@@ -630,26 +629,38 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       }
     };
 
-    // Check cache first for non-live data
+    // Check cache first for non-live data with stricter validation
     const cacheKey = `league-fixtures-${selectedDate}`;
     const cached = sessionStorage.getItem(cacheKey);
 
     if (cached && !liveFilterActive) {
       try {
-        const { data, timestamp } = JSON.parse(cached);
+        const { data, timestamp, date: cachedDateKey } = JSON.parse(cached);
         const age = Date.now() - timestamp;
 
-        // Use cache if less than 5 minutes old for historical data, 1 minute for today
-        const maxAge = selectedDate === new Date().toISOString().split('T')[0] ? 60000 : 300000;
+        // Validate cached date matches exactly
+        if (cachedDateKey && cachedDateKey !== selectedDate) {
+          console.log(`🚨 [MyNewLeague] Session cache date mismatch - clearing: ${cachedDateKey} !== ${selectedDate}`);
+          sessionStorage.removeItem(cacheKey);
+        } else {
+          // Much shorter cache times to prevent stale data
+          // For today: 30 seconds max
+          // For other dates: 2 minutes max
+          const maxAge = selectedDate === new Date().toISOString().split('T')[0] ? 30000 : 120000;
 
-        if (age < maxAge) {
-          console.log(`💾 [MyNewLeague] Using cached data for ${selectedDate} (age: ${Math.round(age/1000)}s)`);
-          setLeagueFixtures(new Map(data));
-          setIsLoading(false);
-          return;
+          if (age < maxAge) {
+            console.log(`💾 [MyNewLeague] Using cached data for ${selectedDate} (age: ${Math.round(age/1000)}s)`);
+            setLeagueFixtures(new Map(data));
+            setIsLoading(false);
+            return;
+          } else {
+            console.log(`⏰ [MyNewLeague] Session cache expired for ${selectedDate} (age: ${Math.round(age/1000)}s)`);
+            sessionStorage.removeItem(cacheKey);
+          }
         }
       } catch (error) {
-        console.warn('Failed to parse cache:', error);
+        console.warn('Failed to parse session cache:', error);
+        sessionStorage.removeItem(cacheKey);
       }
     }
 
@@ -700,45 +711,61 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     cleanupOldCache();
   }, [selectedDate]); // Re-run when selected date changes
 
-  // Clear cache when date changes to prevent cross-date contamination
+  // Immediate cache clearing when date changes to prevent cross-date contamination
   useEffect(() => {
-    const clearDateSpecificCache = () => {
+    const clearAllRelatedCache = () => {
       try {
-        // Clear fixtureCache for the new date
+        console.log(`🔄 [MyNewLeague] Performing immediate cache clear for date change to ${selectedDate}`);
+        
+        // Clear all fixture-related caches immediately
         fixtureCache.clearCache();
 
-        // Clear any stale localStorage entries that might contain wrong date data
+        // Clear ALL localStorage entries for leagues and matches (aggressive cleanup)
         const keys = Object.keys(localStorage);
-        const staleCacheKeys = keys.filter(key => 
-          (key.startsWith('ended_matches_') || key.startsWith('finished_fixtures_')) &&
-          !key.includes(selectedDate)
+        const allCacheKeys = keys.filter(key => 
+          key.startsWith('ended_matches_') || 
+          key.startsWith('finished_fixtures_') ||
+          key.startsWith('league-fixtures-') ||
+          key.startsWith('match-data-')
         );
 
-        staleCacheKeys.forEach(key => {
+        let clearedCount = 0;
+        allCacheKeys.forEach(key => {
           try {
-            const cached = localStorage.getItem(key);
-            if (cached) {
-              const { date: cachedDate, timestamp } = JSON.parse(cached);
-              const cacheAge = Date.now() - timestamp;
-
-              // If cache is recent but for wrong date, clear it
-              if (cacheAge < 2 * 60 * 60 * 1000 && cachedDate !== selectedDate) {
-                localStorage.removeItem(key);
-                console.log(`🗑️ [MyNewLeague] Cleared cross-date cache: ${key} (cached: ${cachedDate}, selected: ${selectedDate})`);
-              }
-            }
-          } catch (error) {
             localStorage.removeItem(key);
+            clearedCount++;
+          } catch (error) {
+            console.warn(`Failed to clear cache key: ${key}`, error);
           }
         });
 
-        console.log(`🔄 [MyNewLeague] Cache cleared for date change to ${selectedDate}`);
+        // Clear sessionStorage as well
+        const sessionKeys = Object.keys(sessionStorage);
+        const sessionCacheKeys = sessionKeys.filter(key => 
+          key.startsWith('league-fixtures-') || 
+          key.startsWith('match-data-')
+        );
+
+        sessionCacheKeys.forEach(key => {
+          try {
+            sessionStorage.removeItem(key);
+            clearedCount++;
+          } catch (error) {
+            console.warn(`Failed to clear session cache key: ${key}`, error);
+          }
+        });
+
+        // Reset component state to ensure fresh data
+        setLeagueFixtures(new Map());
+        setIsLoading(true);
+
+        console.log(`🧹 [MyNewLeague] Cleared ${clearedCount} cache entries for date ${selectedDate}`);
       } catch (error) {
-        console.error('Error clearing date-specific cache:', error);
+        console.error('Error clearing all related cache:', error);
       }
     };
 
-    clearDateSpecificCache();
+    clearAllRelatedCache();
   }, [selectedDate]);
 
   // Remove conflicting data fetch - using leagueFixtures from the new effect above
