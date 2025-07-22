@@ -705,7 +705,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         {event.type === "Goal" ? (
                           <div className="flex flex-col gap-3">
                             {/* Enhanced Goal Header with Animation */}
-                            <div className="flex items-center gap-2 -ml-3 -mt-1 py-2 px-3 rounded-lg text-xs font-medium bg-gradient-to-r from-green-50 to-blue-50 border border-green-200">
+                            <div className="flex items-center gap-2 -ml-3 -mt-1  px-1 text-xs font-bold bg-gradient-to-r from-green-50 to-blue-50 border border-green-200">
                               {(() => {
                                 const detail =
                                   event.detail?.toLowerCase() || "";
@@ -777,7 +777,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 <img
                                   src={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
                                   alt={event.team?.name}
-                                  className="w-4 h-4 rounded-sm border border-gray-200"
+                                  className="w-6 h-6 rounded-sm border border-gray-200"
                                   onError={(e) => {
                                     e.currentTarget.src =
                                       "/assets/fallback-logo.svg";
@@ -881,7 +881,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     </span>
                                   </div>
 
-                                  <div className="flex items-center gap-2 -ml-3 px-3  text-xs font-medium bg-stone-200">
+                                  <div className="flex items-center gap-2 -ml-3 pl-1  text-xs font-medium bg-stone-200">
                                     <MyAvatarInfo
                                       playerId={event.assist?.id}
                                       playerName={event.assist?.name}
@@ -900,7 +900,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     
                                   </div>
 
-                                  <div className="text-sm text-indigo-700 leading-relaxed -ml-3 bg-indigo-50 p-3 rounded-md border-l-4 border-indigo-300">
+                                  <div className="text-sm text-gray-700 leading-relaxed -ml-3    ">
                                     🎨 Brilliant setup from {event.assist.name}!
                                     The vision and execution to create this
                                     scoring opportunity was absolutely perfect.
@@ -958,7 +958,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         ) : event.type === "subst" ? (
                           <div className="flex flex-col gap-1">
                             {/* Substitution Header */}
-                            <div className="flex items-center gap-2 -ml-3 text-xs font-medium">
+                            <div className="flex items-center gap-2 -ml-3 -mt-1  px-1 text-xs font-medium bg-gradient-to-r from-green-50 to-blue-50 border border-green-200">
                               <img
                                 src="/assets/matchdetaillogo/substitution.svg"
                                 alt="Substitution"
@@ -967,13 +967,16 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               <span className="text-gray-700 font-medium">
                                 Substitution
                               </span>
-                              <div className="ml-auto">
-                                <MyWorldTeamLogo
-                                  teamName={event.team?.name || ""}
-                                  teamLogo={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
+                              <div className="ml-auto flex items-center gap-2">
+
+                                <img
+                                  src={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
                                   alt={event.team?.name}
-                                  size="24px"
-                                  className="rounded-sm border border-gray-200"
+                                  className="w-6 h-6"
+                                  onError={(e) => {
+                                    e.currentTarget.src =
+                                      "/assets/fallback-logo.svg";
+                                  }}
                                 />
                               </div>
                             </div>
