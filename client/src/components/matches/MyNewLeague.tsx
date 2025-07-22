@@ -1130,9 +1130,16 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 const status = currentMatchStatus;
                 const elapsed = currentStatusObj.elapsed;
 
-                // Show live status only for truly live matches (not finished)
+                // Check if match finished more than 4 hours ago
+                const matchDateTime = new Date(matchDate);
+                const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
+                const isStaleFinishedMatch = ["FT", "AET", "PEN"].includes(status) && hoursOld > 4;
+
+                // Show live status only for truly live matches (not finished and not stale)
                 if (
-                  !isActuallyFinished && [
+                  !isActuallyFinished && 
+                  !isStaleFinishedMatch &&
+                  [
                     "LIVE",
                     "LIV", 
                     "1H",
@@ -1174,6 +1181,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   );
                 }
 
+                // Show "Ended" status for finished matches or stale matches
                 if (
                   [
                     "FT",
@@ -1184,7 +1192,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     "ABD",
                     "CANC",
                     "SUSP",
-                  ].includes(status)
+                  ].includes(status) || isStaleFinishedMatch
                 ) {
                   return (
                     <div 
@@ -1196,7 +1204,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                         animation: 'none'
                       }}
                     >
-                      {status === "FT"
+                      {status === "FT" || isStaleFinishedMatch
                         ? "Ended"
                         : status === "AET"
                           ? "After Extra Time"
