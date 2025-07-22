@@ -1365,17 +1365,49 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
                   // Upcoming matches - show kick-off time
                   if (status === "NS" || status === "TBD") {
-                    // Debug logging for match date information
-                    console.log(`🕐 [Match Time Debug] Match ID: ${matchId}`, {
+                    // Enhanced debug logging for specific match and all matches
+                    const debugInfo = {
+                      matchId,
                       teams: `${homeTeamName} vs ${awayTeamName}`,
                       originalMatchDate: matchDate,
+                      rawDateObject: new Date(matchDate),
                       serverTime: new Date().toISOString(),
                       localTime: new Date().toLocaleString(),
                       formattedTime: status === "TBD" ? "TBD" : formatMatchTimeWithTimezone(matchDate),
                       utcMatchDate: new Date(matchDate).toISOString(),
                       localMatchDate: new Date(matchDate).toLocaleString(),
-                      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-                    });
+                      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                      dateComponents: {
+                        utcYear: new Date(matchDate).getUTCFullYear(),
+                        utcMonth: new Date(matchDate).getUTCMonth() + 1,
+                        utcDay: new Date(matchDate).getUTCDate(),
+                        utcHour: new Date(matchDate).getUTCHours(),
+                        utcMinute: new Date(matchDate).getUTCMinutes(),
+                        localYear: new Date(matchDate).getFullYear(),
+                        localMonth: new Date(matchDate).getMonth() + 1,
+                        localDay: new Date(matchDate).getDate(),
+                        localHour: new Date(matchDate).getHours(),
+                        localMinute: new Date(matchDate).getMinutes()
+                      },
+                      timezoneOffset: new Date().getTimezoneOffset(),
+                      selectedDateForComparison: selectedDate
+                    };
+
+                    console.log(`🕐 [Match Time Debug] Match ID: ${matchId}`, debugInfo);
+
+                    // Special debug for Millonarios vs Deportivo Pasto
+                    if ((homeTeamName.includes("Millonarios") && awayTeamName.includes("Deportivo Pasto")) ||
+                        (homeTeamName.includes("Deportivo Pasto") && awayTeamName.includes("Millonarios"))) {
+                      console.log(`🎯 [SPECIFIC MATCH DEBUG] Millonarios vs Deportivo Pasto:`, {
+                        ...debugInfo,
+                        displayedTime: "08:30",
+                        isThisTheMatchYouAreLookingFor: "YES - This is the match showing 08:30",
+                        serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                        utcTimeString: matchDate,
+                        parsedUTCDate: new Date(matchDate),
+                        whatFormattingFunctionReturns: formatMatchTimeWithTimezone(matchDate)
+                      });
+                    }
 
                     return (
                       <div
