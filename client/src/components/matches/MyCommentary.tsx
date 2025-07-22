@@ -292,6 +292,19 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   return bExtra - aExtra;
                 }
 
+                // For events at the same exact time, prioritize card order: Yellow before Red
+                if (a.type === "Card" && b.type === "Card" && 
+                    a.player?.name === b.player?.name) {
+                  const aIsYellow = a.detail?.toLowerCase().includes("yellow");
+                  const bIsYellow = b.detail?.toLowerCase().includes("yellow");
+                  const aIsRed = a.detail?.toLowerCase().includes("red");
+                  const bIsRed = b.detail?.toLowerCase().includes("red");
+                  
+                  // If one is yellow and other is red for same player, yellow comes first (higher in timeline)
+                  if (aIsYellow && bIsRed) return -1;
+                  if (aIsRed && bIsYellow) return 1;
+                }
+
                 // For events at the same time, prioritize period markers to appear first
                 const aPriority =
                   a.type === "period_end" || a.type === "period_marker" ? 1 : 0;
