@@ -534,7 +534,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         throw new Error('No CONCACAF official videos found');
       }
     }] : []),
-    // Brazilian Highlights Channel - PRIMARY option for Brazilian leagues  
+    // Brazilian Highlights Channel - PREFERRED option for Brazilian leagues (but not exclusive)
     ...(isBrazilianLeague ? [{
       name: 'Canal do Futebol BR',
       type: 'youtube' as const,
@@ -567,9 +567,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           `"${rawHome}" vs "${rawAway}" highlights ${matchYear} ${combinedExclusions}`,
           `"${rawHome}" x "${rawAway}" melhores momentos ${matchYear} ${combinedExclusions}`,
           `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} ${combinedExclusions}`,
-          `"${rawHome}" "${rawAway}" serie a ${matchYear} ${combinedExclusions}`,
-          `${home} vs ${away} highlights ${matchYear} ${combinedExclusions}`,
-          `${home} x ${away} melhores momentos ${matchYear} ${combinedExclusions}`,
           exactTeamMatchQuery + ` ${combinedExclusions}`
         ];
 
@@ -577,7 +574,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
         for (const query of brazilQueries) {
           try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=10&channelId=${brazilianChannelId}&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${brazilianChannelId}&order=relevance`);
             data = await response.json();
 
             if (data.items && data.items.length > 0) {
@@ -609,56 +606,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           };
         }
         throw new Error('No Canal do Futebol BR videos found');
-      }
-    }] : []),
-    // Desimpedidos Channel (secondary for Brazilian leagues)
-    ...(isBrazilianLeague ? [{
-      name: 'Desimpedidos',
-      type: 'youtube' as const,
-      searchFn: async () => {
-        const desimpedidosChannelId = 'UCEhBLRlB7Xe00BHJiA2vxpQ'; // Desimpedidos channel ID
-        // Create Brazil-specific search queries
-        const brazilQueries = [
-          `${home} ${away} melhores momentos ${matchYear}`,
-          `${home} vs ${away} highlights ${matchYear}`,
-          `${home} x ${away} gols ${matchYear}`,
-          primarySearchQuery,
-          secondarySearchQuery
-        ];
-        let data;
-
-        for (const query of brazilQueries) {
-          try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${desimpedidosChannelId}&order=relevance`);
-            data = await response.json();
-
-            if (data.items && data.items.length > 0) {
-              // Filter and sort by title order preference
-              const sortedVideos = filterAndSortVideos(data.items, home, away);
-              data.items = sortedVideos;
-              break;
-            }
-          } catch (error) {
-            console.warn(`🎬 [Highlights] Desimpedidos search failed for query: ${query}`, error);
-            continue;
-          }
-        }
-
-        if (data.error || data.quotaExceeded) {
-          throw new Error(data.error || 'Desimpedidos channel search failed');
-        }
-
-        if (data.items && data.items.length > 0) {
-          const video = data.items[0];
-          return {
-            name: 'Desimpedidos',
-            type: 'youtube' as const,
-            url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
-            embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
-            title: video.snippet.title
-          };
-        }
-        throw new Error('No Desimpedidos videos found');
       }
     }] : []),
     // FIFA Club World Cup Official Channel (priority)
@@ -710,12 +657,29 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'YouTube',
       type: 'youtube' as const,
       searchFn: async () => {
-        // Try multiple search queries in order of specificity, prioritizing exact team matching
-        const queries = [exactTeamMatchQuery, leagueSpecificQuery, brazilianSafeQuery, primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
+        // Create dynamic query list based on league type
+        let queries;
+        
+        if (isBrazilianLeague) {
+          // For Brazilian matches, prioritize Portuguese terms and broader search
+          queries = [
+            `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esports -virtual -fifa`,
+            `"${rawHome}" x "${rawAway}" melhores momentos ${matchYear}`,
+            `${home} vs ${away} brasileiro ${matchYear} highlights`,
+            `${home} ${away} serie a ${matchYear} gols`,
+            `"${rawHome}" "${rawAway}" ${matchYear} highlights`,
+            exactTeamMatchQuery,
+            primarySearchQuery,
+            secondarySearchQuery
+          ];
+        } else {
+          // For non-Brazilian matches, use original priority
+          queries = [exactTeamMatchQuery, leagueSpecificQuery, brazilianSafeQuery, primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
+        }
 
         for (const query of queries) {
           try {
-            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=10&order=relevance`);
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=15&order=relevance`);
             const data = await response.json();
 
             if (data.error || data.quotaExceeded) {
@@ -728,6 +692,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
               console.log(`🎬 [Highlights] YouTube search results for "${query}":`, sortedVideos.map(v => ({
                 title: v.snippet?.title,
+                channelTitle: v.snippet?.channelTitle,
                 relevanceScore: v.relevanceScore,
                 correctOrder: v.correctOrder,
                 combinedScore: v.combinedScore
@@ -792,6 +757,52 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
         throw new Error('No Dailymotion videos found');
       }
     },
+    // Additional Brazilian-focused search (broader channels)
+    ...(isBrazilianLeague ? [{
+      name: 'YouTube Brazilian Extended',
+      type: 'youtube' as const,
+      searchFn: async () => {
+        // Very broad Brazilian football search terms
+        const brazilianQueries = [
+          `${rawHome} ${rawAway} ${matchYear}`,
+          `${home} ${away} futebol ${matchYear}`,
+          `${home} vs ${away} brasileiro`,
+          `${rawHome} x ${rawAway} gols`,
+          `"${home}" "${away}" highlights`,
+          `${home} ${away} resumo ${matchYear}`
+        ];
+
+        for (const query of brazilianQueries) {
+          try {
+            const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=20&order=relevance`);
+            const data = await response.json();
+
+            if (data.error || data.quotaExceeded) {
+              continue; // Try next query
+            }
+
+            if (data.items && data.items.length > 0) {
+              // Filter and sort by title order preference
+              const sortedVideos = filterAndSortVideos(data.items, home, away);
+              if (sortedVideos.length > 0) {
+                const video = sortedVideos[0];
+                return {
+                  name: 'YouTube Brazilian Extended',
+                  type: 'youtube' as const,
+                  url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+                  embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
+                  title: video.snippet.title
+                };
+              }
+            }
+          } catch (error) {
+            console.warn(`🎬 [Highlights] Brazilian extended search failed for query: ${query}`, error);
+            continue;
+          }
+        }
+        throw new Error('No Brazilian extended videos found');
+      }
+    }] : []),
     // Additional fallback with broader search terms
     {
       name: 'YouTube Extended',
