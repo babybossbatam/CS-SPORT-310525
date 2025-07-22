@@ -73,7 +73,7 @@ interface ErrorCategory {
 
 const categorizeError = (error: any): ErrorCategory => {
   const errorStr = error?.message || error?.toString?.() || String(error);
-  
+
   // AbortError and signal aborted errors - suppress
   if (error instanceof Error && (error.name === 'AbortError' || errorStr.includes('signal is aborted'))) {
     return {
@@ -83,7 +83,7 @@ const categorizeError = (error: any): ErrorCategory => {
       action: 'suppress'
     };
   }
-  
+
   // Replit development environment errors - suppress but log
   if (errorStr.includes('plugin:runtime-error-plugin') || 
       errorStr.includes('unknown runtime error') ||
@@ -99,7 +99,7 @@ const categorizeError = (error: any): ErrorCategory => {
       action: 'suppress'
     };
   }
-  
+
   // Network/connectivity issues - attempt recovery
   if (errorStr.includes('Failed to fetch') || 
       errorStr.includes('NetworkError') ||
@@ -111,7 +111,7 @@ const categorizeError = (error: any): ErrorCategory => {
       action: 'fix'
     };
   }
-  
+
   // Application logic errors - need investigation
   if (errorStr.includes('Cannot read properties') ||
       errorStr.includes('is not a function') ||
@@ -123,7 +123,7 @@ const categorizeError = (error: any): ErrorCategory => {
       action: 'fix'
     };
   }
-  
+
   // Memory/performance issues - monitor and optimize
   if (errorStr.includes('Maximum call stack') ||
       errorStr.includes('out of memory') ||
@@ -135,7 +135,23 @@ const categorizeError = (error: any): ErrorCategory => {
       action: 'monitor'
     };
   }
-  
+
+  // Vite/Build errors
+  if (errorStr.includes('Failed to fetch dynamically imported module') ||
+      errorStr.includes('Loading chunk') ||
+      errorStr.includes('plugin:') ||
+      errorStr.includes('vite') ||
+      errorStr.includes('runtime-error-plugin') ||
+      errorStr.includes('ErrorOverlay') ||
+      errorStr.includes('reading \'frame\'')) {
+    return {
+      name: 'Build/Import',
+      shouldSuppress: true,
+      shouldReport: true,
+      action: 'monitor'
+    };
+  }
+
   // Unknown errors - investigate
   return {
     name: 'unknown',
@@ -148,7 +164,7 @@ const categorizeError = (error: any): ErrorCategory => {
 // Enhanced error reporting system
 const reportError = (error: any, category: ErrorCategory, context: string) => {
   if (!category.shouldReport) return;
-  
+
   const errorReport = {
     category: category.name,
     action: category.action,
@@ -162,12 +178,12 @@ const reportError = (error: any, category: ErrorCategory, context: string) => {
     userAgent: navigator.userAgent,
     url: window.location.href
   };
-  
+
   console.group(`🚨 Error Report: ${category.name}`);
   console.log('Action Required:', category.action);
   console.log('Error Details:', errorReport);
   console.groupEnd();
-  
+
   // Store for debugging (in development)
   if (import.meta.env.DEV) {
     const errors = JSON.parse(localStorage.getItem('app-errors') || '[]');
@@ -184,7 +200,7 @@ export const setupGlobalErrorHandlers = () => {
   if (typeof process !== 'undefined' && process.setMaxListeners) {
     process.setMaxListeners(50);
   }
-  
+
   // Set max listeners for window/document if available
   if (typeof window !== 'undefined') {
     if (window.addEventListener && window.setMaxListeners) {
@@ -199,7 +215,7 @@ export const setupGlobalErrorHandlers = () => {
   window.addEventListener('unhandledrejection', (event) => {
     const error = event.reason;
     const category = categorizeError(error);
-    
+
     // Handle AbortError specifically
     if (error instanceof Error && (error.name === 'AbortError' || error.message?.includes('signal is aborted'))) {
       console.log('🛑 AbortError detected and suppressed:', error.message);
@@ -213,17 +229,17 @@ export const setupGlobalErrorHandlers = () => {
       event.preventDefault();
       return;
     }
-    
+
     // Report the error for analysis
     reportError(error, category, 'unhandledrejection');
-    
+
     // Take appropriate action based on category
     if (category.shouldSuppress) {
       console.log(`🔧 ${category.name} error suppressed:`, error?.message || error);
       event.preventDefault();
       return;
     }
-    
+
     // For fixable errors, attempt recovery
     if (category.action === 'fix') {
       if (category.name === 'network-connectivity') {
@@ -278,10 +294,10 @@ export const setupGlobalErrorHandlers = () => {
   window.addEventListener('error', (event) => {
     const error = event.error || event.message;
     const category = categorizeError(error);
-    
+
     // Report the error for analysis
     reportError(error, category, 'global-error');
-    
+
     // Take appropriate action based on category
     if (category.shouldSuppress) {
       console.log(`🔧 ${category.name} error suppressed:`, event.message);
@@ -332,25 +348,25 @@ export const setupGlobalErrorHandlers = () => {
 // Utility to analyze stored errors
 export const analyzeStoredErrors = () => {
   if (!import.meta.env.DEV) return;
-  
+
   const errors = JSON.parse(localStorage.getItem('app-errors') || '[]');
-  
+
   if (errors.length === 0) {
     console.log('✅ No stored errors found');
     return;
   }
-  
+
   const categorized = errors.reduce((acc: any, error: any) => {
     acc[error.category] = (acc[error.category] || 0) + 1;
     return acc;
   }, {});
-  
+
   console.group('📊 Error Analysis Report');
   console.log('Total Errors:', errors.length);
   console.log('By Category:', categorized);
   console.log('Recent Errors:', errors.slice(-5));
   console.groupEnd();
-  
+
   return { total: errors.length, categorized, recent: errors.slice(-5) };
 };
 

@@ -122,10 +122,13 @@ function App() {
         event.message?.includes("unknown runtime error") ||
         event.message?.includes("sendError") ||
         event.message?.includes("Too many re-renders") ||
+        event.message?.includes("ErrorOverlay") ||
+        event.message?.includes("reading 'frame'") ||
         event.filename?.includes("riker.replit.dev") ||
-        event.error?.toString()?.includes("plugin:runtime-error-plugin")
+        event.error?.toString()?.includes("plugin:runtime-error-plugin") ||
+        event.error?.toString()?.includes("ErrorOverlay")
       ) {
-        console.log("🔧 Runtime error caught and suppressed:", event.message);
+        console.log("🔧 Runtime/ErrorOverlay error caught and suppressed:", event.message);
         event.preventDefault();
         return;
       }
