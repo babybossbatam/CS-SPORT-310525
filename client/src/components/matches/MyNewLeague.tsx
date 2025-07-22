@@ -450,9 +450,39 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               const fixtureDate = fixture.fixture?.date;
               if (!fixtureDate) return false;
 
-              // Convert fixture UTC time to user's local timezone
+              const currentStatus = fixture.fixture.status.short;
               const fixtureUTCDate = new Date(fixtureDate);
               const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+              const now = new Date();
+
+              // Special handling for matches that are past their scheduled time but still showing NS status
+              // These are likely postponed/rescheduled matches and should be treated as tomorrow's matches
+              if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
+                const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
+                
+                // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
+                if (hoursPassed > 3) {
+                  const tomorrow = new Date(now);
+                  tomorrow.setDate(tomorrow.getDate() + 1);
+                  const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
+                  
+                  const isTomorrowMatch = fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
+                  
+                  if (isTomorrowMatch) {
+                    console.log(`🔄 [POSTPONED MATCH] Moving to tomorrow: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                      originalTime: fixtureDate,
+                      hoursPassed: hoursPassed.toFixed(1),
+                      status: currentStatus,
+                      fixtureLocalDate,
+                      selectedDate,
+                      tomorrowDate,
+                      treatAsTomorrow: true
+                    });
+                  }
+                  
+                  return isTomorrowMatch;
+                }
+              }
 
               const matches = fixtureLocalDate === selectedDate;
 
@@ -461,7 +491,9 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   fixtureUTCTime: fixtureDate,
                   fixtureLocalDate,
                   selectedDate,
-                  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                  status: currentStatus,
+                  hoursPassed: fixtureUTCDate.getTime() < now.getTime() ? ((now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60)).toFixed(1) : 'future'
                 });
               }
 
@@ -575,8 +607,33 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               const fixtureUTCDate = new Date(fixtureDate);
               const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
 
-              // Only include fixtures that match the selected date in local timezone
-              if (fixtureLocalDate === selectedDate) {
+              // Handle postponed matches and regular date matching
+              const currentStatus = fixture.fixture.status.short;
+              const now = new Date();
+              let shouldInclude = false;
+              let isPostponed = false;
+
+              // Special handling for matches that are past their scheduled time but still showing NS status
+              if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
+                const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
+                
+                // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
+                if (hoursPassed > 3) {
+                  const tomorrow = new Date(now);
+                  tomorrow.setDate(tomorrow.getDate() + 1);
+                  const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
+                  
+                  shouldInclude = fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
+                  isPostponed = shouldInclude;
+                }
+              }
+
+              // Regular date matching for non-postponed matches
+              if (!shouldInclude) {
+                shouldInclude = fixtureLocalDate === selectedDate;
+              }
+
+              if (shouldInclude) {
                 if (!leagueFixturesMap.has(leagueId)) {
                   leagueFixturesMap.set(leagueId, []);
                 }
@@ -586,7 +643,9 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   fixtureUTCTime: fixtureDate,
                   fixtureLocalDate,
                   selectedDate,
-                  league: fixture.league?.name
+                  league: fixture.league?.name,
+                  isPostponed,
+                  status: currentStatus
                 });
               }
             }
@@ -807,14 +866,29 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     // Process leagueFixtures map to create the grouped structure
     leagueFixtures.forEach((fixtures, leagueId) => {
       if (fixtures && fixtures.length > 0) {
-        // Filter fixtures by selected date using timezone-aware filtering
+        // Filter fixtures by selected date using timezone-aware filtering with postponed match handling
         const filteredFixtures = fixtures.filter(fixture => {
           const fixtureDate = fixture.fixture?.date;
           if (!fixtureDate) return false;
 
-          // Convert fixture UTC time to user's local timezone
+          const currentStatus = fixture.fixture.status.short;
           const fixtureUTCDate = new Date(fixtureDate);
           const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+          const now = new Date();
+
+          // Special handling for matches that are past their scheduled time but still showing NS status
+          if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
+            const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
+            
+            // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
+            if (hoursPassed > 3) {
+              const tomorrow = new Date(now);
+              tomorrow.setDate(tomorrow.getDate() + 1);
+              const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
+              
+              return fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
+            }
+          }
 
           return fixtureLocalDate === selectedDate;
         });
