@@ -1,4 +1,3 @@
-
 import React from 'react';
 import MatchPrediction from './MatchPrediction';
 import MyHighlights from './MyHighlights';
@@ -19,7 +18,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
     <>
       {/* Match Prediction */}
       <div className="space-y-2">
-        
+
         <MatchPrediction 
           homeTeam={match.teams?.home}
           awayTeam={match.teams?.away}
@@ -30,30 +29,46 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
       {/* Conditional rendering based on match status */}
       {(() => {
         const matchStatus = match.fixture?.status?.short;
-        const isLive = [
+
+        // Check if match is truly live (not finished)
+        const actuallyLive = [
           "1H",
-          "2H",
+          "2H", 
           "LIVE",
           "LIV",
           "HT",
           "ET",
           "P",
           "INT",
+          "SUSP",
+          "BT"
         ].includes(matchStatus);
-        const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(matchStatus);
-        const isUpcoming = ["NS", "TBD"].includes(matchStatus);
 
-        console.log("🎬 [MyMatchTabCard] Match status check:", {
+        // Check if match is ended
+        const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(matchStatus);
+
+        // For "2H" status, also check if fixture status indicates it's finished
+        const fixtureFinished = match.fixture?.status?.long === "Match Finished" || 
+                               match.fixture?.status?.short === "FT";
+
+        // Final determination: if fixture is finished, treat as ended regardless of current status
+        const finalIsEnded = isEnded || fixtureFinished;
+        const finalIsLive = actuallyLive && !fixtureFinished;
+
+        console.log(`🔍 [MyMatchTabCard] Match ${match.fixture?.id} status detection:`, {
           matchStatus,
+          fixtureStatus: match.fixture?.status,
+          actuallyLive,
           isEnded,
-          teams: `${match.teams?.home?.name} vs ${match.teams?.away?.name}`,
-          willShowHighlights: isEnded
+          fixtureFinished,
+          finalIsLive,
+          finalIsEnded
         });
 
         return (
           <>
-            {/* Show MyHighlights only for ended matches */}
-            {isEnded && (
+            {/* Show MyHighlights for ended matches */}
+            {finalIsEnded && (
               <div className="space-y-2">
                 <MyHighlights 
                   homeTeam={match.teams?.home?.name || "Unknown Team"}
@@ -65,8 +80,8 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
               </div>
             )}
 
-            {/* Show MyLiveAction only for live matches */}
-            {isLive && !isEnded && (
+            {/* Show MyLiveAction only for truly live matches */}
+            {finalIsLive && (
               <div className="space-y-2">
                 <MyLiveAction 
                   matchId={match.fixture?.id}
@@ -84,7 +99,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
 
       {/* Match Events */}
       <div className="space-y-2">
-        
+
         <MyMatchEventNew 
           fixtureId={match.fixture?.id}
           homeTeam={match.teams?.home?.name}
@@ -94,11 +109,11 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
         />
       </div>
 
-      
+
 
       {/* Shot Map */}
       <div className="space-y-2">
-        
+
         <MyShotmap 
           match={match}
           fixtureId={match.fixture?.id}
@@ -109,7 +124,7 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
 
       {/* Key Players */}
       <div className="space-y-2">
-        
+
         <MyKeyPlayer 
           match={match}
           fixtureId={match.fixture?.id}
