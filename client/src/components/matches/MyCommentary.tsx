@@ -705,7 +705,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         {event.type === "Goal" ? (
                           <div className="flex flex-col gap-3">
                             {/* Enhanced Goal Header with Animation */}
-                            <div className="flex items-center gap-2 -ml-3 -mt-1  px-1 text-xs font-bold bg-gradient-to-r from-green-50 to-blue-50 border border-green-200">
+                            <div className="flex items-center gap-2 -ml-3 -mt-1  px-1 text-xs font-bold bg-gradient-to-r from-green-50 to-blue-50 ">
                               {(() => {
                                 const detail =
                                   event.detail?.toLowerCase() || "";
