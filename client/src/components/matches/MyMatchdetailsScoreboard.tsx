@@ -11,39 +11,8 @@ import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
 
-// Add CSS for cleaner pulse effect
-const pulseStyles = `
-  .status-live-elapsed {
-    background-color: #ef4444;
-    color: white;
-    font-size: 11px;
-    font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 4px;
-    animation: smoothPulse 2s infinite ease-in-out;
-  }
-  
-  .status-halftime {
-    background-color: #f97316;
-    color: white;
-    font-size: 11px;
-    font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 4px;
-    animation: smoothPulse 2s infinite ease-in-out;
-  }
-  
-  @keyframes smoothPulse {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.6;
-      transform: scale(1);
-    }
-  }
-`;
+// Import unified CSS file
+import "../../../styles/unified-live-components.css";
 
 interface MyMatchdetailsScoreboardProps {
   match?: any;
@@ -350,7 +319,7 @@ const MyMatchdetailsScoreboard = ({
                               }
 
       return (
-        <div className={`match-status-label ${currentStatus === "HT" ? "status-halftime" : "status-live-elapsed"}`}>
+        <div className={`match-status-label rounded-md ${currentStatus === "HT" ? "status-halftime" : "status-live-elapsed"}`}>
           {displayText}
         </div>
       );
@@ -389,7 +358,6 @@ const MyMatchdetailsScoreboard = ({
 
   return (
     <>
-      <style dangerouslySetInnerHTML={{ __html: pulseStyles }} />
       <Card
         className={`w-full ${className} p-0 bg-gradient-to-br from-pink-50 via-orange-50 to-pink-50 relative transition-all duration-200 `}
       >
