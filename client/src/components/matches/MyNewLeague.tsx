@@ -1032,10 +1032,15 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     leagueContext: { name: string; country: string; }
   }) => {
     // Enhanced live match detection with more status codes
-    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT", "45", "90"].includes(initialMatch.fixture.status.short);
+    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(initialMatch.fixture.status.short);
     
-    // Always use selective updates for potentially live matches
-    const matchState = useSelectiveMatchUpdate(matchId, initialMatch);
+    // Check if match data is stale (older than 2 hours)
+    const matchDate = new Date(initialMatch.fixture.date);
+    const hoursOld = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
+    const isStaleData = hoursOld > 2 && isLiveMatch;
+    
+    // Only use selective updates for truly live matches that aren't stale
+    const matchState = (isLiveMatch && !isStaleData) ? useSelectiveMatchUpdate(matchId, initialMatch) : { goals: initialMatch.goals, status: initialMatch.fixture.status };
 
     // Debug logging for match updates
     console.log(`🔄 [MatchCard ${matchId}] Update check:`, {
@@ -1111,7 +1116,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 const status = currentStatus.short;
                 const elapsed = currentStatus.elapsed;
 
-                // Enhanced live status detection
+                // Enhanced live status detection with stale data check
                 if (
                   [
                     "LIVE",
@@ -1122,11 +1127,18 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     "ET",
                     "BT",
                     "P",
-                    "INT",
-                    "45",
-                    "90"
+                    "INT"
                   ].includes(status)
                 ) {
+                  // Check if this is stale data
+                  if (isStaleData) {
+                    return (
+                      <div className="match-status-label status-ended">
+                        Data Error
+                      </div>
+                    );
+                  }
+
                   let displayText = "";
                   if (status === "HT") {
                     displayText = "Halftime";
@@ -1148,7 +1160,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   }
 
                   return (
-
                       <div className={`match-status-label ${status === "HT" ? "status-halftime" : "status-live-elapsed"}`}>
                         {displayText}
                       </div>
