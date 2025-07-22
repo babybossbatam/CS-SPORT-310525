@@ -1281,9 +1281,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 {(() => {
                   const status = currentMatchStatus;
 
-                  // Live matches - show current score (but exclude finished matches)
+                  // Live matches - show current score
                   if (
-                    !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
                     [
                       "LIVE",
                       "LIV",
@@ -1351,8 +1350,30 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     );
                   }
 
-                  // For any other status, don't show anything
-                  return null;
+                  // Fallback for any unhandled status - show time or score if available
+                  if (currentGoals.home !== null || currentGoals.away !== null) {
+                    return (
+                      <div className="match-score-display">
+                        <span className="score-number">
+                          {currentGoals.home ?? 0}
+                        </span>
+                        <span className="score-separator">-</span>
+                        <span className="score-number">
+                          {currentGoals.away ?? 0}
+                        </span>
+                      </div>
+                    );
+                  }
+
+                  // Last resort - show match time
+                  return (
+                    <div
+                      className="match-time-display"
+                      style={{ fontSize: "0.882em" }}
+                    >
+                      {formatMatchTimeWithTimezone(matchDate)}
+                    </div>
+                  );
                 })()}
               </div>
 
