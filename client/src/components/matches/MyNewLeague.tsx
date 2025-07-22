@@ -50,7 +50,7 @@ const useIntersectionObserver = (
     const observer = new IntersectionObserver(([entry]) => {
       const isElementIntersecting = entry.isIntersecting;
       setIsIntersecting(isElementIntersecting);
-      
+
       if (isElementIntersecting && !hasIntersected) {
         setHasIntersected(true);
       }
@@ -622,7 +622,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         setError('Failed to load matches');
       } finally {
         setIsLoading(false);
-        
+
         // Ensure loading is cleared even on error
         setTimeout(() => {
           setLoading(false);
@@ -776,7 +776,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   // Use leagueFixtures as primary data source and group matches by league ID
   const matchesByLeague = useMemo(() => {
     const result: Record<number, { league: any; matches: FixtureData[] }> = {};
-    
+
     // Process leagueFixtures map to create the grouped structure
     leagueFixtures.forEach((fixtures, leagueId) => {
       if (fixtures && fixtures.length > 0) {
@@ -815,7 +815,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   useEffect(() => {
     const leagueKeys = Object.keys(matchesByLeague).map(leagueId => `league-${leagueId}`);
     setExpandedLeagues(new Set(leagueKeys));
-    
+
     // Clear loading state once we have data or finished loading
     if (Object.keys(matchesByLeague).length > 0 || (!isLoading && !loading)) {
       console.log(`✅ [MyNewLeague] Data loaded successfully:`, {
@@ -839,7 +839,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       // Define clear status priorities with explicit numbering
       const getStatusPriority = (status: string) => {
         // Priority 1: Live matches (highest priority)
-        if (["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status)) {
+        if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
           return 1;
         }
         // Priority 2: Ended matches (second priority)  
@@ -866,8 +866,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       if (aPriority === 1) {
         // Live matches: sort by elapsed time (shortest elapsed time first)
         const aElapsed = Number(a.fixture.status.elapsed) || 0;
-        const bElapsed = Number(
-b.fixture.status.elapsed) || 0;
+        const bElapsed = Number(b.fixture.status.elapsed) || 0;
         if (aElapsed !== bElapsed) {
           return aElapsed - bElapsed;
         }
@@ -1012,7 +1011,8 @@ b.fixture.status.elapsed) || 0;
     isGoalFlash, 
     isStarred, 
     onStarToggle, 
-    onMatchClick
+    onMatchClick,
+    leagueContext
   }: {
     matchId: number;
     homeTeamName: string;
@@ -1029,15 +1029,16 @@ b.fixture.status.elapsed) || 0;
     isStarred: boolean;
     onStarToggle: (matchId: number) => void;
     onMatchClick?: (matchId: number, homeTeamName: string, awayTeamName: string) => void;
+    leagueContext: { name: string; country: string; }
   }) => {
     // Use selective updates only for live matches
     const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(initialMatch.fixture.status.short);
     const matchState = useSelectiveMatchUpdate(matchId, initialMatch);
-    
+
     // Use live data if available, otherwise use initial data
     const currentGoals = isLiveMatch ? matchState.goals : initialMatch.goals;
     const currentStatus = isLiveMatch ? matchState.status : initialMatch.fixture.status;
-    
+
     const handleMatchClick = () => {
       if (onMatchClick) {
         onMatchClick(matchId, homeTeamName, awayTeamName);
@@ -1094,7 +1095,7 @@ b.fixture.status.elapsed) || 0;
               {(() => {
                 const status = currentStatus.short;
                 const elapsed = currentStatus.elapsed;
-                
+
                 if (
                   [
                     "LIVE",
@@ -1129,7 +1130,7 @@ b.fixture.status.elapsed) || 0;
                   }
 
                   return (
-                    
+
                       <div className={`match-status-label ${status === "HT" ? "status-halftime" : "status-live-elapsed"}`}>
                         {displayText}
                       </div>
@@ -1221,10 +1222,7 @@ b.fixture.status.elapsed) || 0;
                       : "/assets/fallback-logo.svg"
                   }
                   size="34px"
-                  leagueContext={{
-                    name: leagueGroup.league.name,
-                    country: leagueGroup.league.country,
-                  }}
+                  leagueContext={leagueContext}
                 />
               </div>
 
@@ -1232,7 +1230,7 @@ b.fixture.status.elapsed) || 0;
               <div className="match-score-container">
                 {(() => {
                   const status = currentStatus.short;
-                  
+
                   // Live matches - show current score
                   if (
                     [
@@ -1318,10 +1316,7 @@ b.fixture.status.elapsed) || 0;
                       : "/assets/fallback-logo.svg"
                   }
                   size="34px"
-                  leagueContext={{
-                    name: leagueGroup.league.name,
-                    country: leagueGroup.league.country,
-                  }}
+                  leagueContext={leagueContext}
                 />
               </div>
 
@@ -1502,7 +1497,7 @@ b.fixture.status.elapsed) || 0;
 
   // Show loading only if we're actually loading and have no data
   const shouldShowLoading = (loading || isLoading) && Object.keys(matchesByLeague).length === 0;
-  
+
   if (shouldShowLoading) {
     return (
       <>
@@ -1667,7 +1662,13 @@ b.fixture.status.elapsed) || 0;
                   const isHalftimeFlash = halftimeFlashMatches.has(matchId);
                   const isFulltimeFlash = fulltimeFlashMatches.has(matchId);
                   const isGoalFlash = goalFlashMatches.has(matchId);
-                  const isStarred = starredMatches.has(matchId)
+                  const isStarred = starredMatches.has(matchId);
+                  // Pass league context to MatchCard
+                  const leagueContext = {
+                    name: leagueGroup.league.name,
+                    country: leagueGroup.league.country,
+                  };
+
                   return (
                     <MatchCard
                       key={match.fixture.id}
@@ -1692,6 +1693,7 @@ b.fixture.status.elapsed) || 0;
                           handleMatchCardClick(fullMatch);
                         }
                       }}
+                      leagueContext={leagueContext} // Pass leagueContext
                     />
                   );
                 })}
