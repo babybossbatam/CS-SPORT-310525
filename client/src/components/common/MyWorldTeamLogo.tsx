@@ -46,11 +46,15 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   
   // More specific friendlies detection
   const isFriendliesClub = leagueName.includes("friendlies clubs") || 
-                          leagueName.includes("friendlies club");
-  const isFriendliesInternational = (leagueName.includes("friendlies") && 
-                                   !leagueName.includes("clubs") && 
-                                   !leagueName.includes("club")) ||
-                                   leagueName === "friendlies";
+                          leagueName.includes("friendlies club") ||
+                          leagueName.includes("club friendlies");
+  
+  // Friendlies International (league ID 10) should be treated as national team competition
+  const isFriendliesInternational = leagueName === "friendlies international" ||
+                                   leagueName === "international friendlies" ||
+                                   (leagueName.includes("friendlies") && 
+                                    leagueName.includes("international")) ||
+                                   (leagueName === "friendlies" && !isFriendliesClub);
   
   const isUefaEuropaLeague = leagueName.includes("uefa europa league") || 
                             leagueName.includes("europa league");
