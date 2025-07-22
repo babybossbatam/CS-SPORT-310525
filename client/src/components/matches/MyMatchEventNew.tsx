@@ -98,7 +98,15 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
       // Add timeout to prevent hanging requests
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => {
+        try {
+          if (!controller.signal.aborted) {
+            controller.abort('Request timeout');
+          }
+        } catch (error) {
+          // Silently handle any abort errors during timeout
+        }
+      }, 10000); // 10 second timeout
 
       const response = await fetch(`/api/fixtures/${fixtureId}/events`, {
         signal: controller.signal,
@@ -192,6 +200,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
+      // Clean abort handling is now handled in the timeout function
     };
   }, [fetchMatchEvents, refreshInterval]);
 
