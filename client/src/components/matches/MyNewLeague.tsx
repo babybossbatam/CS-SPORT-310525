@@ -1264,7 +1264,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               {/* Score/Time Center */}
               <div className="match-score-container">
                 {(() => {
-                  const status = currentStatus.short;
+                  const status = currentMatchStatus;
 
                   // Live matches - show current score (but exclude finished matches)
                   if (
