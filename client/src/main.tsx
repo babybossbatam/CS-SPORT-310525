@@ -33,6 +33,11 @@ if (import.meta.env.DEV) {
 }
 import { setupGlobalErrorHandlers } from './lib/errorHandler.ts'
 
+// Set EventEmitter limits early
+if (typeof process !== 'undefined') {
+  process.setMaxListeners?.(50);
+}
+
 // Setup global error handlers
 setupGlobalErrorHandlers();
 import { createRoot } from "react-dom/client";

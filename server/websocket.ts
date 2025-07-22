@@ -15,8 +15,13 @@ class AnalyticsWebSocketManager {
 
   initialize(server: Server) {
     this.wss = new WebSocketServer({ server });
+    
+    // Set max listeners for WebSocket server
+    this.wss.setMaxListeners(50);
 
     this.wss.on('connection', (ws, req) => {
+      // Set max listeners for individual WebSocket connections
+      ws.setMaxListeners(20);
       console.log('🔌 [WebSocket] New client connected:', req.url);
       
       // Parse connection URL to get subscription details

@@ -180,7 +180,17 @@ const reportError = (error: any, category: ErrorCategory, context: string) => {
 export const setupGlobalErrorHandlers = () => {
   // Increase EventEmitter max listeners to prevent warnings
   if (typeof process !== 'undefined' && process.setMaxListeners) {
-    process.setMaxListeners(20);
+    process.setMaxListeners(50);
+  }
+  
+  // Set max listeners for window/document if available
+  if (typeof window !== 'undefined') {
+    if (window.addEventListener && window.setMaxListeners) {
+      (window as any).setMaxListeners?.(50);
+    }
+    if (document.addEventListener && document.setMaxListeners) {
+      (document as any).setMaxListeners?.(50);
+    }
   }
 
   // Handle unhandled promise rejections
