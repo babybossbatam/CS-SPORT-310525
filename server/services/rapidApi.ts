@@ -181,11 +181,11 @@ export const rapidApiService = {
       const params: any = {
         season: season
       };
-      
+
       if (playerId) {
         params.id = playerId;
       }
-      
+
       if (teamId) {
         params.team = teamId;
       }
@@ -947,7 +947,7 @@ export const rapidApiService = {
         const playerStats = response.data.response;
         playersCache.set(cacheKey, {
           data: playerStats,
-          timestamp: now,
+timestamp: now,
         });
         console.log(`✅ [RapidAPI] Found player statistics for fixture ${fixtureId}, teams: ${playerStats.length}`);
         return playerStats;
