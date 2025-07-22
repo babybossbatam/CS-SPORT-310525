@@ -331,7 +331,7 @@ export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
     });
 
     // Subscribe to updates for this specific match
-    const subscription = selectiveMatchUpdater.subscribe(matchId, (updatedData) => {
+    const unsubscribe = selectiveMatchUpdater.subscribe(matchId, (updatedData) => {
       console.log(`🔄 [SelectiveUpdate] Received update for match ${matchId}:`, {
         teams: `${initialMatch.teams?.home?.name} vs ${initialMatch.teams?.away?.name}`,
         newStatus: updatedData.fixture?.status?.short,
@@ -347,9 +347,7 @@ export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
       });
     });
 
-    return () => {
-      selectiveMatchUpdater.unsubscribe(matchId, subscription);
-    };
+    return unsubscribe;
   }, [matchId]);
 
   return matchState;
