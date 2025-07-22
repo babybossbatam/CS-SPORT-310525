@@ -65,18 +65,17 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const cleanTeamName = (name: string): string => {
     if (!name || name === 'Home Team' || name === 'Away Team') return name;
 
-    // For Brazilian teams, be more conservative with cleaning to avoid confusion
-    // between similar names like Atletico-MG, Atletico-PR, etc.
-    if (name.toLowerCase().includes('atletico') || name.toLowerCase().includes('atlético')) {
-      // Keep the full name for Atletico teams to distinguish between different clubs
-      return name.trim();
+    // For Brazilian teams, be extremely conservative with cleaning
+    // Keep full names to avoid confusion between similar teams
+    if (name.toLowerCase().includes('atletico') || name.toLowerCase().includes('atlético') ||
+        name.toLowerCase().includes('palmeiras') || name.toLowerCase().includes('botafogo') ||
+        name.toLowerCase().includes('flamengo') || name.toLowerCase().includes('corinthians') ||
+        name.toLowerCase().includes('são paulo') || name.toLowerCase().includes('santos')) {
+      return name.trim(); // Keep exact name for Brazilian clubs
     }
 
-    // Remove common suffixes that might confuse search
+    // For other teams, minimal cleaning to preserve distinctiveness
     return name
-      .replace(/\s+(FC|CF|SC|AC|BK|SK|FK|GK|NK|RK|VK|JK|LK|MK|PK|TK|UK|WK|YK|ZK)$/i, '')
-      .replace(/\s+(Football Club|Soccer Club|Athletic Club|Club de Fútbol|Club Deportivo)$/i, '')
-      .replace(/\s+(United|City|Town|Rovers|Wanderers|Sporting|Real|Club)$/i, '')
       .replace(/\s+(Academy|Youth|U\d+|Under\d+|Reserves|II|III|IV|V|VI|VII|VIII|IX|X)$/i, '')
       .trim();
   };
@@ -103,6 +102,22 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   awayTeamName || 
                   'Away Team';
 
+  // Validate that we have actual team names and not fallbacks
+  const hasValidTeamNames = rawHome !== 'Home Team' && rawAway !== 'Away Team' && 
+                           rawHome && rawAway && 
+                           rawHome.trim() !== '' && rawAway.trim() !== '';
+
+  if (!hasValidTeamNames) {
+    console.warn(`🎬 [Highlights] Invalid team names detected:`, {
+      rawHome,
+      rawAway,
+      homeTeamData,
+      awayTeamData,
+      match: match?.teams
+    });
+    return null; // Don't show highlights if we don't have proper team names
+  }
+
   // Clean team names for better search results
   const home = cleanTeamName(rawHome);
   const away = cleanTeamName(rawAway);
@@ -127,23 +142,31 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     return new Date().getFullYear();
   })();
 
-  // Create more targeted search queries with better team name handling
-  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esoccer -virtual -"fifa 24" -"fifa 25" -gaming -"athletico-pr" -"atletico-pr"`.trim();
-  const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esports -simulation -mobile`.trim();
-  const tertiarySearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} -cyber -ebet -"online battle"`.trim();
-  const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer -app`.trim();
+  // Create highly specific search queries to avoid wrong matches
+  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esoccer -virtual -"fifa 24" -"fifa 25" -gaming -botafogo -psg -"paris saint germain"`.trim();
+  const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esports -simulation -mobile -botafogo -psg`.trim();
+  const tertiarySearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} -cyber -ebet -"online battle" -botafogo -psg`.trim();
+  
+  // Very specific query with league context to avoid confusion
+  const leagueSpecificQuery = `"${rawHome}" vs "${rawAway}" "${league}" ${matchYear} highlights -esports -virtual -gaming -botafogo -psg`.trim();
+  
+  // Exact team matching with strong exclusions for commonly confused teams
+  const exactTeamMatchQuery = `"${rawHome}" "${rawAway}" ${matchYear} highlights -"botafogo" -"psg" -"paris saint germain" -"athletico-pr" -"atletico-pr"`.trim();
+  
+  // Additional exclusions for Brazilian league confusion
+  const brazilianSafeQuery = isBrazilianLeague ? 
+    `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} highlights -botafogo -psg -"paris saint germain" -"inter miami" -esports`.trim() :
+    `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -botafogo -psg -brasileiro -esports`.trim();
 
-  // Additional specific search for exact order with esports exclusion
-  const exactOrderQuery = `${rawHome} v ${rawAway} highlights ${matchYear} -esports -"fifa 24" -"fifa 25" -virtual -mobile`.trim();
-
-  // Enhanced search query with competition context
-  const competitionQuery = `${rawHome} vs ${rawAway} ${league} ${matchYear} highlights -esports -virtual -gaming`.trim();
-
-  // Special query for exact team matching (for cases like Atletico-MG vs Atletico-PR confusion)
-  const exactTeamMatchQuery = `"${rawHome}" "${rawAway}" ${matchYear} highlights -"athletico" -"atletico-pr" -"athletico-pr"`.trim();
+  const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer -app -botafogo -psg`.trim();
 
   // Debug logging to verify correct team names and order
-  console.log(`🎬 [Highlights] Match data extraction with correct home/away order:`, {
+  console.log(`🎬 [Highlights] Match data extraction with validation:`, {
+    validation: {
+      hasValidTeamNames,
+      rawHomeValid: rawHome !== 'Home Team' && rawHome?.trim(),
+      rawAwayValid: rawAway !== 'Away Team' && rawAway?.trim(),
+    },
     prioritizedFromScoreboard: {
       homeTeamData: homeTeamData?.name,
       awayTeamData: awayTeamData?.name,
@@ -152,12 +175,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       homeFromTeams: match?.teams?.home?.name,
       awayFromTeams: match?.teams?.away?.name,
     },
-    fallbackFromProps: {
-      homeTeam,
-      awayTeam,
-      homeTeamName,
-      awayTeamName
-    },
     finalResult: {
       rawHomeTeam: rawHome,
       rawAwayTeam: rawAway,
@@ -165,15 +182,15 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       cleanedAwayTeam: away,
     },
     searchQueries: {
-      primarySearchQuery: primarySearchQuery,
-      secondarySearchQuery: secondarySearchQuery,
-      tertiarySearchQuery: tertiarySearchQuery,
-      fallbackSearchQuery: fallbackSearchQuery,
+      primarySearchQuery,
+      leagueSpecificQuery,
+      exactTeamMatchQuery,
+      brazilianSafeQuery,
     },
     expectedOrder: `${home} vs ${away}`,
     league: league,
     matchYear: matchYear,
-    fullMatch: match
+    isBrazilianLeague
   });
 
   // Check if this is a CONCACAF competition
@@ -474,8 +491,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       type: 'youtube' as const,
       searchFn: async () => {
         const concacafChannelId = 'UCqn7r-so0mBLaJTtTms9dAQ';
-        // Try multiple search queries for better match accuracy, including exact team matching
-        const queries = [exactTeamMatchQuery, primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
+        // Try multiple search queries for better match accuracy, prioritizing specificity
+        const queries = [exactTeamMatchQuery, leagueSpecificQuery, brazilianSafeQuery, primarySearchQuery, secondarySearchQuery];
         let data;
 
         for (const query of queries) {
@@ -521,16 +538,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
         // Create Brazil-specific search queries optimized for this channel with exact team matching
         const brazilQueries = [
-          `"${rawHome}" vs "${rawAway}" highlights ${matchYear}`,
-          `"${rawHome}" x "${rawAway}" melhores momentos ${matchYear}`,
-          `${home} vs ${away} highlights ${matchYear}`,
-          `${home} x ${away} melhores momentos ${matchYear}`,
-          `${home} ${away} gols highlights ${matchYear}`,
-          `${rawHome} vs ${rawAway} ${matchYear}`,
-          `${home} x ${away} gols`,
-          `${home} ${away} resumo`,
-          primarySearchQuery.replace('highlights', 'melhores momentos'),
-          secondarySearchQuery
+          `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -botafogo -psg`,
+          `"${rawHome}" x "${rawAway}" melhores momentos ${matchYear} -botafogo -psg`,
+          `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} -botafogo -psg`,
+          `${home} vs ${away} highlights ${matchYear} -botafogo -psg`,
+          `${home} x ${away} melhores momentos ${matchYear} -botafogo -psg`,
+          `${home} ${away} gols highlights ${matchYear} -botafogo -psg`,
+          brazilianSafeQuery,
+          exactTeamMatchQuery
         ];
 
         let data;
@@ -671,7 +686,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       type: 'youtube' as const,
       searchFn: async () => {
         // Try multiple search queries in order of specificity, prioritizing exact team matching
-        const queries = [exactTeamMatchQuery, exactOrderQuery, primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
+        const queries = [exactTeamMatchQuery, leagueSpecificQuery, brazilianSafeQuery, primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
 
         for (const query of queries) {
           try {
