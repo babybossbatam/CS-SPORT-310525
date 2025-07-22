@@ -272,7 +272,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     searchQueries: {
       primarySearchQuery,
       leagueSpecificQuery,
-      exactTeamMatchQuery,
       brazilianSafeQuery,
     },
     specialCases: {
