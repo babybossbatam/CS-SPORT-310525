@@ -167,13 +167,13 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esoccer -virtual -"fifa 24" -"fifa 25" -gaming -botafogo -psg -"paris saint germain"`.trim();
   const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esports -simulation -mobile -botafogo -psg`.trim();
   const tertiarySearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} -cyber -ebet -"online battle" -botafogo -psg`.trim();
-  
+
   // Very specific query with league context to avoid confusion
   const leagueSpecificQuery = `"${rawHome}" vs "${rawAway}" "${league}" ${matchYear} highlights -esports -virtual -gaming -botafogo -psg`.trim();
-  
+
   // Exact team matching with strong exclusions for commonly confused teams
   const exactTeamMatchQuery = `"${rawHome}" "${rawAway}" ${matchYear} highlights -"botafogo" -"psg" -"paris saint germain" -"athletico-pr" -"atletico-pr"`.trim();
-  
+
   // Additional exclusions for Brazilian league confusion
   const brazilianSafeQuery = isBrazilianLeague ? 
     `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} highlights -botafogo -psg -"paris saint germain" -"inter miami" -esports`.trim() :
@@ -318,7 +318,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     // Extra bonus for exact full team name matches (helps with similar team names)
     const exactHomeMatch = titleLower.includes(homeLower);
     const exactAwayMatch = titleLower.includes(awayLower);
-    
+
     if (exactHomeMatch && exactAwayMatch) {
       score += 50; // Big bonus for exact matches of both team names
     }
@@ -536,16 +536,36 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         const brazilianChannelId = 'UCw5-xj3AKqEizC7MvHaIPqA';
 
-        // Create Brazil-specific search queries optimized for this channel with exact team matching
+        // Special exclusions for commonly confused Brazilian teams
+        const getTeamExclusions = (teamName: string) => {
+          const exclusions = ['-botafogo-sp', '-atletico-pr', '-athletico-pr'];
+
+          // If we're looking for main Botafogo, exclude Botafogo-SP
+          if (teamName.toLowerCase().includes('botafogo') && !teamName.toLowerCase().includes('sp')) {
+            exclusions.push('-"botafogo-sp"', '-"botafogo sp"');
+          }
+
+          // If we're looking for Sport Recife, be very specific
+          if (teamName.toLowerCase().includes('sport') && teamName.toLowerCase().includes('recife')) {
+            exclusions.push('-"sport club"', '-"sporting"');
+          }
+
+          return exclusions.join(' ');
+        };
+
+        const homeExclusions = getTeamExclusions(rawHome);
+        const awayExclusions = getTeamExclusions(rawAway);
+        const combinedExclusions = `${homeExclusions} ${awayExclusions}`;
+
+        // Create Brazil-specific search queries with strict team matching
         const brazilQueries = [
-          `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -botafogo -psg`,
-          `"${rawHome}" x "${rawAway}" melhores momentos ${matchYear} -botafogo -psg`,
-          `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} -botafogo -psg`,
-          `${home} vs ${away} highlights ${matchYear} -botafogo -psg`,
-          `${home} x ${away} melhores momentos ${matchYear} -botafogo -psg`,
-          `${home} ${away} gols highlights ${matchYear} -botafogo -psg`,
-          brazilianSafeQuery,
-          exactTeamMatchQuery
+          `"${rawHome}" vs "${rawAway}" highlights ${matchYear} ${combinedExclusions}`,
+          `"${rawHome}" x "${rawAway}" melhores momentos ${matchYear} ${combinedExclusions}`,
+          `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} ${combinedExclusions}`,
+          `"${rawHome}" "${rawAway}" serie a ${matchYear} ${combinedExclusions}`,
+          `${home} vs ${away} highlights ${matchYear} ${combinedExclusions}`,
+          `${home} x ${away} melhores momentos ${matchYear} ${combinedExclusions}`,
+          exactTeamMatchQuery + ` ${combinedExclusions}`
         ];
 
         let data;
