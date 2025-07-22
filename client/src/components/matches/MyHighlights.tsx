@@ -11,6 +11,17 @@ interface MyHighlightsProps {
   matchId?: string;
   homeTeamName?: string;
   awayTeamName?: string;
+  // New props to receive team data from MyMatchdetailsScoreboard
+  homeTeamData?: {
+    id?: number;
+    name?: string;
+    logo?: string;
+  };
+  awayTeamData?: {
+    id?: number;
+    name?: string;
+    logo?: string;
+  };
 }
 
 interface VideoSource {
@@ -29,7 +40,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   match,
   homeTeamName,
   awayTeamName,
-  matchStatus
+  matchStatus,
+  homeTeamData,
+  awayTeamData
 }) => {
   // Check match status to determine if we should render
   const status = matchStatus || match?.fixture?.status?.short;
@@ -61,9 +74,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       .trim();
   };
 
-  // Extract team names from match prop or use provided props
-  // Handle multiple possible data structures and ensure correct home/away order
-  const rawHome = match?.teams?.home?.name || 
+  // Extract team names prioritizing data from MyMatchdetailsScoreboard
+  // This ensures we use the same team names that are displayed in the scoreboard
+  const rawHome = homeTeamData?.name ||
+                  match?.teams?.home?.name || 
                   match?.homeTeam?.name ||
                   match?.homeTeam ||
                   match?.home?.name ||
@@ -72,7 +86,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   homeTeamName || 
                   'Home Team';
 
-  const rawAway = match?.teams?.away?.name || 
+  const rawAway = awayTeamData?.name ||
+                  match?.teams?.away?.name || 
                   match?.awayTeam?.name ||
                   match?.awayTeam ||
                   match?.away?.name ||
@@ -119,6 +134,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   // Debug logging to verify correct team names and order
   console.log(`🎬 [Highlights] Match data extraction with correct home/away order:`, {
+    prioritizedFromScoreboard: {
+      homeTeamData: homeTeamData?.name,
+      awayTeamData: awayTeamData?.name,
+    },
     extractedFromMatch: {
       homeFromTeams: match?.teams?.home?.name,
       awayFromTeams: match?.teams?.away?.name,

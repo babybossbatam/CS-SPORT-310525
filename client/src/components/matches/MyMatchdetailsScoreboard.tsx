@@ -62,6 +62,22 @@ const MyMatchdetailsScoreboard = ({
   activeTab: externalActiveTab,
   onTabChange,
 }: MyMatchdetailsScoreboardProps) => {
+  
+  // Extract team data for passing to child components like MyHighlights
+  const getTeamData = () => {
+    return {
+      homeTeamData: {
+        id: displayMatch.teams.home.id,
+        name: displayMatch.teams.home.name,
+        logo: displayMatch.teams.home.logo
+      },
+      awayTeamData: {
+        id: displayMatch.teams.away.id,
+        name: displayMatch.teams.away.name,
+        logo: displayMatch.teams.away.logo
+      }
+    };
+  };
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
