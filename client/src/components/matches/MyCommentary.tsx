@@ -756,7 +756,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       <img
                                         src="/assets/matchdetaillogo/blue ball.svg"
                                         alt="Goal"
-                                        className="w-4 h-4 opacity-90 flex-shrink-50 animate-pulse"
+                                        className="w-4 h-4 opacity-90 flex-shrink-0"
                                       />
                                       <span >
                                       <span className="text-lg font-bold text-green-700">
