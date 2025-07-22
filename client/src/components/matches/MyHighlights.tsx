@@ -181,6 +181,24 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer -app -botafogo -psg`.trim();
 
+  // Special case for Palmeiras vs Chelsea - use known video (only for exact match)
+  const isPalmeirasChelsea = ((home.toLowerCase() === 'palmeiras' || home.toLowerCase().includes('palmeiras')) && 
+                             (away.toLowerCase() === 'chelsea' || away.toLowerCase().includes('chelsea'))) ||
+                            ((home.toLowerCase() === 'chelsea' || home.toLowerCase().includes('chelsea')) && 
+                             (away.toLowerCase() === 'palmeiras' || away.toLowerCase().includes('palmeiras')));
+
+  // Special case for USA vs Mexico 2025 Gold Cup - use known video
+  const isUsaMexico2025 = (home.toLowerCase().includes('usa') && away.toLowerCase().includes('mexico')) ||
+                         (home.toLowerCase().includes('mexico') && away.toLowerCase().includes('usa'));
+
+  // Special case for PSG vs Real Madrid 2025 FIFA Club World Cup - use correct video
+  const isPsgRealMadrid2025 = (home.toLowerCase().includes('paris saint germain') && away.toLowerCase().includes('real madrid')) ||
+                             (home.toLowerCase().includes('real madrid') && away.toLowerCase().includes('paris saint germain'));
+
+  // Special case for CRB vs Coritiba match - use reliable video source
+  const isCRBCoritiba = (home.toLowerCase().includes('crb') && away.toLowerCase().includes('coritiba')) ||
+                       (home.toLowerCase().includes('coritiba') && away.toLowerCase().includes('crb'));
+
   // Debug logging to verify correct team names and order
   console.log(`🎬 [Highlights] Match data extraction with validation:`, {
     validation: {
@@ -219,24 +237,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     matchYear: matchYear,
     isBrazilianLeague
   });
-
-  // Special case for Palmeiras vs Chelsea - use known video (only for exact match)
-  const isPalmeirasChelsea = ((home.toLowerCase() === 'palmeiras' || home.toLowerCase().includes('palmeiras')) && 
-                             (away.toLowerCase() === 'chelsea' || away.toLowerCase().includes('chelsea'))) ||
-                            ((home.toLowerCase() === 'chelsea' || home.toLowerCase().includes('chelsea')) && 
-                             (away.toLowerCase() === 'palmeiras' || away.toLowerCase().includes('palmeiras')));
-
-  // Special case for USA vs Mexico 2025 Gold Cup - use known video
-  const isUsaMexico2025 = (home.toLowerCase().includes('usa') && away.toLowerCase().includes('mexico')) ||
-                         (home.toLowerCase().includes('mexico') && away.toLowerCase().includes('usa'));
-
-  // Special case for PSG vs Real Madrid 2025 FIFA Club World Cup - use correct video
-  const isPsgRealMadrid2025 = (home.toLowerCase().includes('paris saint germain') && away.toLowerCase().includes('real madrid')) ||
-                             (home.toLowerCase().includes('real madrid') && away.toLowerCase().includes('paris saint germain'));
-
-  // Special case for CRB vs Coritiba match - use reliable video source
-  const isCRBCoritiba = (home.toLowerCase().includes('crb') && away.toLowerCase().includes('coritiba')) ||
-                       (home.toLowerCase().includes('coritiba') && away.toLowerCase().includes('crb'));
 
   // Helper function to validate video title order matches home vs away
   const validateTitleOrder = (title: string, homeTeam: string, awayTeam: string): boolean => {
