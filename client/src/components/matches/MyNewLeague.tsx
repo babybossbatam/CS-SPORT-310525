@@ -1668,9 +1668,19 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     </span>
 
                     {(() => {
-                      const liveMatchesInLeague = leagueGroup.matches.filter((match: any) =>
-                        ["LIVE", "1H", "HT", "2H", "ET","BT", "P", "INT"].includes(match.fixture.status.short)
-                      ).length;
+                      const liveMatchesInLeague = leagueGroup.matches.filter((match: any) => {
+                        const status = match.fixture.status.short;
+                        const isActuallyFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
+                        const isLiveStatus = ["LIVE", "1H", "HT", "2H", "ET","BT", "P", "INT"].includes(status);
+                        
+                        // Check if match is stale (more than 4 hours old)
+                        const matchDate = new Date(match.fixture.date);
+                        const hoursOld = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
+                        const isStale = hoursOld > 4;
+                        
+                        // Only consider it live if it has live status AND is not finished AND is not stale
+                        return isLiveStatus && !isActuallyFinished && !isStale;
+                      }).length;
 
                       if (liveMatchesInLeague > 0) {
                         return (
