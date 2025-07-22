@@ -881,7 +881,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     </span>
                                   </div>
 
-                                  <div className="flex items-center gap-2 -ml-3 py-2 px-3  text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50  border-indigo-400">
+                                  <div className="flex items-center gap-2 -ml-3 px-3  text-xs font-medium bg-stone-200">
                                     <MyAvatarInfo
                                       playerId={event.assist?.id}
                                       playerName={event.assist?.name}
@@ -894,7 +894,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       </span>
                                       <span className="text-gray-500 text-xs">
                                         {event.team?.name}
-                                        Perfect setup play
+                                       
                                       </span>
                                     </div>
                                     
@@ -967,6 +967,15 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               <span className="text-gray-700 font-medium">
                                 Substitution
                               </span>
+                              <div className="ml-auto">
+                                <MyWorldTeamLogo
+                                  teamName={event.team?.name || ""}
+                                  teamLogo={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
+                                  alt={event.team?.name}
+                                  size="24px"
+                                  className="rounded-sm border border-gray-200"
+                                />
+                              </div>
                             </div>
 
                             {/* Player coming in (assist = player in) */}
