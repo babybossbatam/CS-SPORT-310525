@@ -366,7 +366,7 @@ const MyMatchdetailsScoreboard = ({
                               }
 
       return (
-        <div className={`match-status-label mx-0.5 ${currentStatus === "HT" ? "status-halftime" : "status-live-elapsed"}`}>
+        <div className={`match-status-label mx-4 rounded-md ${currentStatus === "HT" ? "status-halftime" : "status-live-elapsed"}`}>
           {displayText}
         </div>
       );
