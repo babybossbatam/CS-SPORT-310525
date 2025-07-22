@@ -598,6 +598,21 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         // Group fixtures by league and filter for our target leagues with timezone awareness
         const leagueFixturesMap = new Map();
 
+        // Debug logging for league 908 fixtures in allDateFixtures
+        const league908Fixtures = allDateFixtures.filter(f => f.league?.id === 908);
+        if (league908Fixtures.length > 0) {
+          console.log(`🔍 [MyNewLeague] Found ${league908Fixtures.length} league 908 fixtures in allDateFixtures:`, 
+            league908Fixtures.map(f => ({
+              id: f.fixture.id,
+              date: f.fixture.date,
+              localDate: new Date(f.fixture.date).toLocaleDateString('en-CA'),
+              status: f.fixture.status.short,
+              teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+              league: f.league.name
+            }))
+          );
+        }
+
         allDateFixtures.forEach(fixture => {
           const leagueId = fixture.league?.id;
           if (leagueIds.includes(leagueId)) {
@@ -639,13 +654,33 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 }
                 leagueFixturesMap.get(leagueId).push(fixture);
 
-                console.log(`🌍 [SMART FETCH TIMEZONE] Including: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                if (leagueId === 908) {
+                  console.log(`🌍 [SMART FETCH TIMEZONE] Including league 908: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                    fixtureUTCTime: fixtureDate,
+                    fixtureLocalDate,
+                    selectedDate,
+                    league: fixture.league?.name,
+                    isPostponed,
+                    status: currentStatus
+                  });
+                } else {
+                  console.log(`🌍 [SMART FETCH TIMEZONE] Including: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                    fixtureUTCTime: fixtureDate,
+                    fixtureLocalDate,
+                    selectedDate,
+                    league: fixture.league?.name,
+                    isPostponed,
+                    status: currentStatus
+                  });
+                }
+              } else if (leagueId === 908) {
+                console.log(`❌ [SMART FETCH TIMEZONE] Excluding league 908: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
                   fixtureUTCTime: fixtureDate,
                   fixtureLocalDate,
                   selectedDate,
                   league: fixture.league?.name,
-                  isPostponed,
-                  status: currentStatus
+                  status: currentStatus,
+                  reason: 'Date filter mismatch'
                 });
               }
             }
@@ -665,6 +700,21 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         results.forEach(({ leagueId, fixtures }) => {
           newLeagueFixtures.set(leagueId, fixtures);
         });
+
+        // Debug logging for league 908 before setting state
+        if (newLeagueFixtures.has(908)) {
+          console.log(`🔍 [MyNewLeague] Setting league 908 fixtures in state:`, {
+            count: newLeagueFixtures.get(908)?.length || 0,
+            fixtures: newLeagueFixtures.get(908)?.map(f => ({
+              id: f.fixture.id,
+              date: f.fixture.date,
+              status: f.fixture.status.short,
+              teams: `${f.teams.home.name} vs ${f.teams.away.name}`
+            })) || []
+          });
+        } else {
+          console.log(`❌ [MyNewLeague] League 908 NOT found in newLeagueFixtures for date ${selectedDate}`);
+        }
 
         setLeagueFixtures(newLeagueFixtures);
 
@@ -866,6 +916,21 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     // Process leagueFixtures map to create the grouped structure
     leagueFixtures.forEach((fixtures, leagueId) => {
       if (fixtures && fixtures.length > 0) {
+        // Debug logging for league 908
+        if (leagueId === 908) {
+          console.log(`🔍 [MyNewLeague] League 908 fixtures before filtering:`, {
+            totalFixtures: fixtures.length,
+            selectedDate,
+            fixtures: fixtures.map(f => ({
+              id: f.fixture.id,
+              date: f.fixture.date,
+              localDate: new Date(f.fixture.date).toLocaleDateString('en-CA'),
+              status: f.fixture.status.short,
+              teams: `${f.teams.home.name} vs ${f.teams.away.name}`
+            }))
+          });
+        }
+
         // Filter fixtures by selected date using timezone-aware filtering with postponed match handling
         const filteredFixtures = fixtures.filter(fixture => {
           const fixtureDate = fixture.fixture?.date;
@@ -886,12 +951,42 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               tomorrow.setDate(tomorrow.getDate() + 1);
               const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
 
-              return fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
+              const shouldInclude = fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
+              if (leagueId === 908) {
+                console.log(`🔍 [MyNewLeague] League 908 postponed match check:`, {
+                  fixtureId: fixture.fixture.id,
+                  teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                  fixtureLocalDate,
+                  tomorrowDate,
+                  selectedDate,
+                  shouldInclude
+                });
+              }
+              return shouldInclude;
             }
           }
 
-          return fixtureLocalDate === selectedDate;
+          const matches = fixtureLocalDate === selectedDate;
+          if (leagueId === 908) {
+            console.log(`🔍 [MyNewLeague] League 908 date filtering:`, {
+              fixtureId: fixture.fixture.id,
+              teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+              fixtureLocalDate,
+              selectedDate,
+              matches,
+              status: currentStatus
+            });
+          }
+
+          return matches;
         });
+
+        if (leagueId === 908) {
+          console.log(`🔍 [MyNewLeague] League 908 after filtering:`, {
+            filteredCount: filteredFixtures.length,
+            willBeIncluded: filteredFixtures.length > 0
+          });
+        }
 
         if (filteredFixtures.length > 0) {
           result[leagueId] = {
@@ -906,7 +1001,9 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       totalLeagues: Object.keys(result).length,
       totalMatches: Object.values(result).reduce((sum, group) => sum + group.matches.length, 0),
       selectedDate,
-      leagueFixturesSize: leagueFixtures.size
+      leagueFixturesSize: leagueFixtures.size,
+      hasLeague908: !!result[908],
+      league908Matches: result[908]?.matches.length || 0
     });
 
     return result;
