@@ -2065,7 +2065,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
             {(timeFilterActive || expandedLeagues.has(`league-${leagueGroup.league.id}`)) && (
               <div className="match-cards-wrapper">
               {leagueGroup.matches
-                .slice(0, timeFilterActive && showTop10 ? 10 : undefined)
+                
                 .map((match: any) => {
                   const matchId = match.fixture.id;
                   const isHalftimeFlash = halftimeFlashMatches.has(matchId);
