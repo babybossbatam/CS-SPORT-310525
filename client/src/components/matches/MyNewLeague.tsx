@@ -1635,7 +1635,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               </div>
 
               
-``````javascript
+
 {/* Away Team Name */}
                 <div
                   className={`away-team-name ${
