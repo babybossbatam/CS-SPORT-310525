@@ -630,7 +630,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
               // ALWAYS include live matches regardless of date
               const isLiveMatch = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(currentStatus);
-              
+
               if (isLiveMatch) {
                 shouldInclude = true;
                 console.log(`🔴 [LIVE MATCH PRIORITY] Including live match from league ${leagueId}: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
@@ -790,7 +790,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     fetchAllLeagueFixtures();
   }, [selectedDate, showTop10, liveFilterActive]);
 
-  // Comprehensive cache cleanup on date change and component mount
+  //  // Comprehensive cache cleanup on date change and component mount
   useEffect(() => {
     const cleanupOldCache = () => {
       try {
@@ -1291,6 +1291,11 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       }
     };
 
+    const finalGoals = {
+        home: currentGoals?.home !== null ? currentGoals?.home : 0,
+        away: currentGoals?.away !== null ? currentGoals?.away : 0,
+    }
+
     return (
       <div
         key={matchId}
@@ -1454,10 +1459,10 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               {/* Home Team Name */}
               <div
                 className={`home-team-name ${
-                  currentGoals.home !== null &&
-                  currentGoals.away !== null &&
-                  currentGoals.home > currentGoals.away &&
-                  ["FT", "AET", "PEN"].includes(currentMatchStatus)
+                  finalGoals.home !== null &&
+                  finalGoals.away !== null &&
+                  finalGoals.home > finalGoals.away &&
+                  ["FT", "AET", "PEN"].includes(displayStatus)
                     ? "winner"
                     : ""
                 }`}
@@ -1554,7 +1559,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     const matchTime = new Date(matchDate);
                     const now = new Date();
                     const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
-                    
+
                     // If match is more than 2 hours overdue, show as postponed/cancelled
                     if (hoursAgo > 2) {
                       console.log(`⚠️ [Match Status] Match ${matchId} is ${hoursAgo.toFixed(1)}h overdue - likely postponed/cancelled`);
@@ -1629,27 +1634,29 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 />
               </div>
 
-              {/* Away Team Name */}
-              <div
-                className={`away-team-name ${
-                  currentGoals.home !== null &&
-                  currentGoals.away !== null &&
-                  currentGoals.away > currentGoals.home &&
-                  ["FT", "AET", "PEN"].includes(currentMatchStatus)
-                    ? "winner"
-                    : ""
-                }`}
-                style={{
-                  paddingLeft: "0.75rem",
-                  textAlign: "left",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {shortenTeamName(awayTeamName) || "Unknown Team"}
+              
+``````javascript
+{/* Away Team Name */}
+                <div
+                  className={`away-team-name ${
+                    finalGoals.home !== null &&
+                    finalGoals.away !== null &&
+                    finalGoals.away > finalGoals.home &&
+                    ["FT", "AET", "PEN"].includes(displayStatus)
+                      ? "winner"
+                      : ""
+                  }`}
+                  style={{
+                    paddingLeft: "0.75rem",
+                    textAlign: "left",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {shortenTeamName(awayTeamName) || "Unknown Team"}
+                </div>
               </div>
-            </div>
 
             {/* Bottom Grid: Penalty Result Status */}
             <div className="match-penalty-bottom">
@@ -1688,13 +1695,13 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   const fetchLiveDataForMatch = useCallback(async (matchId: number) => {
     try {
       console.log(`🔴 [TIME-BASED FETCH] Fetching live data for match ${matchId}`);
-      
+
       const response = await apiRequest("GET", "/api/fixtures/live");
       const liveData = await response.json();
 
       if (Array.isArray(liveData)) {
         const matchUpdate = liveData.find(fixture => fixture.fixture.id === matchId);
-        
+
         if (matchUpdate) {
           console.log(`✅ [TIME-BASED FETCH] Found live update for match ${matchId}:`, {
             status: matchUpdate.fixture.status.short,
@@ -1705,7 +1712,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           // Update the specific match in state
           setLeagueFixtures(prev => {
             const updated = new Map(prev);
-            
+
             // Find and update the match across all leagues
             leagueIds.forEach(leagueId => {
               const leagueMatches = updated.get(leagueId) || [];
@@ -1714,7 +1721,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               );
               updated.set(leagueId, updatedMatches);
             });
-            
+
             return updated;
           });
         } else {
@@ -1807,11 +1814,11 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       // **TIME-BASED LIVE TRANSITION DETECTION**
       const matchDateTime = new Date(fixture.fixture.date);
       const minutesSinceKickoff = (now.getTime() - matchDateTime.getTime()) / (1000 * 60);
-      
+
       // Check if match should be live based on time (kick-off + 5 minutes tolerance)
       const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 120; // -5min to +120min window
       const isUpcomingStatus = ['NS', 'TBD'].includes(currentStatus);
-      
+
       if (shouldBeLiveByTime && isUpcomingStatus) {
         console.log(`🕐 [TIME-BASED TRANSITION] Match ${matchId} should be LIVE: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
           kickoffTime: fixture.fixture.date,
@@ -1820,7 +1827,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           currentStatus,
           shouldFetchLiveData: true
         });
-        
+
         // Trigger immediate live data fetch for this specific match
         fetchLiveDataForMatch(matchId);
       }
@@ -1874,7 +1881,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     const checkInterval = setInterval(() => {
       const allMatches = Object.values(matchesByLeague).flatMap(group => group.matches);
       const now = new Date();
-      
+
       const upcomingMatches = allMatches.filter(match => 
         ['NS', 'TBD'].includes(match.fixture.status.short)
       );
@@ -1882,7 +1889,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       upcomingMatches.forEach(match => {
         const matchDateTime = new Date(match.fixture.date);
         const minutesSinceKickoff = (now.getTime() - matchDateTime.getTime()) / (1000 * 60);
-        
+
         // Check if match should have started (with 2-minute tolerance)
         if (minutesSinceKickoff >= -2 && minutesSinceKickoff <= 120) {
           console.log(`⏰ [TIMER CHECK] Match ${match.fixture.id} should be live (${minutesSinceKickoff.toFixed(1)}min since kickoff)`);
@@ -2065,7 +2072,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
             {(timeFilterActive || expandedLeagues.has(`league-${leagueGroup.league.id}`)) && (
               <div className="match-cards-wrapper">
               {leagueGroup.matches
-                
+
                 .map((match: any) => {
                   const matchId = match.fixture.id;
                   const isHalftimeFlash = halftimeFlashMatches.has(matchId);
