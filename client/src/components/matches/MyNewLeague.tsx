@@ -628,24 +628,36 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               let shouldInclude = false;
               let isPostponed = false;
 
-              // Special handling for matches that are past their scheduled time but still showing NS status
-              if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
-                const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
+              // ALWAYS include live matches regardless of date
+              const isLiveMatch = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(currentStatus);
+              
+              if (isLiveMatch) {
+                shouldInclude = true;
+                console.log(`🔴 [LIVE MATCH PRIORITY] Including live match from league ${leagueId}: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                  status: currentStatus,
+                  fixtureDate,
+                  league: fixture.league?.name
+                });
+              } else {
+                // Special handling for matches that are past their scheduled time but still showing NS status
+                if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
+                  const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
 
-                // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
-                if (hoursPassed > 3) {
-                  const tomorrow = new Date(now);
-                  tomorrow.setDate(tomorrow.getDate() + 1);
-                  const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
+                  // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
+                  if (hoursPassed > 3) {
+                    const tomorrow = new Date(now);
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
 
-                  shouldInclude = fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
-                  isPostponed = shouldInclude;
+                    shouldInclude = fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
+                    isPostponed = shouldInclude;
+                  }
                 }
-              }
 
-              // Regular date matching for non-postponed matches
-              if (!shouldInclude) {
-                shouldInclude = fixtureLocalDate === selectedDate;
+                // Regular date matching for non-postponed matches
+                if (!shouldInclude) {
+                  shouldInclude = fixtureLocalDate === selectedDate;
+                }
               }
 
               if (shouldInclude) {
@@ -661,7 +673,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     selectedDate,
                     league: fixture.league?.name,
                     isPostponed,
-                    status: currentStatus
+                    status: currentStatus,
+                    isLive: isLiveMatch
                   });
                 } else {
                   console.log(`🌍 [SMART FETCH TIMEZONE] Including: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
@@ -670,7 +683,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     selectedDate,
                     league: fixture.league?.name,
                     isPostponed,
-                    status: currentStatus
+                    status: currentStatus,
+                    isLive: isLiveMatch
                   });
                 }
               } else if (leagueId === 908) {
@@ -680,7 +694,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   selectedDate,
                   league: fixture.league?.name,
                   status: currentStatus,
-                  reason: 'Date filter mismatch'
+                  reason: isLiveMatch ? 'Should not exclude live match!' : 'Date filter mismatch'
                 });
               }
             }
