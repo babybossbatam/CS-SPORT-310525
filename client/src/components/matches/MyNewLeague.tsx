@@ -1031,16 +1031,19 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     onMatchClick?: (matchId: number, homeTeamName: string, awayTeamName: string) => void;
     leagueContext: { name: string; country: string; }
   }) => {
-    // Enhanced live match detection with more status codes
-    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(initialMatch.fixture.status.short);
+    // Check if match is actually finished based on current status
+    const currentStatus = initialMatch.fixture.status.short;
+    const isActuallyFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(currentStatus);
+    
+    // Enhanced live match detection - exclude finished matches
+    const isLiveMatch = !isActuallyFinished && ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentStatus);
     
     // Check if match data is stale (older than 4 hours for live matches, 24 hours for ended matches)
     const matchDateTime = new Date(initialMatch.fixture.date);
     const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
-    const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(initialMatch.fixture.status.short);
-    const isStaleData = (isLiveMatch && hoursOld > 4) || (isEndedMatch && hoursOld > 24);
+    const isStaleData = (isLiveMatch && hoursOld > 4) || (isActuallyFinished && hoursOld > 24);
     
-    // Use selective updates for live matches, but always show the actual status even if stale
+    // Use selective updates only for truly live matches
     const matchState = isLiveMatch ? useSelectiveMatchUpdate(matchId, initialMatch) : { goals: initialMatch.goals, status: initialMatch.fixture.status };
 
     // Debug logging for match updates
@@ -1058,7 +1061,9 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     const currentGoals = (matchState.goals && (matchState.goals.home !== null || matchState.goals.away !== null)) 
       ? matchState.goals 
       : initialMatch.goals;
-    const currentStatus = matchState.status || initialMatch.fixture.status;
+    // Always use the most current status from fixture data
+    const currentMatchStatus = matchState.status?.short || initialMatch.fixture.status.short;
+    const currentStatusObj = matchState.status || initialMatch.fixture.status;
 
     const handleMatchClick = () => {
       if (onMatchClick) {
@@ -1114,8 +1119,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
             {/* Top Grid: Match Status */}
             <div className="match-status-top" style={{ minHeight: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               {(() => {
-                const status = currentStatus.short;
-                const elapsed = currentStatus.elapsed;
+                const status = currentMatchStatus;
+                const elapsed = currentStatusObj.elapsed;
 
                 // Enhanced live status detection with stale data check
                 if (
@@ -1224,7 +1229,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 className={`home-team-name ${
                   currentGoals.home !== null &&
                   currentGoals.away !== null &&
-                  currentGoals.home > currentGoals.away
+                  currentGoals.home > currentGoals.away &&
+                  ["FT", "AET", "PEN"].includes(currentMatchStatus)
                     ? "winner"
                     : ""
                 }`}
@@ -1260,8 +1266,9 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 {(() => {
                   const status = currentStatus.short;
 
-                  // Live matches - show current score
+                  // Live matches - show current score (but exclude finished matches)
                   if (
+                    !["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status) &&
                     [
                       "LIVE",
                       "LIV",
@@ -1356,7 +1363,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 className={`away-team-name ${
                   currentGoals.home !== null &&
                   currentGoals.away !== null &&
-                  currentGoals.away > currentGoals.home
+                  currentGoals.away > currentGoals.home &&
+                  ["FT", "AET", "PEN"].includes(currentMatchStatus)
                     ? "winner"
                     : ""
                 }`}
