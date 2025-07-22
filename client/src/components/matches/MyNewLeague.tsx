@@ -459,15 +459,15 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               // These are likely postponed/rescheduled matches and should be treated as tomorrow's matches
               if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
                 const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
-                
+
                 // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
                 if (hoursPassed > 3) {
                   const tomorrow = new Date(now);
                   tomorrow.setDate(tomorrow.getDate() + 1);
                   const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
-                  
+
                   const isTomorrowMatch = fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
-                  
+
                   if (isTomorrowMatch) {
                     console.log(`🔄 [POSTPONED MATCH] Moving to tomorrow: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
                       originalTime: fixtureDate,
@@ -479,7 +479,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                       treatAsTomorrow: true
                     });
                   }
-                  
+
                   return isTomorrowMatch;
                 }
               }
@@ -616,13 +616,13 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               // Special handling for matches that are past their scheduled time but still showing NS status
               if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
                 const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
-                
+
                 // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
                 if (hoursPassed > 3) {
                   const tomorrow = new Date(now);
                   tomorrow.setDate(tomorrow.getDate() + 1);
                   const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
-                  
+
                   shouldInclude = fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
                   isPostponed = shouldInclude;
                 }
@@ -775,7 +775,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     const clearAllRelatedCache = () => {
       try {
         console.log(`🔄 [MyNewLeague] Performing immediate cache clear for date change to ${selectedDate}`);
-        
+
         // Clear all fixture-related caches immediately
         fixtureCache.clearCache();
 
@@ -879,13 +879,13 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           // Special handling for matches that are past their scheduled time but still showing NS status
           if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
             const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
-            
+
             // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
             if (hoursPassed > 3) {
               const tomorrow = new Date(now);
               tomorrow.setDate(tomorrow.getDate() + 1);
               const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
-              
+
               return fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
             }
           }
@@ -1135,17 +1135,17 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     // First, get basic status to determine if we need selective updates
     const currentStatus = initialMatch.fixture.status.short;
     const basicIsLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentStatus);
-    
+
     // Use selective updates only for truly live matches
     const matchState = basicIsLiveMatch ? useSelectiveMatchUpdate(matchId, initialMatch) : { goals: initialMatch.goals, status: initialMatch.fixture.status };
-    
+
     // Now check if match is actually finished based on updated status
     const updatedStatus = matchState.status?.short || currentStatus;
     const isActuallyFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(updatedStatus);
-    
+
     // Enhanced live match detection - exclude finished matches
     const isLiveMatch = !isActuallyFinished && ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(updatedStatus);
-    
+
     // Check if match data is stale - but don't show stale indicator for finished matches
     const matchDateTime = new Date(initialMatch.fixture.date);
     const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
@@ -1166,11 +1166,11 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     const currentGoals = (matchState.goals && (matchState.goals.home !== null || matchState.goals.away !== null)) 
       ? matchState.goals 
       : initialMatch.goals;
-    
+
     // Prioritize finished status - if match is actually finished, show finished status
     const currentMatchStatus = isActuallyFinished ? updatedStatus : (matchState.status?.short || initialMatch.fixture.status.short);
     const currentStatusObj = isActuallyFinished ? { short: updatedStatus, elapsed: null } : (matchState.status || initialMatch.fixture.status);
-    
+
     // For display purposes, always show the correct status
     const displayStatus = currentMatchStatus;
 
@@ -1258,7 +1258,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 ) {
                   let displayText = "";
                   let statusClass = "status-live-elapsed";
-                  
+
                   if (status === "HT") {
                     displayText = "Halftime";
                     statusClass = "status-halftime";
@@ -1476,7 +1476,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                         ...debugInfo,
                         displayedTime: "08:30",
                         isThisTheMatchYouAreLookingFor: "YES - This is the match showing 08:30",
-                        
+
                         // CRITICAL API STATUS INFORMATION
                         apiStatus: {
                           short: status,
@@ -1484,7 +1484,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                           elapsed: initialMatch.fixture.status.elapsed,
                           rawStatusFromAPI: JSON.stringify(initialMatch.fixture.status)
                         },
-                        
+
                         // CURRENT TIME VS MATCH TIME ANALYSIS
                         timeAnalysis: {
                           currentServerTime: new Date().toISOString(),
@@ -1495,7 +1495,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                           isPastTime: new Date(matchDate).getTime() < Date.now(),
                           shouldBeFinished: (Date.now() - new Date(matchDate).getTime()) > (2 * 60 * 60 * 1000) // More than 2 hours ago
                         },
-                        
+
                         // MATCH DATA FROM API
                         rawMatchData: {
                           fixtureId: initialMatch.fixture.id,
@@ -1505,7 +1505,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                           homeGoals: initialMatch.goals.home,
                           awayGoals: initialMatch.goals.away
                         },
-                        
+
                         serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                         utcTimeString: matchDate,
                         parsedUTCDate: new Date(matchDate),
@@ -1695,7 +1695,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       const matchId = fixture.fixture.id;
       const currentStatus = fixture.fixture.status.short;
       const previousStatus = previousMatchStatusesRef.current.get(matchId);
-      const currentScore = {
+      const currentScore = {```text
         home: fixture.goals.home ?? 0,
         away: fixture.goals.away ?? 0
       };
@@ -1868,12 +1868,12 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                         const status = match.fixture.status.short;
                         const isActuallyFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(status);
                         const isLiveStatus = ["LIVE", "1H", "HT", "2H", "ET","BT", "P", "INT"].includes(status);
-                        
+
                         // Check if match is stale (more than 4 hours old)
                         const matchDate = new Date(match.fixture.date);
                         const hoursOld = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
                         const isStale = hoursOld > 4;
-                        
+
                         // Only consider it live if it has live status AND is not finished AND is not stale
                         return isLiveStatus && !isActuallyFinished && !isStale;
                       }).length;
