@@ -40,12 +40,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
           const storedTeamIds = new Set(parsedTeams.map((team: any) => team.id));
           console.log("🎯 [TeamSelectionModal] Restored teams from localStorage:", parsedTeams.length);
           setSelectedTeams(storedTeamIds);
-          
-          // Also update parent with restored selections
-          if (onTeamSelectionComplete && parsedTeams.length > 0) {
-            onTeamSelectionComplete(parsedTeams);
-          }
-          return;
+          return; // Don't call onTeamSelectionComplete during restoration
         }
       } catch (error) {
         console.error("Error restoring teams from localStorage:", error);
@@ -118,7 +113,7 @@ const TeamSelectionModal: React.FC<TeamSelectionModalProps> = ({
         console.error("Error saving teams to localStorage:", error);
       }
 
-      // Immediately update parent component with current selections
+      // Only update parent component for actual user interactions (not during restoration)
       if (onTeamSelectionComplete) {
         onTeamSelectionComplete(selectedTeamsArray);
       }
