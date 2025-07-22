@@ -1031,8 +1031,14 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     onMatchClick?: (matchId: number, homeTeamName: string, awayTeamName: string) => void;
     leagueContext: { name: string; country: string; }
   }) => {
-    // Check if match is actually finished based on current status
+    // First, get basic status to determine if we need selective updates
     const currentStatus = initialMatch.fixture.status.short;
+    const basicIsLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentStatus);
+    
+    // Use selective updates only for truly live matches
+    const matchState = basicIsLiveMatch ? useSelectiveMatchUpdate(matchId, initialMatch) : { goals: initialMatch.goals, status: initialMatch.fixture.status };
+    
+    // Now check if match is actually finished based on updated status
     const updatedStatus = matchState.status?.short || currentStatus;
     const isActuallyFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(updatedStatus);
     
@@ -1043,9 +1049,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     const matchDateTime = new Date(initialMatch.fixture.date);
     const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
     const isStaleData = (isLiveMatch && hoursOld > 4) || (isActuallyFinished && hoursOld > 24);
-    
-    // Use selective updates only for truly live matches
-    const matchState = isLiveMatch ? useSelectiveMatchUpdate(matchId, initialMatch) : { goals: initialMatch.goals, status: initialMatch.fixture.status };
 
     // Debug logging for match updates
     console.log(`🔄 [MatchCard ${matchId}] Update check:`, {
