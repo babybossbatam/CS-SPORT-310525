@@ -1281,12 +1281,17 @@ b.fixture.status.elapsed) || 0;
                         </div>
                       );
                     } else {
+                      // For ended matches without valid scores, still show the final result if available
+                      // or fall back to showing the match time
                       return (
-                        <div
-                          className="match-time-display"
-                          style={{ fontSize: "0.882em" }}
-                        >
-                          {formatMatchTimeWithTimezone(matchDate)}
+                        <div className="match-score-display">
+                          <span className="score-number">
+                            {homeScore ?? 0}
+                          </span>
+                          <span className="score-separator">-</span>
+                          <span className="score-number">
+                            {awayScore ?? 0}
+                          </span>
                         </div>
                       );
                     }
