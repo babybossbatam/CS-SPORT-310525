@@ -227,10 +227,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       brazilianSafeQuery,
     },
     specialCases: {
-      isPalmeirasChelsea,
-      isUsaMexico2025,
-      isPsgRealMadrid2025,
-      isCRBCoritiba,
+      // These will be declared after this debug section
     },
     expectedOrder: `${home} vs ${away}`,
     league: league,
