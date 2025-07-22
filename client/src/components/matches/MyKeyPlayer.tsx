@@ -453,7 +453,13 @@ const MyKeyPlayer: React.FC<MyKeyPlayerProps> = ({
     );
   }
 
+  // Hide component when no data is available
   if (error || playerStats.length === 0) {
+    return null;
+  }
+
+  // Legacy fallback - this should never be reached now
+  if (false) {
     return (
       <Card className="w-full">
         <CardHeader>
