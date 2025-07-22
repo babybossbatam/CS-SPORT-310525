@@ -41,6 +41,8 @@ export async function apiRequest(
       ? `${window.location.origin}${url}`
       : url;
 
+    console.log(`📡 [apiRequest] Making ${method} request to: ${apiUrl}`);
+
     const response = await fetch(apiUrl, {
       method,
       headers: {
@@ -52,27 +54,44 @@ export async function apiRequest(
       mode: "cors",
     });
 
+    console.log(`📡 [apiRequest] Response status: ${response.status} for ${method} ${url}`);
+
     await throwIfResNotOk(response);
     return response;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
 
-    // Handle specific error types
+    console.error(`❌ [apiRequest] Error for ${method} ${url}:`, {
+      error: errorMessage,
+      url: url,
+      timestamp: new Date().toISOString()
+    });
+
+    // Handle specific error types with more detailed messages
     if (
       errorMessage.includes("Failed to fetch") ||
       errorMessage.includes("NetworkError") ||
       errorMessage.includes("fetch")
     ) {
       console.error(
-        `🌐 Network connectivity issue for ${method} ${url}: ${errorMessage}`,
+        `🌐 [apiRequest] Network connectivity issue for ${method} ${url}: ${errorMessage}`,
       );
       throw new Error(
-        `Network error: Please check your connection and try again`,
+        `Network error: Unable to connect to server. Please check your internet connection and try again.`,
       );
     }
 
-    console.error(`❌ API request error for ${method} ${url}:`, error);
+    if (errorMessage.includes("timeout") || errorMessage.includes("timed out")) {
+      console.error(
+        `⏱️ [apiRequest] Timeout error for ${method} ${url}: ${errorMessage}`,
+      );
+      throw new Error(
+        `Timeout error: The server took too long to respond. Please try again.`,
+      );
+    }
+
+    // Re-throw the original error for other cases
     throw error;
   }
 }
