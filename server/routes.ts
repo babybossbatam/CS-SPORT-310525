@@ -34,6 +34,7 @@ import keyPlayersRoutes from './routes/365scoresKeyPlayersRoutes';
 import playersRoutes from './routes/playersRoutes';
 import selectiveLiveRoutes from './routes/selectiveLiveRoutes';
 import selectiveUpdatesRoutes from './routes/selectiveUpdatesRoutes';
+import predictionsRoutes from './routes/predictionsRoutes';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -818,7 +819,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             country: {
               name: "Germany",
-              code: "DE",
+              ```text
+code: "DE",
               flag: "https://media.api-sports.io/flags/de.svg",
             },
           },
@@ -2665,7 +2667,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             data: matchDetails,
           });
         } else {
-          res.status(404).json({
+          res.status(40```text
+4).json({
             success: false,
             error: "Match not found",
           });
@@ -3291,6 +3294,9 @@ error) {
   app.use('/api', youtubeRoutes);
   app.use('/api/fixtures', selectiveLiveRoutes);
   app.use('/api/fixtures', selectiveUpdatesRoutes);
+
+  // Predictions routes
+  app.use('/api', predictionsRoutes);
 
 // Test route for debugging
 app.get('/api/test', (req, res) => {

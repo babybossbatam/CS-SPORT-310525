@@ -152,14 +152,16 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           fetch(`/api/teams/${awayTeam.id}/statistics?league=${leagueId}&season=${season || new Date().getFullYear()}`)
         ];
 
-        // Add odds fetch if fixtureId is available
+        // Add predictions and odds fetch if fixtureId is available
         if (fixtureId) {
+          console.log(`📊 [MatchPrediction] Fetching predictions for fixture: ${fixtureId}`);
+          fetchPromises.push(fetch(`/api/fixtures/${fixtureId}/predictions`));
           console.log(`📊 [MatchPrediction] Fetching odds for fixture: ${fixtureId}`);
           fetchPromises.push(fetch(`/api/fixtures/${fixtureId}/odds`));
         }
 
         const responses = await Promise.all(fetchPromises);
-        const [homeStatsResponse, awayStatsResponse, oddsResponse] = responses;
+        const [homeStatsResponse, awayStatsResponse, predictionsResponse, oddsResponse] = responses;
 
         let homeStats: TeamStats | null = null;
         let awayStats: TeamStats | null = null;
@@ -199,6 +201,45 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
               draws: stats.fixtures?.draws?.total || 0,
               losses: stats.fixtures?.loses?.total || 0,
             };
+          }
+        }
+
+        // Process predictions data if available (RapidAPI predictions endpoint)
+        let apiPredictions = null;
+        if (predictionsResponse && predictionsResponse.ok) {
+          try {
+            const predictionsData = await predictionsResponse.json();
+            console.log('📊 [MatchPrediction] Predictions response:', predictionsData);
+            
+            if (predictionsData.success && predictionsData.data && predictionsData.data.length > 0) {
+              const prediction = predictionsData.data[0];
+              
+              if (prediction.predictions) {
+                // Extract win/draw/lose predictions
+                const winHome = prediction.predictions.winner?.home || null;
+                const winAway = prediction.predictions.winner?.away || null;
+                const draw = prediction.predictions.winner?.draw || null;
+                
+                // Convert to percentages if available
+                if (prediction.predictions.percent) {
+                  const homePercent = parseInt(prediction.predictions.percent.home?.replace('%', '') || '33');
+                  const drawPercent = parseInt(prediction.predictions.percent.draw?.replace('%', '') || '34');
+                  const awayPercent = parseInt(prediction.predictions.percent.away?.replace('%', '') || '33');
+                  
+                  apiPredictions = {
+                    homeWinProbability: homePercent,
+                    drawProbability: drawPercent,
+                    awayWinProbability: awayPercent,
+                    confidence: 90, // High confidence for RapidAPI predictions
+                    source: 'rapidapi-predictions'
+                  };
+                  
+                  console.log('📊 [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
+                }
+              }
+            }
+          } catch (predictionsError) {
+            console.error('❌ [MatchPrediction] Error processing predictions data:', predictionsError);
           }
         }
 
@@ -293,8 +334,8 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           }
         }
 
-        // Use odds-based predictions if available, otherwise use statistics-based predictions
-        const finalProbabilities = oddsBasedProbabilities || calculatedProbabilities;
+        // Use API predictions first, then odds-based, then statistics-based predictions
+        const finalProbabilities = apiPredictions || oddsBasedProbabilities || calculatedProbabilities;
 
         setPredictionData({
           ...finalProbabilities,
@@ -488,7 +529,11 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           <div className="flex justify-center">
             <div className="text-xs text-gray-400">
               {predictionData ? 
-                `Data from ${(predictionData as any).source === 'odds' ? 'Live Betting Odds' : 'Team Statistics'}` :
+                `Data from ${
+                  (predictionData as any).source === 'rapidapi-predictions' ? 'RapidAPI Predictions' :
+                  (predictionData as any).source === 'odds' ? 'Live Betting Odds' : 
+                  'Team Statistics'
+                }` :
                 'Data from RapidAPI'
               }
             </div>
