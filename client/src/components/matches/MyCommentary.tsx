@@ -1,7 +1,7 @@
 import React from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import MyAvatarInfo from "./MyAvatarInfo";
-
+import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 interface MatchEvent {
   time: {
     elapsed: number;
