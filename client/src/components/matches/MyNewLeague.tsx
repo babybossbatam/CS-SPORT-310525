@@ -1220,6 +1220,9 @@ b.fixture.status.elapsed) || 0;
               {/* Score/Time Center */}
               <div className="match-score-container">
                 {(() => {
+                  const status = currentStatus.short;
+                  
+                  // Live matches - show current score
                   if (
                     [
                       "LIVE",
@@ -1246,6 +1249,7 @@ b.fixture.status.elapsed) || 0;
                     );
                   }
 
+                  // Ended matches - show final score
                   if (
                     [
                       "FT",
@@ -1258,24 +1262,20 @@ b.fixture.status.elapsed) || 0;
                       "SUSP",
                     ].includes(status)
                   ) {
-                    // Always show scores for ended matches, defaulting to 0-0 if no valid scores
-                    const homeScore = currentGoals.home ?? 0;
-                    const awayScore = currentGoals.away ?? 0;
-
                     return (
                       <div className="match-score-display">
                         <span className="score-number">
-                          {homeScore}
+                          {currentGoals.home ?? 0}
                         </span>
                         <span className="score-separator">-</span>
                         <span className="score-number">
-                          {awayScore}
+                          {currentGoals.away ?? 0}
                         </span>
                       </div>
                     );
                   }
 
-                  // Only show time display for upcoming matches (NS = Not Started, TBD = To Be Determined)
+                  // Upcoming matches - show kick-off time
                   if (status === "NS" || status === "TBD") {
                     return (
                       <div
@@ -1289,7 +1289,7 @@ b.fixture.status.elapsed) || 0;
                     );
                   }
 
-                  // For any other status, don't show time display
+                  // For any other status, don't show anything
                   return null;
                 })()}
               </div>
