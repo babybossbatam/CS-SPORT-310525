@@ -1695,7 +1695,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       const matchId = fixture.fixture.id;
       const currentStatus = fixture.fixture.status.short;
       const previousStatus = previousMatchStatusesRef.current.get(matchId);
-      const currentScore = {```text
+      const currentScore = {
         home: fixture.goals.home ?? 0,
         away: fixture.goals.away ?? 0
       };
