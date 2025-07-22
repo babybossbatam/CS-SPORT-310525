@@ -113,7 +113,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   // Additional specific search for exact order with esports exclusion
   const exactOrderQuery = `${rawHome} v ${rawAway} highlights ${matchYear} -esports -"fifa 24" -"fifa 25" -virtual -mobile`.trim();
-  
+
   // Enhanced search query with competition context
   const competitionQuery = `${rawHome} vs ${rawAway} ${league} ${matchYear} highlights -esports -virtual -gaming`.trim();
 
@@ -247,7 +247,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     // Check for exact team name matches with partial matching
     const homeMatches = homeLower.split(' ').filter(word => word.length > 2 && titleLower.includes(word));
     const awayMatches = awayLower.split(' ').filter(word => word.length > 2 && titleLower.includes(word));
-    
+
     const homePos = titleLower.indexOf(homeLower);
     const awayPos = titleLower.indexOf(awayLower);
 
@@ -463,7 +463,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       type: 'youtube' as const,
       searchFn: async () => {
         const brazilianChannelId = 'UCw5-xj3AKqEizC7MvHaIPqA';
-        
+
         // Create Brazil-specific search queries optimized for this channel
         const brazilQueries = [
           `${home} vs ${away} highlights ${matchYear}`,
@@ -475,7 +475,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           primarySearchQuery.replace('highlights', 'melhores momentos'),
           secondarySearchQuery
         ];
-        
+
         let data;
 
         for (const query of brazilQueries) {
@@ -812,8 +812,62 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     tryNextSource();
   };
 
+  // Check if this is a football/soccer match
+  const isFootballMatch = () => {
+    // Check league name for football indicators
+    const league = leagueName || match?.league?.name || match?.leagueName || '';
+    const leagueLower = league.toLowerCase();
+
+    // Enhanced list of non-football sports with more volleyball variations
+    const nonFootballSports = [
+      'volleyball', 'volley', 'beach volleyball', 'indoor volleyball', 'vóley', 'voleybol',
+      'basketball', 'tennis', 'hockey', 'ice hockey', 'field hockey', 'baseball', 
+      'cricket', 'rugby', 'american football', 'nfl', 'nba', 'nhl', 'mlb',
+      'badminton', 'table tennis', 'ping pong', 'handball', 'water polo', 'golf',
+      'athletics', 'swimming', 'cycling', 'boxing', 'mma', 'wrestling', 'judo',
+      'esports', 'e-sports', 'gaming', 'dota', 'league of legends', 'cs:go', 'cs2'
+    ];
+
+    const isNonFootball = nonFootballSports.some(sport => leagueLower.includes(sport));
+
+    // If it's clearly not football, don't show highlights
+    if (isNonFootball) {
+      console.log(`🚫 [Highlights] Non-football sport detected: ${league}`);
+      return false;
+    }
+
+    // Enhanced football indicators
+    const footballIndicators = [
+      'football', 'soccer', 'fútbol', 'futebol', 'calcio', 'fußball',
+      'premier league', 'champions league', 'europa league', 'conference league',
+      'la liga', 'serie a', 'bundesliga', 'ligue 1', 'primeira liga', 'eredivisie',
+      'fifa', 'uefa', 'copa', 'world cup', 'euro', 'championship', 'league cup',
+      'fa cup', 'coupe de france', 'copa del rey', 'dfb-pokal', 'coppa italia',
+      'libertadores', 'sudamericana', 'concacaf', 'afc', 'caf', 'ofc',
+      'mls', 'usl', 'liga mx', 'brasileirão', 'superliga', 'primeira divisão'
+    ];
+
+    const hasFootballIndicators = footballIndicators.some(indicator => leagueLower.includes(indicator));
+
+    // Only return true if we have clear football indicators or no league name
+    // This prevents non-football content from showing highlights
+    if (hasFootballIndicators) {
+      console.log(`✅ [Highlights] Football match confirmed: ${league}`);
+      return true;
+    }
+
+    // If no clear indicators and we have a league name, assume it's not football
+    if (leagueLower) {
+      console.log(`❓ [Highlights] Unclear sport, hiding highlights for: ${league}`);
+      return false;
+    }
+
+    // Default to football only if no league name is available
+    return true;
+  };
+
   // Hide the card entirely when no video is available, not loading, iframe error, or video unavailable
-  if ((error && !loading) || iframeError) {
+  if (!isFootballMatch() || (error && !loading) || iframeError) {
     return null;
   }
 
