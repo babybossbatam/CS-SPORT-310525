@@ -420,6 +420,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
 
   const isDarkTheme = useMemo(() => theme === "dark", [theme]);
   const groupedEvents = useMemo(() => groupEventsByPeriod(events), [events]);
+  
+  // Get current scores from API data - moved here to ensure it's called consistently
+  const getCurrentScores = useMemo(() => {
+    if (matchData?.goals) {
+      return {
+        homeScore: matchData.goals.home || 0,
+        awayScore: matchData.goals.away || 0,
+      };
+    }
+    return { homeScore: 0, awayScore: 0 };
+  }, [matchData?.goals]);
 
   // No need for complex player image loading - using fallback only
   const getPlayerImage = useCallback(
@@ -434,7 +445,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     [],
   );
 
-  const handlePlayerClick = (
+  const handlePlayerClick = useCallback((
     playerId?: number,
     teamId?: number,
     playerName?: string,
@@ -452,7 +463,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       });
       setShowPlayerModal(true);
     }
-  };
+  }, [getPlayerImage]);
 
   // Handle early returns after all hooks are defined
   if (error && showErrors) {
@@ -933,16 +944,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   };
 
-  // Get current scores from API data
-  const getCurrentScores = useMemo(() => {
-    if (matchData?.goals) {
-      return {
-        homeScore: matchData.goals.home || 0,
-        awayScore: matchData.goals.away || 0,
-      };
-    }
-    return { homeScore: 0, awayScore: 0 };
-  }, [matchData?.goals]);
+  
 
   return (
     <Card
