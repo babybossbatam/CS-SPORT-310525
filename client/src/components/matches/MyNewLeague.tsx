@@ -1624,6 +1624,48 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     );
   };
 
+  // Fetch live data for a specific match when time-based transition is detected
+  const fetchLiveDataForMatch = useCallback(async (matchId: number) => {
+    try {
+      console.log(`🔴 [TIME-BASED FETCH] Fetching live data for match ${matchId}`);
+      
+      const response = await apiRequest("GET", "/api/fixtures/live");
+      const liveData = await response.json();
+
+      if (Array.isArray(liveData)) {
+        const matchUpdate = liveData.find(fixture => fixture.fixture.id === matchId);
+        
+        if (matchUpdate) {
+          console.log(`✅ [TIME-BASED FETCH] Found live update for match ${matchId}:`, {
+            status: matchUpdate.fixture.status.short,
+            elapsed: matchUpdate.fixture.status.elapsed,
+            goals: `${matchUpdate.goals.home}-${matchUpdate.goals.away}`
+          });
+
+          // Update the specific match in state
+          setLeagueFixtures(prev => {
+            const updated = new Map(prev);
+            
+            // Find and update the match across all leagues
+            leagueIds.forEach(leagueId => {
+              const leagueMatches = updated.get(leagueId) || [];
+              const updatedMatches = leagueMatches.map(match => 
+                match.fixture.id === matchId ? matchUpdate : match
+              );
+              updated.set(leagueId, updatedMatches);
+            });
+            
+            return updated;
+          });
+        } else {
+          console.log(`❌ [TIME-BASED FETCH] No live data found for match ${matchId}`);
+        }
+      }
+    } catch (error) {
+      console.error(`❌ [TIME-BASED FETCH] Failed to fetch live data for match ${matchId}:`, error);
+    }
+  }, []);
+
   // Clear cache for specific match when status transitions occur
   const clearMatchCache = useCallback((matchId: number, transition: string, fixtureDate: string) => {
     try {
@@ -1682,7 +1724,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     }
   }, [getCacheKey]);
 
-  // Simplified status change detection - only for live matches
+  // Enhanced status change detection with time-based live transition
   useEffect(() => {
     const allMatches = Object.values(matchesByLeague).flatMap(group => group.matches);
     if (!allMatches?.length) return;
@@ -1690,6 +1732,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     const newHalftimeMatches = new Set<number>();
     const newFulltimeMatches = new Set<number>();
     const newGoalMatches = new Set<number>();
+    const now = new Date();
 
     allMatches.forEach((fixture) => {
       const matchId = fixture.fixture.id;
@@ -1700,6 +1743,27 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         away: fixture.goals.away ?? 0
       };
       const previousScore = previousMatchScoresRef.current.get(matchId);
+
+      // **TIME-BASED LIVE TRANSITION DETECTION**
+      const matchDateTime = new Date(fixture.fixture.date);
+      const minutesSinceKickoff = (now.getTime() - matchDateTime.getTime()) / (1000 * 60);
+      
+      // Check if match should be live based on time (kick-off + 5 minutes tolerance)
+      const shouldBeLiveByTime = minutesSinceKickoff >= -5 && minutesSinceKickoff <= 120; // -5min to +120min window
+      const isUpcomingStatus = ['NS', 'TBD'].includes(currentStatus);
+      
+      if (shouldBeLiveByTime && isUpcomingStatus) {
+        console.log(`🕐 [TIME-BASED TRANSITION] Match ${matchId} should be LIVE: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+          kickoffTime: fixture.fixture.date,
+          currentTime: now.toISOString(),
+          minutesSinceKickoff: minutesSinceKickoff.toFixed(1),
+          currentStatus,
+          shouldFetchLiveData: true
+        });
+        
+        // Trigger immediate live data fetch for this specific match
+        fetchLiveDataForMatch(matchId);
+      }
 
       // Only track changes for live/upcoming matches
       const isLiveOrUpcoming = ['LIVE', '1H', '2H', 'HT', 'ET', 'BT', 'P', 'INT', 'NS', 'TBD'].includes(currentStatus);
@@ -1743,7 +1807,32 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       setGoalFlashMatches(newGoalMatches);
       setTimeout(() => setGoalFlashMatches(new Set()), 2000);
     }
-  }, [matchesByLeague]);
+  }, [matchesByLeague, fetchLiveDataForMatch]);
+
+  // Timer-based check for matches that should transition to live
+  useEffect(() => {
+    const checkInterval = setInterval(() => {
+      const allMatches = Object.values(matchesByLeague).flatMap(group => group.matches);
+      const now = new Date();
+      
+      const upcomingMatches = allMatches.filter(match => 
+        ['NS', 'TBD'].includes(match.fixture.status.short)
+      );
+
+      upcomingMatches.forEach(match => {
+        const matchDateTime = new Date(match.fixture.date);
+        const minutesSinceKickoff = (now.getTime() - matchDateTime.getTime()) / (1000 * 60);
+        
+        // Check if match should have started (with 2-minute tolerance)
+        if (minutesSinceKickoff >= -2 && minutesSinceKickoff <= 120) {
+          console.log(`⏰ [TIMER CHECK] Match ${match.fixture.id} should be live (${minutesSinceKickoff.toFixed(1)}min since kickoff)`);
+          fetchLiveDataForMatch(match.fixture.id);
+        }
+      });
+    }, 30000); // Check every 30 seconds
+
+    return () => clearInterval(checkInterval);
+  }, [matchesByLeague, fetchLiveDataForMatch]);
 
   // Show loading only if we're actually loading and have no data
   const shouldShowLoading = (loading || isLoading) && Object.keys(matchesByLeague).length === 0;
