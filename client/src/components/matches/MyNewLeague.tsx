@@ -1258,43 +1258,21 @@ b.fixture.status.elapsed) || 0;
                       "SUSP",
                     ].includes(status)
                   ) {
-                    const homeScore = currentGoals.home;
-                    const awayScore = currentGoals.away;
-                    const hasValidScores =
-                      homeScore !== null &&
-                      homeScore !== undefined &&
-                      awayScore !== null &&
-                      awayScore !== undefined &&
-                      !isNaN(Number(homeScore)) &&
-                      !isNaN(Number(awayScore));
+                    // Always show scores for ended matches, defaulting to 0-0 if no valid scores
+                    const homeScore = currentGoals.home ?? 0;
+                    const awayScore = currentGoals.away ?? 0;
 
-                    if (hasValidScores) {
-                      return (
-                        <div className="match-score-display">
-                          <span className="score-number">
-                            {homeScore}
-                          </span>
-                          <span className="score-separator">-</span>
-                          <span className="score-number">
-                            {awayScore}
-                          </span>
-                        </div>
-                      );
-                    } else {
-                      // For ended matches without valid scores, still show the final result if available
-                      // or fall back to showing the match time
-                      return (
-                        <div className="match-score-display">
-                          <span className="score-number">
-                            {homeScore ?? 0}
-                          </span>
-                          <span className="score-separator">-</span>
-                          <span className="score-number">
-                            {awayScore ?? 0}
-                          </span>
-                        </div>
-                      );
-                    }
+                    return (
+                      <div className="match-score-display">
+                        <span className="score-number">
+                          {homeScore}
+                        </span>
+                        <span className="score-separator">-</span>
+                        <span className="score-number">
+                          {awayScore}
+                        </span>
+                      </div>
+                    );
                   }
 
                   // Default case: display match time for upcoming matches
