@@ -3031,6 +3031,58 @@ error) {
     }
   });
 
+  // GET /api/fixtures/:id/team-statistics - Get team-specific match statistics
+  apiRouter.get(
+    "/fixtures/:id/team-statistics",
+    async (req: Request, res: Response) => {
+      try {
+        const { id } = req.params;
+        const { team } = req.query;
+        console.log(`📊 [RapidAPI] Fetching team statistics for fixture: ${id}, team: ${team}`);
+
+        if (!team) {
+          return res.status(400).json({
+            error: "Team ID is required",
+            statistics: [],
+          });
+        }
+
+        const options = {
+          method: 'GET',
+          url: 'https://api-football-v1.p.rapidapi.com/v3/fixtures/statistics',
+          params: {
+            fixture: id,
+            team: team
+          },
+          headers: {
+            'x-rapidapi-key': process.env.RAPIDAPI_KEY,
+            'x-rapidapi-host': 'api-football-v1.p.rapidapi.com'
+          }
+        };
+
+        const response = await fetch(`${options.url}?${new URLSearchParams(options.params)}`, {
+          method: options.method,
+          headers: options.headers
+        });
+
+        if (!response.ok) {
+          throw new Error(`RapidAPI request failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(`✅ [RapidAPI] Team statistics fetched for fixture ${id}, team ${team}`);
+
+        res.json(data?.response || []);
+      } catch (error) {
+        console.error("❌ [RapidAPI] Error fetching team statistics:", error);
+        res.status(500).json({
+          error: "Failed to fetch team statistics",
+          statistics: [],
+        });
+      }
+    },
+  );
+
   // Create HTTP server
   const httpServer = createServer(app);
 

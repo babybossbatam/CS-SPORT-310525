@@ -6,6 +6,7 @@ import MyMatchEventNew from './MyMatchEventNew';
 
 import MyShotmap from './MyShotmap';
 import MyKeyPlayer from './MyKeyPlayer';
+import MyMatchStats from './MyMatchStats';
 
 interface MyMatchTabCardProps {
   match: any;
@@ -130,6 +131,14 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
           fixtureId={match.fixture?.id}
           homeTeam={match.teams?.home?.name}
           awayTeam={match.teams?.away?.name}
+        />
+      </div>
+
+      {/* Match Statistics */}
+      <div className="space-y-2">
+        <MyMatchStats 
+          match={match}
+          fixtureId={match.fixture?.id}
         />
       </div>
     </>
