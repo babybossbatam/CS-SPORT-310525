@@ -81,22 +81,36 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   } | null>(null);
   const [showPlayerModal, setShowPlayerModal] = useState(false);
 
-  const fetchMatchEvents = useCallback(async () => {
+  const fetchMatchEvents = useCallback(async (retryCount = 0) => {
     if (!fixtureId) {
       setError("No fixture ID provided");
       setIsLoading(false);
       return;
     }
 
+    const maxRetries = 3;
+    const retryDelay = Math.min(1000 * Math.pow(2, retryCount), 5000); // Exponential backoff, max 5s
+
     try {
       console.log(
-        `📊 [MyMatchEventNew] Fetching events for fixture: ${fixtureId}`,
+        `📊 [MyMatchEventNew] Fetching events for fixture: ${fixtureId}${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ''}`,
       );
 
-      const response = await fetch(`/api/fixtures/${fixtureId}/events`);
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+      const response = await fetch(`/api/fixtures/${fixtureId}/events`, {
+        signal: controller.signal,
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch events: ${response.status}`);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const eventData = await response.json();
@@ -124,12 +138,38 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       setLastUpdated(new Date());
       setError(null);
     } catch (error) {
-      console.error(`❌ [MyMatchEventNew] Error fetching events:`, error);
-      setError(
-        error instanceof Error ? error.message : "Failed to fetch events",
+      console.error(`❌ [MyMatchEventNew] Error fetching events (attempt ${retryCount + 1}):`, error);
+      
+      // Check if it's an abort error (timeout)
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log(`⏱️ [MyMatchEventNew] Request timeout for fixture ${fixtureId}`);
+      }
+      
+      // Check if it's a network error that might be temporary
+      const isNetworkError = error instanceof Error && (
+        error.message.includes('fetch') ||
+        error.message.includes('Failed to fetch') ||
+        error.message.includes('NetworkError') ||
+        error.name === 'AbortError'
       );
+
+      // Retry logic for network errors
+      if (isNetworkError && retryCount < maxRetries) {
+        console.log(`🔄 [MyMatchEventNew] Retrying in ${retryDelay}ms...`);
+        setTimeout(() => {
+          fetchMatchEvents(retryCount + 1);
+        }, retryDelay);
+        return;
+      }
+
+      // Set error after all retries exhausted or for non-network errors
+      const errorMessage = error instanceof Error ? error.message : "Failed to fetch events";
+      setError(retryCount >= maxRetries ? `${errorMessage} (after ${maxRetries} retries)` : errorMessage);
     } finally {
-      setIsLoading(false);
+      // Only set loading to false if we're not retrying
+      if (retryCount >= maxRetries || !error) {
+        setIsLoading(false);
+      }
     }
   }, [fixtureId]);
 
@@ -142,7 +182,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     // Set up refresh interval
     if (refreshInterval > 0) {
       intervalRef.current = setInterval(
-        fetchMatchEvents,
+        () => fetchMatchEvents(), // Reset retry count on interval calls
         refreshInterval * 1000,
       );
     }
@@ -153,7 +193,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
         clearInterval(intervalRef.current);
       }
     };
-  }, [fixtureId, refreshInterval]);
+  }, [fetchMatchEvents, refreshInterval]);
 
   const formatTime = (elapsed: number, extra?: number) => {
     if (extra) {
