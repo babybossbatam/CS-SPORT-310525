@@ -1033,10 +1033,11 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   }) => {
     // Check if match is actually finished based on current status
     const currentStatus = initialMatch.fixture.status.short;
-    const isActuallyFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(currentStatus);
+    const updatedStatus = matchState.status?.short || currentStatus;
+    const isActuallyFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(updatedStatus);
     
     // Enhanced live match detection - exclude finished matches
-    const isLiveMatch = !isActuallyFinished && ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentStatus);
+    const isLiveMatch = !isActuallyFinished && ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(updatedStatus);
     
     // Check if match data is stale (older than 4 hours for live matches, 24 hours for ended matches)
     const matchDateTime = new Date(initialMatch.fixture.date);
@@ -1064,6 +1065,9 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     // Always use the most current status from fixture data
     const currentMatchStatus = matchState.status?.short || initialMatch.fixture.status.short;
     const currentStatusObj = matchState.status || initialMatch.fixture.status;
+    
+    // For display purposes, ensure finished matches show as finished
+    const displayStatus = isActuallyFinished ? (updatedStatus === "FT" ? "FT" : updatedStatus) : currentMatchStatus;
 
     const handleMatchClick = () => {
       if (onMatchClick) {
@@ -1122,9 +1126,9 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 const status = currentMatchStatus;
                 const elapsed = currentStatusObj.elapsed;
 
-                // Enhanced live status detection with stale data check
+                // Enhanced live status detection with stale data check - but exclude actually finished matches
                 if (
-                  [
+                  !isActuallyFinished && [
                     "LIVE",
                     "LIV", 
                     "1H",
