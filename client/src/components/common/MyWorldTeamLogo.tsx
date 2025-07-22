@@ -4,64 +4,8 @@ import MyCircularFlag from "./MyCircularFlag";
 import LazyImage from "./LazyImage";
 
 interface MyWorldTeamLogoProps {
-  team: {
-    id?: number;
-    name: string;
-    logo?: string;
-  };
-  league?: any;
-  size?: string;
-  className?: string;
-}
-
-const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
-  team,
-  league,
-  size = "32px",
-  className = "",
-}) => {
-  // Check if this is a national team
-  const isNational = isNationalTeam(team, league);
+    teamName: string;
   
-  // For national teams, use MyCircularFlag
-  if (isNational) {
-    return (
-      <MyCircularFlag
-        teamName={team.name}
-        teamId={team.id}
-        fallbackUrl={team.logo || "/assets/fallback-logo.svg"}
-        size={size}
-        className={className}
-      />
-    );
-  }
-  
-  // For club teams, use regular team logo with LazyImage
-  return (
-    <LazyImage
-      src={
-        team.id
-          ? `/api/team-logo/square/${team.id}?size=${parseInt(size)}`
-          : team.logo || "/assets/fallback-logo.svg"
-      }
-      alt={team.name}
-      title={team.name}
-      className={`team-logo ${className}`}
-      style={{
-        width: size,
-        height: size,
-        objectFit: "contain",
-        borderRadius: "4px",
-      }}
-    />
-  );
-};
-
-export default MyWorldTeamLogo;
-</old_str>
-
-interface MyWorldTeamLogoProps {
-  teamName: string;
   teamLogo: string;
   alt?: string;
   size?: string;
