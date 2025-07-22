@@ -50,6 +50,13 @@ const MyMatchStats: React.FC<MatchStatsProps> = ({
       try {
         setLoading(true);
         
+        // Check if we have the required team data
+        if (!homeTeam?.id || !awayTeam?.id) {
+          setError('Team data not available');
+          setLoading(false);
+          return;
+        }
+        
         // Fetch stats for both teams
         const [homeResponse, awayResponse] = await Promise.all([
           fetch(`/api/fixtures/${fixtureId}/statistics?team=${homeTeam.id}`),
@@ -73,8 +80,11 @@ const MyMatchStats: React.FC<MatchStatsProps> = ({
       }
     };
 
-    fetchMatchStats();
-  }, [fixtureId, homeTeam.id, awayTeam.id]);
+    // Only fetch if we have all required data
+    if (fixtureId && homeTeam?.id && awayTeam?.id) {
+      fetchMatchStats();
+    }
+  }, [fixtureId, homeTeam?.id, awayTeam?.id]);
 
   const getStatValue = (stats: TeamStatistic[], type: string): string => {
     const stat = stats?.find(s => s.type === type);
