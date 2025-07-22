@@ -429,10 +429,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     const homePos = titleLower.indexOf(homeLower);
     const awayPos = titleLower.indexOf(awayLower);
 
-    // Extra bonus for exact full team name matches (helps with similar team names)
-    const exactHomeMatch = titleLower.includes(homeLower);
-    const exactAwayMatch = titleLower.includes(awayLower);
-
+    // The exactHomeMatch and exactAwayMatch variables are already declared above
+    // Use the existing variables for the bonus calculation
     if (exactHomeMatch && exactAwayMatch) {
       score += 50; // Big bonus for exact matches of both team names
     }
