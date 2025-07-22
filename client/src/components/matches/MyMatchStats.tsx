@@ -64,14 +64,48 @@ const MyMatchStats: React.FC<MatchStatsProps> = ({
         ]);
 
         if (!homeResponse.ok || !awayResponse.ok) {
+          console.warn(`🔍 [MyMatchStats] Team-specific stats failed, trying general stats endpoint`);
+          
+          // Fallback: try getting all statistics without team filter
+          const generalResponse = await fetch(`/api/fixtures/${fixtureId}/statistics`);
+          if (generalResponse.ok) {
+            const generalData = await generalResponse.json();
+            console.log(`🔍 [MyMatchStats] General stats response:`, generalData);
+            
+            if (Array.isArray(generalData) && generalData.length >= 2) {
+              setHomeStats(generalData.find(team => team.team.id === homeTeam.id) || null);
+              setAwayStats(generalData.find(team => team.team.id === awayTeam.id) || null);
+              return;
+            }
+          }
+          
           throw new Error('Failed to fetch match statistics');
         }
 
         const homeData = await homeResponse.json();
         const awayData = await awayResponse.json();
 
-        setHomeStats(homeData[0] || null);
-        setAwayStats(awayData[0] || null);
+        console.log(`🔍 [MyMatchStats] Home team API response:`, homeData);
+        console.log(`🔍 [MyMatchStats] Away team API response:`, awayData);
+
+        // Check if data is in expected format
+        if (Array.isArray(homeData) && homeData.length > 0) {
+          setHomeStats(homeData[0]);
+        } else if (homeData && homeData.team && homeData.statistics) {
+          setHomeStats(homeData);
+        } else {
+          console.warn(`🔍 [MyMatchStats] No valid home stats found:`, homeData);
+          setHomeStats(null);
+        }
+
+        if (Array.isArray(awayData) && awayData.length > 0) {
+          setAwayStats(awayData[0]);
+        } else if (awayData && awayData.team && awayData.statistics) {
+          setAwayStats(awayData);
+        } else {
+          console.warn(`🔍 [MyMatchStats] No valid away stats found:`, awayData);
+          setAwayStats(null);
+        }
       } catch (err) {
         console.error('Error fetching match statistics:', err);
         setError('Failed to load match statistics');
