@@ -616,6 +616,11 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         setError('Failed to load matches');
       } finally {
         setIsLoading(false);
+        
+        // Ensure loading is cleared even on error
+        setTimeout(() => {
+          setLoading(false);
+        }, 100);
       }
     };
 
@@ -790,14 +795,32 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       }
     });
 
+    console.log(`📊 [MyNewLeague] Processed matchesByLeague:`, {
+      totalLeagues: Object.keys(result).length,
+      totalMatches: Object.values(result).reduce((sum, group) => sum + group.matches.length, 0),
+      selectedDate,
+      leagueFixturesSize: leagueFixtures.size
+    });
+
     return result;
   }, [leagueFixtures, selectedDate]);
 
-  // Auto-expand all leagues by default when data changes
+  // Auto-expand all leagues by default when data changes and ensure loading state is cleared
   useEffect(() => {
     const leagueKeys = Object.keys(matchesByLeague).map(leagueId => `league-${leagueId}`);
     setExpandedLeagues(new Set(leagueKeys));
-  }, [Object.keys(matchesByLeague).length]);
+    
+    // Clear loading state once we have data or finished loading
+    if (Object.keys(matchesByLeague).length > 0 || (!isLoading && !loading)) {
+      console.log(`✅ [MyNewLeague] Data loaded successfully:`, {
+        totalLeagues: Object.keys(matchesByLeague).length,
+        totalMatches: Object.values(matchesByLeague).reduce((sum, group) => sum + group.matches.length, 0),
+        selectedDate
+      });
+      setLoading(false);
+      setIsLoading(false);
+    }
+  }, [Object.keys(matchesByLeague).length, isLoading, loading]);
 
   // Sort matches within each league by status priority: Live > Ended > Upcoming
   Object.values(matchesByLeague).forEach((leagueGroup) => {
@@ -1474,7 +1497,10 @@ b.fixture.status.elapsed) || 0;
     }
   }, [matchesByLeague]);
 
-  if (loading || isLoading) {
+  // Show loading only if we're actually loading and have no data
+  const shouldShowLoading = (loading || isLoading) && Object.keys(matchesByLeague).length === 0;
+  
+  if (shouldShowLoading) {
     return (
       <>
         {/* Header Section Skeleton */}
