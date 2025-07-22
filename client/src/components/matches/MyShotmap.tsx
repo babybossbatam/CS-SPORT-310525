@@ -353,21 +353,7 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
   }
 
   if (error || shotData.length === 0) {
-    return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Shot Map</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-center p-8">
-            <div className="text-center text-gray-500">
-              <p>Shot map data not available</p>
-              <p className="text-sm">This feature will be available soon</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   return (
