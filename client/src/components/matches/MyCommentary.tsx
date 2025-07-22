@@ -300,9 +300,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                   const aIsRed = a.detail?.toLowerCase().includes("red");
                   const bIsRed = b.detail?.toLowerCase().includes("red");
                   
-                  // If one is yellow and other is red for same player, yellow comes first (higher in timeline)
-                  if (aIsYellow && bIsRed) return -1;
-                  if (aIsRed && bIsYellow) return 1;
+                  // If one is yellow and other is red for same player, red comes first (top), yellow below
+                  if (aIsYellow && bIsRed) return 1;  // Yellow goes below red
+                  if (aIsRed && bIsYellow) return -1; //
                 }
 
                 // For events at the same time, prioritize period markers to appear first
@@ -926,6 +926,18 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               <span className="text-gray-700 font-medium">
                                 {event.detail || "Card"}
                               </span>
+                                <div className="ml-auto flex items-center gap-2">
+
+                                  <img
+                                    src={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
+                                    alt={event.team?.name}
+                                    className="w-6 h-6"
+                                    onError={(e) => {
+                                      e.currentTarget.src =
+                                        "/assets/fallback-logo.svg";
+                                    }}
+                                  />
+                                </div>
                             </div>
                             <div className="flex items-center gap-2 -ml-3  text-xs font-medium bg-stone-200">
                               <MyAvatarInfo
