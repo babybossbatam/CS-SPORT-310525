@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 /**
@@ -36,12 +35,12 @@ class SelectiveMatchUpdater {
   constructor() {
     // Monitor online status
     this.isOnline = navigator.onLine;
-    
+
     window.addEventListener('online', () => {
       console.log('🌐 [SelectiveUpdater] Connection restored');
       this.isOnline = true;
     });
-    
+
     window.addEventListener('offline', () => {
       console.log('🔌 [SelectiveUpdater] Connection lost');
       this.isOnline = false;
@@ -72,7 +71,7 @@ class SelectiveMatchUpdater {
         if (index > -1) {
           subs.splice(index, 1);
         }
-        
+
         // Clean up empty arrays
         if (subs.length === 0) {
           this.subscribers.delete(fixtureId);
@@ -104,7 +103,7 @@ class SelectiveMatchUpdater {
     if (this.updateInterval) return;
 
     console.log(`🔄 [SelectiveUpdater] Starting selective updates for ${this.getTotalSubscriptions()} subscriptions`);
-    
+
     this.updateInterval = setInterval(() => {
       this.performUpdate();
     }, this.UPDATE_INTERVAL);
@@ -154,9 +153,9 @@ class SelectiveMatchUpdater {
 
     try {
       console.log(`🎯 [SelectiveUpdater] Fetching updates for ${subscribedFixtureIds.length} matches`);
-      
+
       const updates = await this.fetchSelectiveUpdates(subscribedFixtureIds);
-      
+
       if (updates.length > 0) {
         console.log(`✅ [SelectiveUpdater] Received ${updates.length} updates`);
         this.distributeUpdates(updates);
@@ -219,9 +218,9 @@ class SelectiveMatchUpdater {
         }));
       } catch (error) {
         clearTimeout(timeoutId);
-        
+
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        
+
         // Handle specific error types
         if (error instanceof Error && error.name === 'AbortError') {
           console.warn(`⏱️ [SelectiveUpdater] Request timeout on attempt ${attempt}/${maxRetries}`);
@@ -229,7 +228,7 @@ class SelectiveMatchUpdater {
                    errorMessage.includes('Failed to fetch') ||
                    errorMessage.includes('NetworkError')) {
           console.warn(`🌐 [SelectiveUpdater] Network error on attempt ${attempt}/${maxRetries}: ${errorMessage}`);
-          
+
           // Try to trigger network recovery
           try {
             await this.attemptNetworkRecovery();
@@ -301,7 +300,7 @@ class SelectiveMatchUpdater {
       });
 
       clearTimeout(timeoutId);
-      
+
       if (response.ok) {
         console.log('✅ [SelectiveUpdater] Network recovery successful');
       }
@@ -316,51 +315,42 @@ class SelectiveMatchUpdater {
 export const selectiveMatchUpdater = new SelectiveMatchUpdater();
 
 // Hook for React components
-export const useSelectiveMatchUpdate = (
-  fixtureId: number,
-  initialMatch: {
-    goals: { home: number | null; away: number | null };
-    fixture: { status: { short: string; elapsed?: number } };
-  }
-) => {
+export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
   const [matchState, setMatchState] = React.useState({
     goals: initialMatch.goals,
-    status: initialMatch.fixture.status,
-    lastUpdated: Date.now(),
+    status: initialMatch.fixture.status
   });
 
   React.useEffect(() => {
-    const unsubscribe = selectiveMatchUpdater.subscribe(fixtureId, (update) => {
-      setMatchState(prev => {
-        // Only update if data actually changed
-        const goalsChanged = 
-          prev.goals.home !== update.goals.home || 
-          prev.goals.away !== update.goals.away;
-        const statusChanged = 
-          prev.status.short !== update.status.short || 
-          prev.status.elapsed !== update.status.elapsed;
+    if (!matchId) return;
 
-        if (goalsChanged || statusChanged) {
-          console.log(`🔄 [useSelectiveMatchUpdate] Updating fixture ${fixtureId}:`, {
-            oldGoals: prev.goals,
-            newGoals: update.goals,
-            oldStatus: prev.status,
-            newStatus: update.status,
-          });
+    console.log(`🎯 [SelectiveUpdate] Subscribing to match ${matchId}:`, {
+      teams: `${initialMatch.teams?.home?.name} vs ${initialMatch.teams?.away?.name}`,
+      initialStatus: initialMatch.fixture.status.short,
+      initialGoals: `${initialMatch.goals.home}-${initialMatch.goals.away}`
+    });
 
-          return {
-            goals: update.goals,
-            status: update.status,
-            lastUpdated: update.timestamp,
-          };
-        }
+    // Subscribe to updates for this specific match
+    const subscription = selectiveMatchUpdater.subscribe(matchId, (updatedData) => {
+      console.log(`🔄 [SelectiveUpdate] Received update for match ${matchId}:`, {
+        teams: `${initialMatch.teams?.home?.name} vs ${initialMatch.teams?.away?.name}`,
+        newStatus: updatedData.fixture?.status?.short,
+        newGoals: updatedData.goals ? `${updatedData.goals.home}-${updatedData.goals.away}` : 'none',
+        oldStatus: initialMatch.fixture.status.short,
+        oldGoals: `${initialMatch.goals.home}-${initialMatch.goals.away}`,
+        updatedData
+      });
 
-        return prev;
+      setMatchState({
+        goals: updatedData.goals || initialMatch.goals,
+        status: updatedData.fixture?.status || initialMatch.fixture.status
       });
     });
 
-    return unsubscribe;
-  }, [fixtureId]);
+    return () => {
+      selectiveMatchUpdater.unsubscribe(matchId, subscription);
+    };
+  }, [matchId]);
 
   return matchState;
 };

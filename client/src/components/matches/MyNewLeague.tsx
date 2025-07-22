@@ -1031,13 +1031,28 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     onMatchClick?: (matchId: number, homeTeamName: string, awayTeamName: string) => void;
     leagueContext: { name: string; country: string; }
   }) => {
-    // Use selective updates only for live matches
-    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(initialMatch.fixture.status.short);
+    // Enhanced live match detection with more status codes
+    const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT", "45", "90"].includes(initialMatch.fixture.status.short);
+    
+    // Always use selective updates for potentially live matches
     const matchState = useSelectiveMatchUpdate(matchId, initialMatch);
 
-    // Use live data if available, otherwise use initial data
-    const currentGoals = isLiveMatch ? matchState.goals : initialMatch.goals;
-    const currentStatus = isLiveMatch ? matchState.status : initialMatch.fixture.status;
+    // Debug logging for match updates
+    console.log(`🔄 [MatchCard ${matchId}] Update check:`, {
+      teams: `${homeTeamName} vs ${awayTeamName}`,
+      initialStatus: initialMatch.fixture.status.short,
+      initialGoals: `${initialMatch.goals.home}-${initialMatch.goals.away}`,
+      updatedStatus: matchState.status?.short,
+      updatedGoals: matchState.goals ? `${matchState.goals.home}-${matchState.goals.away}` : 'none',
+      isLiveMatch,
+      hasUpdates: !!matchState.status
+    });
+
+    // Use updated data if available, otherwise fallback to initial data
+    const currentGoals = (matchState.goals && (matchState.goals.home !== null || matchState.goals.away !== null)) 
+      ? matchState.goals 
+      : initialMatch.goals;
+    const currentStatus = matchState.status || initialMatch.fixture.status;
 
     const handleMatchClick = () => {
       if (onMatchClick) {
@@ -1096,10 +1111,11 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 const status = currentStatus.short;
                 const elapsed = currentStatus.elapsed;
 
+                // Enhanced live status detection
                 if (
                   [
                     "LIVE",
-                    "LIV",
+                    "LIV", 
                     "1H",
                     "HT",
                     "2H",
@@ -1107,6 +1123,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     "BT",
                     "P",
                     "INT",
+                    "45",
+                    "90"
                   ].includes(status)
                 ) {
                   let displayText = "";
@@ -1237,12 +1255,14 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                       "LIVE",
                       "LIV",
                       "1H",
-                      "HT",
+                      "HT", 
                       "2H",
                       "ET",
                       "BT",
                       "P",
                       "INT",
+                      "45",
+                      "90"
                     ].includes(status)
                   ) {
                     return (
