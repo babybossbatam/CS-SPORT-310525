@@ -447,7 +447,7 @@ export const MyScoresLeft = ({
       ) : (
         // Neither filter active - show default view
         <>
-          <MyNewLeague
+          <MyScoresLeague
             selectedDate={selectedDate}
             timeFilterActive={false}
             showTop10={false}
