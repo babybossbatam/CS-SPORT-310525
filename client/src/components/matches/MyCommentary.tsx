@@ -705,7 +705,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         {event.type === "Goal" ? (
                           <div className="flex flex-col gap-3">
                             {/* Enhanced Goal Header with Animation */}
-                            <div className="flex items-center gap-2 -ml-3 -mt-1  px-1 text-xs font-bold bg-gradient-to-r from-green-50 to-blue-50 ">
+                            <div className="flex items-center gap-2 -ml-3 -mt-1  px-1 text-xs font-bold bg-gradient-to-r from-green-50 to-blue-50 -mb-2">
                               {(() => {
                                 const detail =
                                   event.detail?.toLowerCase() || "";
@@ -792,7 +792,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                             {/* Enhanced Player Section */}
                             <div className="flex flex-col gap-3">
-                              <div className="flex items-center gap-2 -ml-3    text-xs font-medium bg-stone-200  ">
+                              <div className="flex items-center gap-2 -ml-3    text-xs font-medium bg-stone-200  -mb-1">
                                 <MyAvatarInfo
                                   playerId={event.player?.id}
                                   playerName={event.player?.name}
@@ -807,31 +807,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                     {event.team?.name}
                                   </span>
                                 </div>
-                                <div className="ml-auto">
-                                  {(() => {
-                                    const detail =
-                                      event.detail?.toLowerCase() || "";
-                                    if (detail.includes("penalty")) {
-                                      return (
-                                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
-                                          Penalty
-                                        </span>
-                                      );
-                                    } else if (detail.includes("own goal")) {
-                                      return (
-                                        <span className="text-xs ">
-                                          Own Goal
-                                        </span>
-                                      );
-                                    } else {
-                                      return (
-                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                                          Goal
-                                        </span>
-                                      );
-                                    }
-                                  })()}
-                                </div>
+                                
                               </div>
 
                               {/* Enhanced Commentary Description */}
@@ -918,7 +894,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                           </div>
                         ) : event.type === "Card" ? (
                           <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-2 -ml-3  text-xs font-medium">
+                              <div className="flex items-center gap-2 -ml-3 -mt-1 -mb-1  px-1 text-xs font-medium bg-gradient-to-r from-green-50 to-blue-50 ">
                               {event.detail
                                 ?.toLowerCase()
                                 .includes("yellow") ? (
@@ -962,7 +938,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                         ) : event.type === "subst" ? (
                           <div className="flex flex-col gap-1">
                             {/* Substitution Header */}
-                            <div className="flex items-center gap-2 -ml-3 -mt-1  px-1 text-xs font-medium bg-gradient-to-r from-green-50 to-blue-50 border border-green-200">
+                            <div className="flex items-center gap-2 -ml-3 -mt-1  px-1 text-xs font-medium bg-gradient-to-r from-green-50 to-blue-50 ">
                               <img
                                 src="/assets/matchdetaillogo/substitution.svg"
                                 alt="Substitution"
