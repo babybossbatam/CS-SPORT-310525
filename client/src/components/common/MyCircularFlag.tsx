@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { getCountryCode } from "@/lib/flagUtils";
-import { isNationalTeam } from "@/lib/teamLogoSources";
+import { isNationalTeam, getTeamLogoSources, createTeamLogoErrorHandler } from "@/lib/teamLogoSources";
 
 interface MyCircularFlagProps {
   teamName: string;
+  teamId?: number | string;
   fallbackUrl?: string;
   alt?: string;
   size?: string;
@@ -19,6 +20,7 @@ interface MyCircularFlagProps {
 
 const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   teamName,
+  teamId,
   fallbackUrl,
   alt,
   size = "64px",
@@ -29,6 +31,18 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [nextMatch, setNextMatch] = useState(nextMatchInfo);
+  
+  // Check if this is a national team or club team
+  const isNational = isNationalTeam({ name: teamName });
+  
+  // For club teams, use team logo sources
+  const getLogoUrl = () => {
+    if (!isNational && teamId) {
+      const logoSources = getTeamLogoSources({ id: teamId, name: teamName }, false);
+      return logoSources[0]?.url || fallbackUrl || "/assets/fallback-logo.svg";
+    }
+    return getCircleFlagUrl(teamName, fallbackUrl);
+  };
   const getCircleFlagUrl = (teamName: string, fallbackUrl?: string) => {
     // Check if teamName is valid
     if (!teamName || typeof teamName !== "string") {
@@ -194,26 +208,30 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       onMouseLeave={() => showNextMatchOverlay && setIsHovered(false)}
     >
       <img
-        src={getCircleFlagUrl(teamName, fallbackUrl)}
+        src={getLogoUrl()}
         alt={alt || teamName}
         className="team-logo"
         style={{
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          borderRadius: "50%",
+          borderRadius: isNational ? "50%" : "50%", // Keep circular for both, but club logos will show as regular logos
           position: "relative",
           zIndex: 1,
-
-          filter:
-            "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)",
+          filter: isNational 
+            ? "contrast(255%) brightness(68%) saturate(110%) hue-rotate(-10deg)"
+            : "none", // No filter for club logos
         }}
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          if (!target.src.includes("/assets/fallback-logo.svg")) {
-            target.src = fallbackUrl || "/assets/fallback-logo.svg";
-          }
-        }}
+        onError={
+          !isNational && teamId 
+            ? createTeamLogoErrorHandler({ id: teamId, name: teamName }, false)
+            : (e) => {
+                const target = e.target as HTMLImageElement;
+                if (!target.src.includes("/assets/fallback-logo.svg")) {
+                  target.src = fallbackUrl || "/assets/fallback-logo.svg";
+                }
+              }
+        }
       />
       <div className="gloss"></div>
 
