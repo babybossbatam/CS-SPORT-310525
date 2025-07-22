@@ -818,8 +818,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               country: "Germany",
             },
             country: {
-              name: "Germany",
-              ```text
+              name: "Germany",```text
 code: "DE",
               flag: "https://media.api-sports.io/flags/de.svg",
             },
@@ -1714,7 +1713,7 @@ code: "DE",
           `Error fetching 365scores league logo for ${req.params.leagueId}:`,
           error,
         );
-        res.status(500).json({ error: "Failed to fetch league logo" });
+        res.status(50).json({ error: "Failed to fetch league logo" });
             }
     },
   );
@@ -2667,8 +2666,7 @@ code: "DE",
             data: matchDetails,
           });
         } else {
-          res.status(40```text
-4).json({
+          res.status(404).json({
             success: false,
             error: "Match not found",
           });
