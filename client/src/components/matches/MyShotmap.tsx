@@ -308,7 +308,14 @@ const MyShotmap: React.FC<MyShotmapProps> = ({
 
     // Cleanup function to abort fetch on unmount
     return () => {
-      controller.abort();
+      try {
+        if (!controller.signal.aborted) {
+          controller.abort('Component unmounted');
+        }
+      } catch (error) {
+        // Silently handle any abort errors during cleanup
+        console.log('🛑 AbortError detected and suppressed:', error?.message || 'signal is aborted without reason');
+      }
     };
   }, [fixtureId]);
 
