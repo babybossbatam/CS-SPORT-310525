@@ -886,11 +886,34 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               tomorrow.setDate(tomorrow.getDate() + 1);
               const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
               
-              return fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
+              console.log(`🔄 [POSTPONED FILTERING] Checking postponed match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                originalTime: fixtureDate,
+                hoursPassed: hoursPassed.toFixed(1),
+                status: currentStatus,
+                fixtureLocalDate,
+                selectedDate,
+                tomorrowDate,
+                shouldShowInTomorrow: selectedDate === tomorrowDate,
+                shouldHideFromToday: selectedDate !== tomorrowDate
+              });
+              
+              // Only show this match if we're viewing tomorrow's matches
+              return selectedDate === tomorrowDate;
             }
           }
 
-          return fixtureLocalDate === selectedDate;
+          // Regular date matching for non-postponed matches
+          const isRegularMatch = fixtureLocalDate === selectedDate;
+          
+          if (isRegularMatch) {
+            console.log(`✅ [REGULAR FILTERING] Including regular match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+              fixtureLocalDate,
+              selectedDate,
+              status: currentStatus
+            });
+          }
+
+          return isRegularMatch;
         });
 
         if (filteredFixtures.length > 0) {
