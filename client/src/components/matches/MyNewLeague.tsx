@@ -1275,17 +1275,22 @@ b.fixture.status.elapsed) || 0;
                     );
                   }
 
-                  // Default case: display match time for upcoming matches
-                  return (
-                    <div
-                      className="match-time-display"
-                      style={{ fontSize: "0.882em" }}
-                    >
-                      {status === "TBD"
-                        ? "TBD"
-                        : formatMatchTimeWithTimezone(matchDate)}
-                    </div>
-                  );
+                  // Only show time display for upcoming matches (NS = Not Started, TBD = To Be Determined)
+                  if (status === "NS" || status === "TBD") {
+                    return (
+                      <div
+                        className="match-time-display"
+                        style={{ fontSize: "0.882em" }}
+                      >
+                        {status === "TBD"
+                          ? "TBD"
+                          : formatMatchTimeWithTimezone(matchDate)}
+                      </div>
+                    );
+                  }
+
+                  // For any other status, don't show time display
+                  return null;
                 })()}
               </div>
 
