@@ -1035,8 +1035,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     const isLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(initialMatch.fixture.status.short);
     
     // Check if match data is stale (older than 2 hours)
-    const matchDate = new Date(initialMatch.fixture.date);
-    const hoursOld = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
+    const matchDateTime = new Date(initialMatch.fixture.date);
+    const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
     const isStaleData = hoursOld > 2 && isLiveMatch;
     
     // Only use selective updates for truly live matches that aren't stale
