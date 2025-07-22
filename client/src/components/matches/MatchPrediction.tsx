@@ -152,16 +152,14 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           fetch(`/api/teams/${awayTeam.id}/statistics?league=${leagueId}&season=${season || new Date().getFullYear()}`)
         ];
 
-        // Add predictions and odds fetch if fixtureId is available
+        // Add predictions fetch if fixtureId is available - prioritize this over manual calculations
         if (fixtureId) {
           console.log(`📊 [MatchPrediction] Fetching predictions for fixture: ${fixtureId}`);
           fetchPromises.push(fetch(`/api/fixtures/${fixtureId}/predictions`));
-          console.log(`📊 [MatchPrediction] Fetching odds for fixture: ${fixtureId}`);
-          fetchPromises.push(fetch(`/api/fixtures/${fixtureId}/odds`));
         }
 
         const responses = await Promise.all(fetchPromises);
-        const [homeStatsResponse, awayStatsResponse, predictionsResponse, oddsResponse] = responses;
+        const [homeStatsResponse, awayStatsResponse, predictionsResponse] = responses;
 
         let homeStats: TeamStats | null = null;
         let awayStats: TeamStats | null = null;
@@ -204,93 +202,34 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           }
         }
 
-        // Process predictions data if available (RapidAPI predictions endpoint)
+        // Process RapidAPI predictions data - this is our primary source
         let apiPredictions = null;
         if (predictionsResponse && predictionsResponse.ok) {
           try {
             const predictionsData = await predictionsResponse.json();
-            console.log('📊 [MatchPrediction] Predictions response:', predictionsData);
+            console.log('📊 [MatchPrediction] RapidAPI Predictions response:', predictionsData);
             
             if (predictionsData.success && predictionsData.data && predictionsData.data.length > 0) {
               const prediction = predictionsData.data[0];
               
-              if (prediction.predictions) {
-                // Extract win/draw/lose predictions
-                const winHome = prediction.predictions.winner?.home || null;
-                const winAway = prediction.predictions.winner?.away || null;
-                const draw = prediction.predictions.winner?.draw || null;
+              if (prediction.predictions && prediction.predictions.percent) {
+                const homePercent = parseInt(prediction.predictions.percent.home?.replace('%', '') || '33');
+                const drawPercent = parseInt(prediction.predictions.percent.draw?.replace('%', '') || '34');
+                const awayPercent = parseInt(prediction.predictions.percent.away?.replace('%', '') || '33');
                 
-                // Convert to percentages if available
-                if (prediction.predictions.percent) {
-                  const homePercent = parseInt(prediction.predictions.percent.home?.replace('%', '') || '33');
-                  const drawPercent = parseInt(prediction.predictions.percent.draw?.replace('%', '') || '34');
-                  const awayPercent = parseInt(prediction.predictions.percent.away?.replace('%', '') || '33');
-                  
-                  apiPredictions = {
-                    homeWinProbability: homePercent,
-                    drawProbability: drawPercent,
-                    awayWinProbability: awayPercent,
-                    confidence: 90, // High confidence for RapidAPI predictions
-                    source: 'rapidapi-predictions'
-                  };
-                  
-                  console.log('📊 [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
-                }
+                apiPredictions = {
+                  homeWinProbability: homePercent,
+                  drawProbability: drawPercent,
+                  awayWinProbability: awayPercent,
+                  confidence: 95, // High confidence for RapidAPI predictions
+                  source: 'rapidapi-predictions'
+                };
+                
+                console.log('✅ [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
               }
             }
           } catch (predictionsError) {
-            console.error('❌ [MatchPrediction] Error processing predictions data:', predictionsError);
-          }
-        }
-
-        // Process odds data if available
-        let oddsBasedProbabilities = null;
-        if (oddsResponse && oddsResponse.ok) {
-          try {
-            const oddsData = await oddsResponse.json();
-            console.log('📊 [MatchPrediction] Odds response:', oddsData);
-            
-            if (oddsData.success && oddsData.data && oddsData.data.length > 0) {
-              // Find 1X2 (Match Winner) odds from a major bookmaker
-              const bookmaker = oddsData.data.find((bm: any) => 
-                bm.bookmaker?.name && ['Bet365', '1xBet', 'Unibet', 'William Hill', 'Pinnacle'].includes(bm.bookmaker.name)
-              ) || oddsData.data[0];
-
-              console.log('📊 [MatchPrediction] Using bookmaker:', bookmaker?.bookmaker?.name);
-
-              if (bookmaker?.bets) {
-                const matchWinnerBet = bookmaker.bets.find((bet: any) => 
-                  bet.name === 'Match Winner' || bet.name === '1X2'
-                );
-
-                if (matchWinnerBet?.values && matchWinnerBet.values.length >= 3) {
-                  const homeOdd = parseFloat(matchWinnerBet.values[0]?.odd || '2.0');
-                  const drawOdd = parseFloat(matchWinnerBet.values[1]?.odd || '3.0');
-                  const awayOdd = parseFloat(matchWinnerBet.values[2]?.odd || '2.0');
-
-                  console.log('📊 [MatchPrediction] Raw odds:', { homeOdd, drawOdd, awayOdd });
-
-                  // Convert odds to implied probabilities
-                  const homeProb = (1 / homeOdd) * 100;
-                  const drawProb = (1 / drawOdd) * 100;
-                  const awayProb = (1 / awayOdd) * 100;
-
-                  // Normalize to ensure they add up to 100%
-                  const total = homeProb + drawProb + awayProb;
-                  oddsBasedProbabilities = {
-                    homeWinProbability: Math.round((homeProb / total) * 100),
-                    drawProbability: Math.round((drawProb / total) * 100),
-                    awayWinProbability: Math.round((awayProb / total) * 100),
-                    confidence: 85, // High confidence for bookmaker odds
-                    source: 'odds'
-                  };
-
-                  console.log('📊 [MatchPrediction] Using odds-based predictions from', bookmaker.bookmaker?.name, oddsBasedProbabilities);
-                }
-              }
-            }
-          } catch (oddsError) {
-            console.error('❌ [MatchPrediction] Error processing odds data:', oddsError);
+            console.error('❌ [MatchPrediction] Error processing RapidAPI predictions:', predictionsError);
           }
         }
 
@@ -334,8 +273,8 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           }
         }
 
-        // Use API predictions first, then odds-based, then statistics-based predictions
-        const finalProbabilities = apiPredictions || oddsBasedProbabilities || calculatedProbabilities;
+        // Use RapidAPI predictions first, then fallback to basic statistics if needed
+        const finalProbabilities = apiPredictions || calculatedProbabilities;
 
         setPredictionData({
           ...finalProbabilities,
@@ -531,10 +470,9 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
               {predictionData ? 
                 `Data from ${
                   (predictionData as any).source === 'rapidapi-predictions' ? 'RapidAPI Predictions' :
-                  (predictionData as any).source === 'odds' ? 'Live Betting Odds' : 
                   'Team Statistics'
                 }` :
-                'Data from RapidAPI'
+                'Data from RapidAPI Predictions'
               }
             </div>
           </div>
