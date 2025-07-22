@@ -65,18 +65,29 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const cleanTeamName = (name: string): string => {
     if (!name || name === 'Home Team' || name === 'Away Team') return name;
 
-    // For Brazilian teams, be extremely conservative with cleaning
-    // Keep full names to avoid confusion between similar teams
-    if (name.toLowerCase().includes('atletico') || name.toLowerCase().includes('atlético') ||
-        name.toLowerCase().includes('palmeiras') || name.toLowerCase().includes('botafogo') ||
-        name.toLowerCase().includes('flamengo') || name.toLowerCase().includes('corinthians') ||
-        name.toLowerCase().includes('são paulo') || name.toLowerCase().includes('santos')) {
-      return name.trim(); // Keep exact name for Brazilian clubs
+    // Define teams that should keep their exact names to avoid confusion
+    const keepExactNames = [
+      'atletico', 'atlético', 'palmeiras', 'botafogo', 'flamengo', 'corinthians',
+      'são paulo', 'santos', 'cruzeiro', 'grêmio', 'internacional', 'vasco',
+      'sport', 'bahia', 'ceará', 'fortaleza', 'athletico', 'coritiba',
+      'arsenal', 'chelsea', 'manchester', 'liverpool', 'tottenham',
+      'real madrid', 'barcelona', 'atletico madrid', 'valencia',
+      'juventus', 'milan', 'inter', 'napoli', 'roma', 'lazio',
+      'bayern', 'dortmund', 'leipzig', 'frankfurt'
+    ];
+
+    const nameLower = name.toLowerCase();
+    
+    // Check if this team should keep its exact name
+    if (keepExactNames.some(exact => nameLower.includes(exact))) {
+      return name.trim(); // Keep exact name for teams prone to confusion
     }
 
-    // For other teams, minimal cleaning to preserve distinctiveness
+    // For other teams, do minimal cleaning while preserving important identifiers
     return name
-      .replace(/\s+(Academy|Youth|U\d+|Under\d+|Reserves|II|III|IV|V|VI|VII|VIII|IX|X)$/i, '')
+      .replace(/\s+(Academy|Youth|U\d+|Under\d+|Reserves|II|III|IV|V|VI|VII|VIII|IX|X|B)$/i, '')
+      .replace(/\s+(FC|CF|SC|AC|AS|SSC|SL|CD|CA|CP|EC|RC)$/i, '') // Remove common suffixes but keep for disambiguation if needed
+      .replace(/\s+(United|City|Town|Athletic|Sporting|Nacional|Internacional)$/i, '$1') // Keep important identifiers
       .trim();
   };
 
@@ -163,21 +174,59 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                            league.toLowerCase().includes('gaucho') ||
                            league.toLowerCase().includes('brazil');
 
-  // Create highly specific search queries to avoid wrong matches
-  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esoccer -virtual -"fifa 24" -"fifa 25" -gaming -palmeiras -psg -"paris saint germain"`.trim();
-  const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esports -simulation -mobile -palmeiras -psg`.trim();
-  const tertiarySearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} -cyber -ebet -"online battle" -palmeiras -psg`.trim();
+  // Helper function to create team-specific exclusions
+  const createTeamExclusions = (homeTeam: string, awayTeam: string) => {
+    const exclusions = ['-esoccer', '-virtual', '-gaming', '-fifa', '-pes', '-mobile', '-simulation'];
+    
+    // Add specific exclusions based on team names to avoid confusion
+    const homeTeamLower = homeTeam.toLowerCase();
+    const awayTeamLower = awayTeam.toLowerCase();
+    
+    // Brazilian team exclusions to avoid confusion between similar names
+    if (homeTeamLower.includes('atletico') && !homeTeamLower.includes('pr')) {
+      exclusions.push('-"athletico-pr"', '-"atletico-pr"');
+    }
+    if (awayTeamLower.includes('atletico') && !awayTeamLower.includes('pr')) {
+      exclusions.push('-"athletico-pr"', '-"atletico-pr"');
+    }
+    
+    // Avoid Botafogo confusion (main Botafogo vs Botafogo-SP)
+    if ((homeTeamLower.includes('botafogo') || awayTeamLower.includes('botafogo')) && 
+        !homeTeamLower.includes('sp') && !awayTeamLower.includes('sp')) {
+      exclusions.push('-"botafogo-sp"', '-"botafogo sp"');
+    }
+    
+    // Avoid confusion with major European teams when searching for other teams
+    if (!homeTeamLower.includes('psg') && !awayTeamLower.includes('psg')) {
+      exclusions.push('-"paris saint germain"', '-psg');
+    }
+    
+    return exclusions.join(' ');
+  };
 
-  // Very specific query with league context to avoid confusion
-  const leagueSpecificQuery = `"${rawHome}" vs "${rawAway}" "${league}" ${matchYear} highlights -esports -virtual -gaming -botafogo -psg`.trim();
+  const teamExclusions = createTeamExclusions(rawHome, rawAway);
 
-  // Exact team matching with strong exclusions for commonly confused teams
-  const exactTeamMatchQuery = `"${rawHome}" "${rawAway}" ${matchYear} highlights -"botafogo" -"psg" -"paris saint germain" -"athletico-pr" -"atletico-pr"`.trim();
+  // Create multiple search strategies with different approaches
+  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} ${teamExclusions}`.trim();
+  
+  // Alternative search with cleaned names
+  const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} ${teamExclusions}`.trim();
+  
+  // Search with league context for better accuracy
+  const leagueSpecificQuery = league ? 
+    `"${rawHome}" vs "${rawAway}" "${league}" ${matchYear} highlights ${teamExclusions}`.trim() :
+    primarySearchQuery;
+  
+  // Broader search without quotes for difficult matches
+  const broadSearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} ${teamExclusions}`.trim();
+  
+  // Year-flexible search for older matches
+  const flexibleYearQuery = `"${rawHome}" vs "${rawAway}" highlights ${teamExclusions}`.trim();
 
   // Additional exclusions for Brazilian league confusion
   const brazilianSafeQuery = isBrazilianLeague ? 
-    `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} highlights -palmeiras -psg -"paris saint germain" -"inter miami" -esports`.trim() :
-    `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -palmeiras -psg -brasileiro -esports`.trim();
+    `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} melhores momentos ${teamExclusions}`.trim() :
+    primarySearchQuery;
 
   const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer -app -botafogo -psg`.trim();
 
@@ -276,7 +325,47 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
     // Heavy penalty for esports content
     if (esportsTerms.some(term => titleLower.includes(term))) {
-      score -= 100; // Even heavier penalty to ensure esports content is filtered out
+      score -= 200; // Very heavy penalty to ensure esports content is filtered out
+    }
+
+    // Check for exact team name matches first (highest priority)
+    const exactHomeMatch = titleLower.includes(homeLower);
+    const exactAwayMatch = titleLower.includes(awayLower);
+    
+    if (exactHomeMatch && exactAwayMatch) {
+      score += 100; // Very high bonus for both teams found exactly
+      
+      // Additional bonus for correct order
+      const homePos = titleLower.indexOf(homeLower);
+      const awayPos = titleLower.indexOf(awayLower);
+      if (homePos < awayPos) {
+        score += 15; // Bonus for correct order
+      }
+      
+      // Bonus for "vs" or similar separators between teams
+      const teamSection = titleLower.substring(homePos, awayPos + awayLower.length);
+      const vsKeywords = ['vs', 'v ', 'versus', ' x ', ' - ', ' against '];
+      if (vsKeywords.some(keyword => teamSection.includes(keyword))) {
+        score += 10;
+      }
+    } else if (exactHomeMatch || exactAwayMatch) {
+      score += 50; // Good bonus for one exact match
+    }
+
+    // Check for partial team name matches
+    const homeWords = homeLower.split(' ').filter(word => word.length > 2);
+    const awayWords = awayLower.split(' ').filter(word => word.length > 2);
+    
+    const homeMatches = homeWords.filter(word => titleLower.includes(word));
+    const awayMatches = awayWords.filter(word => titleLower.includes(word));
+    
+    // Bonus for partial matches
+    score += homeMatches.length * 5;
+    score += awayMatches.length * 5;
+    
+    // Require at least partial matches for both teams
+    if (homeMatches.length === 0 || awayMatches.length === 0) {
+      score -= 50; // Penalty if one team is completely missing
     }
 
     // Special validation for Brazilian teams with similar names (like Atletico-MG vs Atletico-PR)
@@ -657,40 +746,66 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'YouTube',
       type: 'youtube' as const,
       searchFn: async () => {
-        // Create dynamic query list based on league type
+        // Create dynamic query list based on league type and match characteristics
         let queries;
         
         if (isBrazilianLeague) {
           // For Brazilian matches, prioritize Portuguese terms and broader search
           queries = [
-            `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esports -virtual -fifa`,
-            `"${rawHome}" x "${rawAway}" melhores momentos ${matchYear}`,
-            `${home} vs ${away} brasileiro ${matchYear} highlights`,
-            `${home} ${away} serie a ${matchYear} gols`,
-            `"${rawHome}" "${rawAway}" ${matchYear} highlights`,
-            exactTeamMatchQuery,
-            primarySearchQuery,
-            secondarySearchQuery
+            primarySearchQuery, // Most specific with team exclusions
+            `"${rawHome}" x "${rawAway}" melhores momentos ${matchYear} ${teamExclusions}`,
+            `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} ${teamExclusions}`,
+            `${home} vs ${away} serie a ${matchYear} highlights ${teamExclusions}`,
+            brazilianSafeQuery,
+            secondarySearchQuery,
+            broadSearchQuery,
+            flexibleYearQuery
           ];
         } else {
-          // For non-Brazilian matches, use original priority
-          queries = [exactTeamMatchQuery, leagueSpecificQuery, brazilianSafeQuery, primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
+          // For non-Brazilian matches, use strategic ordering
+          queries = [
+            primarySearchQuery, // Most specific search
+            leagueSpecificQuery, // League context helps
+            secondarySearchQuery, // Cleaned team names
+            broadSearchQuery, // Broader search without quotes
+            flexibleYearQuery, // Year-flexible for older matches
+            brazilianSafeQuery // Fallback
+          ];
         }
 
-        for (const query of queries) {
+        // Add league-specific optimizations
+        if (league) {
+          const leagueTerms = league.toLowerCase();
+          if (leagueTerms.includes('champions league')) {
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "champions league" ${matchYear} highlights ${teamExclusions}`);
+          } else if (leagueTerms.includes('premier league')) {
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "premier league" ${matchYear} highlights ${teamExclusions}`);
+          } else if (leagueTerms.includes('la liga')) {
+            queries.unshift(`"${rawHome}" vs "${rawAway}" "la liga" ${matchYear} highlights ${teamExclusions}`);
+          }
+        }
+
+        for (let i = 0; i < queries.length; i++) {
+          const query = queries[i];
           try {
+            console.log(`🔍 [Highlights] Trying query ${i + 1}/${queries.length} for ${rawHome} vs ${rawAway}: "${query}"`);
+            
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=15&order=relevance`);
             const data = await response.json();
 
             if (data.error || data.quotaExceeded) {
+              console.warn(`❌ [Highlights] Query ${i + 1} failed:`, data.error || 'YouTube quota exceeded');
               throw new Error(data.error || 'YouTube quota exceeded');
             }
 
             if (data.items && data.items.length > 0) {
+              console.log(`📝 [Highlights] Query ${i + 1} returned ${data.items.length} raw results`);
+              
               // Filter and sort by relevance and title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
 
-              console.log(`🎬 [Highlights] YouTube search results for "${query}":`, sortedVideos.map(v => ({
+              console.log(`🎯 [Highlights] Query ${i + 1} after filtering: ${sortedVideos.length} relevant videos`);
+              console.log(`🎬 [Highlights] Top 3 results for "${query}":`, sortedVideos.slice(0, 3).map(v => ({
                 title: v.snippet?.title,
                 channelTitle: v.snippet?.channelTitle,
                 relevanceScore: v.relevanceScore,
@@ -700,6 +815,11 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
               if (sortedVideos.length > 0) {
                 const video = sortedVideos[0];
+                console.log(`✅ [Highlights] Selected video from query ${i + 1}:`, {
+                  title: video.snippet.title,
+                  channel: video.snippet.channelTitle,
+                  score: video.combinedScore
+                });
                 return {
                   name: 'YouTube',
                   type: 'youtube' as const,
@@ -707,10 +827,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                   embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
                   title: video.snippet.title
                 };
+              } else {
+                console.log(`⚠️ [Highlights] Query ${i + 1} had results but none passed filtering`);
               }
+            } else {
+              console.log(`📭 [Highlights] Query ${i + 1} returned no results`);
             }
           } catch (error) {
-            console.warn(`🎬 [Highlights] YouTube search failed for query: ${query}`, error);
+            console.warn(`❌ [Highlights] Query ${i + 1} failed for: ${query}`, error);
             continue;
           }
         }
