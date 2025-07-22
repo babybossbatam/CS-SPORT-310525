@@ -436,16 +436,6 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     );
   }
 
-  // Hide component for upcoming matches with no events
-  if (events.length === 0 && !isLoading) {
-    const matchStatus = matchData?.fixture?.status?.short;
-    const isUpcoming = ["NS", "TBD"].includes(matchStatus);
-    
-    if (isUpcoming) {
-      return null; // Hide the component completely
-    }
-  }
-
   // No need for complex player image loading - using fallback only
 
   const getPlayerImage = useCallback(
@@ -479,6 +469,16 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       setShowPlayerModal(true);
     }
   };
+
+  // Hide component for upcoming matches with no events
+  if (events.length === 0 && !isLoading) {
+    const matchStatus = matchData?.fixture?.status?.short;
+    const isUpcoming = ["NS", "TBD"].includes(matchStatus);
+    
+    if (isUpcoming) {
+      return null; // Hide the component completely
+    }
+  }
 
   const EventItem = ({
     event,
