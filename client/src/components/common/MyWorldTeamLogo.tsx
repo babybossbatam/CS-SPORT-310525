@@ -42,20 +42,21 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                      teamName?.includes("U23");
 
   const leagueName = leagueContext?.name?.toLowerCase() || "";
+  const leagueId = leagueContext?.country
   const isFifaClubWorldCup = leagueName.includes("fifa club world cup");
-  
+
   // More specific friendlies detection
   const isFriendliesClub = leagueName.includes("friendlies clubs") || 
                           leagueName.includes("friendlies club") ||
                           leagueName.includes("club friendlies");
-  
+
   // Friendlies International (league ID 10) should be treated as national team competition
   const isFriendliesInternational = leagueName === "friendlies international" ||
                                    leagueName === "international friendlies" ||
                                    (leagueName.includes("friendlies") && 
                                     leagueName.includes("international")) ||
                                    (leagueName === "friendlies" && !isFriendliesClub);
-  
+
   const isUefaEuropaLeague = leagueName.includes("uefa europa league") || 
                             leagueName.includes("europa league");
   const isUefaConferenceLeague = leagueName.includes("uefa europa conference league") || 
@@ -67,6 +68,18 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
   const isUefaNationsLeague = leagueName.includes("uefa nations league") || 
                              leagueName.includes("nations league");
+  // Debug logging for Friendlies International
+  if (leagueName.includes("friendlies")) {
+    console.log("🔍 [MyWorldTeamLogo] Friendlies Detection:", {
+      teamName,
+      leagueName,
+      leagueId,
+      isFriendliesInternational,
+      isFriendliesClub,
+      isActualNationalTeam,
+      isYouthTeam
+    });
+  }
 
   // Use circular flag for national teams in international competitions
   // Exclude club competitions even if teams might have "national" in their names
