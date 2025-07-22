@@ -43,8 +43,15 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
   const leagueName = leagueContext?.name?.toLowerCase() || "";
   const isFifaClubWorldCup = leagueName.includes("fifa club world cup");
-  const isFriendliesClub = leagueName.includes("friendlies clubs");
-  const isFriendliesInternational = leagueName.includes("friendlies") && !leagueName.includes("clubs");
+  
+  // More specific friendlies detection
+  const isFriendliesClub = leagueName.includes("friendlies clubs") || 
+                          leagueName.includes("friendlies club");
+  const isFriendliesInternational = (leagueName.includes("friendlies") && 
+                                   !leagueName.includes("clubs") && 
+                                   !leagueName.includes("club")) ||
+                                   leagueName === "friendlies";
+  
   const isUefaEuropaLeague = leagueName.includes("uefa europa league") || 
                             leagueName.includes("europa league");
   const isUefaConferenceLeague = leagueName.includes("uefa europa conference league") || 
@@ -57,6 +64,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   const isUefaNationsLeague = leagueName.includes("uefa nations league") || 
                              leagueName.includes("nations league");
 
+  // Use circular flag for national teams in international competitions
+  // Exclude club competitions even if teams might have "national" in their names
   const shouldUseCircularFlag = (isActualNationalTeam || isYouthTeam || isFriendliesInternational || isUefaNationsLeague) && 
                               !isFifaClubWorldCup && 
                               !isFriendliesClub && 
