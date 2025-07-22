@@ -426,10 +426,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       score += 20;
     }
 
-    // Check for exact team name matches with partial matching
-    const homeMatches = homeLower.split(' ').filter(word => word.length > 2 && titleLower.includes(word));
-    const awayMatches = awayLower.split(' ').filter(word => word.length > 2 && titleLower.includes(word));
-
     const homePos = titleLower.indexOf(homeLower);
     const awayPos = titleLower.indexOf(awayLower);
 
