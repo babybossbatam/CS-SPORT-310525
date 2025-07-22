@@ -186,7 +186,7 @@ class SelectiveMatchUpdater {
       try {
         // Create abort controller with timeout
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        const timeoutId = setTimeout(() => controller.abort('timeout'), 10000); // 10 second timeout
 
         const response = await fetch('/api/fixtures/selective-updates', {
           method: 'POST',
@@ -223,7 +223,11 @@ class SelectiveMatchUpdater {
 
         // Handle specific error types
         if (error instanceof Error && error.name === 'AbortError') {
-          console.warn(`⏱️ [SelectiveUpdater] Request timeout on attempt ${attempt}/${maxRetries}`);
+          if (error.message === 'timeout') {
+            console.warn(`⏱️ [SelectiveUpdater] Request timeout on attempt ${attempt}/${maxRetries}`);
+          } else {
+            console.warn(`⏱️ [SelectiveUpdater] Request aborted on attempt ${attempt}/${maxRetries} with reason: ${error.message}`);
+          }
         } else if (errorMessage.includes('ERR_TUNNEL_CONNECTION_FAILED') || 
                    errorMessage.includes('Failed to fetch') ||
                    errorMessage.includes('NetworkError')) {
