@@ -1045,10 +1045,10 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     // Enhanced live match detection - exclude finished matches
     const isLiveMatch = !isActuallyFinished && ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(updatedStatus);
     
-    // Check if match data is stale (older than 4 hours for live matches, 24 hours for ended matches)
+    // Check if match data is stale - but don't show stale indicator for finished matches
     const matchDateTime = new Date(initialMatch.fixture.date);
     const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
-    const isStaleData = (isLiveMatch && hoursOld > 4) || (isActuallyFinished && hoursOld > 24);
+    const isStaleData = false; // Remove stale data indicator to avoid confusion
 
     // Debug logging for match updates
     console.log(`🔄 [MatchCard ${matchId}] Update check:`, {
@@ -1065,12 +1065,13 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     const currentGoals = (matchState.goals && (matchState.goals.home !== null || matchState.goals.away !== null)) 
       ? matchState.goals 
       : initialMatch.goals;
-    // Always use the most current status from fixture data
-    const currentMatchStatus = matchState.status?.short || initialMatch.fixture.status.short;
-    const currentStatusObj = matchState.status || initialMatch.fixture.status;
     
-    // For display purposes, ensure finished matches show as finished
-    const displayStatus = isActuallyFinished ? (updatedStatus === "FT" ? "FT" : updatedStatus) : currentMatchStatus;
+    // Prioritize finished status - if match is actually finished, show finished status
+    const currentMatchStatus = isActuallyFinished ? updatedStatus : (matchState.status?.short || initialMatch.fixture.status.short);
+    const currentStatusObj = isActuallyFinished ? { short: updatedStatus, elapsed: null } : (matchState.status || initialMatch.fixture.status);
+    
+    // For display purposes, always show the correct status
+    const displayStatus = currentMatchStatus;
 
     const handleMatchClick = () => {
       if (onMatchClick) {
@@ -1129,7 +1130,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 const status = currentMatchStatus;
                 const elapsed = currentStatusObj.elapsed;
 
-                // Enhanced live status detection with stale data check - but exclude actually finished matches
+                // Show live status only for truly live matches (not finished)
                 if (
                   !isActuallyFinished && [
                     "LIVE",
@@ -1164,11 +1165,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     displayText = "Interrupted";
                   } else {
                     displayText = elapsed ? `${elapsed}'` : "LIVE";
-                  }
-
-                  // Add a subtle indicator if data might be stale, but still show the status
-                  if (isStaleData) {
-                    displayText += " *";
                   }
 
                   return (
