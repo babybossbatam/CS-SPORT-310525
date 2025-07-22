@@ -791,14 +791,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               })()}
                               <div className="ml-auto flex items-center gap-2">
                                
-                                <img
-                                  src={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
+                                <MyWorldTeamLogo
+                                  teamName={event.team?.name || ""}
+                                  teamLogo={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
                                   alt={event.team?.name}
+                                  size="24px"
                                   className="w-6 h-6 rounded-sm border border-gray-200"
-                                  onError={(e) => {
-                                    e.currentTarget.src =
-                                      "/assets/fallback-logo.svg";
-                                  }}
                                 />
                               </div>
                             </div>
@@ -928,14 +926,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               </span>
                                 <div className="ml-auto flex items-center gap-2">
 
-                                  <img
-                                    src={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
+                                  <MyWorldTeamLogo
+                                    teamName={event.team?.name || ""}
+                                    teamLogo={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
                                     alt={event.team?.name}
+                                    size="24px"
                                     className="w-6 h-6"
-                                    onError={(e) => {
-                                      e.currentTarget.src =
-                                        "/assets/fallback-logo.svg";
-                                    }}
                                   />
                                 </div>
                             </div>
@@ -974,14 +970,12 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                               </span>
                               <div className="ml-auto flex items-center gap-2">
 
-                                <img
-                                  src={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
+                                <MyWorldTeamLogo
+                                  teamName={event.team?.name || ""}
+                                  teamLogo={`/api/team-logo/square/${event.team?.id || "fallback"}?size=24`}
                                   alt={event.team?.name}
+                                  size="24px"
                                   className="w-6 h-6"
-                                  onError={(e) => {
-                                    e.currentTarget.src =
-                                      "/assets/fallback-logo.svg";
-                                  }}
                                 />
                               </div>
                             </div>
