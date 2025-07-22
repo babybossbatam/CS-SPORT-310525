@@ -1439,88 +1439,37 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
                   // Upcoming matches - show kick-off time
                   if (status === "NS" || status === "TBD") {
-                    // Enhanced debug logging for specific match and all matches
-                    const debugInfo = {
-                      matchId,
-                      teams: `${homeTeamName} vs ${awayTeamName}`,
-                      originalMatchDate: matchDate,
-                      rawDateObject: new Date(matchDate),
-                      serverTime: new Date().toISOString(),
-                      localTime: new Date().toLocaleString(),
-                      formattedTime: status === "TBD" ? "TBD" : formatMatchTimeWithTimezone(matchDate),
-                      utcMatchDate: new Date(matchDate).toISOString(),
-                      localMatchDate: new Date(matchDate).toLocaleString(),
-                      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                      dateComponents: {
-                        utcYear: new Date(matchDate).getUTCFullYear(),
-                        utcMonth: new Date(matchDate).getUTCMonth() + 1,
-                        utcDay: new Date(matchDate).getUTCDate(),
-                        utcHour: new Date(matchDate).getUTCHours(),
-                        utcMinute: new Date(matchDate).getUTCMinutes(),
-                        localYear: new Date(matchDate).getFullYear(),
-                        localMonth: new Date(matchDate).getMonth() + 1,
-                        localDay: new Date(matchDate).getDate(),
-                        localHour: new Date(matchDate).getHours(),
-                        localMinute: new Date(matchDate).getMinutes()
-                      },
-                      timezoneOffset: new Date().getTimezoneOffset(),
-                      selectedDateForComparison: selectedDate
-                    };
-
-                    console.log(`🕐 [Match Time Debug] Match ID: ${matchId}`, debugInfo);
-
-                    // Special debug for Millonarios vs Deportivo Pasto
-                    if ((homeTeamName.includes("Millonarios") && awayTeamName.includes("Deportivo Pasto")) ||
-                        (homeTeamName.includes("Deportivo Pasto") && awayTeamName.includes("Millonarios"))) {
-                      console.log(`🎯 [SPECIFIC MATCH API STATUS DEBUG] Millonarios vs Deportivo Pasto:`, {
-                        ...debugInfo,
-                        displayedTime: "08:30",
-                        isThisTheMatchYouAreLookingFor: "YES - This is the match showing 08:30",
-
-                        // CRITICAL API STATUS INFORMATION
-                        apiStatus: {
-                          short: status,
-                          long: initialMatch.fixture.status.long,
-                          elapsed: initialMatch.fixture.status.elapsed,
-                          rawStatusFromAPI: JSON.stringify(initialMatch.fixture.status)
-                        },
-
-                        // CURRENT TIME VS MATCH TIME ANALYSIS
-                        timeAnalysis: {
-                          currentServerTime: new Date().toISOString(),
-                          currentLocalTime: new Date().toLocaleString(),
-                          matchUTCTime: matchDate,
-                          matchLocalTime: new Date(matchDate).toLocaleString(),
-                          hoursFromNow: ((new Date(matchDate).getTime() - Date.now()) / (1000 * 60 * 60)).toFixed(2),
-                          isPastTime: new Date(matchDate).getTime() < Date.now(),
-                          shouldBeFinished: (Date.now() - new Date(matchDate).getTime()) > (2 * 60 * 60 * 1000) // More than 2 hours ago
-                        },
-
-                        // MATCH DATA FROM API
-                        rawMatchData: {
-                          fixtureId: initialMatch.fixture.id,
-                          venue: initialMatch.fixture.venue?.name || 'Unknown',
-                          referee: initialMatch.fixture.referee || 'Unknown',
-                          timezone: initialMatch.fixture.timezone || 'Unknown',
-                          homeGoals: initialMatch.goals.home,
-                          awayGoals: initialMatch.goals.away
-                        },
-
-                        serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                        utcTimeString: matchDate,
-                        parsedUTCDate: new Date(matchDate),
-                        whatFormattingFunctionReturns: formatMatchTimeWithTimezone(matchDate)
-                      });
+                    // Check if match should have started already (more than 2 hours ago)
+                    const matchTime = new Date(matchDate);
+                    const now = new Date();
+                    const hoursAgo = (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
+                    
+                    // If match is more than 2 hours overdue, show as postponed/cancelled
+                    if (hoursAgo > 2) {
+                      console.log(`⚠️ [Match Status] Match ${matchId} is ${hoursAgo.toFixed(1)}h overdue - likely postponed/cancelled`);
+                      return (
+                        <div
+                          className="match-time-display text-orange-600"
+                          style={{ fontSize: "0.8em" }}
+                        >
+                          Postponed
+                        </div>
+                      );
                     }
+
+                    // Use simplified local time formatting
+                    const localTime = matchTime.toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    });
 
                     return (
                       <div
                         className="match-time-display"
                         style={{ fontSize: "0.882em" }}
                       >
-                        {status === "TBD"
-                          ? "TBD"
-                          : formatMatchTimeWithTimezone(matchDate)}
+                        {status === "TBD" ? "TBD" : localTime}
                       </div>
                     );
                   }
