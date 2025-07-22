@@ -1134,12 +1134,15 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 const matchDateTime = new Date(matchDate);
                 const hoursOld = (Date.now() - matchDateTime.getTime()) / (1000 * 60 * 60);
                 const isStaleFinishedMatch = (["FT", "AET", "PEN"].includes(status) && hoursOld > 4) || 
-                                             (isActuallyFinished && hoursOld > 4);
+                                             (isActuallyFinished && hoursOld > 4) ||
+                                             (hoursOld > 4 && ["LIVE", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(status));
 
                 // Show live status only for truly live matches (not finished and not stale)
+                // Skip showing elapsed time for stale matches (more than 4 hours old)
                 if (
                   !isActuallyFinished && 
                   !isStaleFinishedMatch &&
+                  hoursOld <= 4 &&
                   [
                     "LIVE",
                     "LIV", 
