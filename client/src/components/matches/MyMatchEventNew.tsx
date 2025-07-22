@@ -421,23 +421,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
   const isDarkTheme = useMemo(() => theme === "dark", [theme]);
   const groupedEvents = useMemo(() => groupEventsByPeriod(events), [events]);
 
-  if (error && showErrors) {
-    return (
-      <Card
-        className={`${className} ${isDarkTheme ? "bg-gray-800 text-white" : "bg-white"}`}
-      >
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2 text-red-500">
-            <AlertCircle className="h-5 w-5" />
-            <span>Error: {error}</span>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   // No need for complex player image loading - using fallback only
-
   const getPlayerImage = useCallback(
     (
       playerId: number | undefined,
@@ -469,6 +453,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       setShowPlayerModal(true);
     }
   };
+
+  // Handle early returns after all hooks are defined
+  if (error && showErrors) {
+    return (
+      <Card
+        className={`${className} ${isDarkTheme ? "bg-gray-800 text-white" : "bg-white"}`}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center gap-2 text-red-500">
+            <AlertCircle className="h-5 w-5" />
+            <span>Error: {error}</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   // Hide component for upcoming matches with no events
   if (events.length === 0 && !isLoading) {
