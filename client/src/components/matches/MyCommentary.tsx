@@ -788,7 +788,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
 
                             {/* Enhanced Player Section */}
                             <div className="flex flex-col gap-3">
-                              <div className="flex items-center gap-2 -ml-3   rounded-md text-xs font-medium bg-stone-200  ">
+                              <div className="flex items-center gap-2 -ml-3    text-xs font-medium bg-stone-200  ">
                                 <MyAvatarInfo
                                   playerId={event.player?.id}
                                   playerName={event.player?.name}
