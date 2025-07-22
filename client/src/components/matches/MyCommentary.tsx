@@ -753,13 +753,17 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                 } else {
                                   return (
                                     <>
+                                      
                                       <img
                                         src="/assets/matchdetaillogo/blue ball.svg"
                                         alt="Goal"
                                         className="w-4 h-4 opacity-90 "
                                       />
-                                      <span >
-                                      <span className="text-lg font-bold text-blue-400">
+                                      <span className="text-green-500 font-bold text-sm tracking-wider">
+                                        Goal
+                                      </span>
+                                     
+                                      <span className="text-lg font-bold text-green-400">
                                         {(() => {
                                           const scoreAfterGoal = calculateScoreAtTime(
                                             event.time.elapsed +
@@ -767,7 +771,7 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                           );
                                           return `${scoreAfterGoal.homeScore} - ${scoreAfterGoal.awayScore}`;
                                         })()}
-                                      </span></span>
+                                     </span>
                                     </>
                                   );
                                 }
