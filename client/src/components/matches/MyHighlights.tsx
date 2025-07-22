@@ -142,6 +142,27 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     return new Date().getFullYear();
   })();
 
+  // Check if this is a CONCACAF competition
+  const isConcacafCompetition = league.toLowerCase().includes('concacaf') || 
+                               league.toLowerCase().includes('gold cup') ||
+                               league.toLowerCase().includes('concacaf');
+
+  // Check if this is a FIFA Club World Cup competition
+  const isFifaClubWorldCup = league.toLowerCase().includes('fifa') && 
+                            league.toLowerCase().includes('club world cup');
+
+  // Check if this is a Brazilian league competition
+  const isBrazilianLeague = league.toLowerCase().includes('brazil') ||
+                           league.toLowerCase().includes('brasileiro') ||
+                           league.toLowerCase().includes('serie a') ||
+                           league.toLowerCase().includes('serie b') ||
+                           league.toLowerCase().includes('copa do brasil') ||
+                           league.toLowerCase().includes('paulista') ||
+                           league.toLowerCase().includes('carioca') ||
+                           league.toLowerCase().includes('mineiro') ||
+                           league.toLowerCase().includes('gaucho') ||
+                           league.toLowerCase().includes('brazil');
+
   // Create highly specific search queries to avoid wrong matches
   const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esoccer -virtual -"fifa 24" -"fifa 25" -gaming -botafogo -psg -"paris saint germain"`.trim();
   const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esports -simulation -mobile -botafogo -psg`.trim();
@@ -192,27 +213,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     matchYear: matchYear,
     isBrazilianLeague
   });
-
-  // Check if this is a CONCACAF competition
-  const isConcacafCompetition = league.toLowerCase().includes('concacaf') || 
-                               league.toLowerCase().includes('gold cup') ||
-                               primarySearchQuery.toLowerCase().includes('concacaf');
-
-  // Check if this is a FIFA Club World Cup competition
-  const isFifaClubWorldCup = league.toLowerCase().includes('fifa') && 
-                            league.toLowerCase().includes('club world cup');
-
-  // Check if this is a Brazilian league competition
-  const isBrazilianLeague = league.toLowerCase().includes('brazil') ||
-                           league.toLowerCase().includes('brasileiro') ||
-                           league.toLowerCase().includes('serie a') ||
-                           league.toLowerCase().includes('serie b') ||
-                           league.toLowerCase().includes('copa do brasil') ||
-                           league.toLowerCase().includes('paulista') ||
-                           league.toLowerCase().includes('carioca') ||
-                           league.toLowerCase().includes('mineiro') ||
-                           league.toLowerCase().includes('gaucho') ||
-                           primarySearchQuery.toLowerCase().includes('brazil');
 
   // Special case for Palmeiras vs Chelsea - use known video
   const isPalmeirasChelsea = (home.toLowerCase().includes('palmeiras') && away.toLowerCase().includes('chelsea')) ||
