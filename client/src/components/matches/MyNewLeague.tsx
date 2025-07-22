@@ -18,13 +18,19 @@ import "../../styles/flasheffect.css";
 
 // Lazy load the team logo component for better performance
 const LazyTeamLogo = lazy(() => Promise.resolve({ 
-  default: ({ teamName, logoUrl, size }: { teamName: string; logoUrl: string; size: string; }) => (
+  default: ({ teamName, logoUrl, size, leagueContext }: { 
+    teamName: string; 
+    logoUrl: string; 
+    size: string;
+    leagueContext?: { name: string; country: string; };
+  }) => (
     <MyWorldTeamLogo
       teamName={teamName}
       teamLogo={logoUrl}
       alt={teamName}
       size={size}
       className="popular-leagues-size"
+      leagueContext={leagueContext}
     />
   )
 }));
@@ -931,13 +937,14 @@ b.fixture.status.elapsed) || 0;
   }, []);
 
   // Lazy loading team logo component with skeleton fallback
-  const TeamLogo = ({ teamName, logoUrl, size }: {
+  const TeamLogo = ({ teamName, logoUrl, size, leagueContext }: {
     teamName: string;
     logoUrl: string;
     size: string;
+    leagueContext?: { name: string; country: string; };
   }) => (
     <Suspense fallback={<Skeleton className={`h-8 w-8 rounded`} />}>
-      <LazyTeamLogo teamName={teamName} logoUrl={logoUrl} size={size} />
+      <LazyTeamLogo teamName={teamName} logoUrl={logoUrl} size={size} leagueContext={leagueContext} />
     </Suspense>
   );
 
@@ -1214,6 +1221,10 @@ b.fixture.status.elapsed) || 0;
                       : "/assets/fallback-logo.svg"
                   }
                   size="34px"
+                  leagueContext={{
+                    name: leagueGroup.league.name,
+                    country: leagueGroup.league.country,
+                  }}
                 />
               </div>
 
@@ -1307,6 +1318,10 @@ b.fixture.status.elapsed) || 0;
                       : "/assets/fallback-logo.svg"
                   }
                   size="34px"
+                  leagueContext={{
+                    name: leagueGroup.league.name,
+                    country: leagueGroup.league.country,
+                  }}
                 />
               </div>
 
