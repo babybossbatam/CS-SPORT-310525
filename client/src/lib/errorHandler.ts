@@ -89,7 +89,9 @@ const categorizeError = (error: any): ErrorCategory => {
       errorStr.includes('unknown runtime error') ||
       errorStr.includes('sendError') ||
       errorStr.includes('riker.replit.dev') ||
-      errorStr.includes('signal is aborted')) {
+      errorStr.includes('signal is aborted') ||
+      errorStr.includes('runtime-error-plugin') ||
+      (error && typeof error === 'object' && error.toString && error.toString().includes('runtime-error-plugin'))) {
     return {
       name: 'replit-dev-environment',
       shouldSuppress: true,
