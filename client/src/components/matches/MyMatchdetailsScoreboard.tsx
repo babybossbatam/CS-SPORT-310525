@@ -12,7 +12,7 @@ import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
 
 // Import unified CSS file
-import "../../../styles/unified-live-components.css";
+import "../../styles/unified-live-components.css";
 
 interface MyMatchdetailsScoreboardProps {
   match?: any;
