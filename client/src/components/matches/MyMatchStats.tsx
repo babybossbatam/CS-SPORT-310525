@@ -145,12 +145,18 @@ const MyMatchStats: React.FC<MatchStatsProps> = ({
   }
 
   if (error || !homeStats || !awayStats) {
+    console.log(`🔍 [MyMatchStats] Stats unavailable - Error: ${error}, HomeStats: ${!!homeStats}, AwayStats: ${!!awayStats}, FixtureId: ${fixtureId}`);
     return (
       <Card className="w-full mt-4">
         <CardContent className="py-8 text-center">
           <p className="text-gray-500">
             {error || 'No statistics available for this match'}
           </p>
+          {process.env.NODE_ENV === 'development' && (
+            <p className="text-xs text-gray-400 mt-2">
+              Debug: Fixture {fixtureId} - Home: {homeTeam?.name}, Away: {awayTeam?.name}
+            </p>
+          )}
         </CardContent>
       </Card>
     );

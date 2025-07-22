@@ -819,7 +819,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             country: {
               name: "Germany",
               code: "DE",
-              flag: "https://media.api-sports.io/flags/de.svg",
+              flag```python
+: "https://media.api-sports.io/flags/de.svg",
             },
           },
           {
@@ -2666,7 +2667,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         } else {
           res.status(404).json({
-            success: false,
+            success:```python
+ false,
             error: "Match not found",
           });
         }
@@ -3344,7 +3346,7 @@ error) {
   app.use('/api/fixtures', selectiveLiveRoutes);
   app.use('/api/fixtures', selectiveUpdatesRoutes);
 
-// Test route for debugging
+# Test route for debugging
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
 });
@@ -3360,13 +3362,13 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
       });
     }
 
-    // Try to fetch from RapidAPI
+    // Try to fetch from RapidAPI using correct API client
     const response = await fetch(
       `https://api-football-v1.p.rapidapi.com/v3/fixtures/statistics?fixture=${fixtureId}`,
       {
         method: 'GET',
         headers: {
-          'X-RapidAPI-Key': process.env.RAPIDAPI_KEY || '',
+          'X-RapidAPI-Key': process.env.RAPID_API_KEY || '',
           'X-RapidAPI-Host': 'api-football-v1.p.rapidapi.com'
         }
       }
