@@ -716,9 +716,9 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                         <img
                                           src="/assets/matchdetaillogo/missed-penalty.svg"
                                           alt="Missed Penalty"
-                                          className="w-5 h-5 opacity-90 flex-shrink-0 animate-pulse"
+                                          className="w-5 h-5 opacity-90 "
                                         />
-                                        <span className="text-red-600 font-bold uppercase text-xs tracking-wider">
+                                        <span className="text-red-600 font-medium text-xs tracking-wider">
                                           Penalty Missed!
                                         </span>
                                       </>
@@ -729,10 +729,10 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                         <img
                                           src="/assets/matchdetaillogo/penalty.svg"
                                           alt="Penalty Goal"
-                                          className="w-5 h-5 opacity-90 flex-shrink-0 animate-bounce"
+                                          className="w-5 h-5 opacity-90 "
                                         />
-                                        <span className="text-green-600 font-bold uppercase text-xs tracking-wider">
-                                          Penalty Goal! 🥅
+                                        <span className="text-green-600 font-medium  text-xs tracking-wider">
+                                          Penalty
                                         </span>
                                       </>
                                     );
@@ -743,10 +743,10 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       <img
                                         src="/assets/matchdetaillogo/soccer-logo.svg"
                                         alt="Own Goal"
-                                        className="w-4 h-4 opacity-90 flex-shrink-0 animate-pulse"
+                                        className="w-4 h-4 opacity-90 "
                                       />
-                                      <span className="text-orange-600 font-bold uppercase text-xs tracking-wider">
-                                        Own Goal 😬
+                                      <span className="text-red-600 font-medium text-xs tracking-wider">
+                                        Own Goal
                                       </span>
                                     </>
                                   );
@@ -756,10 +756,10 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       <img
                                         src="/assets/matchdetaillogo/blue ball.svg"
                                         alt="Goal"
-                                        className="w-4 h-4 opacity-90 flex-shrink-0"
+                                        className="w-4 h-4 opacity-90 "
                                       />
                                       <span >
-                                      <span className="text-lg font-bold text-green-700">
+                                      <span className="text-lg font-bold text-blue-400">
                                         {(() => {
                                           const scoreAfterGoal = calculateScoreAtTime(
                                             event.time.elapsed +
@@ -876,29 +876,28 @@ const MyCommentary: React.FC<MyCommentaryProps> = ({
                                       alt="Assist"
                                       className="w-4 h-4 opacity-80 flex-shrink-0"
                                     />
-                                    <span className="text-blue-600 font-bold uppercase text-xs tracking-wider">
-                                      Assist Provider 🎯
+                                    <span className="text-gray-600 font-bold  text-xs tracking-wider">
+                                      Assist 
                                     </span>
                                   </div>
 
-                                  <div className="flex items-center gap-2 -ml-3 py-2 px-3 rounded-md text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-indigo-400">
+                                  <div className="flex items-center gap-2 -ml-3 py-2 px-3  text-xs font-medium bg-gradient-to-r from-blue-50 to-indigo-50  border-indigo-400">
                                     <MyAvatarInfo
                                       playerId={event.assist?.id}
                                       playerName={event.assist?.name}
                                       size="md-commentary"
-                                      className="border-2 border-indigo-400 shadow-lg flex-shrink-0"
+                                      className="border-indigo-400 shadow-lg flex-shrink-0"
                                     />
                                     <div className="flex flex-col">
-                                      <span className="text-indigo-700 font-bold text-sm">
+                                      <span className="text-gray-700 font-bold text-sm">
                                         {event.assist.name}
                                       </span>
-                                      <span className="text-indigo-500 text-xs">
+                                      <span className="text-gray-500 text-xs">
+                                        {event.team?.name}
                                         Perfect setup play
                                       </span>
                                     </div>
-                                    <span className="ml-auto text-xs bg-indigo-100 text-indigo-800 px-2 py-1 rounded-full">
-                                      Assist
-                                    </span>
+                                    
                                   </div>
 
                                   <div className="text-sm text-indigo-700 leading-relaxed -ml-3 bg-indigo-50 p-3 rounded-md border-l-4 border-indigo-300">
