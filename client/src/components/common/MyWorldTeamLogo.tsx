@@ -43,7 +43,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                      teamName?.includes("U23");
 
   // Specific teams that should use club logos instead of national/circular flags
-  const forceClubLogo = teamName === "ADH Brazil" || teamName === "Valencia";
+  const isforceClubLogo = teamName === "ADH Brazil" || teamName === "Valencia";
 
   const leagueName = leagueContext?.name?.toLowerCase() || "";
   const leagueId = leagueContext?.country
@@ -95,7 +95,7 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                               !isUefaConferenceLeague && 
                               !isUefaChampionsLeague && 
                               !isConmebolSudamericana &&
-                              !forceClubLogo;
+                              !isforceClubLogo;
 
   // Simple inline styles without memoization
   const containerStyle = {
