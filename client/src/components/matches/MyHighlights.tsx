@@ -228,6 +228,18 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       score -= 100; // Even heavier penalty to ensure esports content is filtered out
     }
 
+    // Heavy penalty for preview/prediction content instead of actual highlights
+    const previewTerms = [
+      'match preview', 'preview', 'prediction', 'betting tips', 'odds', 'analysis preview',
+      'pre-match', 'pre match', 'upcoming', 'how to watch', 'where to watch',
+      'team news', 'injury report', 'predicted lineup', 'lineups prediction'
+    ];
+
+    // Heavy penalty for preview content
+    if (previewTerms.some(term => titleLower.includes(term))) {
+      score -= 50; // Heavy penalty for preview content
+    }
+
     // Bonus for real football indicators
     const realFootballTerms = [
       'official', 'stadium', 'live', 'match day', 'full time', 'half time',
@@ -785,12 +797,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       // Set a timer to check if video is actually playable
       const timeoutId = setTimeout(() => {
         // If we still have a current source but it might be showing "Video unavailable"
-        // we should hide the component after a reasonable wait time
+        // try the next source instead of hiding
         if (currentSource.type === 'youtube') {
-          console.warn(`🎬 [Highlights] YouTube video timeout - may be unavailable: ${currentSource.title}`);
-
+          console.warn(`🎬 [Highlights] YouTube video timeout - trying next source: ${currentSource.title}`);
+          setSourceIndex(prev => prev + 1);
         }
-      }, 10000); // 10 second timeout for video availability check
+      }, 8000); // 8 second timeout for video availability check
 
       return () => clearTimeout(timeoutId);
     }
@@ -812,17 +824,12 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     tryNextSource();
   };
 
-  // Hide the card entirely when no video is available, not loading, iframe error, or video unavailable
-  if ((error && !loading) || iframeError) {
+  // Only hide if there's a definitive error AND we've tried all sources
+  if (error && !loading && sourceIndex >= videoSources.length) {
     return null;
   }
 
-  // Additional check: if we have a current source but it's been loading for too long
-  // or shows signs of being unavailable, hide the component
-  if (currentSource && !loading && !error) {
-    // For YouTube specifically, if the embed shows "Video unavailable", we should hide
-    // This is detected by the timeout above or manual user feedback
-  }
+  // Don't hide on iframe errors - instead show retry option
 
   return (
     <Card className="w-full h-500 shadow-sm border-gray-200">
@@ -917,6 +924,21 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                 }
               }}
             />
+          </div>
+        ) : error || iframeError ? (
+          <div className="w-full h-64 flex items-center justify-center bg-gray-50">
+            <div className="text-center">
+              <AlertCircle className="w-8 h-8 mx-auto mb-2 text-orange-500" />
+              <p className="text-sm text-gray-600 mb-3">
+                {iframeError ? 'Video failed to load' : error}
+              </p>
+              <button
+                onClick={handleRetry}
+                className="px-4 py-2 bg-blue-500 text-white text-sm rounded hover:bg-blue-600 transition-colors"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
         ) : (
           <div className="w-full h-64 flex items-center justify-center bg-gray-50">
