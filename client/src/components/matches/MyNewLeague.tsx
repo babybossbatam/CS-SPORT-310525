@@ -1398,10 +1398,40 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     // Special debug for Millonarios vs Deportivo Pasto
                     if ((homeTeamName.includes("Millonarios") && awayTeamName.includes("Deportivo Pasto")) ||
                         (homeTeamName.includes("Deportivo Pasto") && awayTeamName.includes("Millonarios"))) {
-                      console.log(`🎯 [SPECIFIC MATCH DEBUG] Millonarios vs Deportivo Pasto:`, {
+                      console.log(`🎯 [SPECIFIC MATCH API STATUS DEBUG] Millonarios vs Deportivo Pasto:`, {
                         ...debugInfo,
                         displayedTime: "08:30",
                         isThisTheMatchYouAreLookingFor: "YES - This is the match showing 08:30",
+                        
+                        // CRITICAL API STATUS INFORMATION
+                        apiStatus: {
+                          short: status,
+                          long: initialMatch.fixture.status.long,
+                          elapsed: initialMatch.fixture.status.elapsed,
+                          rawStatusFromAPI: JSON.stringify(initialMatch.fixture.status)
+                        },
+                        
+                        // CURRENT TIME VS MATCH TIME ANALYSIS
+                        timeAnalysis: {
+                          currentServerTime: new Date().toISOString(),
+                          currentLocalTime: new Date().toLocaleString(),
+                          matchUTCTime: matchDate,
+                          matchLocalTime: new Date(matchDate).toLocaleString(),
+                          hoursFromNow: ((new Date(matchDate).getTime() - Date.now()) / (1000 * 60 * 60)).toFixed(2),
+                          isPastTime: new Date(matchDate).getTime() < Date.now(),
+                          shouldBeFinished: (Date.now() - new Date(matchDate).getTime()) > (2 * 60 * 60 * 1000) // More than 2 hours ago
+                        },
+                        
+                        // MATCH DATA FROM API
+                        rawMatchData: {
+                          fixtureId: initialMatch.fixture.id,
+                          venue: initialMatch.fixture.venue?.name || 'Unknown',
+                          referee: initialMatch.fixture.referee || 'Unknown',
+                          timezone: initialMatch.fixture.timezone || 'Unknown',
+                          homeGoals: initialMatch.goals.home,
+                          awayGoals: initialMatch.goals.away
+                        },
+                        
                         serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                         utcTimeString: matchDate,
                         parsedUTCDate: new Date(matchDate),
