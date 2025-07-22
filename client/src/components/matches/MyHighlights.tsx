@@ -164,9 +164,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
                            league.toLowerCase().includes('brazil');
 
   // Create highly specific search queries to avoid wrong matches
-  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esoccer -virtual -"fifa 24" -"fifa 25" -gaming -botafogo -psg -"paris saint germain"`.trim();
-  const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esports -simulation -mobile -botafogo -psg`.trim();
-  const tertiarySearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} -cyber -ebet -"online battle" -botafogo -psg`.trim();
+  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esoccer -virtual -"fifa 24" -"fifa 25" -gaming -palmeiras -psg -"paris saint germain"`.trim();
+  const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esports -simulation -mobile -palmeiras -psg`.trim();
+  const tertiarySearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} -cyber -ebet -"online battle" -palmeiras -psg`.trim();
 
   // Very specific query with league context to avoid confusion
   const leagueSpecificQuery = `"${rawHome}" vs "${rawAway}" "${league}" ${matchYear} highlights -esports -virtual -gaming -botafogo -psg`.trim();
@@ -176,8 +176,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   // Additional exclusions for Brazilian league confusion
   const brazilianSafeQuery = isBrazilianLeague ? 
-    `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} highlights -botafogo -psg -"paris saint germain" -"inter miami" -esports`.trim() :
-    `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -botafogo -psg -brasileiro -esports`.trim();
+    `"${rawHome}" vs "${rawAway}" brasileiro ${matchYear} highlights -palmeiras -psg -"paris saint germain" -"inter miami" -esports`.trim() :
+    `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -palmeiras -psg -brasileiro -esports`.trim();
 
   const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer -app -botafogo -psg`.trim();
 
@@ -208,15 +208,23 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       exactTeamMatchQuery,
       brazilianSafeQuery,
     },
+    specialCases: {
+      isPalmeirasChelsea,
+      isUsaMexico2025,
+      isPsgRealMadrid2025,
+      isCRBCoritiba,
+    },
     expectedOrder: `${home} vs ${away}`,
     league: league,
     matchYear: matchYear,
     isBrazilianLeague
   });
 
-  // Special case for Palmeiras vs Chelsea - use known video
-  const isPalmeirasChelsea = (home.toLowerCase().includes('palmeiras') && away.toLowerCase().includes('chelsea')) ||
-                            (home.toLowerCase().includes('chelsea') && away.toLowerCase().includes('palmeiras'));
+  // Special case for Palmeiras vs Chelsea - use known video (only for exact match)
+  const isPalmeirasChelsea = ((home.toLowerCase() === 'palmeiras' || home.toLowerCase().includes('palmeiras')) && 
+                             (away.toLowerCase() === 'chelsea' || away.toLowerCase().includes('chelsea'))) ||
+                            ((home.toLowerCase() === 'chelsea' || home.toLowerCase().includes('chelsea')) && 
+                             (away.toLowerCase() === 'palmeiras' || away.toLowerCase().includes('palmeiras')));
 
   // Special case for USA vs Mexico 2025 Gold Cup - use known video
   const isUsaMexico2025 = (home.toLowerCase().includes('usa') && away.toLowerCase().includes('mexico')) ||
