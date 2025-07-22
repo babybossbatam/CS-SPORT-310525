@@ -44,16 +44,16 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
           "BT"
         ].includes(matchStatus);
 
-        // Check if match is ended
+        // Check if match is ended by status
         const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(matchStatus);
 
-        // For "2H" status, also check if fixture status indicates it's finished
+        // Check if fixture indicates it's finished
         const fixtureFinished = match.fixture?.status?.long === "Match Finished" || 
                                match.fixture?.status?.short === "FT";
 
-        // Final determination: if fixture is finished, treat as ended regardless of current status
+        // Final determination: if fixture is finished OR status indicates ended, treat as ended
         const finalIsEnded = isEnded || fixtureFinished;
-        const finalIsLive = actuallyLive && !fixtureFinished;
+        const finalIsLive = actuallyLive && !fixtureFinished && !isEnded;
 
         console.log(`🔍 [MyMatchTabCard] Match ${match.fixture?.id} status detection:`, {
           matchStatus,
