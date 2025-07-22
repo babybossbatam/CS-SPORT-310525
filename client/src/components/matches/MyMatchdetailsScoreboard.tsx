@@ -22,7 +22,7 @@ const pulseStyles = `
     border-radius: 4px;
     animation: smoothPulse 2s infinite ease-in-out;
   }
-  
+
   .status-halftime {
     background-color: #f97316;
     color: white;
@@ -32,7 +32,7 @@ const pulseStyles = `
     border-radius: 4px;
     animation: smoothPulse 2s infinite ease-in-out;
   }
-  
+
   @keyframes smoothPulse {
     0%, 100% {
       opacity: 1;
@@ -62,7 +62,7 @@ const MyMatchdetailsScoreboard = ({
   activeTab: externalActiveTab,
   onTabChange,
 }: MyMatchdetailsScoreboardProps) => {
-  
+
   // Extract team data for passing to child components like MyHighlights
   const getTeamData = () => {
     return {
@@ -656,6 +656,14 @@ const MyMatchdetailsScoreboard = ({
           >
             Head to Head
           </button>
+          {activeTab === 'highlights' && (
+              <MyHighlights
+                match={displayMatch}
+                matchStatus={liveStatus || displayMatch?.fixture?.status?.short}
+                homeTeamData={getTeamData().homeTeamData}
+                awayTeamData={getTeamData().awayTeamData}
+              />
+            )}
         </div>
       </Card>
 

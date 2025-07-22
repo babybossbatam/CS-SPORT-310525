@@ -65,11 +65,18 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   const cleanTeamName = (name: string): string => {
     if (!name || name === 'Home Team' || name === 'Away Team') return name;
 
+    // For Brazilian teams, be more conservative with cleaning to avoid confusion
+    // between similar names like Atletico-MG, Atletico-PR, etc.
+    if (name.toLowerCase().includes('atletico') || name.toLowerCase().includes('atlético')) {
+      // Keep the full name for Atletico teams to distinguish between different clubs
+      return name.trim();
+    }
+
     // Remove common suffixes that might confuse search
     return name
       .replace(/\s+(FC|CF|SC|AC|BK|SK|FK|GK|NK|RK|VK|JK|LK|MK|PK|TK|UK|WK|YK|ZK)$/i, '')
       .replace(/\s+(Football Club|Soccer Club|Athletic Club|Club de Fútbol|Club Deportivo)$/i, '')
-      .replace(/\s+(United|City|Town|Rovers|Wanderers|Athletic|Sporting|Real|Club)$/i, '')
+      .replace(/\s+(United|City|Town|Rovers|Wanderers|Sporting|Real|Club)$/i, '')
       .replace(/\s+(Academy|Youth|U\d+|Under\d+|Reserves|II|III|IV|V|VI|VII|VIII|IX|X)$/i, '')
       .trim();
   };
@@ -121,7 +128,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   })();
 
   // Create more targeted search queries with better team name handling
-  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esoccer -virtual -"fifa 24" -"fifa 25" -gaming`.trim();
+  const primarySearchQuery = `"${rawHome}" vs "${rawAway}" highlights ${matchYear} -esoccer -virtual -"fifa 24" -"fifa 25" -gaming -"athletico-pr" -"atletico-pr"`.trim();
   const secondarySearchQuery = `"${home}" vs "${away}" highlights ${matchYear} -esports -simulation -mobile`.trim();
   const tertiarySearchQuery = `${rawHome} ${rawAway} highlights ${matchYear} -cyber -ebet -"online battle"`.trim();
   const fallbackSearchQuery = `${home} vs ${away} highlights -virtual -gaming -esoccer -app`.trim();
@@ -131,6 +138,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
   // Enhanced search query with competition context
   const competitionQuery = `${rawHome} vs ${rawAway} ${league} ${matchYear} highlights -esports -virtual -gaming`.trim();
+
+  // Special query for exact team matching (for cases like Atletico-MG vs Atletico-PR confusion)
+  const exactTeamMatchQuery = `"${rawHome}" "${rawAway}" ${matchYear} highlights -"athletico" -"atletico-pr" -"athletico-pr"`.trim();
 
   // Debug logging to verify correct team names and order
   console.log(`🎬 [Highlights] Match data extraction with correct home/away order:`, {
@@ -247,6 +257,24 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       score -= 100; // Even heavier penalty to ensure esports content is filtered out
     }
 
+    // Special validation for Brazilian teams with similar names (like Atletico-MG vs Atletico-PR)
+    if (homeLower.includes('atletico') || awayLower.includes('atletico')) {
+      // Check for wrong Atletico team (e.g., searching for Atletico-MG but finding Atletico-PR)
+      const wrongAtleticoTerms = ['athletico-pr', 'atletico-pr', 'atletico paranaense'];
+      if (homeLower.includes('atletico-mg') || homeLower.includes('atlético-mg')) {
+        // If we're looking for Atletico-MG, heavily penalize Atletico-PR videos
+        if (wrongAtleticoTerms.some(term => titleLower.includes(term))) {
+          score -= 200; // Very heavy penalty for wrong Atletico team
+        }
+      }
+      if (awayLower.includes('atletico-mg') || awayLower.includes('atlético-mg')) {
+        // If we're looking for Atletico-MG, heavily penalize Atletico-PR videos
+        if (wrongAtleticoTerms.some(term => titleLower.includes(term))) {
+          score -= 200; // Very heavy penalty for wrong Atletico team
+        }
+      }
+    }
+
     // Bonus for real football indicators
     const realFootballTerms = [
       'official', 'stadium', 'live', 'match day', 'full time', 'half time',
@@ -269,6 +297,14 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
     const homePos = titleLower.indexOf(homeLower);
     const awayPos = titleLower.indexOf(awayLower);
+
+    // Extra bonus for exact full team name matches (helps with similar team names)
+    const exactHomeMatch = titleLower.includes(homeLower);
+    const exactAwayMatch = titleLower.includes(awayLower);
+    
+    if (exactHomeMatch && exactAwayMatch) {
+      score += 50; // Big bonus for exact matches of both team names
+    }
 
     if (homePos !== -1 && awayPos !== -1) {
       // Both teams found exactly
@@ -438,8 +474,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       type: 'youtube' as const,
       searchFn: async () => {
         const concacafChannelId = 'UCqn7r-so0mBLaJTtTms9dAQ';
-        // Try multiple search queries for better match accuracy
-        const queries = [primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
+        // Try multiple search queries for better match accuracy, including exact team matching
+        const queries = [exactTeamMatchQuery, primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
         let data;
 
         for (const query of queries) {
@@ -483,8 +519,10 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       searchFn: async () => {
         const brazilianChannelId = 'UCw5-xj3AKqEizC7MvHaIPqA';
 
-        // Create Brazil-specific search queries optimized for this channel
+        // Create Brazil-specific search queries optimized for this channel with exact team matching
         const brazilQueries = [
+          `"${rawHome}" vs "${rawAway}" highlights ${matchYear}`,
+          `"${rawHome}" x "${rawAway}" melhores momentos ${matchYear}`,
           `${home} vs ${away} highlights ${matchYear}`,
           `${home} x ${away} melhores momentos ${matchYear}`,
           `${home} ${away} gols highlights ${matchYear}`,
@@ -632,8 +670,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       name: 'YouTube',
       type: 'youtube' as const,
       searchFn: async () => {
-        // Try multiple search queries in order of specificity, including exact order
-        const queries = [exactOrderQuery, primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
+        // Try multiple search queries in order of specificity, prioritizing exact team matching
+        const queries = [exactTeamMatchQuery, exactOrderQuery, primarySearchQuery, secondarySearchQuery, tertiarySearchQuery];
 
         for (const query of queries) {
           try {
