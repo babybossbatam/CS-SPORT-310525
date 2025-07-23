@@ -952,16 +952,57 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     }
   });
 
-  // Function to categorize matches by date relative to selected date
+  // Function to categorize matches by date relative to selected date with kick-off time logic
   const getDateCategory = useCallback((fixtureDate: string, selectedDate: string) => {
-    // Get the fixture's UTC date (YYYY-MM-DD)
+    // Get the fixture's UTC date (YYYY-MM-DD) and time
     const fixtureUTCDate = fixtureDate.substring(0, 10);
+    const fixtureDateTime = new Date(fixtureDate);
+    const currentTime = new Date();
     
     // Get today, tomorrow, and yesterday in UTC
     const today = new Date().toISOString().substring(0, 10);
     const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
     
+    // Enhanced logic with kick-off time consideration
+    console.log(`🕐 [DateCategory] Analyzing fixture:`, {
+      fixtureDate,
+      fixtureUTCDate,
+      selectedDate,
+      kickOffTime: fixtureDateTime.toISOString(),
+      currentTime: currentTime.toISOString(),
+      isKickOffFuture: fixtureDateTime > currentTime,
+    });
+
+    // Case 1: fixture date > selected date AND kick off time > current time
+    // → Tomorrow or future date
+    if (fixtureUTCDate > selectedDate && fixtureDateTime > currentTime) {
+      console.log(`📅 [DateCategory] Future match: ${fixtureUTCDate} > ${selectedDate}`);
+      return fixtureUTCDate === tomorrow ? 'tomorrow' : 'other';
+    }
+
+    // Case 2: fixture date < selected date AND kick off time < current time
+    // → Yesterday or past date
+    if (fixtureUTCDate < selectedDate && fixtureDateTime < currentTime) {
+      console.log(`📅 [DateCategory] Past match: ${fixtureUTCDate} < ${selectedDate}`);
+      return fixtureUTCDate === yesterday ? 'yesterday' : 'other';
+    }
+
+    // Case 3: fixture date === selected date
+    if (fixtureUTCDate === selectedDate) {
+      // Case 3a: kick off time > current time → Today's upcoming matches
+      if (fixtureDateTime > currentTime) {
+        console.log(`📅 [DateCategory] Today's upcoming match`);
+        return 'today';
+      }
+      // Case 3b: kick off time <= current time → Today's ongoing/ended matches
+      else {
+        console.log(`📅 [DateCategory] Today's ongoing/ended match`);
+        return 'today';
+      }
+    }
+
+    // Fallback logic for edge cases
     // If selected date is today, use real today/tomorrow/yesterday
     if (selectedDate === today) {
       if (fixtureUTCDate === today) return 'today';
