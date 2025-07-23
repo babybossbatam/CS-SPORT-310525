@@ -259,7 +259,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // NO CACHING for live fixtures - they need real-time updates
         console.log(
-          `🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`,
+          `🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`
         );
 
         // Set a flag on each fixture to indicate it's from live endpoint
@@ -277,7 +277,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         if (endedMatches.length > 0) {
           console.log(
-            `💾 [LIVE API] Caching ${endedMatches.length} ended matches from live response`,
+            `💾 [LIVE API] Caching ${endedMatches.length} ended matches from live response`
           );
           for (const fixture of endedMatches) {
             try {
@@ -309,7 +309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // If API fails, return empty array for live fixtures - no stale cache for live matches
         console.log(
-          `❌ [LIVE API] RapidAPI failed for live fixtures - returning empty array (no stale cache for live data)`,
+          `❌ [LIVE API] RapidAPI failed for live fixtures - returning empty array (no stale cache for live data)`
         );
         return res.json([]);
       }
@@ -2668,7 +2668,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } else {
           res.status(404).json({
             success: false,
-            error: "Match not found",
+            ```text
+error: "Match not found",
           });
         }
       } catch (
@@ -2764,7 +2765,7 @@ error) {
 
         // NO CACHING for live fixtures - they need real-time updates
         console.log(
-          `🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`,
+          `🔴 [LIVE API] Returning ${fixtures.length} fresh live fixtures (bypassing cache)`
         );
 
         // Set a flag on each fixture to indicate it's from live endpoint
@@ -2782,7 +2783,7 @@ error) {
 
         if (endedMatches.length > 0) {
           console.log(
-            `💾 [LIVE API] Caching ${endedMatches.length} ended matches from live response`,
+            `💾 [LIVE API] Caching ${endedMatches.length} ended matches from live response`
           );
           for (const fixture of endedMatches) {
             try {
@@ -2814,7 +2815,7 @@ error) {
 
         // If API fails, return empty array for live fixtures - no stale cache for live matches
         console.log(
-          `❌ [LIVE API] RapidAPI failed for live fixtures - returning empty array (no stale cache for live data)`,
+          `❌ [LIVE API] RapidAPI failed for live fixtures - returning empty array (no stale cache for live data)`
         );
         return res.json([]);
       }
