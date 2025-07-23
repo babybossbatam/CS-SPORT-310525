@@ -2176,136 +2176,137 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           return 0;
         })
         .map((leagueGroup) => {
-                return (
+          console.log(`🏆 [MyNewLeague] Rendering league ${leagueGroup.league.id}: ${leagueGroup.league.name} with ${leagueGroup.matches.length} matches`);
+          
+          return (
             <Card
               key={`mynewleague-${leagueGroup.league.id}`}
               className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing"
             >
-              {/* League Header - Now clickable and collapsible */}
-              {!timeFilterActive && (
-                <button
-                  onClick={() => toggleLeague(leagueGroup.league.id)}
-                  className="w-full flex items-center gap-2 p-2 bg-white border-b border-gray-200 transition-colors cursor-pointer group hover:bg-gray-50"
-                >
+              {/* League Header - Always visible and clickable */}
+              <button
+                onClick={() => toggleLeague(leagueGroup.league.id)}
+                className="w-full flex items-center gap-2 p-2 bg-white border-b border-gray-200 transition-colors cursor-pointer group hover:bg-gray-50"
+              >
                   {/* League Star Toggle Button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleStarMatch(leagueGroup.league.id);
-                    }}
-                    className="transition-colors"
-                    title={`${starredMatches.has(leagueGroup.league.id) ? "Remove from" : "Add to"} favorites`}
-                  >
-                    <Star
-                      className={`h-5 w-5 transition-all ${
-                        starredMatches.has(leagueGroup.league.id)
-                          ? "text-green-500 fill-green-500"
-                          : "text-green-300"
-                      }`}
-                    />
-                  </button>
-
-                  <img
-                    src={leagueGroup.league.logo || "/assets/fallback-logo.svg"}
-                    alt={leagueGroup.league.name || "Unknown League"}
-                    className="w-6 h-6 object-contain rounded-full"
-                    style={{ backgroundColor: "transparent" }}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        "/assets/fallback-logo.svg";
-                    }}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleStarMatch(leagueGroup.league.id);
+                  }}
+                  className="transition-colors"
+                  title={`${starredMatches.has(leagueGroup.league.id) ? "Remove from" : "Add to"} favorites`}
+                >
+                  <Star
+                    className={`h-5 w-5 transition-all ${
+                      starredMatches.has(leagueGroup.league.id)
+                        ? "text-green-500 fill-green-500"
+                        : "text-green-300"
+                    }`}
                   />
-                  <div className="flex flex-col flex-1 text-left">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="font-semibold text-gray-800 group-hover:underline transition-all duration-200"
-                        style={{
-                          fontFamily:
-                            "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                          fontSize: "13.3px",
-                        }}
-                      >
-                        {safeSubstring(leagueGroup.league.name, 0) ||
-                          "Unknown League"}
-                      </span>
+                </button>
 
-                      {(() => {
-                        const liveMatchesInLeague = leagueGroup.matches.filter(
-                          (match: any) => {
-                            const status = match.fixture.status.short;
-                            const isActuallyFinished = [
-                              "FT",
-                              "AET",
-                              "PEN",
-                              "AWD",
-                              "WO",
-                              "ABD",
-                              "CANC",
-                              "SUSP",
-                            ].includes(status);
-                            const isLiveStatus = [
-                              "LIVE",
-                              "1H",
-                              "HT",
-                              "2H",
-                              "ET",
-                              "BT",
-                              "P",
-                              "INT",
-                            ].includes(status);
-
-                            // Check if match is stale (more than 4 hours old)
-                            const matchDate = new Date(match.fixture.date);
-                            const hoursOld =
-                              (Date.now() - matchDate.getTime()) /
-                              (1000 * 60 * 60);
-                            const isStale = hoursOld > 4;
-
-                            // Only consider it live if it has live status AND is not finished AND is not stale
-                            return (
-                              isLiveStatus && !isActuallyFinished && !isStale
-                            );
-                          },
-                        ).length;
-
-                        if (liveMatchesInLeague > 0) {
-                          return (
-                            <span
-                              className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold"
-                              style={{
-                                minWidth: "50px",
-                                textAlign: "center",
-                                animation: "none",
-                                transition: "none",
-                              }}
-                            >
-                              {liveMatchesInLeague} LIVE
-                            </span>
-                          );
-                        }
-                        return null;
-                      })()}
-                    </div>
+                <img
+                  src={leagueGroup.league.logo || "/assets/fallback-logo.svg"}
+                  alt={leagueGroup.league.name || "Unknown League"}
+                  className="w-6 h-6 object-contain rounded-full"
+                  style={{ backgroundColor: "transparent" }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src =
+                      "/assets/fallback-logo.svg";
+                  }}
+                />
+                <div className="flex flex-col flex-1 text-left">
+                  <div className="flex items-center gap-2">
                     <span
-                      className="text-xs text-gray-600"
+                      className="font-semibold text-gray-800 group-hover:underline transition-all duration-200"
                       style={{
                         fontFamily:
                           "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-                        fontSize: "12px",
+                        fontSize: "13.3px",
                       }}
                     >
-                      {leagueGroup.league.country || "Unknown Country"}
+                      {safeSubstring(leagueGroup.league.name, 0) ||
+                        "Unknown League"}
                     </span>
-                  </div>
-                  <div className="flex gap-2 items-center"></div>
-                </button>
-              )}
 
-              {/* Matches - Show when league is expanded */}
+                    {(() => {
+                      const liveMatchesInLeague = leagueGroup.matches.filter(
+                        (match: any) => {
+                          const status = match.fixture.status.short;
+                          const isActuallyFinished = [
+                            "FT",
+                            "AET",
+                            "PEN",
+                            "AWD",
+                            "WO",
+                            "ABD",
+                            "CANC",
+                            "SUSP",
+                          ].includes(status);
+                          const isLiveStatus = [
+                            "LIVE",
+                            "1H",
+                            "HT",
+                            "2H",
+                            "ET",
+                            "BT",
+                            "P",
+                            "INT",
+                          ].includes(status);
+
+                          // Check if match is stale (more than 4 hours old)
+                          const matchDate = new Date(match.fixture.date);
+                          const hoursOld =
+                            (Date.now() - matchDate.getTime()) /
+                            (1000 * 60 * 60);
+                          const isStale = hoursOld > 4;
+
+                          // Only consider it live if it has live status AND is not finished AND is not stale
+                          return (
+                            isLiveStatus && !isActuallyFinished && !isStale
+                          );
+                        },
+                      ).length;
+
+                      if (liveMatchesInLeague > 0) {
+                        return (
+                          <span
+                            className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-semibold"
+                            style={{
+                              minWidth: "50px",
+                              textAlign: "center",
+                              animation: "none",
+                              transition: "none",
+                            }}
+                          >
+                            {liveMatchesInLeague} LIVE
+                          </span>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                  <span
+                    className="text-xs text-gray-600"
+                    style={{
+                      fontFamily:
+                        "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {leagueGroup.league.country || "Unknown Country"}
+                  </span>
+                </div>
+                <div className="flex gap-2 items-center"></div>
+              </button>
+
+              {/* Matches - Show when league is expanded or when time filter is active */}
               {(timeFilterActive ||
                 expandedLeagues.has(`league-${leagueGroup.league.id}`)) && (
                 <div className="match-cards-wrapper">
                   {leagueGroup.matches.map((match: any) => {
+                    console.log(`⚽ [MyNewLeague] Rendering match in league ${leagueGroup.league.id}: ${match.teams.home.name} vs ${match.teams.away.name}`);
                     const matchId = match.fixture.id;
                     const isHalftimeFlash = halftimeFlashMatches.has(matchId);
                     const isFulltimeFlash = fulltimeFlashMatches.has(matchId);
