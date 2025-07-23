@@ -1705,17 +1705,36 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                       "SUSP",
                     ].includes(status)
                   ) {
-                    return (
-                      <div className="match-score-display">
-                        <span className="score-number">
-                          {currentGoals.home ?? 0}
-                        </span>
-                        <span className="score-separator">-</span>
-                        <span className="score-number">
-                          {currentGoals.away ?? 0}
-                        </span>
-                      </div>
-                    );
+                    // Ensure we have valid score data
+                    const hasValidScores = 
+                      currentGoals.home !== null && 
+                      currentGoals.away !== null && 
+                      !isNaN(Number(currentGoals.home)) && 
+                      !isNaN(Number(currentGoals.away));
+
+                    if (hasValidScores) {
+                      return (
+                        <div className="match-score-display">
+                          <span className="score-number">
+                            {currentGoals.home}
+                          </span>
+                          <span className="score-separator">-</span>
+                          <span className="score-number">
+                            {currentGoals.away}
+                          </span>
+                        </div>
+                      );
+                    } else {
+                      // If no valid scores, show that it's ended
+                      return (
+                        <div
+                          className="match-time-display"
+                          style={{ fontSize: "0.882em" }}
+                        >
+                          Ended
+                        </div>
+                      );
+                    }
                   }
 
                   // Upcoming matches - show kick-off time
@@ -1734,19 +1753,22 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     );
                   }
 
-                  // Fallback - prioritize showing scores if available
-                  if (
-                    currentGoals.home !== null ||
-                    currentGoals.away !== null
-                  ) {
+                  // Fallback - prioritize showing scores if available and valid
+                  const hasValidScores = 
+                    currentGoals.home !== null && 
+                    currentGoals.away !== null && 
+                    !isNaN(Number(currentGoals.home)) && 
+                    !isNaN(Number(currentGoals.away));
+
+                  if (hasValidScores) {
                     return (
                       <div className="match-score-display">
                         <span className="score-number">
-                          {currentGoals.home ?? 0}
+                          {currentGoals.home}
                         </span>
                         <span className="score-separator">-</span>
                         <span className="score-number">
-                          {currentGoals.away ?? 0}
+                          {currentGoals.away}
                         </span>
                       </div>
                     );
