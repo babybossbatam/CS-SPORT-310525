@@ -156,8 +156,8 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
 
     // Special case for Valencia (COTIF tournament)
     if (teamName.toLowerCase().includes("valencia")) {
-      // Use the uploaded Valencia flag image
-      return "/attached_assets/valencia-flag.png";
+      // Use the specific Valencia logo for COTIF tournament
+      return "/assets/matchdetaillogo/valencia-removebg-preview.png";
     }
 
     // Try to find a pattern match in the team name
