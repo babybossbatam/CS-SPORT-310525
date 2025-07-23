@@ -1603,7 +1603,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   return (
                     <div
                       className="match-status-label text-red-400"
-                      style={{
+                      style={{ 
                         textAlign: "center",
                         transition: "none",
                         animation: "none",
@@ -1756,7 +1756,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     );
                   }
 
-                    
+
 
                     // Use UTC time formatting
                     const utcTime = matchTime.toISOString().substring(11, 16);
@@ -1903,7 +1903,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
             // Find and update the match across all leagues
             leagueIds.forEach((leagueId: number) => {
               const leagueMatches = updated.get(leagueId) || [];
-              const updatedMatches = leagueMatches.map((match: FixtureData) =>
+              const updatedMatches = leagueMatches```text
+.map((match: FixtureData) =>
                 match.fixture.id === matchId ? matchUpdate : match,
               );
               updated.set(leagueId, updatedMatches);
