@@ -974,9 +974,43 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     }
   });
 
-  // Use leagueFixtures as primary data source and group matches by league ID
-  const matchesByLeague = useMemo(() => {
-    const result: Record<number, { league: any; matches: FixtureData[] }> = {};
+  // Function to categorize matches by date relative to selected date
+  const getDateCategory = useCallback((fixtureDate: string, selectedDate: string) => {
+    // Get the fixture's local date (kick-off time in user's timezone)
+    const fixtureLocalDate = new Date(fixtureDate).toLocaleDateString("en-CA");
+    
+    // Get today, tomorrow, and yesterday in user's timezone
+    const today = new Date().toLocaleDateString("en-CA");
+    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
+    
+    // If selected date is today, use real today/tomorrow/yesterday
+    if (selectedDate === today) {
+      if (fixtureLocalDate === today) return 'today';
+      if (fixtureLocalDate === tomorrow) return 'tomorrow';
+      if (fixtureLocalDate === yesterday) return 'yesterday';
+      return 'other';
+    }
+    
+    // If selected date is not today, calculate relative to selected date
+    const selectedDateObj = new Date(selectedDate + 'T00:00:00');
+    const selectedTomorrow = new Date(selectedDateObj.getTime() + 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
+    const selectedYesterday = new Date(selectedDateObj.getTime() - 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
+    
+    if (fixtureLocalDate === selectedDate) return 'today';
+    if (fixtureLocalDate === selectedTomorrow) return 'tomorrow';
+    if (fixtureLocalDate === selectedYesterday) return 'yesterday';
+    return 'other';
+  }, []);
+
+  // Use leagueFixtures as primary data source and group matches by date category and league
+  const matchesByDateAndLeague = useMemo(() => {
+    const result: Record<string, Record<number, { league: any; matches: FixtureData[] }>> = {
+      today: {},
+      tomorrow: {},
+      yesterday: {},
+      other: {}
+    };
 
     // Process leagueFixtures map to create the grouped structure
     leagueFixtures.forEach((fixtures, leagueId) => {
@@ -1000,88 +1034,130 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           );
         }
 
-        // Enhanced date filtering with timezone consideration
-        const filteredFixtures = fixtures
-          .filter((fixture) => {
-            const fixtureDate = fixture.fixture?.date;
-            if (!fixtureDate) return false;
+        // Enhanced date filtering with timezone consideration and categorization
+        const categorizedFixtures: Record<string, FixtureData[]> = {
+          today: [],
+          tomorrow: [],
+          yesterday: [],
+          other: []
+        };
 
-            // Extract UTC date part (YYYY-MM-DD)
-            const fixtureUTCDate = fixtureDate.substring(0, 10);
+        fixtures.forEach((fixture) => {
+          const fixtureDate = fixture.fixture?.date;
+          if (!fixtureDate) return;
 
-            // Convert to user's local timezone date
-            const fixtureLocalDate = new Date(fixtureDate).toLocaleDateString(
-              "en-CA",
+          // Extract UTC date part (YYYY-MM-DD)
+          const fixtureUTCDate = fixtureDate.substring(0, 10);
+          // Convert to user's local timezone date
+          const fixtureLocalDate = new Date(fixtureDate).toLocaleDateString("en-CA");
+
+          // Log detailed filtering for problematic leagues
+          if ([886, 2, 908].includes(leagueId)) {
+            console.log(
+              `🔍 [MyNewLeague] League ${leagueId} fixture filtering:`,
+              {
+                fixtureId: fixture.fixture.id,
+                teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                originalDate: fixtureDate,
+                fixtureUTCDate,
+                fixtureLocalDate,
+                selectedDate,
+                utcMatches: fixtureUTCDate === selectedDate,
+                localMatches: fixtureLocalDate === selectedDate,
+              },
             );
+          }
 
-            // Log detailed filtering for problematic leagues
+          // Include if either UTC date or local date matches selected date OR is within yesterday/tomorrow range
+          const isRelevantForSelectedDate = fixtureUTCDate === selectedDate || fixtureLocalDate === selectedDate;
+          
+          if (isRelevantForSelectedDate) {
+            // Get date category for this fixture
+            const dateCategory = getDateCategory(fixtureDate, selectedDate);
+            categorizedFixtures[dateCategory].push(fixture);
+            
             if ([886, 2, 908].includes(leagueId)) {
-              console.log(
-                `🔍 [MyNewLeague] League ${leagueId} fixture filtering:`,
-                {
-                  fixtureId: fixture.fixture.id,
-                  teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                  originalDate: fixtureDate,
-                  fixtureUTCDate,
-                  fixtureLocalDate,
-                  selectedDate,
-                  utcMatches: fixtureUTCDate === selectedDate,
-                  localMatches: fixtureLocalDate === selectedDate,
-                  willInclude:
-                    fixtureUTCDate === selectedDate ||
-                    fixtureLocalDate === selectedDate,
-                },
-              );
+              console.log(`📅 [MyNewLeague] Fixture categorized as: ${dateCategory}`);
             }
+          }
+        });
 
-            // Include if either UTC date or local date matches
-            return (
-              fixtureUTCDate === selectedDate || fixtureLocalDate === selectedDate
-            );
-          });
+        // Add categorized fixtures to result
+        Object.entries(categorizedFixtures).forEach(([category, categoryFixtures]) => {
+          if (categoryFixtures.length > 0) {
+            if (!result[category][leagueId]) {
+              result[category][leagueId] = {
+                league: categoryFixtures[0].league,
+                matches: []
+              };
+            }
+            result[category][leagueId].matches.push(...categoryFixtures);
+          }
+        });
 
         if ([886, 2, 908].includes(leagueId)) {
-          console.log(`🔍 [MyNewLeague] League ${leagueId} after filtering:`, {
-            filteredCount: filteredFixtures.length,
-            willBeIncluded: filteredFixtures.length > 0,
+          console.log(`🔍 [MyNewLeague] League ${leagueId} categorization:`, {
+            today: categorizedFixtures.today.length,
+            tomorrow: categorizedFixtures.tomorrow.length,
+            yesterday: categorizedFixtures.yesterday.length,
+            other: categorizedFixtures.other.length,
           });
-        }
-
-        if (filteredFixtures.length > 0) {
-          result[leagueId] = {
-            league: filteredFixtures[0].league,
-            matches: filteredFixtures,
-          };
         }
       }
     });
 
     // Log timezone conversion info
     const userTimezone = detectUserTimezone();
-    console.log(`🌍 [MyNewLeague] Timezone info:`, {
+    const totalMatches = Object.values(result).reduce(
+      (sum, dateCategory) => sum + Object.values(dateCategory).reduce(
+        (categorySum, group) => categorySum + group.matches.length, 0
+      ), 0
+    );
+
+    console.log(`🌍 [MyNewLeague] Date categorization complete:`, {
       selectedDate,
       userTimezone: userTimezone.timezone,
       userOffset: userTimezone.offset,
-      totalMatches: Object.values(result).reduce(
-        (sum, group) => sum + group.matches.length,
-        0,
-      ),
+      totalMatches,
+      breakdown: {
+        today: Object.values(result.today).reduce((sum, group) => sum + group.matches.length, 0),
+        tomorrow: Object.values(result.tomorrow).reduce((sum, group) => sum + group.matches.length, 0),
+        yesterday: Object.values(result.yesterday).reduce((sum, group) => sum + group.matches.length, 0),
+        other: Object.values(result.other).reduce((sum, group) => sum + group.matches.length, 0),
+      }
     });
 
-    console.log(`📊 [MyNewLeague] Processed matchesByLeague:`, {
-      totalLeagues: Object.keys(result).length,
-      totalMatches: Object.values(result).reduce(
+    return result;
+  }, [leagueFixtures, selectedDate, getDateCategory]);
+
+  // Legacy compatibility - combine all dates for backwards compatibility
+  const matchesByLeague = useMemo(() => {
+    const combined: Record<number, { league: any; matches: FixtureData[] }> = {};
+    
+    Object.values(matchesByDateAndLeague).forEach(dateCategory => {
+      Object.entries(dateCategory).forEach(([leagueId, leagueData]) => {
+        const id = parseInt(leagueId);
+        if (!combined[id]) {
+          combined[id] = { league: leagueData.league, matches: [] };
+        }
+        combined[id].matches.push(...leagueData.matches);
+      });
+    });
+
+    console.log(`📊 [MyNewLeague] Legacy compatibility - combined matches:`, {
+      totalLeagues: Object.keys(combined).length,
+      totalMatches: Object.values(combined).reduce(
         (sum, group) => sum + group.matches.length,
         0,
       ),
       selectedDate,
       leagueFixturesSize: leagueFixtures.size,
-      hasLeague908: !!result[908],
-      league908Matches: result[908]?.matches.length || 0,
+      hasLeague908: !!combined[908],
+      league908Matches: combined[908]?.matches.length || 0,
     });
 
-    return result;
-  }, [leagueFixtures, selectedDate]);
+    return combined;
+  }, [matchesByDateAndLeague]);
 
   // Auto-expand all leagues by default when data changes and ensure loading state is cleared
   useEffect(() => {
@@ -2150,35 +2226,75 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         </div>
       </CardHeader>
 
-      {/* Create individual league cards - prioritize league 38 first, then 15 */}
-      {Object.values(matchesByLeague)
-        .sort((a, b) => {
-          // Define priority order
-          const priorityOrder = [
-            38, 15, 2, 11, 71, 22, 72, 73, 75, 233, 667, 253,
-          ]; // UEFA U21, FIFA Club World Cup, UEFA Champions League, CONMEBOL Sudamericana, Serie A, CONCACAF Gold Cup, Serie B, Serie C, Serie D, Iraqi League, Friendlies Clubs, MLS
+      {/* Render matches by date categories */}
+      {Object.entries(matchesByDateAndLeague).map(([dateCategory, leaguesByDate]) => {
+        const hasMatches = Object.keys(leaguesByDate).length > 0;
+        if (!hasMatches) return null;
 
-          const aIndex = priorityOrder.indexOf(a.league.id);
-          const bIndex = priorityOrder.indexOf(b.league.id);
-
-          // If both leagues are in priority list, sort by their position
-          if (aIndex !== -1 && bIndex !== -1) {
-            return aIndex - bIndex;
+        // Get display name for date category
+        const getDateCategoryDisplay = (category: string) => {
+          switch (category) {
+            case 'today': return `Today (${selectedDate})`;
+            case 'tomorrow': {
+              const tomorrow = selectedDate === new Date().toLocaleDateString("en-CA") 
+                ? new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString("en-CA")
+                : new Date(new Date(selectedDate + 'T00:00:00').getTime() + 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
+              return `Tomorrow (${tomorrow})`;
+            }
+            case 'yesterday': {
+              const yesterday = selectedDate === new Date().toLocaleDateString("en-CA")
+                ? new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString("en-CA")
+                : new Date(new Date(selectedDate + 'T00:00:00').getTime() - 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
+              return `Yesterday (${yesterday})`;
+            }
+            case 'other': return 'Other Dates';
+            default: return category;
           }
+        };
 
-          // If only one is in priority list, prioritize it
-          if (aIndex !== -1) return -1;
-          if (bIndex !== -1) return 1;
+        return (
+          <div key={dateCategory} className="date-category-section">
+            {/* Date Category Header */}
+            <CardHeader className="flex items-start gap-2 p-3 mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 font-semibold rounded-lg">
+              <div className="flex justify-between items-center w-full">
+                <span className="text-blue-800 font-bold">
+                  {getDateCategoryDisplay(dateCategory)}
+                </span>
+                <span className="text-blue-600 text-sm">
+                  {Object.values(leaguesByDate).reduce((sum, group) => sum + group.matches.length, 0)} matches
+                </span>
+              </div>
+            </CardHeader>
 
-          // For other leagues, maintain original order
-          return 0;
-        })
+            {/* Create individual league cards for this date category */}
+            {Object.values(leaguesByDate)
+              .sort((a, b) => {
+                // Define priority order
+                const priorityOrder = [
+                  38, 15, 2, 11, 71, 22, 72, 73, 75, 233, 667, 253,
+                ]; // UEFA U21, FIFA Club World Cup, UEFA Champions League, CONMEBOL Sudamericana, Serie A, CONCACAF Gold Cup, Serie B, Serie C, Serie D, Iraqi League, Friendlies Clubs, MLS
+
+                const aIndex = priorityOrder.indexOf(a.league.id);
+                const bIndex = priorityOrder.indexOf(b.league.id);
+
+                // If both leagues are in priority list, sort by their position
+                if (aIndex !== -1 && bIndex !== -1) {
+                  return aIndex - bIndex;
+                }
+
+                // If only one is in priority list, prioritize it
+                if (aIndex !== -1) return -1;
+                if (bIndex !== -1) return 1;
+
+                // For other leagues, maintain original order
+                return 0;
+              })
         .map((leagueGroup) => {
-          return (
-            <Card
-              key={`mynewleague-${leagueGroup.league.id}`}
-              className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing"
-            >
+                return (
+                  <Card
+                    key={`mynewleague-${dateCategory}-${leagueGroup.league.id}`}
+                    className="border bg-card text-card-foreground shadow-md overflow-hidden league-card-spacing"
+                  >
               {/* League Header - Now clickable and collapsible */}
               {!timeFilterActive && (
                 <button
@@ -2348,8 +2464,11 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 </div>
               )}
             </Card>
-          );
-        })}
+                );
+              })}
+          </div>
+        );
+      })}
     </>
   );
 };
