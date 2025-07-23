@@ -23,7 +23,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
   teamId,
   fallbackUrl,
   alt,
-  size = "64px",
+  size = "80px",
   className = "",
   moveLeft = false,
   nextMatchInfo,
