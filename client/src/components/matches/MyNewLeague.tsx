@@ -1001,43 +1001,75 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         }
 
         // Enhanced date filtering with timezone consideration
-        const filteredFixtures = fixtures.filter((fixture) => {
-          const fixtureDate = fixture.fixture?.date;
-          if (!fixtureDate) return false;
+        const filteredFixtures = fixtures
+          // Apply exclusion filters
+          .filter((fixture) => {
+            // Skip fixtures with null or undefined country
+            if (!fixture.league.country) {
+              if ([2, 886, 908].includes(fixture.league.id)) {
+                console.log(`❌ [MyNewLeague] League ${fixture.league.id} excluded - no country:`, fixture.league.name);
+              }
+              return false;
+            }
 
-          // Extract UTC date part (YYYY-MM-DD)
-          const fixtureUTCDate = fixtureDate.substring(0, 10);
-
-          // Convert to user's local timezone date
-          const fixtureLocalDate = new Date(fixtureDate).toLocaleDateString(
-            "en-CA",
-          );
-
-          // Log detailed filtering for problematic leagues
-          if ([886, 2, 908].includes(leagueId)) {
-            console.log(
-              `🔍 [MyNewLeague] League ${leagueId} fixture filtering:`,
-              {
-                fixtureId: fixture.fixture.id,
-                teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                originalDate: fixtureDate,
-                fixtureUTCDate,
-                fixtureLocalDate,
-                selectedDate,
-                utcMatches: fixtureUTCDate === selectedDate,
-                localMatches: fixtureLocalDate === selectedDate,
-                willInclude:
-                  fixtureUTCDate === selectedDate ||
-                  fixtureLocalDate === selectedDate,
-              },
+            // Apply popular league exclusion filters
+            const shouldExclude = shouldExcludeFromPopularLeagues(
+              fixture.league.name,
+              fixture.teams.home.name,
+              fixture.teams.away.name,
+              fixture.league.country,
             );
-          }
 
-          // Include if either UTC date or local date matches
-          return (
-            fixtureUTCDate === selectedDate || fixtureLocalDate === selectedDate
-          );
-        });
+            if (shouldExclude) {
+              if ([2, 886, 908].includes(fixture.league.id)) {
+                console.log(`❌ [MyNewLeague] League ${fixture.league.id} excluded by popular league filter:`, {
+                  leagueName: fixture.league.name,
+                  country: fixture.league.country,
+                  teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                });
+              }
+              return false;
+            }
+
+            return true;
+          })
+          .filter((fixture) => {
+            const fixtureDate = fixture.fixture?.date;
+            if (!fixtureDate) return false;
+
+            // Extract UTC date part (YYYY-MM-DD)
+            const fixtureUTCDate = fixtureDate.substring(0, 10);
+
+            // Convert to user's local timezone date
+            const fixtureLocalDate = new Date(fixtureDate).toLocaleDateString(
+              "en-CA",
+            );
+
+            // Log detailed filtering for problematic leagues
+            if ([886, 2, 908].includes(leagueId)) {
+              console.log(
+                `🔍 [MyNewLeague] League ${leagueId} fixture filtering:`,
+                {
+                  fixtureId: fixture.fixture.id,
+                  teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                  originalDate: fixtureDate,
+                  fixtureUTCDate,
+                  fixtureLocalDate,
+                  selectedDate,
+                  utcMatches: fixtureUTCDate === selectedDate,
+                  localMatches: fixtureLocalDate === selectedDate,
+                  willInclude:
+                    fixtureUTCDate === selectedDate ||
+                    fixtureLocalDate === selectedDate,
+                },
+              );
+            }
+
+            // Include if either UTC date or local date matches
+            return (
+              fixtureUTCDate === selectedDate || fixtureLocalDate === selectedDate
+            );
+          });
 
         if ([886, 2, 908].includes(leagueId)) {
           console.log(`🔍 [MyNewLeague] League ${leagueId} after filtering:`, {
