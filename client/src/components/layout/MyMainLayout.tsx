@@ -45,72 +45,34 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
     const yesterdayString = format(yesterday, "yyyy-MM-dd");
 
     const filtered = fixtures.filter((fixture) => {
-      // Apply smart time filtering with selected date context
+      // Simple UTC date matching without timezone conversion
       if (fixture.fixture.date && fixture.fixture.status?.short) {
-        const smartResult = MySmartTimeFilter.getSmartTimeLabel(
-          fixture.fixture.date,
-          fixture.fixture.status.short,
-          selectedDate + "T12:00:00Z", // Pass selected date as context
-        );
+        // Extract UTC date part only (YYYY-MM-DD)
+        const fixtureUTCDate = fixture.fixture.date.substring(0, 10);
+        
+        // Simple date comparison - no timezone conversion
+        const dateMatches = fixtureUTCDate === selectedDate;
 
-        // Check if this match should be included based on the selected date
-        const shouldInclude = (() => {
-          // For today's view, exclude any matches that are from previous days
-          if (selectedDate === todayString) {
-            if (smartResult.label === "today") return true;
-
-            // Additional check: exclude matches from previous dates regardless of status
-            const fixtureDate = new Date(fixture.fixture.date);
-            const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-
-            if (fixtureDateString < selectedDate) {
-              console.log(
-                `❌ [MyMainLayout DATE FILTER] Excluding yesterday match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name} (${fixtureDateString} < ${selectedDate})`,
-              );
-              return false;
-            }
-
-            return false;
-          }
-
-          if (
-            selectedDate === tomorrowString &&
-            smartResult.label === "tomorrow"
-          )
-            return true;
-          if (
-            selectedDate === yesterdayString &&
-            smartResult.label === "yesterday"
-          )
-            return true;
-
-          // Handle custom dates
-          if (
-            selectedDate !== todayString &&
-            selectedDate !== tomorrowString &&
-            selectedDate !== yesterdayString
-          ) {
-            if (smartResult.label === "custom" && smartResult.isWithinTimeRange)
-              return true;
-          }
-
-          return false;
-        })();
-
-        if (!shouldInclude) {
+        if (!dateMatches) {
           console.log(
-            `❌ [MyMainLayout SMART FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+            `❌ [MyMainLayout UTC FILTER] Match excluded: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
             {
-              fixtureDate: fixture.fixture.date,
-              status: fixture.fixture.status.short,
-              reason: smartResult.reason,
-              label: smartResult.label,
+              fixtureUTCDate,
               selectedDate,
-              isWithinTimeRange: smartResult.isWithinTimeRange,
+              reason: "UTC date mismatch"
             },
           );
           return false;
         }
+
+        console.log(
+          `✅ [MyMainLayout UTC FILTER] Match included: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
+          {
+            fixtureUTCDate,
+            selectedDate,
+            status: fixture.fixture.status.short
+          },
+        );
 
         return true;
       }
