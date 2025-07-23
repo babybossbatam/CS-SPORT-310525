@@ -15,6 +15,10 @@ import { format, addDays } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from "wouter";
+import MyNewLeague from "../components/matches/MyNewLeague";
+import MySpecificLeagues from "../components/matches/MySpecificLeagues";
+import { useSelectiveMatchUpdate } from "@/lib/selectiveMatchUpdates";
+import MyHomeScoreboardNew from "../components/matches/MyHomeScoreboardNew";
 
 // Cleanup any stale video references
 const cleanupFrames = () => {
@@ -407,6 +411,21 @@ const Football = () => {
       />
 
       <MyFootballMain fixtures={fixtures} />
+
+      {/* My New League Component */}
+          <MyNewLeague
+            selectedDate={selectedDate}
+            timeFilterActive={timeFilterActive}
+            showTop10={showTop10}
+            liveFilterActive={liveFilterActive}
+            onMatchCardClick={handleMatchClick}
+          />
+
+          {/* Specific Leagues (UEFA Champions League & Friendlies Clubs) */}
+          <MySpecificLeagues
+            selectedDate={selectedDate}
+            onMatchCardClick={handleMatchClick}
+          />
 
       <RegionModal />
     </>
