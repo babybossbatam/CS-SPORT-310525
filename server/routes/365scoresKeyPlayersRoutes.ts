@@ -122,23 +122,11 @@ router.get('/game/:gameId/key-players', async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(`❌ [365Scores] Error fetching key players for game ${gameId}:`, error);
-    
-    // Check if it's a timeout or network error
-    if (error instanceof Error) {
-      if (error.message.includes('timeout')) {
-        console.log(`⏱️ [365Scores] Request timeout for game ${gameId}`);
-      } else if (error.message.includes('ENOTFOUND') || error.message.includes('ECONNREFUSED')) {
-        console.log(`🌐 [365Scores] Network error for game ${gameId}`);
-      }
-    }
-    
+    console.error(`❌ [365Scores] Error fetching key players:`, error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
-      keyPlayers: [],
-      gameId: gameId,
-      timestamp: new Date().toISOString()
+      keyPlayers: []
     });
   }
 });

@@ -217,24 +217,8 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           setFixtures([]);
         }
       } catch (err) {
-        console.error("❌ [TodaysMatchesByCountryNew] Error fetching fixtures:", err);
-        
-        // Handle specific error types
-        const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        
-        if (errorMessage.includes('Failed to fetch') || 
-            errorMessage.includes('NetworkError') || 
-            errorMessage.includes('Network Error')) {
-          console.warn(`🌐 [TodaysMatchesByCountryNew] Network connectivity issue detected for date: ${selectedDate}`);
-          setError("Network connection issue. Please check your internet connection and try again.");
-        } else if (errorMessage.includes('timeout') || errorMessage.includes('timed out')) {
-          console.warn(`⏱️ [TodaysMatchesByCountryNew] Request timeout for date: ${selectedDate}`);
-          setError("Request timeout. The server took too long to respond.");
-        } else {
-          console.error(`💥 [TodaysMatchesByCountryNew] Unexpected error for date: ${selectedDate}:`, err);
-          setError("Failed to load fixtures. Please try again later.");
-        }
-        
+        console.error("Error fetching fixtures:", err);
+        setError("Failed to load fixtures");
         setFixtures([]);
       } finally {
         setIsLoading(false);
@@ -1220,20 +1204,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     }
   }, []);
 
-  // Show error state with retry option
+  // Show error state
   if (error) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
-          <div className="flex flex-col items-center gap-4">
-            <div className="text-red-500 font-medium text-sm">{error}</div>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
-            >
-              Try Again
-            </button>
-          </div>
+          <div className="text-center py-4 text-red-500">{error}</div>
         </CardContent>
       </Card>
     );

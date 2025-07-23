@@ -294,7 +294,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     const awayPos = titleLower.indexOf(awayLower);
 
     const homeWords = homeLower.split(' ').filter(word => word.length > 2);
-    const awayWords = awayLower.split(' ').filter(word => titleLower.includes(word));
+    const awayWords = awayLower.split(' ').filter(word => word.length > 2);
 
     const homeWordMatches = homeWords.filter(word => titleLower.includes(word));
     const awayWordMatches = awayWords.filter(word => titleLower.includes(word));
@@ -377,7 +377,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
     // Check for partial team name matches
     const homeWords = homeLower.split(' ').filter(word => word.length > 2);
-    const awayWords = awayLower.split(' ').filter(word => titleLower.includes(word));
+    const awayWords = awayLower.split(' ').filter(word => word.length > 2);
 
     const homeMatches = homeWords.filter(word => titleLower.includes(word));
     const awayMatches = awayWords.filter(word => titleLower.includes(word));
@@ -611,17 +611,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${concacafChannelId}&order=relevance`);
             data = await response.json();
 
-            // Handle quota exceeded errors specifically
-            if (data.quotaExceeded || (data.error && data.error.includes('quota'))) {
-              console.warn(`🚫 [Highlights] YouTube quota exceeded, skipping to alternative sources`);
-              throw new Error('YouTube quota exceeded - switching to alternative sources');
-            }
-
-            if (data.error) {
-              console.warn(`❌ [Highlights] Query ${query} failed:`, data.error);
-              throw new Error(data.error);
-            }
-
             if (data.items && data.items.length > 0) {
               // Filter and sort by title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
@@ -694,17 +683,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${brazilianChannelId}&order=relevance`);
             data = await response.json();
 
-            // Handle quota exceeded errors specifically
-            if (data.quotaExceeded || (data.error && data.error.includes('quota'))) {
-              console.warn(`🚫 [Highlights] YouTube quota exceeded, skipping to alternative sources`);
-              throw new Error('YouTube quota exceeded - switching to alternative sources');
-            }
-
-            if (data.error) {
-              console.warn(`❌ [Highlights] Query ${query} failed:`, data.error);
-              throw new Error(data.error);
-            }
-
             if (data.items && data.items.length > 0) {
               // Filter and sort by title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
@@ -732,8 +710,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
             title: video.snippet.title
           };
-        }
-        throw new Error('No Canal do Futebol BR videos found');
+        }        throw new Error('No Canal do Futebol BR videos found');
       }
     }] : []),
     // FIFA Club World Cup Official Channel (priority)
@@ -751,17 +728,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           try {
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${fifaChannelId}&order=relevance`);
             data = await response.json();
-
-            // Handle quota exceeded errors specifically
-            if (data.quotaExceeded || (data.error && data.error.includes('quota'))) {
-              console.warn(`🚫 [Highlights] YouTube quota exceeded, skipping to alternative sources`);
-              throw new Error('YouTube quota exceeded - switching to alternative sources');
-            }
-
-            if (data.error) {
-              console.warn(`❌ [Highlights] Query ${query} failed:`, data.error);
-              throw new Error(data.error);
-            }
 
             if (data.items && data.items.length > 0) {
               // Filter and sort by title order preference
@@ -843,15 +809,9 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=15&order=relevance`);
             const data = await response.json();
 
-            // Handle quota exceeded errors specifically
-            if (data.quotaExceeded || (data.error && data.error.includes('quota'))) {
-              console.warn(`🚫 [Highlights] YouTube quota exceeded, skipping to alternative sources`);
-              throw new Error('YouTube quota exceeded - switching to alternative sources');
-            }
-
-            if (data.error) {
-              console.warn(`❌ [Highlights] Query ${i + 1} failed:`, data.error);
-              throw new Error(data.error);
+            if (data.error || data.quotaExceeded) {
+              console.warn(`❌ [Highlights] Query ${i + 1} failed:`, data.error || 'YouTube quota exceeded');
+              throw new Error(data.error || 'YouTube quota exceeded');
             }
 
             if (data.items && data.items.length > 0) {

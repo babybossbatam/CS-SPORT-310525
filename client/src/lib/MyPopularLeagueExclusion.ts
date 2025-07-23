@@ -165,7 +165,6 @@ export function shouldExcludeFromPopularLeagues(
     league.includes("champions league") ||
     league.includes("europa league") ||
     league.includes("conference league") ||
-    league.includes("qualifying") || // Include all qualifying matches
     (league.includes("euro") && !league.includes("u21") && !league.includes("under-21")) ||
     (league.includes("european championship") && !league.includes("under-21")) ||
     // FIFA competitions (excluding Club World Cup)

@@ -41,18 +41,6 @@ export async function apiRequest(
       ? `${window.location.origin}${url}`
       : url;
 
-    console.log(`📡 [apiRequest] Making ${method} request to: ${apiUrl}`);
-
-    // Add timeout and AbortController for better network handling
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => {
-      try {
-        controller.abort('Request timeout after 30 seconds');
-      } catch (abortError) {
-        // Silently handle abort errors during cleanup
-      }
-    }, 30000); // 30 second timeout
-
     const response = await fetch(apiUrl, {
       method,
       headers: {
@@ -62,12 +50,7 @@ export async function apiRequest(
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
       mode: "cors",
-      signal: controller.signal,
     });
-
-    clearTimeout(timeoutId);
-
-    console.log(`📡 [apiRequest] Response status: ${response.status} for ${method} ${url}`);
 
     await throwIfResNotOk(response);
     return response;
@@ -75,49 +58,21 @@ export async function apiRequest(
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
 
-    // Handle AbortError (timeout) - don't log as error, it's expected behavior
-    if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('signal is aborted'))) {
-      console.log(
-        `🛑 [apiRequest] Request aborted/timeout for ${method} ${url} (expected behavior)`,
-      );
-      throw new Error(
-        `Request timeout: The server took too long to respond. Please try again.`,
-      );
-    }
-
-    console.error(`❌ [apiRequest] Error for ${method} ${url}:`, {
-      error: errorMessage,
-      url: url,
-      timestamp: new Date().toISOString(),
-      errorType: error instanceof Error ? error.constructor.name : 'Unknown'
-    });
-
-    // Handle specific error types with more detailed messages
+    // Handle specific error types
     if (
       errorMessage.includes("Failed to fetch") ||
       errorMessage.includes("NetworkError") ||
-      errorMessage.includes("fetch") ||
-      errorMessage.includes("ERR_NETWORK") ||
-      errorMessage.includes("ERR_INTERNET_DISCONNECTED")
+      errorMessage.includes("fetch")
     ) {
       console.error(
-        `🌐 [apiRequest] Network connectivity issue for ${method} ${url}: ${errorMessage}`,
+        `🌐 Network connectivity issue for ${method} ${url}: ${errorMessage}`,
       );
       throw new Error(
-        `Network error: Unable to connect to server. Please check your internet connection and try again.`,
+        `Network error: Please check your connection and try again`,
       );
     }
 
-    if (errorMessage.includes("timeout") || errorMessage.includes("timed out")) {
-      console.error(
-        `⏱️ [apiRequest] Timeout error for ${method} ${url}: ${errorMessage}`,
-      );
-      throw new Error(
-        `Timeout error: The server took too long to respond. Please try again.`,
-      );
-    }
-
-    // Re-throw the original error for other cases
+    console.error(`❌ API request error for ${method} ${url}:`, error);
     throw error;
   }
 }
@@ -163,9 +118,9 @@ export const getQueryFn: <T>(options: {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
 
-      // Handle AbortError specifically - don't treat as error, it's expected
+      // Handle AbortError specifically
       if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('signal is aborted'))) {
-        console.log(`🛑 Query aborted for ${queryKey[0]}: ${errorMessage} (expected behavior)`);
+        console.log(`🛑 Query aborted for ${queryKey[0]}: ${errorMessage}`);
         return null as any; // Return null for aborted queries
       }
 

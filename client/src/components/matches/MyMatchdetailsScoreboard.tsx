@@ -310,22 +310,8 @@ const MyMatchdetailsScoreboard = ({
   };
 
   const getStatusBadge = (status: string) => {
-    // Always prioritize the actual match data status to avoid confusion
-    const actualStatus = displayMatch.fixture.status.short;
-    
-    // Only use live status if it matches the actual status or is a valid progression
-    let currentStatus = actualStatus;
-    if (liveStatus || currentLiveStatus) {
-      const liveStatusToUse = liveStatus || currentLiveStatus;
-      // Validate that live status is a reasonable progression from actual status
-      if (actualStatus === liveStatusToUse || 
-          (actualStatus === "1H" && liveStatusToUse === "HT") ||
-          (actualStatus === "HT" && liveStatusToUse === "2H") ||
-          (actualStatus === "2H" && liveStatusToUse === "FT")) {
-        currentStatus = liveStatusToUse;
-      }
-    }
-    
+    // Use live status if available, otherwise use the passed match data
+    const currentStatus = liveStatus || currentLiveStatus || displayMatch.fixture.status.short;
     const isEndedMatch = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(currentStatus);
 
     // Check if it's a finished match and determine the appropriate label
@@ -360,22 +346,13 @@ const MyMatchdetailsScoreboard = ({
       } else if (currentStatus === "ET") {
         displayText = elapsed ? `${elapsed}' ET` : "Extra Time";
       } else {
-                                // For LIVE, LIV, 1H, 2H - use validated elapsed time from the actual match data
-                                // Priority: Use the passed match data elapsed time (most reliable source)
-                                const validatedElapsed = displayMatch.fixture.status.elapsed;
-                                
-                                // Only use real-time elapsed if it's reasonably close to API elapsed (within 5 minutes)
-                                let currentElapsed = validatedElapsed;
-                                if (realTimeElapsed !== null && validatedElapsed !== null) {
-                                  const timeDiff = Math.abs(realTimeElapsed - validatedElapsed);
-                                  if (timeDiff <= 5) { // Within 5 minutes tolerance
-                                    currentElapsed = realTimeElapsed;
-                                  }
-                                }
+                                // For LIVE, LIV, 1H, 2H - use real-time elapsed time for live matches
+                                let currentElapsed = realTimeElapsed !== null ? realTimeElapsed : (liveElapsed !== null ? liveElapsed : elapsed);
 
-                                console.log("🔄 [Live Display] Validated elapsed time:", {
-                                  validatedElapsed,
+                                console.log("🔄 [Live Display] Real-time elapsed:", {
                                   realTimeElapsed,
+                                  liveElapsed,
+                                  apiElapsed: elapsed,
                                   currentElapsed,
                                   status: currentStatus,
                                   fixtureId: displayMatch.fixture.id
