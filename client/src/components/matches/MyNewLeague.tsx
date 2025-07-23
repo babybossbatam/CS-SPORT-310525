@@ -1194,14 +1194,14 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               onMatchClick?: (matchId: number, homeTeamName: string, awayTeamName: string) => void;
               leagueContext: { name: string; country: string; }
               }) => {
-              // First, get basic status to determine if we need selective updates
+              // Always use selective updates for any match that might be live or recently finished
               const currentStatus = initialMatch.fixture.status.short;
-              const basicIsLiveMatch = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(currentStatus);
+              const mightNeedUpdates = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT", "FT", "AET", "PEN"].includes(currentStatus);
 
-              // Use selective updates only for truly live matches
-              const matchState = basicIsLiveMatch ? useSelectiveMatchUpdate(matchId, initialMatch) : { goals: initialMatch.goals, status: initialMatch.fixture.status };
+              // Use selective updates for matches that might need real-time data
+              const matchState = mightNeedUpdates ? useSelectiveMatchUpdate(matchId, initialMatch) : { goals: initialMatch.goals, status: initialMatch.fixture.status };
 
-              // Now check if match is actually finished based on updated status
+              // Prioritize updated status from selective updates over initial status
               const updatedStatus = matchState.status?.short || currentStatus;
               const isActuallyFinished = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "CANC", "SUSP"].includes(updatedStatus);
 
@@ -1229,11 +1229,11 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               ? matchState.goals 
               : initialMatch.goals;
 
-              // Prioritize finished status - if match is actually finished, show finished status
-              const currentMatchStatus = isActuallyFinished ? updatedStatus : (matchState.status?.short || initialMatch.fixture.status.short);
-              const currentStatusObj = isActuallyFinished ? { short: updatedStatus, elapsed: null } : (matchState.status || initialMatch.fixture.status);
+              // Always prioritize the most recent status from selective updates
+              const currentMatchStatus = updatedStatus;
+              const currentStatusObj = matchState.status || initialMatch.fixture.status;
 
-              // For display purposes, always show the correct status
+              // For display purposes, always show the updated status
               const displayStatus = currentMatchStatus;
 
               const handleMatchClick = () => {

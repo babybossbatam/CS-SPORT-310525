@@ -204,6 +204,7 @@ class SelectiveMatchUpdater {
         }
 
         const data = await response.json();
+        
         return data.map((item: any) => ({
           fixtureId: item.fixture.id,
           goals: {
@@ -215,7 +216,10 @@ class SelectiveMatchUpdater {
             elapsed: item.fixture.status.elapsed,
           },
           timestamp: Date.now(),
-        }));
+        })).filter((update: any) => {
+          // Only return updates that have meaningful data
+          return update.fixtureId && update.status && update.status.short;
+        });
       } catch (error) {
         clearTimeout(timeoutId);
 
