@@ -673,7 +673,7 @@ export const rapidApiService = {
   /**
    * Get live fixtures - ALWAYS fetch fresh data for live matches
    */
-  async getLiveFixtures(): Promise<FixtureResponse[]> {
+  async getLiveFixtures(bypassCache: boolean = false): Promise<FixtureResponse[]> {
     // NO CACHE for live fixtures - always fetch fresh data for accuracy
 
     try {
@@ -945,6 +945,7 @@ export const rapidApiService = {
 
       if (response.data?.response) {
         const playerStats = response.data.response;
+        ```text
         playersCache.set(cacheKey, {
           data: playerStats,
 timestamp: now,

@@ -815,6 +815,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               name: "Bundesliga",
               type: "League",
               logo: "https://media.api-sports.io/football/leagues/78.png",
+              country: "Germany",```tool_code
               country: "Germany",
             },
             country: {
@@ -3356,6 +3357,32 @@ app.get('/api/fixtures/:fixtureId/shots', async (req, res) => {
     });
   }
 });
+
+  // Live fixtures endpoint
+  app.get('/api/fixtures/live', async (req: Request, res: Response) => {
+    try {
+      const bypassCache = req.query.bypass_cache === 'true' || req.query._t;
+
+      console.log(`🔴 [RapidAPI PRO] Fetching live fixtures${bypassCache ? ' (CACHE BYPASS)' : ''} without timezone restriction...`);
+      const liveFixtures = await rapidApi.getLiveFixtures(bypassCache);
+
+      // Add cache control headers for live data
+      if (bypassCache) {
+        res.set({
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        });
+      }
+
+      console.log(`🔴 [LIVE API] Returning ${liveFixtures.length} fresh live fixtures${bypassCache ? ' (bypassing cache)' : ''}`);
+
+      res.json(liveFixtures);
+    } catch (error) {
+      console.error('❌ [LIVE API] Error fetching live fixtures:', error);
+      res.status(500).json({ error: 'Failed to fetch live fixtures' });
+    }
+  });
 
   return httpServer;
 }

@@ -28,8 +28,8 @@ class SelectiveMatchUpdater {
   private updateInterval: NodeJS.Timeout | null = null;
   private isUpdating = false;
   private lastUpdateTime = 0;
-  private readonly UPDATE_INTERVAL = 15000; // 15 seconds
-  private readonly MIN_UPDATE_DELAY = 5000; // Minimum 5 seconds between updates
+  private readonly UPDATE_INTERVAL = 10000; // 10 seconds for faster live updates
+  private readonly MIN_UPDATE_DELAY = 3000; // Minimum 3 seconds between updates
   private isOnline = true;
 
   constructor() {
@@ -188,12 +188,17 @@ class SelectiveMatchUpdater {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort('timeout'), 10000); // 10 second timeout
 
-        const response = await fetch('/api/fixtures/selective-updates', {
+        // Add cache bypass for live matches
+        const cacheBuster = `?t=${Date.now()}&bypass_cache=true`;
+
+        const response = await fetch(`/api/fixtures/selective-updates${cacheBuster}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
           },
-          body: JSON.stringify({ fixtureIds }),
+          body: JSON.stringify({ fixtureIds, bypassCache: true }),
           signal: controller.signal,
         });
 

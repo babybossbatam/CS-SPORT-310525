@@ -1,4 +1,3 @@
-
 import express from 'express';
 import { rapidApiService } from '../services/rapidApi';
 
@@ -11,16 +10,25 @@ const router = express.Router();
  */
 router.post('/selective-updates', async (req, res) => {
   try {
-    const { fixtureIds } = req.body;
+    const { fixtureIds, bypassCache } = req.body;
 
     if (!Array.isArray(fixtureIds) || fixtureIds.length === 0) {
       return res.status(400).json({ error: 'fixtureIds array is required' });
     }
 
-    console.log(`🎯 [SelectiveUpdates] Fetching updates for ${fixtureIds.length} fixtures`);
+    console.log(`🎯 [SelectiveUpdates] Fetching updates for ${fixtureIds.length} fixtures${bypassCache ? ' (CACHE BYPASS)' : ''}`);
+
+    // Add cache control headers for live data
+    if (bypassCache) {
+      res.set({
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      });
+    }
 
     // Fetch live fixtures from API
-    const response = await rapidApiService.getLiveFixtures();
+    const response = await rapidApiService.getLiveFixtures(bypassCache);
 
     if (!response || !Array.isArray(response)) {
       return res.status(500).json({ error: 'Invalid API response' });
@@ -44,7 +52,7 @@ router.post('/selective-updates', async (req, res) => {
       }));
 
     console.log(`✅ [SelectiveUpdates] Returning ${updates.length} updates`);
-    
+
     res.json(updates);
   } catch (error) {
     console.error('Error fetching selective updates:', error);
