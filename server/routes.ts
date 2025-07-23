@@ -264,8 +264,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Set a flag on each fixture to indicate it's from live endpoint
         fixtures.forEach((fixture: any) => {
-          fixture.isLiveData = true;
-          fixture.lastUpdated = Date.now();
+          if (fixture && typeof fixture === 'object') {
+            fixture.isLiveData = true;
+            fixture.lastUpdated = Date.now();
+          }
         });
 
         // Only cache ended matches from the live response
@@ -281,14 +283,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           );
           for (const fixture of endedMatches) {
             try {
-              const fixtureId = fixture.fixture.id.toString();
-              const existingFixture = await storage.getCachedFixture(fixtureId);
-
               if (existingFixture) {
-                await storage.updateCachedFixture(fixtureId, fixture);
+                await storage.updateCachedFixture(fixture.fixture.id.toString(), fixture);
               } else {
                 await storage.createCachedFixture({
-                  fixtureId: fixtureId,
+                  fixtureId: fixture.fixture.id.toString(),
                   date: new Date().toISOString().split("T")[0],
                   league: fixture.league.id.toString(),
                   data: fixture,
@@ -607,16 +606,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Cache the fixture
       try {
-        if (cachedFixture) {
-          await storage.updateCachedFixture(id.toString(), fixture);
-        } else {
-          await storage.createCachedFixture({
-            fixtureId: id.toString(),
-            data: fixture,
-            league: fixture.league.id.toString(),
-            date: new Date(fixture.fixture.date).toISOString().split("T")[0],
-          });
-        }
+        if (existingFixture) {
+                await storage.updateCachedFixture(fixture.fixture.id.toString(), fixture);
+              } else {
+                await storage.createCachedFixture({
+                  fixtureId: fixture.fixture.id.toString(),
+                  data: fixture,
+                  league: fixture.league.id.toString(),
+                  date: new Date(fixture.fixture.date).toISOString().split("T")[0],
+                });
+              }
       } catch (cacheError) {
         console.error(`Error caching fixture ${id}:`, cacheError);
         // Continue even if caching fails to avoid breaking the API response
@@ -892,14 +891,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Cache the league
       try {
-        if (cachedLeague) {
-          await storage.updateCachedLeague(id.toString(), league);
-        } else {
-          await storage.createCachedLeague({
-            leagueId: id.toString(),
-            data: league,
-          });
-        }
+        if (existingLeague) {
+                await storage.updateCachedLeague(id.toString(), league);
+              } else {
+                await storage.createCachedLeague({
+                  leagueId: id.toString(),
+                  data: league,
+                });
+              }
       } catch (cacheError) {
         console.error(`Error caching league ${id}:`, cacheError);
         // Continue even if caching fails to avoid breaking the API response
@@ -2770,8 +2769,10 @@ error) {
 
         // Set a flag on each fixture to indicate it's from live endpoint
         fixtures.forEach((fixture: any) => {
-          fixture.isLiveData = true;
-          fixture.lastUpdated = Date.now();
+          if (fixture && typeof fixture === 'object') {
+            fixture.isLiveData = true;
+            fixture.lastUpdated = Date.now();
+          }
         });
 
         //        // Only cache ended matches from the live response
@@ -2787,14 +2788,11 @@ error) {
           );
           for (const fixture of endedMatches) {
             try {
-              const fixtureId = fixture.fixture.id.toString();
-              const existingFixture = await storage.getCachedFixture(fixtureId);
-
               if (existingFixture) {
-                await storage.updateCachedFixture(fixtureId, fixture);
+                await storage.updateCachedFixture(fixture.fixture.id.toString(), fixture);
               } else {
                 await storage.createCachedFixture({
-                  fixtureId: fixtureId,
+                  fixtureId: fixture.fixture.id.toString(),
                   date: new Date().toISOString().split("T")[0],
                   league: fixture.league.id.toString(),
                   data: fixture,
