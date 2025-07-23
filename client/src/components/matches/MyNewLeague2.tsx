@@ -1,4 +1,3 @@
-
 import React, {
   useState,
   useEffect,
@@ -170,6 +169,32 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
         allDateFixtures.forEach((fixture: FixtureData) => {
           const leagueId = fixture.league?.id;
           if (leagueIds.includes(leagueId)) {
+            // Log detailed filtering for all target leagues
+            if (leagueIds.includes(leagueId)) {
+              const leagueNames = {
+                667: 'Club Friendlies',
+                2: 'UEFA Champions League',
+                886: 'UEFA CL Qualifiers',
+                908: 'UEFA EL Qualifiers',
+                848: 'UEFA Conference League',
+                3: 'UEFA Europa League'
+              };
+
+              console.log(
+                `🔍 [MyNewLeague2] Filtering ${leagueNames[leagueId] || 'Unknown'} (${leagueId}) fixture:`,
+                {
+                  fixtureId: fixture.fixture.id,
+                  teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                  originalDate: fixture.fixture.date,
+                  fixtureUTCDate,
+                  selectedDate,
+                  round: fixture.league.round,
+                  status: fixture.fixture.status.short,
+                  utcMatches: fixtureUTCDate === selectedDate,
+                  willInclude: fixtureUTCDate === selectedDate,
+                },
+              );
+            }
             // Simple UTC date filtering
             const fixtureUTCDate = fixture.fixture?.date?.substring(0, 10);
 
@@ -1003,7 +1028,6 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
                       name: leagueGroup.league.name,
                       country: leagueGroup.league.country,
                     };
-
                     return (
                       <MatchCard
                         key={match.fixture.id}
