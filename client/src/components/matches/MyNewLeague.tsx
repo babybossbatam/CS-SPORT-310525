@@ -1716,7 +1716,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                       );
                       return (
                         <div
-                          className="match-time-display text-orange-600"
+                          className="match-time-display text-red-400"
                           style={{ fontSize: "0.8em" }}
                         >
                           Postponed
