@@ -36,6 +36,9 @@ const Football = () => {
   const [filteredCountry, setFilteredCountry] = useState<string | null>(null);
   const [fixtures, setFixtures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [timeFilterActive, setTimeFilterActive] = useState(false);
+  const [showTop10, setShowTop10] = useState(false);
+  const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
