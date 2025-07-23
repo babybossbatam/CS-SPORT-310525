@@ -1608,9 +1608,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                         textAlign: "center",
                         transition: "none",
                         animation: "none",
-                        color: "#f87171 !important"
                       }}
-                      className="text-red-400"
                     >
                       Postponed
                     </div>
@@ -1716,30 +1714,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                         <span className="score-number">
                           {currentGoals.away ?? 0}
                         </span>
-                      </div>
-                    );
-                  }
-
-                  // Postponed/Cancelled matches - show in red
-                  if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
-                    const statusText = status === "PST" ? "Postponed" 
-                      : status === "CANC" ? "Cancelled"
-                      : status === "ABD" ? "Abandoned"
-                      : status === "SUSP" ? "Suspended"
-                      : status === "AWD" ? "Awarded"
-                      : status === "WO" ? "Walkover"
-                      : status;
-
-                    return (
-                      <div
-                        className="match-time-display text-red-400"
-                        style={{ 
-                          fontSize: "0.8em",
-                          color: "#f87171 !important",
-                          fontWeight: "500"
-                        }}
-                      >
-                        {statusText}
                       </div>
                     );
                   }
