@@ -263,7 +263,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         );
 
         // Set a flag on each fixture to indicate it's from live endpoint
-        fixtures.forEach(fixture => {
+        fixtures.forEach((fixture: any) => {
           fixture.isLiveData = true;
           fixture.lastUpdated = Date.now();
         });
@@ -2668,7 +2668,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } else {
           res.status(404).json({
             success: false,
-          
+
 error: "Match not found",
           });
         }
@@ -2769,7 +2769,7 @@ error) {
         );
 
         // Set a flag on each fixture to indicate it's from live endpoint
-        fixtures.forEach(fixture => {
+        fixtures.forEach((fixture: any) => {
           fixture.isLiveData = true;
           fixture.lastUpdated = Date.now();
         });
