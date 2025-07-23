@@ -1585,7 +1585,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 if (status === "TBD") {
                   return (
                     <div
-                      className="match-status-label status-upcoming"
+                      className="match-status-label status-upcoming "
                       style={{
                         minWidth: "60px",
                         textAlign: "center",
@@ -1726,20 +1726,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     const hoursAgo =
                       (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
 
-                    // If match is more than 2 hours overdue, show as postponed/cancelled
-                    if (hoursAgo > 2) {
-                      console.log(
-                        `⚠️ [Match Status] Match ${matchId} is ${hoursAgo.toFixed(1)}h overdue - likely postponed/cancelled`,
-                      );
-                      return (
-                        <div
-                          className="match-time-display text-red-400"
-                          style={{ fontSize: "0.8em" }}
-                        >
-                          Postponed
-                        </div>
-                      );
-                    }
 
                     // Use UTC time formatting
                     const utcTime = matchTime.toISOString().substring(11, 16);
