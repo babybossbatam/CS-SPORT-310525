@@ -647,17 +647,17 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         allDateFixtures.forEach((fixture: FixtureData) => {
           const leagueId = fixture.league?.id;
           const fixtureId = fixture.fixture.id;
-          
+
           // Skip if we've already processed this fixture ID
           if (seenFixtureIds.has(fixtureId)) {
             console.log(`🚫 [MyNewLeague] Skipping duplicate fixture ${fixtureId}: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
             return;
           }
-          
+
           if (leagueIds.includes(leagueId)) {
             // Mark this fixture as seen
             seenFixtureIds.add(fixtureId);
-            
+
             // Convert fixture time to local timezone and get the local date
             const fixtureDateTime = new Date(fixture.fixture.date);
             const fixtureLocalDate = fixtureDateTime.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
@@ -966,7 +966,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     // Convert fixture UTC time to local timezone
     const fixtureDateTime = new Date(fixtureDate);
     const fixtureLocalDate = fixtureDateTime.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
-    
+
     console.log(`🕐 [DateMatch] Local timezone analysis:`, {
       fixtureDate,
       fixtureLocalDate,
@@ -1008,13 +1008,13 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
         // Filter fixtures for selected date only
         const selectedDateFixtures: FixtureData[] = [];
-        
+
         fixtures.forEach((fixture) => {
           const fixtureDate = fixture.fixture?.date;
           const fixtureId = fixture.fixture.id;
-          
+
           if (!fixtureDate) return;
-          
+
           // Skip if we've already processed this fixture ID globally
           if (globalFixtureIds.has(fixtureId)) {
             console.log(`🚫 [MyNewLeague] Skipping duplicate fixture ${fixtureId}: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
@@ -1085,7 +1085,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     return result;
   }, [leagueFixtures, selectedDate, isFixtureOnSelectedDate]);
 
-  
+
 
   // Auto-expand all leagues by default when data changes and ensure loading state is cleared
   useEffect(() => {
@@ -1598,6 +1598,23 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   );
                 }
 
+                // Postponed matches
+                if (status === "PST") {
+                  return (
+                    <div
+                      className="match-status-label text-red-400"
+                      style={{
+                        minWidth: "60px",
+                        textAlign: "center",
+                        transition: "none",
+                        animation: "none",
+                      }}
+                    >
+                      Postponed
+                    </div>
+                  );
+                }
+
                 return null;
               })()}
             </div>
@@ -1893,8 +1910,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
   // Clear cache for specific match when status transitions occur
   const clearMatchCache = useCallback(
-    (matchId: number, transition: string, fixtureDate: string) => {
-      try {
+    (matchId: number, transition: string, fixtureDate: string) => {      try {
         const matchDate = new Date(fixtureDate);
         const year = matchDate.getFullYear();
         const month = String(matchDate.getMonth() + 1).padStart(2, "0");
