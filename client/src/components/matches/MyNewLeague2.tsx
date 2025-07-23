@@ -133,8 +133,8 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     Map<number, { home: number; away: number }>
   >(new Map());
 
-  // Specific league IDs we want to show: 667 (Club Friendlies) and 2 (UEFA Champions League)
-  const leagueIds = [667, 2];
+  // Specific league IDs we want to show: 667 (Club Friendlies), 2 (UEFA Champions League), and 886 (UEFA Champions League Qualifiers)
+  const leagueIds = [667, 2, 886];
 
   useEffect(() => {
     const fetchSpecificLeagueFixtures = async () => {
@@ -163,7 +163,7 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
         const allDateFixtures = await response.json();
         console.log(`📊 [MyNewLeague2] Got ${allDateFixtures.length} total fixtures for ${selectedDate}`);
 
-        // Filter for our specific leagues (667 and 2)
+        // Filter for our specific leagues (667, 2, and 886)
         const leagueFixturesMap = new Map();
 
         allDateFixtures.forEach((fixture: FixtureData) => {
@@ -881,7 +881,7 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
       {/* Header Section */}
       <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 font-semibold">
         <div className="flex justify-between items-center w-full">
-          <span className="text-green-800">Specific Leagues: Club Friendlies (667) & UEFA Champions League (2)</span>
+          <span className="text-green-800">Specific Leagues: Club Friendlies (667), UEFA Champions League (2) & UEFA CL Qualifiers (886)</span>
           <span className="text-green-600 text-sm">{totalMatches} matches</span>
         </div>
       </CardHeader>
@@ -889,9 +889,11 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
       {/* Render league matches */}
       {Object.values(matchesByLeague)
         .sort((a, b) => {
-          // Prioritize UEFA Champions League (2) over Club Friendlies (667)
+          // Prioritize UEFA Champions League (2), then UEFA CL Qualifiers (886), then Club Friendlies (667)
           if (a.league.id === 2) return -1;
           if (b.league.id === 2) return 1;
+          if (a.league.id === 886) return -1;
+          if (b.league.id === 886) return 1;
           return 0;
         })
         .map((leagueGroup) => {
@@ -1067,7 +1069,7 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
         <Card>
           <CardContent className="p-6 text-center">
             <div className="text-center py-4 text-gray-500">
-              No matches found for Club Friendlies (667) and UEFA Champions League (2) on {selectedDate}
+              No matches found for Club Friendlies (667), UEFA Champions League (2), and UEFA CL Qualifiers (886) on {selectedDate}
             </div>
           </CardContent>
         </Card>
