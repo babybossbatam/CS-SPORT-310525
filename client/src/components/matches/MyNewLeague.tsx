@@ -505,28 +505,53 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         // Group fixtures by league and filter for our target leagues with timezone awareness
         const leagueFixturesMap = new Map();
 
-        // Debug logging for league 908 fixtures in allDateFixtures
-        const league908Fixtures = allDateFixtures.filter((f: FixtureData) => f.league?.id === 908);
-        if (league908Fixtures.length > 0) {
-          console.log(`🔍 [MyNewLeague] Found ${league908Fixtures.length} league 908 fixtures in allDateFixtures:`, 
-            league908Fixtures.map(f => ({
-              id: f.fixture.id,
-              date: f.fixture.date,
-              localDate: new Date(f.fixture.date).toLocaleDateString('en-CA'),
-              status: f.fixture.status.short,
-              teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
-              league: f.league.name
-            }))
-          );
-        }
+        // Debug logging for target leagues including 886 and 2
+        const targetLeagues = [886, 2, 908];
+        targetLeagues.forEach(targetLeagueId => {
+          const targetLeagueFixtures = allDateFixtures.filter((f: FixtureData) => f.league?.id === targetLeagueId);
+          if (targetLeagueFixtures.length > 0) {
+            console.log(`🔍 [MyNewLeague] Found ${targetLeagueFixtures.length} league ${targetLeagueId} fixtures in allDateFixtures:`, 
+              targetLeagueFixtures.map(f => ({
+                id: f.fixture.id,
+                date: f.fixture.date,
+                localDate: new Date(f.fixture.date).toLocaleDateString('en-CA'),
+                utcDate: f.fixture.date.substring(0, 10),
+                selectedDate,
+                dateMatches: f.fixture.date.substring(0, 10) === selectedDate,
+                status: f.fixture.status.short,
+                teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+                league: f.league.name
+              }))
+            );
+          }
+        });
 
         allDateFixtures.forEach((fixture: FixtureData) => {
               const leagueId = fixture.league?.id;
               if (leagueIds.includes(leagueId)) {
-                // Simple date filtering - extract UTC date from fixture
+                // Enhanced date filtering with timezone consideration
                 const fixtureUTCDate = fixture.fixture?.date?.substring(0, 10);
+                
+                // Convert fixture time to user's local timezone for comparison
+                const fixtureLocalDate = new Date(fixture.fixture.date).toLocaleDateString('en-CA');
+                
+                // Log detailed filtering for problematic leagues
+                if ([886, 2, 908].includes(leagueId)) {
+                  console.log(`🔍 [MyNewLeague] Filtering league ${leagueId} fixture:`, {
+                    fixtureId: fixture.fixture.id,
+                    teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                    originalDate: fixture.fixture.date,
+                    fixtureUTCDate,
+                    fixtureLocalDate,
+                    selectedDate,
+                    utcMatches: fixtureUTCDate === selectedDate,
+                    localMatches: fixtureLocalDate === selectedDate,
+                    willInclude: fixtureUTCDate === selectedDate || fixtureLocalDate === selectedDate
+                  });
+                }
 
-                if (fixtureUTCDate === selectedDate) {
+                // Include if either UTC date or local date matches selected date
+                if (fixtureUTCDate === selectedDate || fixtureLocalDate === selectedDate) {
                   if (!leagueFixturesMap.has(leagueId)) {
                     leagueFixturesMap.set(leagueId, []);
                   }
@@ -764,33 +789,54 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               // Process leagueFixtures map to create the grouped structure
               leagueFixtures.forEach((fixtures, leagueId) => {
               if (fixtures && fixtures.length > 0) {
-              // Debug logging for league 908
-              if (leagueId === 908) {
-              console.log(`🔍 [MyNewLeague] League 908 fixtures before filtering:`, {
+              // Debug logging for problematic leagues including 886 and 2
+              if ([886, 2, 908].includes(leagueId)) {
+              console.log(`🔍 [MyNewLeague] League ${leagueId} fixtures before filtering:`, {
               totalFixtures: fixtures.length,
               selectedDate,
               fixtures: fixtures.map(f => ({
               id: f.fixture.id,
               date: f.fixture.date,
               localDate: new Date(f.fixture.date).toLocaleDateString('en-CA'),
+              utcDate: f.fixture.date.substring(0, 10),
               status: f.fixture.status.short,
               teams: `${f.teams.home.name} vs ${f.teams.away.name}`
               }))
               });
               }
 
-              // Simple UTC date filtering
+              // Enhanced date filtering with timezone consideration
               const filteredFixtures = fixtures.filter(fixture => {
                 const fixtureDate = fixture.fixture?.date;
                 if (!fixtureDate) return false;
 
                 // Extract UTC date part (YYYY-MM-DD)
                 const fixtureUTCDate = fixtureDate.substring(0, 10);
-                return fixtureUTCDate === selectedDate;
+                
+                // Convert to user's local timezone date
+                const fixtureLocalDate = new Date(fixtureDate).toLocaleDateString('en-CA');
+                
+                // Log detailed filtering for problematic leagues
+                if ([886, 2, 908].includes(leagueId)) {
+                  console.log(`🔍 [MyNewLeague] League ${leagueId} fixture filtering:`, {
+                    fixtureId: fixture.fixture.id,
+                    teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                    originalDate: fixtureDate,
+                    fixtureUTCDate,
+                    fixtureLocalDate,
+                    selectedDate,
+                    utcMatches: fixtureUTCDate === selectedDate,
+                    localMatches: fixtureLocalDate === selectedDate,
+                    willInclude: fixtureUTCDate === selectedDate || fixtureLocalDate === selectedDate
+                  });
+                }
+                
+                // Include if either UTC date or local date matches
+                return fixtureUTCDate === selectedDate || fixtureLocalDate === selectedDate;
               });
 
-              if (leagueId === 908) {
-              console.log(`🔍 [MyNewLeague] League 908 after filtering:`, {
+              if ([886, 2, 908].includes(leagueId)) {
+              console.log(`🔍 [MyNewLeague] League ${leagueId} after filtering:`, {
               filteredCount: filteredFixtures.length,
               willBeIncluded: filteredFixtures.length > 0
               });
