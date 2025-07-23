@@ -120,7 +120,7 @@
 .country-matches-container .match-three-grid-container {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  grid-template-areas: 
+  grid-template-areas:
     "status"
     "content"
     "penalty";
@@ -329,6 +329,9 @@
 
 .country-matches-container .status-halftime {
   color: rgb(220 38 38);
+   animation: truePulse 2s infinite ease-in-out;
+  transform: none !important;
+  transform-origin: center !important;
 }
 
 .country-matches-container .status-ended {
@@ -479,10 +482,13 @@
 
 /* Animation for live matches */
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.6;
     transform: scale(1);
@@ -490,10 +496,13 @@
 }
 
 @keyframes truePulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.5;
     transform: scale(1);
@@ -509,6 +518,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     max-height: 1000px;
     opacity: 1;
@@ -522,6 +532,7 @@
     opacity: 1;
     transform: translateY(0);
   }
+
   to {
     max-height: 0;
     opacity: 0;
