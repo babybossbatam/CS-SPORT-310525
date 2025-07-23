@@ -414,7 +414,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     [getCacheKey, isMatchOldEnded],
   );
 
-  
+
 
   // Enhanced data fetching function for initial load and non-live data
   const fetchLeagueData = useCallback(
@@ -601,6 +601,13 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       try {
         setIsLoading(true);
         setError(null);
+
+        // Set a timeout to prevent infinite loading
+        const loadingTimeout = setTimeout(() => {
+          console.log(`⏰ [MyNewLeague] Loading timeout reached for ${selectedDate} - clearing loading state`);
+          setIsLoading(false);
+          setLoading(false);
+        }, 10000); // 10 second timeout
 
         // Smart fetching: Use date-based API for efficiency
         console.log(
@@ -922,6 +929,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     "🇮🇶 [MyNewLeague IRAQI] Total Iraqi League fixtures:",
     iraqiFixtures.length,
   );
+Adding loadingTimeout and clear it when loading is done or cache is hit.```text
+
   console.log(
     "🇦🇷 [MyNewLeague COPA ARG] Total Copa Argentina fixtures:",
     copaArgentinaFixtures.length,
@@ -958,12 +967,12 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     const fixtureUTCDate = fixtureDate.substring(0, 10);
     const fixtureDateTime = new Date(fixtureDate);
     const currentTime = new Date();
-    
+
     // Get today, tomorrow, and yesterday in UTC
     const today = new Date().toISOString().substring(0, 10);
     const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
-    
+
     // Enhanced logic with kick-off time consideration
     console.log(`🕐 [DateCategory] Analyzing fixture:`, {
       fixtureDate,
@@ -1010,12 +1019,12 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       if (fixtureUTCDate === yesterday) return 'yesterday';
       return 'other';
     }
-    
+
     // If selected date is not today, calculate relative to selected date
     const selectedDateObj = new Date(selectedDate + 'T00:00:00Z');
     const selectedTomorrow = new Date(selectedDateObj.getTime() + 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
     const selectedYesterday = new Date(selectedDateObj.getTime() - 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
-    
+
     if (fixtureUTCDate === selectedDate) return 'today';
     if (fixtureUTCDate === selectedTomorrow) return 'tomorrow';
     if (fixtureUTCDate === selectedYesterday) return 'yesterday';
@@ -1085,12 +1094,12 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
           // Include only if UTC date matches selected date
           const isRelevantForSelectedDate = fixtureUTCDate === selectedDate;
-          
+
           if (isRelevantForSelectedDate) {
             // Get date category for this fixture
             const dateCategory = getDateCategory(fixtureDate, selectedDate);
             categorizedFixtures[dateCategory].push(fixture);
-            
+
             if ([886, 2, 908].includes(leagueId)) {
               console.log(`📅 [MyNewLeague] Fixture categorized as: ${dateCategory}`);
             }
@@ -1145,7 +1154,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   // Legacy compatibility - combine all dates for backwards compatibility
   const matchesByLeague = useMemo(() => {
     const combined: Record<number, { league: any; matches: FixtureData[] }> = {};
-    
+
     Object.values(matchesByDateAndLeague).forEach(dateCategory => {
       Object.entries(dateCategory).forEach(([leagueId, leagueData]) => {
         const id = parseInt(leagueId);
