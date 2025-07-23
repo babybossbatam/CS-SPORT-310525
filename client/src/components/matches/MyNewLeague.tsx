@@ -1720,14 +1720,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
                   // Upcoming matches - show kick-off time
                   if (status === "NS" || status === "TBD") {
-                    // Check if match should have started already (more than 2 hours ago)
-                    const matchTime = new Date(matchDate);
-                    const now = new Date();
-                    const hoursAgo =
-                      (now.getTime() - matchTime.getTime()) / (1000 * 60 * 60);
-
-
                     // Use UTC time formatting
+                    const matchTime = new Date(matchDate);
                     const utcTime = matchTime.toISOString().substring(11, 16);
 
                     return (
@@ -1740,7 +1734,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     );
                   }
 
-                  // Fallback for any unhandled status - show time or score if available
+                  // Fallback - prioritize showing scores if available
                   if (
                     currentGoals.home !== null ||
                     currentGoals.away !== null
@@ -1758,13 +1752,16 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     );
                   }
 
-                  // Last resort - show match time
+                  // Last resort - show match time for truly upcoming matches
+                  const matchTime = new Date(matchDate);
+                  const utcTime = matchTime.toISOString().substring(11, 16);
+                  
                   return (
                     <div
                       className="match-time-display"
                       style={{ fontSize: "0.882em" }}
                     >
-                      {formatMatchTimeWithTimezone(matchDate)}
+                      {utcTime}
                     </div>
                   );
                 })()}
