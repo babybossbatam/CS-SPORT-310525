@@ -496,7 +496,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         const leagueFixturesMap = new Map();
 
         // Debug logging for league 908 fixtures in allDateFixtures
-        const league908Fixtures = allDateFixtures.filter(f => f.league?.id === 908);
+        const league908Fixtures = allDateFixtures.filter((f: FixtureData) => f.league?.id === 908);
         if (league908Fixtures.length > 0) {
           console.log(`🔍 [MyNewLeague] Found ${league908Fixtures.length} league 908 fixtures in allDateFixtures:`, 
             league908Fixtures.map(f => ({
@@ -800,7 +800,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               totalMatches: Object.values(result).reduce((sum, group) => sum + group.matches.length, 0),
               selectedDate,
               leagueFixturesSize: leagueFixtures.size,
-              hasLeague908: !!result[908],
+              hasLeague908:```text
+!!result[908],
               league908Matches:result[908]?.matches.length || 0
               });
 
@@ -1687,7 +1688,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               <CardHeader className="flex items-start gap-2 p-3 mt-4 bg-white border border-stone-200 font-semibold">
               <div className="flex justify-between items-center w-full">
               <Skeleton className="h-5 w-48" />
-              ```text
 
               </div>
               </CardHeader>
