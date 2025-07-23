@@ -611,6 +611,17 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${concacafChannelId}&order=relevance`);
             data = await response.json();
 
+            // Handle quota exceeded errors specifically
+            if (data.quotaExceeded || (data.error && data.error.includes('quota'))) {
+              console.warn(`🚫 [Highlights] YouTube quota exceeded, skipping to alternative sources`);
+              throw new Error('YouTube quota exceeded - switching to alternative sources');
+            }
+
+            if (data.error) {
+              console.warn(`❌ [Highlights] Query ${query} failed:`, data.error);
+              throw new Error(data.error);
+            }
+
             if (data.items && data.items.length > 0) {
               // Filter and sort by title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
@@ -683,6 +694,17 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${brazilianChannelId}&order=relevance`);
             data = await response.json();
 
+            // Handle quota exceeded errors specifically
+            if (data.quotaExceeded || (data.error && data.error.includes('quota'))) {
+              console.warn(`🚫 [Highlights] YouTube quota exceeded, skipping to alternative sources`);
+              throw new Error('YouTube quota exceeded - switching to alternative sources');
+            }
+
+            if (data.error) {
+              console.warn(`❌ [Highlights] Query ${query} failed:`, data.error);
+              throw new Error(data.error);
+            }
+
             if (data.items && data.items.length > 0) {
               // Filter and sort by title order preference
               const sortedVideos = filterAndSortVideos(data.items, home, away);
@@ -697,7 +719,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           }
         }
 
-        if (data.error || data.quotaExceeded) {
+        if (data.error || data.quotaExceeded) {```text
           throw new Error(data.error || 'Canal do Futebol BR search failed');
         }
 
@@ -728,6 +750,17 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           try {
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=5&channelId=${fifaChannelId}&order=relevance`);
             data = await response.json();
+
+            // Handle quota exceeded errors specifically
+            if (data.quotaExceeded || (data.error && data.error.includes('quota'))) {
+              console.warn(`🚫 [Highlights] YouTube quota exceeded, skipping to alternative sources`);
+              throw new Error('YouTube quota exceeded - switching to alternative sources');
+            }
+
+            if (data.error) {
+              console.warn(`❌ [Highlights] Query ${query} failed:`, data.error);
+              throw new Error(data.error);
+            }
 
             if (data.items && data.items.length > 0) {
               // Filter and sort by title order preference
@@ -809,9 +842,15 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             const response = await fetch(`/api/youtube/search?q=${encodeURIComponent(query)}&maxResults=15&order=relevance`);
             const data = await response.json();
 
-            if (data.error || data.quotaExceeded) {
-              console.warn(`❌ [Highlights] Query ${i + 1} failed:`, data.error || 'YouTube quota exceeded');
-              throw new Error(data.error || 'YouTube quota exceeded');
+            // Handle quota exceeded errors specifically
+            if (data.quotaExceeded || (data.error && data.error.includes('quota'))) {
+              console.warn(`🚫 [Highlights] YouTube quota exceeded, skipping to alternative sources`);
+              throw new Error('YouTube quota exceeded - switching to alternative sources');
+            }
+
+            if (data.error) {
+              console.warn(`❌ [Highlights] Query ${i + 1} failed:`, data.error);
+              throw new Error(data.error);
             }
 
             if (data.items && data.items.length > 0) {

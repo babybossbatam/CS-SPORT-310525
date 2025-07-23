@@ -57,15 +57,16 @@ router.get('/search', async (req, res) => {
       console.error('YouTube API Error:', data.error);
 
       // Handle specific quota errors
-      if (data.error.code === 403 || data.error.message.includes('quota')) {
+      if (data.error.code === 403 || data.error.message.includes('quota') || data.error.code === 429) {
         dailyQuotaUsed = DAILY_QUOTA_LIMIT; // Mark as quota exceeded
-        return res.status(403).json({ 
-          error: 'YouTube API quota exceeded. Quota resets daily at midnight PST.',
+        console.warn(`🚫 YouTube quota exceeded. Used: ${dailyQuotaUsed}/${DAILY_QUOTA_LIMIT}`);
+        return res.status(429).json({ 
+          error: 'YouTube API quota exceeded. Using alternative video sources.',
           quotaExceeded: true,
           resetTime: 'Daily at midnight PST',
           quotaUsed: dailyQuotaUsed,
           quotaLimit: DAILY_QUOTA_LIMIT,
-          fallbackSuggestion: 'Using alternative video platforms'
+          fallbackSuggestion: 'Switching to Vimeo, Dailymotion, or ScoreBat'
         });
       }
 
