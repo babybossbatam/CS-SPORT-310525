@@ -1903,8 +1903,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
             // Find and update the match across all leagues
             leagueIds.forEach((leagueId: number) => {
               const leagueMatches = updated.get(leagueId) || [];
-              const updatedMatches = leagueMatches```text
-.map((match: FixtureData) =>
+              const updatedMatches = leagueMatches.map((match: FixtureData) =>
                 match.fixture.id === matchId ? matchUpdate : match,
               );
               updated.set(leagueId, updatedMatches);
@@ -1928,7 +1927,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
   // Clear cache for specific match when status transitions occur
   const clearMatchCache = useCallback(
-    (matchId: number, transition: string, fixtureDate: string) => {      try {
+    (matchId: number, transition: string, fixtureDate: string) => {
+      try {
         const matchDate = new Date(fixtureDate);
         const year = matchDate.getFullYear();
         const month = String(matchDate.getMonth() + 1).padStart(2, "0");
