@@ -329,7 +329,7 @@
 
 .country-matches-container .status-halftime {
   color: rgb(220 38 38);
-  /* No animation for halftime - static display */
+  animation: truePulse 2s infinite;
 }
 
 .country-matches-container .status-ended {
