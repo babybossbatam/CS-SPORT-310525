@@ -2668,7 +2668,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } else {
           res.status(404).json({
             success: false,
-            ```text
+          
 error: "Match not found",
           });
         }
