@@ -39,6 +39,19 @@ const Football = () => {
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [showTop10, setShowTop10] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
+
+  // Functions to toggle the filter states
+  const toggleTimeFilter = () => {
+    setTimeFilterActive(prev => !prev);
+  };
+
+  const toggleShowTop10 = () => {
+    setShowTop10(prev => !prev);
+  };
+
+  const toggleLiveFilter = () => {
+    setLiveFilterActive(prev => !prev);
+  };
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
