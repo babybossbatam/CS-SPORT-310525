@@ -1365,18 +1365,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
                   // Upcoming matches - show kick-off time
                   if (status === "NS" || status === "TBD") {
-                    // Debug logging for match date information
-                    console.log(`🕐 [Match Time Debug] Match ID: ${matchId}`, {
-                      teams: `${homeTeamName} vs ${awayTeamName}`,
-                      originalMatchDate: matchDate,
-                      serverTime: new Date().toISOString(),
-                      localTime: new Date().toLocaleString(),
-                      formattedTime: status === "TBD" ? "TBD" : formatMatchTimeWithTimezone(matchDate),
-                      utcMatchDate: new Date(matchDate).toISOString(),
-                      localMatchDate: new Date(matchDate).toLocaleString(),
-                      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-                    });
-
                     return (
                       <div
                         className="match-time-display"
