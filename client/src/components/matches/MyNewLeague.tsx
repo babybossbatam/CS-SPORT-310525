@@ -609,79 +609,68 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           setLoading(false);
         }, 10000); // 10 second timeout
 
-        // Smart fetching: Use date-based API for efficiency
-        console.log(
-          `🎯 [MyNewLeague] Smart fetching for date: ${selectedDate}`,
-        );
+        console.log(`🎯 [MyNewLeague] Fetching fixtures with expanded date range for: ${selectedDate}`);
 
-        const response = await fetch(
-          `/api/fixtures/date/${selectedDate}?all=true`,
-        );
-        if (!response.ok) {
-          throw new Error(`Failed to fetch fixtures for ${selectedDate}`);
-        }
+        // Calculate date range: yesterday to tomorrow in UTC to ensure we get all relevant matches
+        const selectedDateObj = new Date(selectedDate + 'T12:00:00Z');
+        const yesterday = new Date(selectedDateObj.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+        const tomorrow = new Date(selectedDateObj.getTime() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-        const allDateFixtures = await response.json();
-        console.log(
-          `📊 [MyNewLeague] Got ${allDateFixtures.length} total fixtures for ${selectedDate}`,
-        );
+        console.log(`📅 [MyNewLeague] Date range: ${yesterday} to ${tomorrow} (selected: ${selectedDate})`);
+
+        // Fetch fixtures for all three days to account for timezone differences
+        const datePromises = [yesterday, selectedDate, tomorrow].map(async (date) => {
+          try {
+            const response = await fetch(`/api/fixtures/date/${date}?all=true`);
+            if (!response.ok) {
+              console.warn(`Failed to fetch fixtures for ${date}`);
+              return [];
+            }
+            const fixtures = await response.json();
+            console.log(`📊 [MyNewLeague] Got ${fixtures.length} fixtures for ${date}`);
+            return fixtures;
+          } catch (error) {
+            console.warn(`Error fetching fixtures for ${date}:`, error);
+            return [];
+          }
+        });
+
+        const allFixturesArrays = await Promise.all(datePromises);
+        const allDateFixtures = allFixturesArrays.flat();
+
+        console.log(`📊 [MyNewLeague] Total fixtures across date range: ${allDateFixtures.length}`);
 
         // Group fixtures by league and filter for our target leagues with timezone awareness
         const leagueFixturesMap = new Map();
 
-        // Debug logging for target leagues including 886 and 2
-        const targetLeagues = [886, 2, 908];
-        targetLeagues.forEach((targetLeagueId) => {
-          const targetLeagueFixtures = allDateFixtures.filter(
-            (f: FixtureData) => f.league?.id === targetLeagueId,
-          );
-          if (targetLeagueFixtures.length > 0) {
-            console.log(
-              `🔍 [MyNewLeague] Found ${targetLeagueFixtures.length} league ${targetLeagueId} fixtures in allDateFixtures:`,
-              targetLeagueFixtures.map((f) => ({
-                id: f.fixture.id,
-                date: f.fixture.date,
-                localDate: new Date(f.fixture.date).toLocaleDateString("en-CA"),
-                utcDate: f.fixture.date.substring(0, 10),
-                selectedDate,
-                dateMatches: f.fixture.date.substring(0, 10) === selectedDate,
-                status: f.fixture.status.short,
-                teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
-                league: f.league.name,
-              })),
-            );
-          }
-        });
-
         allDateFixtures.forEach((fixture: FixtureData) => {
           const leagueId = fixture.league?.id;
           if (leagueIds.includes(leagueId)) {
-            // Simple UTC date filtering
-            const fixtureUTCDate = fixture.fixture?.date?.substring(0, 10);
+            // Convert fixture time to local timezone and get the local date
+            const fixtureDateTime = new Date(fixture.fixture.date);
+            const fixtureLocalDate = fixtureDateTime.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
 
             // Log detailed filtering for problematic leagues
             if ([886, 2, 908].includes(leagueId)) {
               console.log(
-                `🔍 [MyNewLeague] Filtering league ${leagueId} fixture:`,
+                `🔍 [MyNewLeague] Processing league ${leagueId} fixture:`,
                 {
                   fixtureId: fixture.fixture.id,
                   teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                  originalDate: fixture.fixture.date,
-                  fixtureUTCDate,
+                  originalUTCDate: fixture.fixture.date,
+                  fixtureLocalDate,
                   selectedDate,
-                  utcMatches: fixtureUTCDate === selectedDate,
-                  willInclude: fixtureUTCDate === selectedDate,
+                  localDateMatches: fixtureLocalDate === selectedDate,
+                  status: fixture.fixture.status.short,
                 },
               );
             }
 
-            // Include only if UTC date matches selected date
-            if (fixtureUTCDate === selectedDate) {
-              if (!leagueFixturesMap.has(leagueId)) {
-                leagueFixturesMap.set(leagueId, []);
-              }
-              leagueFixturesMap.get(leagueId).push(fixture);
+            // Store all fixtures regardless of date for now - we'll filter by date category later
+            if (!leagueFixturesMap.has(leagueId)) {
+              leagueFixturesMap.set(leagueId, []);
             }
+            leagueFixturesMap.get(leagueId).push(fixture);
           }
         });
 
@@ -689,7 +678,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         const promises = leagueIds.map(async (leagueId) => {
           const fixtures = leagueFixturesMap.get(leagueId) || [];
           console.log(
-            `✅ [MyNewLeague] League ${leagueId}: Found ${fixtures.length} fixtures for ${selectedDate}`,
+            `✅ [MyNewLeague] League ${leagueId}: Found ${fixtures.length} fixtures in date range`,
           );
           return { leagueId, fixtures };
         });
@@ -711,14 +700,11 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 newLeagueFixtures.get(908)?.map((f) => ({
                   id: f.fixture.id,
                   date: f.fixture.date,
+                  localDate: new Date(f.fixture.date).toLocaleDateString('en-CA'),
                   status: f.fixture.status.short,
                   teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
                 })) || [],
             },
-          );
-        } else {
-          console.log(
-            `❌ [MyNewLeague] League 908 NOT found in newLeagueFixtures for date ${selectedDate}`,
           );
         }
 
@@ -733,6 +719,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
             date: selectedDate, // Include date for validation
           }),
         );
+
+        clearTimeout(loadingTimeout);
       } catch (error) {
         console.error(
           "❌ [MyNewLeague] Error fetching league fixtures:",
@@ -769,7 +757,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           // For today: 30 seconds max
           // For other dates: 2 minutes max
           const maxAge =
-            selectedDate === new Date().toISOString().split("T")[0]
+            selectedDate === new Date().toLocaleDateString('en-CA')
               ? 30000
               : 120000;
 
@@ -967,66 +955,38 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     const fixtureDateTime = new Date(fixtureDate);
     const fixtureLocalDate = fixtureDateTime.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
     
-    // Get current time in local timezone
-    const currentTime = new Date();
-    
-    // Get today, tomorrow, and yesterday in local timezone
-    const today = new Date().toLocaleDateString('en-CA');
-    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
-
-    // Convert selected date to local timezone for comparison
-    const selectedDateLocal = new Date(selectedDate + 'T12:00:00Z').toLocaleDateString('en-CA');
+    // Convert selected date to local timezone for comparison (assuming selectedDate is in local timezone format)
+    const selectedDateLocal = selectedDate;
 
     console.log(`🕐 [DateCategory] Local timezone analysis:`, {
       fixtureDate,
       fixtureLocalDate,
       selectedDate,
       selectedDateLocal,
-      today,
-      tomorrow,
-      yesterday,
       kickOffTime: fixtureDateTime.toLocaleString(),
-      currentTime: currentTime.toLocaleString(),
     });
 
-    // Case 1: fixture local date > selected local date AND kick off time > current time
-    // → Tomorrow or future date
-    if (fixtureLocalDate > selectedDateLocal && fixtureDateTime > currentTime) {
-      console.log(`📅 [DateCategory] Future match: ${fixtureLocalDate} > ${selectedDateLocal}`);
-      return fixtureLocalDate === tomorrow ? 'tomorrow' : 'other';
-    }
-
-    // Case 2: fixture local date < selected local date AND kick off time < current time
-    // → Yesterday or past date
-    if (fixtureLocalDate < selectedDateLocal && fixtureDateTime < currentTime) {
-      console.log(`📅 [DateCategory] Past match: ${fixtureLocalDate} < ${selectedDateLocal}`);
-      return fixtureLocalDate === yesterday ? 'yesterday' : 'other';
-    }
-
-    // Case 3: fixture local date === selected local date
+    // Simple date comparison - if fixture's local date matches selected date, it's "today"
     if (fixtureLocalDate === selectedDateLocal) {
       console.log(`📅 [DateCategory] Match on selected date`);
       return 'today';
     }
 
-    // Fallback logic for edge cases
-    // If selected date is today, use real today/tomorrow/yesterday
-    if (selectedDateLocal === today) {
-      if (fixtureLocalDate === today) return 'today';
-      if (fixtureLocalDate === tomorrow) return 'tomorrow';
-      if (fixtureLocalDate === yesterday) return 'yesterday';
-      return 'other';
-    }
-
-    // Calculate relative to selected date
-    const selectedDateObj = new Date(selectedDate + 'T12:00:00Z');
+    // Calculate yesterday and tomorrow relative to selected date
+    const selectedDateObj = new Date(selectedDate + 'T12:00:00');
     const selectedTomorrowLocal = new Date(selectedDateObj.getTime() + 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
     const selectedYesterdayLocal = new Date(selectedDateObj.getTime() - 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
 
-    if (fixtureLocalDate === selectedDateLocal) return 'today';
-    if (fixtureLocalDate === selectedTomorrowLocal) return 'tomorrow';
-    if (fixtureLocalDate === selectedYesterdayLocal) return 'yesterday';
+    if (fixtureLocalDate === selectedTomorrowLocal) {
+      console.log(`📅 [DateCategory] Tomorrow match: ${fixtureLocalDate}`);
+      return 'tomorrow';
+    }
+    if (fixtureLocalDate === selectedYesterdayLocal) {
+      console.log(`📅 [DateCategory] Yesterday match: ${fixtureLocalDate}`);
+      return 'yesterday';
+    }
+
+    console.log(`📅 [DateCategory] Other date match: ${fixtureLocalDate}`);
     return 'other';
   }, []);
 
@@ -1076,9 +1036,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           // Convert fixture to local timezone for comparison
           const fixtureDateTime = new Date(fixtureDate);
           const fixtureLocalDate = fixtureDateTime.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
-          
-          // Convert selected date to local timezone for comparison
-          const selectedDateLocal = new Date(selectedDate + 'T12:00:00Z').toLocaleDateString('en-CA');
 
           // Log detailed filtering for problematic leagues
           if ([886, 2, 908].includes(leagueId)) {
@@ -1090,22 +1047,24 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 originalUTCDate: fixtureDate,
                 fixtureLocalDate,
                 selectedDate,
-                selectedDateLocal,
-                localMatches: fixtureLocalDate === selectedDateLocal,
+                localDateMatches: fixtureLocalDate === selectedDate,
               },
             );
           }
 
-          // Include only if local date matches selected local date
-          const isRelevantForSelectedDate = fixtureLocalDate === selectedDateLocal;
-
-          if (isRelevantForSelectedDate) {
-            // Get date category for this fixture
-            const dateCategory = getDateCategory(fixtureDate, selectedDate);
+          // Get date category for this fixture and filter accordingly
+          const dateCategory = getDateCategory(fixtureDate, selectedDate);
+          
+          // Only include fixtures that belong to today, tomorrow, or yesterday relative to selected date
+          if (['today', 'tomorrow', 'yesterday'].includes(dateCategory)) {
             categorizedFixtures[dateCategory].push(fixture);
 
             if ([886, 2, 908].includes(leagueId)) {
               console.log(`📅 [MyNewLeague] Fixture categorized as: ${dateCategory}`);
+            }
+          } else {
+            if ([886, 2, 908].includes(leagueId)) {
+              console.log(`🚫 [MyNewLeague] Fixture excluded - category: ${dateCategory}, localDate: ${fixtureLocalDate}, selectedDate: ${selectedDate}`);
             }
           }
         });

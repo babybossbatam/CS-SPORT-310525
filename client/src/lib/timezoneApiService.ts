@@ -185,21 +185,21 @@ export function formatMatchTimeWithTimezone(
   formatString: string = 'HH:mm'
 ): string {
   try {
-    const timezoneInfo = detectUserTimezone();
     const date = new Date(matchDate);
     
-    // Format time in user's timezone
-    const formattedTime = new Intl.DateTimeFormat('en-US', {
-      timeZone: timezoneInfo.timezone,
+    // Format time in user's local timezone (browser's timezone)
+    const formattedTime = date.toLocaleTimeString('en-GB', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false
-    }).format(date);
+    });
+    
+    console.log(`🕐 [formatMatchTimeWithTimezone] ${matchDate} → ${formattedTime} (local timezone)`);
     
     return formattedTime;
   } catch (error) {
     console.error('Error formatting match time with timezone:', error);
-    return new Date(matchDate).toLocaleTimeString('en-US', {
+    return new Date(matchDate).toLocaleTimeString('en-GB', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: false
