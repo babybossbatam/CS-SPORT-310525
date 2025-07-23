@@ -642,10 +642,22 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
         // Group fixtures by league and filter for our target leagues with timezone awareness
         const leagueFixturesMap = new Map();
+        const seenFixtureIds = new Set(); // Track seen fixture IDs to prevent duplicates
 
         allDateFixtures.forEach((fixture: FixtureData) => {
           const leagueId = fixture.league?.id;
+          const fixtureId = fixture.fixture.id;
+          
+          // Skip if we've already processed this fixture ID
+          if (seenFixtureIds.has(fixtureId)) {
+            console.log(`🚫 [MyNewLeague] Skipping duplicate fixture ${fixtureId}: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+            return;
+          }
+          
           if (leagueIds.includes(leagueId)) {
+            // Mark this fixture as seen
+            seenFixtureIds.add(fixtureId);
+            
             // Convert fixture time to local timezone and get the local date
             const fixtureDateTime = new Date(fixture.fixture.date);
             const fixtureLocalDate = fixtureDateTime.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
@@ -1029,9 +1041,23 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           other: []
         };
 
+        // Use a Set to track fixture IDs within this league to prevent duplicates
+        const leagueFixtureIds = new Set();
+        
         fixtures.forEach((fixture) => {
           const fixtureDate = fixture.fixture?.date;
+          const fixtureId = fixture.fixture.id;
+          
           if (!fixtureDate) return;
+          
+          // Skip if we've already processed this fixture ID within this league
+          if (leagueFixtureIds.has(fixtureId)) {
+            console.log(`🚫 [MyNewLeague] Skipping duplicate fixture ${fixtureId} in league ${leagueId}: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+            return;
+          }
+          
+          // Mark this fixture as processed for this league
+          leagueFixtureIds.add(fixtureId);
 
           // Convert fixture to local timezone for comparison
           const fixtureDateTime = new Date(fixtureDate);
@@ -1117,6 +1143,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   // Legacy compatibility - combine all dates for backwards compatibility
   const matchesByLeague = useMemo(() => {
     const combined: Record<number, { league: any; matches: FixtureData[] }> = {};
+    const globalFixtureIds = new Set(); // Final deduplication check
 
     Object.values(matchesByDateAndLeague).forEach(dateCategory => {
       Object.entries(dateCategory).forEach(([leagueId, leagueData]) => {
@@ -1124,7 +1151,19 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         if (!combined[id]) {
           combined[id] = { league: leagueData.league, matches: [] };
         }
-        combined[id].matches.push(...leagueData.matches);
+        
+        // Filter out any remaining duplicates at the final level
+        const uniqueMatches = leagueData.matches.filter(match => {
+          const fixtureId = match.fixture.id;
+          if (globalFixtureIds.has(fixtureId)) {
+            console.log(`🚫 [MyNewLeague] Final dedup: Skipping duplicate fixture ${fixtureId}: ${match.teams.home.name} vs ${match.teams.away.name}`);
+            return false;
+          }
+          globalFixtureIds.add(fixtureId);
+          return true;
+        });
+        
+        combined[id].matches.push(...uniqueMatches);
       });
     });
 
@@ -1133,6 +1172,13 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       totalMatches: Object.values(combined).reduce(
         (sum, group) => sum + group.matches.length,
         0,
+      ),
+      duplicatesRemoved: Object.values(matchesByDateAndLeague).reduce(
+        (totalOriginal, dateCategory) => totalOriginal + Object.values(dateCategory).reduce(
+          (categorySum, group) => categorySum + group.matches.length, 0
+        ), 0
+      ) - Object.values(combined).reduce(
+        (sum, group) => sum + group.matches.length, 0,
       ),
       selectedDate,
       leagueFixturesSize: leagueFixtures.size,
