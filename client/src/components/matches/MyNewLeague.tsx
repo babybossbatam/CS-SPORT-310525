@@ -334,7 +334,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     }
   }, [getCacheKey, isMatchOldEnded]);
 
-  
+
 
   // Enhanced data fetching function for initial load and non-live data
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
@@ -395,60 +395,95 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               return !isAlreadyLive;
             });
 
-            // Filter to only include matches for the selected date using timezone-aware conversion
-            const filteredFixtures = nonLiveFixtures.filter(fixture => {
+            // Enhanced timezone-aware date filtering with better live match handling
+              const filteredFixtures = nonLiveFixtures.filter(fixture => {
               const fixtureDate = fixture.fixture?.date;
               if (!fixtureDate) return false;
 
               const currentStatus = fixture.fixture.status.short;
               const fixtureUTCDate = new Date(fixtureDate);
-              const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
               const now = new Date();
 
-              // Special handling for matches that are past their scheduled time but still showing NS status
-              // These are likely postponed/rescheduled matches and should be treated as tomorrow's matches
-              if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
+              // ALWAYS include live matches regardless of date
+              const isLiveMatch = ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(currentStatus);
+
+              if (isLiveMatch) {
+                console.log(`🔴 [LIVE PRIORITY] Always including live match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                  status: currentStatus,
+                  fixtureDate,
+                  league: fixture.league?.name
+                });
+                return true;
+              }
+
+              // For non-live matches, use timezone-aware date matching with tolerance
+              const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+              let shouldInclude = false;
+              let isPostponed = false;
+
+              // Check for exact date match first
+              if (fixtureLocalDate === selectedDate) {
+                shouldInclude = true;
+              }
+
+              // Handle edge cases around midnight boundaries (±4 hours tolerance)
+              if (!shouldInclude) {
+                const selectedDateTime = new Date(selectedDate + 'T12:00:00'); // Noon of selected date
+                const timeDiffHours = Math.abs(fixtureUTCDate.getTime() - selectedDateTime.getTime()) / (1000 * 60 * 60);
+
+                if (timeDiffHours <= 12) { // Within 12 hours of selected date noon
+                  shouldInclude = true;
+                  console.log(`🕐 [BOUNDARY MATCH] Including match near date boundary: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                    fixtureDate,
+                    selectedDate,
+                    timeDiffHours: timeDiffHours.toFixed(1)
+                  });
+                }
+              }
+
+              // Special handling for postponed matches (only for very old NS matches)
+              if (!shouldInclude && currentStatus === 'NS') {
                 const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
 
-                // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
-                if (hoursPassed > 3) {
+                if (hoursPassed > 6) { // More conservative - 6 hours instead of 3
                   const tomorrow = new Date(now);
                   tomorrow.setDate(tomorrow.getDate() + 1);
                   const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
 
-                  const isTomorrowMatch = fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
-
-                  if (isTomorrowMatch) {
-                    console.log(`🔄 [POSTPONED MATCH] Moving to tomorrow: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                  if (selectedDate === tomorrowDate) {
+                    shouldInclude = true;
+                    isPostponed = true;
+                    console.log(`🔄 [POSTPONED] Moving postponed match to tomorrow: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
                       originalTime: fixtureDate,
-                      hoursPassed: hoursPassed.toFixed(1),
-                      status: currentStatus,
-                      fixtureLocalDate,
-                      selectedDate,
-                      tomorrowDate,
-                      treatAsTomorrow: true
+                      hoursPassed: hoursPassed.toFixed(1)
                     });
                   }
-
-                  return isTomorrowMatch;
                 }
               }
 
-              const matches = fixtureLocalDate === selectedDate;
-
-              if (matches) {
-                console.log(`🎯 [TIMEZONE AWARE FETCH] Including match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+              if (shouldInclude) {
+                if (leagueId === 908) {
+                  console.log(`🌍 [DATE FILTER] Including league 908: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                    fixtureUTCTime: fixtureDate,
+                    fixtureLocalDate,
+                    selectedDate,
+                    status: currentStatus,
+                    isPostponed,
+                    isLive: isLiveMatch
+                  });
+                }
+              } else if (leagueId === 908) {
+                console.log(`❌ [DATE FILTER] Excluding league 908: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
                   fixtureUTCTime: fixtureDate,
                   fixtureLocalDate,
                   selectedDate,
-                  timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                   status: currentStatus,
-                  hoursPassed: fixtureUTCDate.getTime() < now.getTime() ? ((now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60)).toFixed(1) : 'future'
+                  reason: 'Date mismatch after all checks'
                 });
               }
 
-              return matches;
-            });
+              return shouldInclude;
+              });
 
             console.log(`🎯 [MyNewLeague] League ${leagueId}: ${freshFixtures.length} → ${filteredFixtures.length} fixtures after date filtering`);
 
@@ -566,90 +601,94 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         allDateFixtures.forEach(fixture => {
           const leagueId = fixture.league?.id;
           if (leagueIds.includes(leagueId)) {
-            // Apply timezone-aware date filtering
-            const fixtureDate = fixture.fixture?.date;
-            if (fixtureDate) {
-              const fixtureUTCDate = new Date(fixtureDate);
-              const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+            // Enhanced timezone-aware date filtering with better live match handling
+              const filteredFixtures = fixtures.filter(fixture => {
+              const fixtureDate = fixture.fixture?.date;
+              if (!fixtureDate) return false;
 
-              // Handle postponed matches and regular date matching
               const currentStatus = fixture.fixture.status.short;
+              const fixtureUTCDate = new Date(fixtureDate);
               const now = new Date();
-              let shouldInclude = false;
-              let isPostponed = false;
 
               // ALWAYS include live matches regardless of date
-              const isLiveMatch = ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(currentStatus);
-
+              const isLiveMatch = ['LIVE', 'LIV', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(currentStatus);
 
               if (isLiveMatch) {
-                shouldInclude = true;
-                console.log(`🔴 [LIVE MATCH PRIORITY] Including live match from league ${leagueId}: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                console.log(`🔴 [LIVE PRIORITY] Always including live match: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
                   status: currentStatus,
                   fixtureDate,
                   league: fixture.league?.name
                 });
-              } else {
-                // Special handling for matches that are past their scheduled time but still showing NS status
-                if (currentStatus === 'NS' && fixtureUTCDate.getTime() < now.getTime()) {
-                  const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
+                return true;
+              }
 
-                  // If match is more than 3 hours past scheduled time and still NS, treat as tomorrow's match
-                  if (hoursPassed > 3) {
-                    const tomorrow = new Date(now);
-                    tomorrow.setDate(tomorrow.getDate() + 1);
-                    const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
+              // For non-live matches, use timezone-aware date matching with tolerance
+              const fixtureLocalDate = fixtureUTCDate.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+              let shouldInclude = false;
+              let isPostponed = false;
 
-                    shouldInclude = fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate;
-                    isPostponed = shouldInclude;
-                  }
+              // Check for exact date match first
+              if (fixtureLocalDate === selectedDate) {
+                shouldInclude = true;
+              }
+
+              // Handle edge cases around midnight boundaries (±4 hours tolerance)
+              if (!shouldInclude) {
+                const selectedDateTime = new Date(selectedDate + 'T12:00:00'); // Noon of selected date
+                const timeDiffHours = Math.abs(fixtureUTCDate.getTime() - selectedDateTime.getTime()) / (1000 * 60 * 60);
+
+                if (timeDiffHours <= 12) { // Within 12 hours of selected date noon
+                  shouldInclude = true;
+                  console.log(`🕐 [BOUNDARY MATCH] Including match near date boundary: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                    fixtureDate,
+                    selectedDate,
+                    timeDiffHours: timeDiffHours.toFixed(1)
+                  });
                 }
+              }
 
-                // Regular date matching for non-postponed matches
-                if (!shouldInclude) {
-                  shouldInclude = fixtureLocalDate === selectedDate;
+              // Special handling for postponed matches (only for very old NS matches)
+              if (!shouldInclude && currentStatus === 'NS') {
+                const hoursPassed = (now.getTime() - fixtureUTCDate.getTime()) / (1000 * 60 * 60);
+
+                if (hoursPassed > 6) { // More conservative - 6 hours instead of 3
+                  const tomorrow = new Date(now);
+                  tomorrow.setDate(tomorrow.getDate() + 1);
+                  const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
+
+                  if (selectedDate === tomorrowDate) {
+                    shouldInclude = true;
+                    isPostponed = true;
+                    console.log(`🔄 [POSTPONED] Moving postponed match to tomorrow: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                      originalTime: fixtureDate,
+                      hoursPassed: hoursPassed.toFixed(1)
+                    });
+                  }
                 }
               }
 
               if (shouldInclude) {
-                if (!leagueFixturesMap.has(leagueId)) {
-                  leagueFixturesMap.set(leagueId, []);
-                }
-                leagueFixturesMap.get(leagueId).push(fixture);
-
                 if (leagueId === 908) {
-                  console.log(`🌍 [SMART FETCH TIMEZONE] Including league 908: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                  console.log(`🌍 [DATE FILTER] Including league 908: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
                     fixtureUTCTime: fixtureDate,
                     fixtureLocalDate,
                     selectedDate,
-                    league: fixture.league?.name,
-                    isPostponed,
                     status: currentStatus,
-                    isLive: isLiveMatch
-                  });
-                } else {
-                  console.log(`🌍 [SMART FETCH TIMEZONE] Including: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
-                    fixtureUTCTime: fixtureDate,
-                    fixtureLocalDate,
-                    selectedDate,
-                    league: fixture.league?.name,
                     isPostponed,
-                    status: currentStatus,
                     isLive: isLiveMatch
                   });
                 }
               } else if (leagueId === 908) {
-                console.log(`❌ [SMART FETCH TIMEZONE] Excluding league 908: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
+                console.log(`❌ [DATE FILTER] Excluding league 908: ${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`, {
                   fixtureUTCTime: fixtureDate,
                   fixtureLocalDate,
                   selectedDate,
-                  league: fixture.league?.name,
                   status: currentStatus,
-                  reason: isLiveMatch ? 'Should not exclude live match!' : 'Date filter mismatch'
+                  reason: 'Date mismatch after all checks'
                 });
               }
-              }
-              }
+
+              return shouldInclude;
               });
 
               // Convert to the expected format
@@ -749,7 +788,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               const cacheKeys = keys.filter(key => key.startsWith('ended_matches_') || key.startsWith('finished_fixtures_'));
 
               let cleanedCount = 0;
-              const today = new Date().toISOString().slice(0, 10);
+              const today = new Date().toISOString().slice(0, `text
+0, 10);
 
               cacheKeys.forEach(key => {
               try {
@@ -1650,8 +1690,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               console.log(`✅ [TIME-BASED FETCH] Found live update for match ${matchId}:`, {
               status: matchUpdate.fixture.status.short,
               elapsed: matchUpdate.fixture.status.elapsed,
-              goals: `${matchUpdate.goals.home}-${matchUpdate.goals.away}`
-              });
+              goals: `${matchUpdate.goals.home}-${matchUpdate.goals.away}`              });
 
               // Update the specific match in state
               setLeagueFixtures(prev => {
