@@ -918,7 +918,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
   // Enhanced debugging for specific leagues
   const friendliesFixtures = fixtures.filter((f) => f.league.id === 667);
-  const iraqiFixtures = fixtures.filter((f) => f.league.id === 233);
+  const iraqiFixtures = fixtures.filter((f) => f.league.id === 283);
   const copaArgentinaFixtures = fixtures.filter((f) => f.league.id === 128);
 
   console.log(
