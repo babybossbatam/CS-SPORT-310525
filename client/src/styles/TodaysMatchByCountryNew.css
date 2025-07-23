@@ -330,6 +330,7 @@
 .country-matches-container .status-halftime {
   color: rgb(220 38 38);
   animation: truePulse 2s infinite;
+  transform: scale(1) !important;
 }
 
 .country-matches-container .status-ended {
@@ -493,9 +494,11 @@
 @keyframes truePulse {
   0%, 100% {
     opacity: 1;
+    transform: scale(1);
   }
   50% {
     opacity: 0.5;
+    transform: scale(1);
   }
 }
 
