@@ -1604,10 +1604,11 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     <div
                       className="match-status-label text-red-400"
                       style={{
-                        minWidth: "60px",
                         textAlign: "center",
                         transition: "none",
                         animation: "none",
+                        color: "#f87171 !important", // Force red color
+                        fontWeight: "500"
                       }}
                     >
                       Postponed
@@ -1731,15 +1732,31 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                       console.log(
                         `⚠️ [Match Status] Match ${matchId} is ${hoursAgo.toFixed(1)}h overdue - likely postponed/cancelled`,
                       );
-                      return (
-                        <div
-                          className="match-time-display text-red-400"
-                          style={{ fontSize: "0.8em" }}
-                        >
-                          Postponed
-                        </div>
-                      );
-                    }
+                      // Postponed/Cancelled matches - show in red with forced color
+                  if (["PST", "CANC", "ABD", "SUSP", "AWD", "WO"].includes(status)) {
+                    const statusText = status === "PST" ? "Postponed" 
+                      : status === "CANC" ? "Cancelled"
+                      : status === "ABD" ? "Abandoned"
+                      : status === "SUSP" ? "Suspended"
+                      : status === "AWD" ? "Awarded"
+                      : status === "WO" ? "Walkover"
+                      : status;
+
+                    return (
+                      <div
+                        className="match-time-display text-red-400"
+                        style={{ 
+                          fontSize: "0.8em",
+                          color: "#f87171 !important", // Force red color
+                          fontWeight: "500"
+                        }}
+                      >
+                        {statusText}
+                      </div>
+                    );
+                  }
+
+                    
 
                     // Use UTC time formatting
                     const utcTime = matchTime.toISOString().substring(11, 16);
