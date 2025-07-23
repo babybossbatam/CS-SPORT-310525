@@ -294,7 +294,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
     const awayPos = titleLower.indexOf(awayLower);
 
     const homeWords = homeLower.split(' ').filter(word => word.length > 2);
-    const awayWords = awayLower.split(' ').filter(word => word.length > 2);
+    const awayWords = awayLower.split(' ').filter(word => titleLower.includes(word));
 
     const homeWordMatches = homeWords.filter(word => titleLower.includes(word));
     const awayWordMatches = awayWords.filter(word => titleLower.includes(word));
@@ -377,7 +377,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
 
     // Check for partial team name matches
     const homeWords = homeLower.split(' ').filter(word => word.length > 2);
-    const awayWords = awayLower.split(' ').filter(word => word.length > 2);
+    const awayWords = awayLower.split(' ').filter(word => titleLower.includes(word));
 
     const homeMatches = homeWords.filter(word => titleLower.includes(word));
     const awayMatches = awayWords.filter(word => titleLower.includes(word));
@@ -719,7 +719,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
           }
         }
 
-        if (data.error || data.quotaExceeded) {```text
+        if (data.error || data.quotaExceeded) {
           throw new Error(data.error || 'Canal do Futebol BR search failed');
         }
 
@@ -732,7 +732,8 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
             embedUrl: `https://www.youtube.com/embed/${video.id.videoId}?autoplay=0&rel=0`,
             title: video.snippet.title
           };
-        }        throw new Error('No Canal do Futebol BR videos found');
+        }
+        throw new Error('No Canal do Futebol BR videos found');
       }
     }] : []),
     // FIFA Club World Cup Official Channel (priority)
