@@ -501,17 +501,38 @@ const TodayPopularFootballLeaguesNew: React.FC<
       console.log(`🔄 [TodayPopularLeagueNew] Cached data flow for ${selectedDate}`);
 
       try {
-        const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
+        // Add retry logic with exponential backoff
+        let retryCount = 0;
+        const maxRetries = 2;
+        
+        while (retryCount < maxRetries) {
+          try {
+            const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const fixtures = await response.json();
+            console.log(`✅ [TodayPopularLeagueNew] Cached fetched ${fixtures?.length || 0} fixtures for ${selectedDate}`);
+            return fixtures || [];
+          } catch (fetchError) {
+            retryCount++;
+            console.warn(`⚠️ [TodayPopularLeagueNew] Cached fetch attempt ${retryCount} failed:`, fetchError);
+            
+            if (retryCount >= maxRetries) {
+              throw fetchError;
+            }
+            
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, retryCount * 2000));
+          }
         }
-
-        const fixtures = await response.json();
-        console.log(`✅ [TodayPopularLeagueNew] Cached fetched ${fixtures?.length || 0} fixtures for ${selectedDate}`);
-        return fixtures || [];
+        
+        return [];
       } catch (error) {
         console.error(`❌ [TodayPopularLeagueNew] Cached flow error for ${selectedDate}:`, error);
+        // Return empty array instead of throwing to prevent component crash
         return [];
       }
     },
@@ -519,8 +540,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
     staleTime: 30 * 60 * 1000, // 30 minutes for cached data
     gcTime: 60 * 60 * 1000, // 1 hour
     refetchOnWindowFocus: false,
-    retry: 1,
+    retry: false, // Handle retries manually
     retryDelay: 2000,
+    throwOnError: false, // Prevent error throwing
     meta: {
       errorMessage: `Failed to fetch cached fixtures for ${selectedDate}`
     }
@@ -533,17 +555,38 @@ const TodayPopularFootballLeaguesNew: React.FC<
       console.log(`🔄 [TodayPopularLeagueNew] Direct data flow for ${selectedDate} (live/today/recent)`);
 
       try {
-        const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
+        // Add retry logic with exponential backoff
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        while (retryCount < maxRetries) {
+          try {
+            const response = await apiRequest("GET", `/api/fixtures/date/${selectedDate}?all=true`);
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const fixtures = await response.json();
+            console.log(`✅ [TodayPopularLeagueNew] Direct fetched ${fixtures?.length || 0} fixtures for ${selectedDate}`);
+            return fixtures || [];
+          } catch (fetchError) {
+            retryCount++;
+            console.warn(`⚠️ [TodayPopularLeagueNew] Fetch attempt ${retryCount} failed:`, fetchError);
+            
+            if (retryCount >= maxRetries) {
+              throw fetchError;
+            }
+            
+            // Wait before retrying (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
+          }
         }
-
-        const fixtures = await response.json();
-        console.log(`✅ [TodayPopularLeagueNew] Direct fetched ${fixtures?.length || 0} fixtures for ${selectedDate}`);
-        return fixtures || [];
+        
+        return [];
       } catch (error) {
         console.error(`❌ [TodayPopularLeagueNew] Direct flow error for ${selectedDate}:`, error);
+        // Return empty array instead of throwing to prevent component crash
         return [];
       }
     },
@@ -552,8 +595,9 @@ const TodayPopularFootballLeaguesNew: React.FC<
     gcTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: false,
     refetchInterval: isDateStringToday(selectedDate) ? 30000 : false, // Auto-refresh for today's matches
-    retry: 1,
-    retryDelay: 1000, // Faster retry for live data
+    retry: false, // Handle retries manually
+    retryDelay: 1000,
+    throwOnError: false, // Prevent error throwing
     meta: {
       errorMessage: `Failed to fetch direct fixtures for ${selectedDate}`
     }

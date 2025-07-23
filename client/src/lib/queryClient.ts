@@ -43,6 +43,10 @@ export async function apiRequest(
 
     console.log(`📡 [apiRequest] Making ${method} request to: ${apiUrl}`);
 
+    // Add timeout and AbortController for better network handling
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
     const response = await fetch(apiUrl, {
       method,
       headers: {
@@ -52,7 +56,10 @@ export async function apiRequest(
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
       mode: "cors",
+      signal: controller.signal,
     });
+
+    clearTimeout(timeoutId);
 
     console.log(`📡 [apiRequest] Response status: ${response.status} for ${method} ${url}`);
 
@@ -65,14 +72,27 @@ export async function apiRequest(
     console.error(`❌ [apiRequest] Error for ${method} ${url}:`, {
       error: errorMessage,
       url: url,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      errorType: error instanceof Error ? error.constructor.name : 'Unknown'
     });
+
+    // Handle AbortError (timeout)
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error(
+        `⏱️ [apiRequest] Request aborted/timeout for ${method} ${url}`,
+      );
+      throw new Error(
+        `Request timeout: The server took too long to respond. Please try again.`,
+      );
+    }
 
     // Handle specific error types with more detailed messages
     if (
       errorMessage.includes("Failed to fetch") ||
       errorMessage.includes("NetworkError") ||
-      errorMessage.includes("fetch")
+      errorMessage.includes("fetch") ||
+      errorMessage.includes("ERR_NETWORK") ||
+      errorMessage.includes("ERR_INTERNET_DISCONNECTED")
     ) {
       console.error(
         `🌐 [apiRequest] Network connectivity issue for ${method} ${url}: ${errorMessage}`,
