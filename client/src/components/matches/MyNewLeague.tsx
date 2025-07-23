@@ -510,7 +510,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           );
         }
 
-        allDateFixtures.forEach(fixture => {
+        allDateFixtures.forEach((fixture: FixtureData) => {
               const leagueId = fixture.league?.id;
               if (leagueIds.includes(leagueId)) {
                 // Simple date filtering - extract UTC date from fixture
@@ -885,7 +885,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         return aDate - bDate;
       });
     });
-
+    let totalMatches = Object.values(matchesByLeague).reduce((sum, group) => sum + group.matches.length, 0);
     console.log(`📊 [MyNewLeague] Final stats: ${totalMatches} total matches in ${Object.keys(matchesByLeague).length} leagues for ${selectedDate}`);
 
     const toggleStarMatch = useCallback((matchId: number) => {
