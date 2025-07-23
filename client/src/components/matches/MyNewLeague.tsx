@@ -961,73 +961,72 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     }
   });
 
-  // Function to categorize matches by date relative to selected date with kick-off time logic
+  // Function to categorize matches by date relative to selected date using local timezone
   const getDateCategory = useCallback((fixtureDate: string, selectedDate: string) => {
-    // Get the fixture's UTC date (YYYY-MM-DD) and time
-    const fixtureUTCDate = fixtureDate.substring(0, 10);
+    // Convert fixture UTC time to local timezone
     const fixtureDateTime = new Date(fixtureDate);
+    const fixtureLocalDate = fixtureDateTime.toLocaleDateString('en-CA'); // YYYY-MM-DD format in local timezone
+    
+    // Get current time in local timezone
     const currentTime = new Date();
+    
+    // Get today, tomorrow, and yesterday in local timezone
+    const today = new Date().toLocaleDateString('en-CA');
+    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
 
-    // Get today, tomorrow, and yesterday in UTC
-    const today = new Date().toISOString().substring(0, 10);
-    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
+    // Convert selected date to local timezone for comparison
+    const selectedDateLocal = new Date(selectedDate + 'T12:00:00Z').toLocaleDateString('en-CA');
 
-    // Enhanced logic with kick-off time consideration
-    console.log(`🕐 [DateCategory] Analyzing fixture:`, {
+    console.log(`🕐 [DateCategory] Local timezone analysis:`, {
       fixtureDate,
-      fixtureUTCDate,
+      fixtureLocalDate,
       selectedDate,
-      kickOffTime: fixtureDateTime.toISOString(),
-      currentTime: currentTime.toISOString(),
-      isKickOffFuture: fixtureDateTime > currentTime,
+      selectedDateLocal,
+      today,
+      tomorrow,
+      yesterday,
+      kickOffTime: fixtureDateTime.toLocaleString(),
+      currentTime: currentTime.toLocaleString(),
     });
 
-    // Case 1: fixture date > selected date AND kick off time > current time
+    // Case 1: fixture local date > selected local date AND kick off time > current time
     // → Tomorrow or future date
-    if (fixtureUTCDate > selectedDate && fixtureDateTime > currentTime) {
-      console.log(`📅 [DateCategory] Future match: ${fixtureUTCDate} > ${selectedDate}`);
-      return fixtureUTCDate === tomorrow ? 'tomorrow' : 'other';
+    if (fixtureLocalDate > selectedDateLocal && fixtureDateTime > currentTime) {
+      console.log(`📅 [DateCategory] Future match: ${fixtureLocalDate} > ${selectedDateLocal}`);
+      return fixtureLocalDate === tomorrow ? 'tomorrow' : 'other';
     }
 
-    // Case 2: fixture date < selected date AND kick off time < current time
+    // Case 2: fixture local date < selected local date AND kick off time < current time
     // → Yesterday or past date
-    if (fixtureUTCDate < selectedDate && fixtureDateTime < currentTime) {
-      console.log(`📅 [DateCategory] Past match: ${fixtureUTCDate} < ${selectedDate}`);
-      return fixtureUTCDate === yesterday ? 'yesterday' : 'other';
+    if (fixtureLocalDate < selectedDateLocal && fixtureDateTime < currentTime) {
+      console.log(`📅 [DateCategory] Past match: ${fixtureLocalDate} < ${selectedDateLocal}`);
+      return fixtureLocalDate === yesterday ? 'yesterday' : 'other';
     }
 
-    // Case 3: fixture date === selected date
-    if (fixtureUTCDate === selectedDate) {
-      // Case 3a: kick off time > current time → Today's upcoming matches
-      if (fixtureDateTime > currentTime) {
-        console.log(`📅 [DateCategory] Today's upcoming match`);
-        return 'today';
-      }
-      // Case 3b: kick off time <= current time → Today's ongoing/ended matches
-      else {
-        console.log(`📅 [DateCategory] Today's ongoing/ended match`);
-        return 'today';
-      }
+    // Case 3: fixture local date === selected local date
+    if (fixtureLocalDate === selectedDateLocal) {
+      console.log(`📅 [DateCategory] Match on selected date`);
+      return 'today';
     }
 
     // Fallback logic for edge cases
     // If selected date is today, use real today/tomorrow/yesterday
-    if (selectedDate === today) {
-      if (fixtureUTCDate === today) return 'today';
-      if (fixtureUTCDate === tomorrow) return 'tomorrow';
-      if (fixtureUTCDate === yesterday) return 'yesterday';
+    if (selectedDateLocal === today) {
+      if (fixtureLocalDate === today) return 'today';
+      if (fixtureLocalDate === tomorrow) return 'tomorrow';
+      if (fixtureLocalDate === yesterday) return 'yesterday';
       return 'other';
     }
 
-    // If selected date is not today, calculate relative to selected date
-    const selectedDateObj = new Date(selectedDate + 'T00:00:00Z');
-    const selectedTomorrow = new Date(selectedDateObj.getTime() + 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
-    const selectedYesterday = new Date(selectedDateObj.getTime() - 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
+    // Calculate relative to selected date
+    const selectedDateObj = new Date(selectedDate + 'T12:00:00Z');
+    const selectedTomorrowLocal = new Date(selectedDateObj.getTime() + 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
+    const selectedYesterdayLocal = new Date(selectedDateObj.getTime() - 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
 
-    if (fixtureUTCDate === selectedDate) return 'today';
-    if (fixtureUTCDate === selectedTomorrow) return 'tomorrow';
-    if (fixtureUTCDate === selectedYesterday) return 'yesterday';
+    if (fixtureLocalDate === selectedDateLocal) return 'today';
+    if (fixtureLocalDate === selectedTomorrowLocal) return 'tomorrow';
+    if (fixtureLocalDate === selectedYesterdayLocal) return 'yesterday';
     return 'other';
   }, []);
 
@@ -1074,26 +1073,31 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           const fixtureDate = fixture.fixture?.date;
           if (!fixtureDate) return;
 
-          // Extract UTC date part (YYYY-MM-DD)
-          const fixtureUTCDate = fixtureDate.substring(0, 10);
+          // Convert fixture to local timezone for comparison
+          const fixtureDateTime = new Date(fixtureDate);
+          const fixtureLocalDate = fixtureDateTime.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
+          
+          // Convert selected date to local timezone for comparison
+          const selectedDateLocal = new Date(selectedDate + 'T12:00:00Z').toLocaleDateString('en-CA');
 
           // Log detailed filtering for problematic leagues
           if ([886, 2, 908].includes(leagueId)) {
             console.log(
-              `🔍 [MyNewLeague] League ${leagueId} fixture filtering:`,
+              `🔍 [MyNewLeague] League ${leagueId} fixture filtering (LOCAL TZ):`,
               {
                 fixtureId: fixture.fixture.id,
                 teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                originalDate: fixtureDate,
-                fixtureUTCDate,
+                originalUTCDate: fixtureDate,
+                fixtureLocalDate,
                 selectedDate,
-                utcMatches: fixtureUTCDate === selectedDate,
+                selectedDateLocal,
+                localMatches: fixtureLocalDate === selectedDateLocal,
               },
             );
           }
 
-          // Include only if UTC date matches selected date
-          const isRelevantForSelectedDate = fixtureUTCDate === selectedDate;
+          // Include only if local date matches selected local date
+          const isRelevantForSelectedDate = fixtureLocalDate === selectedDateLocal;
 
           if (isRelevantForSelectedDate) {
             // Get date category for this fixture
@@ -2248,21 +2252,30 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         const hasMatches = Object.keys(leaguesByDate).length > 0;
         if (!hasMatches) return null;
 
-        // Get display name for date category
+        // Get display name for date category using local timezone
         const getDateCategoryDisplay = (category: string) => {
+          // Convert selected date to local timezone for display
+          const selectedDateLocal = new Date(selectedDate + 'T12:00:00Z').toLocaleDateString('en-CA');
+          const today = new Date().toLocaleDateString('en-CA');
+          const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
+          const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
+          
           switch (category) {
-            case 'today': return `Today (${selectedDate})`;
+            case 'today': {
+              // Show "Today" if selected date is actually today, otherwise show the selected date
+              return selectedDateLocal === today ? `Today (${selectedDateLocal})` : `Selected Date (${selectedDateLocal})`;
+            }
             case 'tomorrow': {
-              const tomorrow = selectedDate === new Date().toLocaleDateString("en-CA") 
-                ? new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString("en-CA")
-                : new Date(new Date(selectedDate + 'T00:00:00').getTime() + 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
-              return `Tomorrow (${tomorrow})`;
+              const tomorrowDate = selectedDateLocal === today 
+                ? tomorrow
+                : new Date(new Date(selectedDate + 'T12:00:00Z').getTime() + 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
+              return `Tomorrow (${tomorrowDate})`;
             }
             case 'yesterday': {
-              const yesterday = selectedDate === new Date().toLocaleDateString("en-CA")
-                ? new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString("en-CA")
-                : new Date(new Date(selectedDate + 'T00:00:00').getTime() - 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
-              return `Yesterday (${yesterday})`;
+              const yesterdayDate = selectedDateLocal === today
+                ? yesterday
+                : new Date(new Date(selectedDate + 'T12:00:00Z').getTime() - 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
+              return `Yesterday (${yesterdayDate})`;
             }
             case 'other': return 'Other Dates';
             default: return category;
