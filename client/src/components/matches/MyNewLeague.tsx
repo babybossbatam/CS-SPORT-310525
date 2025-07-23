@@ -1002,37 +1002,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
         // Enhanced date filtering with timezone consideration
         const filteredFixtures = fixtures
-          // Apply exclusion filters
-          .filter((fixture) => {
-            // Skip fixtures with null or undefined country
-            if (!fixture.league.country) {
-              if ([2, 886, 908].includes(fixture.league.id)) {
-                console.log(`❌ [MyNewLeague] League ${fixture.league.id} excluded - no country:`, fixture.league.name);
-              }
-              return false;
-            }
-
-            // Apply popular league exclusion filters
-            const shouldExclude = shouldExcludeFromPopularLeagues(
-              fixture.league.name,
-              fixture.teams.home.name,
-              fixture.teams.away.name,
-              fixture.league.country,
-            );
-
-            if (shouldExclude) {
-              if ([2, 886, 908].includes(fixture.league.id)) {
-                console.log(`❌ [MyNewLeague] League ${fixture.league.id} excluded by popular league filter:`, {
-                  leagueName: fixture.league.name,
-                  country: fixture.league.country,
-                  teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                });
-              }
-              return false;
-            }
-
-            return true;
-          })
           .filter((fixture) => {
             const fixtureDate = fixture.fixture?.date;
             if (!fixtureDate) return false;
