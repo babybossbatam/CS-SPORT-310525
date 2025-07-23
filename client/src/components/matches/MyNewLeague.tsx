@@ -414,17 +414,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     [getCacheKey, isMatchOldEnded],
   );
 
-  // Function to detect user's timezone
-  const detectUserTimezone = () => {
-    try {
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      const offset = new Date().getTimezoneOffset(); // Offset in minutes
-      return { timezone, offset };
-    } catch (error) {
-      console.error("Failed to detect user timezone:", error);
-      return { timezone: "UTC", offset: 0 }; // Default to UTC if detection fails
-    }
-  };
+  
 
   // Enhanced data fetching function for initial load and non-live data
   const fetchLeagueData = useCallback(
@@ -659,13 +649,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         allDateFixtures.forEach((fixture: FixtureData) => {
           const leagueId = fixture.league?.id;
           if (leagueIds.includes(leagueId)) {
-            // Enhanced date filtering with timezone consideration
+            // Simple UTC date filtering
             const fixtureUTCDate = fixture.fixture?.date?.substring(0, 10);
-
-            // Convert fixture time to user's local timezone for comparison
-            const fixtureLocalDate = new Date(
-              fixture.fixture.date,
-            ).toLocaleDateString("en-CA");
 
             // Log detailed filtering for problematic leagues
             if ([886, 2, 908].includes(leagueId)) {
@@ -676,22 +661,15 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                   originalDate: fixture.fixture.date,
                   fixtureUTCDate,
-                  fixtureLocalDate,
                   selectedDate,
                   utcMatches: fixtureUTCDate === selectedDate,
-                  localMatches: fixtureLocalDate === selectedDate,
-                  willInclude:
-                    fixtureUTCDate === selectedDate ||
-                    fixtureLocalDate === selectedDate,
+                  willInclude: fixtureUTCDate === selectedDate,
                 },
               );
             }
 
-            // Include if either UTC date or local date matches selected date
-            if (
-              fixtureUTCDate === selectedDate ||
-              fixtureLocalDate === selectedDate
-            ) {
+            // Include only if UTC date matches selected date
+            if (fixtureUTCDate === selectedDate) {
               if (!leagueFixturesMap.has(leagueId)) {
                 leagueFixturesMap.set(leagueId, []);
               }
@@ -976,30 +954,30 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
   // Function to categorize matches by date relative to selected date
   const getDateCategory = useCallback((fixtureDate: string, selectedDate: string) => {
-    // Get the fixture's local date (kick-off time in user's timezone)
-    const fixtureLocalDate = new Date(fixtureDate).toLocaleDateString("en-CA");
+    // Get the fixture's UTC date (YYYY-MM-DD)
+    const fixtureUTCDate = fixtureDate.substring(0, 10);
     
-    // Get today, tomorrow, and yesterday in user's timezone
-    const today = new Date().toLocaleDateString("en-CA");
-    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
+    // Get today, tomorrow, and yesterday in UTC
+    const today = new Date().toISOString().substring(0, 10);
+    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
     
     // If selected date is today, use real today/tomorrow/yesterday
     if (selectedDate === today) {
-      if (fixtureLocalDate === today) return 'today';
-      if (fixtureLocalDate === tomorrow) return 'tomorrow';
-      if (fixtureLocalDate === yesterday) return 'yesterday';
+      if (fixtureUTCDate === today) return 'today';
+      if (fixtureUTCDate === tomorrow) return 'tomorrow';
+      if (fixtureUTCDate === yesterday) return 'yesterday';
       return 'other';
     }
     
     // If selected date is not today, calculate relative to selected date
-    const selectedDateObj = new Date(selectedDate + 'T00:00:00');
-    const selectedTomorrow = new Date(selectedDateObj.getTime() + 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
-    const selectedYesterday = new Date(selectedDateObj.getTime() - 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
+    const selectedDateObj = new Date(selectedDate + 'T00:00:00Z');
+    const selectedTomorrow = new Date(selectedDateObj.getTime() + 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
+    const selectedYesterday = new Date(selectedDateObj.getTime() - 24 * 60 * 60 * 1000).toISOString().substring(0, 10);
     
-    if (fixtureLocalDate === selectedDate) return 'today';
-    if (fixtureLocalDate === selectedTomorrow) return 'tomorrow';
-    if (fixtureLocalDate === selectedYesterday) return 'yesterday';
+    if (fixtureUTCDate === selectedDate) return 'today';
+    if (fixtureUTCDate === selectedTomorrow) return 'tomorrow';
+    if (fixtureUTCDate === selectedYesterday) return 'yesterday';
     return 'other';
   }, []);
 
@@ -1048,8 +1026,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
           // Extract UTC date part (YYYY-MM-DD)
           const fixtureUTCDate = fixtureDate.substring(0, 10);
-          // Convert to user's local timezone date
-          const fixtureLocalDate = new Date(fixtureDate).toLocaleDateString("en-CA");
 
           // Log detailed filtering for problematic leagues
           if ([886, 2, 908].includes(leagueId)) {
@@ -1060,16 +1036,14 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 teams: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                 originalDate: fixtureDate,
                 fixtureUTCDate,
-                fixtureLocalDate,
                 selectedDate,
                 utcMatches: fixtureUTCDate === selectedDate,
-                localMatches: fixtureLocalDate === selectedDate,
               },
             );
           }
 
-          // Include if either UTC date or local date matches selected date OR is within yesterday/tomorrow range
-          const isRelevantForSelectedDate = fixtureUTCDate === selectedDate || fixtureLocalDate === selectedDate;
+          // Include only if UTC date matches selected date
+          const isRelevantForSelectedDate = fixtureUTCDate === selectedDate;
           
           if (isRelevantForSelectedDate) {
             // Get date category for this fixture
@@ -1106,8 +1080,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
       }
     });
 
-    // Log timezone conversion info
-    const userTimezone = detectUserTimezone();
+    // Log categorization results
     const totalMatches = Object.values(result).reduce(
       (sum, dateCategory) => sum + Object.values(dateCategory).reduce(
         (categorySum, group) => categorySum + group.matches.length, 0
@@ -1116,8 +1089,6 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
     console.log(`🌍 [MyNewLeague] Date categorization complete:`, {
       selectedDate,
-      userTimezone: userTimezone.timezone,
-      userOffset: userTimezone.offset,
       totalMatches,
       breakdown: {
         today: Object.values(result.today).reduce((sum, group) => sum + group.matches.length, 0),
@@ -1796,19 +1767,15 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                       );
                     }
 
-                    // Use simplified local time formatting
-                    const localTime = matchTime.toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                    });
+                    // Use UTC time formatting
+                    const utcTime = matchTime.toISOString().substring(11, 16);
 
                     return (
                       <div
                         className="match-time-display"
                         style={{ fontSize: "0.882em" }}
                       >
-                        {status === "TBD" ? "TBD" : localTime}
+                        {status === "TBD" ? "TBD" : utcTime}
                       </div>
                     );
                   }
