@@ -32,26 +32,29 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) return [];
 
+    // Ensure selectedDate is in UTC format (YYYY-MM-DD)
+    const utcSelectedDate = selectedDate.includes('T') ? selectedDate.substring(0, 10) : selectedDate;
+
     console.log(
-      `🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for date range around: ${selectedDate} (mode: ${dateRange})`,
+      `🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for UTC date range around: ${utcSelectedDate} (mode: ${dateRange})`,
     );
 
     if (dateRange === 'single') {
-      // Original single-date filtering
+      // Original single-date filtering with UTC format
       const filtered = fixtures.filter((fixture) => {
         if (fixture.fixture.date && fixture.fixture.status?.short) {
           const fixtureUTCDate = fixture.fixture.date.substring(0, 10);
-          return fixtureUTCDate === selectedDate;
+          return fixtureUTCDate === utcSelectedDate;
         }
         return false;
       });
       
-      console.log(`✅ [MyMainLayout] Single date: ${filtered.length} matches for ${selectedDate}`);
+      console.log(`✅ [MyMainLayout] Single date: ${filtered.length} matches for UTC ${utcSelectedDate}`);
       return filtered;
     }
 
-    // Extended date range: ±2 days with original timezone
-    const selectedDateObj = new Date(selectedDate + 'T00:00:00Z');
+    // Extended date range: ±2 days with UTC format
+    const selectedDateObj = new Date(utcSelectedDate + 'T00:00:00Z');
     const twoDaysBefore = new Date(selectedDateObj);
     twoDaysBefore.setDate(twoDaysBefore.getDate() - 2);
     const twoDaysAfter = new Date(selectedDateObj);
@@ -61,7 +64,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
     const endDateString = format(twoDaysAfter, "yyyy-MM-dd");
 
     console.log(
-      `📅 [MyMainLayout] Extended range: ${startDateString} to ${endDateString} (center: ${selectedDate})`,
+      `📅 [MyMainLayout] Extended range: ${startDateString} to ${endDateString} (center: ${utcSelectedDate})`,
     );
 
     const filtered = fixtures.filter((fixture) => {
@@ -151,14 +154,15 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           {dateRange === 'extended' && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
               <h3 className="text-sm font-semibold text-blue-800 mb-2">
-                Extended Date Range Debug (±2 days from {selectedDate})
+                Extended Date Range Debug (±2 days from {selectedDate.includes('T') ? selectedDate.substring(0, 10) : selectedDate} UTC)
               </h3>
               <div className="text-xs text-blue-600 space-y-1">
                 <p>• Total fixtures processed: {fixtures?.length || 0}</p>
                 <p>• Fixtures in range: {filteredFixtures.length}</p>
                 <p>• Original timezone: UTC (as received from API)</p>
                 <p>• Range: {selectedDate && (() => {
-                  const selectedDateObj = new Date(selectedDate + 'T00:00:00Z');
+                  const utcSelectedDate = selectedDate.includes('T') ? selectedDate.substring(0, 10) : selectedDate;
+                  const selectedDateObj = new Date(utcSelectedDate + 'T00:00:00Z');
                   const twoDaysBefore = new Date(selectedDateObj);
                   twoDaysBefore.setDate(twoDaysBefore.getDate() - 2);
                   const twoDaysAfter = new Date(selectedDateObj);
