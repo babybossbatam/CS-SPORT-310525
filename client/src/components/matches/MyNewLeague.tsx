@@ -885,7 +885,9 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
         return aDate - bDate;
       });
     });
-    let totalMatches = Object.values(matchesByLeague).reduce((sum, group) => sum + group.matches.length, 0);
+
+    // Calculate total matches for logging
+    const totalMatches = Object.values(matchesByLeague).reduce((sum, group) => sum + group.matches.length, 0);
     console.log(`📊 [MyNewLeague] Final stats: ${totalMatches} total matches in ${Object.keys(matchesByLeague).length} leagues for ${selectedDate}`);
 
     const toggleStarMatch = useCallback((matchId: number) => {
