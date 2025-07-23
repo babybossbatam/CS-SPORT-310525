@@ -329,9 +329,6 @@
 
 .country-matches-container .status-halftime {
   color: rgb(220 38 38);
-  animation: halftimeOpacityPulse 2s infinite;
-  transform: none !important;
-  transform-origin: center !important;
 }
 
 .country-matches-container .status-ended {
@@ -503,14 +500,7 @@
   }
 }
 
-@keyframes halftimeOpacityPulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
+
 
 /* Keyframe animations for league expand/collapse - EXACTLY like MyLogoPositioning */
 @keyframes slideDown {
