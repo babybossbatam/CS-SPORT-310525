@@ -929,7 +929,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     "🇮🇶 [MyNewLeague IRAQI] Total Iraqi League fixtures:",
     iraqiFixtures.length,
   );
-Adding loadingTimeout and clear it when loading is done or cache is hit.```text
+  // Adding loadingTimeout and clear it when loading is done or cache is hit.
 
   console.log(
     "🇦🇷 [MyNewLeague COPA ARG] Total Copa Argentina fixtures:",
