@@ -572,7 +572,7 @@ const TodayPopularFootballLeaguesNew: React.FC<
     fixtureCount: allFixtures.length
   });
 
-  // Simple filtering without complex date conversions
+  // Simplified date filtering using fixture date comparison
   const filteredFixtures = useMemo(() => {
     if (!allFixtures?.length) return [];
 
@@ -582,15 +582,48 @@ const TodayPopularFootballLeaguesNew: React.FC<
 
     const startTime = Date.now();
 
+    // Get today's date for comparison
+    const today = new Date();
+    const todayString = today.toISOString().split('T')[0];
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowString = tomorrow.toISOString().split('T')[0];
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayString = yesterday.toISOString().split('T')[0];
+
     // Simple date matching - check if fixture date matches selected date
     const filtered = allFixtures.filter((fixture) => {
       if (!fixture?.fixture?.date || !fixture?.league || !fixture?.teams) {
         return false;
       }
 
-      // Simple date comparison - extract date part from fixture date
-      const fixtureDate = fixture.fixture.date.split('T')[0]; // Gets YYYY-MM-DD part
-      const dateMatches = fixtureDate === selectedDate;
+      // Extract UTC date from fixture (YYYY-MM-DD format)
+      const fixtureUTCDate = fixture.fixture.date.split('T')[0];
+      
+      // Determine what category this fixture belongs to
+      let dateCategory = 'other';
+      if (fixtureUTCDate === todayString) {
+        dateCategory = 'today';
+      } else if (fixtureUTCDate === tomorrowString) {
+        dateCategory = 'tomorrow';
+      } else if (fixtureUTCDate === yesterdayString) {
+        dateCategory = 'yesterday';
+      }
+
+      // Check if this fixture's date category matches what we're looking for
+      let targetCategory = 'other';
+      if (selectedDate === todayString) {
+        targetCategory = 'today';
+      } else if (selectedDate === tomorrowString) {
+        targetCategory = 'tomorrow';  
+      } else if (selectedDate === yesterdayString) {
+        targetCategory = 'yesterday';
+      }
+
+      // For the selected date, we want either exact match OR related matches
+      const dateMatches = fixtureUTCDate === selectedDate || 
+        (targetCategory !== 'other' && dateCategory === targetCategory);
 
       if (!dateMatches) {
         return false;
