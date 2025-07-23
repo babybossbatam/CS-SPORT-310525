@@ -799,7 +799,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               totalLeagues: Object.keys(result).length,
               totalMatches: Object.values(result).reduce((sum, group) => sum + group.matches.length, 0),
               selectedDate,
-              leagueFixturesSize: leagueFixtures.size```text
+              leagueFixturesSize: leagueFixtures.size
 ,
         hasLeague908: !!result[908],
         league908Matches: result[908]?.matches.length || 0
