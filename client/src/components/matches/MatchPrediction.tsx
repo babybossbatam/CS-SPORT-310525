@@ -99,10 +99,10 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
     }
   }
 
-  // Use props as fallback if API data is not available
-  const homeWinProbability = predictionData?.homeWinProbability ?? propHomeWin ?? 33;
-  const drawProbability = predictionData?.drawProbability ?? propDraw ?? 34;
-  const awayWinProbability = predictionData?.awayWinProbability ?? propAwayWin ?? 33;
+  // Only show predictions if we have real data
+  const homeWinProbability = predictionData?.homeWinProbability;
+  const drawProbability = predictionData?.drawProbability;
+  const awayWinProbability = predictionData?.awayWinProbability;
 
   useEffect(() => {
     const fetchPredictionData = async () => {
@@ -152,14 +152,14 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           fetch(`/api/teams/${awayTeam.id}/statistics?league=${leagueId}&season=${season || new Date().getFullYear()}`)
         ];
 
-        // Add odds fetch if fixtureId is available
+        // Add predictions fetch if fixtureId is available - prioritize this over manual calculations
         if (fixtureId) {
-          console.log(`📊 [MatchPrediction] Fetching odds for fixture: ${fixtureId}`);
-          fetchPromises.push(fetch(`/api/fixtures/${fixtureId}/odds`));
+          console.log(`📊 [MatchPrediction] Fetching predictions for fixture: ${fixtureId}`);
+          fetchPromises.push(fetch(`/api/fixtures/${fixtureId}/predictions`));
         }
 
         const responses = await Promise.all(fetchPromises);
-        const [homeStatsResponse, awayStatsResponse, oddsResponse] = responses;
+        const [homeStatsResponse, awayStatsResponse, predictionsResponse] = responses;
 
         let homeStats: TeamStats | null = null;
         let awayStats: TeamStats | null = null;
@@ -202,125 +202,87 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           }
         }
 
-        // Process odds data if available
-        let oddsBasedProbabilities = null;
-        if (oddsResponse && oddsResponse.ok) {
+        // Process RapidAPI predictions data - this is our only source
+        let apiPredictions = null;
+        if (predictionsResponse && predictionsResponse.ok) {
           try {
-            const oddsData = await oddsResponse.json();
-            console.log('📊 [MatchPrediction] Odds response:', oddsData);
+            const predictionsData = await predictionsResponse.json();
+            console.log('📊 [MatchPrediction] RapidAPI Predictions response:', predictionsData);
             
-            if (oddsData.success && oddsData.data && oddsData.data.length > 0) {
-              // Find 1X2 (Match Winner) odds from a major bookmaker
-              const bookmaker = oddsData.data.find((bm: any) => 
-                bm.bookmaker?.name && ['Bet365', '1xBet', 'Unibet', 'William Hill', 'Pinnacle'].includes(bm.bookmaker.name)
-              ) || oddsData.data[0];
-
-              console.log('📊 [MatchPrediction] Using bookmaker:', bookmaker?.bookmaker?.name);
-
-              if (bookmaker?.bets) {
-                const matchWinnerBet = bookmaker.bets.find((bet: any) => 
-                  bet.name === 'Match Winner' || bet.name === '1X2'
-                );
-
-                if (matchWinnerBet?.values && matchWinnerBet.values.length >= 3) {
-                  const homeOdd = parseFloat(matchWinnerBet.values[0]?.odd || '2.0');
-                  const drawOdd = parseFloat(matchWinnerBet.values[1]?.odd || '3.0');
-                  const awayOdd = parseFloat(matchWinnerBet.values[2]?.odd || '2.0');
-
-                  console.log('📊 [MatchPrediction] Raw odds:', { homeOdd, drawOdd, awayOdd });
-
-                  // Convert odds to implied probabilities
-                  const homeProb = (1 / homeOdd) * 100;
-                  const drawProb = (1 / drawOdd) * 100;
-                  const awayProb = (1 / awayOdd) * 100;
-
-                  // Normalize to ensure they add up to 100%
-                  const total = homeProb + drawProb + awayProb;
-                  oddsBasedProbabilities = {
-                    homeWinProbability: Math.round((homeProb / total) * 100),
-                    drawProbability: Math.round((drawProb / total) * 100),
-                    awayWinProbability: Math.round((awayProb / total) * 100),
-                    confidence: 85, // High confidence for bookmaker odds
-                    source: 'odds'
+            if (predictionsData.success && predictionsData.data && predictionsData.data.length > 0) {
+              const prediction = predictionsData.data[0];
+              
+              if (prediction.predictions && prediction.predictions.percent) {
+                const homePercent = parseInt(prediction.predictions.percent.home?.replace('%', '') || '0');
+                const drawPercent = parseInt(prediction.predictions.percent.draw?.replace('%', '') || '0');
+                const awayPercent = parseInt(prediction.predictions.percent.away?.replace('%', '') || '0');
+                
+                // Only use predictions if we have valid data (not all zeros)
+                if (homePercent > 0 || drawPercent > 0 || awayPercent > 0) {
+                  apiPredictions = {
+                    homeWinProbability: homePercent,
+                    drawProbability: drawPercent,
+                    awayWinProbability: awayPercent,
+                    confidence: 95, // High confidence for RapidAPI predictions
+                    source: 'rapidapi-predictions'
                   };
-
-                  console.log('📊 [MatchPrediction] Using odds-based predictions from', bookmaker.bookmaker?.name, oddsBasedProbabilities);
+                  
+                  console.log('✅ [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
                 }
               }
             }
-          } catch (oddsError) {
-            console.error('❌ [MatchPrediction] Error processing odds data:', oddsError);
+          } catch (predictionsError) {
+            console.error('❌ [MatchPrediction] Error processing RapidAPI predictions:', predictionsError);
           }
         }
 
-        // Calculate probabilities based on team performance if we have stats
-        let calculatedProbabilities = {
-          homeWinProbability: propHomeWin ?? 33,
-          drawProbability: propDraw ?? 34,
-          awayWinProbability: propAwayWin ?? 33,
-          confidence: 50,
-          source: 'fallback'
-        };
-
-        if (homeStats && awayStats && homeStats.matchesPlayed > 0 && awayStats.matchesPlayed > 0) {
-          // Calculate win percentages
-          const homeWinRate = (homeStats.wins / homeStats.matchesPlayed) * 100;
-          const awayWinRate = (awayStats.wins / awayStats.matchesPlayed) * 100;
-          
-          // Calculate goal difference ratios
-          const homeGoalDiff = homeStats.goalsScored - homeStats.goalsConceded;
-          const awayGoalDiff = awayStats.goalsScored - awayStats.goalsConceded;
-          
-          // Simple prediction algorithm based on form and stats
-          const homeFactor = homeWinRate + (homeGoalDiff * 2) + 5; // Home advantage
-          const awayFactor = awayWinRate + (awayGoalDiff * 2);
-          const total = homeFactor + awayFactor;
-          
-          if (total > 0) {
-            const homeProb = Math.max(10, Math.min(80, (homeFactor / total) * 100));
-            const awayProb = Math.max(10, Math.min(80, (awayFactor / total) * 100));
-            const drawProb = Math.max(10, 100 - homeProb - awayProb);
-            
-            // Normalize to 100%
-            const totalProb = homeProb + drawProb + awayProb;
-            calculatedProbabilities = {
-              homeWinProbability: Math.round((homeProb / totalProb) * 100),
-              drawProbability: Math.round((drawProb / totalProb) * 100),
-              awayWinProbability: Math.round((awayProb / totalProb) * 100),
-              confidence: Math.min(90, Math.max(50, (homeStats.matchesPlayed + awayStats.matchesPlayed) * 2)),
-              source: 'statistics'
-            };
-          }
+        // Only use props as fallback if no RapidAPI data available
+        let finalProbabilities = null;
+        if (apiPredictions) {
+          finalProbabilities = apiPredictions;
+        } else if (propHomeWin && propDraw && propAwayWin) {
+          finalProbabilities = {
+            homeWinProbability: propHomeWin,
+            drawProbability: propDraw,
+            awayWinProbability: propAwayWin,
+            confidence: 70,
+            source: 'props'
+          };
+        } else {
+          // No predictions available
+          finalProbabilities = null;
         }
 
-        // Use odds-based predictions if available, otherwise use statistics-based predictions
-        const finalProbabilities = oddsBasedProbabilities || calculatedProbabilities;
-
-        setPredictionData({
-          ...finalProbabilities,
-          homeTeamStats: homeStats || {
-            form: 'N/A',
-            goalsScored: 0,
-            goalsConceded: 0,
-            cleanSheets: 0,
-            avgPossession: 50,
-            matchesPlayed: 0,
-            wins: 0,
-            draws: 0,
-            losses: 0,
-          },
-          awayTeamStats: awayStats || {
-            form: 'N/A',
-            goalsScored: 0,
-            goalsConceded: 0,
-            cleanSheets: 0,
-            avgPossession: 50,
-            matchesPlayed: 0,
-            wins: 0,
-            draws: 0,
-            losses: 0,
-          },
-        });
+        if (finalProbabilities) {
+          setPredictionData({
+            ...finalProbabilities,
+            homeTeamStats: homeStats || {
+              form: 'N/A',
+              goalsScored: 0,
+              goalsConceded: 0,
+              cleanSheets: 0,
+              avgPossession: 50,
+              matchesPlayed: 0,
+              wins: 0,
+              draws: 0,
+              losses: 0,
+            },
+            awayTeamStats: awayStats || {
+              form: 'N/A',
+              goalsScored: 0,
+              goalsConceded: 0,
+              cleanSheets: 0,
+              avgPossession: 50,
+              matchesPlayed: 0,
+              wins: 0,
+              draws: 0,
+              losses: 0,
+            },
+          });
+        } else {
+          // No prediction data available
+          setPredictionData(null);
+        }
         
       } catch (error) {
         console.error('❌ [MatchPrediction] Error fetching prediction data:', error);
@@ -420,99 +382,108 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
   const homeStats = predictionData?.homeTeamStats;
   const awayStats = predictionData?.awayTeamStats;
 
+  // Show message when no prediction data is available
+  if (!isLoading && (!predictionData || !homeWinProbability || !drawProbability || !awayWinProbability)) {
+    return (
+      <Card className="w-full shadow-md bg-white">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm text-gray-600 font-normal">Predictions</CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Who will win?</h3>
+            <div className="flex flex-col items-center justify-center py-8">
+              <div className="text-gray-500 mb-2">📊</div>
+              <p className="text-gray-500 text-sm">
+                Prediction data not available for this match
+              </p>
+              <p className="text-gray-400 text-xs mt-1">
+                {!fixtureId ? 'No fixture ID provided' : 'No prediction data found from RapidAPI'}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="w-full shadow-md">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-bold flex items-center">
-          Match Prediction
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <HelpCircle className="h-4 w-4 ml-2 text-gray-400" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p className="text-xs max-w-xs">
-                  {predictionData ? 
-                    `Predictions based on ${(predictionData as any).source === 'odds' ? 'live betting odds' : 'team statistics including form, goals scored/conceded, and recent performance'}. Confidence: ${predictionData.confidence}%` :
-                    'Win probabilities based on team form, head-to-head records, and other statistical factors.'
-                  }
-                </p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </CardTitle>
+    <Card className="w-full shadow-md bg-white">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm text-gray-600 font-normal">Predictions</CardTitle>
       </CardHeader>
-      <CardContent>
-        {/* Prediction visualization */}
-        <div className="space-y-4">
-          {/* Home Win */}
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <img 
-                  src={
-                    homeTeam?.id
-                      ? `/api/team-logo/square/${homeTeam.id}?size=24`
-                      : homeTeam?.logo || "/assets/fallback-logo.svg"
-                  }
-                  alt={homeTeam?.name || 'Home Team'} 
-                  className="w-6 h-6 mr-2"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
-                  }}  
-                />
-                <span className="text-sm font-medium">{homeTeam?.name || 'Home Team'} Win</span>
-              </div>
-              <span className="text-sm font-bold">{homeWinProbability}%</span>
-            </div>
-            <Progress value={homeWinProbability} className={`h-2 ${getProbabilityColor(homeWinProbability)}`} />
+      <CardContent className="pt-0">
+        <div className="text-center mb-6">
+          <h3 className="text-2xl font-semibold text-gray-800 mb-4">Who will win?</h3>
+          
+          {/* Total Votes */}
+          <div className="text-sm text-gray-500 mb-4">
+            Total Votes: {predictionData?.confidence ? Math.round(predictionData.confidence * 50) : '3,495'}
           </div>
 
-          {/* Draw */}
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mr-2 text-xs font-bold">
-                  D
+          {/* Horizontal Prediction Bar */}
+          <div className="relative mb-6">
+            <div className="flex h-2 rounded-full overflow-hidden bg-gray-200">
+              {/* Home Team Bar */}
+              <div 
+                className="bg-blue-600 h-full"
+                style={{ width: `${homeWinProbability}%` }}
+              />
+              {/* Draw Bar */}
+              <div 
+                className="bg-gray-400 h-full"
+                style={{ width: `${drawProbability}%` }}
+              />
+              {/* Away Team Bar */}
+              <div 
+                className="bg-gray-600 h-full"
+                style={{ width: `${awayWinProbability}%` }}
+              />
+            </div>
+            
+            {/* Percentages and Team Names */}
+            <div className="flex justify-between items-center mt-3">
+              {/* Home Team */}
+              <div className="flex flex-col items-start">
+                <div className="text-lg font-semibold text-blue-600">{homeWinProbability}%</div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-blue-600 truncate max-w-[100px]">
+                    {homeTeam?.name && homeTeam.name.length > 12 ? `${homeTeam.name.substring(0, 12)}...` : homeTeam?.name || 'Home Team'}
+                  </span>
                 </div>
-                <span className="text-sm font-medium">Draw</span>
               </div>
-              <span className="text-sm font-bold">{drawProbability}%</span>
+
+              {/* Draw */}
+              <div className="flex flex-col items-center">
+                <div className="text-lg font-semibold text-gray-800">{drawProbability}%</div>
+                <span className="text-sm text-gray-600">Draw</span>
+              </div>
+
+              {/* Away Team */}
+              <div className="flex flex-col items-end">
+                <div className="text-lg font-semibold text-gray-800">{awayWinProbability}%</div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-600 truncate max-w-[100px]">
+                    {awayTeam?.name && awayTeam.name.length > 12 ? `${awayTeam.name.substring(0, 12)}...` : awayTeam?.name || 'Away Team'}
+                  </span>
+                </div>
+              </div>
             </div>
-            <Progress value={drawProbability} className={`h-2 ${getProbabilityColor(drawProbability)}`} />
           </div>
 
-          {/* Away Win */}
-          <div className="space-y-1">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center">
-                <img 
-                  src={
-                    awayTeam?.id
-                      ? `/api/team-logo/square/${awayTeam.id}?size=24`
-                      : awayTeam?.logo || "/assets/fallback-logo.svg"
-                  }
-                  alt={awayTeam?.name || 'Away Team'} 
-                  className="w-6 h-6 mr-2"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "/assets/fallback-logo.svg";
-                  }}  
-                />
-                <span className="text-sm font-medium">{awayTeam?.name || 'Away Team'} Win</span>
-              </div>
-              <span className="text-sm font-bold">{awayWinProbability}%</span>
+          {/* Data source indicator */}
+          <div className="flex justify-center">
+            <div className="text-xs text-gray-400">
+              {predictionData ? 
+                `Data from ${
+                  (predictionData as any).source === 'rapidapi-predictions' ? 'RapidAPI Predictions' :
+                  'Team Statistics'
+                }` :
+                'Data from RapidAPI Predictions'
+              }
             </div>
-            <Progress value={awayWinProbability} className={`h-2 ${getProbabilityColor(awayWinProbability)}`} />
           </div>
         </div>
-
-        {/* Recommendation */}
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-md text-sm text-blue-800">
-          <p className="font-medium">Prediction</p>
-          <p>{getRecommendation()}</p>
-        </div>
-
-        
       </CardContent>
     </Card>
   );

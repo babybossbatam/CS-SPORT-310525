@@ -4,7 +4,8 @@ import MyCircularFlag from "./MyCircularFlag";
 import LazyImage from "./LazyImage";
 
 interface MyWorldTeamLogoProps {
-  teamName: string;
+    teamName: string;
+
   teamLogo: string;
   alt?: string;
   size?: string;
@@ -41,6 +42,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                      teamName?.includes("U21") ||
                      teamName?.includes("U23");
 
+  // Specific teams that should ALWAYS use club logos instead of circular flags
+  const forceClubLogo = teamName === "ADH Brazil" || teamName === "Valencia";
+
   const leagueName = leagueContext?.name?.toLowerCase() || "";
   const leagueId = leagueContext?.country
   const isFifaClubWorldCup = leagueName.includes("fifa club world cup");
@@ -68,6 +72,16 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
 
   const isUefaNationsLeague = leagueName.includes("uefa nations league") || 
                              leagueName.includes("nations league");
+
+  // Debug logging for forced club logo teams
+  if (forceClubLogo) {
+    console.log("🔍 [MyWorldTeamLogo] Forcing club logo for:", {
+      teamName,
+      leagueName,
+      willUseClubLogo: true
+    });
+  }
+
   // Debug logging for Friendlies International
   if (leagueName.includes("friendlies")) {
     console.log("🔍 [MyWorldTeamLogo] Friendlies Detection:", {
@@ -82,8 +96,9 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   }
 
   // Use circular flag for national teams in international competitions
-  // Exclude club competitions even if teams might have "national" in their names
-  const shouldUseCircularFlag = (isActualNationalTeam || isYouthTeam || isFriendliesInternational || isUefaNationsLeague) && 
+  // BUT: Force ADH Brazil and Valencia to ALWAYS use club logos regardless of league context
+  const shouldUseCircularFlag = !forceClubLogo && 
+                              (isActualNationalTeam || isYouthTeam || isFriendliesInternational || isUefaNationsLeague) && 
                               !isFifaClubWorldCup && 
                               !isFriendliesClub && 
                               !isUefaEuropaLeague && 

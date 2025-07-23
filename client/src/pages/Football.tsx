@@ -15,6 +15,11 @@ import { format, addDays } from 'date-fns';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useLocation } from "wouter";
+import MyNewLeague from "../components/matches/MyNewLeague";
+import MyNewLeague2 from "../components/matches/MyNewLeague2";
+import MySpecificLeagues from "../components/matches/MySpecificLeagues";
+import { useSelectiveMatchUpdate } from "@/lib/selectiveMatchUpdates";
+import MyHomeScoreboardNew from "../components/matches/MyHomeScoreboardNew";
 
 // Cleanup any stale video references
 const cleanupFrames = () => {
@@ -32,6 +37,22 @@ const Football = () => {
   const [filteredCountry, setFilteredCountry] = useState<string | null>(null);
   const [fixtures, setFixtures] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [timeFilterActive, setTimeFilterActive] = useState(false);
+  const [showTop10, setShowTop10] = useState(false);
+  const [liveFilterActive, setLiveFilterActive] = useState(false);
+
+  // Functions to toggle the filter states
+  const toggleTimeFilter = () => {
+    setTimeFilterActive(prev => !prev);
+  };
+
+  const toggleShowTop10 = () => {
+    setShowTop10(prev => !prev);
+  };
+
+  const toggleLiveFilter = () => {
+    setLiveFilterActive(prev => !prev);
+  };
   const [location, navigate] = useLocation();
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
 
@@ -407,6 +428,29 @@ const Football = () => {
       />
 
       <MyFootballMain fixtures={fixtures} />
+
+      {/* My New League Component */}
+          <MyNewLeague
+            selectedDate={selectedDate}
+            timeFilterActive={timeFilterActive}
+            showTop10={showTop10}
+            liveFilterActive={liveFilterActive}
+            onMatchCardClick={handleMatchClick}
+          />
+
+            <MyNewLeague2
+              selectedDate={selectedDate}
+              timeFilterActive={timeFilterActive}
+              showTop10={showTop10}
+              liveFilterActive={liveFilterActive}
+              onMatchCardClick={handleMatchClick}
+            />
+
+          {/* Specific Leagues (UEFA Champions League & Friendlies Clubs) */}
+          <MySpecificLeagues
+            selectedDate={selectedDate}
+            onMatchCardClick={handleMatchClick}
+          />
 
       <RegionModal />
     </>

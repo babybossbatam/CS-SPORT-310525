@@ -28,8 +28,8 @@ class SelectiveMatchUpdater {
   private updateInterval: NodeJS.Timeout | null = null;
   private isUpdating = false;
   private lastUpdateTime = 0;
-  private readonly UPDATE_INTERVAL = 15000; // 15 seconds
-  private readonly MIN_UPDATE_DELAY = 5000; // Minimum 5 seconds between updates
+  private readonly UPDATE_INTERVAL = 10000; // 10 seconds for faster live updates
+  private readonly MIN_UPDATE_DELAY = 3000; // Minimum 3 seconds between updates
   private isOnline = true;
 
   constructor() {
@@ -183,27 +183,39 @@ class SelectiveMatchUpdater {
     const baseDelay = 1000; // 1 second
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      let timeoutId: NodeJS.Timeout | undefined;
+      
       try {
         // Create abort controller with timeout
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort('timeout'), 10000); // 10 second timeout
+        timeoutId = setTimeout(() => controller.abort('timeout'), 10000); // 10 second timeout
 
-        const response = await fetch('/api/fixtures/selective-updates', {
+        // Build the URL with proper protocol
+        const baseUrl = window.location.origin;
+        const cacheBuster = `?t=${Date.now()}&bypass_cache=true`;
+        const url = `${baseUrl}/api/fixtures/selective-updates${cacheBuster}`;
+
+        console.log(`🔗 [SelectiveUpdater] Making request to: ${url}`);
+
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
           },
-          body: JSON.stringify({ fixtureIds }),
+          body: JSON.stringify({ fixtureIds, bypassCache: true }),
           signal: controller.signal,
         });
 
-        clearTimeout(timeoutId);
+        if (timeoutId) clearTimeout(timeoutId);
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
         const data = await response.json();
+        
         return data.map((item: any) => ({
           fixtureId: item.fixture.id,
           goals: {
@@ -215,9 +227,12 @@ class SelectiveMatchUpdater {
             elapsed: item.fixture.status.elapsed,
           },
           timestamp: Date.now(),
-        }));
+        })).filter((update: any) => {
+          // Only return updates that have meaningful data
+          return update.fixtureId && update.status && update.status.short;
+        });
       } catch (error) {
-        clearTimeout(timeoutId);
+        if (timeoutId) clearTimeout(timeoutId);
 
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
@@ -230,8 +245,16 @@ class SelectiveMatchUpdater {
           }
         } else if (errorMessage.includes('ERR_TUNNEL_CONNECTION_FAILED') || 
                    errorMessage.includes('Failed to fetch') ||
-                   errorMessage.includes('NetworkError')) {
+                   errorMessage.includes('NetworkError') ||
+                   errorMessage.includes('TypeError: Failed to fetch')) {
           console.warn(`🌐 [SelectiveUpdater] Network error on attempt ${attempt}/${maxRetries}: ${errorMessage}`);
+
+          // Check if we can reach the server
+          this.isOnline = navigator.onLine;
+          if (!this.isOnline) {
+            console.log('🔌 [SelectiveUpdater] Device went offline during request');
+            return [];
+          }
 
           // Try to trigger network recovery
           try {
@@ -251,6 +274,7 @@ class SelectiveMatchUpdater {
 
         // Wait before retrying (exponential backoff)
         const delay = baseDelay * Math.pow(2, attempt - 1);
+        console.log(`⏳ [SelectiveUpdater] Waiting ${delay}ms before retry...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }

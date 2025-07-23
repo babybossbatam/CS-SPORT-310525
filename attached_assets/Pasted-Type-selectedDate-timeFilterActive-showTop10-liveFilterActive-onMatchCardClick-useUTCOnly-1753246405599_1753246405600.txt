@@ -1,0 +1,1578 @@
+Type '{ ({ selectedDate, timeFilterActive, showTop10, liveFilterActive, onMatchCardClick, useUTCOnly, }: MyNewLeagueProps): void; displayName: string | undefined; }' is not assignable to type 'FC<MyNewLeagueProps>'. Type 'void' is not assignable to type 'ReactNode'.
+(typescript)
+Ln 210, Col 7
+'timeFilterActive' is declared but its value is never read.
+(typescript)
+Ln 212, Col 3
+'onMatchCardClick' is declared but its value is never read.
+(typescript)
+Ln 215, Col 3
+'useUTCOnly' is declared but its value is never read.
+(typescript)
+Ln 216, Col 3
+'leagueInfo' is declared but its value is never read.
+(typescript)
+Ln 219, Col 10
+'loading' is declared but its value is never read.
+(typescript)
+Ln 220, Col 10
+'error' is declared but its value is never read.
+(typescript)
+Ln 221, Col 10
+'starredMatches' is declared but its value is never read.
+(typescript)
+Ln 222, Col 10
+'setStarredMatches' is declared but its value is never read.
+(typescript)
+Ln 222, Col 26
+'expandedLeagues' is declared but its value is never read.
+(typescript)
+Ln 223, Col 10
+'setExpandedLeagues' is declared but its value is never read.
+(typescript)
+Ln 223, Col 27
+'halftimeFlashMatches' is declared but its value is never read.
+(typescript)
+Ln 226, Col 10
+'setHalftimeFlashMatches' is declared but its value is never read.
+(typescript)
+Ln 226, Col 32
+'fulltimeFlashMatches' is declared but its value is never read.
+(typescript)
+Ln 227, Col 10
+'setFulltimeFlashMatches' is declared but its value is never read.
+(typescript)
+Ln 227, Col 32
+'goalFlashMatches' is declared but its value is never read.
+(typescript)
+Ln 228, Col 10
+'setGoalFlashMatches' is declared but its value is never read.
+(typescript)
+Ln 228, Col 28
+'previousMatchStatusesRef' is declared but its value is never read.
+(typescript)
+Ln 231, Col 9
+'previousMatchScoresRef' is declared but its value is never read.
+(typescript)
+Ln 232, Col 9
+'lastUpdateTime' is declared but its value is never read.
+(typescript)
+Ln 233, Col 10
+'setLastUpdateTime' is declared but its value is never read.
+(typescript)
+Ln 233, Col 26
+'leagueFixtures' is declared but its value is never read.
+(typescript)
+Ln 234, Col 10
+'isLoading' is declared but its value is never read.
+(typescript)
+Ln 235, Col 10
+'fetchLeagueData' is declared but its value is never read.
+(typescript)
+Ln 340, Col 9
+Parameter 'f' implicitly has an 'any' type.
+(typescript)
+Ln 587, Col 58
+Parameter 'f' implicitly has an 'any' type.
+(typescript)
+Ln 590, Col 35
+Parameter 'fixture' implicitly has an 'any' type.
+(typescript)
+Ln 601, Col 33
+'filteredFixtures' is declared but its value is never read.
+(typescript)
+Ln 605, Col 21
+Parameter 'f' implicitly has an 'any' type.
+(typescript)
+Ln 712, Col 57
+'try' expected.
+(typescript)
+Ln 732, Col 17
+')' expected.
+(typescript)
+Ln 743, Col 16
+'catch' or 'finally' expected.
+(typescript)
+Ln 781, Col 16
+';' expected.
+(typescript)
+Ln 781, Col 61
+This expression is not callable. Type 'void' has no call signatures.
+(typescript)
+Ln 784, Col 15
+'cacheKeys' is declared but its value is never read.
+(typescript)
+Ln 788, Col 21
+Invalid character.
+(typescript)
+Ln 807, Col 30
+Invalid character.
+(typescript)
+Ln 807, Col 32
+Expected 0-2 arguments, but got 21.
+(typescript)
+Ln 807, Col 34
+',' expected.
+(typescript)
+Ln 807, Col 48
+Cannot find name 'Removed'.
+(typescript)
+Ln 807, Col 48
+',' expected.
+(typescript)
+Ln 807, Col 56
+Cannot find name 'stale'.
+(typescript)
+Ln 807, Col 56
+',' expected.
+(typescript)
+Ln 807, Col 62
+Cannot find name 'cache'.
+(typescript)
+Ln 807, Col 62
+',' expected.
+(typescript)
+Ln 807, Col 67
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 807, Col 69
+',' expected.
+(typescript)
+Ln 807, Col 70
+This expression is not callable. Type '{ key: any; }' has no call signatures.
+(typescript)
+Ln 807, Col 70
+No value exists in scope for the shorthand property 'key'. Either declare one or provide an initializer.
+(typescript)
+Ln 807, Col 71
+Cannot find name 'age'.
+(typescript)
+Ln 807, Col 77
+',' expected.
+(typescript)
+Ln 807, Col 80
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 807, Col 82
+',' expected.
+(typescript)
+Ln 807, Col 83
+',' expected.
+(typescript)
+Ln 807, Col 88
+Cannot find name 'cacheAge'.
+(typescript)
+Ln 807, Col 95
+Cannot find name 'min'.
+(typescript)
+Ln 807, Col 113
+',' expected.
+(typescript)
+Ln 807, Col 113
+Invalid character.
+(typescript)
+Ln 818, Col 28
+Cannot find name 'Cleaned'.
+(typescript)
+Ln 818, Col 45
+',' expected.
+(typescript)
+Ln 818, Col 45
+Cannot find name 'up'.
+(typescript)
+Ln 818, Col 53
+',' expected.
+(typescript)
+Ln 818, Col 53
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 818, Col 56
+',' expected.
+(typescript)
+Ln 818, Col 56
+',' expected.
+(typescript)
+Ln 818, Col 57
+Cannot find name 'old'.
+(typescript)
+Ln 818, Col 72
+',' expected.
+(typescript)
+Ln 818, Col 72
+Cannot find name 'cache'.
+(typescript)
+Ln 818, Col 76
+',' expected.
+(typescript)
+Ln 818, Col 76
+Cannot find name 'entries'.
+(typescript)
+Ln 818, Col 82
+',' expected.
+(typescript)
+Ln 818, Col 82
+Invalid character.
+(typescript)
+Ln 832, Col 28
+Cannot find name 'Performing'.
+(typescript)
+Ln 832, Col 45
+',' expected.
+(typescript)
+Ln 832, Col 45
+Cannot find name 'immediate'.
+(typescript)
+Ln 832, Col 56
+',' expected.
+(typescript)
+Ln 832, Col 56
+Cannot find name 'cache'.
+(typescript)
+Ln 832, Col 66
+',' expected.
+(typescript)
+Ln 832, Col 66
+Cannot find name 'clear'.
+(typescript)
+Ln 832, Col 72
+',' expected.
+(typescript)
+Ln 832, Col 72
+',' expected.
+(typescript)
+Ln 832, Col 78
+Cannot find name 'date'.
+(typescript)
+Ln 832, Col 82
+'(' expected.
+(typescript)
+Ln 832, Col 82
+Cannot find name 'change'.
+(typescript)
+Ln 832, Col 87
+';' expected.
+(typescript)
+Ln 832, Col 87
+Cannot find name 'to'.
+(typescript)
+Ln 832, Col 94
+';' expected.
+(typescript)
+Ln 832, Col 94
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 832, Col 97
+')' expected.
+(typescript)
+Ln 832, Col 97
+Cannot find name 'Failed'.
+(typescript)
+Ln 852, Col 29
+';' expected.
+(typescript)
+Ln 852, Col 29
+Cannot find name 'to'.
+(typescript)
+Ln 852, Col 36
+Unexpected keyword or identifier.
+(typescript)
+Ln 852, Col 36
+Cannot find name 'clear'.
+(typescript)
+Ln 852, Col 39
+Unexpected keyword or identifier.
+(typescript)
+Ln 852, Col 39
+Cannot find name 'cache'.
+(typescript)
+Ln 852, Col 45
+Unknown keyword or identifier. Did you mean 'catch'?
+(typescript)
+Ln 852, Col 45
+Unused label.
+(typescript)
+Ln 852, Col 51
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 852, Col 56
+Unexpected keyword or identifier.
+(typescript)
+Ln 852, Col 56
+Cannot find name 'key'.
+(typescript)
+Ln 852, Col 58
+Cannot find name 'Failed'.
+(typescript)
+Ln 868, Col 29
+';' expected.
+(typescript)
+Ln 868, Col 29
+Cannot find name 'to'.
+(typescript)
+Ln 868, Col 36
+Unexpected keyword or identifier.
+(typescript)
+Ln 868, Col 36
+Cannot find name 'clear'.
+(typescript)
+Ln 868, Col 39
+Unexpected keyword or identifier.
+(typescript)
+Ln 868, Col 39
+Cannot find name 'session'.
+(typescript)
+Ln 868, Col 45
+Unexpected keyword or identifier.
+(typescript)
+Ln 868, Col 45
+Cannot find name 'cache'.
+(typescript)
+Ln 868, Col 53
+Unknown keyword or identifier. Did you mean 'catch'?
+(typescript)
+Ln 868, Col 53
+Unused label.
+(typescript)
+Ln 868, Col 59
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 868, Col 64
+Unexpected keyword or identifier.
+(typescript)
+Ln 868, Col 64
+Cannot find name 'key'.
+(typescript)
+Ln 868, Col 66
+Invalid character.
+(typescript)
+Ln 876, Col 28
+Cannot find name 'Cleared'.
+(typescript)
+Ln 876, Col 45
+';' expected.
+(typescript)
+Ln 876, Col 45
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 876, Col 53
+Unexpected keyword or identifier.
+(typescript)
+Ln 876, Col 53
+Cannot find name 'clearedCount'.
+(typescript)
+Ln 876, Col 55
+Cannot find name 'cache'.
+(typescript)
+Ln 876, Col 69
+Unknown keyword or identifier. Did you mean 'catch'?
+(typescript)
+Ln 876, Col 69
+Cannot find name 'entries'.
+(typescript)
+Ln 876, Col 75
+Unexpected keyword or identifier.
+(typescript)
+Ln 876, Col 75
+Cannot find name 'date'.
+(typescript)
+Ln 876, Col 87
+'(' expected.
+(typescript)
+Ln 876, Col 87
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 876, Col 92
+';' expected.
+(typescript)
+Ln 876, Col 92
+';' expected.
+(typescript)
+Ln 876, Col 93
+This expression is not callable. Type '{ selectedDate: string; }' has no call signatures.
+(typescript)
+Ln 876, Col 93
+Invalid character.
+(typescript)
+Ln 900, Col 28
+Cannot find name 'LeagueFixtures'.
+(typescript)
+Ln 900, Col 45
+';' expected.
+(typescript)
+Ln 900, Col 45
+Unused label.
+(typescript)
+Ln 900, Col 60
+Invalid character.
+(typescript)
+Ln 909, Col 28
+Cannot find name 'League'.
+(typescript)
+Ln 909, Col 45
+';' expected.
+(typescript)
+Ln 909, Col 45
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 909, Col 52
+Unexpected keyword or identifier.
+(typescript)
+Ln 909, Col 52
+Cannot find name 'leagueId'.
+(typescript)
+Ln 909, Col 54
+Declaration or statement expected.
+(typescript)
+Ln 909, Col 63
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 909, Col 65
+Unexpected keyword or identifier.
+(typescript)
+Ln 909, Col 65
+This expression is not callable. Type 'FixtureData[]' has no call signatures.
+(typescript)
+Ln 909, Col 84
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 912, Col 32
+';' expected.
+(typescript)
+Ln 912, Col 33
+Cannot find name 'f'.
+(typescript)
+Ln 912, Col 34
+Cannot find name 'vs'.
+(typescript)
+Ln 912, Col 53
+Unexpected keyword or identifier.
+(typescript)
+Ln 912, Col 53
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 912, Col 56
+Unexpected keyword or identifier.
+(typescript)
+Ln 912, Col 56
+Cannot find name 'f'.
+(typescript)
+Ln 912, Col 58
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 912, Col 78
+')' expected.
+(typescript)
+Ln 912, Col 79
+Cannot find name 'f'.
+(typescript)
+Ln 912, Col 80
+Declaration or statement expected.
+(typescript)
+Ln 912, Col 103
+Module declaration names may only use ' or " quoted strings.
+(typescript)
+Ln 912, Col 104
+Declaration or statement expected.
+(typescript)
+Ln 926, Col 28
+Invalid character.
+(typescript)
+Ln 926, Col 28
+Cannot find name 'League'.
+(typescript)
+Ln 926, Col 45
+';' expected.
+(typescript)
+Ln 926, Col 45
+';' expected.
+(typescript)
+Ln 926, Col 56
+Cannot find name 'before'.
+(typescript)
+Ln 926, Col 65
+Unexpected keyword or identifier.
+(typescript)
+Ln 926, Col 65
+Unused label.
+(typescript)
+Ln 926, Col 72
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 934, Col 23
+';' expected.
+(typescript)
+Ln 934, Col 23
+Cannot find name 'f'.
+(typescript)
+Ln 934, Col 25
+Cannot find name 'vs'.
+(typescript)
+Ln 934, Col 44
+Unexpected keyword or identifier.
+(typescript)
+Ln 934, Col 44
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 934, Col 47
+Unexpected keyword or identifier.
+(typescript)
+Ln 934, Col 47
+Cannot find name 'f'.
+(typescript)
+Ln 934, Col 49
+Invalid character.
+(typescript)
+Ln 961, Col 30
+Cannot find name 'League'.
+(typescript)
+Ln 961, Col 47
+';' expected.
+(typescript)
+Ln 961, Col 47
+Cannot find name 'postponed'.
+(typescript)
+Ln 961, Col 58
+';' expected.
+(typescript)
+Ln 961, Col 58
+Cannot find name 'match'.
+(typescript)
+Ln 961, Col 68
+Unknown keyword or identifier. Did you mean 'catch'?
+(typescript)
+Ln 961, Col 68
+Unused label.
+(typescript)
+Ln 961, Col 74
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 963, Col 27
+';' expected.
+(typescript)
+Ln 963, Col 27
+Cannot find name 'fixture'.
+(typescript)
+Ln 963, Col 29
+Cannot find name 'vs'.
+(typescript)
+Ln 963, Col 54
+Unexpected keyword or identifier.
+(typescript)
+Ln 963, Col 54
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 963, Col 57
+Unexpected keyword or identifier.
+(typescript)
+Ln 963, Col 57
+Cannot find name 'fixture'.
+(typescript)
+Ln 963, Col 59
+Invalid character.
+(typescript)
+Ln 976, Col 28
+Cannot find name 'League'.
+(typescript)
+Ln 976, Col 45
+';' expected.
+(typescript)
+Ln 976, Col 45
+Cannot find name 'date'.
+(typescript)
+Ln 976, Col 56
+';' expected.
+(typescript)
+Ln 976, Col 56
+Unused label.
+(typescript)
+Ln 976, Col 61
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 978, Col 23
+';' expected.
+(typescript)
+Ln 978, Col 23
+Cannot find name 'fixture'.
+(typescript)
+Ln 978, Col 25
+Cannot find name 'vs'.
+(typescript)
+Ln 978, Col 50
+Unexpected keyword or identifier.
+(typescript)
+Ln 978, Col 50
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 978, Col 53
+Unexpected keyword or identifier.
+(typescript)
+Ln 978, Col 53
+Cannot find name 'fixture'.
+(typescript)
+Ln 978, Col 55
+Invalid character.
+(typescript)
+Ln 990, Col 28
+Cannot find name 'League'.
+(typescript)
+Ln 990, Col 45
+';' expected.
+(typescript)
+Ln 990, Col 45
+Cannot find name 'after'.
+(typescript)
+Ln 990, Col 56
+';' expected.
+(typescript)
+Ln 990, Col 56
+Unused label.
+(typescript)
+Ln 990, Col 62
+Invalid character.
+(typescript)
+Ln 1005, Col 28
+Cannot find name 'Processed'.
+(typescript)
+Ln 1005, Col 45
+';' expected.
+(typescript)
+Ln 1005, Col 45
+Unused label.
+(typescript)
+Ln 1005, Col 55
+Cannot find name 'league'.
+(typescript)
+Ln 1019, Col 80
+';' expected.
+(typescript)
+Ln 1019, Col 80
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1019, Col 87
+';' expected.
+(typescript)
+Ln 1019, Col 88
+Cannot find name 'leagueId'.
+(typescript)
+Ln 1019, Col 89
+Invalid character.
+(typescript)
+Ln 1024, Col 28
+Cannot find name 'Data'.
+(typescript)
+Ln 1024, Col 44
+';' expected.
+(typescript)
+Ln 1024, Col 44
+Cannot find name 'loaded'.
+(typescript)
+Ln 1024, Col 49
+Unexpected keyword or identifier.
+(typescript)
+Ln 1024, Col 49
+Unused label.
+(typescript)
+Ln 1024, Col 56
+Invalid character.
+(typescript)
+Ln 1100, Col 28
+Cannot find name 'Final'.
+(typescript)
+Ln 1100, Col 45
+';' expected.
+(typescript)
+Ln 1100, Col 45
+Unused label.
+(typescript)
+Ln 1100, Col 51
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1100, Col 58
+Unexpected keyword or identifier.
+(typescript)
+Ln 1100, Col 58
+Cannot find name 'totalMatches'.
+(typescript)
+Ln 1100, Col 60
+Cannot find name 'total'.
+(typescript)
+Ln 1100, Col 74
+Unexpected keyword or identifier.
+(typescript)
+Ln 1100, Col 74
+Cannot find name 'matches'.
+(typescript)
+Ln 1100, Col 80
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1100, Col 91
+';' expected.
+(typescript)
+Ln 1100, Col 92
+Cannot find name 'matchesByLeague'.
+(typescript)
+Ln 1100, Col 105
+Cannot find name 'leagues'.
+(typescript)
+Ln 1100, Col 130
+Unexpected keyword or identifier.
+(typescript)
+Ln 1100, Col 130
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1100, Col 142
+'(' expected.
+(typescript)
+Ln 1100, Col 142
+';' expected.
+(typescript)
+Ln 1100, Col 143
+This expression is not callable. Type '{ selectedDate: string; }' has no call signatures.
+(typescript)
+Ln 1100, Col 143
+';' expected.
+(typescript)
+Ln 1118, Col 23
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1118, Col 23
+')' expected.
+(typescript)
+Ln 1118, Col 24
+Cannot find name 'match'.
+(typescript)
+Ln 1118, Col 25
+Cannot find name 'vs'.
+(typescript)
+Ln 1118, Col 50
+Unexpected keyword or identifier.
+(typescript)
+Ln 1118, Col 50
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1118, Col 53
+Unexpected keyword or identifier.
+(typescript)
+Ln 1118, Col 53
+Cannot find name 'match'.
+(typescript)
+Ln 1118, Col 55
+Cannot find name 'league'.
+(typescript)
+Ln 1131, Col 34
+';' expected.
+(typescript)
+Ln 1131, Col 34
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1131, Col 41
+';' expected.
+(typescript)
+Ln 1131, Col 42
+Cannot find name 'leagueId'.
+(typescript)
+Ln 1131, Col 43
+Cannot find name 'h'.
+(typescript)
+Ln 1148, Col 57
+';' expected.
+(typescript)
+Ln 1148, Col 57
+Cannot find name 'w'.
+(typescript)
+Ln 1148, Col 61
+';' expected.
+(typescript)
+Ln 1148, Col 61
+Cannot find name 'rounded'.
+(typescript)
+Ln 1148, Col 65
+';' expected.
+(typescript)
+Ln 1148, Col 65
+Module declaration names may only use ' or " quoted strings.
+(typescript)
+Ln 1148, Col 72
+Declaration or statement expected.
+(typescript)
+Ln 1257, Col 28
+Invalid character.
+(typescript)
+Ln 1257, Col 28
+Cannot find name 'MatchCard'.
+(typescript)
+Ln 1257, Col 32
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1257, Col 42
+',' expected.
+(typescript)
+Ln 1257, Col 42
+',' expected.
+(typescript)
+Ln 1257, Col 43
+No value exists in scope for the shorthand property 'matchId'. Either declare one or provide an initializer.
+(typescript)
+Ln 1257, Col 44
+Cannot find name 'Update'.
+(typescript)
+Ln 1257, Col 54
+';' expected.
+(typescript)
+Ln 1257, Col 54
+Unused label.
+(typescript)
+Ln 1257, Col 61
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1258, Col 23
+';' expected.
+(typescript)
+Ln 1258, Col 23
+Cannot find name 'homeTeamName'.
+(typescript)
+Ln 1258, Col 25
+Cannot find name 'vs'.
+(typescript)
+Ln 1258, Col 39
+Unexpected keyword or identifier.
+(typescript)
+Ln 1258, Col 39
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1258, Col 42
+Unexpected keyword or identifier.
+(typescript)
+Ln 1258, Col 42
+Cannot find name 'awayTeamName'.
+(typescript)
+Ln 1258, Col 44
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1260, Col 30
+';' expected.
+(typescript)
+Ln 1260, Col 30
+Cannot find name 'initialMatch'.
+(typescript)
+Ln 1260, Col 32
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1260, Col 57
+';' expected.
+(typescript)
+Ln 1260, Col 58
+Cannot find name 'initialMatch'.
+(typescript)
+Ln 1260, Col 59
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1262, Col 49
+';' expected.
+(typescript)
+Ln 1262, Col 49
+Cannot find name 'matchState'.
+(typescript)
+Ln 1262, Col 51
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1262, Col 74
+';' expected.
+(typescript)
+Ln 1262, Col 75
+Cannot find name 'matchState'.
+(typescript)
+Ln 1262, Col 76
+Cannot find name 'match'.
+(typescript)
+Ln 1291, Col 27
+';' expected.
+(typescript)
+Ln 1291, Col 27
+Cannot find name 'card'.
+(typescript)
+Ln 1291, Col 33
+Cannot find name 'container'.
+(typescript)
+Ln 1291, Col 38
+Cannot find name 'group'.
+(typescript)
+Ln 1291, Col 48
+';' expected.
+(typescript)
+Ln 1291, Col 48
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1291, Col 54
+Unexpected keyword or identifier.
+(typescript)
+Ln 1291, Col 54
+Cannot find name 'isHalftimeFlash'.
+(typescript)
+Ln 1292, Col 15
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1293, Col 17
+Unexpected keyword or identifier.
+(typescript)
+Ln 1293, Col 17
+Cannot find name 'isFulltimeFlash'.
+(typescript)
+Ln 1294, Col 15
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1295, Col 17
+Unexpected keyword or identifier.
+(typescript)
+Ln 1295, Col 17
+Cannot find name 'isGoalFlash'.
+(typescript)
+Ln 1296, Col 15
+Cannot find name 'match'.
+(typescript)
+Ln 1324, Col 27
+';' expected.
+(typescript)
+Ln 1324, Col 27
+Cannot find name 'star'.
+(typescript)
+Ln 1324, Col 33
+Cannot find name 'icon'.
+(typescript)
+Ln 1324, Col 38
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1324, Col 43
+';' expected.
+(typescript)
+Ln 1324, Col 43
+Cannot find name 'isStarred'.
+(typescript)
+Ln 1324, Col 45
+';' expected.
+(typescript)
+Ln 1372, Col 54
+This expression is not callable. Type 'String' has no call signatures.
+(typescript)
+Ln 1372, Col 56
+';' expected.
+(typescript)
+Ln 1372, Col 56
+Module declaration names may only use ' or " quoted strings.
+(typescript)
+Ln 1372, Col 73
+Cannot find name '$'. Do you need to install type definitions for jQuery? Try `npm i --save-dev @types/jquery` and then add 'jquery' to the types field in your tsconfig.
+(typescript)
+Ln 1372, Col 78
+Unexpected keyword or identifier.
+(typescript)
+Ln 1372, Col 78
+Cannot find name 'elapsed'.
+(typescript)
+Ln 1372, Col 80
+Unterminated string literal.
+(typescript)
+Ln 1372, Col 91
+',' expected.
+(typescript)
+Ln 1373, Col 23
+',' expected.
+(typescript)
+Ln 1374, Col 49
+Declaration or statement expected.
+(typescript)
+Ln 1375, Col 21
+Declaration or statement expected.
+(typescript)
+Ln 1376, Col 19
+Declaration or statement expected.
+(typescript)
+Ln 1376, Col 21
+'status' is deprecated.
+(typescript)
+Ln 1376, Col 30
+Cannot assign to 'displayText' because it is a constant.
+(typescript)
+Ln 1377, Col 21
+'status' is deprecated.
+(typescript)
+Ln 1378, Col 30
+Cannot assign to 'displayText' because it is a constant.
+(typescript)
+Ln 1379, Col 21
+Cannot assign to 'displayText' because it is a constant.
+(typescript)
+Ln 1381, Col 21
+Cannot find name 'elapsed'.
+(typescript)
+Ln 1381, Col 35
+Cannot find name 'elapsed'.
+(typescript)
+Ln 1381, Col 48
+Declaration or statement expected.
+(typescript)
+Ln 1389, Col 17
+Unreachable code detected.
+(typescript)
+Ln 1392, Col 17
+'status' is deprecated.
+(typescript)
+Ln 1402, Col 30
+Cannot find name 'isStaleFinishedMatch'.
+(typescript)
+Ln 1402, Col 41
+'status' is deprecated.
+(typescript)
+Ln 1423, Col 21
+Declaration or statement expected.
+(typescript)
+Ln 1440, Col 15
+Declaration or statement expected.
+(typescript)
+Ln 1440, Col 16
+Expression expected.
+(typescript)
+Ln 1440, Col 18
+Declaration or statement expected.
+(typescript)
+Ln 1440, Col 19
+Declaration or statement expected.
+(typescript)
+Ln 1441, Col 15
+Cannot find name 'div'.
+(typescript)
+Ln 1441, Col 17
+Cannot find name 'div'.
+(typescript)
+Ln 1444, Col 16
+Cannot find name 'className'.
+(typescript)
+Ln 1444, Col 20
+';' expected.
+(typescript)
+Ln 1444, Col 20
+Operator '>' cannot be applied to types 'string' and '{}'.
+(typescript)
+Ln 1444, Col 30
+Cannot find name 'div'.
+(typescript)
+Ln 1446, Col 16
+Cannot find name 'className'.
+(typescript)
+Ln 1447, Col 17
+This expression is not callable. Type '{}' has no call signatures.
+(typescript)
+Ln 1447, Col 27
+Property assignment expected.
+(typescript)
+Ln 1447, Col 28
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1448, Col 19
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1449, Col 19
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1450, Col 19
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1450, Col 39
+Cannot find name 'currentMatchStatus'.
+(typescript)
+Ln 1451, Col 49
+Declaration or statement expected.
+(typescript)
+Ln 1454, Col 19
+Cannot find name 'style'.
+(typescript)
+Ln 1455, Col 17
+Property assignment expected.
+(typescript)
+Ln 1455, Col 24
+Left side of comma operator is unused and has no side effects.
+(typescript)
+Ln 1456, Col 30
+Cannot find name 'overflow'.
+(typescript)
+Ln 1457, Col 19
+';' expected.
+(typescript)
+Ln 1457, Col 27
+Left side of comma operator is unused and has no side effects.
+(typescript)
+Ln 1457, Col 29
+Cannot find name 'textOverflow'.
+(typescript)
+Ln 1458, Col 19
+';' expected.
+(typescript)
+Ln 1458, Col 31
+Left side of comma operator is unused and has no side effects.
+(typescript)
+Ln 1458, Col 33
+Cannot find name 'whiteSpace'.
+(typescript)
+Ln 1459, Col 19
+';' expected.
+(typescript)
+Ln 1459, Col 29
+Left side of comma operator is unused and has no side effects.
+(typescript)
+Ln 1459, Col 31
+Expression expected.
+(typescript)
+Ln 1460, Col 17
+Declaration or statement expected.
+(typescript)
+Ln 1460, Col 18
+Expression expected.
+(typescript)
+Ln 1461, Col 15
+'homeTeamName' is declared but its value is never read.
+(typescript)
+Ln 1462, Col 34
+Parameter 'homeTeamName' implicitly has an 'any' type.
+(typescript)
+Ln 1462, Col 34
+'{' expected.
+(typescript)
+Ln 1462, Col 48
+Declaration or statement expected.
+(typescript)
+Ln 1462, Col 65
+Declaration or statement expected.
+(typescript)
+Ln 1463, Col 15
+Cannot find name 'div'.
+(typescript)
+Ln 1463, Col 17
+Cannot find name 'div'.
+(typescript)
+Ln 1466, Col 16
+Cannot find name 'className'.
+(typescript)
+Ln 1467, Col 17
+Cannot find name 'style'.
+(typescript)
+Ln 1468, Col 17
+Property assignment expected.
+(typescript)
+Ln 1468, Col 24
+Declaration or statement expected.
+(typescript)
+Ln 1468, Col 47
+Expression expected.
+(typescript)
+Ln 1469, Col 15
+Cannot find name 'TeamLogo'.
+(typescript)
+Ln 1470, Col 18
+Cannot find name 'homeTeamName'.
+(typescript)
+Ln 1471, Col 29
+Cannot find name 'homeTeamId'.
+(typescript)
+Ln 1473, Col 21
+Cannot find name 'homeTeamId'.
+(typescript)
+Ln 1474, Col 50
+Cannot find name 'leagueContext'.
+(typescript)
+Ln 1478, Col 34
+Declaration or statement expected.
+(typescript)
+Ln 1480, Col 15
+Cannot find name 'div'.
+(typescript)
+Ln 1480, Col 17
+Cannot find name 'div'.
+(typescript)
+Ln 1483, Col 16
+Cannot find name 'className'.
+(typescript)
+Ln 1483, Col 20
+';' expected.
+(typescript)
+Ln 1483, Col 20
+This expression is not callable. Type '{}' has no call signatures.
+(typescript)
+Ln 1484, Col 17
+Property assignment expected.
+(typescript)
+Ln 1484, Col 18
+Cannot find name 'currentMatchStatus'.
+(typescript)
+Ln 1485, Col 34
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1506, Col 28
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1510, Col 28
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1532, Col 28
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1536, Col 28
+Cannot find name 'matchDate'.
+(typescript)
+Ln 1545, Col 48
+Cannot find name 'matchId'.
+(typescript)
+Ln 1551, Col 62
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1580, Col 23
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1580, Col 53
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1584, Col 28
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1588, Col 28
+Cannot find name 'matchDate'.
+(typescript)
+Ln 1600, Col 52
+Declaration or statement expected.
+(typescript)
+Ln 1603, Col 21
+Declaration or statement expected.
+(typescript)
+Ln 1604, Col 15
+Cannot find name 'div'.
+(typescript)
+Ln 1604, Col 17
+Cannot find name 'div'.
+(typescript)
+Ln 1607, Col 16
+Cannot find name 'className'.
+(typescript)
+Ln 1608, Col 17
+Cannot find name 'style'.
+(typescript)
+Ln 1609, Col 17
+Property assignment expected.
+(typescript)
+Ln 1609, Col 24
+Declaration or statement expected.
+(typescript)
+Ln 1609, Col 47
+Expression expected.
+(typescript)
+Ln 1610, Col 15
+Cannot find name 'TeamLogo'.
+(typescript)
+Ln 1611, Col 18
+Cannot find name 'awayTeamName'.
+(typescript)
+Ln 1612, Col 29
+Cannot find name 'awayTeamId'.
+(typescript)
+Ln 1614, Col 21
+Cannot find name 'awayTeamId'.
+(typescript)
+Ln 1615, Col 50
+Cannot find name 'leagueContext'.
+(typescript)
+Ln 1619, Col 34
+Declaration or statement expected.
+(typescript)
+Ln 1621, Col 15
+Cannot find name 'div'.
+(typescript)
+Ln 1621, Col 17
+Cannot find name 'div'.
+(typescript)
+Ln 1624, Col 16
+Cannot find name 'className'.
+(typescript)
+Ln 1625, Col 17
+This expression is not callable. Type '{}' has no call signatures.
+(typescript)
+Ln 1625, Col 27
+Property assignment expected.
+(typescript)
+Ln 1625, Col 28
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1626, Col 19
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1627, Col 19
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1628, Col 19
+Cannot find name 'currentGoals'.
+(typescript)
+Ln 1628, Col 39
+Cannot find name 'currentMatchStatus'.
+(typescript)
+Ln 1629, Col 49
+Declaration or statement expected.
+(typescript)
+Ln 1632, Col 19
+Cannot find name 'style'.
+(typescript)
+Ln 1633, Col 17
+Property assignment expected.
+(typescript)
+Ln 1633, Col 24
+Left side of comma operator is unused and has no side effects.
+(typescript)
+Ln 1634, Col 32
+Cannot find name 'textAlign'.
+(typescript)
+Ln 1635, Col 19
+';' expected.
+(typescript)
+Ln 1635, Col 28
+Left side of comma operator is unused and has no side effects.
+(typescript)
+Ln 1635, Col 30
+Cannot find name 'overflow'.
+(typescript)
+Ln 1636, Col 19
+';' expected.
+(typescript)
+Ln 1636, Col 27
+Left side of comma operator is unused and has no side effects.
+(typescript)
+Ln 1636, Col 29
+Cannot find name 'textOverflow'.
+(typescript)
+Ln 1637, Col 19
+';' expected.
+(typescript)
+Ln 1637, Col 31
+Left side of comma operator is unused and has no side effects.
+(typescript)
+Ln 1637, Col 33
+Cannot find name 'whiteSpace'.
+(typescript)
+Ln 1638, Col 19
+';' expected.
+(typescript)
+Ln 1638, Col 29
+Left side of comma operator is unused and has no side effects.
+(typescript)
+Ln 1638, Col 31
+Expression expected.
+(typescript)
+Ln 1639, Col 17
+Declaration or statement expected.
+(typescript)
+Ln 1639, Col 18
+Expression expected.
+(typescript)
+Ln 1640, Col 15
+'awayTeamName' is declared but its value is never read.
+(typescript)
+Ln 1641, Col 34
+Parameter 'awayTeamName' implicitly has an 'any' type.
+(typescript)
+Ln 1641, Col 34
+'{' expected.
+(typescript)
+Ln 1641, Col 48
+Declaration or statement expected.
+(typescript)
+Ln 1641, Col 65
+Declaration or statement expected.
+(typescript)
+Ln 1642, Col 15
+Cannot find name 'div'.
+(typescript)
+Ln 1642, Col 17
+Expression expected.
+(typescript)
+Ln 1643, Col 15
+Cannot find name 'div'.
+(typescript)
+Ln 1643, Col 17
+Cannot find name 'div'.
+(typescript)
+Ln 1646, Col 16
+Cannot find name 'className'.
+(typescript)
+Ln 1646, Col 20
+';' expected.
+(typescript)
+Ln 1646, Col 20
+This expression is not callable. Type '{}' has no call signatures.
+(typescript)
+Ln 1647, Col 15
+Property assignment expected.
+(typescript)
+Ln 1647, Col 16
+'status' is deprecated.
+(typescript)
+Ln 1648, Col 40
+Cannot find name 'penaltyHome'.
+(typescript)
+Ln 1650, Col 19
+Cannot find name 'penaltyHome'.
+(typescript)
+Ln 1651, Col 19
+Cannot find name 'penaltyAway'.
+(typescript)
+Ln 1652, Col 19
+Cannot find name 'penaltyAway'.
+(typescript)
+Ln 1653, Col 19
+Cannot find name 'penaltyHome'.
+(typescript)
+Ln 1657, Col 21
+Cannot find name 'penaltyAway'.
+(typescript)
+Ln 1657, Col 35
+Cannot find name 'homeTeamName'.
+(typescript)
+Ln 1658, Col 44
+Cannot find name 'penaltyHome'.
+(typescript)
+Ln 1658, Col 65
+Cannot find name 'penaltyAway'.
+(typescript)
+Ln 1658, Col 80
+Cannot find name 'awayTeamName'.
+(typescript)
+Ln 1659, Col 44
+Cannot find name 'penaltyAway'.
+(typescript)
+Ln 1659, Col 65
+Cannot find name 'penaltyHome'.
+(typescript)
+Ln 1659, Col 80
+Declaration or statement expected.
+(typescript)
+Ln 1670, Col 19
+Declaration or statement expected.
+(typescript)
+Ln 1671, Col 15
+Cannot find name 'div'.
+(typescript)
+Ln 1671, Col 17
+Expression expected.
+(typescript)
+Ln 1672, Col 15
+Cannot find name 'div'.
+(typescript)
+Ln 1672, Col 17
+Expression expected.
+(typescript)
+Ln 1673, Col 15
+Cannot find name 'div'.
+(typescript)
+Ln 1673, Col 17
+Expression expected.
+(typescript)
+Ln 1674, Col 15
+Cannot find name 'div'.
+(typescript)
+Ln 1674, Col 17
+Expression expected.
+(typescript)
+Ln 1675, Col 15
+Declaration or statement expected.
+(typescript)
+Ln 1676, Col 15
+Cannot find name 'setLeagueFixtures'.
+(typescript)
+Ln 1696, Col 15
+Parameter 'prev' implicitly has an 'any' type.
+(typescript)
+Ln 1696, Col 33
+Cannot find name 'leagueIds'.
+(typescript)
+Ln 1700, Col 15
+Parameter 'leagueId' implicitly has an 'any' type.
+(typescript)
+Ln 1700, Col 33
+Property 'map' does not exist on type '{}'.
+(typescript)
+Ln 1702, Col 52
+Parameter 'match' implicitly has an 'any' type.
+(typescript)
+Ln 1702, Col 56
+'clearMatchCache' is declared but its value is never read.
+(typescript)
+Ln 1720, Col 21
+Cannot find name 'leagueIds'.
+(typescript)
+Ln 1729, Col 15
+Parameter 'leagueId' implicitly has an 'any' type.
+(typescript)
+Ln 1729, Col 33
+Cannot find name 'getCacheKey'.
+(typescript)
+Ln 1730, Col 32
+Cannot find name 'getCacheKey'.
+(typescript)
+Ln 1775, Col 19
+Cannot find name 'matchesByLeague'.
+(typescript)
+Ln 1779, Col 48
+'group' is of type 'unknown'.
+(typescript)
+Ln 1779, Col 82
+Cannot find name 'previousMatchStatusesRef'.
+(typescript)
+Ln 1790, Col 38
+Cannot find name 'previousMatchScoresRef'.
+(typescript)
+Ln 1795, Col 37
+Cannot find name 'previousMatchStatusesRef'.
+(typescript)
+Ln 1841, Col 15
+Cannot find name 'previousMatchScoresRef'.
+(typescript)
+Ln 1842, Col 15
+Cannot find name 'setHalftimeFlashMatches'.
+(typescript)
+Ln 1847, Col 15
+Cannot find name 'setHalftimeFlashMatches'.
+(typescript)
+Ln 1848, Col 32
+Cannot find name 'setFulltimeFlashMatches'.
+(typescript)
+Ln 1852, Col 15
+Cannot find name 'setFulltimeFlashMatches'.
+(typescript)
+Ln 1853, Col 32
+Cannot find name 'setGoalFlashMatches'.
+(typescript)
+Ln 1857, Col 15
+Cannot find name 'setGoalFlashMatches'.
+(typescript)
+Ln 1858, Col 32
+Cannot find name 'matchesByLeague'.
+(typescript)
+Ln 1860, Col 19
+Cannot find name 'matchesByLeague'.
+(typescript)
+Ln 1865, Col 48
+'group' is of type 'unknown'.
+(typescript)
+Ln 1865, Col 82
+Cannot find name 'matchesByLeague'.
+(typescript)
+Ln 1885, Col 19
+Cannot find name 'loading'.
+(typescript)
+Ln 1888, Col 42
+Cannot find name 'isLoading'.
+(typescript)
+Ln 1888, Col 53
+Cannot find name 'matchesByLeague'.
+(typescript)
+Ln 1888, Col 79
+Cannot find name 'error'.
+(typescript)
+Ln 1908, Col 19
+Declaration or statement expected.
+(typescript)
+Ln 2106, Col 1
