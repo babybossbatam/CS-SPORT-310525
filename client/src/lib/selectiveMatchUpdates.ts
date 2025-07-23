@@ -183,15 +183,21 @@ class SelectiveMatchUpdater {
     const baseDelay = 1000; // 1 second
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      let timeoutId: NodeJS.Timeout | undefined;
+      
       try {
         // Create abort controller with timeout
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort('timeout'), 10000); // 10 second timeout
+        timeoutId = setTimeout(() => controller.abort('timeout'), 10000); // 10 second timeout
 
-        // Add cache bypass for live matches
+        // Build the URL with proper protocol
+        const baseUrl = window.location.origin;
         const cacheBuster = `?t=${Date.now()}&bypass_cache=true`;
+        const url = `${baseUrl}/api/fixtures/selective-updates${cacheBuster}`;
 
-        const response = await fetch(`/api/fixtures/selective-updates${cacheBuster}`, {
+        console.log(`🔗 [SelectiveUpdater] Making request to: ${url}`);
+
+        const response = await fetch(url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -202,7 +208,7 @@ class SelectiveMatchUpdater {
           signal: controller.signal,
         });
 
-        clearTimeout(timeoutId);
+        if (timeoutId) clearTimeout(timeoutId);
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -226,7 +232,7 @@ class SelectiveMatchUpdater {
           return update.fixtureId && update.status && update.status.short;
         });
       } catch (error) {
-        clearTimeout(timeoutId);
+        if (timeoutId) clearTimeout(timeoutId);
 
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
@@ -239,8 +245,16 @@ class SelectiveMatchUpdater {
           }
         } else if (errorMessage.includes('ERR_TUNNEL_CONNECTION_FAILED') || 
                    errorMessage.includes('Failed to fetch') ||
-                   errorMessage.includes('NetworkError')) {
+                   errorMessage.includes('NetworkError') ||
+                   errorMessage.includes('TypeError: Failed to fetch')) {
           console.warn(`🌐 [SelectiveUpdater] Network error on attempt ${attempt}/${maxRetries}: ${errorMessage}`);
+
+          // Check if we can reach the server
+          this.isOnline = navigator.onLine;
+          if (!this.isOnline) {
+            console.log('🔌 [SelectiveUpdater] Device went offline during request');
+            return [];
+          }
 
           // Try to trigger network recovery
           try {
@@ -260,6 +274,7 @@ class SelectiveMatchUpdater {
 
         // Wait before retrying (exponential backoff)
         const delay = baseDelay * Math.pow(2, attempt - 1);
+        console.log(`⏳ [SelectiveUpdater] Waiting ${delay}ms before retry...`);
         await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
