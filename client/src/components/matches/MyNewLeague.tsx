@@ -334,7 +334,17 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
     }
   }, [getCacheKey, isMatchOldEnded]);
 
-
+  // Function to detect user's timezone
+  const detectUserTimezone = () => {
+    try {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const offset = new Date().getTimezoneOffset(); // Offset in minutes
+      return { timezone, offset };
+    } catch (error) {
+      console.error("Failed to detect user timezone:", error);
+      return { timezone: 'UTC', offset: 0 }; // Default to UTC if detection fails
+    }
+  };
 
   // Enhanced data fetching function for initial load and non-live data
   const fetchLeagueData = useCallback(async (isUpdate = false) => {
@@ -795,12 +805,20 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               }
               });
 
-              console.log(`📊 [MyNewLeague] Processed matchesByLeague:`, {
-              totalLeagues: Object.keys(result).length,
-              totalMatches: Object.values(result).reduce((sum, group) => sum + group.matches.length, 0),
-              selectedDate,
-              leagueFixturesSize: leagueFixtures.size
-,
+              // Log timezone conversion info
+      const userTimezone = detectUserTimezone();
+      console.log(`🌍 [MyNewLeague] Timezone info:`, {
+        selectedDate,
+        userTimezone: userTimezone.timezone,
+        userOffset: userTimezone.offset,
+        totalMatches: Object.values(result).reduce((sum, group) => sum + group.matches.length, 0)
+      });
+
+      console.log(`📊 [MyNewLeague] Processed matchesByLeague:`, {
+        totalLeagues: Object.keys(result).length,
+        totalMatches: Object.values(result).reduce((sum, group) => sum + group.matches.length, 0),
+        selectedDate,
+        leagueFixturesSize: leagueFixtures.size,
         hasLeague908: !!result[908],
         league908Matches: result[908]?.matches.length || 0
       });
