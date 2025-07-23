@@ -815,7 +815,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
               name: "Bundesliga",
               type: "League",
               logo: "https://media.api-sports.io/football/leagues/78.png",
-              country: "Germany",```tool_code
               country: "Germany",
             },
             country: {
