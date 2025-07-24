@@ -1,57 +1,77 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
 
 interface MyShotsProps {
   homeStats: any;
   awayStats: any;
   homeTeam: any;
   awayTeam: any;
+  isExpanded?: boolean;
+  onToggleExpanded?: () => void;
 }
 
-// Enhanced StatRow component with circular backgrounds for shots
-const ShotStatRow: React.FC<{
+interface StatRowWithBarsProps {
   label: string;
   homeValue: string | number;
   awayValue: string | number;
-  homeColor?: string;
-  awayColor?: string;
-}> = ({ label, homeValue, awayValue, homeColor = '#ef4444', awayColor = '#10b981' }) => {
-  // Convert values to numbers for comparison
-  const homeNum = typeof homeValue === 'string' ? parseFloat(homeValue.replace('%', '')) || 0 : homeValue || 0;
-  const awayNum = typeof awayValue === 'string' ? parseFloat(awayValue.replace('%', '')) || 0 : awayValue || 0;
+  homeTeam?: any;
+  awayTeam?: any;
+}
+
+const StatRowWithBars: React.FC<StatRowWithBarsProps> = ({ 
+  label, 
+  homeValue, 
+  awayValue, 
+  homeTeam, 
+  awayTeam 
+}) => {
+  const homeNum = parseFloat(String(homeValue)) || 0;
+  const awayNum = parseFloat(String(awayValue)) || 0;
+  const total = homeNum + awayNum;
   
-  // Determine which team has higher value
-  const homeIsHigher = homeNum > awayNum;
-  const awayIsHigher = awayNum > homeNum;
+  const homePercentage = total > 0 ? (homeNum / total) * 100 : 50;
+  const awayPercentage = total > 0 ? (awayNum / total) * 100 : 50;
 
   return (
-    <div className="py-2 border-b border-gray-100 last:border-b-0">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center justify-start w-12 text-left">
-          <span 
-            className={`text-sm font-medium px-2 py-1 rounded-full ${
-              homeIsHigher 
-                ? 'bg-red-700 text-white' 
-                : 'text-gray-900'
-            }`}
-          >
-            {homeValue}
-          </span>
+    <div className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+      {/* Home team value and logo */}
+      <div className="flex items-center space-x-2 w-16 justify-end">
+        <span className="text-sm font-medium">{homeValue}</span>
+        {homeTeam?.logo && (
+          <img 
+            src={homeTeam.logo} 
+            alt={homeTeam.name}
+            className="w-4 h-4 object-contain"
+          />
+        )}
+      </div>
+
+      {/* Center section with bars and label */}
+      <div className="flex-1 mx-4">
+        <div className="text-xs text-center text-gray-600 mb-1">{label}</div>
+        <div className="flex items-center h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-blue-500 transition-all duration-300"
+            style={{ width: `${homePercentage}%` }}
+          />
+          <div 
+            className="h-full bg-red-500 transition-all duration-300"
+            style={{ width: `${awayPercentage}%` }}
+          />
         </div>
-        
-        <span className="text-sm font-reg text-gray-700 text-center flex-1 px-4">{label}</span>
-        
-        <div className="flex items-center justify-end w-12 text-right">
-          <span 
-            className={`text-sm font-medium px-2 py-1 rounded-full ${
-              awayIsHigher 
-                ? 'bg-green-700 text-white' 
-                : 'text-gray-900'
-            }`}
-          >
-            {awayValue}
-          </span>
-        </div>
+      </div>
+
+      {/* Away team logo and value */}
+      <div className="flex items-center space-x-2 w-16">
+        {awayTeam?.logo && (
+          <img 
+            src={awayTeam.logo} 
+            alt={awayTeam.name}
+            className="w-4 h-4 object-contain"
+          />
+        )}
+        <span className="text-sm font-medium">{awayValue}</span>
       </div>
     </div>
   );
@@ -61,67 +81,134 @@ const MyShots: React.FC<MyShotsProps> = ({
   homeStats, 
   awayStats, 
   homeTeam, 
-  awayTeam 
+  awayTeam, 
+  isExpanded = false,
+  onToggleExpanded 
 }) => {
-  // Helper function to get stat value with multiple possible field names
-  const getStatValue = (stats: any[], type: string, alternativeTypes: string[] = []): string => {
-    if (!stats || !Array.isArray(stats)) return '0';
+  const [localExpanded, setLocalExpanded] = useState(false);
+  const expanded = isExpanded || localExpanded;
+
+  const getStatValue = (stats: any, type: string, alternatives: string[] = []): string => {
+    if (!stats?.statistics || !Array.isArray(stats.statistics)) return '0';
     
-    // Try primary type first
-    let stat = stats.find(s => s.type === type);
+    // First try the exact type
+    let stat = stats.statistics.find((s: any) => s.type === type);
     
-    // If not found, try alternative types
-    if (!stat && alternativeTypes.length > 0) {
-      for (const altType of alternativeTypes) {
-        stat = stats.find(s => s.type === altType);
+    // If not found, try alternatives
+    if (!stat && alternatives.length > 0) {
+      for (const alt of alternatives) {
+        stat = stats.statistics.find((s: any) => s.type === alt);
         if (stat) break;
       }
     }
     
-    return stat && stat.value !== null && stat.value !== undefined ? String(stat.value) : '0';
+    return stat ? String(stat.value) : '0';
+  };
+
+  const formatPercentage = (value: string | number): string => {
+    const numValue = parseFloat(String(value));
+    if (isNaN(numValue)) return '0%';
+    
+    // If the value is already a percentage (> 1), return as is
+    if (numValue > 1) {
+      return `${Math.round(numValue)}%`;
+    }
+    
+    // If it's a decimal (0-1), convert to percentage
+    return `${Math.round(numValue * 100)}%`;
+  };
+
+  // Shot-specific statistics
+  const shotStats = [
+    {
+      label: 'Total Shots',
+      homeValue: getStatValue(homeStats, 'Total Shots', ['Shots', 'total shots']),
+      awayValue: getStatValue(awayStats, 'Total Shots', ['Shots', 'total shots'])
+    },
+    {
+      label: 'Shots on Goal',
+      homeValue: getStatValue(homeStats, 'Shots on Goal', ['Shots on target', 'shots on target']),
+      awayValue: getStatValue(awayStats, 'Shots on Goal', ['Shots on target', 'shots on target'])
+    },
+    {
+      label: 'Blocked Shots',
+      homeValue: getStatValue(homeStats, 'Blocked Shots', ['Blocked shots']),
+      awayValue: getStatValue(awayStats, 'Blocked Shots', ['Blocked shots'])
+    }
+  ];
+
+  const additionalShotStats = [
+    {
+      label: 'Shots Inside Box',
+      homeValue: getStatValue(homeStats, 'Shots insidebox', ['Shots inside box']),
+      awayValue: getStatValue(awayStats, 'Shots insidebox', ['Shots inside box'])
+    },
+    {
+      label: 'Shots Outside Box',
+      homeValue: getStatValue(homeStats, 'Shots outsidebox', ['Shots outside box']),
+      awayValue: getStatValue(awayStats, 'Shots outsidebox', ['Shots outside box'])
+    },
+    {
+      label: 'Shot Accuracy',
+      homeValue: formatPercentage(getStatValue(homeStats, 'Shot Accuracy', ['shots on target %', 'Shot accuracy'])),
+      awayValue: formatPercentage(getStatValue(awayStats, 'Shot Accuracy', ['shots on target %', 'Shot accuracy']))
+    }
+  ];
+
+  const allStats = [...shotStats, ...(expanded ? additionalShotStats : [])];
+
+  const handleToggleExpanded = () => {
+    if (onToggleExpanded) {
+      onToggleExpanded();
+    } else {
+      setLocalExpanded(!localExpanded);
+    }
   };
 
   return (
-    <>
-      {/* Team Headers */}
-      <div className="flex items-center justify-between mb-4 pb-2 border-b">
-        <div className="flex items-center space-x-2">
-          <img 
-            src={homeTeam?.logo || "/assets/fallback-logo.png"} 
-            alt={homeTeam?.name}
-            className="w-6 h-6 object-contain"
-          />
-          <span className="text-sm font-semibold truncate max-w-20">{homeTeam?.name}</span>
+    <div className="space-y-0">
+      {/* Team headers */}
+      <div className="flex items-center justify-between py-2 mb-2">
+        <div className="flex items-center space-x-2 w-16 justify-end">
+          <span className="text-xs font-medium text-gray-600">{homeTeam?.name}</span>
         </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-semibold truncate max-w-20">{awayTeam?.name}</span>
-          <img 
-            src={awayTeam?.logo || "/assets/fallback-logo.png"} 
-            alt={awayTeam?.name}
-            className="w-6 h-6 object-contain"
-          />
+        
+        <div className="flex-1 mx-4">
+          <div className="text-xs text-center text-gray-500 font-medium">Shot Statistics</div>
+        </div>
+        
+        <div className="flex items-center space-x-2 w-16">
+          <span className="text-xs font-medium text-gray-600">{awayTeam?.name}</span>
         </div>
       </div>
 
-      {/* Shot Statistics */}
-      <div className="space-y-3">
-        <ShotStatRow 
-          label="Blocked Shots" 
-          homeValue={getStatValue(homeStats.statistics, 'Blocked Shots', ['Blocked shots'])}
-          awayValue={getStatValue(awayStats.statistics, 'Blocked Shots', ['Blocked shots'])}
+      {/* Shot statistics rows */}
+      {allStats.map((stat, index) => (
+        <StatRowWithBars
+          key={`${stat.label}-${index}`}
+          label={stat.label}
+          homeValue={stat.homeValue}
+          awayValue={stat.awayValue}
+          homeTeam={homeTeam}
+          awayTeam={awayTeam}
         />
-        <ShotStatRow 
-          label="Shots insidebox" 
-          homeValue={getStatValue(homeStats.statistics, 'Shots insidebox', ['Shots inside box'])}
-          awayValue={getStatValue(awayStats.statistics, 'Shots insidebox', ['Shots inside box'])}
-        />
-        <ShotStatRow 
-          label="Shots outsidebox" 
-          homeValue={getStatValue(homeStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
-          awayValue={getStatValue(awayStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
-        />
+      ))}
+
+      {/* See All / Collapse button */}
+      <div className="flex justify-center pt-3">
+        <button
+          onClick={handleToggleExpanded}
+          className="flex items-center space-x-1 text-xs text-blue-600 hover:text-blue-800 transition-colors"
+        >
+          <span>{expanded ? 'Show Less' : 'See All'}</span>
+          {expanded ? (
+            <ChevronUp className="w-3 h-3" />
+          ) : (
+            <ChevronRight className="w-3 h-3" />
+          )}
+        </button>
       </div>
-    </>
+    </div>
   );
 };
 
