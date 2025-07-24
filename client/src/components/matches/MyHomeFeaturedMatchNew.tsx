@@ -1715,7 +1715,7 @@ id: fixture.teams.away.id,
                         return (
                           <div className="space-y-1">
                             <div className="text-sm text-gray-600 invisible">
-                              // Hidden status placeholder to maintain spacing */}
+                               {/* // Hidden status placeholder to maintain spacing */}
                               Ended
                             </div>
                             <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
