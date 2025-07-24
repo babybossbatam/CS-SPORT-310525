@@ -93,9 +93,9 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
           <CardTitle>Stats</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="p-4">
-            <div className="text-center text-gray-600 py-8">
-              <div className="text-4xl mb-2">📊</div>
+          <div className="">
+            <div className="text-center text-gray-600">
+              <div className="text-4xl ">📊</div>
               <h3 className="text-lg font-medium mb-2">Statistics Coming Soon</h3>
               <p className="text-sm text-gray-500">
                 Match statistics will be available once the game starts
@@ -141,7 +141,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
           <CardTitle className="text-center">Stats</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="text-center text-gray-500 py-8">
+          <div className="text-center text-gray-500 ">
             <div className="text-2xl mb-2">⏳</div>
             <p>Loading match statistics...</p>
           </div>
@@ -173,7 +173,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
       <CardHeader>
         <CardTitle>Stats</CardTitle>
       </CardHeader>
-      <CardContent className="p-4">
+      <CardContent className="">
         <MyStats
           homeStats={homeStats}
           awayStats={awayStats}
