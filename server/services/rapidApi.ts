@@ -836,13 +836,8 @@ export const rapidApiService = {
       }
       */
 
-      // Use cached data if available
-      if (cached?.data) {
-        console.log("Using cached data due to both APIs failing");
-        return cached.data;
-      }
-
-      console.error("All API requests failed and no cache available");
+      // For live fixtures, we don't use cache as fallback since they need real-time data
+      console.error("Live fixture API request failed - returning empty array for real-time accuracy");
       return [];
     }
   },

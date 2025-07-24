@@ -683,12 +683,21 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
               setLeagueFixtures(newLeagueFixtures);
 
-              // Cache the results with date validation
-              sessionStorage.setItem(`league-fixtures-${selectedDate}`, JSON.stringify({
-              data: Array.from(newLeagueFixtures.entries()),
-              timestamp: Date.now(),
-              date: selectedDate // Include date for validation
-              }));
+              // Only cache non-live, non-today data to prevent stale live match status
+      const shouldCache = !isToday && !Object.values(newLeagueFixtures).some(fixtures => 
+        fixtures.some(f => ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(f.fixture?.status?.short))
+      );
+
+      if (shouldCache) {
+        sessionStorage.setItem(`league-fixtures-${selectedDate}`, JSON.stringify({
+          data: Array.from(newLeagueFixtures.entries()),
+          timestamp: Date.now(),
+          date: selectedDate // Include date for validation
+        }));
+        console.log(`💾 [MyNewLeague] Cached data for ${selectedDate} (no live matches)`);
+      } else {
+        console.log(`🔴 [MyNewLeague] Skipping cache storage for ${selectedDate} - contains live data`);
+      }
 
               } catch (error) {
               console.error('❌ [MyNewLeague] Error fetching league fixtures:', error);
@@ -703,40 +712,53 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
               }
               };
 
-              // Check cache first for non-live data with stricter validation
-              const cacheKey = `league-fixtures-${selectedDate}`;
-              const cached = sessionStorage.getItem(cacheKey);
+              // Check if we have any live matches to determine if we should use cache
+  const hasLiveMatches = Object.values(matchesByLeague).some(group => 
+    group.matches.some(match => 
+      ['LIVE', '1H', 'HT', '2H', 'ET', 'BT', 'P', 'INT'].includes(match.fixture?.status?.short)
+    )
+  );
 
-              if (cached && !liveFilterActive) {
-              try {
-              const { data, timestamp, date: cachedDateKey } = JSON.parse(cached);
-              const age = Date.now() - timestamp;
+  // Skip cache completely if we have live matches or today's date
+  const isToday = selectedDate === new Date().toISOString().split('T')[0];
+  const shouldSkipCache = hasLiveMatches || isToday || liveFilterActive;
 
-              // Validate cached date matches exactly
-              if (cachedDateKey && cachedDateKey !== selectedDate) {
-              console.log(`🚨 [MyNewLeague] Session cache date mismatch - clearing: ${cachedDateKey} !== ${selectedDate}`);
-              sessionStorage.removeItem(cacheKey);
-              } else {
-              // Much shorter cache times to prevent stale data
-              // For today: 30 seconds max
-              // For other dates: 2 minutes max
-              const maxAge = selectedDate === new Date().toISOString().split('T')[0] ? 30000 : 120000;
+  // Check cache only for non-live, non-today data
+  const cacheKey = `league-fixtures-${selectedDate}`;
+  const cached = sessionStorage.getItem(cacheKey);
 
-              if (age < maxAge) {
-              console.log(`💾 [MyNewLeague] Using cached data for ${selectedDate} (age: ${Math.round(age/1000)}s)`);
-              setLeagueFixtures(new Map(data));
-              setIsLoading(false);
-              return;
-              } else {
-              console.log(`⏰ [MyNewLeague] Session cache expired for ${selectedDate} (age: ${Math.round(age/1000)}s)`);
-              sessionStorage.removeItem(cacheKey);
-              }
-              }
-              } catch (error) {
-              console.warn('Failed to parse session cache:', error);
-              sessionStorage.removeItem(cacheKey);
-              }
-              }
+  if (cached && !shouldSkipCache) {
+    try {
+      const { data, timestamp, date: cachedDateKey } = JSON.parse(cached);
+      const age = Date.now() - timestamp;
+
+      // Validate cached date matches exactly
+      if (cachedDateKey && cachedDateKey !== selectedDate) {
+        console.log(`🚨 [MyNewLeague] Session cache date mismatch - clearing: ${cachedDateKey} !== ${selectedDate}`);
+        sessionStorage.removeItem(cacheKey);
+      } else {
+        // Use cache only for past dates (more than 1 day old)
+        const maxAge = 2 * 60 * 1000; // 2 minutes max for any cached data
+
+        if (age < maxAge) {
+          console.log(`💾 [MyNewLeague] Using cached data for ${selectedDate} (age: ${Math.round(age/1000)}s)`);
+          setLeagueFixtures(new Map(data));
+          setIsLoading(false);
+          return;
+        } else {
+          console.log(`⏰ [MyNewLeague] Session cache expired for ${selectedDate} (age: ${Math.round(age/1000)}s)`);
+          sessionStorage.removeItem(cacheKey);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to parse session cache:', error);
+      sessionStorage.removeItem(cacheKey);
+    }
+  }
+
+  if (shouldSkipCache) {
+    console.log(`🔴 [MyNewLeague] Skipping cache for ${selectedDate} - ${hasLiveMatches ? 'has live matches' : 'is today'}`);
+  }
 
               fetchAllLeagueFixtures();
               }, [selectedDate, showTop10, liveFilterActive]);

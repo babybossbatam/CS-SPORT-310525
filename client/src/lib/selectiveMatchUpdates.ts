@@ -183,10 +183,12 @@ class SelectiveMatchUpdater {
     const baseDelay = 1000; // 1 second
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      let timeoutId: NodeJS.Timeout | null = null;
+      
       try {
         // Create abort controller with timeout
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort('timeout'), 10000); // 10 second timeout
+        timeoutId = setTimeout(() => controller.abort('timeout'), 10000); // 10 second timeout
 
         const response = await fetch('/api/fixtures/selective-updates', {
           method: 'POST',
@@ -197,7 +199,10 @@ class SelectiveMatchUpdater {
           signal: controller.signal,
         });
 
-        clearTimeout(timeoutId);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
 
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -217,7 +222,10 @@ class SelectiveMatchUpdater {
           timestamp: Date.now(),
         }));
       } catch (error) {
-        clearTimeout(timeoutId);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
 
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
