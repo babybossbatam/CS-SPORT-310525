@@ -115,14 +115,15 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     refetchInterval: 30 * 1000,
   });
 
-  // Group fixtures by league without any filtering
+  // Group fixtures by league with date filtering
   const fixturesByLeague = useMemo(() => {
-    console.log(`🔍 [MyNewLeague2] Processing fixtures:`, {
+    console.log(`🔍 [MyNewLeague2] Processing fixtures for date ${selectedDate}:`, {
       allFixturesLength: allFixtures?.length || 0,
       sampleFixtures: allFixtures?.slice(0, 3)?.map(f => ({
         id: f?.fixture?.id,
         league: f?.league?.name,
-        teams: `${f?.teams?.home?.name} vs ${f?.teams?.away?.name}`
+        teams: `${f?.teams?.home?.name} vs ${f?.teams?.away?.name}`,
+        date: f?.fixture?.date
       }))
     });
 
@@ -135,8 +136,17 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
 
     allFixtures.forEach((fixture: FixtureData, index) => {
       // Validate fixture structure
-      if (!fixture || !fixture.league || !fixture.teams) {
+      if (!fixture || !fixture.league || !fixture.teams || !fixture.fixture?.date) {
         console.warn(`⚠️ [MyNewLeague2] Invalid fixture at index ${index}:`, fixture);
+        return;
+      }
+
+      // Apply date filtering - extract date from fixture and compare with selected date
+      const fixtureDate = new Date(fixture.fixture.date);
+      const fixtureDateString = format(fixtureDate, 'yyyy-MM-dd');
+      
+      // Only include fixtures that match the selected date
+      if (fixtureDateString !== selectedDate) {
         return;
       }
 
@@ -158,10 +168,13 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     });
 
     const groupedKeys = Object.keys(grouped);
-    console.log(`✅ [MyNewLeague2] Grouped fixtures:`, {
+    const totalValidFixtures = Object.values(grouped).reduce((sum, group) => sum + group.fixtures.length, 0);
+    
+    console.log(`✅ [MyNewLeague2] Date filtered fixtures for ${selectedDate}:`, {
+      originalFixtures: allFixtures?.length || 0,
+      filteredFixtures: totalValidFixtures,
       leagueCount: groupedKeys.length,
       leagueIds: groupedKeys,
-      totalFixtures: Object.values(grouped).reduce((sum, group) => sum + group.fixtures.length, 0),
       leagueDetails: Object.entries(grouped).map(([id, data]) => ({
         id: Number(id),
         name: data.league.name,
@@ -170,7 +183,7 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     });
 
     return grouped;
-  }, [allFixtures]);
+  }, [allFixtures, selectedDate]);
 
   const toggleLeagueCollapse = (leagueId: number) => {
     setCollapsedLeagues(prev => {
