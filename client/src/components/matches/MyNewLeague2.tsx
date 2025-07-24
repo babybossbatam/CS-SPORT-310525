@@ -87,8 +87,8 @@ interface FixtureData {
 
 interface MyNewLeague2Props {
   selectedDate: string;
-  onMatchCardClick?: (fixture: any) => void;
-  match?: any;
+  onMatchCardClick?: (fixture: any) => void; // Callback to pass match data to parent (for MyMatchdetailsScoreboard)
+  match?: any; // Current match data (used for sample display)
 }
 
 const MyNewLeague2 = ({
@@ -313,8 +313,8 @@ const MyNewLeague2 = ({
       onMatchCardClick(fixture);
     }
 
-    // Then navigate to match details page
-    navigate(`/match/${fixture.fixture.id}`);
+    // Don't navigate automatically - let parent handle it if needed
+    // navigate(`/match/${fixture.fixture.id}`);
   };
 
   // Lazy loading team logo component with skeleton fallback
