@@ -22,6 +22,49 @@ interface TeamStats {
   statistics: TeamStatistic[];
 }
 
+interface MyShotsProps {
+  homeStats: TeamStats | null;
+  awayStats: TeamStats | null;
+  homeTeam: any;
+  awayTeam: any;
+}
+
+// New MyShots Component
+const MyShots: React.FC<MyShotsProps> = ({ homeStats, awayStats, homeTeam, awayTeam }) => {
+  const getStatValue = (stats: TeamStats | null, type: string): number | string | undefined => {
+    const stat = stats?.statistics.find((s) => s.type === type);
+    return stat?.value;
+  };
+
+  const homeBlockedShots = getStatValue(homeStats, 'Blocked Shots') || 0;
+  const awayBlockedShots = getStatValue(awayStats, 'Blocked Shots') || 0;
+  const homeShotsInsidebox = getStatValue(homeStats, 'Shots insidebox') || 0;
+  const awayShotsInsidebox = getStatValue(awayStats, 'Shots insidebox') || 0;
+  const homeShotsOutsidebox = getStatValue(homeStats, 'Shots outsidebox') || 0;
+  const awayShotsOutsidebox = getStatValue(awayStats, 'Shots outsidebox') || 0;
+
+
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      <div>
+        <h4 className="font-medium text-sm text-center">{homeTeam?.name}</h4>
+        <ul className="space-y-2">
+          <li>Blocked Shots: {homeBlockedShots}</li>
+          <li>Shots insidebox: {homeShotsInsidebox}</li>
+          <li>Shots outsidebox: {homeShotsOutsidebox}</li>
+        </ul>
+      </div>
+      <div>
+        <h4 className="font-medium text-sm text-center">{awayTeam?.name}</h4>
+        <ul className="space-y-2">
+          <li>Blocked Shots: {awayBlockedShots}</li>
+          <li>Shots insidebox: {awayShotsInsidebox}</li>
+          <li>Shots outsidebox: {awayShotsOutsidebox}</li>
+        </ul>
+      </div>
+    </div>
+  );
+};
 
 
 const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) => {
@@ -174,22 +217,40 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
         <CardTitle>Stats</CardTitle>
       </CardHeader>
       <CardContent className="">
-        <MyStats
-          homeStats={homeStats}
-          awayStats={awayStats}
-          homeTeam={homeTeam}
-          awayTeam={awayTeam}
-          isExpanded={isExpanded}
-          onToggleExpanded={() => {
-            // Always ensure Stats tab is active first - this will hide MyMatchTabCard and show MyStatsTabCard
-            if (onTabChange) {
-              onTabChange('stats');
-            }
+        <Card>
+          <CardContent className="p-4">
+            <MyStats
+              homeStats={homeStats}
+              awayStats={awayStats}
+              homeTeam={homeTeam}
+              awayTeam={awayTeam}
+              isExpanded={isExpanded}
+              onToggleExpanded={() => {
+                // Always ensure Stats tab is active first - this will hide MyMatchTabCard and show MyStatsTabCard
+                if (onTabChange) {
+                  onTabChange('stats');
+                }
 
-            // Always expand when "See All" is clicked to show all statistics
-            setIsExpanded(true);
-          }}
-        />
+                // Always expand when "See All" is clicked to show all statistics
+                setIsExpanded(true);
+              }}
+            />
+          </CardContent>
+        </Card>
+
+        <Card className="mt-4">
+          <CardHeader>
+            <CardTitle>Shot Statistics</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <MyShots
+              homeStats={homeStats}
+              awayStats={awayStats}
+              homeTeam={homeTeam}
+              awayTeam={awayTeam}
+            />
+          </CardContent>
+        </Card>
       </CardContent>
     </Card>
   );
