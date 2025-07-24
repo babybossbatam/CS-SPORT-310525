@@ -199,10 +199,8 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({
 
       {/* Shots Statistics Card */}
       <Card>
-        <CardHeader>
-          <CardTitle className="text-xs">Shots</CardTitle>
-        </CardHeader>
-        <CardContent className="p-4">
+       
+        <CardContent className="py-2">
           <MyShots
             homeStats={homeStats}
             awayStats={awayStats}

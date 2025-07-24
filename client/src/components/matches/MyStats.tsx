@@ -280,7 +280,7 @@ const MyStats: React.FC<MyStatsProps> = ({
   return (
     <>
       {/* Team Headers */}
-      <div className="flex items-center justify-between mb-4 pb-2 border-b">
+      <div className="flex items-center justify-between mb-1 pb-1 border-b">
         <div className="flex items-center space-x-2">
           <img 
             src={homeTeam?.logo || "/assets/fallback-logo.png"} 
@@ -300,7 +300,7 @@ const MyStats: React.FC<MyStatsProps> = ({
       </div>
 
       {/* Statistics with bars - Real API data */}
-      <div className="space-y-3">
+      <div className="space-y-1">
         {/* Always visible stats (first 4) */}
         <StatRowWithBars 
           label="Ball Possession" 
