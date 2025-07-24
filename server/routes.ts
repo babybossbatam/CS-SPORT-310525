@@ -820,7 +820,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             country: {
               name: "Germany",
               code: "DE",
-              flag: "https://media.api-sports.io/flags/de.svg",
+              ```cpp
+flag: "https://media.api-sports.io/flags/de.svg",
             },
           },
           {
@@ -1713,9 +1714,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           `Error fetching 365scores league logo for ${req.params.leagueId}:`,
           error,
         );
-        res.status(50).json({ error: "Failed to fetch league logo" });
-```python
-            }
+        res.status(500).json({ error: "Failed to fetch league logo" });
+      }
     },
   );
 
