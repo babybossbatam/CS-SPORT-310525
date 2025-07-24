@@ -174,26 +174,22 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
         <CardTitle>Stats</CardTitle>
       </CardHeader>
       <CardContent className="">
-        <Card>
-          <CardContent className="p-4">
-            <MyStats
-              homeStats={homeStats}
-              awayStats={awayStats}
-              homeTeam={homeTeam}
-              awayTeam={awayTeam}
-              isExpanded={isExpanded}
-              onToggleExpanded={() => {
-                // Always ensure Stats tab is active first - this will hide MyMatchTabCard and show MyStatsTabCard
-                if (onTabChange) {
-                  onTabChange('stats');
-                }
+        <MyStats
+          homeStats={homeStats}
+          awayStats={awayStats}
+          homeTeam={homeTeam}
+          awayTeam={awayTeam}
+          isExpanded={isExpanded}
+          onToggleExpanded={() => {
+            // Always ensure Stats tab is active first - this will hide MyMatchTabCard and show MyStatsTabCard
+            if (onTabChange) {
+              onTabChange('stats');
+            }
 
-                // Always expand when "See All" is clicked to show all statistics
-                setIsExpanded(true);
-              }}
-            />
-          </CardContent>
-        </Card>
+            // Always expand when "See All" is clicked to show all statistics
+            setIsExpanded(true);
+          }}
+        />
       </CardContent>
     </Card>
   );
