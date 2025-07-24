@@ -931,6 +931,13 @@ id: fixture.teams.away.id,
                 return false;
               }
               
+              // Additional name-based exclusion for Regionalliga leagues
+              const leagueName = fixture.league?.name?.toLowerCase() || "";
+              if (leagueName.includes('regionalliga') && leagueName.includes('bayern')) {
+                console.log(`🚫 [NAME-BASED EXCLUSION] Regionalliga - Bayern match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
+                return false;
+              }
+              
               const matchDate = new Date(fixture.fixture.date);
               const year = matchDate.getFullYear();
               const month = String(matchDate.getMonth() + 1).padStart(2, "0");
@@ -1042,25 +1049,28 @@ id: fixture.teams.away.id,
     [maxMatches],
   );
 
-  // Function to clear all related caches for UEFA Europa Conference League
-  const clearUefaConferenceCaches = useCallback(() => {
+  // Function to clear all related caches for excluded leagues
+  const clearExcludedLeaguesCaches = useCallback(() => {
     try {
-      // Clear fixture cache
+      // Clear fixture cache completely
       fixtureCache.clearCache();
       
-      // Clear all localStorage entries that might contain Conference League data
+      // Clear all localStorage entries that might contain excluded league data
       const keys = Object.keys(localStorage);
-      const conferenceLeagueKeys = keys.filter(key => 
-        key.includes('848') || 
-        key.includes('169') ||
+      const excludedLeagueKeys = keys.filter(key => 
+        key.includes('848') || // UEFA Europa Conference League
+        key.includes('169') || // Regionalliga - Bayern
         key.includes('conference') || 
         key.includes('regionalliga') ||
+        key.includes('bayern') ||
         key.includes('fixtures_date') ||
         key.startsWith('finished_fixtures_') ||
-        key.startsWith('league-fixtures-')
+        key.startsWith('league-fixtures-') ||
+        key.startsWith('featured-match-') ||
+        key.startsWith('all-fixtures-by-date')
       );
       
-      conferenceLeagueKeys.forEach(key => {
+      excludedLeagueKeys.forEach(key => {
         try {
           localStorage.removeItem(key);
         } catch (error) {
@@ -1070,15 +1080,17 @@ id: fixture.teams.away.id,
       
       // Clear sessionStorage as well
       const sessionKeys = Object.keys(sessionStorage);
-      const sessionConferenceKeys = sessionKeys.filter(key => 
+      const sessionExcludedKeys = sessionKeys.filter(key => 
         key.includes('848') || 
         key.includes('169') ||
         key.includes('conference') ||
         key.includes('regionalliga') ||
-        key.startsWith('league-fixtures-')
+        key.includes('bayern') ||
+        key.startsWith('league-fixtures-') ||
+        key.startsWith('featured-match-')
       );
       
-      sessionConferenceKeys.forEach(key => {
+      sessionExcludedKeys.forEach(key => {
         try {
           sessionStorage.removeItem(key);
         } catch (error) {
@@ -1086,15 +1098,31 @@ id: fixture.teams.away.id,
         }
       });
       
-      console.log(`🧹 [CacheClean] Cleared ${conferenceLeagueKeys.length + sessionConferenceKeys.length} cache entries for UEFA Europa Conference League and Regionalliga leagues`);
+      // Also clear React Query cache for these specific leagues
+      if (typeof window !== 'undefined' && window.queryClient) {
+        try {
+          window.queryClient.removeQueries({ 
+            predicate: (query: any) => {
+              const key = query.queryKey?.join('-') || '';
+              return key.includes('848') || key.includes('169') || 
+                     key.includes('conference') || key.includes('regionalliga') ||
+                     key.includes('bayern');
+            }
+          });
+        } catch (error) {
+          console.warn('Failed to clear React Query cache:', error);
+        }
+      }
+      
+      console.log(`🧹 [CacheClean] Cleared ${excludedLeagueKeys.length + sessionExcludedKeys.length} cache entries for excluded leagues (UEFA Europa Conference League and Regionalliga - Bayern)`);
     } catch (error) {
-      console.error('Error clearing UEFA Conference League caches:', error);
+      console.error('Error clearing excluded leagues caches:', error);
     }
   }, []);
 
   useEffect(() => {
     // Clear caches first to ensure we don't show stale data
-    clearUefaConferenceCaches();
+    clearExcludedLeaguesCaches();
     
     // Initial fetch with force refresh after clearing caches
     setTimeout(() => {
