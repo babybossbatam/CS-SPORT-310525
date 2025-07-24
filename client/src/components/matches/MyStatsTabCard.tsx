@@ -588,7 +588,8 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
               if (onTabChange) {
                 onTabChange('stats');
               }
-              // Don't toggle expanded state - just navigate to stats tab
+              // Toggle the expanded state to show/hide detailed statistics
+              setIsExpanded(!isExpanded);
             }}
             className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-100 font-medium py-1 -mb-4 px-4 transition-colors duration-200"
           >
