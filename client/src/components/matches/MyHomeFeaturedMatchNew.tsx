@@ -69,6 +69,51 @@ const POPULAR_TEAMS_DATA = [
 
 const POPULAR_TEAM_IDS = POPULAR_TEAMS_DATA.map(team => team.id);
 const POPULAR_TEAM_NAMES = POPULAR_TEAMS_DATA.map(team => team.name.toLowerCase());
+
+// Popular team keywords for enhanced matching
+const POPULAR_TEAM_KEYWORDS = [
+  "real madrid", "barcelona", "manchester city", "manchester united", "manchester",
+  "bayern munich", "bayern", "juventus", "psg", "paris saint-germain", "paris saint germain",
+  "liverpool", "arsenal", "chelsea", "atletico madrid", "atletico", "tottenham",
+  "ac milan", "inter milan", "inter", "napoli", "roma", "as roma", 
+  "borussia dortmund", "borussia", "dortmund", "rb leipzig", "leipzig", 
+  "bayer leverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
+  "olympique marseille", "monaco", "as monaco", "sevilla", "valencia", 
+  "villarreal", "ajax", "feyenoord", "psv eindhoven", "psv", "porto", 
+  "fc porto", "benfica", "sl benfica", "sporting cp", "sporting lisbon", "sporting",
+  "fenerbahce", "galatasaray", "besiktas", "trabzonspor", "millwall", "southampton",
+  "elche", "valencia", "newcastle", "west ham", "brighton", "brentford"
+];
+
+// Helper function to check if a match involves popular teams
+const isPopularTeamMatch = (homeTeam: string, awayTeam: string, homeTeamId?: number, awayTeamId?: number): boolean => {
+  // First check by team ID (most accurate)
+  if (homeTeamId && awayTeamId) {
+    const hasPopularTeamById = POPULAR_TEAM_IDS.includes(homeTeamId) || POPULAR_TEAM_IDS.includes(awayTeamId);
+    if (hasPopularTeamById) {
+      return true;
+    }
+  }
+
+  // Fallback to name matching
+  const homeTeamLower = homeTeam.toLowerCase();
+  const awayTeamLower = awayTeam.toLowerCase();
+  
+  const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(popularTeam => 
+    homeTeamLower.includes(popularTeam) || awayTeamLower.includes(popularTeam)
+  );
+
+  if (hasPopularTeamByName) {
+    return true;
+  }
+
+  // Enhanced keyword-based matching
+  const hasKeywordMatch = POPULAR_TEAM_KEYWORDS.some(keyword => 
+    homeTeamLower.includes(keyword) || awayTeamLower.includes(keyword)
+  );
+
+  return hasKeywordMatch;
+};
 interface MyHomeFeaturedMatchNewProps {
   selectedDate?: string;
   maxMatches?: number;
@@ -510,46 +555,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   // Check if it involves popular teams
                   const homeTeamId = fixture.teams?.home?.id;
                   const awayTeamId = fixture.teams?.away?.id;
-                  const homeTeam = fixture.teams?.home?.name?.toLowerCase() || "";
-                  const awayTeam = fixture.teams?.away?.name?.toLowerCase() || "";
+                  const homeTeam = fixture.teams?.home?.name || "";
+                  const awayTeam = fixture.teams?.away?.name || "";
 
-                  // First check by team ID (most accurate)
-                  const hasPopularTeamById = POPULAR_TEAM_IDS.includes(homeTeamId) || POPULAR_TEAM_IDS.includes(awayTeamId);
-
-                  if (hasPopularTeamById) {
-                    console.log(`🎯 [MyHomeFeaturedMatchNew] Popular club friendly found by ID: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-                    return true;
-                  }
-
-                  // Fallback to name matching
-                  const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(popularTeam => 
-                    homeTeam.includes(popularTeam) || awayTeam.includes(popularTeam)
-                  );
-
-                  if (hasPopularTeamByName) {
-                    console.log(`🎯 [MyHomeFeaturedMatchNew] Popular club friendly found by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-                    return true;
-                  }
-
-                  // Enhanced keyword-based matching for major clubs
-                  const popularTeamKeywords = [
-                    "real madrid", "barcelona", "manchester city", "manchester united", "manchester",
-                    "bayern munich", "bayern", "juventus", "psg", "paris saint-germain", "paris saint germain",
-                    "liverpool", "arsenal", "chelsea", "atletico madrid", "atletico", "tottenham",
-                    "ac milan", "inter milan", "inter", "napoli", "roma", "as roma", 
-                    "borussia dortmund", "borussia", "dortmund", "rb leipzig", "leipzig", 
-                    "bayer leverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
-                    "olympique marseille", "monaco", "as monaco", "sevilla", "valencia", 
-                    "villarreal", "ajax", "feyenoord", "psv eindhoven", "psv", "porto", 
-                    "fc porto", "benfica", "sl benfica", "sporting cp", "sporting lisbon", "sporting"
-                  ];
-
-                  const hasKeywordMatch = popularTeamKeywords.some(keyword => 
-                    homeTeam.includes(keyword) || awayTeam.includes(keyword)
-                  );
-
-                  if (hasKeywordMatch) {
-                    console.log(`🎯 [MyHomeFeaturedMatchNew] Popular club friendly found by keyword: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                  const isPopular = isPopularTeamMatch(homeTeam, awayTeam, homeTeamId, awayTeamId);
+                  
+                  if (isPopular) {
+                    console.log(`🎯 [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
                     return true;
                   }
 
@@ -670,49 +682,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           (leagueName.includes("friendlies") && !leagueName.includes("international") && !leagueName.includes("women"))) {
                         const homeTeamId = fixture.teams?.home?.id;
                         const awayTeamId = fixture.teams?.away?.id;
-                        const homeTeam = fixture.teams?.home?.name?.toLowerCase() || "";
-                        const awayTeam = fixture.teams?.away?.name?.toLowerCase() || "";
+                        const homeTeam = fixture.teams?.home?.name || "";
+                        const awayTeam = fixture.teams?.away?.name || "";
 
-                        // First check by team ID (most accurate)
-                        if (homeTeamId && awayTeamId) {
-                          const hasPopularTeamById = POPULAR_TEAM_IDS.includes(homeTeamId) || POPULAR_TEAM_IDS.includes(awayTeamId);
-                          if (hasPopularTeamById) {
-                            console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found by ID: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
-                            return true;
-                          }
-                        }
-
-                        // Fallback to name matching (for cases where ID matching fails)
-                        const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(popularTeam => 
-                          homeTeam.includes(popularTeam) || awayTeam.includes(popularTeam)
-                        );
-
-                        if (hasPopularTeamByName) {
-                          console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
-                          return true;
-                        }
-
-                        // Enhanced keyword-based matching for team variations including full names
-                        const popularTeamKeywords = [
-                          "real madrid", "barcelona", "manchester city", "manchester united", "manchester",
-                          "bayern munich", "bayern", "juventus", "psg", "paris saint-germain", "paris saint germain",
-                          "liverpool", "arsenal", "chelsea", "atletico madrid", "atletico", "tottenham",
-                          "ac milan", "inter milan", "inter", "napoli", "roma", "as roma", 
-                          "borussia dortmund", "borussia", "dortmund", "rb leipzig", "leipzig", 
-                          "bayer leverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
-                          "olympique marseille", "monaco", "as monaco", "sevilla", "valencia", 
-                          "villarreal", "ajax", "feyenoord", "psv eindhoven", "psv", "porto", 
-                          "fc porto", "benfica", "sl benfica", "sporting cp", "sporting lisbon", "sporting",
-                          "fenerbahce", "galatasaray", "besiktas", "trabzonspor", "millwall", "southampton",
-                          "elche", "valencia", "newcastle", "west ham", "brighton", "brentford"
-                        ];
-
-                        const hasKeywordMatch = popularTeamKeywords.some(keyword => 
-                          homeTeam.includes(keyword) || awayTeam.includes(keyword)
-                        );
-
-                        if (hasKeywordMatch) {
-                          console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found by keyword: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
+                        const isPopular = isPopularTeamMatch(homeTeam, awayTeam, homeTeamId, awayTeamId);
+                        
+                        if (isPopular) {
+                          console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
                           return true;
                         }
 
