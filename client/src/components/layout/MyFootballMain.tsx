@@ -20,6 +20,7 @@ import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
 import { Card, CardContent } from "@/components/ui/card";
+import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight"; // Import MyMainLayoutRight
 
 interface MyFootballMainProps {
   fixtures: any[];
@@ -169,10 +170,27 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
   };
 
   const handleMatchCardClick = (fixture: any) => {
+    console.log('🎯 [MyFootballMain] Match clicked from components:', {
+      fixtureId: fixture?.fixture?.id,
+      teams: `${fixture?.teams?.home?.name} vs ${fixture?.teams?.away?.name}`,
+      league: fixture?.league?.name,
+      status: fixture?.fixture?.status?.short,
+      source: 'MyFootballMain'
+    });
+
+    // Set the selected fixture to show MyMainLayoutRight
     setSelectedFixture(fixture);
+
+    // Scroll to top when match is selected for better UX
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleBackToMain = () => {
+    setSelectedFixture(null);
+  };
+
+  const handleCloseDetails = () => {
+    console.log('🎯 [MyFootballMain] Closing match details, returning to MyRightContent');
     setSelectedFixture(null);
   };
 
@@ -198,54 +216,10 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
         <div className="lg:col-span-7 space-y-4">
           {selectedFixture ? (
             <>
-              <ScoreDetailsCard
-                currentFixture={selectedFixture}
-                onClose={handleBackToMain}
+              <MyMainLayoutRight
+                selectedFixture={selectedFixture}
+                onClose={handleCloseDetails}
               />
-
-              {/* Conditional rendering based on match status */}
-              {(() => {
-                const matchStatus = selectedFixture?.fixture?.status?.short;
-                const isLive = ["1H", "2H", "LIVE", "LIV", "HT", "ET", "P", "INT", "SUSP", "BT"].includes(matchStatus);
-                const isEnded = ["FT", "AET", "PEN", "AWD", "WO", "ABD", "PST", "CANC", "SUSP"].includes(matchStatus);
-                const isUpcoming = ["NS", "TBD"].includes(matchStatus);
-
-                console.log(`🔍 [MyFootballMain] Match ${selectedFixture?.fixture?.id} status detection:`, {
-                  matchStatus,
-                  isLive,
-                  isEnded,
-                  isUpcoming,
-                  fixtureStatus: selectedFixture?.fixture?.status
-                });
-
-                return (
-                  <>
-                    {/* Show MyLiveAction only for live matches, not for finished matches */}
-                    {isLive && !isEnded && (
-                      <MyLiveAction
-                        matchId={selectedFixture?.fixture?.id}
-                        homeTeam={selectedFixture?.teams?.home}
-                        awayTeam={selectedFixture?.teams?.away}
-                        status={selectedFixture?.fixture?.status?.short}
-                      />
-                    )}
-
-                    {/* Show MyHighlights for finished matches */}
-                    {isEnded && (
-                      <MyHighlights
-                        homeTeam={selectedFixture?.teams?.home?.name}
-                        awayTeam={selectedFixture?.teams?.away?.name}
-                        leagueName={selectedFixture?.league?.name}
-                        matchStatus={selectedFixture?.fixture?.status?.short}
-                      />
-                    )}
-
-                    {/* For upcoming matches, neither component is shown */}
-                  </>
-                );
-              })()}
-
-              <MatchDetailCard match={selectedFixture} />
 
               <MyMatchEvents
                 homeTeam={selectedFixture?.teams?.home?.name}

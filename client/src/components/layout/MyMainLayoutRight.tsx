@@ -19,6 +19,15 @@ interface MyMainLayoutRightProps {
 const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, onClose }) => {
   const [activeTab, setActiveTab] = useState<string>("match");
 
+  // Debug logging to verify data reception from MyNewLeague2
+  console.log(`🔍 [MyMainLayoutRight] Received selectedFixture:`, {
+    fixtureId: selectedFixture?.fixture?.id,
+    teams: `${selectedFixture?.teams?.home?.name} vs ${selectedFixture?.teams?.away?.name}`,
+    league: selectedFixture?.league?.name,
+    status: selectedFixture?.fixture?.status?.short,
+    fullData: selectedFixture
+  });
+
   return (
     <>
       <ScoreDetailsCard

@@ -257,13 +257,13 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
       source: 'MyNewLeague2'
     });
 
-    // Navigate to match details page like MyNewLeague does
-    navigate(`/match/${fixture.fixture.id}`);
-    
-    // Call the callback to pass match data to parent component (like MyMatchDetailsScoreboard)
+    // Call the callback to pass match data to parent component first (like MyNewLeague does)
     if (onMatchCardClick) {
       onMatchCardClick(fixture);
     }
+
+    // Then navigate to match details page
+    navigate(`/match/${fixture.fixture.id}`);
   };
 
   // Lazy loading team logo component with skeleton fallback
