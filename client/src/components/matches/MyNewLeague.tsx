@@ -695,8 +695,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
             leagueFixturesMap.set(leagueId, []);
           }
           leagueFixturesMap.get(leagueId).push(fixture);
-              }
-              });
+        });
 
               // Convert to the expected format
               const promises = leagueIds.map(async (leagueId) => {
