@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 /**
  * Selective Match Updates System
@@ -328,15 +328,29 @@ export const selectiveMatchUpdater = new SelectiveMatchUpdater();
 
 // Hook for React components
 export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
-  const [matchState, setMatchState] = useState(() => ({
+  // Use refs to avoid React's state queue issues
+  const matchStateRef = useRef({
     goals: initialMatch.goals,
     status: initialMatch.fixture.status
-  }));
+  });
+  
+  const [, forceUpdate] = useState({});
+  const isMountedRef = useRef(true);
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+
+  // Force re-render function that's safe from React queue issues
+  const triggerUpdate = useCallback(() => {
+    if (isMountedRef.current) {
+      try {
+        forceUpdate({});
+      } catch (error) {
+        console.warn(`⚠️ [SelectiveUpdate] Failed to trigger update for match ${matchId}:`, error);
+      }
+    }
+  }, [matchId]);
 
   useEffect(() => {
     if (!matchId) return;
-
-    let isMounted = true;
 
     console.log(`🎯 [SelectiveUpdate] Subscribing to match ${matchId}:`, {
       teams: `${initialMatch.teams?.home?.name} vs ${initialMatch.teams?.away?.name}`,
@@ -346,8 +360,8 @@ export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
 
     // Subscribe to updates for this specific match
     const unsubscribe = selectiveMatchUpdater.subscribe(matchId, (updatedData) => {
-      // Only update state if component is still mounted
-      if (!isMounted) {
+      // Only update if component is still mounted
+      if (!isMountedRef.current) {
         console.log(`🚫 [SelectiveUpdate] Skipping update for unmounted component (match ${matchId})`);
         return;
       }
@@ -357,32 +371,56 @@ export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
           teams: `${initialMatch.teams?.home?.name} vs ${initialMatch.teams?.away?.name}`,
           newStatus: updatedData.status?.short,
           newGoals: updatedData.goals ? `${updatedData.goals.home}-${updatedData.goals.away}` : 'none',
-          oldStatus: initialMatch.fixture.status.short,
-          oldGoals: `${initialMatch.goals.home}-${initialMatch.goals.away}`,
+          oldStatus: matchStateRef.current.status.short,
+          oldGoals: `${matchStateRef.current.goals.home}-${matchStateRef.current.goals.away}`,
           updatedData
         });
 
-        // Use functional update to avoid stale closures
-        setMatchState(prevState => ({
-          goals: updatedData.goals || prevState.goals,
-          status: updatedData.status || prevState.status
-        }));
+        // Update ref directly to avoid React state queue
+        const hasChanges = (
+          updatedData.goals && (
+            updatedData.goals.home !== matchStateRef.current.goals.home ||
+            updatedData.goals.away !== matchStateRef.current.goals.away
+          )
+        ) || (
+          updatedData.status && updatedData.status.short !== matchStateRef.current.status.short
+        );
+
+        if (hasChanges) {
+          matchStateRef.current = {
+            goals: updatedData.goals || matchStateRef.current.goals,
+            status: updatedData.status || matchStateRef.current.status
+          };
+
+          // Safely trigger re-render using setTimeout to avoid React queue conflicts
+          setTimeout(triggerUpdate, 0);
+        }
       } catch (error) {
         console.warn(`⚠️ [SelectiveUpdate] Error updating match ${matchId}:`, error);
       }
     });
 
+    unsubscribeRef.current = unsubscribe;
+
     return () => {
-      isMounted = false;
-      if (unsubscribe) {
+      isMountedRef.current = false;
+      if (unsubscribeRef.current) {
         try {
-          unsubscribe();
+          unsubscribeRef.current();
+          unsubscribeRef.current = null;
         } catch (error) {
           console.warn(`⚠️ [SelectiveUpdate] Error during cleanup for match ${matchId}:`, error);
         }
       }
     };
-  }, [matchId]);
+  }, [matchId, triggerUpdate]);
 
-  return matchState;
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  return matchStateRef.current;
 };
