@@ -235,7 +235,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   // Using league ID 38 (UEFA U21) first priority, then 15 (FIFA Club World Cup) second priority
-  const leagueIds = [38, 15, 2, 11, 71, 3, 848,  22, 72, 73, 75, 76, 233, 10, 667, 940, 908, 1169, 23, 1077, 253, 850, 893,  531, 921, 886, 130, 128, 493, 239, 265, 237, 235]; // Added UEFA Champions League (2), CONMEBOL Sudamericana (11), Brazilian Serie A (71), CONCACEF Gold Cup (22), Serie B (72), Serie C (73), Serie D (75), Iraqi League (233), UEFA Europa Conference League (848), Friendlies Clubs (667), and new leagues (908, 1169, 23, 1077), MLS (253), and additional leagues (850, 893, 3, 531, 921, 886, 493)
+  const leagueIds = [38, 15, 2, 10, 11, 848, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 10, 667, 940, 908, 1169, 23, 1077, 253, 850, 893,  531, 921, 886, 130, 128, 493, 239, 265, 237, 235, 743]; // Added UEFA Champions League (2), CONMEBOL Sudamericana (11), Brazilian Serie A (71), CONCACEF Gold Cup (22), Serie B (72), Serie C (73), Serie D (75), Iraqi League (233), UEFA Europa Conference League (848), Friendlies Clubs (667), and new leagues (908, 1169, 23, 1077), MLS (253), and additional leagues (850, 893, 3, 531, 921, 886, 493)
 
   // Check if a match ended more than 24 hours ago
   const isMatchOldEnded = useCallback((fixture: FixtureData): boolean => {
