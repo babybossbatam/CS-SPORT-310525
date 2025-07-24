@@ -40,7 +40,7 @@ const StatRowWithBars: React.FC<{
   return (
     <div className="py-2 border-b border-gray-100 last:border-b-0">
       <div className="flex items-center justify-between">
-        <div className="flex items-center justify-end w-12">
+        <div className="flex items-center justify-start w-12 text-left">
           <span 
             className={`text-sm font-medium px-2 py-1 rounded-full ${
               homeIsHigher 
@@ -54,7 +54,7 @@ const StatRowWithBars: React.FC<{
         
         <span className="text-sm font-reg text-gray-700 text-center flex-1 px-4">{label}</span>
         
-        <div className="flex items-center justify-start w-12">
+        <div className="flex items-center justify-end w-12 text-right">
           <span 
             className={`text-sm font-medium px-2 py-1 rounded-full ${
               awayIsHigher 
