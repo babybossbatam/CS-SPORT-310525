@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MatchPrediction from './MatchPrediction';
 import MyHighlights from './MyHighlights';
 import MyLiveAction from './MyLiveAction';
 import MyMatchEventNew from './MyMatchEventNew';
 import MyShotmap from './MyShotmap';
 import MyKeyPlayer from './MyKeyPlayer';
+import MyStats from './MyStats';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface MyMatchTabCardProps {
   match: any;
@@ -131,7 +133,131 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
           awayTeam={match.teams?.away?.name}
         />
       </div>
+
+      {/* Match Statistics */}
+      <div className="space-y-2">
+        <MyStatsCard match={match} />
+      </div>
     </>
+  );
+};
+
+// Stats component for MyMatchTabCard (without full tab card wrapper)
+const MyStatsCard = ({ match }: { match: any }) => {
+  const [homeStats, setHomeStats] = useState<any>(null);
+  const [awayStats, setAwayStats] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (!match) return null;
+
+  const isUpcoming = match.fixture?.status?.short === "NS";
+  const homeTeam = match.teams?.home;
+  const awayTeam = match.teams?.away;
+  const fixtureId = match.fixture?.id;
+
+  // Fetch match statistics
+  useEffect(() => {
+    if (!fixtureId || isUpcoming) return;
+
+    const fetchMatchStats = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [homeResponse, awayResponse] = await Promise.all([
+          fetch(`/api/fixtures/${fixtureId}/statistics?team=${homeTeam.id}`),
+          fetch(`/api/fixtures/${fixtureId}/statistics?team=${awayTeam.id}`)
+        ]);
+
+        if (!homeResponse.ok || !awayResponse.ok) {
+          throw new Error('Failed to fetch match statistics');
+        }
+
+        const homeData = await homeResponse.json();
+        const awayData = await awayResponse.json();
+
+        setHomeStats(homeData[0] || null);
+        setAwayStats(awayData[0] || null);
+      } catch (err) {
+        console.error('Error fetching match statistics:', err);
+        setError('Failed to load match statistics');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMatchStats();
+  }, [fixtureId, homeTeam?.id, awayTeam?.id, isUpcoming]);
+
+  if (isUpcoming) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xs">Stats</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="text-center text-gray-600">
+            <div className="text-4xl mb-4">📊</div>
+            <h3 className="text-lg font-medium mb-2">Statistics Coming Soon</h3>
+            <p className="text-sm text-gray-500">
+              Match statistics will be available once the game starts
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xs">Stats</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="text-center text-gray-500">
+            <div className="text-2xl mb-2">⏳</div>
+            <p>Loading match statistics...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error || !homeStats || !awayStats) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xs">Stats</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="text-center text-gray-500">
+            <div className="text-2xl mb-2">❌</div>
+            <p>{error || 'No statistics available for this match'}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xs">Stats</CardTitle>
+      </CardHeader>
+      <CardContent className="p-4">
+        <MyStats
+          homeStats={homeStats}
+          awayStats={awayStats}
+          homeTeam={homeTeam}
+          awayTeam={awayTeam}
+          isExpanded={isExpanded}
+          onToggleExpanded={() => setIsExpanded(!isExpanded)}
+        />
+      </CardContent>
+    </Card>
   );
 };
 
