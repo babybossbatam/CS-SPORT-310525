@@ -350,7 +350,7 @@ const MyStats: React.FC<MyStatsProps> = ({
               homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Passes %', ['Pass accuracy']))}
               awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Passes %', ['Pass accuracy']))}
             />
-          </>
+          
         )}
       </div>
 
@@ -361,6 +361,7 @@ const MyStats: React.FC<MyStatsProps> = ({
           className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-100 font-medium py-1 -mb-4 px-4 transition-colors duration-200"
         >
           <span>{isExpanded ? 'Show Less' : 'See All'}</span>
+          
           {isExpanded ? (
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
@@ -369,8 +370,11 @@ const MyStats: React.FC<MyStatsProps> = ({
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
+          
           )}
+          
         </button>
+        
       </div>
     </>
   );
