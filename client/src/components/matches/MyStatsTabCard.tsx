@@ -583,7 +583,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
         <div className="mt-4 flex justify-center">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-blue-50 font-medium py-2 px-4 rounded-md transition-colors duration-200"
+            className="flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-200 font-medium py-2  transition-colors duration-200"
           >
             <span>{isExpanded ? 'Show Less' : 'See All'}</span>
             {isExpanded ? (
