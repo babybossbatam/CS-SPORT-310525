@@ -96,28 +96,9 @@ const MyPass: React.FC<MyPassProps> = ({
 
   return (
     <>
-      {/* Team Headers */}
-      <div className="flex items-center justify-between mb-1 pb-1 border-b">
-        <div className="flex items-center space-x-2">
-          <img 
-            src={homeTeam?.logo || "/assets/fallback-logo.png"} 
-            alt={homeTeam?.name}
-            className="w-6 h-6 object-contain"
-          />
-          <span className="text-sm font-semibold truncate max-w-20">{homeTeam?.name}</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-semibold truncate max-w-20">{awayTeam?.name}</span>
-          <img 
-            src={awayTeam?.logo || "/assets/fallback-logo.png"} 
-            alt={awayTeam?.name}
-            className="w-6 h-6 object-contain"
-          />
-        </div>
-      </div>
-
+       <span className="flex text-sm  font-bold  border-b py-3 -mx-2">Passes</span>
       {/* Pass Statistics with bars - Real API data */}
-      <div className="space-y-1">
+      <div className="space-y-1 -mx-2">
         {/* Always visible pass stats (first 4) */}
         <StatRowWithBars 
           label="Total Passes" 
@@ -125,20 +106,16 @@ const MyPass: React.FC<MyPassProps> = ({
           awayValue={getStatValue(awayStats.statistics, 'Total passes', ['Passes'])}
         />
         <StatRowWithBars 
-          label="Pass Accuracy" 
+          label="Accuracy (%)" 
           homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Passes %', ['Pass accuracy']))}
           awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Passes %', ['Pass accuracy']))}
         />
         <StatRowWithBars 
-          label="Passes Accurate" 
+          label="Passes On Target" 
           homeValue={getStatValue(homeStats.statistics, 'Passes accurate', ['Accurate passes'])}
           awayValue={getStatValue(awayStats.statistics, 'Passes accurate', ['Accurate passes'])}
         />
-        <StatRowWithBars 
-          label="Key Passes" 
-          homeValue={getStatValue(homeStats.statistics, 'Key passes', ['Key Passes'])}
-          awayValue={getStatValue(awayStats.statistics, 'Key passes', ['Key Passes'])}
-        />
+  
         
         {/* Expandable pass stats */}
         {isExpanded && (
