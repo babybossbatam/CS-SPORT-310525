@@ -302,56 +302,53 @@ const MyStats: React.FC<MyStatsProps> = ({
       {/* Statistics with bars - Real API data */}
       <div className="space-y-3">
         {/* Always visible stats (first 4) */}
+        <StatRowWithBars 
+          label="Blocked Shots" 
+          homeValue={getStatValue(homeStats.statistics, 'Blocked Shots', ['Blocked shots'])}
+          awayValue={getStatValue(awayStats.statistics, 'Blocked Shots', ['Blocked shots'])}
+        />
         
-            <StatRowWithBars 
-              label="Blocked Shots" 
-              homeValue={getStatValue(homeStats.statistics, 'Blocked Shots', ['Blocked shots'])}
-              awayValue={getStatValue(awayStats.statistics, 'Blocked Shots', ['Blocked shots'])}
-            />
-            
-            <StatRowWithBars 
-              label="Shots insidebox" 
-              homeValue={getStatValue(homeStats.statistics, 'Shots insidebox', ['Shots inside box'])}
-              awayValue={getStatValue(awayStats.statistics, 'Shots insidebox', ['Shots inside box'])}
-            />
-            
-            <StatRowWithBars 
-              label="Shots outsidebox" 
-              homeValue={getStatValue(homeStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
-              awayValue={getStatValue(awayStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
-            />
-            
-            <StatRowWithBars 
-              label="Fouls" 
-              homeValue={getStatValue(homeStats.statistics, 'Fouls')}
-              awayValue={getStatValue(awayStats.statistics, 'Fouls')}
-            />
-            
-            <StatRowWithBars 
-              label="Yellow Cards" 
-              homeValue={getStatValue(homeStats.statistics, 'Yellow Cards')}
-              awayValue={getStatValue(awayStats.statistics, 'Yellow Cards')}
-            />
-       
-            <StatRowWithBars 
-              label="Goalkeeper Saves" 
-              homeValue={getStatValue(homeStats.statistics, 'Goalkeeper Saves', ['Saves'])}
-              awayValue={getStatValue(awayStats.statistics, 'Goalkeeper Saves', ['Saves'])}
-            />
-            
-            <StatRowWithBars 
-              label="Total passes" 
-              homeValue={getStatValue(homeStats.statistics, 'Total passes', ['Passes'])}
-              awayValue={getStatValue(awayStats.statistics, 'Total passes', ['Passes'])}
-            />
-            
-            <StatRowWithBars 
-              label="Passes %" 
-              homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Passes %', ['Pass accuracy']))}
-              awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Passes %', ['Pass accuracy']))}
-            />
-          
-        )}
+        <StatRowWithBars 
+          label="Shots insidebox" 
+          homeValue={getStatValue(homeStats.statistics, 'Shots insidebox', ['Shots inside box'])}
+          awayValue={getStatValue(awayStats.statistics, 'Shots insidebox', ['Shots inside box'])}
+        />
+        
+        <StatRowWithBars 
+          label="Shots outsidebox" 
+          homeValue={getStatValue(homeStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
+          awayValue={getStatValue(awayStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
+        />
+        
+        <StatRowWithBars 
+          label="Fouls" 
+          homeValue={getStatValue(homeStats.statistics, 'Fouls')}
+          awayValue={getStatValue(awayStats.statistics, 'Fouls')}
+        />
+        
+        <StatRowWithBars 
+          label="Yellow Cards" 
+          homeValue={getStatValue(homeStats.statistics, 'Yellow Cards')}
+          awayValue={getStatValue(awayStats.statistics, 'Yellow Cards')}
+        />
+
+        <StatRowWithBars 
+          label="Goalkeeper Saves" 
+          homeValue={getStatValue(homeStats.statistics, 'Goalkeeper Saves', ['Saves'])}
+          awayValue={getStatValue(awayStats.statistics, 'Goalkeeper Saves', ['Saves'])}
+        />
+        
+        <StatRowWithBars 
+          label="Total passes" 
+          homeValue={getStatValue(homeStats.statistics, 'Total passes', ['Passes'])}
+          awayValue={getStatValue(awayStats.statistics, 'Total passes', ['Passes'])}
+        />
+        
+        <StatRowWithBars 
+          label="Passes %" 
+          homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Passes %', ['Pass accuracy']))}
+          awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Passes %', ['Pass accuracy']))}
+        />
       </div>
 
       {/* Expand/Collapse Button */}
