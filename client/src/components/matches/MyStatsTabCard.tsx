@@ -584,9 +584,11 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
         <div className="mt-4 -mx-4">
           <button
             onClick={() => {
-              if (!isExpanded && onTabChange) {
+              // Always call onTabChange to ensure Stats tab is active
+              if (onTabChange) {
                 onTabChange('stats');
               }
+              // Then toggle the expanded state
               setIsExpanded(!isExpanded);
             }}
             className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-100 font-medium py-1 -mb-4 px-4 transition-colors duration-200"
