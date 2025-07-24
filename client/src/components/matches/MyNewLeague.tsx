@@ -551,12 +551,12 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
         // Fetch fixtures for all three dates
         const allDateFixtures = [];
-        
+
         for (const dateToFetch of datesToFetch) {
           try {
             console.log(`📡 [MyNewLeague] Fetching fixtures for: ${dateToFetch}`);
             const response = await fetch(`/api/fixtures/date/${dateToFetch}?all=true`);
-            
+
             if (response.ok) {
               const dateFixtures = await response.json();
               if (Array.isArray(dateFixtures)) {
@@ -593,7 +593,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
         // Group fixtures by their actual match date and filter by league
         const fixturesByDate = new Map(); // Map<date, fixtures[]>
-        
+
         allDateFixtures.forEach(fixture => {
           const leagueId = fixture.league?.id;
           if (leagueIds.includes(leagueId)) {
@@ -630,7 +630,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                     const tomorrow = new Date(now);
                     tomorrow.setDate(tomorrow.getDate() + 1);
                     const tomorrowDate = tomorrow.toLocaleDateString('en-CA');
-                    
+
                     if (fixtureLocalDate === tomorrowDate || selectedDate === tomorrowDate) {
                       actualMatchDate = tomorrowDate;
                       matchCategory = 'postponed';
@@ -673,7 +673,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
         // Now filter and organize fixtures for the selected date
         const selectedDateFixtures = fixturesByDate.get(selectedDate) || { live: [], regular: [], postponed: [] };
-        
+
         // Combine all fixtures for the selected date (prioritize live, then regular, then postponed)
         const combinedFixtures = [
           ...selectedDateFixtures.live,
@@ -1022,12 +1022,14 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
               if (filteredFixtures.length > 0) {
               result[leagueId] = {
-              league: filteredFixtures[0].league,
-              matches: filteredFixtures,
+                league: filteredFixtures[0].league,
+                matches: filteredFixtures,
               };
-              });
+            }
+          }
+        });
 
-              console.log(`📊 [MyNewLeague] Processed matchesByLeague:`, {
+        console.log(`📊 [MyNewLeague] Processed matchesByLeague:`, {
               totalLeagues: Object.keys(result).length,
               totalMatches: Object.values(result).reduce((sum, group) => sum + group.matches.length, 0),
               selectedDate,
