@@ -1714,6 +1714,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           error,
         );
         res.status(50).json({ error: "Failed to fetch league logo" });
+```python
             }
     },
   );
