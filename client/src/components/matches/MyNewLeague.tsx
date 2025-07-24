@@ -926,8 +926,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 friendliesFixtures.length,
               );
               console.log(
-                "🇮🇶 [MyNewLeague IRAQI] Total Iraqi```text
-League fixtures:",
+                "🇮🇶 [MyNewLeague IRAQI] Total Iraqi League fixtures:",
                 iraqiFixtures.length,
               );
               // Adding loadingTimeout and clear it when loading is done or cache is hit.
