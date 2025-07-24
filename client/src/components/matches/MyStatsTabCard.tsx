@@ -170,10 +170,9 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
   // For live/finished matches, show real statistics with bars
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Stats</CardTitle>
-      </CardHeader>
+    
       <CardContent className="">
+     
         <MyStats
           homeStats={homeStats}
           awayStats={awayStats}
@@ -190,6 +189,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) =
             setIsExpanded(true);
           }}
         />
+        
       </CardContent>
     </Card>
   );
