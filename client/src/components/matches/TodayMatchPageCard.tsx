@@ -11,9 +11,9 @@ import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
-import MyNewPopularLeague from "./MyNewPopularLeague";
-import EnhancementLeague from "./EnhancementLeague";
 import MyNewLeague from "./MyNewLeague";
+import MyNewLeague2 from "./MyNewLeague2";
+import EnhancementLeague from "./EnhancementLeague";
 import { useCachedQuery } from "@/lib/cachingHelper";
 
 import { format, parseISO, addDays, subDays } from "date-fns";
@@ -404,6 +404,14 @@ export const TodayMatchPageCard = ({
       ) : (
         // Neither filter active - show default view
         <>
+          <MyNewLeague2
+            selectedDate={selectedDate}
+            timeFilterActive={false}
+            showTop10={false}
+            liveFilterActive={liveFilterActive}
+            onMatchCardClick={handleMatchCardClick}
+            useUTCOnly={true}
+          />
           <MyNewLeague
             selectedDate={selectedDate}
             timeFilterActive={false}
