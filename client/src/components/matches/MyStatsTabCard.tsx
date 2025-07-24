@@ -171,41 +171,56 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({
 
   // For live/finished matches, show real statistics with bars
   return (
-    <div>
-      <MyStats
-        homeStats={homeStats}
-        awayStats={awayStats}
-        homeTeam={homeTeam}
-        awayTeam={awayTeam}
-        isExpanded={isExpanded}
-        onToggleExpanded={() => {
-          // Always ensure Stats tab is active first - this will hide MyMatchTabCard and show MyStatsTabCard
-          if (onTabChange) {
-            onTabChange("stats");
-          }
+    <div className="space-y-2">
+      {/* Main Statistics Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xs">Stats</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <MyStats
+            homeStats={homeStats}
+            awayStats={awayStats}
+            homeTeam={homeTeam}
+            awayTeam={awayTeam}
+            isExpanded={isExpanded}
+            onToggleExpanded={() => {
+              // Always ensure Stats tab is active first - this will hide MyMatchTabCard and show MyStatsTabCard
+              if (onTabChange) {
+                onTabChange("stats");
+              }
 
-          // Always expand when "See All" is clicked to show all statistics
-          setIsExpanded(true);
-        }}
-      />
-      <div>
-        <MyShots
-          homeStats={homeStats}
-          awayStats={awayStats}
-          homeTeam={homeTeam}
-          awayTeam={awayTeam}
-          isExpanded={isExpanded}
-          onToggleExpanded={() => {
-            // Always ensure Stats tab is active first - this will hide MyMatchTabCard and show MyStatsTabCard
-            if (onTabChange) {
-              onTabChange("stats");
-            }
+              // Always expand when "See All" is clicked to show all statistics
+              setIsExpanded(true);
+            }}
+          />
+        </CardContent>
+      </Card>
 
-            // Always expand when "See All" is clicked to show all statistics
-            setIsExpanded(true);
-          }}
-        />
-      </div>
+      {/* Shots Statistics Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xs">Shots</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <MyShots
+            homeStats={homeStats}
+            awayStats={awayStats}
+            homeTeam={homeTeam}
+            awayTeam={awayTeam}
+            isExpanded={isExpanded}
+            onToggleExpanded={() => {
+              // Always ensure Stats tab is active first - this will hide MyMatchTabCard and show MyStatsTabCard
+              if (onTabChange) {
+                onTabChange("stats");
+              }
+
+              // Always expand when "See All" is clicked to show all statistics
+              setIsExpanded(true);
+            }}
+          />
+        </CardContent>
+      </Card>
     </div>
   );
 };
