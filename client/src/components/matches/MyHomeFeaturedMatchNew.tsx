@@ -98,7 +98,7 @@ const isPopularTeamMatch = (homeTeam: string, awayTeam: string, homeTeamId?: num
   // Fallback to name matching
   const homeTeamLower = homeTeam.toLowerCase();
   const awayTeamLower = awayTeam.toLowerCase();
-  
+
   const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(popularTeam => 
     homeTeamLower.includes(popularTeam) || awayTeamLower.includes(popularTeam)
   );
@@ -140,7 +140,7 @@ const POPULAR_LEAGUES = [
 
 // Define featured leagues
 const FEATURED_MATCH_LEAGUE_IDS = [
-  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 9, 16,
+  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 9, 16
 ];
 const PRIORITY_LEAGUE_IDS = [15, 38, 22]; // FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup
 
@@ -559,7 +559,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   const awayTeam = fixture.teams?.away?.name || "";
 
                   const isPopular = isPopularTeamMatch(homeTeam, awayTeam, homeTeamId, awayTeamId);
-                  
+
                   if (isPopular) {
                     console.log(`🎯 [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
                     return true;
@@ -657,7 +657,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const isInternationalCompetition =
                       leagueName.includes("champions league") ||
                       leagueName.includes("europa league") ||
-                      
+
                       leagueName.includes("uefa") ||
                       leagueName.includes("world cup") ||
                       leagueName.includes("fifa club world cup") ||
@@ -686,7 +686,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         const awayTeam = fixture.teams?.away?.name || "";
 
                         const isPopular = isPopularTeamMatch(homeTeam, awayTeam, homeTeamId, awayTeamId);
-                        
+
                         if (isPopular) {
                           console.log(`✅ [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`);
                           return true;
@@ -853,7 +853,7 @@ id: fixture.teams.away.id,
         const fixtureDetails = uniqueFixtures.map((f) => ({
           id: f.fixture.id,
           teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
-          league: f.league.name,
+          league:  f.league.name,
           leagueId: f.league.id,
           country: f.league.country,
           status: f.fixture.status.short,
@@ -1715,7 +1715,7 @@ id: fixture.teams.away.id,
                         return (
                           <div className="space-y-1">
                             <div className="text-sm text-gray-600 invisible">
-                              {/* Hidden status placeholder to maintain spacing */}
+                              // Hidden status placeholder to maintain spacing */}
                               Ended
                             </div>
                             <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
