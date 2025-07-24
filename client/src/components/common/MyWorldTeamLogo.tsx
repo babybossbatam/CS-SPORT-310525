@@ -21,9 +21,11 @@ interface MyWorldTeamLogoProps {
     venue?: string;
   };
   showNextMatchOverlay?: boolean;
+  matchStatus?: string; // Add match status to determine if match is live
+  isLiveMatch?: boolean; // Add explicit live match flag
 }
 
-const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
+const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = React.memo(({
   teamName,
   teamLogo,
   alt,
@@ -33,6 +35,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   leagueContext,
   nextMatchInfo,
   showNextMatchOverlay = false,
+  matchStatus,
+  isLiveMatch = false,
 }) => {
   // Simple checks without excessive memoization
   const isActualNationalTeam = isNationalTeam({ name: teamName }, leagueContext);
@@ -41,6 +45,10 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
                      teamName?.includes("U20") || 
                      teamName?.includes("U21") ||
                      teamName?.includes("U23");
+
+  // Check if match is live - prevent logo updates during live matches
+  const isMatchLive = isLiveMatch || 
+                     (matchStatus && ["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(matchStatus));
 
   // Specific teams that should ALWAYS use club logos instead of circular flags
   const forceClubLogo = teamName === "ADH Brazil" || teamName === "Valencia";
@@ -138,12 +146,16 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   }
 
   // For non-national teams (club teams), use regular LazyImage
+  // During live matches, use a stable key to prevent unnecessary re-renders
+  const logoKey = isMatchLive ? `${teamName}-live` : `${teamName}-${teamLogo}`;
+  
   return (
     <div
       className={`team-logo-container ${className}`}
       style={containerStyle}
     >
       <LazyImage
+        key={logoKey}
         src={teamLogo || "/assets/fallback-logo.svg"}
         alt={alt || teamName}
         title={teamName}
@@ -153,6 +165,24 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
       />
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // During live matches, only re-render if essential props change
+  if (prevProps.isLiveMatch || nextProps.isLiveMatch || 
+      (prevProps.matchStatus && ["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(prevProps.matchStatus)) ||
+      (nextProps.matchStatus && ["LIVE", "LIV", "1H", "2H", "HT", "ET", "BT", "P", "INT"].includes(nextProps.matchStatus))) {
+    
+    // For live matches, only re-render if teamName, size, or className changes
+    // Ignore logo URL changes to prevent flickering
+    return (
+      prevProps.teamName === nextProps.teamName &&
+      prevProps.size === nextProps.size &&
+      prevProps.className === nextProps.className &&
+      prevProps.moveLeft === nextProps.moveLeft
+    );
+  }
+  
+  // For non-live matches, use default shallow comparison
+  return false;
+});
 
 export default MyWorldTeamLogo;
