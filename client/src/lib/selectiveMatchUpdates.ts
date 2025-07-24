@@ -1,4 +1,4 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * Selective Match Updates System
@@ -328,12 +328,12 @@ export const selectiveMatchUpdater = new SelectiveMatchUpdater();
 
 // Hook for React components
 export const useSelectiveMatchUpdate = (matchId: number, initialMatch: any) => {
-  const [matchState, setMatchState] = React.useState({
+  const [matchState, setMatchState] = useState({
     goals: initialMatch.goals,
     status: initialMatch.fixture.status
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!matchId) return;
 
     console.log(`🎯 [SelectiveUpdate] Subscribing to match ${matchId}:`, {
