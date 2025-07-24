@@ -68,8 +68,8 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
   const [, navigate] = useLocation();
   const [collapsedLeagues, setCollapsedLeagues] = useState<Set<number>>(new Set());
 
-  // League IDs without any filtering
-  const leagueIds = [38, 15, 2, 10, 11, 848, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 10, 667, 940, 908, 1169, 23, 1077, 253, 850, 893, 531, 921, 886, 130, 128, 493, 239, 265, 237, 235, 743];
+  // League IDs without any filtering - removed duplicates
+  const leagueIds = [38, 15, 2, 10, 11, 848, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 940, 908, 1169, 23, 1077, 253, 850, 893, 921, 886, 130, 128, 493, 239, 265, 237, 235, 743];
 
   // Fetch fixtures for all leagues
   const { data: allFixtures, isLoading, error } = useQuery({
@@ -81,23 +81,35 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
         try {
           const response = await fetch(`/api/leagues/${leagueId}/fixtures`);
           if (!response.ok) {
-            console.log(`❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status}`);
-            return [];
+            console.log(`❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status} ${response.statusText}`);
+            return { leagueId, fixtures: [], error: `HTTP ${response.status}` };
           }
           const data = await response.json();
-          const fixtures = data.response || [];
+          const fixtures = data.response || data || [];
           console.log(`✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`);
-          return fixtures;
+          return { leagueId, fixtures, error: null };
         } catch (error) {
           console.error(`❌ [MyNewLeague2] Error fetching league ${leagueId}:`, error);
-          return [];
+          return { leagueId, fixtures: [], error: error.message };
         }
       });
       
       const results = await Promise.all(promises);
-      const flatResults = results.flat();
-      console.log(`🔄 [MyNewLeague2] Total fixtures fetched: ${flatResults.length}`);
-      return flatResults;
+      const allFixtures = results.flatMap(result => result.fixtures);
+      
+      // Log detailed results
+      console.log(`🔄 [MyNewLeague2] Fetch results:`, {
+        totalLeagues: results.length,
+        successfulFetches: results.filter(r => r.fixtures.length > 0).length,
+        totalFixtures: allFixtures.length,
+        leagueBreakdown: results.map(r => ({ 
+          league: r.leagueId, 
+          fixtures: r.fixtures.length, 
+          error: r.error 
+        }))
+      });
+      
+      return allFixtures;
     },
     staleTime: 5 * 60 * 1000,
     refetchInterval: 30 * 1000,
@@ -107,7 +119,11 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
   const fixturesByLeague = useMemo(() => {
     console.log(`🔍 [MyNewLeague2] Processing fixtures:`, {
       allFixturesLength: allFixtures?.length || 0,
-      allFixtures: allFixtures?.slice(0, 3) // Show first 3 for debugging
+      sampleFixtures: allFixtures?.slice(0, 3)?.map(f => ({
+        id: f?.fixture?.id,
+        league: f?.league?.name,
+        teams: `${f?.teams?.home?.name} vs ${f?.teams?.away?.name}`
+      }))
     });
 
     if (!allFixtures?.length) {
@@ -117,7 +133,13 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
 
     const grouped: { [key: number]: { league: any; fixtures: FixtureData[] } } = {};
 
-    allFixtures.forEach((fixture: FixtureData) => {
+    allFixtures.forEach((fixture: FixtureData, index) => {
+      // Validate fixture structure
+      if (!fixture || !fixture.league || !fixture.teams) {
+        console.warn(`⚠️ [MyNewLeague2] Invalid fixture at index ${index}:`, fixture);
+        return;
+      }
+
       const leagueId = fixture.league.id;
       
       if (!grouped[leagueId]) {
@@ -135,10 +157,16 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
       group.fixtures.sort((a, b) => new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime());
     });
 
+    const groupedKeys = Object.keys(grouped);
     console.log(`✅ [MyNewLeague2] Grouped fixtures:`, {
-      leagueCount: Object.keys(grouped).length,
-      leagueIds: Object.keys(grouped),
-      totalFixtures: Object.values(grouped).reduce((sum, group) => sum + group.fixtures.length, 0)
+      leagueCount: groupedKeys.length,
+      leagueIds: groupedKeys,
+      totalFixtures: Object.values(grouped).reduce((sum, group) => sum + group.fixtures.length, 0),
+      leagueDetails: Object.entries(grouped).map(([id, data]) => ({
+        id: Number(id),
+        name: data.league.name,
+        fixtures: data.fixtures.length
+      }))
     });
 
     return grouped;
@@ -196,7 +224,10 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     return (
       <Card className="mb-4">
         <CardContent className="p-4">
-          <div className="text-center text-gray-500">Loading leagues...</div>
+          <div className="text-center text-gray-500">
+            <div>Loading fixtures for {leagueIds.length} leagues...</div>
+            <div className="text-xs mt-2">This may take a moment</div>
+          </div>
         </CardContent>
       </Card>
     );
@@ -206,7 +237,10 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     return (
       <Card className="mb-4">
         <CardContent className="p-4">
-          <div className="text-center text-red-500">Error loading leagues</div>
+          <div className="text-center text-red-500">
+            <div>Error loading leagues</div>
+            <div className="text-xs mt-2">{error.message}</div>
+          </div>
         </CardContent>
       </Card>
     );
@@ -218,7 +252,15 @@ const MyNewLeague2: React.FC<MyNewLeague2Props> = ({
     return (
       <Card className="mb-4">
         <CardContent className="p-4">
-          <div className="text-center text-gray-500">No matches found</div>
+          <div className="text-center text-gray-500">
+            <div>No matches found</div>
+            <div className="text-xs mt-2">
+              Searched {leagueIds.length} leagues: {leagueIds.join(', ')}
+            </div>
+            <div className="text-xs mt-1">
+              Raw fixtures count: {allFixtures?.length || 0}
+            </div>
+          </div>
         </CardContent>
       </Card>
     );
