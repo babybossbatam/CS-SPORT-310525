@@ -2137,7 +2137,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
 
                   return (
                     <MatchCard
-                      key={match.fixture.id}
+                      key={`${leagueGroup.league.id}-${match.fixture.id}`}
                       matchId={matchId}
                       homeTeamName={match.teams.home.name}
                       awayTeamName={match.teams.away.name}
