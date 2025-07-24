@@ -7,6 +7,7 @@ import MyShotmap from './MyShotmap';
 import MyKeyPlayer from './MyKeyPlayer';
 import MyStats from './MyStats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import MyStatsTabCard from './MyStatsTabCard';
 
 interface MyMatchTabCardProps {
   match: any;
@@ -135,9 +136,11 @@ const MyMatchTabCard = ({ match }: MyMatchTabCardProps) => {
       </div>
 
       {/* Match Statistics */}
-      <div className="space-y-2">
-        <MyStatsCard match={match} />
+      <Card className="space-y-2">
+      <div className="">
+        <MyStatsTabCard match={match} />
       </div>
+        </Card>
     </>
   );
 };
