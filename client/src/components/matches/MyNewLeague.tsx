@@ -926,7 +926,8 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                 friendliesFixtures.length,
               );
               console.log(
-                "🇮🇶 [MyNewLeague IRAQI] Total Iraqi League fixtures:",
+                "🇮🇶 [MyNewLeague IRAQI] Total Iraqi```text
+League fixtures:",
                 iraqiFixtures.length,
               );
               // Adding loadingTimeout and clear it when loading is done or cache is hit.
@@ -960,6 +961,37 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
                   });
                 }
               });
+
+  // Compute matchesByLeague from leagueFixtures
+  const matchesByLeague = useMemo(() => {
+    const result: { [leagueId: string]: { league: any; matches: FixtureData[] } } = {};
+
+    leagueFixtures.forEach((fixtures, leagueId) => {
+      if (fixtures.length > 0) {
+        result[leagueId.toString()] = {
+          league: {
+            id: leagueId,
+            name: fixtures[0]?.league?.name || "Unknown League",
+            country: fixtures[0]?.league?.country || "Unknown Country",
+            logo: fixtures[0]?.league?.logo || ""
+          },
+          matches: fixtures
+        };
+      }
+    });
+
+    return result;
+  }, [leagueFixtures]);
+
+  // Compute matchesByDateAndLeague for date categorization
+  const matchesByDateAndLeague = useMemo(() => {
+    const result: { [dateCategory: string]: { [leagueId: string]: { league: any; matches: FixtureData[] } } } = {};
+
+    // For simplicity, put all matches in 'today' category since this component focuses on selected date
+    result.today = matchesByLeague;
+
+    return result;
+  }, [matchesByLeague]);
 
   // Auto-expand all leagues by default when data changes and ensure loading state is cleared
   useEffect(() => {
@@ -2036,7 +2068,7 @@ const MyNewLeagueComponent: React.FC<MyNewLeagueProps> = ({
           const today = new Date().toLocaleDateString('en-CA');
           const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
           const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleDateString('en-CA');
-          
+
           switch (category) {
             case 'today': {
               // Show "Today" if selected date is actually today, otherwise show the selected date
