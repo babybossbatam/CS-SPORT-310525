@@ -103,7 +103,7 @@ const MyDiscipline: React.FC<MyDisciplineProps> = ({
   return (
     <>
       <span className="flex text-sm  font-semibold border-b py-3 -mx-2">
-        DisCip
+        Discipline
       </span>
       {/* Discipline Statistics with bars - Real API data */}
       <div className="space-y-1">
@@ -114,181 +114,27 @@ const MyDiscipline: React.FC<MyDisciplineProps> = ({
           awayValue={getStatValue(awayStats.statistics, "Fouls")}
         />
         <StatRowWithBars
-          label="Yellow Cards"
-          homeValue={getStatValue(homeStats.statistics, "Yellow Cards")}
-          awayValue={getStatValue(awayStats.statistics, "Yellow Cards")}
-        />
-        <StatRowWithBars
           label="Red Cards"
           homeValue={getStatValue(homeStats.statistics, "Red Cards")}
           awayValue={getStatValue(awayStats.statistics, "Red Cards")}
         />
+
         <StatRowWithBars
-          label="Offsides"
-          homeValue={getStatValue(homeStats.statistics, "Offsides", [
-            "Offside",
-          ])}
-          awayValue={getStatValue(awayStats.statistics, "Offsides", [
-            "Offside",
-          ])}
+          label="Yellow Cards"
+          homeValue={getStatValue(homeStats.statistics, "Yellow Cards")}
+          awayValue={getStatValue(awayStats.statistics, "Yellow Cards")}
         />
+     
 
         {/* Expandable discipline stats */}
         {isExpanded && (
           <>
-            <StatRowWithBars
-              label="Fouls Committed"
-              homeValue={getStatValue(homeStats.statistics, "Fouls committed", [
-                "Fouls Committed",
-              ])}
-              awayValue={getStatValue(awayStats.statistics, "Fouls committed", [
-                "Fouls Committed",
-              ])}
-            />
-
-            <StatRowWithBars
-              label="Fouls Suffered"
-              homeValue={getStatValue(homeStats.statistics, "Fouls suffered", [
-                "Fouls Suffered",
-              ])}
-              awayValue={getStatValue(awayStats.statistics, "Fouls suffered", [
-                "Fouls Suffered",
-              ])}
-            />
-
-            <StatRowWithBars
-              label="Aggressive Fouls"
-              homeValue={getStatValue(
-                homeStats.statistics,
-                "Aggressive fouls",
-                ["Aggressive Fouls"],
-              )}
-              awayValue={getStatValue(
-                awayStats.statistics,
-                "Aggressive fouls",
-                ["Aggressive Fouls"],
-              )}
-            />
-
-            <StatRowWithBars
-              label="Technical Fouls"
-              homeValue={getStatValue(homeStats.statistics, "Technical fouls", [
-                "Technical Fouls",
-              ])}
-              awayValue={getStatValue(awayStats.statistics, "Technical fouls", [
-                "Technical Fouls",
-              ])}
-            />
-
-            <StatRowWithBars
-              label="Fair Play Score"
-              homeValue={getStatValue(homeStats.statistics, "Fair play score", [
-                "Fair Play Score",
-              ])}
-              awayValue={getStatValue(awayStats.statistics, "Fair play score", [
-                "Fair Play Score",
-              ])}
-            />
-
-            <StatRowWithBars
-              label="Disciplinary Points"
-              homeValue={getStatValue(
-                homeStats.statistics,
-                "Disciplinary points",
-                ["Disciplinary Points"],
-              )}
-              awayValue={getStatValue(
-                awayStats.statistics,
-                "Disciplinary points",
-                ["Disciplinary Points"],
-              )}
-            />
-
-            <StatRowWithBars
-              label="Bookings Points"
-              homeValue={getStatValue(homeStats.statistics, "Bookings points", [
-                "Bookings Points",
-              ])}
-              awayValue={getStatValue(awayStats.statistics, "Bookings points", [
-                "Bookings Points",
-              ])}
-            />
-
-            <StatRowWithBars
-              label="Cards Per Game"
-              homeValue={getStatValue(homeStats.statistics, "Cards per game", [
-                "Cards Per Game",
-              ])}
-              awayValue={getStatValue(awayStats.statistics, "Cards per game", [
-                "Cards Per Game",
-              ])}
-            />
-
-            <StatRowWithBars
-              label="Time Wasting"
-              homeValue={getStatValue(homeStats.statistics, "Time wasting", [
-                "Time Wasting",
-              ])}
-              awayValue={getStatValue(awayStats.statistics, "Time wasting", [
-                "Time Wasting",
-              ])}
-            />
-
-            <StatRowWithBars
-              label="Unsporting Behavior"
-              homeValue={getStatValue(
-                homeStats.statistics,
-                "Unsporting behavior",
-                ["Unsporting Behavior"],
-              )}
-              awayValue={getStatValue(
-                awayStats.statistics,
-                "Unsporting behavior",
-                ["Unsporting Behavior"],
-              )}
-            />
+            
           </>
         )}
       </div>
 
-      {/* Expand/Collapse Button */}
-      <div className="mt-4 -mx-4">
-        <button
-          onClick={onToggleExpanded}
-          className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-100 font-medium py-1 -mb-4 px-4 transition-colors duration-200"
-        >
-          <span>{isExpanded ? "Show Less" : "See All"}</span>
-          {isExpanded ? (
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M5 15l7-7 7 7"
-              />
-            </svg>
-          ) : (
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          )}
-        </button>
-      </div>
+   
     </>
   );
 };
