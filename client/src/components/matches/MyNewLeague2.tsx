@@ -876,7 +876,7 @@ const MyNewLeague2 = ({
                                         </span>
                                         <span className="score-separator">-</span>
                                         <span className="score-number">
-                                          {```text
+                                          {
 fixture.goals.away ?? 0}
                                         </span>
                                       </div>
