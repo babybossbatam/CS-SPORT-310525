@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface MyStatsTabCardProps {
   match?: any;
@@ -74,6 +75,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
   const [awayStats, setAwayStats] = useState<TeamStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   if (!match) {
     return (
@@ -460,6 +462,7 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
           {homeStats && logAvailableStats(homeTeam?.name || 'Home', homeStats.statistics)}
           {awayStats && logAvailableStats(awayTeam?.name || 'Away', awayStats.statistics)}
           
+          {/* Always visible stats (first 4) */}
           <StatRowWithBars 
             label="Ball Possession" 
             homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Ball Possession'))}
@@ -475,108 +478,120 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
             homeValue={getStatValue(homeStats.statistics, 'Total Shots', ['Total shots'])}
             awayValue={getStatValue(awayStats.statistics, 'Total Shots', ['Total shots'])}
           />
-          
-       
-          
           <StatRowWithBars 
             label="Shots on Goal" 
             homeValue={getStatValue(homeStats.statistics, 'Shots on Goal', ['Shots on target'])}
             awayValue={getStatValue(awayStats.statistics, 'Shots on Goal', ['Shots on target'])}
           />
           
-          <StatRowWithBars 
-            label="Shots On Target" 
-            homeValue={getStatValue(homeStats.statistics, 'Shots off Goal', ['Shots off target'])}
-            awayValue={getStatValue(awayStats.statistics, 'Shots off Goal', ['Shots off target'])}
-          />
-          
-          <StatRowWithBars 
-            label="Big Chances Created" 
-            homeValue={calculateBigChancesCreated(homeStats.statistics)}
-            awayValue={calculateBigChancesCreated(awayStats.statistics)}
-          />
-          
-          <StatRowWithBars 
-            label="Corners" 
-            homeValue={getStatValue(homeStats.statistics, 'Corner Kicks', ['Corners'])}
-            awayValue={getStatValue(awayStats.statistics, 'Corner Kicks', ['Corners'])}
-          />
-          <StatRowWithBars 
-            label="Offsides" 
-            homeValue={getStatValue(homeStats.statistics, 'Offsides', ['Offside'])}
-            awayValue={getStatValue(awayStats.statistics, 'Offsides', ['Offside'])}
-          />
+          {/* Expandable stats */}
+          {isExpanded && (
+            <>
+              <StatRowWithBars 
+                label="Shots On Target" 
+                homeValue={getStatValue(homeStats.statistics, 'Shots off Goal', ['Shots off target'])}
+                awayValue={getStatValue(awayStats.statistics, 'Shots off Goal', ['Shots off target'])}
+              />
+              
+              <StatRowWithBars 
+                label="Big Chances Created" 
+                homeValue={calculateBigChancesCreated(homeStats.statistics)}
+                awayValue={calculateBigChancesCreated(awayStats.statistics)}
+              />
+              
+              <StatRowWithBars 
+                label="Corners" 
+                homeValue={getStatValue(homeStats.statistics, 'Corner Kicks', ['Corners'])}
+                awayValue={getStatValue(awayStats.statistics, 'Corner Kicks', ['Corners'])}
+              />
+              <StatRowWithBars 
+                label="Offsides" 
+                homeValue={getStatValue(homeStats.statistics, 'Offsides', ['Offside'])}
+                awayValue={getStatValue(awayStats.statistics, 'Offsides', ['Offside'])}
+              />
 
-          <StatRowWithBars 
-            label="Passes accurate" 
-            homeValue={getStatValue(homeStats.statistics, 'Passes accurate', ['Accurate passes'])}
-            awayValue={getStatValue(awayStats.statistics, 'Passes accurate', ['Accurate passes'])}
-          />
+              <StatRowWithBars 
+                label="Passes accurate" 
+                homeValue={getStatValue(homeStats.statistics, 'Passes accurate', ['Accurate passes'])}
+                awayValue={getStatValue(awayStats.statistics, 'Passes accurate', ['Accurate passes'])}
+              />
 
+              <StatRowWithBars 
+                label="Red Cards" 
+                homeValue={getStatValue(homeStats.statistics, 'Red Cards')}
+                awayValue={getStatValue(awayStats.statistics, 'Red Cards')}
+              />
 
-          <StatRowWithBars 
-            label="Red Cards" 
-            homeValue={getStatValue(homeStats.statistics, 'Red Cards')}
-            awayValue={getStatValue(awayStats.statistics, 'Red Cards')}
-          />
+              <StatRowWithBars 
+                label="Attacks" 
+                homeValue={calculateAttacks(homeStats.statistics)}
+                awayValue={calculateAttacks(awayStats.statistics)}
+              />
 
-          <StatRowWithBars 
-            label="Attacks" 
-            homeValue={calculateAttacks(homeStats.statistics)}
-            awayValue={calculateAttacks(awayStats.statistics)}
-          />
+              <StatRowWithBars 
+                label="Blocked Shots" 
+                homeValue={getStatValue(homeStats.statistics, 'Blocked Shots', ['Blocked shots'])}
+                awayValue={getStatValue(awayStats.statistics, 'Blocked Shots', ['Blocked shots'])}
+              />
+              
+              <StatRowWithBars 
+                label="Shots insidebox" 
+                homeValue={getStatValue(homeStats.statistics, 'Shots insidebox', ['Shots inside box'])}
+                awayValue={getStatValue(awayStats.statistics, 'Shots insidebox', ['Shots inside box'])}
+              />
+              
+              <StatRowWithBars 
+                label="Shots outsidebox" 
+                homeValue={getStatValue(homeStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
+                awayValue={getStatValue(awayStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
+              />
+              
+              <StatRowWithBars 
+                label="Fouls" 
+                homeValue={getStatValue(homeStats.statistics, 'Fouls')}
+                awayValue={getStatValue(awayStats.statistics, 'Fouls')}
+              />
+              
+              <StatRowWithBars 
+                label="Yellow Cards" 
+                homeValue={getStatValue(homeStats.statistics, 'Yellow Cards')}
+                awayValue={getStatValue(awayStats.statistics, 'Yellow Cards')}
+              />
+         
+              <StatRowWithBars 
+                label="Goalkeeper Saves" 
+                homeValue={getStatValue(homeStats.statistics, 'Goalkeeper Saves', ['Saves'])}
+                awayValue={getStatValue(awayStats.statistics, 'Goalkeeper Saves', ['Saves'])}
+              />
+              
+              <StatRowWithBars 
+                label="Total passes" 
+                homeValue={getStatValue(homeStats.statistics, 'Total passes', ['Passes'])}
+                awayValue={getStatValue(awayStats.statistics, 'Total passes', ['Passes'])}
+              />
+              
+              <StatRowWithBars 
+                label="Passes %" 
+                homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Passes %', ['Pass accuracy']))}
+                awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Passes %', ['Pass accuracy']))}
+              />
+            </>
+          )}
+        </div>
 
-          <StatRowWithBars 
-            label="Blocked Shots" 
-            homeValue={getStatValue(homeStats.statistics, 'Blocked Shots', ['Blocked shots'])}
-            awayValue={getStatValue(awayStats.statistics, 'Blocked Shots', ['Blocked shots'])}
-          />
-          
-          <StatRowWithBars 
-            label="Shots insidebox" 
-            homeValue={getStatValue(homeStats.statistics, 'Shots insidebox', ['Shots inside box'])}
-            awayValue={getStatValue(awayStats.statistics, 'Shots insidebox', ['Shots inside box'])}
-          />
-          
-          <StatRowWithBars 
-            label="Shots outsidebox" 
-            homeValue={getStatValue(homeStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
-            awayValue={getStatValue(awayStats.statistics, 'Shots outsidebox', ['Shots outside box'])}
-          />
-          
-          <StatRowWithBars 
-            label="Fouls" 
-            homeValue={getStatValue(homeStats.statistics, 'Fouls')}
-            awayValue={getStatValue(awayStats.statistics, 'Fouls')}
-          />
-          
-        
-      
-          
-          <StatRowWithBars 
-            label="Yellow Cards" 
-            homeValue={getStatValue(homeStats.statistics, 'Yellow Cards')}
-            awayValue={getStatValue(awayStats.statistics, 'Yellow Cards')}
-          />
-     
-          <StatRowWithBars 
-            label="Goalkeeper Saves" 
-            homeValue={getStatValue(homeStats.statistics, 'Goalkeeper Saves', ['Saves'])}
-            awayValue={getStatValue(awayStats.statistics, 'Goalkeeper Saves', ['Saves'])}
-          />
-          
-          <StatRowWithBars 
-            label="Total passes" 
-            homeValue={getStatValue(homeStats.statistics, 'Total passes', ['Passes'])}
-            awayValue={getStatValue(awayStats.statistics, 'Total passes', ['Passes'])}
-          />
-          
-        
-          <StatRowWithBars 
-            label="Passes %" 
-            homeValue={formatPercentage(getStatValue(homeStats.statistics, 'Passes %', ['Pass accuracy']))}
-            awayValue={formatPercentage(getStatValue(awayStats.statistics, 'Passes %', ['Pass accuracy']))}
-          />
+        {/* Expand/Collapse Button */}
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-700 font-medium py-2 px-4 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+          >
+            <span>{isExpanded ? 'Show Less' : 'See All'}</span>
+            {isExpanded ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </button>
         </div>
       </CardContent>
     </Card>
