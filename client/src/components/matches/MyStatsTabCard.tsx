@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
 
 interface MyStatsTabCardProps {
   match?: any;
+  onTabChange?: (tab: string) => void;
 }
 
 interface TeamStatistic {
@@ -70,7 +71,7 @@ const StatRowWithBars: React.FC<{
   );
 };
 
-const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
+const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match, onTabChange }) => {
   const [homeStats, setHomeStats] = useState<TeamStats | null>(null);
   const [awayStats, setAwayStats] = useState<TeamStats | null>(null);
   const [loading, setLoading] = useState(false);
@@ -582,7 +583,12 @@ const MyStatsTabCard: React.FC<MyStatsTabCardProps> = ({ match }) => {
         {/* Expand/Collapse Button */}
         <div className="mt-4 -mx-4">
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => {
+              if (!isExpanded && onTabChange) {
+                onTabChange('stats');
+              }
+              setIsExpanded(!isExpanded);
+            }}
             className="w-full flex items-center justify-center gap-2 text-sm text-gray-600 hover:bg-gray-100 font-medium py-1 -mb-4 px-4 transition-colors duration-200"
           >
             <span>{isExpanded ? 'Show Less' : 'See All'}</span>
