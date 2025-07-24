@@ -1,0 +1,63 @@
+       // Enhanced keyword-based matching for major clubs
+                  const popularTeamKeywords = [
+                    "real madrid", "barcelona", "manchester city", "manchester united", "manchester",
+                    "bayern munich", "bayern", "juventus", "psg", "paris saint-germain", "paris saint germain",
+                    "liverpool", "arsenal", "chelsea", "atletico madrid", "atletico", "tottenham",
+                    "ac milan", "inter milan", "inter", "napoli", "roma", "as roma", 
+                    "borussia dortmund", "borussia", "dortmund", "rb leipzig", "leipzig", 
+                    "bayer leverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
+                    "olympique marseille", "monaco", "as monaco", "sevilla", "valencia", 
+                    "villarreal", "ajax", "feyenoord", "psv eindhoven", "psv", "porto", 
+                    "fc porto", "benfica", "sl benfica", "sporting cp", "sporting lisbon", "sporting"
+                  ];
+
+                  const hasKeywordMatch = popularTeamKeywords.some(keyword => 
+                    homeTeam.includes(keyword) || awayTeam.includes(keyword)
+                  );
+
+                  if (hasKeywordMatch) {
+                    console.log(`🎯 [MyHomeFeaturedMatchNew] Popular club friendly found by keyword: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                    return true;
+                  }
+
+                  return false;
+                })
+                .map((fixture: any) => ({
+                  fixture: {
+                    id: fixture.fixture.id,
+                    date: fixture.fixture.date,
+                    status: fixture.fixture.status,
+                  },
+                  league: {
+                    id: fixture.league.id,
+                    name: fixture.league.name,
+                    country: fixture.league.country,
+                    logo: fixture.league.logo,
+                  },
+                  teams: {
+                    home: {
+                      id: fixture.teams.home.id,
+                      name: fixture.teams.home.name,
+                      logo: fixture.teams.home.logo,
+                    },
+                    away: {
+                      id: fixture.teams.away.id,
+                      name: fixture.teams.away.name,
+                      logo: fixture.teams.away.logo,
+                    },
+                  },
+                  goals: {
+                    home: fixture.goals?.home ?? null,
+                    away: fixture.goals?.away ?? null,
+                  },
+                }));
+
+              console.log(`🎯 [MyHomeFeaturedMatchNew] Found ${popularFriendlies.length} popular team friendlies`);
+              allFixtures.push(...popularFriendlies);
+            }
+          } catch (friendliesError) {
+            console.warn(
+              `Failed to fetch Friendlies Clubs data:`,
+              friendliesError,
+            );
+          }
